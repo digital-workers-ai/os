@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.env
+.DS_Store
+.coverage
+coverage.json
+htmlcov/
+/app/backend/mutants/
+.mutmut-cache
+.pytest_cache/
+.hypothesis/
+.ruff_cache/
