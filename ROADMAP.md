@@ -1,9 +1,9 @@
 # Roadmap: v11 parity, one PR at a time
 
-Sizes are v11 production LOC; tests add ~1.5–2x. Source paths are v11's (`../v11/app/backend/`). Every PR folds in the relevant fixes from v11's `TODO.md` (defect areas A–J) instead of replicating them.
+Sizes are v11 production LOC; tests add ~1.5–2x. Source paths are v11's (`../v11/app/backend/`). Every PR folds in the relevant fixes from v11's `TODO.md` (defect areas A–J) instead of replicating them. Every DB table lands in the PR that first writes it, never earlier.
 
-- [ ] 1. feat: repo bootstrap — coverage-gated test.sh, ruff gate, health route (open: #1)
-- [ ] 2. feat: schema + config — `models.py`, `config.py`, `db.py`, `caches.py` (~730)
+- [x] 1. feat: repo bootstrap — coverage-gated test.sh, ruff gate, health route (#1)
+- [x] 2. feat: schema + config — `raw_event`, `config.py`, `db.py` (each table lands with its first writer; `caches.py` deferred to 6, `validate_startup` to 24)
 - [ ] 3. feat: raw store + sync report — `store.py`, `engine/report.py` (~220)
 - [ ] 4. feat: transforms registry — `engine/transforms.py`, mutmut config (~395)
 - [ ] 5. feat: strategies + paginators — `engine/strategies.py`, `connectors/paginators.py` (~553)
