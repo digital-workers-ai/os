@@ -162,6 +162,24 @@ class EngineRun(Base):
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # run timestamp: server now(), 2026-08-30T12:00:00Z
 
 
+class MetricSnapshot(Base):
+    __tablename__ = "metric_snapshot"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # row identity, random UUID: 6f1c…, 9b2d…
+    metric = Column(String(128), nullable=False)  # metric definition name: mrr, deal_count
+    value = Column(Float)  # null means no reading: 17147.0, null
+    entities = Column(Integer, nullable=False, server_default=text("0"))  # entities measured over: 0, 42
+    recorded_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # snapshot timestamp: server now(), 2026-08-30T12:00:00Z
+
+    __table_args__ = (
+        CheckConstraint(
+            "value IS NULL OR (value <> 'NaN'::float8 "
+            "AND value > '-Infinity'::float8 AND value < 'Infinity'::float8)",
+            name="snapshot_finite"),
+        Index("ix_snapshot_metric_time", "metric", text("recorded_at DESC")),
+    )
+
+
 class SyncRun(Base):
     __tablename__ = "sync_run"
 

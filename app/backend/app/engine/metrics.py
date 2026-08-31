@@ -1,10 +1,11 @@
+import math
 import re
 
 from sqlalchemy import func, select
 
 from app.caches import BACKEND_DIR, load_mapping
 from app.engine import transforms
-from app.models import EntityCanonical, FactCurrent
+from app.models import EntityCanonical, FactCurrent, MetricSnapshot
 
 DEFAULT_METRICS = BACKEND_DIR / "metrics.yaml"
 
@@ -193,6 +194,55 @@ async def evaluate_definitions(session, defs: dict) -> dict:
 
 async def evaluate(session) -> dict:
     return await evaluate_definitions(session, load_definitions())
+
+
+async def record_snapshots(session) -> int:
+    values = await evaluate(session)
+    written = 0
+    for name, result in values.items():
+        if "error" in result:
+            continue
+        value = result.get("value")
+        if isinstance(value, float) and not math.isfinite(value):
+            continue
+        if not result.get("entities"):
+            value = None
+        session.add(
+            MetricSnapshot(metric=name, value=value, entities=result.get("entities", 0))
+        )
+        written += 1
+    await session.flush()
+    return written
+
+
+async def history(session, metric: str, limit: int = 500) -> dict:
+    rows = list(
+        reversed(
+            (
+                await session.execute(
+                    select(MetricSnapshot)
+                    .where(MetricSnapshot.metric == metric)
+                    .order_by(
+                        MetricSnapshot.recorded_at.desc(), MetricSnapshot.id.desc()
+                    )
+                    .limit(limit)
+                )
+            )
+            .scalars()
+            .all()
+        )
+    )
+    return {
+        "metric": metric,
+        "points": [
+            {
+                "value": row.value,
+                "entities": row.entities,
+                "recorded_at": row.recorded_at.isoformat(),
+            }
+            for row in rows
+        ],
+    }
 
 
 def provenance(defs: dict, lines) -> dict:

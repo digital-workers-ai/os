@@ -1,8 +1,10 @@
-from fastapi import Depends
+from fastapi import Depends, Query
+from sqlalchemy import select
 
 from app.api.routers import metrics as router
-from app.db import get_session
+from app.db import async_session, get_session
 from app.engine import mappings, metrics
+from app.models import MetricSnapshot
 
 
 @router.get("")
@@ -12,3 +14,36 @@ async def get_metrics(session=Depends(get_session)):
     for name, row in values.items():
         row.update(lineage.get(name, {}))
     return {"metrics": values}
+
+
+@router.post("/snapshots")
+async def write_snapshots():
+    async with async_session() as session:
+        written = await metrics.record_snapshots(session)
+        await session.commit()
+    return {"written": written}
+
+
+@router.get("/history")
+async def get_history(
+    metric: str | None = None,
+    limit: int = Query(200, ge=1, le=2000),
+    session=Depends(get_session),
+):
+    query = (
+        select(MetricSnapshot).order_by(MetricSnapshot.recorded_at.desc()).limit(limit)
+    )
+    if metric:
+        query = query.where(MetricSnapshot.metric == metric)
+    rows = (await session.execute(query)).scalars().all()
+    return {
+        "history": [
+            {
+                "metric": row.metric,
+                "value": row.value,
+                "entities": row.entities,
+                "recorded_at": row.recorded_at.isoformat(),
+            }
+            for row in rows
+        ]
+    }
