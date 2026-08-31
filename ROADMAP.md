@@ -4,7 +4,7 @@ Sizes are v11 production LOC; tests add ~1.5–2x. Source paths are v11's (`../v
 
 - [x] 1. feat: repo bootstrap — coverage-gated test.sh, ruff gate, health route (#1)
 - [x] 2. feat: schema + config — `raw_event`, `config.py`, `db.py` (each table lands with its first writer; `caches.py` deferred to 6, `validate_startup` to 24)
-- [ ] 3. feat: raw store + sync report — `store.py`, `engine/report.py` (~220)
+- [x] 3. feat: raw store + sync report — `store.py`, `engine/report.py` (~220)
 - [ ] 4. feat: transforms registry — `engine/transforms.py`, mutmut config (~395)
 - [ ] 5. feat: strategies + paginators — `engine/strategies.py`, `connectors/paginators.py` (~553)
 - [ ] 6. feat: ontology — `knowledge/ontology.yaml`, `engine/ontology.py`, checks seed (~430)
