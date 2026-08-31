@@ -4,10 +4,14 @@ entities:
       domain: string
       industry: string
       name: string
+    identity:
+      - domain
   person:
     attrs:
       email: string
       name: string
+    identity:
+      - email
   deal:
     attrs:
       name: string
@@ -15,3 +19,21 @@ entities:
       status: string
       closed_at: date
       currency: string
+  subscription:
+    attrs:
+      customer_ref: string
+      mrr: number
+      currency: string
+      status: string
+      started_at: date
+
+source_priority:
+  - hubspot
+  - stripe
+
+relationships:
+  - rel: belongs_to
+    from: subscription
+    to: company
+    cardinality: many_to_one
+    via: customer_ref

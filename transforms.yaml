@@ -5,3 +5,7 @@ industry: normalize_text
 status: normalize_status
 amount: normalize_money
 closed_at: normalize_date
+mrr: normalize_money
+currency: normalize_currency
+started_at: normalize_date
+customer_ref: normalize_ref

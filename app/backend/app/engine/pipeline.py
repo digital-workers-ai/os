@@ -93,6 +93,9 @@ def project_payload(
 
     out: list[ProjectedEntity] = []
     for record in records:
+        skipped_fields = {
+            str(label): str(reason) for label, reason in record.get("_hook_skips") or []
+        }
         observed_at, observed_kind = observed_at_for(
             connector_module, object_type, payload, ingested_at
         )
@@ -104,6 +107,8 @@ def project_payload(
             report.declare_path(line.entity, line.key)
             raw = mappings.extract_path(record, line.path)
             if mappings.is_missing(raw):
+                if line.path[0] in skipped_fields:
+                    report.skip(line.label, source, skipped_fields[line.path[0]])
                 continue
             report.hit_path(line.entity, line.key)
 

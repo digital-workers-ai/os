@@ -11,6 +11,7 @@ class Credentials:
 
 _MOCK: dict[str, tuple[str, dict]] = {
     "hubspot": ("/hubspot", {"Authorization": "Bearer mock_hs_token"}),
+    "stripe": ("/stripe", {"Authorization": "Bearer mock_stripe_key"}),
 }
 
 

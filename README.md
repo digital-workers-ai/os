@@ -12,7 +12,11 @@ Think of `raw_event` as the enrollment book: every record ever seen is in it, pe
 
 **Sync** — one pull attempt for a source (`POST /api/sync`). It records itself in `sync_run` — including refusals, id collisions, and truncations — because a quiet source and a broken one must never look the same.
 
-**Entity** — one thing a single source knows about: a company, a person, a deal. Identity is structural — `(source, entity_type, source_id)` — so the same real-world company known to two tools is, at this layer, two entities. Merging them into one canonical entity is the next slice's job (entity resolution).
+**Entity** — one thing a single source knows about: a company, a person, a deal. Identity is structural — `(source, entity_type, source_id)` — so the same real-world company known to two tools is, at this layer, two entities.
+
+**Canonical entity** — one real-world thing, merged across tools. Resolution buckets entities on declared identity attributes (a company's domain, a person's email) and records the evidence on every membership (`domain=acme.io`). Survivorship then folds the members' facts into one value per attribute — newest observation wins, declared source priority breaks ties — keeping receipts (winning source, raw event, disagreement count). Blocklists stop false merges: a free-mail domain identifies no company, a placeholder identifies nothing.
+
+**Survivorship** — how many opinions become one answer. When a cluster's members disagree about an attribute (HubSpot: "Acme Corp", Stripe: "ACME Corporation"), the fold picks one value per attribute by a fixed rule: newest observation wins (on the provider's clock), a time tie falls to declared `source_priority`, and a remaining tie falls to stable name order — so a rebuild always picks the same winner. Along the way it counts disagreements (distinct losing values, stamped on the fact), lets a winning clear silence the attribute entirely (an empty field that is *fresher* beats an old value), and stamps receipts on every winner: which source, which raw event, observed when.
 
 **Fact** — one attribute of one entity as asserted by one source: "hubspot says company hs_company_001's domain is acme.io." Each fact keeps its provenance (which raw event asserted it, when the provider observed it). Facts obey the **three-state rule**:
 - *absent* — the source never mentioned the attribute: no fact row at all
@@ -21,8 +25,14 @@ Think of `raw_event` as the enrollment book: every record ever seen is in it, pe
 
 A value the transform refused (garbage date, non-numeric amount) becomes none of these — it is counted and named in the report, never stored and never turned into a null.
 
+**Observation time** — every fact carries `observed_at`: when the data changed *according to the provider's own clock* (each connector's `OBSERVED_AT` declares where that timestamp lives in the payload). It exists because "newest observation wins" only works on the provider's clock — on our ingestion clock, whichever source synced last would win every disagreement. When the provider's timestamp is missing or unreadable, ingestion time is used and the substitution is counted in the report, never silent.
+
+**seq, first_seq, minted_seq** — one currency at three levels. `seq` is the raw-event insertion counter, the estate's unambiguous "which came first" (timestamps can't order rows written in one transaction). `first_seq` is a record's earliest seq — when it was *first* seen; edits add higher seqs, so it never moves. `minted_seq` is the founding record's `first_seq` on a canonical entity. Resolution processes records in `first_seq` order and mints the canonical id from the earliest record's key — so editing a record can never re-anchor a cluster or change its id.
+
+**ProjectedEntity / ProjectedFact** — the rebuild's in-memory intermediates, produced by the pipeline before anything is written. A `ProjectedFact` is one normalized value plus everything needed downstream: the numeric form for number attributes, the asserting raw event, the observation time and whose clock it came from, and the seq. A `ProjectedEntity` groups those facts under one `(source, entity_type, source_id)` with its `first_seq` and the `anchor_key` string its database id is hashed from. Resolution, survivorship, and links all operate on these objects; only at the end does the rebuild translate them into `entity` / `entity_fact` rows. They never leave the process — if you're reading the database or the API, you're seeing their persisted results, not them.
+
 **Knowledge files** — the four YAML files at the repo root that make projection declarative:
-- `ontology.yaml` — what entities exist and what typed attributes each may have
+- `ontology.yaml` — what entities exist and what typed attributes each may have. An entity's `identity:` list names which attributes count as merge evidence — `company: [domain]`, `person: [email]`: two records sharing a normalized identity value become one canonical entity. The list is deliberately short: names are never identity (too fuzzy — "Acme Corp" vs "ACME Corporation" is the problem, not the key), vendor ids never (each source's ids are its own), and an entity with no `identity:` list (subscription) is never merged at all — one tool owns it. `source_priority:` orders sources for survivorship tiebreaks; `relationships:` declares the edges links may build and what grounds them.
 - `mappings.yaml` — one line per raw field worth keeping: `source.object_type.path → attribute`
 - `transforms.yaml` — which normalizer each attribute's values pass through
 - `synonyms.yaml` — which provider spellings fold to one canonical status

@@ -244,6 +244,65 @@ class TestText:
             t.normalize_text("hubspot", "companies", "")
 
 
+class TestRef:
+    def test_ref_strips_surrounding_whitespace(self):
+        assert t.normalize_ref("stripe", "subscriptions", " cus_ABC ") == "cus_ABC"
+
+    def test_ref_keeps_case_because_vendor_ids_are_opaque(self):
+        assert t.normalize_ref("hubspot", "deals", " Hs-Deal-01 ") == "Hs-Deal-01"
+
+    @pytest.mark.parametrize("raw", ["", "   "])
+    def test_an_empty_ref_is_refused(self, raw):
+        with pytest.raises(t.TransformError):
+            t.normalize_ref("stripe", "subscriptions", raw)
+
+
+class TestEpochTimestamps:
+    EPOCH_2026 = 1_785_000_000
+
+    def test_unix_seconds(self):
+        assert (
+            t.normalize_date("stripe", "subscriptions", 1719400000)
+            == "2024-06-26T11:06:40Z"
+        )
+
+    def test_an_integer_too_wide_for_a_float_is_refused(self):
+        with pytest.raises(t.TransformError) as e:
+            t.normalize_date("stripe", "subscriptions", 10**400)
+        assert e.value.reason == "not_a_date"
+
+    def test_unix_seconds_as_string(self):
+        assert (
+            t.normalize_date("hubspot", "deals", "1720500000") == "2024-07-09T04:40:00Z"
+        )
+
+    def test_milliseconds_land_on_the_same_day_as_their_seconds_twin(self):
+        millis = t.normalize_date("hubspot", "deals", self.EPOCH_2026 * 1000)
+        seconds = t.normalize_date("hubspot", "deals", self.EPOCH_2026)
+        assert millis[:10] == seconds[:10]
+
+    def test_the_lower_bound_itself_is_accepted(self):
+        assert t.normalize_date("hubspot", "deals", 100_000_000).startswith("1973-")
+
+    def test_a_number_below_the_lower_bound_is_refused(self):
+        with pytest.raises(t.TransformError):
+            t.normalize_date("hubspot", "deals", -1)
+
+    def test_the_upper_bound_itself_is_accepted(self):
+        assert t.normalize_date("hubspot", "deals", 4_000_000_000).startswith("2096-")
+
+    def test_a_number_beyond_even_milliseconds_is_refused(self):
+        with pytest.raises(t.TransformError):
+            t.normalize_date("hubspot", "deals", 4_000_000_000 * 1000)
+
+    def test_a_bare_year_is_not_a_unix_timestamp(self):
+        with pytest.raises(t.TransformError):
+            t.normalize_date("hubspot", "deals", "2026")
+
+    def test_a_negative_epoch_is_read_by_magnitude_with_its_sign(self):
+        assert t.normalize_date("hubspot", "deals", -self.EPOCH_2026).startswith("19")
+
+
 class TestRegistry:
     def test_every_yaml_name_resolves(self):
         for label, name in t.load_map().items():

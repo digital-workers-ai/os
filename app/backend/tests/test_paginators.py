@@ -58,6 +58,18 @@ class TestWhereTheCursorLives:
             "after": "c1",
         }
 
+    def test_stripe_extracts_its_data_list(self):
+        assert paginator("cursor_stripe").extract({"data": [{"id": "a"}]}) == [
+            {"id": "a"}
+        ]
+
+    def test_stripe_pages_on_the_last_id_it_returned(self):
+        body = {"data": [{"id": "a"}, {"id": "b"}], "has_more": True}
+        assert paginator("cursor_stripe").next_params(body, {"limit": 6}) == {
+            "limit": 6,
+            "starting_after": "b",
+        }
+
 
 class TestWhatStopsTheWalk:
     @pytest.mark.parametrize(
@@ -70,6 +82,17 @@ class TestWhatStopsTheWalk:
     )
     def test_the_walk_ends(self, body):
         assert paginator("cursor_hubspot").next_params(body, {"limit": 2}) is None
+
+    @pytest.mark.parametrize(
+        "body",
+        [
+            {"data": [{"id": "a"}], "has_more": False},
+            {"data": [], "has_more": True},
+            {"data": [{"id": "a"}]},
+        ],
+    )
+    def test_the_stripe_walk_ends(self, body):
+        assert paginator("cursor_stripe").next_params(body, {"limit": 6}) is None
 
 
 class TestExistingParamsAreCarried:

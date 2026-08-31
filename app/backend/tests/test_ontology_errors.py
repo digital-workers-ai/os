@@ -48,6 +48,115 @@ class TestEntities:
             ont.load(write(tmp_path, doc))
 
 
+class TestIdentity:
+    def test_identity_must_be_a_list(self, tmp_path):
+        doc = a_doc()
+        doc["entities"]["company"]["identity"] = "domain"
+        with pytest.raises(ont.OntologyError, match="`identity:` must be a list"):
+            ont.load(write(tmp_path, doc))
+
+    def test_identity_may_only_name_attrs_the_entity_carries(self, tmp_path):
+        doc = a_doc()
+        doc["entities"]["company"]["identity"] = ["vat_number"]
+        with pytest.raises(ont.OntologyError, match="is not a declared attr"):
+            ont.load(write(tmp_path, doc))
+
+
+class TestRelationships:
+    def _with(self, tmp_path, *rels):
+        doc = a_doc(relationships=list(rels))
+        doc["entities"]["deal"] = {"attrs": {"amount": "number"}}
+        return write(tmp_path, doc)
+
+    def test_a_relationship_that_is_not_a_mapping_is_refused(self, tmp_path):
+        with pytest.raises(ont.OntologyError, match="must be a mapping"):
+            ont.load(self._with(tmp_path, "deal belongs_to company"))
+
+    def test_a_via_grounding_names_its_ref(self):
+        rel = ont.Relationship(
+            rel="belongs_to",
+            from_type="deal",
+            to_type="company",
+            cardinality="many_to_one",
+            via="account_ref",
+        )
+        assert rel.grounding == "via:account_ref"
+
+    def test_a_match_grounding_names_its_attr(self):
+        rel = ont.Relationship(
+            rel="same_as",
+            from_type="company",
+            to_type="company",
+            cardinality="one_to_one",
+            match="domain",
+        )
+        assert rel.grounding == "match:domain"
+
+    def test_a_relationship_missing_a_required_key_names_it(self, tmp_path):
+        with pytest.raises(ont.OntologyError, match="is missing"):
+            ont.load(self._with(tmp_path, {"rel": "belongs_to", "from": "deal"}))
+
+    def test_an_unknown_cardinality_lists_the_known_ones(self, tmp_path):
+        with pytest.raises(ont.OntologyError, match="is not one of"):
+            ont.load(
+                self._with(
+                    tmp_path,
+                    {
+                        "rel": "belongs_to",
+                        "from": "deal",
+                        "to": "company",
+                        "cardinality": "some_to_some",
+                        "via": "account_ref",
+                    },
+                )
+            )
+
+    @pytest.mark.parametrize(
+        "grounding",
+        [
+            {},
+            {"via": "account_ref", "match": "domain"},
+        ],
+    )
+    def test_a_relationship_needs_exactly_one_grounding(self, tmp_path, grounding):
+        with pytest.raises(ont.OntologyError, match="exactly one grounding"):
+            ont.load(
+                self._with(
+                    tmp_path,
+                    {
+                        "rel": "belongs_to",
+                        "from": "deal",
+                        "to": "company",
+                        "cardinality": "many_to_one",
+                        **grounding,
+                    },
+                )
+            )
+
+    def test_a_duplicate_relationship_is_refused(self, tmp_path):
+        rel = {
+            "rel": "belongs_to",
+            "from": "deal",
+            "to": "company",
+            "cardinality": "many_to_one",
+            "via": "account_ref",
+        }
+        with pytest.raises(ont.OntologyError, match="duplicate relationship"):
+            ont.load(self._with(tmp_path, rel, dict(rel)))
+
+
+class TestSourcePriority:
+    def test_source_priority_must_be_a_list(self, tmp_path):
+        with pytest.raises(ont.OntologyError, match="must be a list"):
+            ont.load(write(tmp_path, a_doc(source_priority={"a": 1})))
+
+    def test_an_unlisted_source_sorts_last_rather_than_undefined(self, tmp_path):
+        loaded = ont.load(write(tmp_path, a_doc(source_priority=["hubspot", "stripe"])))
+        assert loaded.priority_index("hubspot") == 0
+        assert loaded.priority_index("stripe") == 1
+        assert loaded.priority_index("never_heard_of_it") == 2
+
+
 class TestBoot:
     def test_the_shipped_file_loads(self):
         assert ont.load() is not None

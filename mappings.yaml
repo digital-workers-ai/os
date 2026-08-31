@@ -2,13 +2,23 @@ company:
   hubspot.companies.properties.domain: domain
   hubspot.companies.properties.industry: industry
   hubspot.companies.properties.name: name
+  stripe.customers.name: name
+  stripe.customers.email: domain
 
 person:
   hubspot.contacts.properties.email: email
   hubspot.contacts._full_name: name
+  stripe.customers.email: email
 
 deal:
   hubspot.deals.properties.dealname: name
   hubspot.deals.properties.amount: amount
   hubspot.deals.properties.dealstage: status
   hubspot.deals.properties.closedate: closed_at
+
+subscription:
+  stripe.subscriptions.customer: customer_ref
+  stripe.subscriptions._amount_monthly: mrr
+  stripe.subscriptions.currency: currency
+  stripe.subscriptions.status: status
+  stripe.subscriptions.start_date: started_at

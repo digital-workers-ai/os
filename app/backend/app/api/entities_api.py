@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import Depends, HTTPException, Query
 from sqlalchemy import func, select
 
@@ -5,7 +7,16 @@ from app.api.routers import entities as router
 from app.caches import MAX_OFFSET
 from app.db import async_session, get_session
 from app.engine import run
-from app.models import EngineRun, Entity, EntityFact
+from app.models import (
+    CanonicalAlias,
+    CanonicalLink,
+    CanonicalMember,
+    EngineRun,
+    Entity,
+    EntityCanonical,
+    EntityFact,
+    FactCurrent,
+)
 
 
 @router.post("/rebuild")
@@ -17,8 +28,8 @@ async def rebuild():
             raise HTTPException(status_code=409, detail=str(exc)) from exc
 
 
-@router.get("/entities")
-async def list_entities(
+@router.get("/records")
+async def list_records(
     entity_type: str | None = None,
     source: str | None = None,
     limit: int = Query(50, ge=1, le=500),
@@ -73,6 +84,181 @@ async def list_entities(
             }
             for r in rows
         ],
+    }
+
+
+@router.get("/entities")
+async def list_entities(
+    entity_type: str | None = None,
+    limit: int = Query(50, ge=1, le=500),
+    offset: int = Query(0, ge=0, le=MAX_OFFSET),
+    session=Depends(get_session),
+):
+    query = select(EntityCanonical).order_by(EntityCanonical.minted_seq)
+    count_query = select(func.count()).select_from(EntityCanonical)
+    if entity_type:
+        query = query.where(EntityCanonical.entity_type == entity_type)
+        count_query = count_query.where(EntityCanonical.entity_type == entity_type)
+    total = (await session.execute(count_query)).scalar_one()
+    rows = (await session.execute(query.limit(limit).offset(offset))).scalars().all()
+    facts: dict = {}
+    if rows:
+        for fact in (
+            (
+                await session.execute(
+                    select(FactCurrent).where(
+                        FactCurrent.canonical_id.in_([r.canonical_id for r in rows])
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        ):
+            facts.setdefault(fact.canonical_id, {})[fact.attr] = fact.value
+    by_type = dict(
+        (
+            await session.execute(
+                select(EntityCanonical.entity_type, func.count()).group_by(
+                    EntityCanonical.entity_type
+                )
+            )
+        ).all()
+    )
+    return {
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+        "by_type": dict(sorted(by_type.items())),
+        "entities": [
+            {
+                "canonical_id": str(r.canonical_id),
+                "entity_type": r.entity_type,
+                "anchor": r.anchor_key,
+                "members": r.member_count,
+                "facts": facts.get(r.canonical_id, {}),
+            }
+            for r in rows
+        ],
+    }
+
+
+@router.get("/entities/{canonical_id}")
+async def get_entity(canonical_id: str, session=Depends(get_session)):
+    try:
+        wanted = uuid.UUID(str(canonical_id))
+    except ValueError:
+        raise HTTPException(404, "no such canonical entity") from None
+
+    row = await session.get(EntityCanonical, wanted)
+    resolved_from = None
+    if row is None:
+        alias = await session.get(CanonicalAlias, wanted)
+        if alias is None:
+            raise HTTPException(404, "no such canonical entity")
+        if alias.reason == "retired":
+            return {
+                "canonical_id": str(wanted),
+                "retired": True,
+                "detail": "every member was deleted at its provider",
+            }
+        row = await session.get(EntityCanonical, alias.canonical_id)
+        resolved_from = wanted
+        if row is None:
+            raise HTTPException(404, "alias points at a missing entity")
+
+    facts = (
+        await session.execute(
+            select(FactCurrent, Entity.source)
+            .join(Entity, Entity.id == FactCurrent.entity_id, isouter=True)
+            .where(FactCurrent.canonical_id == row.canonical_id)
+            .order_by(FactCurrent.attr)
+        )
+    ).all()
+    members = (
+        await session.execute(
+            select(CanonicalMember, Entity)
+            .join(Entity, Entity.id == CanonicalMember.entity_id)
+            .where(CanonicalMember.canonical_id == row.canonical_id)
+        )
+    ).all()
+    links_out = (
+        (
+            await session.execute(
+                select(CanonicalLink).where(
+                    CanonicalLink.from_canonical == row.canonical_id
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    links_in = (
+        (
+            await session.execute(
+                select(CanonicalLink).where(
+                    CanonicalLink.to_canonical == row.canonical_id
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    aliases = (
+        (
+            await session.execute(
+                select(CanonicalAlias.alias_id).where(
+                    CanonicalAlias.canonical_id == row.canonical_id
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+
+    return {
+        "canonical_id": str(row.canonical_id),
+        "entity_type": row.entity_type,
+        "anchor": row.anchor_key,
+        "resolved_from_alias": str(resolved_from) if resolved_from else None,
+        "aliases": [str(a) for a in aliases],
+        "facts": [
+            {
+                "attr": f.attr,
+                "value": f.value,
+                "source": source,
+                "raw_event_id": str(f.raw_event_id) if f.raw_event_id else None,
+                "observed_at": f.observed_at.isoformat(),
+                "disagreements": f.disagreements,
+            }
+            for f, source in facts
+        ],
+        "members": [
+            {
+                "source": e.source,
+                "source_id": e.source_id,
+                "object_type": e.object_type,
+                "evidence": m.evidence,
+            }
+            for m, e in members
+        ],
+        "links": {
+            "out": [
+                {
+                    "rel": link.rel,
+                    "to": str(link.to_canonical),
+                    "grounding": link.grounding,
+                }
+                for link in links_out
+            ],
+            "in": [
+                {
+                    "rel": link.rel,
+                    "from": str(link.from_canonical),
+                    "grounding": link.grounding,
+                }
+                for link in links_in
+            ],
+        },
     }
 
 

@@ -36,8 +36,22 @@ class HubspotCursor(Paginator):
         return {**params, "after": after} if after else None
 
 
+class StripeCursor(Paginator):
+    def extract(self, data):
+        return self._require_list(data, "data")
+
+    def next_params(self, data, params):
+        if not data.get("has_more"):
+            return None
+        records = data.get("data") or []
+        if not records:
+            return None
+        return {**params, "starting_after": records[-1]["id"]}
+
+
 PAGINATORS: dict[str, Paginator] = {
     "cursor_hubspot": HubspotCursor(),
+    "cursor_stripe": StripeCursor(),
 }
 
 
