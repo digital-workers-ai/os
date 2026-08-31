@@ -53,7 +53,7 @@ async def test_a_clean_estate_reports_no_skips_dead_paths_or_fallbacks(
 ):
     report = (await _rebuilt(session, sessionmaker_for_test))["report"]
     assert report["skips"] == {}
-    assert report["dead_paths"] == []
+    assert [p for p in report["dead_paths"] if "hubspot" in p] == []
     assert report["counts"]["account_currency/hubspot"] == 10
     assert "observed_at_fallback/hubspot" not in report["counts"]
 

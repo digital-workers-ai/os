@@ -5,6 +5,7 @@ import pytest
 
 from app.sources import client, creds, registry, util
 from app.sources.hubspot import connector as hubspot
+from app.sources.stripe import connector as stripe
 
 
 @pytest.fixture
@@ -63,6 +64,23 @@ class TestWhatTheConnectorActuallyAsksFor:
         assert "industry" in companies
         assert "domain" in companies and "name" in companies
 
+    async def test_stripe_walks_customers_then_subscriptions(self, capture):
+        seen = capture({"data": [{"id": "x_1"}], "has_more": False})
+        stored = []
+
+        async def store(session, **kwargs):
+            stored.append(kwargs)
+
+        notes = await stripe.pull(None, store)
+
+        assert notes is None
+        paths = {r.url.path for r in seen}
+        assert {p.rsplit("/", 1)[-1] for p in paths} == {"customers", "subscriptions"}
+        assert {(s["source"], s["object_type"]) for s in stored} == {
+            ("stripe", "customers"),
+            ("stripe", "subscriptions"),
+        }
+
 
 class TestPickId:
     def test_a_non_mapping_has_no_id(self):
@@ -96,7 +114,7 @@ class TestCredentials:
 
 class TestRegistry:
     def test_every_connector_module_is_discovered(self):
-        assert set(registry.discover()) == {"hubspot"}
+        assert set(registry.discover()) == {"hubspot", "stripe"}
 
     def test_discovery_is_cached(self):
         assert registry.discover() is registry.discover()

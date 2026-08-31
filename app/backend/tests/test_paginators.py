@@ -58,6 +58,11 @@ class TestWhereTheCursorLives:
             "after": "c1",
         }
 
+    def test_stripe_extracts_its_data_list(self):
+        assert paginator("cursor_stripe").extract({"data": [{"id": "a"}]}) == [
+            {"id": "a"}
+        ]
+
     def test_stripe_pages_on_the_last_id_it_returned(self):
         body = {"data": [{"id": "a"}, {"id": "b"}], "has_more": True}
         assert paginator("cursor_stripe").next_params(body, {"limit": 6}) == {

@@ -75,6 +75,13 @@ def normalize_domain(source, object_type, value):
     return text
 
 
+def normalize_ref(source, object_type, value):
+    ref = str(value).strip()
+    if not ref:
+        raise TransformError("empty")
+    return ref
+
+
 def normalize_text(source, object_type, value):
     text = _WS.sub(" ", str(value)).strip()
     if not text:
@@ -126,6 +133,8 @@ def normalize_status(source, object_type, value):
     return load_synonyms().get(source, {}).get(object_type, {}).get(status, status)
 
 
+_UNIX_MIN, _UNIX_MAX = 100_000_000, 4_000_000_000
+
 _DATE_FORMATS = (
     "%Y-%m-%dT%H:%M:%S.%f%z",
     "%Y-%m-%dT%H:%M:%S%z",
@@ -154,6 +163,21 @@ def _parse_format(text: str, fmt: str) -> datetime:
 
 
 def normalize_date(source, object_type, value):
+    numeric = value.strip() if isinstance(value, str) else value
+    if isinstance(value, (int, float)) or (
+        isinstance(numeric, str) and re.fullmatch(r"-?\d+(\.\d+)?", numeric)
+    ):
+        try:
+            seconds = float(numeric)
+        except OverflowError:
+            raise TransformError("not_a_date", str(value)[:40]) from None
+        if abs(seconds) >= _UNIX_MAX * 1000:
+            raise TransformError("not_a_date", str(value)[:40])
+        if abs(seconds) > _UNIX_MAX:
+            seconds = seconds / 1000
+        if not _UNIX_MIN <= abs(seconds) <= _UNIX_MAX:
+            raise TransformError("not_a_date", str(value)[:40])
+        return _iso_utc(datetime.fromtimestamp(seconds, tz=UTC))
     text = str(value).strip()
     if not text:
         raise TransformError("empty")
@@ -176,6 +200,7 @@ TRANSFORMS = {
     "normalize_domain": normalize_domain,
     "normalize_email": normalize_email,
     "normalize_money": normalize_money,
+    "normalize_ref": normalize_ref,
     "normalize_status": normalize_status,
     "normalize_text": normalize_text,
 }
@@ -186,6 +211,7 @@ TRANSFORM_TYPES = {
     "normalize_domain": "string",
     "normalize_email": "string",
     "normalize_money": "number",
+    "normalize_ref": "string",
     "normalize_status": "string",
     "normalize_text": "string",
 }

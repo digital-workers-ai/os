@@ -1,10 +1,10 @@
 import pkgutil
 
 import pytest
-from app.sources.stripe import extract as stripe_hook
 
 from app.sources import hooks
 from app.sources.hubspot import extract as hubspot_hook
+from app.sources.stripe import extract as stripe_hook
 
 
 def _info(name, ispkg=True):
@@ -113,6 +113,21 @@ class TestStripeItemsFold:
         )
         assert out[0]["_hook_skips"] == [["_amount_monthly", "bad_billing_interval"]]
 
+    def test_an_item_with_no_unit_amount_is_refused(self):
+        item = {"quantity": 1, "price": {"recurring": {"interval": "month"}}}
+        out = stripe_hook.reshape("subscriptions", _sub([item]))
+        assert out[0]["_hook_skips"] == [["_amount_monthly", "no_unit_amount"]]
+
+    def test_a_negative_interval_count_is_refused(self):
+        out = stripe_hook.reshape(
+            "subscriptions", _sub([_item(1000, interval_count=-1)])
+        )
+        assert out[0]["_hook_skips"] == [["_amount_monthly", "bad_billing_interval"]]
+
+    def test_an_unreadable_quantity_is_refused_as_unfoldable(self):
+        out = stripe_hook.reshape("subscriptions", _sub([_item(1000, quantity="two")]))
+        assert out[0]["_hook_skips"] == [["_amount_monthly", "unfoldable_items"]]
+
     def test_the_other_facts_still_land_when_the_amount_cannot_be_computed(self):
         out = stripe_hook.reshape("subscriptions", _sub([]))
         assert out[0]["customer"] == "cus_123"
@@ -206,7 +221,7 @@ class TestCompositeNames:
 
 class TestDiscovery:
     def test_every_source_package_with_an_extract_module_is_a_hook(self):
-        assert set(hooks.hooks()) == {"hubspot"}
+        assert set(hooks.hooks()) == {"hubspot", "stripe"}
 
     def test_a_package_without_an_extract_module_contributes_no_hook(self, monkeypatch):
         hooks._reset()
@@ -237,7 +252,7 @@ class TestDiscovery:
 class TestReshapeGrammar:
     def test_a_source_without_a_hook_passes_through(self):
         payload = {"id": "cus_1"}
-        assert hooks.reshape("stripe", "customers", payload) == [payload]
+        assert hooks.reshape("salesforce", "accounts", payload) == [payload]
 
     def test_a_single_dict_return_is_wrapped(self, monkeypatch):
         monkeypatch.setattr(hooks, "_cache", {"hubspot": lambda o, p: {"a": 1}})

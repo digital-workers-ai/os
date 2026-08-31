@@ -68,6 +68,30 @@ class TestRelationships:
         doc["entities"]["deal"] = {"attrs": {"amount": "number"}}
         return write(tmp_path, doc)
 
+    def test_a_relationship_that_is_not_a_mapping_is_refused(self, tmp_path):
+        with pytest.raises(ont.OntologyError, match="must be a mapping"):
+            ont.load(self._with(tmp_path, "deal belongs_to company"))
+
+    def test_a_via_grounding_names_its_ref(self):
+        rel = ont.Relationship(
+            rel="belongs_to",
+            from_type="deal",
+            to_type="company",
+            cardinality="many_to_one",
+            via="account_ref",
+        )
+        assert rel.grounding == "via:account_ref"
+
+    def test_a_match_grounding_names_its_attr(self):
+        rel = ont.Relationship(
+            rel="same_as",
+            from_type="company",
+            to_type="company",
+            cardinality="one_to_one",
+            match="domain",
+        )
+        assert rel.grounding == "match:domain"
+
     def test_a_relationship_missing_a_required_key_names_it(self, tmp_path):
         with pytest.raises(ont.OntologyError, match="is missing"):
             ont.load(self._with(tmp_path, {"rel": "belongs_to", "from": "deal"}))

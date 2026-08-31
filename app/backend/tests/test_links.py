@@ -111,6 +111,45 @@ class TestViaCardinality:
         assert report.quarantines == []
 
 
+class TestSubjectsThatCannotJoin:
+    def test_a_subject_with_no_ref_fact_is_not_a_candidate(self):
+        company = record("stripe", "company", "cus_1", domain="acme.io")
+        sub = record("stripe", "subscription", "s1")
+        edges, report = build([company, sub])
+        assert edges == []
+        rate = report.match_rates["subscription belongs_to company"]
+        assert rate["candidates"] == 0
+
+    def test_a_target_missing_from_the_resolution_is_dangling(self):
+        company = record("stripe", "company", "cus_1", domain="acme.io")
+        sub = record("stripe", "subscription", "s1", customer_ref="cus_1")
+        edges, report = build([company, sub], of_record={sub.key: canonical(sub)})
+        assert edges == []
+        assert report.dangling_refs["subscription belongs_to company"] == 1
+
+
+class TestUnboundedCardinality:
+    def test_a_one_to_many_rel_skips_the_fanout_check(self):
+        rel = ontology.Relationship(
+            rel="covers",
+            from_type="subscription",
+            to_type="company",
+            cardinality="one_to_many",
+            via="customer_ref",
+        )
+        onto = ontology.Ontology(entities={}, relationships=(rel,), source_priority=())
+        company = record("stripe", "company", "cus_1", domain="acme.io")
+        sub = record("stripe", "subscription", "s1", customer_ref="cus_1")
+        projected = {e.key: e for e in (company, sub)}
+        of_record = {e.key: canonical(e) for e in (company, sub)}
+        report = SyncReport()
+        edges = links.build(
+            onto, projected=projected, of_record=of_record, report=report
+        )
+        assert len(edges) == 1
+        assert report.quarantines == []
+
+
 class TestReporting:
     def test_match_rates_report_candidates_and_matches(self):
         company = record("stripe", "company", "cus_1", domain="acme.io")

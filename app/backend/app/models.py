@@ -3,8 +3,10 @@ import uuid
 from sqlalchemy import (
     BigInteger,
     Boolean,
+    CheckConstraint,
     Column,
     DateTime,
+    Float,
     ForeignKey,
     Identity,
     Index,
@@ -71,6 +73,79 @@ class EntityFact(Base):
     observed_at = Column(DateTime(timezone=True), nullable=False)  # provider modified-at or ingestion: 2026-07-01T10:00:00Z
 
 
+class EntityCanonical(Base):
+    __tablename__ = "entity_canonical"
+
+    canonical_id = Column(UUID(as_uuid=True), primary_key=True)  # uuid5 of anchor key: 9c17…, 0d4e…
+    entity_type = Column(String(64), nullable=False)  # ontology entity kind: company, person, deal
+    anchor_key = Column(String(512), nullable=False)  # first member's key: stripe|company|cus_000001
+    minted_seq = Column(BigInteger, nullable=False)  # mint order from raw seq: 1, 42
+    member_count = Column(Integer, nullable=False, server_default=text("0"))  # members in this cluster: 1, 2, 3
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: server now(), 2026-08-30T12:00:00Z
+
+    __table_args__ = (Index("ix_canonical_type", "entity_type"),)
+
+
+class CanonicalMember(Base):
+    __tablename__ = "canonical_member"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # uuid5 of member entity: 6f1c…, 9b2d…
+    canonical_id = Column(UUID(as_uuid=True), ForeignKey("entity_canonical.canonical_id"), nullable=False)  # owning cluster: 9c17…, 0d4e…
+    entity_id = Column(UUID(as_uuid=True), ForeignKey("entity.id"), nullable=False)  # member entity row: 9c17…, 0d4e…
+    evidence = Column(String(256), nullable=False, server_default=text("'singleton'"))  # why it joined: domain=acme.io, singleton
+
+    __table_args__ = (Index("ix_member_canonical", "canonical_id"),)
+
+
+class CanonicalAlias(Base):
+    __tablename__ = "canonical_alias"
+
+    alias_id = Column(UUID(as_uuid=True), primary_key=True)  # id no longer minted: 9c17…, 0d4e…
+    canonical_id = Column(UUID(as_uuid=True), nullable=False)  # where it points, may be retired: 9c17…, itself
+    reason = Column(String(32), nullable=False)  # why it retired: merged, retired
+    recorded_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: server now(), 2026-08-30T12:00:00Z
+
+    __table_args__ = (Index("ix_alias_canonical", "canonical_id"),)
+
+
+class FactCurrent(Base):
+    __tablename__ = "fact_current"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # uuid5 of cluster+attr: 6f1c…, 9b2d…
+    canonical_id = Column(UUID(as_uuid=True), ForeignKey("entity_canonical.canonical_id"), nullable=False)  # owning cluster: 9c17…, 0d4e…
+    entity_type = Column(String(64), nullable=False)  # ontology entity kind: company, person, deal
+    attr = Column(String(128), nullable=False)  # ontology attribute name: domain, mrr, industry
+    value = Column(Text, nullable=False)  # winning value: "acme.io", "49.0"
+    value_num = Column(Float)  # numeric form when number: 49.0, null
+    entity_id = Column(UUID(as_uuid=True))  # member that won: 9c17…, null
+    raw_event_id = Column(UUID(as_uuid=True))  # payload that won: 6f1c…, null
+    observed_at = Column(DateTime(timezone=True), nullable=False)  # winning observation time: 2026-07-01T10:00:00Z
+    disagreements = Column(Integer, nullable=False, server_default=text("0"))  # other values asserted: 0, 1, 2
+
+    __table_args__ = (
+        CheckConstraint(
+            "value_num IS NULL OR (value_num <> 'NaN'::float8 "
+            "AND value_num > '-Infinity'::float8 AND value_num < 'Infinity'::float8)",
+            name="fact_current_num_finite"),
+        Index("ix_fact_current_type_attr", "entity_type", "attr"),
+    )
+
+
+class CanonicalLink(Base):
+    __tablename__ = "canonical_link"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # uuid5 of edge triple: 6f1c…, 9b2d…
+    from_canonical = Column(UUID(as_uuid=True), ForeignKey("entity_canonical.canonical_id"), nullable=False)  # subject cluster: 9c17…, 0d4e…
+    rel = Column(String(64), nullable=False)  # declared relationship: belongs_to, parent_of
+    to_canonical = Column(UUID(as_uuid=True), ForeignKey("entity_canonical.canonical_id"), nullable=False)  # object cluster: 9c17…, 0d4e…
+    grounding = Column(String(128), nullable=False)  # what held the edge: via:customer_ref, match:email
+
+    __table_args__ = (
+        Index("ix_link_rel", "rel"),
+        Index("ix_link_to_rel", "to_canonical", "rel"),
+    )
+
+
 class EngineRun(Base):
     __tablename__ = "engine_run"
 
@@ -80,6 +155,8 @@ class EngineRun(Base):
     raw_events_read = Column(Integer, nullable=False, server_default=text("0"))  # raw rows projected: 0, 42
     entities_written = Column(Integer, nullable=False, server_default=text("0"))  # entity rows written: 0, 42
     facts_written = Column(Integer, nullable=False, server_default=text("0"))  # fact rows written: 0, 124
+    canonical_written = Column(Integer, nullable=False, server_default=text("0"))  # canonical rows written: 0, 52
+    links_written = Column(Integer, nullable=False, server_default=text("0"))  # link rows written: 0, 10
     report = Column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))  # full sync report: {"totals": {...}}
     duration_ms = Column(Integer, nullable=False, server_default=text("0"))  # rebuild wall time: 5, 1200
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # run timestamp: server now(), 2026-08-30T12:00:00Z

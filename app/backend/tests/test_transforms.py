@@ -266,6 +266,11 @@ class TestEpochTimestamps:
             == "2024-06-26T11:06:40Z"
         )
 
+    def test_an_integer_too_wide_for_a_float_is_refused(self):
+        with pytest.raises(t.TransformError) as e:
+            t.normalize_date("stripe", "subscriptions", 10**400)
+        assert e.value.reason == "not_a_date"
+
     def test_unix_seconds_as_string(self):
         assert (
             t.normalize_date("hubspot", "deals", "1720500000") == "2024-07-09T04:40:00Z"

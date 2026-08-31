@@ -10,6 +10,7 @@ from app.engine.pipeline import ProjectedEntity, ProjectedFact
 from app.engine.report import SyncReport
 from app.models import (
     CanonicalAlias,
+    CanonicalLink,
     CanonicalMember,
     Entity,
     EntityCanonical,
@@ -297,6 +298,47 @@ class TestAnIdThatStopsExistingLeavesATrace:
         ).scalar_one() == 0
 
 
+class TestARebuildWritesTheEdges:
+    async def test_a_subscription_link_lands_in_canonical_link(self, session):
+        await store.save_raw(
+            session,
+            source="stripe",
+            object_type="customers",
+            source_id="cus_1",
+            raw_payload={"id": "cus_1", "email": "billing@acme.io", "name": "Acme"},
+        )
+        await store.save_raw(
+            session,
+            source="stripe",
+            object_type="subscriptions",
+            source_id="sub_1",
+            raw_payload={
+                "id": "sub_1",
+                "customer": "cus_1",
+                "status": "active",
+                "currency": "usd",
+                "items": {
+                    "data": [
+                        {
+                            "quantity": 1,
+                            "price": {
+                                "unit_amount": 1000,
+                                "recurring": {"interval": "month"},
+                            },
+                        }
+                    ]
+                },
+            },
+        )
+        await session.commit()
+        result = await run.rebuild(session)
+
+        assert result["links"] == 1
+        link = (await session.execute(select(CanonicalLink))).scalar_one()
+        assert link.rel == "belongs_to"
+        assert link.grounding == "via:customer_ref"
+
+
 class TestSurvivorshipSkipsAbsentMembers:
     def test_a_cluster_member_with_no_projected_record_is_skipped(self):
         onto = ontology.load()
@@ -308,8 +350,8 @@ class TestSurvivorshipSkipsAbsentMembers:
             minted_order=1,
         )
         cluster.members[("hubspot", "company", "c1")] = "domain=acme.io"
-        folded, retired = survivorship.fold([cluster], {}, onto, report)
-        assert (folded, retired) == ([], [])
+        folded = survivorship.fold([cluster], {}, onto, report)
+        assert folded == []
 
 
 class TestSelfReferentialEdges:
