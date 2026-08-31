@@ -67,7 +67,6 @@ class EntityFact(Base):
     attr = Column(String(128), nullable=False)  # ontology attribute name: domain, amount, industry
     value = Column(Text)  # normalized value, NULL when cleared: "acme.io", "89.0", null
     is_null = Column(Boolean, nullable=False, server_default=text("false"))  # observed as cleared: true, false
-    source = Column(String(64), nullable=False)  # originating system: stripe, hubspot, zoom
     raw_event_id = Column(UUID(as_uuid=True), ForeignKey("raw_event.id"))  # asserting raw event: 6f1c…, null
     observed_at = Column(DateTime(timezone=True), nullable=False)  # provider modified-at or ingestion: 2026-07-01T10:00:00Z
 

@@ -161,7 +161,6 @@ def _fact(entity, attr, value, is_null=False):
         attr=attr,
         value=value,
         is_null=is_null,
-        source=entity.source,
         observed_at=SEEN,
     )
 

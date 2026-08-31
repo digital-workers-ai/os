@@ -123,7 +123,6 @@ async def _write(session, projected: dict) -> None:
                     "attr": attr,
                     "value": fact.value,
                     "is_null": fact.value is None,
-                    "source": entity.source,
                     "raw_event_id": fact.raw_event_id,
                     "observed_at": fact.observed_at,
                 }
