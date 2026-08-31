@@ -1,7 +1,8 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from app.engine import extract, mappings, transforms
+from app.engine import mappings, transforms
+from app.sources import hooks
 
 
 @dataclass
@@ -85,8 +86,8 @@ def project_payload(
         return []
 
     try:
-        records = extract.reshape(source, object_type, payload)
-    except extract.ExtractError as e:
+        records = hooks.reshape(source, object_type, payload)
+    except hooks.ExtractError as e:
         report.record_skip(source, object_type, f"extract:{e}"[:80])
         return []
 

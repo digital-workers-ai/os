@@ -2,8 +2,9 @@ from datetime import UTC, datetime
 
 import pytest
 
-from app.engine import extract, mappings, ontology, pipeline
+from app.engine import mappings, ontology, pipeline
 from app.engine.report import SyncReport
+from app.sources import hooks
 
 INGESTED = datetime(2026, 8, 1, 12, 0, tzinfo=UTC)
 
@@ -56,9 +57,9 @@ class TestExtractFailuresCostOneRecord:
         self, monkeypatch
     ):
         def explode(source, object_type, payload):
-            raise extract.ExtractError("properties block unreadable")
+            raise hooks.ExtractError("properties block unreadable")
 
-        monkeypatch.setattr(pipeline.extract, "reshape", explode)
+        monkeypatch.setattr(pipeline.hooks, "reshape", explode)
         report = SyncReport()
         out = pipeline.project_payload(
             source="hubspot",

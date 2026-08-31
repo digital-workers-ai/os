@@ -2,8 +2,12 @@ import pkgutil
 
 import pytest
 
-from app.engine import extract
-from app.engine.extract import hubspot as hubspot_hook
+from app.sources import hooks
+from app.sources.hubspot import extract as hubspot_hook
+
+
+def _info(name, ispkg=True):
+    return type("I", (), {"name": name, "ispkg": ispkg})()
 
 
 class TestCompositeNames:
@@ -26,70 +30,41 @@ class TestCompositeNames:
         assert hubspot_hook.reshape("companies", payload) == [payload]
 
 
-class TestRegistry:
-    def test_every_hook_is_declared_in_hook_sources(self):
-        assert set(extract.hooks()) <= set(extract.HOOK_SOURCES)
+class TestDiscovery:
+    def test_every_source_package_with_an_extract_module_is_a_hook(self):
+        assert set(hooks.hooks()) == {"hubspot"}
 
+    def test_a_package_without_an_extract_module_contributes_no_hook(self, monkeypatch):
+        hooks._reset()
+        monkeypatch.setattr(pkgutil, "iter_modules", lambda path: [_info("bare")])
+        monkeypatch.setattr(hooks.importlib.util, "find_spec", lambda name: None)
+        assert hooks.hooks() == {}
+        hooks._reset()
 
-class TestExtractRegistration:
-    def test_a_hook_module_with_no_reshape_is_refused(self, monkeypatch):
-        extract._reset()
+    def test_an_extract_module_with_no_reshape_is_refused(self, monkeypatch):
+        hooks._reset()
+        monkeypatch.setattr(pkgutil, "iter_modules", lambda path: [_info("broken")])
+        monkeypatch.setattr(hooks.importlib.util, "find_spec", lambda name: object())
         monkeypatch.setattr(
-            pkgutil, "iter_modules", lambda path: [type("I", (), {"name": "broken"})()]
+            hooks.importlib, "import_module", lambda name: type("M", (), {})
         )
-        monkeypatch.setattr(
-            extract.importlib, "import_module", lambda name: type("M", (), {})
-        )
-        with pytest.raises(extract.ExtractError, match="defines no reshape"):
-            extract.hooks()
-        extract._reset()
-
-    def test_a_hook_for_an_unlisted_source_is_refused(self, monkeypatch):
-        extract._reset()
-        monkeypatch.setattr(
-            pkgutil,
-            "iter_modules",
-            lambda path: [type("I", (), {"name": "invented"})()],
-        )
-        monkeypatch.setattr(
-            extract.importlib,
-            "import_module",
-            lambda name: type(
-                "M",
-                (),
-                {"reshape": staticmethod(lambda o, p: [p]), "SOURCE": "invented"},
-            ),
-        )
-        with pytest.raises(extract.ExtractError):
-            extract.hooks()
-        extract._reset()
+        with pytest.raises(hooks.ExtractError, match="defines no reshape"):
+            hooks.hooks()
+        hooks._reset()
 
     def test_a_hook_that_returns_something_other_than_dicts_is_refused(
         self, monkeypatch
     ):
-        extract._reset()
-        monkeypatch.setattr(
-            pkgutil, "iter_modules", lambda path: [type("I", (), {"name": "hubspot"})()]
-        )
-        monkeypatch.setattr(
-            extract.importlib,
-            "import_module",
-            lambda name: type(
-                "M",
-                (),
-                {"reshape": staticmethod(lambda o, p: "nope"), "SOURCE": "hubspot"},
-            ),
-        )
-        with pytest.raises(extract.ExtractError, match="must return dicts"):
-            extract.reshape("hubspot", "contacts", {})
-        extract._reset()
+        monkeypatch.setattr(hooks, "_cache", {"hubspot": lambda o, p: "nope"})
+        with pytest.raises(hooks.ExtractError, match="must return dicts"):
+            hooks.reshape("hubspot", "contacts", {})
 
 
 class TestReshapeGrammar:
     def test_a_source_without_a_hook_passes_through(self):
         payload = {"id": "cus_1"}
-        assert extract.reshape("stripe", "customers", payload) == [payload]
+        assert hooks.reshape("stripe", "customers", payload) == [payload]
 
     def test_a_single_dict_return_is_wrapped(self, monkeypatch):
-        monkeypatch.setattr(extract, "_cache", {"hubspot": lambda o, p: {"a": 1}})
-        assert extract.reshape("hubspot", "contacts", {}) == [{"a": 1}]
+        monkeypatch.setattr(hooks, "_cache", {"hubspot": lambda o, p: {"a": 1}})
+        assert hooks.reshape("hubspot", "contacts", {}) == [{"a": 1}]

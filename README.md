@@ -50,4 +50,5 @@ The stack is Docker Compose (`app/docker-compose.yml`): postgres :5442, mock :81
 - `ROADMAP.md` — the feature-slice plan to v11 parity, checkbox-tracked
 - `mappings.yaml`, `ontology.yaml`, `transforms.yaml` — the knowledge files
 - `app/backend/` — FastAPI backend; tests in `app/backend/tests/`
+- `app/backend/app/sources/` — one package per source: connector plus extract hook
 - `mock/` — vendored mock providers (verbatim; exempt from repo style rules)

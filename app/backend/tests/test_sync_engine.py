@@ -4,8 +4,8 @@ from sqlalchemy import func, select
 
 from app import sync
 from app.config import settings
-from app.connectors import client, registry
 from app.models import RawEvent, SyncRun
+from app.sources import client, registry
 
 
 class TestSyncIsolation:

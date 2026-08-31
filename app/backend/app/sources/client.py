@@ -5,7 +5,7 @@ from urllib.parse import urlsplit, urlunsplit
 import httpx
 
 from app.config import settings
-from app.connectors.paginators import PaginationError, resolve
+from app.sources.paginators import PaginationError, resolve
 
 _RETRIABLE_STATUS = {429, 500, 502, 503, 504}
 _MAX_ATTEMPTS = 4

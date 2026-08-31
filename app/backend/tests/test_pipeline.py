@@ -3,9 +3,9 @@ from types import ModuleType, SimpleNamespace
 
 import pytest
 
-from app.connectors import registry
 from app.engine import mappings, ontology, pipeline, transforms
 from app.engine.report import SyncReport
+from app.sources import registry
 
 INGESTED = datetime(2026, 8, 2, 12, 0, tzinfo=UTC)
 
@@ -138,7 +138,7 @@ class TestObservationTime:
     def test_falls_back_to_ingestion_when_the_source_declares_none(
         self, kit, monkeypatch
     ):
-        module = ModuleType("app.connectors.synthetic")
+        module = ModuleType("app.sources.synthetic")
         module.SOURCE = "hubspot"
         monkeypatch.setitem(kit.connectors, "hubspot", module)
         out, report = project(

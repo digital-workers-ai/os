@@ -4,9 +4,9 @@ from pathlib import Path
 
 import pytest
 
-from app.connectors import registry
 from app.engine import mappings, ontology, pipeline, transforms
 from app.engine.report import SyncReport
+from app.sources import registry
 
 FIXTURES = Path(__file__).resolve().parent.parent / "fixtures"
 CAPTURED_AT = datetime(2026, 8, 2, tzinfo=UTC)

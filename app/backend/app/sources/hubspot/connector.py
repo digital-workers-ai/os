@@ -1,4 +1,4 @@
-from app.connectors.util import client_for, store_all
+from app.sources.util import client_for, store_all
 
 SOURCE = "hubspot"
 

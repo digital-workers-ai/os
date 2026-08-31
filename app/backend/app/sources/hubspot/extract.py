@@ -1,6 +1,4 @@
-from app.engine.extract._compose import with_name
-
-SOURCE = "hubspot"
+from app.sources.hooks import with_name
 
 
 def reshape(object_type: str, payload: dict) -> list[dict]:

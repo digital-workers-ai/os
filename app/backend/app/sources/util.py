@@ -1,5 +1,5 @@
-from app.connectors.client import SourceClient
-from app.connectors.creds import credentials_for
+from app.sources.client import SourceClient
+from app.sources.creds import credentials_for
 
 
 def client_for(source: str) -> SourceClient:

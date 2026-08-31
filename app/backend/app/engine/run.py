@@ -4,10 +4,10 @@ import uuid
 from sqlalchemy import delete, func, select
 
 from app.config import settings
-from app.connectors import registry
 from app.engine import mappings, ontology, pipeline, transforms
 from app.engine.report import SyncReport
 from app.models import EngineRun, Entity, EntityFact
+from app.sources import registry
 from app.store import first_seen_query, latest_rows_query
 
 NAMESPACE = uuid.UUID("6b1c9f4e-0a2d-5f83-9c17-0d4e6a8b2f10")

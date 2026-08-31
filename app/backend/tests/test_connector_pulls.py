@@ -3,7 +3,8 @@ import pkgutil
 import httpx
 import pytest
 
-from app.connectors import client, creds, hubspot, registry, util
+from app.sources import client, creds, registry, util
+from app.sources.hubspot import connector as hubspot
 
 
 @pytest.fixture
@@ -118,7 +119,10 @@ class TestRegistry:
         monkeypatch.setattr(
             pkgutil,
             "iter_modules",
-            lambda path: [type("I", (), {"name": f"fake{n}"})() for n in range(count)],
+            lambda path: [
+                type("I", (), {"name": f"fake{n}", "ispkg": True})()
+                for n in range(count)
+            ],
         )
         monkeypatch.setattr(registry.importlib, "import_module", lambda name: module)
         with pytest.raises(registry.ConnectorRegistrationError, match=message):

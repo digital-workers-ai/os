@@ -4,9 +4,9 @@ from datetime import UTC, datetime, timedelta
 from sqlalchemy import delete
 
 from app.config import settings
-from app.connectors import registry
-from app.connectors.client import collect_stats
 from app.models import SyncRun
+from app.sources import registry
+from app.sources.client import collect_stats
 from app.store import payload_sha, save_raw
 
 logger = logging.getLogger(__name__)
