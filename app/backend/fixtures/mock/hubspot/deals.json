@@ -1,0 +1,78 @@
+[
+  {
+    "payload": {
+      "archived": false,
+      "createdAt": "2025-03-15T00:00:00.000Z",
+      "id": "hs_deal_001",
+      "properties": {
+        "amount": "21600",
+        "closedate": "2025-03-15T00:00:00.000Z",
+        "createdate": "2025-03-15T00:00:00.000Z",
+        "dealname": "Acme Corp - Professional Plan",
+        "dealstage": "closedwon",
+        "hs_lastmodifieddate": "2026-07-01T10:00:00.000Z",
+        "hs_object_id": "hs_deal_001",
+        "pipeline": "default"
+      },
+      "updatedAt": "2026-07-01T10:00:00.000Z"
+    },
+    "source_id": "hs_deal_001"
+  },
+  {
+    "payload": {
+      "archived": false,
+      "createdAt": "2025-02-01T00:00:00.000Z",
+      "id": "hs_deal_002",
+      "properties": {
+        "amount": "28800",
+        "closedate": "2025-02-01T00:00:00.000Z",
+        "createdate": "2025-02-01T00:00:00.000Z",
+        "dealname": "Globex Inc - Professional Plan",
+        "dealstage": "closedwon",
+        "hs_lastmodifieddate": "2026-07-01T10:00:00.000Z",
+        "hs_object_id": "hs_deal_002",
+        "pipeline": "default"
+      },
+      "updatedAt": "2026-07-01T10:00:00.000Z"
+    },
+    "source_id": "hs_deal_002"
+  },
+  {
+    "payload": {
+      "archived": false,
+      "createdAt": "2025-01-10T00:00:00.000Z",
+      "id": "hs_deal_003",
+      "properties": {
+        "amount": "57600",
+        "closedate": "2025-01-10T00:00:00.000Z",
+        "createdate": "2025-01-10T00:00:00.000Z",
+        "dealname": "Initech LLC - Enterprise Plan",
+        "dealstage": "closedwon",
+        "hs_lastmodifieddate": "2026-07-01T10:00:00.000Z",
+        "hs_object_id": "hs_deal_003",
+        "pipeline": "default"
+      },
+      "updatedAt": "2026-07-01T10:00:00.000Z"
+    },
+    "source_id": "hs_deal_003"
+  },
+  {
+    "payload": {
+      "archived": false,
+      "createdAt": "2025-02-15T00:00:00.000Z",
+      "id": "hs_deal_004",
+      "properties": {
+        "amount": "588",
+        "closedate": "2025-02-15T00:00:00.000Z",
+        "createdate": "2025-02-15T00:00:00.000Z",
+        "dealname": "Umbrella Systems - Starter Plan",
+        "dealstage": "closedlost",
+        "hs_lastmodifieddate": "2026-07-01T10:00:00.000Z",
+        "hs_object_id": "hs_deal_004",
+        "pipeline": "default"
+      },
+      "updatedAt": "2026-07-01T10:00:00.000Z"
+    },
+    "source_id": "hs_deal_004"
+  }
+]

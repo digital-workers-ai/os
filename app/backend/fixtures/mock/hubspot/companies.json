@@ -1,0 +1,86 @@
+[
+  {
+    "payload": {
+      "archived": false,
+      "createdAt": "2025-01-15T09:00:00.000Z",
+      "id": "hs_company_001",
+      "properties": {
+        "city": "San Francisco",
+        "country": "United States",
+        "createdate": "2025-01-15T09:00:00.000Z",
+        "domain": "acme.io",
+        "hs_lastmodifieddate": "2026-07-01T10:00:00.000Z",
+        "hs_object_id": "hs_company_001",
+        "industry": "Software",
+        "name": "Acme Corp",
+        "numberofemployees": "120",
+        "state": "CA"
+      },
+      "updatedAt": "2026-07-01T10:00:00.000Z"
+    },
+    "source_id": "hs_company_001"
+  },
+  {
+    "payload": {
+      "archived": false,
+      "createdAt": "2025-01-15T09:00:00.000Z",
+      "id": "hs_company_002",
+      "properties": {
+        "city": "Austin",
+        "country": "United States",
+        "createdate": "2025-01-15T09:00:00.000Z",
+        "domain": "globex.com",
+        "hs_lastmodifieddate": "2026-07-01T10:00:00.000Z",
+        "hs_object_id": "hs_company_002",
+        "industry": "Marketing",
+        "name": "Globex Inc",
+        "numberofemployees": "85",
+        "state": "TX"
+      },
+      "updatedAt": "2026-07-01T10:00:00.000Z"
+    },
+    "source_id": "hs_company_002"
+  },
+  {
+    "payload": {
+      "archived": false,
+      "createdAt": "2025-01-15T09:00:00.000Z",
+      "id": "hs_company_003",
+      "properties": {
+        "city": "Chicago",
+        "country": "United States",
+        "createdate": "2025-01-15T09:00:00.000Z",
+        "domain": "initech.io",
+        "hs_lastmodifieddate": "2026-07-01T10:00:00.000Z",
+        "hs_object_id": "hs_company_003",
+        "industry": "Finance",
+        "name": "Initech LLC",
+        "numberofemployees": "200",
+        "state": "IL"
+      },
+      "updatedAt": "2026-07-01T10:00:00.000Z"
+    },
+    "source_id": "hs_company_003"
+  },
+  {
+    "payload": {
+      "archived": false,
+      "createdAt": "2025-01-15T09:00:00.000Z",
+      "id": "hs_company_004",
+      "properties": {
+        "city": "Boston",
+        "country": "United States",
+        "createdate": "2025-01-15T09:00:00.000Z",
+        "domain": "umbrella.dev",
+        "hs_lastmodifieddate": "2026-07-01T10:00:00.000Z",
+        "hs_object_id": "hs_company_004",
+        "industry": "Healthcare",
+        "name": "Umbrella Systems",
+        "numberofemployees": "50",
+        "state": "MA"
+      },
+      "updatedAt": "2026-07-01T10:00:00.000Z"
+    },
+    "source_id": "hs_company_004"
+  }
+]

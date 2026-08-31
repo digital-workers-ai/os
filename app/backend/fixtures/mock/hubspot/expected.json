@@ -1,0 +1,83 @@
+{
+  "clears": {},
+  "extracted": {
+    "companies": {
+      "company": {
+        "hs_company_001": {
+          "domain": "acme.io",
+          "industry": "Software",
+          "name": "Acme Corp"
+        },
+        "hs_company_002": {
+          "domain": "globex.com",
+          "industry": "Marketing",
+          "name": "Globex Inc"
+        },
+        "hs_company_003": {
+          "domain": "initech.io",
+          "industry": "Finance",
+          "name": "Initech LLC"
+        },
+        "hs_company_004": {
+          "domain": "umbrella.dev",
+          "industry": "Healthcare",
+          "name": "Umbrella Systems"
+        }
+      }
+    },
+    "contacts": {
+      "person": {
+        "hs_contact_001": {
+          "email": "jane@acme.io",
+          "name": "Jane Smith"
+        },
+        "hs_contact_002": {
+          "email": "john.doe@acme.io",
+          "name": "John Doe"
+        },
+        "hs_contact_003": {
+          "email": "sarah@acme.io",
+          "name": "Sarah Johnson"
+        },
+        "hs_contact_004": {
+          "email": "mike@globex.com",
+          "name": "Mike Chen"
+        }
+      }
+    },
+    "deals": {
+      "deal": {
+        "hs_deal_001": {
+          "amount": "21600.0",
+          "closed_at": "2025-03-15T00:00:00Z",
+          "currency": "usd",
+          "name": "Acme Corp - Professional Plan",
+          "status": "closed_won"
+        },
+        "hs_deal_002": {
+          "amount": "28800.0",
+          "closed_at": "2025-02-01T00:00:00Z",
+          "currency": "usd",
+          "name": "Globex Inc - Professional Plan",
+          "status": "closed_won"
+        },
+        "hs_deal_003": {
+          "amount": "57600.0",
+          "closed_at": "2025-01-10T00:00:00Z",
+          "currency": "usd",
+          "name": "Initech LLC - Enterprise Plan",
+          "status": "closed_won"
+        },
+        "hs_deal_004": {
+          "amount": "588.0",
+          "closed_at": "2025-02-15T00:00:00Z",
+          "currency": "usd",
+          "name": "Umbrella Systems - Starter Plan",
+          "status": "closed_lost"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "hubspot"
+}
