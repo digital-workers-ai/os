@@ -31,13 +31,16 @@ A value the transform refused (garbage date, non-numeric amount) becomes none of
 
 **ProjectedEntity / ProjectedFact** — the rebuild's in-memory intermediates, produced by the pipeline before anything is written. A `ProjectedFact` is one normalized value plus everything needed downstream: the numeric form for number attributes, the asserting raw event, the observation time and whose clock it came from, and the seq. A `ProjectedEntity` groups those facts under one `(source, entity_type, source_id)` with its `first_seq` and the `anchor_key` string its database id is hashed from. Resolution, survivorship, and links all operate on these objects; only at the end does the rebuild translate them into `entity` / `entity_fact` rows. They never leave the process — if you're reading the database or the API, you're seeing their persisted results, not them.
 
-**Knowledge files** — the four YAML files at the repo root that make projection declarative:
+**Knowledge files** — the YAML files at the repo root that make the system declarative:
 - `ontology.yaml` — what entities exist and what typed attributes each may have. An entity's `identity:` list names which attributes count as merge evidence — `company: [domain]`, `person: [email]`: two records sharing a normalized identity value become one canonical entity. The list is deliberately short: names are never identity (too fuzzy — "Acme Corp" vs "ACME Corporation" is the problem, not the key), vendor ids never (each source's ids are its own), and an entity with no `identity:` list (subscription) is never merged at all — one tool owns it. `source_priority:` orders sources for survivorship tiebreaks; `relationships:` declares the edges links may build and what grounds them.
 - `mappings.yaml` — one line per raw field worth keeping: `source.object_type.path → attribute`
 - `transforms.yaml` — which normalizer each attribute's values pass through
 - `synonyms.yaml` — which provider spellings fold to one canonical status
+- `metrics.yaml` — the numbers the estate answers with, as declared aggregates
 
-Adding a field to the system is editing a YAML line, not writing code.
+Adding a field or a metric to the system is editing a YAML line, not writing code.
+
+**Metric** — a number computed over the canonical layer, declared in `metrics.yaml` (a knowledge file like the rest: `mrr` is `SUM(mrr)` over subscriptions where `status: active`). Because metrics run over canonical entities, `COUNT(company)` counts Acme once — not once per tool. Every value carries receipts: the population before the filter, how many rows actually fed the aggregate, who lacked the attribute, and the raw provider fields the number walked in from (`mrr` traces to `stripe.subscriptions._amount_monthly`). The semantics refuse to flatter: a sum of nothing is 0 but an average of nothing is unknown (`None`) — a zero average would read as a measurement that never happened; mixed currencies refuse to aggregate rather than silently sum; and one broken definition errors on its own row without taking the catalog down. Served by `GET /api/metrics`.
 
 **Transform** — a pure normalizing function (`normalize_domain`, `normalize_money`, …). Transforms refuse rather than guess: a value they can't interpret raises a named reason (`not_a_date`, `not_a_number`) that lands in the report. A closed registry — data never selects arbitrary code.
 
@@ -58,7 +61,7 @@ The stack is Docker Compose (`app/docker-compose.yml`): postgres :5442, mock :81
 ## Layout
 
 - `ROADMAP.md` — the feature-slice plan to v11 parity, checkbox-tracked
-- `mappings.yaml`, `ontology.yaml`, `transforms.yaml`, `synonyms.yaml` — the knowledge files
+- `mappings.yaml`, `ontology.yaml`, `transforms.yaml`, `synonyms.yaml`, `metrics.yaml` — the knowledge files
 - `app/backend/` — FastAPI backend; tests in `app/backend/tests/`
 - `app/backend/app/sources/` — one package per source: connector plus extract hook
 - `mock/` — vendored mock providers (verbatim; exempt from repo style rules)
