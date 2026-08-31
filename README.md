@@ -16,6 +16,8 @@ Think of `raw_event` as the enrollment book: every record ever seen is in it, pe
 
 **Canonical entity** — one real-world thing, merged across tools. Resolution buckets entities on declared identity attributes (a company's domain, a person's email) and records the evidence on every membership (`domain=acme.io`). Survivorship then folds the members' facts into one value per attribute — newest observation wins, declared source priority breaks ties — keeping receipts (winning source, raw event, disagreement count). Blocklists stop false merges: a free-mail domain identifies no company, a placeholder identifies nothing.
 
+**Survivorship** — how many opinions become one answer. When a cluster's members disagree about an attribute (HubSpot: "Acme Corp", Stripe: "ACME Corporation"), the fold picks one value per attribute by a fixed rule: newest observation wins (on the provider's clock), a time tie falls to declared `source_priority`, and a remaining tie falls to stable name order — so a rebuild always picks the same winner. Along the way it counts disagreements (distinct losing values, stamped on the fact), lets a winning clear silence the attribute entirely (an empty field that is *fresher* beats an old value), and stamps receipts on every winner: which source, which raw event, observed when.
+
 **Fact** — one attribute of one entity as asserted by one source: "hubspot says company hs_company_001's domain is acme.io." Each fact keeps its provenance (which raw event asserted it, when the provider observed it). Facts obey the **three-state rule**:
 - *absent* — the source never mentioned the attribute: no fact row at all
 - *cleared* — the source said "this is empty": a fact row with `is_null` true
