@@ -1,9 +1,9 @@
 import httpx
 import pytest
-from app.connectors import client
-from app.connectors.client import ConnectorError, SourceClient, redact_url
 
 from app.config import settings
+from app.connectors import client
+from app.connectors.client import ConnectorError, SourceClient, redact_url
 
 
 @pytest.fixture(autouse=True)
@@ -329,3 +329,10 @@ class TestStatsCollection:
             pass
         await outside.get("/a")
         assert stats.pages_read == 0
+
+
+class TestWithoutAnInstalledTransport:
+    async def test_the_client_speaks_real_http(self):
+        real = SourceClient("hubspot", "http://api")._client()
+        assert isinstance(real._transport, httpx.AsyncHTTPTransport)
+        await real.aclose()

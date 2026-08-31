@@ -11,9 +11,10 @@ mode="${1:-unit}"
 
 case "$mode" in
   unit) pytest_args=(tests -m "not e2e and not llm") ;;
+  e2e) pytest_args=(tests -m "e2e and not llm") ;;
   *)
     echo "unknown mode: $mode" >&2
-    echo "expected: unit" >&2
+    echo "expected: unit | e2e" >&2
     exit 2
     ;;
 esac
@@ -24,8 +25,8 @@ if ! docker info >/dev/null 2>&1; then
 fi
 
 if ! compose ps --status running --services 2>/dev/null | grep -qx backend; then
-  echo "==> starting the v0 stack (postgres, backend)"
-  compose up -d --build --wait postgres backend
+  echo "==> starting the v0 stack (postgres, mock, backend)"
+  compose up -d --build --wait postgres mock backend
 fi
 
 echo "==> ruff"
@@ -34,6 +35,11 @@ compose exec -T backend ruff format --check app tests
 
 echo "==> $mode suite"
 
-compose exec -T backend python -u -m pytest "${pytest_args[@]}" \
-  --cov=app --cov-branch --cov-fail-under=100 --cov-report=term-missing:skip-covered \
-  -v --tb=short "$@"
+if [ "$mode" = "e2e" ]; then
+  compose exec -T backend python -u -m pytest "${pytest_args[@]}" \
+    -v --tb=short "$@"
+else
+  compose exec -T backend python -u -m pytest "${pytest_args[@]}" \
+    --cov=app --cov-branch --cov-fail-under=100 --cov-report=term-missing:skip-covered \
+    -v --tb=short "$@"
+fi

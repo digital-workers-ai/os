@@ -2,6 +2,7 @@ import pkgutil
 
 import httpx
 import pytest
+
 from app.connectors import client, creds, hubspot, registry, util
 
 

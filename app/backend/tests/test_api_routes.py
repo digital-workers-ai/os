@@ -4,8 +4,8 @@ from datetime import UTC, datetime
 import httpx
 import pytest
 import pytest_asyncio
-from app.api import sources_api
 
+from app.api import sources_api
 from app.db import get_session
 from app.main import app
 from app.models import RawEvent

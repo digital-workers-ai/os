@@ -1,10 +1,10 @@
 from datetime import UTC, datetime, timedelta
 
-from app.connectors import client, hubspot, registry
 from sqlalchemy import func, select
 
 from app import sync
 from app.config import settings
+from app.connectors import client, hubspot, registry
 from app.models import PullManifest, RawEvent, SyncRun
 
 
@@ -236,6 +236,29 @@ class TestAPullThatFoundNothingStillSaysSo:
             pull,
             OBJECT_CLASS={"activities": "event"},
         )
+        assert (
+            await session.execute(select(func.count()).select_from(PullManifest))
+        ).scalar_one() == 0
+
+    async def test_a_stored_event_type_still_writes_no_manifest(
+        self, session, sessionmaker_for_test, monkeypatch
+    ):
+        async def pull(session, store):
+            await store(
+                session,
+                source="hubspot",
+                object_type="activities",
+                source_id="a1",
+                raw_payload={"kind": "call"},
+            )
+
+        result = await self._run(
+            sessionmaker_for_test,
+            monkeypatch,
+            pull,
+            OBJECT_CLASS={"activities": "event"},
+        )
+        assert result["ok"] == 1
         assert (
             await session.execute(select(func.count()).select_from(PullManifest))
         ).scalar_one() == 0

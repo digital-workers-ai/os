@@ -27,8 +27,11 @@ services:
       - .env
     environment:
       DATABASE_URL: postgresql+asyncpg://os:os@postgres:5432/os_v0
+      MOCK_BASE_URL: http://mock:8100
     depends_on:
       postgres:
+        condition: service_healthy
+      mock:
         condition: service_healthy
     volumes:
       - ./backend:/app
