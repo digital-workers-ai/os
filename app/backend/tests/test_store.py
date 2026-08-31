@@ -60,6 +60,10 @@ class TestPayloadValidation:
     def test_a_well_formed_record_passes(self):
         assert store._validate("hubspot", "companies", "c1", {"name": "Acme"}) is None
 
+    def test_non_string_scalars_pass_the_nul_walk(self):
+        payload = {"count": 42, "active": True, "score": 1.5, "note": None}
+        assert store._validate("hubspot", "companies", "c1", payload) is None
+
 
 async def _rows(session):
     result = await session.execute(select(RawEvent).order_by(RawEvent.seq))
