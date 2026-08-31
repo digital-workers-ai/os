@@ -14,8 +14,8 @@ Every PR fulfills a feature: something runnable, stated as a demo criterion the 
 - [x] 5. feat: sync HubSpot — `POST /api/sync` pulls companies/contacts/deals into `raw_event`; `GET /api/raw` shows rows. Brings: client, creds, registry, hubspot connector, sync.py, `sync_run` table, raw/sources APIs. Fixes: F2 (handler half), J3, J4/F3, F1, H3. Deliberately absent: manifests/tombstones and any deletion detection (Carlos, 2026-08-31) — upstream deletions go undetected; if wanted later it is its own slice. Defect 1 and A1/A2/A4/A5/C1/A3 are moot without it.
 - [x] 6. feat: raw becomes entities — `POST /api/rebuild` projects HubSpot into `entity`/`entity_fact`; `GET /api/entities` lists companies with facts. Brings: ontology/mappings/transforms subsets HubSpot needs, caches.py, pipeline, engine_run. Fixes: A3.
 - [x] 7. feat: one company across tools — sync Stripe too; resolution merges on identity attrs with evidence; `GET /api/entities` shows one Acme with both sources' facts, folded. Brings: resolver, survivorship, canonical tables, aliases, stripe connector + extract hook (D1 currency placement, D3). Fixes: B1 (consumed), B2.
-- [ ] 8. feat: the first metric — MRR over the canonical layer with receipts; `GET /api/metrics` answers with the number and what produced it. Brings: metrics grammar subset, metrics.yaml first lines, metrics API.
-- [ ] 9. feat: metrics remember — snapshots on rebuild, `GET /api/metrics/history`. Brings: `metric_snapshot` table. Fixes: E5, E6.
+- [x] 8. feat: the first metric — MRR over the canonical layer with receipts; `GET /api/metrics` answers with the number and what produced it. Brings: metrics grammar subset, metrics.yaml first lines, metrics API.
+- [ ] 9. feat: metrics remember — snapshots on rebuild, `GET /api/metrics/history`. Brings: `metric_snapshot` table. Fixes: E1, E6 (E5 is inferred-only code — moved to 21).
 - [ ] 10. feat: rules surface attention — rule predicates over facts; `GET /api/insights/rules` names entities worth a look. Brings: rules.py, rules.yaml subset.
 - [ ] 11. feat: goals judge metrics — targets + strategies; `GET /api/insights/goals` says met/unmet with progress. Brings: strategies.py, goals.py, goals.yaml subset. Fixes: E1–E4 as their grammar arrives.
 
@@ -33,7 +33,7 @@ Every PR fulfills a feature: something runnable, stated as a demo criterion the 
 
 - [ ] 19. feat: the substrate proves it never infers — app/llm quarantine, AST boundary test, validate_startup. Brings: enablement flags with their enforcement.
 - [ ] 20. feat: a transcript becomes labeled facts — enrichment vocabulary + reader + store + API; coverage stated, not assumed. Fixes: G1, G2, G3.
-- [ ] 21. feat: inferred metrics — metrics over `enriched_fact`, digest-stamped snapshots.
+- [ ] 21. feat: inferred metrics — metrics over `enriched_fact`, digest-stamped snapshots. Fixes: E4, E5.
 - [ ] 22. feat: a role gets a briefing — coaching briefer + prompts + API, fenced estate data.
 - [ ] 23. feat: ask the estate a question — conversation agent + tools + threads + API. Fixes: H2 (narrowable metrics tool).
 

@@ -76,3 +76,12 @@ class TestExtractFailuresCostOneRecord:
         )
         assert out == []
         assert report.totals()["records_skipped"] == 1
+
+
+class TestCurrencyLookup:
+    async def test_no_ids_means_no_query_at_all(self, session, count_queries):
+        from app.engine import metrics
+
+        with count_queries() as counter:
+            assert await metrics._currencies(session, set()) == set()
+        assert counter.total == 0

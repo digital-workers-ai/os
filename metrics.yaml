@@ -1,0 +1,52 @@
+mrr:
+  label: MRR
+  entity: subscription
+  expression: SUM(mrr)
+  filter:
+    status: active
+
+contracted_mrr:
+  label: Contracted MRR
+  entity: subscription
+  expression: SUM(mrr)
+
+avg_mrr:
+  label: Average MRR
+  entity: subscription
+  expression: AVG(mrr)
+  filter:
+    status: active
+
+subscription_count:
+  label: Subscriptions
+  entity: subscription
+  expression: COUNT(entity)
+
+active_subscriptions:
+  label: Active Subscriptions
+  entity: subscription
+  expression: COUNT(entity)
+  filter:
+    status: active
+
+deal_count:
+  label: Deals
+  entity: deal
+  expression: COUNT(entity)
+
+won_value:
+  label: Won Value
+  entity: deal
+  expression: SUM(amount)
+  filter:
+    status: closed_won
+
+company_count:
+  label: Companies
+  entity: company
+  expression: COUNT(entity)
+
+companies_with_industry:
+  label: Companies with Industry
+  entity: company
+  expression: COUNT(industry)

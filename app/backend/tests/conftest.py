@@ -1,6 +1,7 @@
 import uuid
 from datetime import UTC, datetime
 
+import pytest
 import pytest_asyncio
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -135,3 +136,28 @@ async def link(session):
         await session.flush()
 
     return _make
+
+
+@pytest.fixture
+def count_queries(db_engine):
+    from contextlib import contextmanager
+
+    from sqlalchemy import event
+
+    class Counter:
+        total = 0
+
+    @contextmanager
+    def _counting():
+        counter = Counter()
+
+        def _on_execute(conn, cursor, statement, params, context, many):
+            counter.total += 1
+
+        event.listen(db_engine.sync_engine, "before_cursor_execute", _on_execute)
+        try:
+            yield counter
+        finally:
+            event.remove(db_engine.sync_engine, "before_cursor_execute", _on_execute)
+
+    return _counting
