@@ -8,12 +8,7 @@
 
 OS's connectors will pull from external APIs and dump raw payloads into `raw_event`. To develop and test the full pipeline (mapping, ER, enrichment, rules, goals, coaching) without real API credentials, `mock/` (mounted into its container as the `seeds` package) provides a mock server that replicates each provider's API contract — auth mechanism, pagination style, response schema, error format.
 
-The mock server runs as a Docker Compose service (`mock`, project `os_v0`) alongside `postgres` and `backend`. It listens on `:8100` in the container, published to the host as `:8192`. When the sync slice lands, connectors will switch targets via env var — this is the contract they consume:
-
-```env
-HUBSPOT_BASE_URL=http://mock:8100/hubspot            # dev
-HUBSPOT_BASE_URL=https://api.hubapi.com              # prod
-```
+The mock server runs as a Docker Compose service (`mock`, project `os_v0`) alongside `postgres` and `backend`. It listens on `:8100` in the container, published to the host as `:8192`. Connectors reach it through a single env var, `MOCK_BASE_URL` (`http://mock:8100` in compose, `http://localhost:8192` from the host); each source appends its own path prefix, declared in `app/connectors/creds.py` — e.g. hubspot resolves to `{MOCK_BASE_URL}/hubspot`.
 
 ---
 

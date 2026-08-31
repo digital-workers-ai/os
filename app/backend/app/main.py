@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from app.api import register_routes
 from app.db import create_schema
 
 
@@ -12,6 +13,7 @@ async def lifespan(app):
 
 
 app = FastAPI(title="OS v0", lifespan=lifespan)
+register_routes(app)
 
 
 @app.get("/api/health")
