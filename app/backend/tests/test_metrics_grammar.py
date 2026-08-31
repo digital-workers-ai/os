@@ -87,3 +87,9 @@ class TestProvenance:
         lineage = metrics.provenance(metrics.load_definitions(), mappings.load())
         for name in ("subscription_count", "deal_count", "company_count"):
             assert lineage[name]["raw_fields"] == []
+
+    def test_a_broken_definition_is_skipped_not_fatal(self):
+        lineage = metrics.provenance(
+            {"bad": {"entity": "deal", "expression": "MEDIAN(x)"}}, mappings.load()
+        )
+        assert lineage == {}

@@ -359,6 +359,17 @@ class TestEntityDetail:
         assert response.json()["detail"] == "alias points at a missing entity"
 
 
+class TestMetrics:
+    async def test_the_shipped_catalog_evaluates_with_lineage(self, api):
+        body = (await api.get("/api/metrics")).json()["metrics"]
+        assert body["mrr"]["value"] == 0
+        assert body["mrr"]["raw_fields"] == [
+            "stripe.subscriptions._amount_monthly",
+            "stripe.subscriptions.status",
+        ]
+        assert all("error" not in row for row in body.values())
+
+
 class TestReport:
     async def test_no_rebuild_yet_says_so_rather_than_reporting_zeroes(self, api):
         body = (await api.get("/api/report")).json()
