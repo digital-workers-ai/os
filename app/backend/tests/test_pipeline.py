@@ -40,6 +40,44 @@ def project(kit, source, object_type, payload, source_id="x1", seq=1, report=Non
     return {e.entity_type: e for e in entities}, report
 
 
+class TestMultiEntity:
+    def test_a_stripe_customer_lands_as_company_and_person(self, kit):
+        out, _ = project(
+            kit,
+            "stripe",
+            "customers",
+            {
+                "id": "cus_000001",
+                "name": "ACME Corporation",
+                "email": "jane@acme.io",
+                "created": 1705386400,
+            },
+            source_id="cus_000001",
+        )
+        assert set(out) == {"company", "person"}
+
+    def test_they_share_a_source_id_and_do_not_collide(self, kit):
+        out, _ = project(
+            kit,
+            "stripe",
+            "customers",
+            {"id": "cus_000001", "name": "Acme", "email": "jane@acme.io"},
+            source_id="cus_000001",
+        )
+        assert out["company"].source_id == out["person"].source_id == "cus_000001"
+        assert out["company"].key != out["person"].key
+
+    def test_the_billing_email_becomes_the_companys_domain(self, kit):
+        out, _ = project(
+            kit,
+            "stripe",
+            "customers",
+            {"id": "c", "name": "Acme", "email": "Jane@ACME.io"},
+        )
+        assert out["company"].facts["domain"].value == "acme.io"
+        assert out["person"].facts["email"].value == "jane@acme.io"
+
+
 class TestThreeStates:
     def test_an_absent_path_is_no_observation(self, kit):
         out, report = project(
@@ -102,6 +140,54 @@ class TestThreeStates:
 
 
 class TestHookIntegration:
+    def test_the_stripe_fold_feeds_the_mrr_label(self, kit):
+        out, _ = project(
+            kit,
+            "stripe",
+            "subscriptions",
+            {
+                "id": "sub_9",
+                "customer": "cus_123",
+                "status": "Active",
+                "currency": "usd",
+                "start_date": 1719400000,
+                "items": {
+                    "data": [
+                        {
+                            "quantity": 2,
+                            "price": {
+                                "unit_amount": 2450,
+                                "recurring": {
+                                    "interval": "month",
+                                    "interval_count": 1,
+                                },
+                            },
+                        }
+                    ]
+                },
+            },
+        )
+        facts = out["subscription"].facts
+        assert facts["mrr"].value_num == 49.0
+        assert facts["status"].value == "active"
+        assert facts["customer_ref"].value == "cus_123"
+        assert facts["currency"].value == "usd"
+        assert facts["started_at"].value.startswith("2024-06-26T")
+
+    def test_a_hook_skip_is_counted_against_its_label(self, kit):
+        _out, report = project(
+            kit,
+            "stripe",
+            "subscriptions",
+            {
+                "id": "sub_9",
+                "customer": "cus_123",
+                "status": "active",
+                "items": {"data": []},
+            },
+        )
+        assert report.skips["mrr/stripe/no_subscription_items"] == 1
+
     def test_the_composite_name_reaches_the_person_entity(self, kit):
         out, _ = project(
             kit,

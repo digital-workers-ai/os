@@ -10,7 +10,7 @@ from app.api import entities_api, sources_api
 from app.db import get_session
 from app.engine import run
 from app.main import app
-from app.models import EngineRun, Entity, EntityFact, RawEvent
+from app.models import CanonicalAlias, EngineRun, Entity, EntityFact, RawEvent
 
 SELF_TRANSACTING = (sources_api, entities_api)
 
@@ -165,9 +165,9 @@ def _fact(entity, attr, value, is_null=False):
     )
 
 
-class TestEntitiesList:
+class TestRecords:
     async def test_an_empty_estate_is_zero_rows_not_an_error(self, api):
-        body = (await api.get("/api/entities")).json()
+        body = (await api.get("/api/records")).json()
         assert body == {
             "total": 0,
             "limit": 50,
@@ -182,7 +182,7 @@ class TestEntitiesList:
         session.add(_fact(entity, "name", "Acme"))
         session.add(_fact(entity, "domain", "acme.io"))
         await session.flush()
-        body = (await api.get("/api/entities")).json()
+        body = (await api.get("/api/records")).json()
         assert body["total"] == 1
         assert body["by_type"] == {"company": 1}
         assert body["entities"][0]["facts"] == {"name": "Acme", "domain": "acme.io"}
@@ -193,7 +193,7 @@ class TestEntitiesList:
         session.add(_entity())
         session.add(_entity(entity_type="person", source_id="p1", first_seq=2))
         await session.flush()
-        body = (await api.get("/api/entities?entity_type=person")).json()
+        body = (await api.get("/api/records?entity_type=person")).json()
         assert body["total"] == 1
         assert [e["entity_type"] for e in body["entities"]] == ["person"]
         assert body["by_type"] == {"company": 1, "person": 1}
@@ -204,7 +204,7 @@ class TestEntitiesList:
         session.add(_entity())
         session.add(_entity(source="stripe", source_id="s1", first_seq=2))
         await session.flush()
-        body = (await api.get("/api/entities?source=stripe")).json()
+        body = (await api.get("/api/records?source=stripe")).json()
         assert body["total"] == 1
         assert [e["source"] for e in body["entities"]] == ["stripe"]
 
@@ -212,22 +212,151 @@ class TestEntitiesList:
         for n in range(3):
             session.add(_entity(source_id=f"c{n}", first_seq=n + 1))
         await session.flush()
-        first = (await api.get("/api/entities?limit=2&offset=0")).json()
-        second = (await api.get("/api/entities?limit=2&offset=2")).json()
+        first = (await api.get("/api/records?limit=2&offset=0")).json()
+        second = (await api.get("/api/records?limit=2&offset=2")).json()
         assert len(first["entities"]) == 2 and len(second["entities"]) == 1
         ids = {e["source_id"] for e in first["entities"] + second["entities"]}
         assert len(ids) == 3
 
     async def test_an_offset_past_the_bigint_range_is_refused(self, api):
-        assert (await api.get(f"/api/entities?offset={2**63}")).status_code == 422
+        assert (await api.get(f"/api/records?offset={2**63}")).status_code == 422
 
     async def test_a_cleared_value_reads_as_null_not_as_missing(self, api, session):
         entity = _entity()
         session.add(entity)
         session.add(_fact(entity, "phone", None, is_null=True))
         await session.flush()
-        body = (await api.get("/api/entities")).json()
+        body = (await api.get("/api/records")).json()
         assert body["entities"][0]["facts"] == {"phone": None}
+
+
+class TestEntitiesList:
+    async def test_an_empty_estate_is_zero_rows_not_an_error(self, api):
+        body = (await api.get("/api/entities")).json()
+        assert body == {
+            "total": 0,
+            "limit": 50,
+            "offset": 0,
+            "by_type": {},
+            "entities": [],
+        }
+
+    async def test_facts_come_folded_onto_each_canonical_row(self, api, canonical):
+        await canonical("company", {"name": "Acme", "domain": "acme.io"})
+        body = (await api.get("/api/entities")).json()
+        assert body["total"] == 1
+        assert body["by_type"] == {"company": 1}
+        assert body["entities"][0]["facts"] == {"name": "Acme", "domain": "acme.io"}
+
+    async def test_the_type_filter_narrows_rows_and_the_count_together(
+        self, api, canonical
+    ):
+        await canonical("company", {"name": "Acme"})
+        await canonical("person", {"email": "a@acme.io"})
+        body = (await api.get("/api/entities?entity_type=person")).json()
+        assert body["total"] == 1
+        assert [e["entity_type"] for e in body["entities"]] == ["person"]
+        assert body["by_type"] == {"company": 1, "person": 1}
+
+    async def test_paging_walks_without_repeating(self, api, canonical):
+        for n in range(3):
+            await canonical("company", {"name": f"c{n}"})
+        first = (await api.get("/api/entities?limit=2&offset=0")).json()
+        second = (await api.get("/api/entities?limit=2&offset=2")).json()
+        assert len(first["entities"]) == 2 and len(second["entities"]) == 1
+        ids = {e["canonical_id"] for e in first["entities"] + second["entities"]}
+        assert len(ids) == 3
+
+    @pytest.mark.parametrize("query", ["limit=0", "limit=501", "offset=-1"])
+    async def test_out_of_range_paging_is_refused_not_clamped(self, api, query):
+        assert (await api.get(f"/api/entities?{query}")).status_code == 422
+
+
+class TestEntityDetail:
+    async def test_an_unknown_id_is_a_404(self, api):
+        response = await api.get(f"/api/entities/{uuid.uuid4()}")
+        assert response.status_code == 404
+        assert response.json()["detail"] == "no such canonical entity"
+
+    @pytest.mark.parametrize(
+        "bad_id",
+        ["not-a-uuid", "12345", "%20", "00000000-0000-0000-0000-00000000000"],
+    )
+    async def test_an_id_that_is_not_a_uuid_is_a_404_not_a_500(self, api, bad_id):
+        response = await api.get(f"/api/entities/{bad_id}")
+        assert response.status_code == 404
+        assert response.json()["detail"] == "no such canonical entity"
+
+    async def test_facts_members_and_edges_come_back_together(
+        self, api, canonical, link
+    ):
+        acme = await canonical("company", {"name": "Acme"})
+        deal = await canonical("deal", {"amount": "100"})
+        await link(deal, "belongs_to", acme)
+        body = (await api.get(f"/api/entities/{acme}")).json()
+        assert body["canonical_id"] == str(acme)
+        assert [f["attr"] for f in body["facts"]] == ["name"]
+        assert body["members"] == []
+        assert body["links"]["in"][0]["rel"] == "belongs_to"
+        assert body["links"]["out"] == []
+        assert body["resolved_from_alias"] is None
+
+    async def test_a_fact_receipt_carries_its_derived_source(self, api, canonical):
+        acme = await canonical(
+            "company", {"name": "Acme"}, sources=["stripe", "hubspot"]
+        )
+        body = (await api.get(f"/api/entities/{acme}")).json()
+        assert body["facts"] == [
+            {
+                "attr": "name",
+                "value": "Acme",
+                "source": "stripe",
+                "raw_event_id": None,
+                "observed_at": SEEN.isoformat(),
+                "disagreements": 1,
+            }
+        ]
+
+    async def test_an_id_retired_by_a_merge_still_answers(
+        self, api, session, canonical
+    ):
+        surviving = await canonical("company", {"name": "Acme"})
+        retired_id = uuid.uuid4()
+        session.add(
+            CanonicalAlias(alias_id=retired_id, canonical_id=surviving, reason="merged")
+        )
+        await session.flush()
+        body = (await api.get(f"/api/entities/{retired_id}")).json()
+        assert body["canonical_id"] == str(surviving)
+        assert body["resolved_from_alias"] == str(retired_id)
+        assert body["aliases"] == [str(retired_id)]
+
+    async def test_an_entity_deleted_at_every_provider_says_so(self, api, session):
+        gone = uuid.uuid4()
+        session.add(
+            CanonicalAlias(alias_id=gone, canonical_id=uuid.uuid4(), reason="retired")
+        )
+        await session.flush()
+        response = await api.get(f"/api/entities/{gone}")
+        assert response.status_code == 200
+        body = response.json()
+        assert body["canonical_id"] == str(gone)
+        assert body["retired"] is True
+        assert body["detail"]
+
+    async def test_an_alias_pointing_at_nothing_is_a_404_not_a_crash(
+        self, api, session
+    ):
+        dangling = uuid.uuid4()
+        session.add(
+            CanonicalAlias(
+                alias_id=dangling, canonical_id=uuid.uuid4(), reason="merged"
+            )
+        )
+        await session.flush()
+        response = await api.get(f"/api/entities/{dangling}")
+        assert response.status_code == 404
+        assert response.json()["detail"] == "alias points at a missing entity"
 
 
 class TestReport:

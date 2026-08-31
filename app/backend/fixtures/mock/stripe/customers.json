@@ -1,0 +1,162 @@
+[
+  {
+    "payload": {
+      "address": {
+        "city": "San Francisco",
+        "country": "US",
+        "line1": null,
+        "line2": null,
+        "postal_code": null,
+        "state": "CA"
+      },
+      "balance": 0,
+      "created": 1705386400,
+      "currency": "usd",
+      "default_source": null,
+      "delinquent": false,
+      "description": "Customer for acme.io",
+      "email": "jane@acme.io",
+      "id": "cus_000001",
+      "invoice_prefix": "ACME",
+      "invoice_settings": {
+        "custom_fields": null,
+        "default_payment_method": null,
+        "footer": null,
+        "rendering_options": null
+      },
+      "livemode": false,
+      "metadata": {
+        "company_domain": "acme.io"
+      },
+      "name": "ACME Corporation",
+      "next_invoice_sequence": 12,
+      "object": "customer",
+      "phone": null,
+      "preferred_locales": [],
+      "shipping": null,
+      "tax_exempt": "none",
+      "test_clock": null
+    },
+    "source_id": "cus_000001"
+  },
+  {
+    "payload": {
+      "address": {
+        "city": "Austin",
+        "country": "US",
+        "line1": null,
+        "line2": null,
+        "postal_code": null,
+        "state": "TX"
+      },
+      "balance": 0,
+      "created": 1705472800,
+      "currency": "usd",
+      "default_source": null,
+      "delinquent": false,
+      "description": "Customer for globex.com",
+      "email": "mike@globex.com",
+      "id": "cus_000002",
+      "invoice_prefix": "GLOB",
+      "invoice_settings": {
+        "custom_fields": null,
+        "default_payment_method": null,
+        "footer": null,
+        "rendering_options": null
+      },
+      "livemode": false,
+      "metadata": {
+        "company_domain": "globex.com"
+      },
+      "name": "Globex Inc",
+      "next_invoice_sequence": 12,
+      "object": "customer",
+      "phone": null,
+      "preferred_locales": [],
+      "shipping": null,
+      "tax_exempt": "none",
+      "test_clock": null
+    },
+    "source_id": "cus_000002"
+  },
+  {
+    "payload": {
+      "address": {
+        "city": "Chicago",
+        "country": "US",
+        "line1": null,
+        "line2": null,
+        "postal_code": null,
+        "state": "IL"
+      },
+      "balance": 0,
+      "created": 1705559200,
+      "currency": "usd",
+      "default_source": null,
+      "delinquent": false,
+      "description": "Customer for initech.io",
+      "email": "tom@initech.io",
+      "id": "cus_000003",
+      "invoice_prefix": "INIT",
+      "invoice_settings": {
+        "custom_fields": null,
+        "default_payment_method": null,
+        "footer": null,
+        "rendering_options": null
+      },
+      "livemode": false,
+      "metadata": {
+        "company_domain": "initech.io"
+      },
+      "name": "Initech LLC",
+      "next_invoice_sequence": 12,
+      "object": "customer",
+      "phone": null,
+      "preferred_locales": [],
+      "shipping": null,
+      "tax_exempt": "none",
+      "test_clock": null
+    },
+    "source_id": "cus_000003"
+  },
+  {
+    "payload": {
+      "address": {
+        "city": "Boston",
+        "country": "US",
+        "line1": null,
+        "line2": null,
+        "postal_code": null,
+        "state": "MA"
+      },
+      "balance": 0,
+      "created": 1705645600,
+      "currency": "usd",
+      "default_source": null,
+      "delinquent": false,
+      "description": "Customer for umbrella.dev",
+      "email": "rachel@umbrella.dev",
+      "id": "cus_000004",
+      "invoice_prefix": "UMBR",
+      "invoice_settings": {
+        "custom_fields": null,
+        "default_payment_method": null,
+        "footer": null,
+        "rendering_options": null
+      },
+      "livemode": false,
+      "metadata": {
+        "company_domain": "umbrella.dev"
+      },
+      "name": "Umbrella Systems",
+      "next_invoice_sequence": 12,
+      "object": "customer",
+      "phone": null,
+      "preferred_locales": [],
+      "shipping": null,
+      "tax_exempt": "none",
+      "test_clock": null
+    },
+    "source_id": "cus_000004"
+  }
+]

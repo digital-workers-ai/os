@@ -1,11 +1,15 @@
+import uuid
+from datetime import UTC, datetime
+
 import pytest_asyncio
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.config import settings
-from app.models import Base
+from app.models import Base, Entity
 
 TEST_DB_SUFFIX = "_test"
+FIXTURE_SEEN = datetime(2026, 8, 1, tzinfo=UTC)
 
 
 def _split_url(url: str) -> tuple[str, str]:
@@ -51,3 +55,83 @@ async def session(db_engine, sessionmaker_for_test):
         await conn.execute(text(f"TRUNCATE {tables} RESTART IDENTITY CASCADE"))
     async with sessionmaker_for_test() as s:
         yield s
+
+
+@pytest_asyncio.fixture
+async def canonical(session):
+    from app.models import EntityCanonical, FactCurrent
+
+    counter = {"n": 0}
+
+    async def _make(entity_type: str, facts: dict, sources=None):
+        counter["n"] += 1
+        anchor = f"test|{entity_type}|{counter['n']}"
+        canonical_id = uuid.uuid5(uuid.NAMESPACE_URL, anchor)
+        sources = sources or ["hubspot"]
+        session.add(
+            EntityCanonical(
+                canonical_id=canonical_id,
+                entity_type=entity_type,
+                anchor_key=anchor,
+                minted_seq=counter["n"],
+                member_count=len(sources),
+            )
+        )
+        entity_ids = []
+        for source in sources:
+            entity_id = uuid.uuid5(uuid.NAMESPACE_URL, f"{anchor}|{source}")
+            entity_ids.append(entity_id)
+            session.add(
+                Entity(
+                    id=entity_id,
+                    source=source,
+                    entity_type=entity_type,
+                    source_id=f"{entity_type}_{counter['n']}",
+                    object_type=f"{entity_type}s",
+                    first_seq=counter["n"],
+                )
+            )
+        for attr, value in facts.items():
+            number = None
+            try:
+                number = float(value)
+            except (TypeError, ValueError):
+                pass
+            session.add(
+                FactCurrent(
+                    id=uuid.uuid5(uuid.NAMESPACE_URL, f"{anchor}|{attr}"),
+                    canonical_id=canonical_id,
+                    entity_type=entity_type,
+                    attr=attr,
+                    value=str(value),
+                    value_num=number,
+                    entity_id=entity_ids[0],
+                    observed_at=FIXTURE_SEEN,
+                    disagreements=max(0, len(sources) - 1),
+                )
+            )
+        await session.flush()
+        return canonical_id
+
+    return _make
+
+
+@pytest_asyncio.fixture
+async def link(session):
+    from app.models import CanonicalLink
+
+    async def _make(from_canonical, rel: str, to_canonical, grounding="via:test"):
+        session.add(
+            CanonicalLink(
+                id=uuid.uuid5(
+                    uuid.NAMESPACE_URL, f"{from_canonical}|{rel}|{to_canonical}"
+                ),
+                from_canonical=from_canonical,
+                rel=rel,
+                to_canonical=to_canonical,
+                grounding=grounding,
+            )
+        )
+        await session.flush()
+
+    return _make

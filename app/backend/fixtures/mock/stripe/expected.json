@@ -1,0 +1,72 @@
+{
+  "clears": {},
+  "extracted": {
+    "customers": {
+      "company": {
+        "cus_000001": {
+          "domain": "acme.io",
+          "name": "ACME Corporation"
+        },
+        "cus_000002": {
+          "domain": "globex.com",
+          "name": "Globex Inc"
+        },
+        "cus_000003": {
+          "domain": "initech.io",
+          "name": "Initech LLC"
+        },
+        "cus_000004": {
+          "domain": "umbrella.dev",
+          "name": "Umbrella Systems"
+        }
+      },
+      "person": {
+        "cus_000001": {
+          "email": "jane@acme.io"
+        },
+        "cus_000002": {
+          "email": "mike@globex.com"
+        },
+        "cus_000003": {
+          "email": "tom@initech.io"
+        },
+        "cus_000004": {
+          "email": "rachel@umbrella.dev"
+        }
+      }
+    },
+    "subscriptions": {
+      "subscription": {
+        "sub_000001": {
+          "currency": "usd",
+          "customer_ref": "cus_000001",
+          "mrr": "1800.0",
+          "started_at": "2024-01-16T06:26:40Z",
+          "status": "active"
+        },
+        "sub_000002": {
+          "currency": "usd",
+          "customer_ref": "cus_000002",
+          "mrr": "2400.0",
+          "started_at": "2024-01-17T06:26:40Z",
+          "status": "active"
+        },
+        "sub_000003": {
+          "currency": "usd",
+          "customer_ref": "cus_000003",
+          "mrr": "4800.0",
+          "started_at": "2024-01-18T06:26:40Z",
+          "status": "active"
+        },
+        "sub_000004": {
+          "currency": "usd",
+          "customer_ref": "cus_000004",
+          "mrr": "49.0",
+          "started_at": "2024-01-19T06:26:40Z",
+          "status": "canceled"
+        }
+      }
+    }
+  },
+  "skips": {}
+}

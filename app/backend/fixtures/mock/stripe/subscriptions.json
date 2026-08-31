@@ -1,0 +1,266 @@
+[
+  {
+    "payload": {
+      "billing_cycle_anchor": 1705386400,
+      "cancel_at_period_end": false,
+      "canceled_at": null,
+      "collection_method": "charge_automatically",
+      "created": 1705386400,
+      "currency": "usd",
+      "current_period_end": 1785542400,
+      "current_period_start": 1782864000,
+      "customer": "cus_000001",
+      "default_payment_method": "pm_mock_001",
+      "ended_at": null,
+      "id": "sub_000001",
+      "items": {
+        "data": [
+          {
+            "created": 1705386400,
+            "current_period_end": 1785542400,
+            "current_period_start": 1782864000,
+            "id": "si_000001",
+            "object": "subscription_item",
+            "price": {
+              "active": true,
+              "billing_scheme": "per_unit",
+              "currency": "usd",
+              "id": "price_professional",
+              "object": "price",
+              "product": "prod_professional",
+              "recurring": {
+                "interval": "month",
+                "interval_count": 1,
+                "usage_type": "licensed"
+              },
+              "type": "recurring",
+              "unit_amount": 180000,
+              "unit_amount_decimal": "180000"
+            },
+            "quantity": 1,
+            "subscription": "sub_000001"
+          }
+        ],
+        "has_more": false,
+        "object": "list",
+        "total_count": 1,
+        "url": "/v1/subscription_items?subscription=sub_000001"
+      },
+      "latest_invoice": "in_000001_latest",
+      "livemode": false,
+      "metadata": {},
+      "object": "subscription",
+      "plan": {
+        "amount": 180000,
+        "currency": "usd",
+        "id": "price_professional",
+        "interval": "month",
+        "object": "plan",
+        "product": "prod_professional"
+      },
+      "start_date": 1705386400,
+      "status": "active",
+      "trial_end": null,
+      "trial_start": null
+    },
+    "source_id": "sub_000001"
+  },
+  {
+    "payload": {
+      "billing_cycle_anchor": 1705472800,
+      "cancel_at_period_end": false,
+      "canceled_at": null,
+      "collection_method": "charge_automatically",
+      "created": 1705472800,
+      "currency": "usd",
+      "current_period_end": 1785542400,
+      "current_period_start": 1782864000,
+      "customer": "cus_000002",
+      "default_payment_method": "pm_mock_001",
+      "ended_at": null,
+      "id": "sub_000002",
+      "items": {
+        "data": [
+          {
+            "created": 1705472800,
+            "current_period_end": 1785542400,
+            "current_period_start": 1782864000,
+            "id": "si_000002",
+            "object": "subscription_item",
+            "price": {
+              "active": true,
+              "billing_scheme": "per_unit",
+              "currency": "usd",
+              "id": "price_professional",
+              "object": "price",
+              "product": "prod_professional",
+              "recurring": {
+                "interval": "month",
+                "interval_count": 1,
+                "usage_type": "licensed"
+              },
+              "type": "recurring",
+              "unit_amount": 240000,
+              "unit_amount_decimal": "240000"
+            },
+            "quantity": 1,
+            "subscription": "sub_000002"
+          }
+        ],
+        "has_more": false,
+        "object": "list",
+        "total_count": 1,
+        "url": "/v1/subscription_items?subscription=sub_000002"
+      },
+      "latest_invoice": "in_000002_latest",
+      "livemode": false,
+      "metadata": {},
+      "object": "subscription",
+      "plan": {
+        "amount": 240000,
+        "currency": "usd",
+        "id": "price_professional",
+        "interval": "month",
+        "object": "plan",
+        "product": "prod_professional"
+      },
+      "start_date": 1705472800,
+      "status": "active",
+      "trial_end": null,
+      "trial_start": null
+    },
+    "source_id": "sub_000002"
+  },
+  {
+    "payload": {
+      "billing_cycle_anchor": 1705559200,
+      "cancel_at_period_end": false,
+      "canceled_at": null,
+      "collection_method": "charge_automatically",
+      "created": 1705559200,
+      "currency": "usd",
+      "current_period_end": 1785542400,
+      "current_period_start": 1782864000,
+      "customer": "cus_000003",
+      "default_payment_method": "pm_mock_001",
+      "ended_at": null,
+      "id": "sub_000003",
+      "items": {
+        "data": [
+          {
+            "created": 1705559200,
+            "current_period_end": 1785542400,
+            "current_period_start": 1782864000,
+            "id": "si_000003",
+            "object": "subscription_item",
+            "price": {
+              "active": true,
+              "billing_scheme": "per_unit",
+              "currency": "usd",
+              "id": "price_enterprise",
+              "object": "price",
+              "product": "prod_enterprise",
+              "recurring": {
+                "interval": "month",
+                "interval_count": 1,
+                "usage_type": "licensed"
+              },
+              "type": "recurring",
+              "unit_amount": 480000,
+              "unit_amount_decimal": "480000"
+            },
+            "quantity": 1,
+            "subscription": "sub_000003"
+          }
+        ],
+        "has_more": false,
+        "object": "list",
+        "total_count": 1,
+        "url": "/v1/subscription_items?subscription=sub_000003"
+      },
+      "latest_invoice": "in_000003_latest",
+      "livemode": false,
+      "metadata": {},
+      "object": "subscription",
+      "plan": {
+        "amount": 480000,
+        "currency": "usd",
+        "id": "price_enterprise",
+        "interval": "month",
+        "object": "plan",
+        "product": "prod_enterprise"
+      },
+      "start_date": 1705559200,
+      "status": "active",
+      "trial_end": null,
+      "trial_start": null
+    },
+    "source_id": "sub_000003"
+  },
+  {
+    "payload": {
+      "billing_cycle_anchor": 1705645600,
+      "cancel_at_period_end": false,
+      "canceled_at": 1775001600,
+      "collection_method": "charge_automatically",
+      "created": 1705645600,
+      "currency": "usd",
+      "current_period_end": 1775001600,
+      "current_period_start": 1772323200,
+      "customer": "cus_000004",
+      "default_payment_method": "pm_mock_001",
+      "ended_at": null,
+      "id": "sub_000004",
+      "items": {
+        "data": [
+          {
+            "created": 1705645600,
+            "current_period_end": 1775001600,
+            "current_period_start": 1772323200,
+            "id": "si_000004",
+            "object": "subscription_item",
+            "price": {
+              "active": true,
+              "billing_scheme": "per_unit",
+              "currency": "usd",
+              "id": "price_starter",
+              "object": "price",
+              "product": "prod_starter",
+              "recurring": {
+                "interval": "month",
+                "interval_count": 1,
+                "usage_type": "licensed"
+              },
+              "type": "recurring",
+              "unit_amount": 4900,
+              "unit_amount_decimal": "4900"
+            },
+            "quantity": 1,
+            "subscription": "sub_000004"
+          }
+        ],
+        "has_more": false,
+        "object": "list",
+        "total_count": 1,
+        "url": "/v1/subscription_items?subscription=sub_000004"
+      },
+      "latest_invoice": "in_000004_latest",
+      "livemode": false,
+      "metadata": {},
+      "object": "subscription",
+      "plan": {
+        "amount": 4900,
+        "currency": "usd",
+        "id": "price_starter",
+        "interval": "month",
+        "object": "plan",
+        "product": "prod_starter"
+      },
+      "start_date": 1705645600,
+      "status": "canceled",
+      "trial_end": null,
+      "trial_start": null
+    },
+    "source_id": "sub_000004"
+  }
+]
