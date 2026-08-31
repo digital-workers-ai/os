@@ -1,4 +1,5 @@
 import pytest
+
 from app.engine.report import SyncReport
 
 
