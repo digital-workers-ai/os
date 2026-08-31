@@ -309,3 +309,8 @@ class TestTheBindParameterCeiling:
     def test_no_query_in_this_module_is_built_from_an_unbounded_set(self):
         source = inspect.getsource(m)
         assert ".in_(ids)" not in source
+
+    async def test_snapshots_skip_broken_metrics(self, session, canonical):
+        await canonical("company", {"domain": "a.io"})
+        written = await m.record_snapshots(session)
+        assert written > 0

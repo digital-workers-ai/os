@@ -6,13 +6,13 @@ import pytest
 import pytest_asyncio
 from sqlalchemy import func, select
 
-from app.api import entities_api, sources_api
+from app.api import entities_api, metrics_api, sources_api
 from app.db import get_session
 from app.engine import run
 from app.main import app
 from app.models import CanonicalAlias, EngineRun, Entity, EntityFact, RawEvent
 
-SELF_TRANSACTING = (sources_api, entities_api)
+SELF_TRANSACTING = (sources_api, entities_api, metrics_api)
 
 SEEN = datetime(2026, 8, 1, tzinfo=UTC)
 
@@ -368,6 +368,27 @@ class TestMetrics:
             "stripe.subscriptions.status",
         ]
         assert all("error" not in row for row in body.values())
+
+    async def test_reading_history_never_writes_it(self, api):
+        before = (await api.get("/api/metrics/history")).json()["history"]
+        await api.get("/api/metrics")
+        after = (await api.get("/api/metrics/history")).json()["history"]
+        assert len(before) == len(after) == 0
+
+    async def test_the_snapshot_endpoint_is_the_only_writer(self, api):
+        written = (await api.post("/api/metrics/snapshots")).json()["written"]
+        assert written > 0
+        rows = (await api.get("/api/metrics/history")).json()["history"]
+        assert len(rows) == written
+
+    async def test_history_can_be_narrowed_to_one_metric(self, api):
+        await api.post("/api/metrics/snapshots")
+        body = (await api.get("/api/metrics/history?metric=deal_count")).json()
+        assert {row["metric"] for row in body["history"]} == {"deal_count"}
+
+    @pytest.mark.parametrize("query", ["limit=0", "limit=2001"])
+    async def test_out_of_range_history_limits_are_refused(self, api, query):
+        assert (await api.get(f"/api/metrics/history?{query}")).status_code == 422
 
 
 class TestReport:
