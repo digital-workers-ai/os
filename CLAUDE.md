@@ -11,7 +11,7 @@
 - No comments anywhere: no `#` comments, no docstrings, no YAML/shell/TOML comments.
 - Code must explain itself through naming and structure.
 - Commit messages and PR descriptions carry the rationale instead.
-- One exception — DB schema definitions: every column gets a comment with a short explanation (5 words max) plus 2–3 example values, e.g. `# vendor record id: cus_9x2, chan_42`.
+- One exception — DB schema definitions: every column gets a trailing comment on the same line — short explanation (5 words max) plus 2–3 example values, e.g. `source_id = Column(String(256), nullable=False)  # object id in source: cus_000001, deal_88`.
 
 ## Minimalism
 

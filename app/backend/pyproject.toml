@@ -37,6 +37,12 @@ line-length = 88
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "B", "UP", "C4", "DTZ"]
 
+[tool.ruff.lint.per-file-ignores]
+"app/models.py" = ["E501"]
+
+[tool.ruff.format]
+exclude = ["app/models.py"]
+
 [tool.coverage.run]
 source = ["app"]
 concurrency = ["greenlet", "thread"]
