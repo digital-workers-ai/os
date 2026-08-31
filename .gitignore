@@ -9,6 +9,7 @@ htmlcov/
 /app/backend/mappings.yaml
 /app/backend/ontology.yaml
 /app/backend/transforms.yaml
+/app/backend/synonyms.yaml
 .mutmut-cache
 .pytest_cache/
 .hypothesis/

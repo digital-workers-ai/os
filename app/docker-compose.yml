@@ -38,6 +38,7 @@ services:
       - ../mappings.yaml:/app/mappings.yaml
       - ../ontology.yaml:/app/ontology.yaml
       - ../transforms.yaml:/app/transforms.yaml
+      - ../synonyms.yaml:/app/synonyms.yaml
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')\""]
       interval: 5s

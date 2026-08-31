@@ -67,10 +67,12 @@ async def test_server_timestamps_are_timezone_aware(session):
 def test_reset_all_clears_every_registered_cache():
     from app import caches
     from app.connectors import registry
-    from app.engine import extract
+    from app.engine import extract, transforms
 
     registry.discover()
     extract.hooks()
+    transforms.load_synonyms()
     caches.reset_all()
     assert registry._cache is None
     assert extract._cache is None
+    assert transforms._synonyms_cache is None

@@ -134,6 +134,48 @@ class TestStatus:
         assert t.normalize_status("hubspot", "tickets", "Closed Won") == "closed_won"
 
 
+class TestSynonymsLoader:
+    def test_the_shipped_file_loads_and_folds_closedwon(self):
+        doc = t.load_synonyms()
+        assert doc["hubspot"]["deals"]["closedwon"] == "closed_won"
+
+    def test_the_default_load_is_memoized(self):
+        assert t.load_synonyms() is t.load_synonyms()
+
+    def test_an_explicit_path_bypasses_the_cache(self, tmp_path):
+        path = tmp_path / "synonyms.yaml"
+        path.write_text("stripe:\n  invoices:\n    uncollectible: void\n")
+        doc = t.load_synonyms(path)
+        assert doc == {"stripe": {"invoices": {"uncollectible": "void"}}}
+        assert t.load_synonyms() != doc
+
+    def test_a_non_mapping_top_level_is_refused(self, tmp_path):
+        path = tmp_path / "synonyms.yaml"
+        path.write_text("- hubspot\n")
+        with pytest.raises(t.TransformError, match="top level must be a mapping"):
+            t.load_synonyms(path)
+
+    def test_a_non_mapping_source_value_is_refused(self, tmp_path):
+        path = tmp_path / "synonyms.yaml"
+        path.write_text("hubspot: deals\n")
+        with pytest.raises(t.TransformError, match="hubspot must map object types"):
+            t.load_synonyms(path)
+
+    def test_a_non_mapping_object_type_value_is_refused(self, tmp_path):
+        path = tmp_path / "synonyms.yaml"
+        path.write_text("hubspot:\n  deals:\n    - closedwon\n")
+        with pytest.raises(t.TransformError, match="hubspot.deals must map"):
+            t.load_synonyms(path)
+
+    def test_a_non_str_synonym_value_is_refused(self, tmp_path):
+        path = tmp_path / "synonyms.yaml"
+        path.write_text("hubspot:\n  deals:\n    closedwon: 3\n")
+        with pytest.raises(
+            t.TransformError, match="hubspot.deals.closedwon must be a string"
+        ):
+            t.load_synonyms(path)
+
+
 class TestDateIsAlwaysReparseable:
     @pytest.mark.parametrize("year", [1, 99, 500, 999, 1000, 2026])
     def test_a_year_under_1000_is_zero_padded(self, year):

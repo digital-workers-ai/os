@@ -19,10 +19,11 @@ An AI Operating System substrate: it pulls raw data from the tools a company use
 
 A value the transform refused (garbage date, non-numeric amount) becomes none of these — it is counted and named in the report, never stored and never turned into a null.
 
-**Knowledge files** — the three YAML files at the repo root that make projection declarative:
+**Knowledge files** — the four YAML files at the repo root that make projection declarative:
 - `ontology.yaml` — what entities exist and what typed attributes each may have
 - `mappings.yaml` — one line per raw field worth keeping: `source.object_type.path → attribute`
 - `transforms.yaml` — which normalizer each attribute's values pass through
+- `synonyms.yaml` — which provider spellings fold to one canonical status
 
 Adding a field to the system is editing a YAML line, not writing code.
 

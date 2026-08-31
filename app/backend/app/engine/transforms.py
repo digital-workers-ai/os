@@ -1,10 +1,12 @@
 import math
 import re
 from datetime import UTC, datetime
+from pathlib import Path
 
-from app.caches import BACKEND_DIR, load_mapping
+from app.caches import BACKEND_DIR, load_mapping, register
 
 DEFAULT_TRANSFORMS = BACKEND_DIR / "transforms.yaml"
+DEFAULT_SYNONYMS = BACKEND_DIR / "synonyms.yaml"
 
 _WS = re.compile(r"\s+")
 _HOST = re.compile(
@@ -80,9 +82,40 @@ def normalize_text(source, object_type, value):
     return text
 
 
-_STATUS_SYNONYMS = {
-    ("hubspot", "deals"): {"closedwon": "closed_won", "closedlost": "closed_lost"},
-}
+_synonyms_cache: dict | None = None
+
+
+@register
+def _reset() -> None:
+    global _synonyms_cache
+    _synonyms_cache = None
+
+
+def load_synonyms(path=None) -> dict:
+    global _synonyms_cache
+    if path is None and _synonyms_cache is not None:
+        return _synonyms_cache
+    target = Path(path or DEFAULT_SYNONYMS)
+    doc = load_mapping(target, TransformError)
+    for source, object_types in doc.items():
+        if not isinstance(object_types, dict):
+            raise TransformError(
+                f"{target.name}: {source} must map object types to synonym tables"
+            )
+        for object_type, table in object_types.items():
+            if not isinstance(table, dict):
+                raise TransformError(
+                    f"{target.name}: {source}.{object_type} must map "
+                    "raw statuses to canonical ones"
+                )
+            for raw, canonical in table.items():
+                if not isinstance(canonical, str):
+                    raise TransformError(
+                        f"{target.name}: {source}.{object_type}.{raw} must be a string"
+                    )
+    if path is None:
+        _synonyms_cache = doc
+    return doc
 
 
 def normalize_status(source, object_type, value):
@@ -90,7 +123,7 @@ def normalize_status(source, object_type, value):
     status = re.sub(r"_+", "_", status).strip("_")
     if not status:
         raise TransformError("empty")
-    return _STATUS_SYNONYMS.get((source, object_type), {}).get(status, status)
+    return load_synonyms().get(source, {}).get(object_type, {}).get(status, status)
 
 
 _DATE_FORMATS = (
