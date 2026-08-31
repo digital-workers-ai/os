@@ -1,0 +1,42 @@
+name: os_v0
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: os
+      POSTGRES_PASSWORD: os
+      POSTGRES_DB: os_v0
+    ports:
+      - "5442:5432"
+    volumes:
+      - pgdata_v0:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U os"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8092:8000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://os:os@postgres:5432/os_v0
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')\""]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+
+volumes:
+  pgdata_v0:
