@@ -8,7 +8,7 @@ An AI Operating System substrate: it pulls raw data from the tools a company use
 
 **Raw event** — one payload exactly as a source returned it, stored append-only in `raw_event`. Nothing is ever edited or deleted here; a record that changes gets a new row. This is the system's ground truth: everything else can be rebuilt from it.
 
-Think of `raw_event` as the enrollment book: every record ever seen is in it, permanently. What the system deliberately does *not* keep is an attendance sheet — the census of "who showed up in today's pull" that would let it infer deletions (in the book but not on today's sheet = gone upstream). That mechanism (pull manifests + tombstones) was removed by design: a record deleted in a source simply stops producing new rows, and nothing more is concluded. If deletion detection ever returns, it is its own roadmap slice.
+Think of `raw_event` as the enrollment book: every record ever seen is in it, permanently.
 
 **Sync** — one pull attempt for a source (`POST /api/sync`). It records itself in `sync_run` — including refusals, id collisions, and truncations — because a quiet source and a broken one must never look the same.
 
