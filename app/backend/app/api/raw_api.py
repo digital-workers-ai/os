@@ -3,7 +3,7 @@ from sqlalchemy import func, select
 
 from app.api.routers import raw as router
 from app.db import get_session
-from app.models import PullManifest, RawEvent
+from app.models import RawEvent
 
 MAX_OFFSET = 2**63 - 1
 
@@ -42,34 +42,4 @@ async def list_raw(
             }
             for r in rows
         ],
-    }
-
-
-@router.get("/manifests")
-async def list_manifests(session=Depends(get_session)):
-    rows = (
-        (
-            await session.execute(
-                select(PullManifest)
-                .distinct(PullManifest.source, PullManifest.object_type)
-                .order_by(
-                    PullManifest.source,
-                    PullManifest.object_type,
-                    PullManifest.seq.desc(),
-                )
-            )
-        )
-        .scalars()
-        .all()
-    )
-    return {
-        "manifests": [
-            {
-                "source": m.source,
-                "object_type": m.object_type,
-                "ids": len(m.source_ids),
-                "observed_at": m.observed_at.isoformat(),
-            }
-            for m in rows
-        ]
     }

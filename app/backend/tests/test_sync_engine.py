@@ -4,22 +4,8 @@ from sqlalchemy import func, select
 
 from app import sync
 from app.config import settings
-from app.connectors import client, hubspot, registry
-from app.models import PullManifest, RawEvent, SyncRun
-
-
-class TestObjectClass:
-    def test_record_class_is_the_default(self):
-        assert sync.object_class(hubspot, "companies") == "record"
-
-    def test_an_undeclared_object_type_defaults_to_record(self):
-        assert sync.object_class(hubspot, "charges") == "record"
-
-    def test_a_module_declaring_nothing_still_answers(self):
-        class Bare:
-            pass
-
-        assert sync.object_class(Bare, "anything") == "record"
+from app.connectors import client, registry
+from app.models import RawEvent, SyncRun
 
 
 class TestSyncIsolation:
@@ -36,7 +22,7 @@ class TestSyncIsolation:
         assert result["failed"] == 1 and result["ok"] == 0
         assert "provider is down" in result["results"][0]["detail"]
 
-    async def test_a_truncated_pull_refuses_to_write_a_manifest(
+    async def test_a_truncated_pull_reports_the_reason(
         self, session, sessionmaker_for_test, monkeypatch
     ):
         async def pull_and_truncate(session, store):
@@ -49,7 +35,7 @@ class TestSyncIsolation:
 
         result = await sync.run_all(sessionmaker_for_test, ["hubspot"])
         detail = result["results"][0]["detail"] or ""
-        assert "no manifest written" in detail
+        assert "page cap reached" in detail
         assert result["results"][0]["truncated"] is True
 
     async def test_notes_from_a_pull_reach_the_stored_detail(
@@ -201,126 +187,6 @@ class TestOneUnstorableRecordCostsOneRecord:
         assert result["failed"] == 1
 
 
-class TestAPullThatFoundNothingStillSaysSo:
-    async def _run(self, sessionmaker_for_test, monkeypatch, pull, **attrs):
-        module = type("M", (), {"pull": staticmethod(pull), **attrs})
-        monkeypatch.setattr(registry, "discover", lambda: {"hubspot": module})
-        return await sync.run_all(sessionmaker_for_test, ["hubspot"])
-
-    async def test_an_empty_record_pull_writes_an_empty_manifest(
-        self, session, sessionmaker_for_test, monkeypatch
-    ):
-        async def pull(session, store):
-            return None
-
-        await self._run(
-            sessionmaker_for_test,
-            monkeypatch,
-            pull,
-            OBJECT_CLASS={"companies": "record"},
-        )
-
-        rows = (await session.execute(select(PullManifest))).scalars().all()
-        assert [r.object_type for r in rows] == ["companies"]
-        assert rows[0].source_ids == []
-
-    async def test_an_event_stream_still_writes_none(
-        self, session, sessionmaker_for_test, monkeypatch
-    ):
-        async def pull(session, store):
-            return None
-
-        await self._run(
-            sessionmaker_for_test,
-            monkeypatch,
-            pull,
-            OBJECT_CLASS={"activities": "event"},
-        )
-        assert (
-            await session.execute(select(func.count()).select_from(PullManifest))
-        ).scalar_one() == 0
-
-    async def test_a_stored_event_type_still_writes_no_manifest(
-        self, session, sessionmaker_for_test, monkeypatch
-    ):
-        async def pull(session, store):
-            await store(
-                session,
-                source="hubspot",
-                object_type="activities",
-                source_id="a1",
-                raw_payload={"kind": "call"},
-            )
-
-        result = await self._run(
-            sessionmaker_for_test,
-            monkeypatch,
-            pull,
-            OBJECT_CLASS={"activities": "event"},
-        )
-        assert result["ok"] == 1
-        assert (
-            await session.execute(select(func.count()).select_from(PullManifest))
-        ).scalar_one() == 0
-
-    async def test_a_truncated_pull_still_writes_nothing(
-        self, session, sessionmaker_for_test, monkeypatch
-    ):
-        async def pull(session, store):
-            client.SourceClient("hubspot", "http://api").truncate("cap")
-
-        await self._run(
-            sessionmaker_for_test,
-            monkeypatch,
-            pull,
-            OBJECT_CLASS={"companies": "record"},
-        )
-        assert (
-            await session.execute(select(func.count()).select_from(PullManifest))
-        ).scalar_one() == 0
-
-
-class TestThePullManifestIsPrunedLikeEveryOtherLog:
-    async def test_only_the_newest_manifests_survive(self, session, monkeypatch):
-        monkeypatch.setattr(settings, "PULL_MANIFEST_RETENTION", 2)
-        for n in range(5):
-            session.add(
-                PullManifest(
-                    source="hubspot", object_type="companies", source_ids=[f"c{n}"]
-                )
-            )
-        await session.flush()
-
-        await sync.prune_pull_manifests(session)
-
-        kept = (await session.execute(select(PullManifest))).scalars().all()
-        assert [r.source_ids for r in kept] == [["c3"], ["c4"]]
-
-    async def test_each_identity_keeps_its_own_history(self, session, monkeypatch):
-        monkeypatch.setattr(settings, "PULL_MANIFEST_RETENTION", 1)
-        for n in range(3):
-            session.add(
-                PullManifest(
-                    source="hubspot", object_type="companies", source_ids=[f"c{n}"]
-                )
-            )
-        session.add(
-            PullManifest(source="stripe", object_type="customers", source_ids=["cus_1"])
-        )
-        await session.flush()
-
-        await sync.prune_pull_manifests(session)
-
-        kept = {
-            (r.source, r.object_type): r.source_ids
-            for r in (await session.execute(select(PullManifest))).scalars().all()
-        }
-        assert kept == {
-            ("hubspot", "companies"): ["c2"],
-            ("stripe", "customers"): ["cus_1"],
-        }
-
-
 class TestReportedCountsMatchWhatSurvived:
     async def test_a_rolled_back_pull_reports_no_rows_written(
         self, session, sessionmaker_for_test, monkeypatch
@@ -377,11 +243,7 @@ class TestTwoRecordsSharingAnIdAreNotSilentlyOne:
                     raw_payload=payload,
                 )
 
-        module = type(
-            "M",
-            (),
-            {"pull": staticmethod(pull), "OBJECT_CLASS": {"companies": "record"}},
-        )
+        module = type("M", (), {"pull": staticmethod(pull)})
         monkeypatch.setattr(registry, "discover", lambda: {"hubspot": module})
         return await sync.run_all(sessionmaker_for_test, ["hubspot"])
 

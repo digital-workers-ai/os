@@ -174,9 +174,6 @@ class SourceClient:
 
         return records
 
-    def truncate(self, reason: str) -> None:
-        self._truncate(reason)
-
     def _truncate(self, reason: str) -> None:
         self.truncated = True
         self.truncation_reasons.append(reason)

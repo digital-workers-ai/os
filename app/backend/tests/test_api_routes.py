@@ -61,9 +61,6 @@ class TestRaw:
         assert one.json()["total"] == 1
         assert one.json()["events"][0]["object_type"] == "deals"
 
-    async def test_manifests_are_empty_before_any_pull(self, api):
-        assert (await api.get("/api/raw/manifests")).json() == {"manifests": []}
-
 
 class TestOffsetsThatReachTheDriver:
     async def test_the_largest_legal_offset_is_an_empty_page(self, api):

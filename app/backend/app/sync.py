@@ -1,20 +1,15 @@
 import logging
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete
 
 from app.config import settings
 from app.connectors import registry
 from app.connectors.client import collect_stats
-from app.models import PullManifest, SyncRun
+from app.models import SyncRun
 from app.store import payload_sha, save_raw
 
 logger = logging.getLogger(__name__)
-
-
-def object_class(module, object_type: str) -> str:
-    declared = getattr(module, "OBJECT_CLASS", None) or {}
-    return declared.get(object_type, "record")
 
 
 async def run_connector(source: str, sessionmaker) -> dict:
@@ -27,7 +22,6 @@ async def run_connector(source: str, sessionmaker) -> dict:
         run_id = run.id
 
     counts = {"fetched": 0, "written": 0, "refused": 0, "colliding": 0}
-    seen: dict[str, list] = {}
     refusals: list[str] = []
     collisions: list[str] = []
     within_pull: dict[tuple, str] = {}
@@ -36,7 +30,6 @@ async def run_connector(source: str, sessionmaker) -> dict:
         session, *, source: str, object_type: str, source_id: str, raw_payload: dict
     ):
         counts["fetched"] += 1
-        seen.setdefault(object_type, []).append(source_id)
         digest = payload_sha(raw_payload) if isinstance(raw_payload, dict) else None
         previous = within_pull.get((object_type, source_id))
         if digest is not None:
@@ -68,23 +61,6 @@ async def run_connector(source: str, sessionmaker) -> dict:
         async with sessionmaker() as session:
             with stats:
                 notes = await module.pull(session, counting_store)
-            if not stats.truncated:
-                declared = {
-                    o
-                    for o, cls in (getattr(module, "OBJECT_CLASS", None) or {}).items()
-                    if cls == "record"
-                }
-                for object_type in sorted(declared | set(seen)):
-                    if object_class(module, object_type) != "record":
-                        continue
-                    session.add(
-                        PullManifest(
-                            source=source,
-                            object_type=object_type,
-                            source_ids=sorted(set(seen.get(object_type, []))),
-                            observed_at=datetime.now(UTC),
-                        )
-                    )
             await session.commit()
         ok = True
     except Exception as e:
@@ -110,8 +86,6 @@ async def run_connector(source: str, sessionmaker) -> dict:
         )
     if stats.truncation_reasons:
         detail_parts.append("; ".join(stats.truncation_reasons))
-    if stats.truncated:
-        detail_parts.append("no manifest written: pull was truncated")
     detail = " | ".join(detail_parts) or None
 
     async with sessionmaker() as session:
@@ -121,7 +95,6 @@ async def run_connector(source: str, sessionmaker) -> dict:
         db_run.detail = detail
         await session.commit()
         await prune_sync_runs(session)
-        await prune_pull_manifests(session)
         await session.commit()
 
     return {
@@ -152,17 +125,3 @@ async def run_all(sessionmaker, sources: list[str] | None = None) -> dict:
 async def prune_sync_runs(session) -> None:
     cutoff = datetime.now(UTC) - timedelta(days=settings.SYNC_RUN_RETENTION_DAYS)
     await session.execute(delete(SyncRun).where(SyncRun.started_at < cutoff))
-
-
-async def prune_pull_manifests(session) -> None:
-    ranked = select(
-        PullManifest.id,
-        func.row_number()
-        .over(
-            partition_by=(PullManifest.source, PullManifest.object_type),
-            order_by=PullManifest.seq.desc(),
-        )
-        .label("rank"),
-    ).subquery()
-    stale = select(ranked.c.id).where(ranked.c.rank > settings.PULL_MANIFEST_RETENTION)
-    await session.execute(delete(PullManifest).where(PullManifest.id.in_(stale)))

@@ -2,8 +2,6 @@ from app.connectors.util import client_for, store_all
 
 SOURCE = "hubspot"
 
-OBJECT_CLASS = {"contacts": "record", "companies": "record", "deals": "record"}
-
 PROPERTIES = {
     "contacts": ("email", "firstname", "lastname", "lastmodifieddate"),
     "companies": ("domain", "industry", "name", "hs_lastmodifieddate"),
