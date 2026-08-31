@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Meta Marketing API (formerly Facebook Marketing API) provides access to ad accounts, campaigns, ad sets, ads, and performance insights across Facebook and Instagram placements. Used by Elise for paid social advertising data.
+The Meta Marketing API (formerly Facebook Marketing API) provides access to ad accounts, campaigns, ad sets, ads, and performance insights across Facebook and Instagram placements. Used by OS for paid social advertising data.
 
 - **Category:** Social Ads
 - **Production Base URL:** `https://graph.facebook.com/v25.0`

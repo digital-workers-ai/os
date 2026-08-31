@@ -35,7 +35,7 @@ def _meeting_id(call) -> int:
 
 def _uuid(call) -> str:
     """A base64 UUID, which Zoom double-encodes in URLs when it contains `/`."""
-    return base64.b64encode(f"elise-zoom-{call.id}".encode()).decode()
+    return base64.b64encode(f"os-zoom-{call.id}".encode()).decode()
 
 
 def _end_time(started_at: str, duration_min: int) -> str:
@@ -50,7 +50,7 @@ def _recording(call) -> dict:
     return {
         "uuid": _uuid(call),
         "id": mid,
-        "account_id": "acct_elise_mock",
+        "account_id": "acct_os_mock",
         "host_id": "usr_" + call.host_email.split("@")[0],
         "host_email": call.host_email,
         "topic": call.topic,

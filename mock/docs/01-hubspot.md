@@ -2,7 +2,7 @@
 
 ## Overview
 
-HubSpot CRM API provides access to contacts, companies, deals, and tickets. Used by Elise for CRM data ingestion.
+HubSpot CRM API provides access to contacts, companies, deals, and tickets. Used by OS for CRM data ingestion.
 
 - **Category:** CRM
 - **Production Base URL:** `https://api.hubapi.com`

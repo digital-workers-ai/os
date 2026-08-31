@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Facebook Page API provides access to page insights, posts, comments, reactions, reviews, and engagement metrics. Part of the Meta Graph API. Used by Elise for organic social media data.
+The Facebook Page API provides access to page insights, posts, comments, reactions, reviews, and engagement metrics. Part of the Meta Graph API. Used by OS for organic social media data.
 
 - **Category:** Social Media (Organic)
 - **Production Base URL:** `https://graph.facebook.com/v25.0`

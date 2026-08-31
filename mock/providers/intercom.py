@@ -167,7 +167,7 @@ async def contact_notes(request: Request, contact_id: str, page: int = Query(1),
             "type": "note", "id": f"note_{contact_id}_001",
             "created_at": 1720195200,
             "body": "<p>VIP customer — escalate any billing issues directly to finance team.</p>",
-            "author": {"type": "admin", "id": "12345", "name": "Support Agent", "email": "support@elise.dev"},
+            "author": {"type": "admin", "id": "12345", "name": "Support Agent", "email": "support@os.dev"},
             "contact": {"type": "contact", "id": contact_id},
         },
     ]

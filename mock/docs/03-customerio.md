@@ -2,7 +2,7 @@
 
 ## Overview
 
-Customer.io's App API provides access to campaigns, newsletters, segments, activities, and messaging metrics. Used by Elise for email/messaging engagement data.
+Customer.io's App API provides access to campaigns, newsletters, segments, activities, and messaging metrics. Used by OS for email/messaging engagement data.
 
 - **Category:** Email / Messaging
 - **Production Base URL:** `https://api.customer.io` (US) or `https://api-eu.customer.io` (EU)

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Instagram Graph API provides access to business/creator account insights, media, demographics, and engagement data. Part of the Meta Graph API. Used by Elise for organic Instagram analytics.
+The Instagram Graph API provides access to business/creator account insights, media, demographics, and engagement data. Part of the Meta Graph API. Used by OS for organic Instagram analytics.
 
 - **Category:** Social Media (Organic)
 - **Production Base URL:** `https://graph.facebook.com/v25.0`

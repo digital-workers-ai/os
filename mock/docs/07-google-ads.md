@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Google Ads API provides access to campaigns, ad groups, keywords, creatives, geographic data, and performance metrics via GAQL (Google Ads Query Language). All queries go through a single streaming endpoint. Used by Elise for search/display advertising data.
+The Google Ads API provides access to campaigns, ad groups, keywords, creatives, geographic data, and performance metrics via GAQL (Google Ads Query Language). All queries go through a single streaming endpoint. Used by OS for search/display advertising data.
 
 - **Category:** Search/Display Ads
 - **Production Base URL:** `https://googleads.googleapis.com/v24`

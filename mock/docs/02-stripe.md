@@ -2,7 +2,7 @@
 
 ## Overview
 
-Stripe's REST API provides access to customers, subscriptions, invoices, and payment data. Used by Elise for billing/revenue data ingestion.
+Stripe's REST API provides access to customers, subscriptions, invoices, and payment data. Used by OS for billing/revenue data ingestion.
 
 - **Category:** Payments
 - **Production Base URL:** `https://api.stripe.com`

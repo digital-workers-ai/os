@@ -276,7 +276,7 @@ curl -H "Authorization: Bearer int_mock_xxxxxxxxxxxx" \
               "type": "admin",
               "id": "12345",
               "name": "Support Agent",
-              "email": "support@elise.dev"
+              "email": "support@os.dev"
             },
             "attachments": [],
             "external_id": null
@@ -426,7 +426,7 @@ curl -H "Authorization: Bearer int_mock_xxxxxxxxxxxx" \
         "type": "admin",
         "id": "12345",
         "name": "Support Agent",
-        "email": "support@elise.dev"
+        "email": "support@os.dev"
       },
       "contact": {
         "type": "contact",

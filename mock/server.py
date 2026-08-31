@@ -11,7 +11,7 @@ from seeds.providers import (
     zoom,
 )
 
-app = FastAPI(title="Elise Mock Providers")
+app = FastAPI(title="OS Mock Providers")
 
 routers = {
     "/hubspot": hubspot,

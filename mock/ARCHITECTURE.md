@@ -6,9 +6,9 @@
 
 ## 1. Purpose
 
-Elise's connectors pull from external APIs and dump raw payloads into `raw_event`. To develop and test the full pipeline (mapping, ER, enrichment, rules, goals, coaching) without real API credentials, `seeds/` provides a mock server that replicates each provider's API contract — auth mechanism, pagination style, response schema, error format.
+OS's connectors pull from external APIs and dump raw payloads into `raw_event`. To develop and test the full pipeline (mapping, ER, enrichment, rules, goals, coaching) without real API credentials, `seeds/` provides a mock server that replicates each provider's API contract — auth mechanism, pagination style, response schema, error format.
 
-The mock server runs as a Docker Compose service (`mock`) alongside the other Elise services. Connectors switch targets via env var:
+The mock server runs as a Docker Compose service (`mock`) alongside the other OS services. Connectors switch targets via env var:
 
 ```env
 HUBSPOT_BASE_URL=http://mock:8100/hubspot            # dev
@@ -35,9 +35,9 @@ All 26 provider modules share a single ground-truth dataset (`world.py`) and a s
 ## 3. File Structure
 
 ```
-seeds/
+mock/
 ├── ARCHITECTURE.md              # This document
-├── MOCK_SERVER_PLAN.md          # Original implementation plan
+├── Dockerfile                   # python:3.12-slim, serves on :8100 as seeds.server
 ├── server.py                    # FastAPI app, mounts all routers, uvicorn entry
 ├── world.py                     # Shared ground truth: companies, people, subscriptions, ...
 ├── helpers.py                   # Auth decorators, pagination helpers
@@ -70,7 +70,8 @@ seeds/
 │   ├── amplitude.py             # Export (NDJSON), cohorts, usersearch
 │   ├── segment.py               # Sources, destinations, profiles, tracking plans
 │   ├── intercom.py              # Contacts, conversations, companies, notes
-│   └── zendesk.py               # Tickets, users, organizations, search
+│   ├── zendesk.py               # Tickets, users, organizations, search
+│   └── zoom.py                  # Meetings, recordings, VTT transcripts (no numbered doc)
 │
 └── docs/                        # API contracts (the source of truth)
     ├── 01-hubspot.md
