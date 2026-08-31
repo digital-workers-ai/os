@@ -1,14 +1,14 @@
 # Seeds — Mock Provider Server
 
-> Faithful replicas of 28 third-party APIs on a single FastAPI process, backed by a shared ground-truth world.
+> Faithful replicas of 29 third-party APIs on a single FastAPI process, backed by a shared ground-truth world.
 
 ---
 
 ## 1. Purpose
 
-OS's connectors pull from external APIs and dump raw payloads into `raw_event`. To develop and test the full pipeline (mapping, ER, enrichment, rules, goals, coaching) without real API credentials, `seeds/` provides a mock server that replicates each provider's API contract — auth mechanism, pagination style, response schema, error format.
+OS's connectors will pull from external APIs and dump raw payloads into `raw_event`. To develop and test the full pipeline (mapping, ER, enrichment, rules, goals, coaching) without real API credentials, `mock/` (mounted into its container as the `seeds` package) provides a mock server that replicates each provider's API contract — auth mechanism, pagination style, response schema, error format.
 
-The mock server runs as a Docker Compose service (`mock`) alongside the other OS services. Connectors switch targets via env var:
+The mock server runs as a Docker Compose service (`mock`, project `os_v0`) alongside `postgres` and `backend`. It listens on `:8100` in the container, published to the host as `:8192`. When the sync slice lands, connectors will switch targets via env var — this is the contract they consume:
 
 ```env
 HUBSPOT_BASE_URL=http://mock:8100/hubspot            # dev
@@ -22,13 +22,13 @@ HUBSPOT_BASE_URL=https://api.hubapi.com              # prod
 Single FastAPI app, one `APIRouter` per provider module, path-prefixed so that every mock endpoint matches its production URL structure after the host swap:
 
 ```
-localhost:8100/hubspot/crm/v3/objects/contacts          → api.hubapi.com/crm/v3/objects/contacts
-localhost:8100/stripe/v1/customers                      → api.stripe.com/v1/customers
-localhost:8100/meta/v25.0/act_{id}/campaigns            → graph.facebook.com/v25.0/act_{id}/campaigns
-localhost:8100/salesforce/services/data/v67.0/query      → {instance}.salesforce.com/services/data/v67.0/query
+mock:8100/hubspot/crm/v3/objects/contacts          → api.hubapi.com/crm/v3/objects/contacts
+mock:8100/stripe/v1/customers                      → api.stripe.com/v1/customers
+mock:8100/meta/v25.0/act_{id}/campaigns            → graph.facebook.com/v25.0/act_{id}/campaigns
+mock:8100/salesforce/services/data/v67.0/query      → {instance}.salesforce.com/services/data/v67.0/query
 ```
 
-All 26 provider modules share a single ground-truth dataset (`world.py`) and a shared library of auth decorators and pagination helpers (`helpers.py`). Each module renders the same underlying entities in its provider-specific response format.
+All 27 provider modules share a single ground-truth dataset (`world.py`) and a shared library of auth decorators and pagination helpers (`helpers.py`). Each module renders the same underlying entities in its provider-specific response format.
 
 ---
 
@@ -97,6 +97,7 @@ All providers render the same canonical dataset. The entities are defined as Pyt
 | Ad campaigns | 12 | Across Meta, Google, LinkedIn, Pinterest, Snapchat |
 | Support tickets | 10 | Clustered to create churn and billing signals |
 | Analytics events | 16 | Product usage events for Mixpanel/Amplitude/Segment |
+| Sales calls | 6 | Zoom transcripts with expected labels for enrichment |
 
 ### 4.2 Company Scenarios
 
@@ -135,7 +136,7 @@ All auth is permissive — any non-empty credential in the correct format passes
 
 | Decorator | Pattern | Used by |
 |-----------|---------|---------|
-| `require_bearer` | `Authorization: Bearer <token>` | HubSpot, Customer.io, Calendly, GA4, Sheets, SendGrid, Segment, Intercom, Zendesk |
+| `require_bearer` | `Authorization: Bearer <token>` | HubSpot, Customer.io, Calendly, GA4, Sheets, Smartlook, LinkedIn, Pinterest, Snapchat, SendGrid, Segment, Intercom, Zendesk, Zoom |
 | `require_basic_auth` | `Authorization: Basic <base64>` | Stripe, Twilio, WooCommerce, Mixpanel, Amplitude, Zendesk |
 | `require_query_token` | `?access_token=<token>` | Meta (Graph API) |
 | `require_header` | Custom header check | Klaviyo (`Authorization: Klaviyo-API-Key`), ActiveCampaign (`Api-Token`), Shopify (`X-Shopify-Access-Token`), Google Ads (`developer-token`), LinkedIn (`Linkedin-Version`, `X-Restli-Protocol-Version`), Intercom (`Intercom-Version`) |
@@ -146,15 +147,15 @@ Seven pagination patterns cover every provider:
 
 | Helper | Style | Returns | Used by |
 |--------|-------|---------|---------|
-| `cursor_paginate` | Cursor-based (`after` param) | `(page, next_cursor)` | HubSpot, Stripe, Customer.io, LinkedIn, Meta, Calendly, Smartlook |
+| `cursor_paginate` | Cursor-based (`after` param) | `(page, next_cursor)` | HubSpot, Stripe, Customer.io, Meta, Smartlook, Zendesk |
 | `offset_paginate` | Offset + limit | `(page, total)` | Mailchimp, ActiveCampaign |
-| `token_paginate` | Opaque page token (base64 offset) | `(page, next_token)` | SendGrid, Calendly |
+| `token_paginate` | Opaque page token (base64 offset) | `(page, next_token)` | SendGrid, Calendly, Klaviyo, LinkedIn, Segment |
 | `bookmark_paginate` | Bookmark string (base64 offset) | `(page, next_bookmark)` | Pinterest |
 | `page_paginate` | Page number + page size | `(page, total)` | Twilio, WooCommerce |
 | `session_paginate` | Session ID + page number | `(page, session_id, total)` | Mixpanel engage |
 | `link_header_paginate` | `Link` header with `rel="next"` | `(page, link_headers)` | Shopify |
 
-Notable outliers that don't use helpers: Google Ads (single-batch streaming response), GA4 (offset in POST body), Amplitude (full NDJSON dump, no pagination), Zendesk (`page[after]` / `meta.after_cursor` pattern), Klaviyo (cursor in `links.next`).
+Notable outliers that don't use helpers: Google Ads (single-batch streaming response), GA4 (offset in POST body), Amplitude (full NDJSON dump, no pagination).
 
 ---
 
@@ -190,8 +191,9 @@ The server mounts each provider's router with a prefix that absorbs the API vers
 | 26 | Segment | `/segment` | Bearer | `26-segment.md` |
 | 27 | Intercom | `/intercom` | Bearer + `Intercom-Version` | `27-intercom.md` |
 | 28 | Zendesk | `/zendesk/api/v2` | Bearer or Basic Auth | `28-zendesk.md` |
+| 29 | Zoom | `/zoom` | Bearer | — |
 
-28 contracts, 26 modules — Meta Ads, FB Organic, and IG Organic share one module (`meta.py`) because they share the Graph API. Route conflicts (e.g., `/{id}/insights` matching ads, pages, and IG accounts) are resolved by dispatching on ID prefix (`act_`, `page_`, `ig_`).
+28 numbered contracts plus Zoom, 27 modules — Meta Ads, FB Organic, and IG Organic share one module (`meta.py`) because they share the Graph API. Route conflicts (e.g., `/{id}/insights` matching ads, pages, and IG accounts) are resolved by dispatching on ID prefix (`act_`, `page_`, `ig_`).
 
 ---
 
@@ -212,15 +214,14 @@ The docs are research artifacts — they capture the real provider's API behavio
 ## 8. Running
 
 ```bash
-pip install -r seeds/requirements.txt
-python -m seeds.server
-# → Uvicorn running on http://0.0.0.0:8100
+docker compose -f app/docker-compose.yml up -d --wait mock
+# → Uvicorn running on :8100 inside the container
 
-curl http://localhost:8100/health
+curl http://localhost:8192/health
 # → {"status": "ok", "providers": ["/hubspot", "/stripe", ...]}
 ```
 
-In Docker Compose, the mock server runs as the `mock` service and is reachable at `http://mock:8100` from other containers.
+In Docker Compose, the mock server runs as the `mock` service — reachable at `http://mock:8100` from other containers, and at `http://localhost:8192` from the host.
 
 ---
 
@@ -229,6 +230,6 @@ In Docker Compose, the mock server runs as the `mock` service and is reachable a
 - **Shared world, per-provider rendering.** A single `world.py` defines canonical entities. Each provider module transforms them into its own response format. This guarantees cross-source consistency — the same company appears in HubSpot, Stripe, and Salesforce with the same underlying data, just different field names and response shapes.
 - **Deliberate ER variations.** Name, email, and company name variations are explicit in `ER_COMPANY_NAMES`, `ER_PERSON_NAMES`, and `ER_PERSON_EMAILS` dicts. The ER pipeline must reconcile these — they're not bugs, they're test fixtures.
 - **Permissive auth, strict mechanism.** The mock doesn't validate credential values — any non-empty token passes. But it enforces the correct auth mechanism (Bearer vs Basic vs header vs query param) and required companion headers (e.g., `developer-token` for Google Ads). This catches connector misconfiguration without requiring real credentials.
-- **One module per provider, not per endpoint.** Each provider file contains all endpoints for that provider. At ~100-370 lines per module, this keeps each provider self-contained without needing sub-packages.
+- **One module per provider, not per endpoint.** Each provider file contains all endpoints for that provider. At ~60-370 lines per module, this keeps each provider self-contained without needing sub-packages.
 - **Mount prefix absorbs API versioning.** Version paths like `/v1beta` (GA4) or `/services/data/v67.0` (Salesforce) live in the server.py mount prefix, not in route decorators. Provider modules define routes relative to their API root.
 - **Contract docs are authoritative.** The `docs/` files are research artifacts that capture real API behavior. Mock implementations are verified against them, not the other way around.
