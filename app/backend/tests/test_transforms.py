@@ -177,6 +177,12 @@ class TestDate:
             t.normalize_date("hubspot", "deals", "last tuesday")
         assert e.value.reason == "not_a_date"
 
+    def test_an_isoformat_only_aware_timestamp_lands_in_utc(self):
+        assert (
+            t.normalize_date("hubspot", "deals", "2026-07-01 12:30:00+02:00")
+            == "2026-07-01T10:30:00Z"
+        )
+
 
 class TestCurrency:
     def test_lowercases(self):

@@ -1,10 +1,13 @@
+import uuid
 from datetime import UTC, datetime
 
 import pytest
 from sqlalchemy import func, select
 
+from app import store
 from app.engine import mappings, ontology, pipeline, run
 from app.engine.report import SyncReport
+from app.models import Entity, EntityFact
 
 INGESTED = datetime(2026, 8, 1, 12, 0, tzinfo=UTC)
 
@@ -31,6 +34,24 @@ class TestAccountCurrencyFallback:
         )
         skips = str(report.as_dict())
         assert "account_level" in skips
+
+
+class TestARebuildWritesTheProjection:
+    async def test_entities_and_facts_land_with_deterministic_ids(self, session):
+        await store.save_raw(
+            session,
+            source="hubspot",
+            object_type="companies",
+            source_id="c1",
+            raw_payload={"properties": {"domain": "acme.io", "name": "Acme"}},
+        )
+        result = await run.rebuild(session)
+        assert (result["entities"], result["facts"]) == (1, 2)
+        entity = (await session.execute(select(Entity))).scalar_one()
+        assert entity.id == uuid.uuid5(run.NAMESPACE, "entity|hubspot|company|c1")
+        assert entity.first_seq == 1
+        attrs = sorted((await session.execute(select(EntityFact.attr))).scalars().all())
+        assert attrs == ["domain", "name"]
 
 
 class TestTwoRebuildsCannotCollide:

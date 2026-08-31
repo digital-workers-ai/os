@@ -199,6 +199,16 @@ class TestEntitiesList:
         assert [e["entity_type"] for e in body["entities"]] == ["person"]
         assert body["by_type"] == {"company": 1, "person": 1}
 
+    async def test_the_source_filter_narrows_rows_and_the_count_together(
+        self, api, session
+    ):
+        session.add(_entity())
+        session.add(_entity(source="stripe", source_id="s1", first_seq=2))
+        await session.flush()
+        body = (await api.get("/api/entities?source=stripe")).json()
+        assert body["total"] == 1
+        assert [e["source"] for e in body["entities"]] == ["stripe"]
+
     async def test_paging_walks_without_repeating(self, api, session):
         for n in range(3):
             session.add(_entity(source_id=f"c{n}", first_seq=n + 1))

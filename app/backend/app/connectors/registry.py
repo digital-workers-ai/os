@@ -1,6 +1,7 @@
 import importlib
 import pkgutil
 
+from app import caches
 from app import connectors as _pkg
 
 _INFRA = {"client", "creds", "paginators", "registry", "util"}
@@ -11,6 +12,12 @@ class ConnectorRegistrationError(RuntimeError):
 
 
 _cache: dict | None = None
+
+
+@caches.register
+def _reset() -> None:
+    global _cache
+    _cache = None
 
 
 def discover() -> dict:

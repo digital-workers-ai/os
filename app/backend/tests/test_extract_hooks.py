@@ -1,9 +1,9 @@
 import pkgutil
 
 import pytest
-from app.engine.extract import hubspot as hubspot_hook
 
 from app.engine import extract
+from app.engine.extract import hubspot as hubspot_hook
 
 
 class TestCompositeNames:
@@ -83,3 +83,13 @@ class TestExtractRegistration:
         with pytest.raises(extract.ExtractError, match="must return dicts"):
             extract.reshape("hubspot", "contacts", {})
         extract._reset()
+
+
+class TestReshapeGrammar:
+    def test_a_source_without_a_hook_passes_through(self):
+        payload = {"id": "cus_1"}
+        assert extract.reshape("stripe", "customers", payload) == [payload]
+
+    def test_a_single_dict_return_is_wrapped(self, monkeypatch):
+        monkeypatch.setattr(extract, "_cache", {"hubspot": lambda o, p: {"a": 1}})
+        assert extract.reshape("hubspot", "contacts", {}) == [{"a": 1}]

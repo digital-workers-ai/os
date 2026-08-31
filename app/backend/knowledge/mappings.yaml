@@ -1,0 +1,14 @@
+company:
+  hubspot.companies.properties.domain: domain
+  hubspot.companies.properties.industry: industry
+  hubspot.companies.properties.name: name
+
+person:
+  hubspot.contacts.properties.email: email
+  hubspot.contacts._full_name: name
+
+deal:
+  hubspot.deals.properties.dealname: name
+  hubspot.deals.properties.amount: amount
+  hubspot.deals.properties.dealstage: status
+  hubspot.deals.properties.closedate: closed_at

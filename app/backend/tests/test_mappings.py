@@ -72,3 +72,11 @@ class TestShippedFile:
     def test_by_object_index_covers_every_line(self):
         lines = m.load()
         assert sum(len(v) for v in m.by_object(lines).values()) == len(lines)
+
+
+class TestLoadRefusals:
+    def test_an_entity_holding_a_list_is_refused(self, tmp_path):
+        path = tmp_path / "mappings.yaml"
+        path.write_text("company:\n  - not a mapping\n")
+        with pytest.raises(m.MappingError, match="must hold key: label lines"):
+            m.load(path)
