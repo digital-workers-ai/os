@@ -419,3 +419,46 @@ class TestSelfReferentialEdges:
             report=report,
         )
         assert len(edges) == 1
+
+
+class TestAveragesOverEmptyPopulations:
+    async def test_an_average_where_no_member_carries_the_attr_is_none(
+        self, session, canonical
+    ):
+        from app.engine import metrics
+
+        for _ in range(2):
+            await canonical("deal", {"status": "open"})
+        result = (
+            await metrics.evaluate_definitions(
+                session, {"avg_deal": {"entity": "deal", "expression": "AVG(amount)"}}
+            )
+        )["avg_deal"]
+        assert result["value"] is None
+        assert result["entities"] == 2
+
+    async def test_a_sum_over_the_same_population_is_zero(self, session, canonical):
+        from app.engine import metrics
+
+        for _ in range(2):
+            await canonical("deal", {"status": "open"})
+        result = (
+            await metrics.evaluate_definitions(
+                session, {"total": {"entity": "deal", "expression": "SUM(amount)"}}
+            )
+        )["total"]
+        assert result["value"] == 0
+
+    async def test_the_payload_says_how_many_members_carried_the_attr(
+        self, session, canonical
+    ):
+        from app.engine import metrics
+
+        await canonical("deal", {"amount": "100"})
+        await canonical("deal", {"status": "open"})
+        result = (
+            await metrics.evaluate_definitions(
+                session, {"avg_deal": {"entity": "deal", "expression": "AVG(amount)"}}
+            )
+        )["avg_deal"]
+        assert result["entities_without_attr"] == 1
