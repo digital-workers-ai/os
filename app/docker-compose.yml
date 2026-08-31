@@ -38,5 +38,19 @@ services:
       timeout: 5s
       retries: 15
 
+  mock:
+    build:
+      context: ../mock
+      dockerfile: Dockerfile
+    ports:
+      - "8192:8100"
+    volumes:
+      - ../mock:/app/seeds
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8100/health')\""]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+
 volumes:
   pgdata_v0:
