@@ -3,7 +3,7 @@ from pathlib import Path
 
 import yaml
 
-KNOWLEDGE_DIR = Path(__file__).resolve().parent.parent / "knowledge"
+BACKEND_DIR = Path(__file__).resolve().parent.parent
 
 MAX_OFFSET = 2**63 - 1
 
