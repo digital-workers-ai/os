@@ -12,7 +12,9 @@ Think of `raw_event` as the enrollment book: every record ever seen is in it, pe
 
 **Sync** — one pull attempt for a source (`POST /api/sync`). It records itself in `sync_run` — including refusals, id collisions, and truncations — because a quiet source and a broken one must never look the same.
 
-**Entity** — one thing a single source knows about: a company, a person, a deal. Identity is structural — `(source, entity_type, source_id)` — so the same real-world company known to two tools is, at this layer, two entities. Merging them into one canonical entity is the next slice's job (entity resolution).
+**Entity** — one thing a single source knows about: a company, a person, a deal. Identity is structural — `(source, entity_type, source_id)` — so the same real-world company known to two tools is, at this layer, two entities.
+
+**Canonical entity** — one real-world thing, merged across tools. Resolution buckets entities on declared identity attributes (a company's domain, a person's email) and records the evidence on every membership (`domain=acme.io`). Survivorship then folds the members' facts into one value per attribute — newest observation wins, declared source priority breaks ties — keeping receipts (winning source, raw event, disagreement count). Blocklists stop false merges: a free-mail domain identifies no company, a placeholder identifies nothing.
 
 **Fact** — one attribute of one entity as asserted by one source: "hubspot says company hs_company_001's domain is acme.io." Each fact keeps its provenance (which raw event asserted it, when the provider observed it). Facts obey the **three-state rule**:
 - *absent* — the source never mentioned the attribute: no fact row at all
@@ -20,6 +22,10 @@ Think of `raw_event` as the enrollment book: every record ever seen is in it, pe
 - *value* — a normalized value that survived its transform
 
 A value the transform refused (garbage date, non-numeric amount) becomes none of these — it is counted and named in the report, never stored and never turned into a null.
+
+**Observation time** — every fact carries `observed_at`: when the data changed *according to the provider's own clock* (each connector's `OBSERVED_AT` declares where that timestamp lives in the payload). It exists because "newest observation wins" only works on the provider's clock — on our ingestion clock, whichever source synced last would win every disagreement. When the provider's timestamp is missing or unreadable, ingestion time is used and the substitution is counted in the report, never silent.
+
+**seq, first_seq, minted_seq** — one currency at three levels. `seq` is the raw-event insertion counter, the estate's unambiguous "which came first" (timestamps can't order rows written in one transaction). `first_seq` is a record's earliest seq — when it was *first* seen; edits add higher seqs, so it never moves. `minted_seq` is the founding record's `first_seq` on a canonical entity. Resolution processes records in `first_seq` order and mints the canonical id from the earliest record's key — so editing a record can never re-anchor a cluster or change its id.
 
 **Knowledge files** — the four YAML files at the repo root that make projection declarative:
 - `ontology.yaml` — what entities exist and what typed attributes each may have
