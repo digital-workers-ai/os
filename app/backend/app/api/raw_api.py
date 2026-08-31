@@ -2,10 +2,9 @@ from fastapi import Depends, Query
 from sqlalchemy import func, select
 
 from app.api.routers import raw as router
+from app.caches import MAX_OFFSET
 from app.db import get_session
 from app.models import RawEvent
-
-MAX_OFFSET = 2**63 - 1
 
 
 @router.get("")

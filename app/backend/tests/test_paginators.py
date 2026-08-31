@@ -1,6 +1,6 @@
 import pytest
 
-from app.connectors import paginators as pag
+from app.sources import paginators as pag
 
 
 def paginator(name):

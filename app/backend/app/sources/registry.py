@@ -1,9 +1,8 @@
 import importlib
 import pkgutil
 
-from app import connectors as _pkg
-
-_INFRA = {"client", "creds", "paginators", "registry", "util"}
+from app import caches
+from app import sources as _pkg
 
 
 class ConnectorRegistrationError(RuntimeError):
@@ -13,6 +12,12 @@ class ConnectorRegistrationError(RuntimeError):
 _cache: dict | None = None
 
 
+@caches.register
+def _reset() -> None:
+    global _cache
+    _cache = None
+
+
 def discover() -> dict:
     global _cache
     if _cache is not None:
@@ -20,25 +25,25 @@ def discover() -> dict:
 
     found: dict = {}
     for info in pkgutil.iter_modules(_pkg.__path__):
-        name = info.name
-        if name.startswith("_") or name in _INFRA:
+        if not info.ispkg:
             continue
-        module = importlib.import_module(f"app.connectors.{name}")
+        name = info.name
+        module = importlib.import_module(f"app.sources.{name}.connector")
 
         source = getattr(module, "SOURCE", None)
         if not isinstance(source, str) or not source:
             raise ConnectorRegistrationError(
-                f"app/connectors/{name}.py defines no SOURCE — every "
-                "non-infrastructure module in this package must be a connector"
+                f"app/sources/{name}/connector.py defines no SOURCE — every "
+                "source package must name the source its connector serves"
             )
         pull = getattr(module, "pull", None)
         if not callable(pull):
             raise ConnectorRegistrationError(
-                f"connector {source!r} ({name}.py) has no callable pull()"
+                f"connector {source!r} ({name}/connector.py) has no callable pull()"
             )
         if source in found:
             raise ConnectorRegistrationError(
-                f"duplicate SOURCE {source!r} ({name}.py and another module)"
+                f"duplicate SOURCE {source!r} ({name}/connector.py and another package)"
             )
         found[source] = module
 

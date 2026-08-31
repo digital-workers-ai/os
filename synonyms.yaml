@@ -1,0 +1,4 @@
+hubspot:
+  deals:
+    closedwon: closed_won
+    closedlost: closed_lost

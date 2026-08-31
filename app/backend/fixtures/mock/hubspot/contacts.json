@@ -1,0 +1,78 @@
+[
+  {
+    "payload": {
+      "archived": false,
+      "createdAt": "2025-03-15T10:30:00.000Z",
+      "id": "hs_contact_001",
+      "properties": {
+        "company": "Acme Corp",
+        "createdate": "2025-03-15T10:30:00.000Z",
+        "email": "jane@acme.io",
+        "firstname": "Jane",
+        "hs_object_id": "hs_contact_001",
+        "lastmodifieddate": "2026-07-01T14:22:00.000Z",
+        "lastname": "Smith",
+        "lifecyclestage": "customer"
+      },
+      "updatedAt": "2026-07-01T14:22:00.000Z"
+    },
+    "source_id": "hs_contact_001"
+  },
+  {
+    "payload": {
+      "archived": false,
+      "createdAt": "2025-04-01T10:30:00.000Z",
+      "id": "hs_contact_002",
+      "properties": {
+        "company": "Acme Corp",
+        "createdate": "2025-04-01T10:30:00.000Z",
+        "email": "john.doe@acme.io",
+        "firstname": "John",
+        "hs_object_id": "hs_contact_002",
+        "lastmodifieddate": "2026-07-01T14:22:00.000Z",
+        "lastname": "Doe",
+        "lifecyclestage": "customer"
+      },
+      "updatedAt": "2026-07-01T14:22:00.000Z"
+    },
+    "source_id": "hs_contact_002"
+  },
+  {
+    "payload": {
+      "archived": false,
+      "createdAt": "2025-06-01T10:30:00.000Z",
+      "id": "hs_contact_003",
+      "properties": {
+        "company": "Acme Corp",
+        "createdate": "2025-06-01T10:30:00.000Z",
+        "email": "sarah@acme.io",
+        "firstname": "Sarah",
+        "hs_object_id": "hs_contact_003",
+        "lastmodifieddate": "2026-07-01T14:22:00.000Z",
+        "lastname": "Johnson",
+        "lifecyclestage": "customer"
+      },
+      "updatedAt": "2026-07-01T14:22:00.000Z"
+    },
+    "source_id": "hs_contact_003"
+  },
+  {
+    "payload": {
+      "archived": false,
+      "createdAt": "2025-02-01T10:30:00.000Z",
+      "id": "hs_contact_004",
+      "properties": {
+        "company": "Globex Inc",
+        "createdate": "2025-02-01T10:30:00.000Z",
+        "email": "mike@globex.com",
+        "firstname": "Mike",
+        "hs_object_id": "hs_contact_004",
+        "lastmodifieddate": "2026-07-01T14:22:00.000Z",
+        "lastname": "Chen",
+        "lifecyclestage": "customer"
+      },
+      "updatedAt": "2026-07-01T14:22:00.000Z"
+    },
+    "source_id": "hs_contact_004"
+  }
+]

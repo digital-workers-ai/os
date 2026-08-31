@@ -1,0 +1,17 @@
+entities:
+  company:
+    attrs:
+      domain: string
+      industry: string
+      name: string
+  person:
+    attrs:
+      email: string
+      name: string
+  deal:
+    attrs:
+      name: string
+      amount: number
+      status: string
+      closed_at: date
+      currency: string

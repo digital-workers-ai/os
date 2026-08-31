@@ -1,0 +1,7 @@
+domain: normalize_domain
+email: normalize_email
+name: normalize_text
+industry: normalize_text
+status: normalize_status
+amount: normalize_money
+closed_at: normalize_date

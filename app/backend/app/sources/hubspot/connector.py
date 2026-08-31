@@ -1,6 +1,14 @@
-from app.connectors.util import client_for, store_all
+from app.sources.util import client_for, store_all
 
 SOURCE = "hubspot"
+
+OBSERVED_AT = {
+    "companies": "properties.hs_lastmodifieddate",
+    "contacts": "properties.lastmodifieddate",
+    "deals": "properties.hs_lastmodifieddate",
+}
+
+ACCOUNT_CURRENCY = "usd"
 
 PROPERTIES = {
     "contacts": ("email", "firstname", "lastname", "lastmodifieddate"),

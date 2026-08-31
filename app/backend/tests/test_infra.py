@@ -62,3 +62,17 @@ async def test_server_timestamps_are_timezone_aware(session):
     await session.flush()
     await session.refresh(event)
     assert event.ingested_at.tzinfo is not None
+
+
+def test_reset_all_clears_every_registered_cache():
+    from app import caches
+    from app.engine import transforms
+    from app.sources import hooks, registry
+
+    registry.discover()
+    hooks.hooks()
+    transforms.load_synonyms()
+    caches.reset_all()
+    assert registry._cache is None
+    assert hooks._cache is None
+    assert transforms._synonyms_cache is None

@@ -2,8 +2,8 @@ from fastapi import Body, HTTPException
 
 from app import sync
 from app.api.routers import sources as router
-from app.connectors import registry
 from app.db import async_session
+from app.sources import registry
 
 
 @router.post("/sync")

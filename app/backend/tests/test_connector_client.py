@@ -2,8 +2,8 @@ import httpx
 import pytest
 
 from app.config import settings
-from app.connectors import client
-from app.connectors.client import ConnectorError, SourceClient, redact_url
+from app.sources import client
+from app.sources.client import ConnectorError, SourceClient, redact_url
 
 
 @pytest.fixture(autouse=True)
