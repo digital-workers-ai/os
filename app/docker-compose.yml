@@ -40,6 +40,7 @@ services:
       - ../transforms.yaml:/app/transforms.yaml
       - ../synonyms.yaml:/app/synonyms.yaml
       - ../metrics.yaml:/app/metrics.yaml
+      - ../rules.yaml:/app/rules.yaml
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')\""]
       interval: 5s

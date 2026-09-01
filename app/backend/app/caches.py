@@ -20,6 +20,18 @@ def reset_all() -> None:
         reset()
 
 
+def cached(load: Callable[[], dict]) -> Callable[[], dict]:
+    box: dict = {}
+
+    def get() -> dict:
+        if "value" not in box:
+            box["value"] = load()
+        return box["value"]
+
+    register(box.clear)
+    return get
+
+
 def load_mapping(path, error) -> dict:
     path = Path(path)
     doc = yaml.safe_load(path.read_text()) or {}
