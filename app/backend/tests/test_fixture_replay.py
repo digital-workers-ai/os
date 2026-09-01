@@ -118,3 +118,57 @@ class TestRealFixtures:
         expected = json.loads((directory / "expected.json").read_text())
         _extracted, report = replay(directory.name, directory)
         assert dict(report.skips) == expected["skips"]
+
+
+def _checks():
+    from app.engine import checks
+
+    return checks
+
+
+class TestTheLabelIsLoadBearing:
+    def test_every_mapped_source_has_at_least_mock_fixtures(self):
+        mapped = {ln.source for ln in mappings.load()}
+        captured = {d.name for d in MOCK_DIRS}
+        assert mapped <= captured, (
+            f"no captured payloads for {sorted(mapped - captured)}"
+        )
+
+    def test_provider_validated_requires_real_fixtures(self):
+        status = _checks().load_source_status()
+        real = {d.name for d in REAL_DIRS}
+        claiming = {
+            s
+            for s, e in status.items()
+            if (e or {}).get("status") == "provider-validated"
+        }
+        assert claiming <= real, (
+            f"{sorted(claiming - real)} claim provider-validated with no "
+            "fixtures under fixtures/real/"
+        )
+
+    def test_real_fixtures_imply_the_label_was_updated(self):
+        status = _checks().load_source_status()
+        real = {d.name for d in REAL_DIRS}
+        for source in sorted(real):
+            assert status.get(source, {}).get("status") == "provider-validated", (
+                f"{source} has real fixtures but is still marked "
+                f"{status.get(source, {}).get('status')!r}"
+            )
+
+    def test_a_source_is_only_enabled_if_a_provider_payload_replays(self):
+        real = {d.name for d in REAL_DIRS}
+        status = _checks().load_source_status()
+        for source in _checks().enabled_sources():
+            assert status.get(source, {}).get("status") == "provider-validated"
+            assert source in real, f"{source} is enabled with no real fixtures"
+
+    def test_the_real_fixture_gap_is_counted_rather_than_implied(self):
+        real = {d.name for d in REAL_DIRS}
+        mapped = {ln.source for ln in mappings.load()}
+        print(
+            f"\nreal-payload coverage: {len(real & mapped)}/{len(mapped)} "
+            "mapped sources have provider fixtures"
+        )
+        if not real:
+            print("  every number this project produces is mock-validated only")

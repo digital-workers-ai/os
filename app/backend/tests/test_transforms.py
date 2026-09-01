@@ -133,6 +133,11 @@ class TestStatus:
         assert t.normalize_status("hubspot", "invoices", "closedwon") == "closedwon"
         assert t.normalize_status("hubspot", "tickets", "Closed Won") == "closed_won"
 
+    def test_a_saved_mailchimp_campaign_is_a_draft(self):
+        assert t.normalize_status("mailchimp", "campaigns", "save") == "draft"
+        assert t.normalize_status("mailchimp", "lists", "save") == "save"
+        assert t.normalize_status("hubspot", "campaigns", "save") == "save"
+
     def test_a_twitter_accepted_account_is_active(self):
         assert t.normalize_status("twitter", "accounts", "ACCEPTED") == "active"
         assert t.normalize_status("hubspot", "deals", "accepted") == "accepted"
