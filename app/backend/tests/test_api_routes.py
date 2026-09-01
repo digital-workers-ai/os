@@ -78,6 +78,12 @@ class TestOffsetsThatReachTheDriver:
     async def test_an_offset_past_the_bigint_range_is_refused(self, api):
         assert (await api.get(f"/api/raw?offset={2**63}")).status_code == 422
 
+    @pytest.mark.parametrize("route", ["/api/records", "/api/entities"])
+    async def test_the_largest_legal_offset_is_accepted_everywhere(self, api, route):
+        response = await api.get(f"{route}?offset={2**63 - 1}")
+        assert response.status_code == 200
+        assert response.json()["entities"] == []
+
 
 class TestSources:
     async def test_syncing_a_source_that_does_not_exist_is_a_404(self, api):
@@ -540,3 +546,51 @@ class TestInsights:
         assert body["missed"] == 0
         assert body["met"] == 0
         assert body["unknown"] == len(body["goals"])
+
+
+class TestNullBytesInQueryParameters:
+    ROUTES = [
+        "/api/raw?source=%00",
+        "/api/raw?object_type=%00",
+        "/api/records?entity_type=%00",
+        "/api/records?source=%00",
+        "/api/entities?entity_type=%00",
+        "/api/metrics/history?metric=%00",
+    ]
+
+    @pytest.mark.parametrize("route", ROUTES)
+    async def test_a_null_byte_is_refused_rather_than_reaching_the_driver(
+        self, api, route
+    ):
+        response = await api.get(route)
+        assert response.status_code == 422
+        detail = response.json()["detail"][0]
+        assert detail["type"] == "value_error.null_byte"
+        assert detail["loc"][0] == "query"
+
+    async def test_the_parameter_that_carried_it_is_named(self, api):
+        response = await api.get("/api/raw?source=ok&object_type=%00")
+        assert response.status_code == 422
+        assert response.json()["detail"][0]["loc"] == ["query", "object_type"]
+
+    async def test_an_ordinary_request_is_untouched(self, api):
+        assert (await api.get("/api/records?entity_type=company")).status_code == 200
+
+
+class TestANullByteInThePathIsRefusedToo:
+    async def test_a_null_byte_in_a_path_segment_is_a_422_or_a_404(self, api):
+        response = await api.get("/api/entities/%00")
+        assert response.status_code != 500, response.text
+        assert response.status_code in (404, 422)
+
+    async def test_an_ordinary_path_segment_is_unaffected(self, api):
+        response = await api.get(f"/api/entities/{uuid.uuid4()}")
+        assert response.status_code != 500, response.text
+        assert response.status_code in (200, 404)
+
+
+class TestDocumentedResponses:
+    async def test_the_documented_responses_include_the_404(self, api):
+        spec = (await api.get("/openapi.json")).json()
+        documented = spec["paths"]["/api/entities/{canonical_id}"]["get"]["responses"]
+        assert "404" in documented
