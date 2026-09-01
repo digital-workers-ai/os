@@ -24,6 +24,8 @@ class ProjectedEntity:
     object_type: str
     first_seq: int
     facts: dict = field(default_factory=dict)
+    object_types: set = field(default_factory=set)
+    injected_currency: bool = False
 
     @property
     def key(self) -> tuple:
@@ -106,9 +108,13 @@ def project_payload(
         for line in lines:
             report.declare_path(line.entity, line.key)
             raw = mappings.extract_path(record, line.path)
+            head = line.path[0]
+            if head in skipped_fields:
+                if mappings.is_missing(raw):
+                    report.skip(line.label, source, skipped_fields[head])
+                    continue
+                report.count(f"hook_note/{line.label}/{source}/{skipped_fields[head]}")
             if mappings.is_missing(raw):
-                if line.path[0] in skipped_fields:
-                    report.skip(line.label, source, skipped_fields[line.path[0]])
                 continue
             report.hit_path(line.entity, line.key)
 
@@ -153,6 +159,7 @@ def project_payload(
             )
 
         account_currency = getattr(connector_module, "ACCOUNT_CURRENCY", None)
+        injected: set = set()
         if account_currency:
             for entity_type, facts in by_entity.items():
                 if not facts:
@@ -175,7 +182,7 @@ def project_payload(
                     observed_at_source=observed_kind,
                     seq=seq,
                 )
-                report.count(f"account_currency/{source}")
+                injected.add(entity_type)
 
         for entity_type, facts in by_entity.items():
             if not facts:
@@ -189,6 +196,7 @@ def project_payload(
                     object_type=object_type,
                     first_seq=seq if first_seq is None else first_seq,
                     facts=facts,
+                    injected_currency=entity_type in injected,
                 )
             )
     return out
@@ -232,5 +240,19 @@ def project_rows(
             )
             continue
         for entity in entities:
-            projected[entity.key] = entity
+            existing = projected.get(entity.key)
+            if existing is None:
+                projected[entity.key] = entity
+                continue
+            report.count(f"multi_object_entity/{entity.source}/{entity.entity_type}")
+            existing.object_types.add(existing.object_type)
+            existing.object_types.add(entity.object_type)
+            for attr, fact in entity.facts.items():
+                existing.facts[attr] = fact
+            existing.injected_currency = (
+                existing.injected_currency or entity.injected_currency
+            )
+    for entity in projected.values():
+        if entity.injected_currency:
+            report.count(f"account_currency/{entity.source}")
     return projected

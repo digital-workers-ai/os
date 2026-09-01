@@ -54,6 +54,33 @@ class StripeCursor(Paginator):
         return {**params, "starting_after": records[-1]["id"]}
 
 
+class MetaCursor(Paginator):
+    def extract(self, data):
+        return self._require_list(data, "data")
+
+    def next_params(self, data, params):
+        paging = data.get("paging") or {}
+        after = (paging.get("cursors") or {}).get("after")
+        if paging.get("next") and after:
+            return {**params, "after": after}
+        return None
+
+
+class SegmentCursor(Paginator):
+    def __init__(self, key: str = "sources"):
+        self.key = key
+
+    def extract(self, data):
+        body = data.get("data") if isinstance(data, dict) else None
+        if not isinstance(body, dict) or not isinstance(body.get(self.key), list):
+            raise PaginationError(f"expected data.{self.key} list")
+        return body[self.key]
+
+    def next_params(self, data, params):
+        nxt = ((data.get("data") or {}).get("pagination") or {}).get("next")
+        return {**params, "pagination.cursor": nxt} if nxt else None
+
+
 class _KeyedCursor(Paginator):
     KEYS: tuple = ()
 
@@ -136,15 +163,23 @@ class CalendlyToken(Paginator):
 class Offset(Paginator):
     TOTAL_KEYS = ("total_count", "total_items", "total")
 
-    def __init__(self, list_key: str):
+    def __init__(
+        self,
+        list_key: str,
+        *,
+        count_param: str = "count",
+        offset_param: str = "offset",
+    ):
         self.list_key = list_key
+        self.count_param = count_param
+        self.offset_param = offset_param
 
     def extract(self, data):
         return self._require_list(data, self.list_key)
 
     def next_params(self, data, params):
-        count = int(params.get("count", 100))
-        offset = int(params.get("offset", 0))
+        count = int(params.get(self.count_param, 100))
+        offset = int(params.get(self.offset_param, 0))
         page_len = len(self.extract(data))
         total = None
         for key in self.TOTAL_KEYS:
@@ -156,7 +191,7 @@ class Offset(Paginator):
                 return None
         elif page_len < count:
             return None
-        return {**params, "offset": offset + count}
+        return {**params, self.offset_param: offset + count}
 
 
 class ShopifyLink(Paginator):
@@ -197,6 +232,8 @@ PAGINATORS: dict[str, Paginator] = {
     "cursor_hubspot": HubspotCursor(),
     "cursor_intercom": IntercomCursor(),
     "cursor_klaviyo": KlaviyoCursor(),
+    "cursor_meta": MetaCursor(),
+    "cursor_segment": SegmentCursor(),
     "cursor_stripe": StripeCursor(),
     "cursor_zendesk": ZendeskCursor(),
     "page_twilio": TwilioPage(),

@@ -67,6 +67,8 @@ entities:
       name: string
       status: string
       email: string
+      domain: string
+      transcript: string
       started_at: date
       ended_at: date
   event:
@@ -87,6 +89,27 @@ entities:
     attrs:
       name: string
       members: number
+  campaign:
+    attrs:
+      name: string
+      currency: string
+      status: string
+      category: string
+      spend: number
+      conversions: number
+      clicks: number
+      impressions: number
+  traffic_report:
+    attrs:
+      report_date: date
+      channel: string
+      sessions: number
+      users: number
+      pageviews: number
+  data_source:
+    attrs:
+      name: string
+      category: string
 
 source_priority:
   - salesforce
@@ -96,12 +119,18 @@ source_priority:
   - intercom
   - shopify
   - woocommerce
+  - klaviyo
+  - activecampaign
   - sendgrid
   - mailchimp
   - customerio
-  - klaviyo
   - calendly
   - twilio
+  - google_ads
+  - meta
+  - segment
+  - google_analytics
+  - google_sheets
 
 relationships:
   - rel: belongs_to
@@ -144,3 +173,8 @@ relationships:
     to: person
     cardinality: many_to_one
     match: email
+  - rel: held_with
+    from: meeting
+    to: company
+    cardinality: many_to_one
+    match: domain

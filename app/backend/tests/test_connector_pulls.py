@@ -1,4 +1,5 @@
 import importlib
+import json
 import pkgutil
 
 import httpx
@@ -623,6 +624,82 @@ class TestBatchThreeShapes:
         notes, stored = await pull(connector("meta"), {"data": [{"no_id": True}]})
         assert stored == []
         assert notes["missing_id"] >= 1
+
+    async def test_google_ads_reads_a_bare_dict_body(self, pull):
+        notes, stored = await pull(
+            connector("google_ads"), {"results": [{"campaign": {"id": "c9"}}]}
+        )
+        assert notes is None
+        assert [s["source_id"] for s in stored] == ["c9"]
+
+    @pytest.mark.parametrize("body", [[], "not a collection"])
+    async def test_google_ads_stores_nothing_from_an_alien_body(self, pull, body):
+        notes, stored = await pull(connector("google_ads"), body)
+        assert notes is None and stored == []
+
+
+class TestGoogleAnalyticsPull:
+    @pytest.fixture
+    def report_pages(self, monkeypatch):
+        seen = []
+
+        def _install(pages):
+            def handler(request):
+                body = json.loads(request.content)
+                seen.append(body)
+                return httpx.Response(200, json=pages[body["offset"]])
+
+            monkeypatch.setattr(client, "_transport", httpx.MockTransport(handler))
+            return seen
+
+        yield _install
+        monkeypatch.setattr(client, "_transport", None)
+
+    @staticmethod
+    def _row(day, channel):
+        return {
+            "dimensionValues": [{"value": day}, {"value": channel}],
+            "metricValues": [{"value": "1"}, {"value": "2"}, {"value": "3"}],
+        }
+
+    async def test_the_offset_walk_stops_at_the_row_count(self, report_pages):
+        seen = report_pages(
+            {
+                0: {
+                    "rows": [self._row("20260701", c) for c in ("a", "b", "c")],
+                    "rowCount": 5,
+                },
+                3: {
+                    "rows": [self._row("20260701", c) for c in ("d", "e")],
+                    "rowCount": 5,
+                },
+            }
+        )
+        stored = []
+
+        async def store(session, **kwargs):
+            stored.append(kwargs)
+
+        notes = await connector("google_analytics").pull(None, store)
+
+        assert notes is None
+        assert [b["offset"] for b in seen] == [0, 3]
+        assert len(stored) == 5
+        assert all(len(s["source_id"]) == 32 for s in stored)
+        assert all(s["object_type"] == "report_rows" for s in stored)
+        assert len({s["source_id"] for s in stored}) == 5
+
+    async def test_an_empty_page_with_no_row_count_ends_the_walk(self, report_pages):
+        seen = report_pages({0: {"rows": []}})
+        stored = []
+
+        async def store(session, **kwargs):
+            stored.append(kwargs)
+
+        await connector("google_analytics").pull(None, store)
+
+        assert len(seen) == 1
+        assert stored == []
 
 
 class TestWhatTheBatchThreeConnectorsAskFor:

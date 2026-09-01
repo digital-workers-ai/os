@@ -31,3 +31,11 @@ sends: normalize_number
 opens: normalize_number
 clicks: normalize_number
 members: normalize_number
+transcript: normalize_transcript
+spend: normalize_money
+conversions: normalize_number
+impressions: normalize_number
+report_date: normalize_date
+sessions: normalize_number
+users: normalize_number
+pageviews: normalize_number
