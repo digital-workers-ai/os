@@ -415,7 +415,6 @@ class TestBatchTwoCompositeNames:
 
     def test_the_seven_composite_name_hooks_agree(self):
         from app.sources.activecampaign import extract as activecampaign
-
         from app.sources.hubspot import extract as hubspot
         from app.sources.klaviyo import extract as klaviyo
         from app.sources.salesforce import extract as salesforce
@@ -751,9 +750,8 @@ class TestZoomTranscripts:
         assert extract.reshape("users", payload) == [payload]
 
     def test_the_shared_constants_are_imported_not_copied(self):
-        from app.sources.zoom import extract
-
         from app.engine import resolver, transforms
+        from app.sources.zoom import extract
 
         assert extract.FREE_MAIL_DOMAINS is resolver.FREE_MAIL_DOMAINS
         assert extract.MAX_TRANSCRIPT_CHARS is transforms.MAX_TRANSCRIPT_CHARS
