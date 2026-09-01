@@ -57,3 +57,8 @@ companies_with_industry:
   label: Companies with Industry
   entity: company
   expression: COUNT(industry)
+
+avg_deal_size:
+  label: Average Deal Size
+  entity: deal
+  expression: AVG(amount)

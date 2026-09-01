@@ -117,6 +117,31 @@ class TestSources:
                 "detail",
             } <= set(row)
 
+    async def test_every_row_carries_its_validation_label(self, api):
+        body = (await api.get("/api/sources")).json()
+        for row in body["sources"]:
+            assert {"validation", "entities", "enabled_by_default"} <= set(row)
+            assert isinstance(row["entities"], list)
+
+    async def test_nothing_unvalidated_is_enabled_by_default(self, api):
+        body = (await api.get("/api/sources")).json()
+        for row in body["sources"]:
+            if row["validation"] != "provider-validated":
+                assert row["enabled_by_default"] is False
+        assert body["enabled_by_default"] == [
+            r["source"] for r in body["sources"] if r["enabled_by_default"]
+        ]
+
+    async def test_the_validation_coverage_summary_counts_every_source(self, api):
+        body = (await api.get("/api/sources")).json()
+        coverage = body["validation_coverage"]
+        assert coverage["total"] == 27
+        assert sum(coverage["by_status"].values()) == 27
+        assert coverage["provider_validated"] == sum(
+            1 for r in body["sources"] if r["validation"] == "provider-validated"
+        )
+        assert coverage["detail"]
+
     async def test_a_never_synced_source_reports_zero_attempts(self, api):
         rows = (await api.get("/api/sources")).json()["sources"]
         row = next(r for r in rows if r["source"] == "hubspot")
@@ -508,6 +533,7 @@ class TestInsights:
             "expand_active_subscriptions",
             "grow_mrr",
             "grow_won_value",
+            "hold_average_deal_size",
             "keep_churn_low",
         }
         assert all(row["met"] is None for row in body["goals"])

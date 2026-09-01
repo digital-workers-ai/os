@@ -46,8 +46,10 @@ def _row(body, goal):
     return next(row for row in body["goals"] if row["goal"] == goal)
 
 
-async def test_the_estate_meets_two_misses_one_and_cannot_judge_the_trend(goals_body):
-    assert goals_body["met"] == 2
+async def test_the_estate_meets_three_misses_one_and_cannot_judge_the_trend(
+    goals_body,
+):
+    assert goals_body["met"] == 3
     assert goals_body["missed"] == 1
     assert goals_body["unknown"] == 1
 
@@ -76,6 +78,16 @@ async def test_churn_is_under_its_ceiling(goals_body):
     assert row["entities"] == 1
 
 
+async def test_average_deal_size_sits_inside_its_band(goals_body):
+    row = _row(goals_body, "hold_average_deal_size")
+    assert row["current"] == 24955.2
+    assert row["met"] is True
+    assert row["progress"] == 100.0
+    assert row["band"] == [20000.0, 31250.0]
+    assert row["outside_band_by"] == 0.0
+    assert row["entities"] == 10
+
+
 async def test_the_trend_goal_waits_for_history(goals_body):
     row = _row(goals_body, "expand_active_subscriptions")
     assert row["met"] is None
@@ -90,7 +102,7 @@ async def test_snapshots_let_the_trend_goal_reach_a_verdict(api, goals_body):
     assert row["met"] is False
     assert row["progress"] == 35.0
     assert row["trend"] == "up"
-    assert body["met"] == 2
+    assert body["met"] == 3
     assert body["missed"] == 2
     assert body["unknown"] == 0
 

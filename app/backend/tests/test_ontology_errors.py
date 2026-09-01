@@ -169,3 +169,34 @@ class TestBoot:
     def test_deal_currency_is_declared(self):
         loaded = ont.load()
         assert loaded.attr_type("deal", "currency") is not None
+
+    async def test_a_boot_over_disagreeing_files_refuses_to_serve(self, monkeypatch):
+        from app import main
+        from app.engine import checks
+
+        async def schema():
+            pass
+
+        monkeypatch.setattr(main, "create_schema", schema)
+        monkeypatch.setattr(main.checks, "run", lambda: ["mappings: broken"])
+        with pytest.raises(checks.BuildCheckError):
+            async with main.lifespan(main.app):
+                raise AssertionError("the app served over a broken estate")
+
+    async def test_a_clean_boot_checks_before_it_serves(self, monkeypatch):
+        from app import main
+
+        ran = []
+
+        async def schema():
+            ran.append("schema")
+
+        def clean():
+            ran.append("checks")
+            return []
+
+        monkeypatch.setattr(main, "create_schema", schema)
+        monkeypatch.setattr(main.checks, "run", clean)
+        async with main.lifespan(main.app):
+            ran.append("serving")
+        assert ran == ["schema", "checks", "serving"]

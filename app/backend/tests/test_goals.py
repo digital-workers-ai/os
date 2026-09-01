@@ -175,3 +175,76 @@ class TestTheSilentStrategyBackstop:
         assert (
             results[0]["unknown"] == "the strategy could not decide from these inputs"
         )
+
+
+def _checks():
+    from app.engine import checks
+
+    return checks
+
+
+class TestTheBuildRefusesAMalformedGoal:
+    def test_a_metric_that_does_not_exist(self):
+        problems = _checks().check_goals(_goal(metric="revenue_per_unicorn"))
+        assert any("revenue_per_unicorn" in p for p in problems)
+
+    def test_a_strategy_that_is_not_registered(self):
+        problems = _checks().check_goals(_goal(strategy="vibes"))
+        assert any("vibes" in p for p in problems)
+
+    def test_a_target_that_is_not_a_number(self):
+        problems = _checks().check_goals(_goal(target="lots"))
+        assert any("lots" in p for p in problems)
+
+    def test_a_param_the_strategy_does_not_accept(self):
+        problems = _checks().check_goals(
+            _goal(strategy="at_least", params={"band_low": 0.9})
+        )
+        assert any("band_low" in p for p in problems)
+
+    def test_a_missing_field(self):
+        problems = _checks().check_goals({"g": {"metric": "mrr"}})
+        assert problems != []
+
+    def test_the_committed_goals_pass(self):
+        assert _checks().check_goals(goals.definitions()) == []
+
+    def test_the_build_runs_them(self):
+        assert _checks().run() == []
+
+
+class TestAGoalParameterIsCheckedForItsValue:
+    def test_a_non_numeric_param_is_a_build_problem(self):
+        problems = _checks().check_goals(
+            {
+                "g": {
+                    "metric": "mrr",
+                    "target": 1,
+                    "strategy": "threshold_band",
+                    "label": "L",
+                    "params": {"band_low": "wide"},
+                }
+            },
+            metric_defs={"mrr": {}},
+        )
+        assert any("band_low" in p for p in problems)
+
+    def test_a_numeric_param_still_passes(self):
+        assert (
+            _checks().check_goals(
+                {
+                    "g": {
+                        "metric": "mrr",
+                        "target": 1,
+                        "strategy": "threshold_band",
+                        "label": "L",
+                        "params": {"band_low": 0.8},
+                    }
+                },
+                metric_defs={"mrr": {}},
+            )
+            == []
+        )
+
+    def test_the_shipped_goals_still_pass(self):
+        assert _checks().check_goals(goals.definitions()) == []

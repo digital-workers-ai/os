@@ -535,3 +535,34 @@ class TestAveragesOverEmptyPopulations:
             )
         )["avg_deal"]
         assert result["entities_without_attr"] == 1
+
+
+class TestMetricsFileThatRaisesDuringChecks:
+    def test_a_metrics_file_the_loader_rejects_is_reported_by_the_build(self, tmp_path):
+        import shutil
+        from pathlib import Path
+
+        from app import caches
+        from app.engine import checks
+
+        for name in (
+            "mappings.yaml",
+            "ontology.yaml",
+            "transforms.yaml",
+            "metrics.yaml",
+            "rules.yaml",
+            "goals.yaml",
+        ):
+            shutil.copy(Path(caches.BACKEND_DIR) / name, tmp_path / name)
+        (tmp_path / "metrics.yaml").write_text("- not\n- a\n- mapping\n")
+
+        problems = checks.run(
+            mapping_paths=[tmp_path / "mappings.yaml"],
+            ontology_path=tmp_path / "ontology.yaml",
+            transforms_path=tmp_path / "transforms.yaml",
+            metrics_path=tmp_path / "metrics.yaml",
+            rules_path=tmp_path / "rules.yaml",
+            goals_path=tmp_path / "goals.yaml",
+        )
+        assert any(p.startswith("metrics:") for p in problems)
+        assert len(problems) > 1

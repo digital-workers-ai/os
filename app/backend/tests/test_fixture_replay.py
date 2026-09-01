@@ -4,11 +4,11 @@ from pathlib import Path
 
 import pytest
 
-from app.engine import mappings, ontology, pipeline, transforms
+from app.engine import checks, mappings, ontology, pipeline, transforms
 from app.engine.report import SyncReport
 from app.sources import registry
 
-FIXTURES = Path(__file__).resolve().parent.parent / "fixtures"
+FIXTURES = checks.REAL_FIXTURES.parent
 CAPTURED_AT = datetime(2026, 8, 2, tzinfo=UTC)
 
 
@@ -118,3 +118,41 @@ class TestRealFixtures:
         expected = json.loads((directory / "expected.json").read_text())
         _extracted, report = replay(directory.name, directory)
         assert dict(report.skips) == expected["skips"]
+
+
+class TestTheLabelIsLoadBearing:
+    def test_every_mapped_source_has_at_least_mock_fixtures(self):
+        mapped = {ln.source for ln in mappings.load()}
+        captured = {d.name for d in MOCK_DIRS}
+        assert mapped <= captured, (
+            f"no captured payloads for {sorted(mapped - captured)}"
+        )
+
+    def test_provider_validated_requires_a_replayable_capture(self):
+        replayable = {d.name for d in REAL_DIRS}
+        claiming = {
+            s
+            for s, e in checks.source_status().items()
+            if e["status"] == "provider-validated"
+        }
+        assert claiming <= replayable, (
+            f"{sorted(claiming - replayable)} derive provider-validated from a "
+            "fixtures/real/ dir that holds no replayable capture"
+        )
+
+    def test_a_source_is_only_enabled_if_a_provider_payload_replays(self):
+        replayable = {d.name for d in REAL_DIRS}
+        for source in checks.enabled_sources():
+            assert source in replayable, (
+                f"{source} is enabled with no replayable real fixtures"
+            )
+
+    def test_the_real_fixture_gap_is_counted_rather_than_implied(self):
+        real = {d.name for d in REAL_DIRS}
+        mapped = {ln.source for ln in mappings.load()}
+        print(
+            f"\nreal-payload coverage: {len(real & mapped)}/{len(mapped)} "
+            "mapped sources have provider fixtures"
+        )
+        if not real:
+            print("  every number this project produces is mock-validated only")

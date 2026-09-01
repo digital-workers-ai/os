@@ -105,3 +105,25 @@ class TestSnapshotsSkipWhatCannotBeStored:
 
         monkeypatch.setattr(metrics, "evaluate_definitions", broken)
         assert await metrics.record_snapshots(session) == 1
+
+
+class TestRebuildGuards:
+    async def test_a_rebuild_refuses_to_run_on_disagreeing_files(
+        self, session, monkeypatch
+    ):
+        from app.engine import checks, run
+
+        monkeypatch.setattr(checks, "run", lambda: ["mappings: broken"])
+        with pytest.raises(checks.BuildCheckError):
+            await run.rebuild(session)
+
+    async def test_a_rebuild_can_be_asked_to_skip_the_checks(
+        self, session, monkeypatch
+    ):
+        from app.engine import checks, run
+
+        def explode():
+            raise AssertionError("checks should not have run")
+
+        monkeypatch.setattr(checks, "run", explode)
+        assert (await run.rebuild(session, run_checks=False))["ok"] is True

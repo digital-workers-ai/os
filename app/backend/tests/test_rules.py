@@ -2,9 +2,20 @@ from datetime import UTC, datetime
 
 import pytest
 
-from app.engine import rules
+from app.engine import ontology, rules
 
 NOW = datetime(2026, 8, 2, tzinfo=UTC)
+
+
+@pytest.fixture(scope="module")
+def onto():
+    return ontology.load()
+
+
+def _checks():
+    from app.engine import checks
+
+    return checks
 
 
 class TestThePredicateIsTotal:
@@ -396,3 +407,92 @@ class TestEvaluationOverTheCanonicalLayer:
         report = rules.Report()
         await rules.evaluate(session, now=NOW, report=report)
         assert report.unreadable, report.as_dict()
+
+
+def _rule(**over):
+    base = {
+        "label": "L",
+        "entity": "deal",
+        "severity": "high",
+        "all": [{"attr": "status", "equals": "open"}],
+    }
+    base.update(over)
+    return {"r": base}
+
+
+class TestTheBuildRefusesAMalformedRule:
+    def test_an_undeclared_entity(self, onto):
+        problems = _checks().check_rules(onto, _rule(entity="unicorn"))
+        assert any("unicorn" in p for p in problems)
+
+    def test_an_attr_the_entity_does_not_carry(self, onto):
+        problems = _checks().check_rules(onto, _rule(all=[{"attr": "mrr", "gte": 1}]))
+        assert any("mrr" in p and "deal" in p for p in problems)
+
+    def test_an_unknown_operator(self, onto):
+        problems = _checks().check_rules(
+            onto, _rule(all=[{"attr": "status", "sounds_like": "open"}])
+        )
+        assert any("sounds_like" in p for p in problems)
+
+    def test_two_operators_in_one_condition(self, onto):
+        problems = _checks().check_rules(
+            onto, _rule(all=[{"attr": "amount", "gte": 100, "lte": 1000}])
+        )
+        assert any("one operator" in p for p in problems)
+
+    def test_a_date_operator_on_a_string_attr(self, onto):
+        problems = _checks().check_rules(
+            onto, _rule(all=[{"attr": "status", "older_than_days": 30}])
+        )
+        assert any("older_than_days" in p and "date" in p for p in problems)
+
+    def test_a_numeric_operator_on_a_string_attr(self, onto):
+        problems = _checks().check_rules(
+            onto, _rule(all=[{"attr": "status", "gte": 1}])
+        )
+        assert any("gte" in p for p in problems)
+
+    def test_a_severity_outside_the_closed_set(self, onto):
+        problems = _checks().check_rules(onto, _rule(severity="apocalyptic"))
+        assert any("severity" in p for p in problems)
+
+    def test_a_rule_with_no_conditions_at_all(self, onto):
+        problems = _checks().check_rules(onto, _rule(all=[], any=[]))
+        assert any("no conditions" in p for p in problems)
+
+    def test_a_non_numeric_threshold(self, onto):
+        problems = _checks().check_rules(
+            onto, _rule(all=[{"attr": "amount", "gte": "lots"}])
+        )
+        assert any("lots" in p for p in problems)
+
+    def test_a_good_rule_produces_no_problems(self, onto):
+        assert _checks().check_rules(onto, _rule()) == []
+
+
+class TestTheShippedRulesAreSound:
+    def test_the_committed_rules_pass_every_build_check(self, onto):
+        assert _checks().check_rules(onto, rules.definitions()) == []
+
+    def test_the_build_runs_them(self):
+        problems = _checks().run()
+        assert problems == [], problems
+
+    def test_every_operator_is_exercised_by_a_shipped_rule(self):
+        used = {
+            op
+            for rule in rules.definitions().values()
+            for cond in rule.conditions
+            for op in [cond.op]
+        }
+        unused = set(rules.OPERATORS) - used
+        assert unused == {
+            "contains",
+            "not_contains",
+            "exists",
+            "gt",
+            "lt",
+            "lte",
+            "starts_with",
+        }, f"shipped-rule operator coverage changed: {sorted(unused)}"
