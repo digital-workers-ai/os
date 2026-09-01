@@ -1,0 +1,146 @@
+[
+  {
+    "payload": {
+      "_links": [],
+      "archive_url": "https://mailchi.mp/mock/ec1",
+      "content_type": "template",
+      "create_time": "2026-06-20T10:00:00+00:00",
+      "emails_sent": 4500,
+      "id": "mc_camp_ec1",
+      "long_archive_url": "https://us1.campaign-archive.com/?u=mock&id=ec1",
+      "recipients": {
+        "list_id": "mc_list_001",
+        "list_is_active": true,
+        "list_name": "Main Newsletter",
+        "recipient_count": 4500
+      },
+      "report_summary": {
+        "click_rate": 0.076,
+        "clicks": 342,
+        "open_rate": 0.42,
+        "opens": 1890,
+        "subscriber_clicks": 307,
+        "unique_opens": 1606
+      },
+      "send_time": "2026-07-01T09:00:00Z",
+      "settings": {
+        "from_name": "Acme Team",
+        "reply_to": "hello@acme.io",
+        "subject_line": "What's new in July",
+        "title": "July Newsletter"
+      },
+      "status": "sent",
+      "type": "regular",
+      "web_id": 9001
+    },
+    "source_id": "mc_camp_ec1"
+  },
+  {
+    "payload": {
+      "_links": [],
+      "archive_url": "https://mailchi.mp/mock/ec2",
+      "content_type": "template",
+      "create_time": "2026-06-20T10:00:00+00:00",
+      "emails_sent": 4200,
+      "id": "mc_camp_ec2",
+      "long_archive_url": "https://us1.campaign-archive.com/?u=mock&id=ec2",
+      "recipients": {
+        "list_id": "mc_list_001",
+        "list_is_active": true,
+        "list_name": "Main Newsletter",
+        "recipient_count": 4200
+      },
+      "report_summary": {
+        "click_rate": 0.1380952380952381,
+        "clicks": 580,
+        "open_rate": 0.5,
+        "opens": 2100,
+        "subscriber_clicks": 522,
+        "unique_opens": 1785
+      },
+      "send_time": "2026-07-05T10:00:00Z",
+      "settings": {
+        "from_name": "Acme Team",
+        "reply_to": "hello@acme.io",
+        "subject_line": "Introducing our new feature",
+        "title": "Product Launch Announcement"
+      },
+      "status": "sent",
+      "type": "regular",
+      "web_id": 9002
+    },
+    "source_id": "mc_camp_ec2"
+  },
+  {
+    "payload": {
+      "_links": [],
+      "archive_url": "https://mailchi.mp/mock/ec3",
+      "content_type": "template",
+      "create_time": "2026-06-20T10:00:00+00:00",
+      "emails_sent": 3800,
+      "id": "mc_camp_ec3",
+      "long_archive_url": "https://us1.campaign-archive.com/?u=mock&id=ec3",
+      "recipients": {
+        "list_id": "mc_list_001",
+        "list_is_active": true,
+        "list_name": "Main Newsletter",
+        "recipient_count": 3800
+      },
+      "report_summary": {
+        "click_rate": 0.23421052631578948,
+        "clicks": 890,
+        "open_rate": 0.4,
+        "opens": 1520,
+        "subscriber_clicks": 801,
+        "unique_opens": 1292
+      },
+      "send_time": "2026-07-08T08:00:00Z",
+      "settings": {
+        "from_name": "Acme Team",
+        "reply_to": "hello@acme.io",
+        "subject_line": "Limited time: 30% off all plans",
+        "title": "Summer Sale"
+      },
+      "status": "sent",
+      "type": "regular",
+      "web_id": 9003
+    },
+    "source_id": "mc_camp_ec3"
+  },
+  {
+    "payload": {
+      "_links": [],
+      "archive_url": "https://mailchi.mp/mock/ec4",
+      "content_type": "template",
+      "create_time": "2026-06-20T10:00:00+00:00",
+      "emails_sent": 120,
+      "id": "mc_camp_ec4",
+      "long_archive_url": "https://us1.campaign-archive.com/?u=mock&id=ec4",
+      "recipients": {
+        "list_id": "mc_list_001",
+        "list_is_active": true,
+        "list_name": "Main Newsletter",
+        "recipient_count": 120
+      },
+      "report_summary": {
+        "click_rate": 0.375,
+        "clicks": 45,
+        "open_rate": 0.8166666666666667,
+        "opens": 98,
+        "subscriber_clicks": 40,
+        "unique_opens": 83
+      },
+      "send_time": "2026-07-10T14:00:00Z",
+      "settings": {
+        "from_name": "Acme Team",
+        "reply_to": "hello@acme.io",
+        "subject_line": "Welcome to Acme \u2014 getting started",
+        "title": "Onboarding Welcome"
+      },
+      "status": "sent",
+      "type": "regular",
+      "web_id": 9004
+    },
+    "source_id": "mc_camp_ec4"
+  }
+]

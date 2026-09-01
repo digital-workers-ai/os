@@ -304,6 +304,10 @@ class TestDiscovery:
             "calendly",
             "klaviyo",
             "sendgrid",
+            "salesforce",
+            "shopify",
+            "woocommerce",
+            "google_sheets",
         }
 
     def test_a_package_without_an_extract_module_contributes_no_hook(self, monkeypatch):
@@ -335,8 +339,186 @@ class TestDiscovery:
 class TestReshapeGrammar:
     def test_a_source_without_a_hook_passes_through(self):
         payload = {"id": "cus_1"}
-        assert hooks.reshape("salesforce", "accounts", payload) == [payload]
+        assert hooks.reshape("twilio", "messages", payload) == [payload]
 
     def test_a_single_dict_return_is_wrapped(self, monkeypatch):
         monkeypatch.setattr(hooks, "_cache", {"hubspot": lambda o, p: {"a": 1}})
         assert hooks.reshape("hubspot", "contacts", {}) == [{"a": 1}]
+
+
+class TestWooCommerceOrderTimeIsUtc:
+    @staticmethod
+    def _order(**extra):
+        return {
+            "id": 1,
+            "billing": {"first_name": "Jane", "last_name": "Doe"},
+            **extra,
+        }
+
+    def _reshape(self, payload):
+        from app.sources.woocommerce import extract
+
+        return extract.reshape("orders", payload)
+
+    def test_the_gmt_field_is_preferred(self):
+        out = self._reshape(
+            self._order(
+                date_created="2026-06-15T10:30:00",
+                date_created_gmt="2026-06-15T14:30:00",
+            )
+        )
+        assert out[0]["_placed_at"] == "2026-06-15T14:30:00"
+
+    def test_the_local_field_is_the_fallback(self):
+        out = self._reshape(self._order(date_created="2026-06-15T10:30:00"))
+        assert out[0]["_placed_at"] == "2026-06-15T10:30:00"
+
+    def test_an_order_with_no_timestamp_composes_nothing(self):
+        out = self._reshape(self._order())
+        assert "_placed_at" not in out[0]
+
+    def test_the_name_composition_still_happens(self):
+        out = self._reshape(self._order(date_created_gmt="2026-06-15T14:30:00"))
+        assert out[0]["_full_name"] == "Jane Doe"
+
+
+class TestBatchTwoCompositeNames:
+    def test_salesforce_composes_its_own_capitalisation(self):
+        from app.sources.salesforce import extract
+
+        out = extract.reshape(
+            "contacts", {"FirstName": "Rich", "LastName": "Hendricks"}
+        )
+        assert out[0]["_full_name"] == "Rich Hendricks"
+
+    def test_salesforce_accounts_pass_through(self):
+        from app.sources.salesforce import extract
+
+        payload = {"Id": "001", "Name": "Acme"}
+        assert extract.reshape("accounts", payload) == [payload]
+
+    def test_shopify_products_pass_through(self):
+        from app.sources.shopify import extract
+
+        payload = {"id": 1, "title": "Widget"}
+        assert extract.reshape("products", payload) == [payload]
+
+    def test_woocommerce_products_pass_through(self):
+        from app.sources.woocommerce import extract
+
+        payload = {"id": 1, "name": "Widget"}
+        assert extract.reshape("products", payload) == [payload]
+
+    def test_the_six_composite_name_hooks_agree(self):
+        from app.sources.salesforce import extract as salesforce
+        from app.sources.shopify import extract as shopify
+        from app.sources.woocommerce import extract as woocommerce
+
+        from app.sources.hubspot import extract as hubspot
+        from app.sources.klaviyo import extract as klaviyo
+        from app.sources.sendgrid import extract as sendgrid
+
+        cases = [
+            (
+                hubspot,
+                "contacts",
+                {"properties": {"firstname": "Jane", "lastname": "Smith"}},
+            ),
+            (salesforce, "contacts", {"FirstName": "Jane", "LastName": "Smith"}),
+            (shopify, "customers", {"first_name": "Jane", "last_name": "Smith"}),
+            (woocommerce, "customers", {"first_name": "Jane", "last_name": "Smith"}),
+            (
+                klaviyo,
+                "profiles",
+                {"attributes": {"first_name": "Jane", "last_name": "Smith"}},
+            ),
+            (sendgrid, "contacts", {"first_name": "Jane", "last_name": "Smith"}),
+        ]
+        for module, object_type, payload in cases:
+            out = module.reshape(object_type, payload)
+            assert out[0]["_full_name"] == "Jane Smith", module.__name__
+
+    def test_woocommerce_reads_the_orders_billing_block(self):
+        from app.sources.woocommerce import extract
+
+        out = extract.reshape(
+            "orders",
+            {"id": 727, "billing": {"first_name": "Jane", "last_name": "Smith"}},
+        )
+        assert out[0]["_full_name"] == "Jane Smith"
+
+
+class TestGoogleSheetsHook:
+    def test_the_money_columns_are_declared_not_sniffed(self):
+        from app.sources.google_sheets import extract
+
+        assert extract.MONEY_COLUMNS == ("Amount",)
+
+    def test_a_typed_money_cell_is_cleaned(self):
+        from app.sources.google_sheets import extract
+
+        out = extract.reshape("rows", {"Amount": "$45,000"})
+        assert out[0]["_amount"] == 45000.0
+
+    def test_a_blank_cell_is_absent_not_zero(self):
+        from app.sources.google_sheets import extract
+
+        out = extract.reshape("rows", {"Amount": "  "})
+        assert "_amount" not in out[0]
+        assert "_hook_skips" not in out[0]
+
+    def test_an_uninterpretable_cell_is_a_counted_skip(self):
+        from app.sources.google_sheets import extract
+
+        out = extract.reshape("rows", {"Amount": "ask Dave"})
+        assert "_amount" not in out[0]
+        assert out[0]["_hook_skips"] == [["_amount", "unparseable_cell"]]
+
+    def test_the_strict_money_transform_still_refuses_the_raw_cell(self):
+        from app.engine import transforms
+
+        with pytest.raises(transforms.TransformError):
+            transforms.normalize_money("google_sheets", "rows", "$45,000")
+
+
+class TestSheetNumbersAreParsedNotStripped:
+    @staticmethod
+    def _to_number(raw):
+        from app.sources.google_sheets import extract
+
+        return extract._to_number(raw)
+
+    def test_an_accounting_negative_keeps_its_sign(self):
+        assert self._to_number("(1,200)") == -1200.0
+
+    def test_a_magnitude_suffix_is_refused_rather_than_truncated(self):
+        assert self._to_number("$1.2M") is None
+
+    def test_a_european_decimal_comma_is_read_correctly(self):
+        assert self._to_number("45.000,00") == 45000.0
+
+    def test_a_us_thousands_separator_still_reads(self):
+        assert self._to_number("45,000.00") == 45000.0
+        assert self._to_number("1,200") == 1200.0
+
+    def test_an_ambiguous_comma_group_is_refused(self):
+        assert self._to_number("1,2") is None
+
+    def test_a_spaced_thousands_group_with_a_decimal_comma_is_read(self):
+        assert self._to_number("€1 234,56") == 1234.56
+
+    def test_a_double_dotted_string_is_refused(self):
+        assert self._to_number("$4.5.0") is None
+
+    def test_a_currency_symbol_is_still_decoration(self):
+        assert self._to_number("$42.50") == 42.5
+
+    def test_a_leading_minus_survives_the_cleaning(self):
+        assert self._to_number("-$1,200") == -1200.0
+
+    def test_a_blank_cell_is_absent(self):
+        assert self._to_number("   ") is None
+
+    @pytest.mark.parametrize("raw", ["n/a", "TBD", "1.2M", "45 EUR", "--"])
+    def test_anything_carrying_a_unit_or_a_word_is_refused(self, raw):
+        assert self._to_number(raw) is None

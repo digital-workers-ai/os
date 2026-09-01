@@ -4,6 +4,7 @@ import pytest
 from app.config import settings
 from app.sources import client
 from app.sources.client import ConnectorError, SourceClient, redact_url
+from app.sources.paginators import Paginator
 
 
 @pytest.fixture(autouse=True)
@@ -320,3 +321,101 @@ class TestWithoutAnInstalledTransport:
         real = SourceClient("hubspot", "http://api")._client()
         assert isinstance(real._transport, httpx.AsyncHTTPTransport)
         await real.aclose()
+
+
+class TestAuth:
+    async def test_basic_auth_reaches_the_request(self, transport):
+        seen = []
+
+        def handler(request):
+            seen.append(request)
+            return json_page({"ok": True})
+
+        transport(handler)
+        await SourceClient("twilio", "http://api", auth=("u", "p")).get("/x")
+        assert seen[0].headers["Authorization"] == "Basic dTpw"
+
+    async def test_no_auth_pair_adds_no_authorization_header(self, transport):
+        seen = []
+
+        def handler(request):
+            seen.append(request)
+            return json_page({"ok": True})
+
+        transport(handler)
+        await SourceClient("hubspot", "http://api").get("/x")
+        assert "authorization" not in seen[0].headers
+
+
+class _HeaderPager(Paginator):
+    def __init__(self):
+        self.header_calls = 0
+
+    def extract(self, data):
+        return self._require_list(data, "items")
+
+    def next_params(self, data, params):
+        after = data.get("next")
+        return {**params, "after": after} if after else None
+
+    def next_from_headers(self, headers, params):
+        self.header_calls += 1
+        cursor = headers.get("X-Next")
+        return {**params, "page": cursor} if cursor else None
+
+
+class TestHeaderPagination:
+    async def test_the_walk_continues_from_the_response_headers(self, transport):
+        transport(
+            responder(
+                httpx.Response(
+                    200, json={"items": [{"id": 1}]}, headers={"X-Next": "2"}
+                ),
+                json_page({"items": [{"id": 2}]}),
+            )
+        )
+        rows = await SourceClient("shopify", "http://api").get(
+            "/orders", paginate=_HeaderPager()
+        )
+        assert [r["id"] for r in rows] == [1, 2]
+
+    async def test_headers_are_consulted_only_after_the_body_says_nothing(
+        self, transport
+    ):
+        seen = []
+
+        def handler(request):
+            seen.append(dict(request.url.params))
+            if len(seen) == 1:
+                return httpx.Response(
+                    200,
+                    json={"items": [{"id": 1}], "next": "c1"},
+                    headers={"X-Next": "ignored"},
+                )
+            return json_page({"items": [{"id": 2}]})
+
+        transport(handler)
+        pager = _HeaderPager()
+        rows = await SourceClient("shopify", "http://api").get(
+            "/orders", paginate=pager
+        )
+        assert [r["id"] for r in rows] == [1, 2]
+        assert seen == [{}, {"after": "c1"}]
+        assert pager.header_calls == 1
+
+
+class TestPublicTruncate:
+    async def test_truncate_feeds_the_truncation_reasons(self):
+        source_client = SourceClient("salesforce", "http://api")
+        source_client.truncate("salesforce cursor guard reached on accounts")
+        assert source_client.truncated is True
+        assert (
+            "salesforce cursor guard reached on accounts"
+            in source_client.truncation_reasons
+        )
+
+    async def test_a_public_truncate_is_visible_to_the_stats_collector(self):
+        with client.collect_stats() as stats:
+            SourceClient("salesforce", "http://api").truncate("stopped early")
+        assert stats.truncated is True
+        assert "stopped early" in stats.truncation_reasons

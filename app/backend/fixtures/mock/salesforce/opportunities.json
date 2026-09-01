@@ -1,0 +1,94 @@
+[
+  {
+    "payload": {
+      "Account": {
+        "Name": "Acme Corp.",
+        "attributes": {
+          "type": "Account",
+          "url": "/services/data/v67.0/sobjects/Account/001xx000003DGb000001"
+        }
+      },
+      "AccountId": "001xx000003DGb000001",
+      "Amount": 21600.0,
+      "CloseDate": "2026-08-15",
+      "Id": "006xx000003DGb000001",
+      "Name": "Acme Corp - Enterprise Upgrade",
+      "Probability": 75,
+      "StageName": "Negotiation/Review",
+      "attributes": {
+        "type": "Opportunity",
+        "url": "/services/data/v67.0/sobjects/Opportunity/006xx000003DGb000001"
+      }
+    },
+    "source_id": "006xx000003DGb000001"
+  },
+  {
+    "payload": {
+      "Account": {
+        "Name": "Globex Inc",
+        "attributes": {
+          "type": "Account",
+          "url": "/services/data/v67.0/sobjects/Account/001xx000003DGb000002"
+        }
+      },
+      "AccountId": "001xx000003DGb000002",
+      "Amount": 28800.0,
+      "CloseDate": "2026-08-15",
+      "Id": "006xx000003DGb000002",
+      "Name": "Globex Inc - Enterprise Upgrade",
+      "Probability": 75,
+      "StageName": "Negotiation/Review",
+      "attributes": {
+        "type": "Opportunity",
+        "url": "/services/data/v67.0/sobjects/Opportunity/006xx000003DGb000002"
+      }
+    },
+    "source_id": "006xx000003DGb000002"
+  },
+  {
+    "payload": {
+      "Account": {
+        "Name": "Initech LLC",
+        "attributes": {
+          "type": "Account",
+          "url": "/services/data/v67.0/sobjects/Account/001xx000003DGb000003"
+        }
+      },
+      "AccountId": "001xx000003DGb000003",
+      "Amount": 57600.0,
+      "CloseDate": "2026-08-15",
+      "Id": "006xx000003DGb000003",
+      "Name": "Initech LLC - Enterprise Upgrade",
+      "Probability": 75,
+      "StageName": "Negotiation/Review",
+      "attributes": {
+        "type": "Opportunity",
+        "url": "/services/data/v67.0/sobjects/Opportunity/006xx000003DGb000003"
+      }
+    },
+    "source_id": "006xx000003DGb000003"
+  },
+  {
+    "payload": {
+      "Account": {
+        "Name": "Umbrella Systems",
+        "attributes": {
+          "type": "Account",
+          "url": "/services/data/v67.0/sobjects/Account/001xx000003DGb000004"
+        }
+      },
+      "AccountId": "001xx000003DGb000004",
+      "Amount": 588.0,
+      "CloseDate": "2026-08-15",
+      "Id": "006xx000003DGb000004",
+      "Name": "Umbrella Systems - Enterprise Upgrade",
+      "Probability": 25,
+      "StageName": "Closed Lost",
+      "attributes": {
+        "type": "Opportunity",
+        "url": "/services/data/v67.0/sobjects/Opportunity/006xx000003DGb000004"
+      }
+    },
+    "source_id": "006xx000003DGb000004"
+  }
+]

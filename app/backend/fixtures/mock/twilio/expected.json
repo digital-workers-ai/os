@@ -1,0 +1,32 @@
+{
+  "clears": {},
+  "extracted": {
+    "messages": {
+      "message": {
+        "SMmock00000000000000000000000001": {
+          "amount": "-0.0075",
+          "currency": "usd",
+          "occurred_at": "2026-07-14T10:30:01Z",
+          "phone": "+14155551234",
+          "status": "delivered"
+        },
+        "SMmock00000000000000000000000002": {
+          "amount": "-0.0075",
+          "currency": "usd",
+          "occurred_at": "2026-07-14T11:00:01Z",
+          "phone": "+15125550201",
+          "status": "delivered"
+        },
+        "SMmock00000000000000000000000003": {
+          "amount": "-0.0075",
+          "currency": "usd",
+          "occurred_at": "2026-07-13T15:22:01Z",
+          "phone": "+13125550301",
+          "status": "delivered"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "twilio"
+}

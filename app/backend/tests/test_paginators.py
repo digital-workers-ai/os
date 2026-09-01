@@ -15,6 +15,9 @@ class TestTheBaseContract:
         with pytest.raises(NotImplementedError):
             base.next_params({}, {})
 
+    def test_the_default_header_advance_is_none(self):
+        assert pag.Paginator().next_from_headers({"Link": "<x>"}, {}) is None
+
 
 class TestRequireList:
     @pytest.mark.parametrize("body", ["a string", ["a", "list"], 42, None])
@@ -264,3 +267,141 @@ class TestIntercomCollectionKeyIsParameterized:
     def test_an_instance_resolves_as_itself(self):
         built = pag.IntercomCursor("conversations")
         assert pag.resolve(built) is built
+
+
+class TestBatchTwoRegistration:
+    def test_the_twilio_mode_is_registered(self):
+        assert "page_twilio" in pag.PAGINATORS
+        assert isinstance(pag.resolve("page_twilio"), pag.TwilioPage)
+
+
+class TestOffsetPagination:
+    def make(self):
+        return pag.Offset("results")
+
+    def test_it_steps_by_the_callers_page_size_not_a_guess(self):
+        body = {"results": [{}] * 25, "total_count": 100}
+        assert self.make().next_params(body, {"count": 25, "offset": 0}) == {
+            "count": 25,
+            "offset": 25,
+        }
+
+    def test_it_stops_exactly_at_the_advertised_total(self):
+        body = {"results": [{}] * 25, "total_count": 50}
+        assert self.make().next_params(body, {"count": 25, "offset": 25}) is None
+
+    def test_it_keeps_going_while_the_total_is_ahead(self):
+        body = {"results": [{}] * 25, "total_count": 51}
+        assert self.make().next_params(body, {"count": 25, "offset": 25}) == {
+            "count": 25,
+            "offset": 50,
+        }
+
+    @pytest.mark.parametrize("total_key", ["total_count", "total_items", "total"])
+    def test_any_of_the_declared_total_keys_is_honoured(self, total_key):
+        body = {"results": [{}] * 10, total_key: 10}
+        assert self.make().next_params(body, {"count": 10, "offset": 0}) is None
+
+    def test_a_short_page_ends_the_walk_when_no_total_is_advertised(self):
+        body = {"results": [{}] * 9}
+        assert self.make().next_params(body, {"count": 10, "offset": 0}) is None
+
+    def test_a_full_page_keeps_going_when_no_total_is_advertised(self):
+        body = {"results": [{}] * 10}
+        assert self.make().next_params(body, {"count": 10, "offset": 0}) == {
+            "count": 10,
+            "offset": 10,
+        }
+
+    def test_defaults_apply_when_the_caller_named_nothing(self):
+        body = {"results": [{}] * 100}
+        assert self.make().next_params(body, {}) == {"offset": 100}
+
+    def test_a_non_numeric_total_is_ignored_rather_than_trusted(self):
+        body = {"results": [{}] * 10, "total_count": "many"}
+        assert self.make().next_params(body, {"count": 10, "offset": 0}) == {
+            "count": 10,
+            "offset": 10,
+        }
+
+    def test_the_declared_list_key_is_extracted(self):
+        assert pag.Offset("lists").extract({"lists": [{"id": "l1"}]}) == [{"id": "l1"}]
+
+    def test_an_instance_resolves_as_itself(self):
+        built = pag.Offset("lists")
+        assert pag.resolve(built) is built
+
+
+class TestShopifyLinkHeader:
+    def _shopify(self):
+        return pag.ShopifyLink("orders")
+
+    def test_the_page_info_cursor_is_lifted_out_of_the_link_header(self):
+        headers = {
+            "Link": "<https://x.myshopify.com/admin/orders.json?"
+            'limit=50&page_info=abc123>; rel="next"'
+        }
+        assert self._shopify().next_from_headers(headers, {"limit": 50}) == {
+            "limit": 50,
+            "page_info": "abc123",
+        }
+
+    def test_the_header_name_is_matched_case_insensitively(self):
+        headers = {"link": '<https://x/orders.json?page_info=abc>; rel="next"'}
+        assert self._shopify().next_from_headers(headers, {})["page_info"] == "abc"
+
+    def test_a_previous_link_is_not_followed(self):
+        headers = {"Link": '<https://x/orders.json?page_info=abc>; rel="previous"'}
+        assert self._shopify().next_from_headers(headers, {}) is None
+
+    def test_no_link_header_ends_the_walk(self):
+        assert self._shopify().next_from_headers({}, {}) is None
+
+    def test_the_page_info_request_carries_only_the_limit(self):
+        headers = {"Link": '<https://x/orders.json?page_info=abc>; rel="next"'}
+        nxt = self._shopify().next_from_headers(
+            headers, {"limit": 50, "updated_at_min": "2026-01-01"}
+        )
+        assert nxt == {"limit": 50, "page_info": "abc"}
+
+    def test_shopify_never_advances_from_the_body(self):
+        assert (
+            pag.ShopifyLink("orders").next_params({"orders": [], "next": "c1"}, {})
+            is None
+        )
+
+    def test_the_declared_collection_key_is_extracted(self):
+        assert pag.ShopifyLink("orders").extract({"orders": [{"id": 1}]}) == [{"id": 1}]
+
+
+class TestTwilioPage:
+    def test_twilio_increments_the_page_number_and_carries_its_token(self):
+        body = {
+            "messages": [],
+            "next_page_uri": "/x?Page=2",
+            "page": 1,
+            "next_page_token": "t1",
+        }
+        assert paginator("page_twilio").next_params(body, {}) == {
+            "Page": 2,
+            "PageToken": "t1",
+        }
+
+    def test_twilio_sends_an_empty_token_when_the_vendor_omits_one(self):
+        body = {"messages": [], "next_page_uri": "/x?Page=2", "page": 0}
+        assert paginator("page_twilio").next_params(body, {})["PageToken"] == ""
+
+    @pytest.mark.parametrize(
+        "body",
+        [
+            {"messages": []},
+            {"messages": [], "next_page_uri": ""},
+        ],
+    )
+    def test_the_walk_ends(self, body):
+        assert paginator("page_twilio").next_params(body, {"PageSize": 1}) is None
+
+    def test_the_messages_list_is_extracted(self):
+        assert paginator("page_twilio").extract({"messages": [{"sid": "s1"}]}) == [
+            {"sid": "s1"}
+        ]

@@ -1,0 +1,97 @@
+{
+  "clears": {
+    "phone/salesforce": 1
+  },
+  "extracted": {
+    "accounts": {
+      "company": {
+        "001xx000003DGb000001": {
+          "domain": "acme.io",
+          "industry": "Software",
+          "name": "Acme Corp."
+        },
+        "001xx000003DGb000002": {
+          "domain": "globex.com",
+          "industry": "Marketing",
+          "name": "Globex Inc"
+        },
+        "001xx000003DGb000003": {
+          "domain": "initech.io",
+          "industry": "Finance",
+          "name": "Initech LLC"
+        },
+        "001xx000003DGb000004": {
+          "domain": "umbrella.dev",
+          "industry": "Healthcare",
+          "name": "Umbrella Systems"
+        }
+      }
+    },
+    "contacts": {
+      "person": {
+        "003xx000003DGb000001": {
+          "email": "jane@acme.io",
+          "name": "Jane Smith",
+          "phone": "+14155550101",
+          "title": "VP Sales"
+        },
+        "003xx000003DGb000002": {
+          "email": "john.doe@acme.io",
+          "name": "John Doe",
+          "phone": "+14155550102",
+          "title": "CTO"
+        },
+        "003xx000003DGb000003": {
+          "email": "sarah@acme.io",
+          "name": "Sarah Johnson",
+          "phone": null,
+          "title": "Marketing Director"
+        },
+        "003xx000003DGb000004": {
+          "email": "mike@globex.com",
+          "name": "Mike Chen",
+          "phone": "+15125550201",
+          "title": "CEO"
+        }
+      }
+    },
+    "opportunities": {
+      "deal": {
+        "006xx000003DGb000001": {
+          "account_ref": "001xx000003DGb000001",
+          "amount": "21600.0",
+          "closed_at": "2026-08-15T00:00:00Z",
+          "currency": "usd",
+          "name": "Acme Corp - Enterprise Upgrade",
+          "status": "negotiation"
+        },
+        "006xx000003DGb000002": {
+          "account_ref": "001xx000003DGb000002",
+          "amount": "28800.0",
+          "closed_at": "2026-08-15T00:00:00Z",
+          "currency": "usd",
+          "name": "Globex Inc - Enterprise Upgrade",
+          "status": "negotiation"
+        },
+        "006xx000003DGb000003": {
+          "account_ref": "001xx000003DGb000003",
+          "amount": "57600.0",
+          "closed_at": "2026-08-15T00:00:00Z",
+          "currency": "usd",
+          "name": "Initech LLC - Enterprise Upgrade",
+          "status": "negotiation"
+        },
+        "006xx000003DGb000004": {
+          "account_ref": "001xx000003DGb000004",
+          "amount": "588.0",
+          "closed_at": "2026-08-15T00:00:00Z",
+          "currency": "usd",
+          "name": "Umbrella Systems - Enterprise Upgrade",
+          "status": "closed_lost"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "salesforce"
+}

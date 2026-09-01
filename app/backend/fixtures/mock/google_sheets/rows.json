@@ -1,0 +1,46 @@
+[
+  {
+    "payload": {
+      "Amount": "$45,000",
+      "Close Date": "2026-08-15",
+      "Company": "Acme Corp",
+      "Deal Stage": "Negotiation",
+      "Owner": "Jane Smith",
+      "Source": "Inbound"
+    },
+    "source_id": "Acme Corp"
+  },
+  {
+    "payload": {
+      "Amount": "$28,000",
+      "Close Date": "2026-07-30",
+      "Company": "Globex Inc",
+      "Deal Stage": "Proposal",
+      "Owner": "Bob Johnson",
+      "Source": "Outbound"
+    },
+    "source_id": "Globex Inc"
+  },
+  {
+    "payload": {
+      "Amount": "$12,500",
+      "Close Date": "2026-09-01",
+      "Company": "Initech LLC",
+      "Deal Stage": "Discovery",
+      "Owner": "Jane Smith",
+      "Source": "Referral"
+    },
+    "source_id": "Initech LLC"
+  },
+  {
+    "payload": {
+      "Amount": "$85,000",
+      "Close Date": "2026-06-20",
+      "Company": "Wayne Enterprises",
+      "Deal Stage": "Closed Won",
+      "Owner": "Alice Brown",
+      "Source": "Inbound"
+    },
+    "source_id": "Wayne Enterprises"
+  }
+]

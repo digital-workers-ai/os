@@ -1,0 +1,78 @@
+[
+  {
+    "payload": {
+      "AnnualRevenue": 21600.0,
+      "BillingCity": "San Francisco",
+      "BillingCountry": "United States",
+      "BillingState": "CA",
+      "CreatedDate": "2025-01-15T10:30:00.000+0000",
+      "Id": "001xx000003DGb000001",
+      "Industry": "Software",
+      "Name": "Acme Corp.",
+      "NumberOfEmployees": 120,
+      "Website": "https://acme.io",
+      "attributes": {
+        "type": "Account",
+        "url": "/services/data/v67.0/sobjects/Account/001xx000003DGb000001"
+      }
+    },
+    "source_id": "001xx000003DGb000001"
+  },
+  {
+    "payload": {
+      "AnnualRevenue": 28800.0,
+      "BillingCity": "Austin",
+      "BillingCountry": "United States",
+      "BillingState": "TX",
+      "CreatedDate": "2025-01-15T10:30:00.000+0000",
+      "Id": "001xx000003DGb000002",
+      "Industry": "Marketing",
+      "Name": "Globex Inc",
+      "NumberOfEmployees": 85,
+      "Website": "https://globex.com",
+      "attributes": {
+        "type": "Account",
+        "url": "/services/data/v67.0/sobjects/Account/001xx000003DGb000002"
+      }
+    },
+    "source_id": "001xx000003DGb000002"
+  },
+  {
+    "payload": {
+      "AnnualRevenue": 57600.0,
+      "BillingCity": "Chicago",
+      "BillingCountry": "United States",
+      "BillingState": "IL",
+      "CreatedDate": "2025-01-15T10:30:00.000+0000",
+      "Id": "001xx000003DGb000003",
+      "Industry": "Finance",
+      "Name": "Initech LLC",
+      "NumberOfEmployees": 200,
+      "Website": "https://initech.io",
+      "attributes": {
+        "type": "Account",
+        "url": "/services/data/v67.0/sobjects/Account/001xx000003DGb000003"
+      }
+    },
+    "source_id": "001xx000003DGb000003"
+  },
+  {
+    "payload": {
+      "AnnualRevenue": 588.0,
+      "BillingCity": "Boston",
+      "BillingCountry": "United States",
+      "BillingState": "MA",
+      "CreatedDate": "2025-01-15T10:30:00.000+0000",
+      "Id": "001xx000003DGb000004",
+      "Industry": "Healthcare",
+      "Name": "Umbrella Systems",
+      "NumberOfEmployees": 50,
+      "Website": "https://umbrella.dev",
+      "attributes": {
+        "type": "Account",
+        "url": "/services/data/v67.0/sobjects/Account/001xx000003DGb000004"
+      }
+    },
+    "source_id": "001xx000003DGb000004"
+  }
+]

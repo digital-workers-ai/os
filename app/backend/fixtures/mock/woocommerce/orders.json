@@ -1,0 +1,140 @@
+[
+  {
+    "payload": {
+      "_links": {
+        "collection": [
+          {
+            "href": "http://localhost:8100/woocommerce/wc/v3/orders"
+          }
+        ],
+        "self": [
+          {
+            "href": "http://localhost:8100/woocommerce/wc/v3/orders/727"
+          }
+        ]
+      },
+      "billing": {
+        "address_1": "123 Main St",
+        "city": "San Francisco",
+        "company": "Acme Corp",
+        "country": "US",
+        "email": "jane@acme.io",
+        "first_name": "Jane",
+        "last_name": "Smith",
+        "phone": "+14155551234",
+        "postcode": "94105",
+        "state": "CA"
+      },
+      "cart_tax": "22.95",
+      "currency": "USD",
+      "currency_symbol": "$",
+      "customer_id": 12,
+      "date_created": "2026-06-15T10:30:00",
+      "date_modified": "2026-06-16T08:15:00",
+      "date_paid": "2026-06-15T10:31:00",
+      "discount_total": "0.00",
+      "id": 727,
+      "line_items": [
+        {
+          "id": 315,
+          "name": "Widget Pro",
+          "price": 89.99,
+          "product_id": 93,
+          "quantity": 3,
+          "sku": "WP-001",
+          "subtotal": "269.97",
+          "total": "269.97"
+        }
+      ],
+      "number": "727",
+      "order_key": "wc_order_abc123",
+      "parent_id": 0,
+      "payment_method": "stripe",
+      "payment_method_title": "Credit Card (Stripe)",
+      "shipping": {
+        "address_1": "123 Main St",
+        "city": "San Francisco",
+        "company": "Acme Corp",
+        "country": "US",
+        "first_name": "Jane",
+        "last_name": "Smith",
+        "postcode": "94105",
+        "state": "CA"
+      },
+      "shipping_total": "10.00",
+      "status": "processing",
+      "total": "279.97",
+      "total_tax": "22.95"
+    },
+    "source_id": "727"
+  },
+  {
+    "payload": {
+      "_links": {
+        "collection": [
+          {
+            "href": "http://localhost:8100/woocommerce/wc/v3/orders"
+          }
+        ],
+        "self": [
+          {
+            "href": "http://localhost:8100/woocommerce/wc/v3/orders/728"
+          }
+        ]
+      },
+      "billing": {
+        "address_1": "456 Oak Ave",
+        "city": "Austin",
+        "company": "Globex Inc",
+        "country": "US",
+        "email": "mike@globex.com",
+        "first_name": "Mike",
+        "last_name": "Chen",
+        "phone": "+15125550201",
+        "postcode": "78701",
+        "state": "TX"
+      },
+      "cart_tax": "7.65",
+      "currency": "USD",
+      "currency_symbol": "$",
+      "customer_id": 13,
+      "date_created": "2026-07-01T08:00:00",
+      "date_modified": "2026-07-02T10:30:00",
+      "date_paid": "2026-07-01T08:01:00",
+      "discount_total": "15.00",
+      "id": 728,
+      "line_items": [
+        {
+          "id": 316,
+          "name": "Gadget Lite",
+          "price": 89.99,
+          "product_id": 94,
+          "quantity": 1,
+          "sku": "GL-001",
+          "subtotal": "89.99",
+          "total": "74.99"
+        }
+      ],
+      "number": "728",
+      "order_key": "wc_order_def456",
+      "parent_id": 0,
+      "payment_method": "stripe",
+      "payment_method_title": "Credit Card (Stripe)",
+      "shipping": {
+        "address_1": "456 Oak Ave",
+        "city": "Austin",
+        "company": "Globex Inc",
+        "country": "US",
+        "first_name": "Mike",
+        "last_name": "Chen",
+        "postcode": "78701",
+        "state": "TX"
+      },
+      "shipping_total": "0.00",
+      "status": "completed",
+      "total": "82.64",
+      "total_tax": "7.65"
+    },
+    "source_id": "728"
+  }
+]

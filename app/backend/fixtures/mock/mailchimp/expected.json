@@ -1,0 +1,59 @@
+{
+  "clears": {},
+  "extracted": {
+    "campaigns": {
+      "email_campaign": {
+        "mc_camp_ec1": {
+          "clicks": "342.0",
+          "name": "July Newsletter",
+          "opens": "1890.0",
+          "sends": "4500.0",
+          "sent_at": "2026-07-01T09:00:00Z",
+          "status": "sent",
+          "subject": "What's new in July"
+        },
+        "mc_camp_ec2": {
+          "clicks": "580.0",
+          "name": "Product Launch Announcement",
+          "opens": "2100.0",
+          "sends": "4200.0",
+          "sent_at": "2026-07-05T10:00:00Z",
+          "status": "sent",
+          "subject": "Introducing our new feature"
+        },
+        "mc_camp_ec3": {
+          "clicks": "890.0",
+          "name": "Summer Sale",
+          "opens": "1520.0",
+          "sends": "3800.0",
+          "sent_at": "2026-07-08T08:00:00Z",
+          "status": "sent",
+          "subject": "Limited time: 30% off all plans"
+        },
+        "mc_camp_ec4": {
+          "clicks": "45.0",
+          "name": "Onboarding Welcome",
+          "opens": "98.0",
+          "sends": "120.0",
+          "sent_at": "2026-07-10T14:00:00Z",
+          "status": "sent",
+          "subject": "Welcome to Acme \u2014 getting started"
+        }
+      }
+    },
+    "lists": {
+      "audience": {
+        "mc_list_001": {
+          "members": "4500.0",
+          "name": "Main Newsletter"
+        },
+        "mc_list_002": {
+          "members": "2100.0",
+          "name": "Product Updates"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "mailchimp"
+}

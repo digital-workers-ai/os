@@ -1,0 +1,206 @@
+[
+  {
+    "payload": {
+      "admin_graphql_api_id": "gid://shopify/Order/5000000001",
+      "billing_address": {
+        "address1": "123 Main St",
+        "city": "San Francisco",
+        "company": "Acme Corp",
+        "country": "United States",
+        "first_name": "Jane",
+        "last_name": "Smith",
+        "phone": "+14155551234",
+        "province": "California",
+        "zip": "94105"
+      },
+      "buyer_accepts_marketing": true,
+      "cancelled_at": null,
+      "closed_at": null,
+      "confirmed": true,
+      "contact_email": "jane@acme.io",
+      "created_at": "2026-07-10T14:30:00-04:00",
+      "currency": "USD",
+      "current_subtotal_price": "249.98",
+      "current_total_price": "272.93",
+      "current_total_tax": "22.95",
+      "customer": {
+        "email": "jane@acme.io",
+        "first_name": "Jane",
+        "id": 7000000001,
+        "last_name": "Smith",
+        "orders_count": 3,
+        "total_spent": "820.00"
+      },
+      "email": "jane@acme.io",
+      "financial_status": "paid",
+      "fulfillment_status": "fulfilled",
+      "fulfillments": [],
+      "id": 5000000001,
+      "line_items": [
+        {
+          "fulfillment_status": "fulfilled",
+          "id": 10001,
+          "price": "124.99",
+          "product_id": 30001,
+          "quantity": 2,
+          "sku": "WP-001",
+          "tax_lines": [
+            {
+              "price": "22.95",
+              "rate": 0.085,
+              "title": "CA State Tax"
+            }
+          ],
+          "taxable": true,
+          "title": "Widget Pro",
+          "variant_id": 40001
+        }
+      ],
+      "name": "#1001",
+      "number": 1,
+      "order_number": 1001,
+      "processed_at": "2026-07-10T14:30:00-04:00",
+      "refunds": [],
+      "shipping_address": {
+        "address1": "123 Main St",
+        "city": "San Francisco",
+        "company": "Acme Corp",
+        "country": "United States",
+        "first_name": "Jane",
+        "last_name": "Smith",
+        "phone": "+14155551234",
+        "province": "California",
+        "zip": "94105"
+      },
+      "shipping_lines": [
+        {
+          "code": "standard",
+          "id": 20001,
+          "price": "0.00",
+          "source": "shopify",
+          "title": "Standard Shipping"
+        }
+      ],
+      "source_name": "web",
+      "subtotal_price": "249.98",
+      "tags": "vip, repeat-customer",
+      "taxes_included": false,
+      "test": false,
+      "total_discounts": "0.00",
+      "total_line_items_price": "249.98",
+      "total_price": "272.93",
+      "total_shipping_price_set": {
+        "shop_money": {
+          "amount": "0.00",
+          "currency_code": "USD"
+        }
+      },
+      "total_tax": "22.95",
+      "total_weight": 1760,
+      "updated_at": "2026-07-11T09:15:00-04:00"
+    },
+    "source_id": "5000000001"
+  },
+  {
+    "payload": {
+      "admin_graphql_api_id": "gid://shopify/Order/5000000002",
+      "billing_address": {
+        "address1": "456 Oak Ave",
+        "city": "Austin",
+        "company": "Globex Inc",
+        "country": "United States",
+        "first_name": "Mike",
+        "last_name": "Chen",
+        "phone": "+15125550201",
+        "province": "Texas",
+        "zip": "78701"
+      },
+      "buyer_accepts_marketing": false,
+      "cancelled_at": null,
+      "closed_at": null,
+      "confirmed": true,
+      "contact_email": "mike@globex.com",
+      "created_at": "2026-07-12T08:00:00-04:00",
+      "currency": "USD",
+      "current_subtotal_price": "89.99",
+      "current_total_price": "97.64",
+      "current_total_tax": "7.65",
+      "customer": {
+        "email": "mike@globex.com",
+        "first_name": "Mike",
+        "id": 7000000002,
+        "last_name": "Chen",
+        "orders_count": 1,
+        "total_spent": "97.64"
+      },
+      "email": "mike@globex.com",
+      "financial_status": "paid",
+      "fulfillment_status": null,
+      "fulfillments": [],
+      "id": 5000000002,
+      "line_items": [
+        {
+          "fulfillment_status": null,
+          "id": 10002,
+          "price": "89.99",
+          "product_id": 30002,
+          "quantity": 1,
+          "sku": "GL-001",
+          "tax_lines": [
+            {
+              "price": "7.65",
+              "rate": 0.085,
+              "title": "TX State Tax"
+            }
+          ],
+          "taxable": true,
+          "title": "Gadget Lite",
+          "variant_id": 40002
+        }
+      ],
+      "name": "#1002",
+      "number": 2,
+      "order_number": 1002,
+      "processed_at": "2026-07-12T08:00:00-04:00",
+      "refunds": [],
+      "shipping_address": {
+        "address1": "456 Oak Ave",
+        "city": "Austin",
+        "company": "Globex Inc",
+        "country": "United States",
+        "first_name": "Mike",
+        "last_name": "Chen",
+        "phone": "+15125550201",
+        "province": "Texas",
+        "zip": "78701"
+      },
+      "shipping_lines": [
+        {
+          "code": "standard",
+          "id": 20002,
+          "price": "0.00",
+          "source": "shopify",
+          "title": "Standard Shipping"
+        }
+      ],
+      "source_name": "web",
+      "subtotal_price": "89.99",
+      "tags": "new-customer",
+      "taxes_included": false,
+      "test": false,
+      "total_discounts": "0.00",
+      "total_line_items_price": "89.99",
+      "total_price": "97.64",
+      "total_shipping_price_set": {
+        "shop_money": {
+          "amount": "0.00",
+          "currency_code": "USD"
+        }
+      },
+      "total_tax": "7.65",
+      "total_weight": 350,
+      "updated_at": "2026-07-12T10:30:00-04:00"
+    },
+    "source_id": "5000000002"
+  }
+]

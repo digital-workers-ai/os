@@ -1,0 +1,178 @@
+[
+  {
+    "payload": {
+      "admin_graphql_api_id": "gid://shopify/Product/30001",
+      "body_html": "<p>Premium widget for professionals.</p>",
+      "created_at": "2025-01-10T09:00:00-05:00",
+      "handle": "widget-pro",
+      "id": 30001,
+      "image": {
+        "alt": "Widget Pro",
+        "created_at": "2025-01-10T09:00:00-05:00",
+        "height": 600,
+        "id": 50001,
+        "position": 1,
+        "product_id": 30001,
+        "src": "https://cdn.shopify.com/mock/widget-pro.jpg",
+        "updated_at": "2025-01-10T09:00:00-05:00",
+        "variant_ids": [
+          40001
+        ],
+        "width": 800
+      },
+      "images": [
+        {
+          "alt": "Widget Pro",
+          "created_at": "2025-01-10T09:00:00-05:00",
+          "height": 600,
+          "id": 50001,
+          "position": 1,
+          "product_id": 30001,
+          "src": "https://cdn.shopify.com/mock/widget-pro.jpg",
+          "updated_at": "2025-01-10T09:00:00-05:00",
+          "variant_ids": [
+            40001
+          ],
+          "width": 800
+        }
+      ],
+      "options": [
+        {
+          "id": 70001,
+          "name": "Title",
+          "position": 1,
+          "product_id": 30001,
+          "values": [
+            "Default"
+          ]
+        }
+      ],
+      "product_type": "Widget",
+      "published_at": "2025-01-10T09:00:00-05:00",
+      "published_scope": "global",
+      "status": "active",
+      "tags": "bestseller, widget",
+      "template_suffix": null,
+      "title": "Widget Pro",
+      "updated_at": "2026-06-10T11:30:00-04:00",
+      "variants": [
+        {
+          "barcode": "1234567890001",
+          "compare_at_price": "149.99",
+          "created_at": "2025-01-10T09:00:00-05:00",
+          "fulfillment_service": "manual",
+          "grams": 400,
+          "id": 40001,
+          "inventory_item_id": 60001,
+          "inventory_management": "shopify",
+          "inventory_policy": "deny",
+          "inventory_quantity": 150,
+          "old_inventory_quantity": 150,
+          "option1": "Default",
+          "option2": null,
+          "option3": null,
+          "position": 1,
+          "price": "124.99",
+          "product_id": 30001,
+          "requires_shipping": true,
+          "sku": "WP-001",
+          "taxable": true,
+          "title": "Default",
+          "updated_at": "2026-06-10T11:30:00-04:00",
+          "weight": 0.88,
+          "weight_unit": "lb"
+        }
+      ],
+      "vendor": "Acme Corp"
+    },
+    "source_id": "30001"
+  },
+  {
+    "payload": {
+      "admin_graphql_api_id": "gid://shopify/Product/30002",
+      "body_html": "<p>Lightweight everyday gadget.</p>",
+      "created_at": "2025-06-15T10:00:00-04:00",
+      "handle": "gadget-lite",
+      "id": 30002,
+      "image": {
+        "alt": "Gadget Lite",
+        "created_at": "2025-06-15T10:00:00-04:00",
+        "height": 600,
+        "id": 50002,
+        "position": 1,
+        "product_id": 30002,
+        "src": "https://cdn.shopify.com/mock/gadget-lite.jpg",
+        "updated_at": "2025-06-15T10:00:00-04:00",
+        "variant_ids": [
+          40002
+        ],
+        "width": 800
+      },
+      "images": [
+        {
+          "alt": "Gadget Lite",
+          "created_at": "2025-06-15T10:00:00-04:00",
+          "height": 600,
+          "id": 50002,
+          "position": 1,
+          "product_id": 30002,
+          "src": "https://cdn.shopify.com/mock/gadget-lite.jpg",
+          "updated_at": "2025-06-15T10:00:00-04:00",
+          "variant_ids": [
+            40002
+          ],
+          "width": 800
+        }
+      ],
+      "options": [
+        {
+          "id": 70002,
+          "name": "Title",
+          "position": 1,
+          "product_id": 30002,
+          "values": [
+            "Default"
+          ]
+        }
+      ],
+      "product_type": "Gadget",
+      "published_at": "2025-06-15T10:00:00-04:00",
+      "published_scope": "global",
+      "status": "active",
+      "tags": "gadget, lightweight",
+      "template_suffix": null,
+      "title": "Gadget Lite",
+      "updated_at": "2026-07-01T14:00:00-04:00",
+      "variants": [
+        {
+          "barcode": "1234567890002",
+          "compare_at_price": null,
+          "created_at": "2025-06-15T10:00:00-04:00",
+          "fulfillment_service": "manual",
+          "grams": 160,
+          "id": 40002,
+          "inventory_item_id": 60002,
+          "inventory_management": "shopify",
+          "inventory_policy": "deny",
+          "inventory_quantity": 300,
+          "old_inventory_quantity": 300,
+          "option1": "Default",
+          "option2": null,
+          "option3": null,
+          "position": 1,
+          "price": "89.99",
+          "product_id": 30002,
+          "requires_shipping": true,
+          "sku": "GL-001",
+          "taxable": true,
+          "title": "Default",
+          "updated_at": "2026-07-01T14:00:00-04:00",
+          "weight": 0.35,
+          "weight_unit": "lb"
+        }
+      ],
+      "vendor": "Acme Corp"
+    },
+    "source_id": "30002"
+  }
+]
