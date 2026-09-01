@@ -63,6 +63,7 @@ class SourceClient:
         *,
         headers: dict | None = None,
         auth: tuple | None = None,
+        params: dict | None = None,
     ):
         self.source = source
         self.base_url = base_url.rstrip("/")
@@ -70,6 +71,7 @@ class SourceClient:
         self.origin = urlunsplit((parts.scheme, parts.netloc, "", "", ""))
         self.headers = headers or {}
         self.auth = auth
+        self.default_params = params or {}
         self.pages_read = 0
         self.truncated = False
         self.truncation_reasons: list[str] = []
@@ -127,7 +129,7 @@ class SourceClient:
     ):
         base = self.origin if _transport is not None else self.base_url
         url = f"{base}{path}"
-        merged = dict(params or {})
+        merged = {**self.default_params, **(params or {})}
 
         if not paginate:
             async with self._client() as client:
@@ -187,6 +189,32 @@ class SourceClient:
                 page_params = next_params
 
         return records
+
+    async def get_text(self, path: str, *, params: dict | None = None) -> str:
+        base = self.origin if _transport is not None else self.base_url
+        url = f"{base}{path}"
+        merged = {**self.default_params, **(params or {})}
+        async with self._client() as client:
+            r = await self._request(client, "GET", url, params=merged)
+            self.pages_read += 1
+            body = r.text
+            if len(r.content) > settings.CONNECTOR_MAX_BYTES:
+                self._truncate(
+                    f"byte cap {settings.CONNECTOR_MAX_BYTES} reached on an "
+                    "export; the tail was not read"
+                )
+                body = body[: settings.CONNECTOR_MAX_BYTES]
+            return body
+
+    async def post(self, path: str, *, json: dict | None = None):
+        base = self.origin if _transport is not None else self.base_url
+        url = f"{base}{path}"
+        async with self._client() as client:
+            r = await self._request(
+                client, "POST", url, params=self.default_params, json=json
+            )
+            self.pages_read += 1
+            return self._safe_json(r)
 
     def truncate(self, reason: str) -> None:
         self._truncate(reason)

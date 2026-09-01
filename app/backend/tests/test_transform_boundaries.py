@@ -53,3 +53,26 @@ class TestEveryRefusalNamesItsBucket:
         with pytest.raises(t.TransformError) as caught:
             t.apply("normalize_domain", "hubspot", "companies", "x" * 5000)
         assert len(str(caught.value)) < 200
+
+
+class TestMoneyUnits:
+    def test_google_ads_quotes_micros(self):
+        assert t.normalize_money("google_ads", "campaigns", 1_500_000) == 1.5
+
+    @pytest.mark.parametrize("source", ["stripe", "hubspot", "shopify", "linkedin"])
+    def test_everyone_else_quotes_major_units(self, source):
+        assert t.normalize_money(source, "orders", "272.93") == 272.93
+
+
+class TestTranscriptCap:
+    def test_the_cap_is_the_storage_bound(self):
+        assert t.MAX_TRANSCRIPT_CHARS == 60_000
+
+    def test_an_over_cap_transcript_is_truncated_not_refused(self):
+        got = t.normalize_transcript("zoom", "meetings", "x" * 70_000)
+        assert len(got) == t.MAX_TRANSCRIPT_CHARS
+
+    def test_a_transcript_under_the_cap_is_untouched(self):
+        assert (
+            t.normalize_transcript("zoom", "meetings", "Jane: hello") == "Jane: hello"
+        )

@@ -6,7 +6,13 @@ from app.sources.creds import credentials_for
 
 def client_for(source: str) -> SourceClient:
     creds = credentials_for(source)
-    return SourceClient(source, creds.base_url, headers=creds.headers, auth=creds.auth)
+    return SourceClient(
+        source,
+        creds.base_url,
+        headers=creds.headers,
+        auth=creds.auth,
+        params=creds.params,
+    )
 
 
 def declare_page_complete(api, records, requested: int, what: str) -> None:

@@ -1,0 +1,250 @@
+[
+  {
+    "payload": {
+      "_company_domain": "wayne.co",
+      "_participants": [
+        {
+          "id": "usr_jane",
+          "join_time": "2026-07-08T15:00:00Z",
+          "leave_time": "2026-07-08T15:34:00Z",
+          "name": "Jane",
+          "user_email": "jane@os.dev"
+        },
+        {
+          "id": "ext_p11",
+          "join_time": "2026-07-08T15:00:00Z",
+          "leave_time": "2026-07-08T15:34:00Z",
+          "name": "Bruce Wayne",
+          "user_email": "bruce@wayne.co"
+        }
+      ],
+      "_transcript_vtt": "WEBVTT\n\n1\n15:00:00.000 --> 15:04:14.000\nJane Smith (OS): Thanks for making time. Where did you land after the trial?\n\n2\n15:04:15.000 --> 15:08:29.000\nBruce Wayne: Honestly the trial sold it. My team stopped exporting to spreadsheets on day two.\n\n3\n15:08:30.000 --> 15:12:44.000\nJane Smith (OS): Good to hear. Anything still blocking?\n\n4\n15:12:45.000 --> 15:16:59.000\nBruce Wayne: Two things. The per-seat price is above what we budgeted, and getting the data in took our engineer most of a week.\n\n5\n15:17:00.000 --> 15:21:14.000\nJane Smith (OS): Understood on both. What's your timeline?\n\n6\n15:21:15.000 --> 15:25:29.000\nBruce Wayne: We want to sign before the end of this quarter. Procurement needs two weeks, so realistically mid-September.\n\n7\n15:25:30.000 --> 15:29:44.000\nJane Smith (OS): I'll get you a revised quote today.\n\n8\n15:29:45.000 --> 15:33:59.000\nBruce Wayne: Do that and we're moving forward.\n",
+      "account_id": "acct_os_mock",
+      "duration": 34,
+      "host_email": "jane@os.dev",
+      "host_id": "usr_jane",
+      "id": 81000000001,
+      "recording_count": 2,
+      "recording_files": [
+        {
+          "download_url": "https://api.zoom.us/rec/download/zc1.m4a",
+          "file_extension": "M4A",
+          "file_size": 18000000,
+          "file_type": "M4A",
+          "id": "rf_zc1_audio",
+          "meeting_id": "b3Mtem9vbS16YzE=",
+          "recording_end": "2026-07-08T15:34:00Z",
+          "recording_start": "2026-07-08T15:00:00Z",
+          "recording_type": "audio_only",
+          "status": "completed"
+        },
+        {
+          "download_url": "https://api.zoom.us/v2/meetings/81000000001/transcript.vtt",
+          "file_extension": "VTT",
+          "file_size": 4200,
+          "file_type": "TRANSCRIPT",
+          "id": "rf_zc1_transcript",
+          "meeting_id": "b3Mtem9vbS16YzE=",
+          "recording_end": "2026-07-08T15:34:00Z",
+          "recording_start": "2026-07-08T15:00:00Z",
+          "recording_type": "audio_transcript",
+          "status": "completed"
+        }
+      ],
+      "share_url": "https://api.zoom.us/rec/share/b3Mtem9vbS16YzE=",
+      "start_time": "2026-07-08T15:00:00Z",
+      "timezone": "UTC",
+      "topic": "Wayne Enterprises <> OS \u2014 pricing and rollout",
+      "total_size": 18434000,
+      "type": 2,
+      "uuid": "b3Mtem9vbS16YzE="
+    },
+    "source_id": "b3Mtem9vbS16YzE="
+  },
+  {
+    "payload": {
+      "_company_domain": "initech.io",
+      "_participants": [
+        {
+          "id": "usr_jane",
+          "join_time": "2026-07-11T09:30:00Z",
+          "leave_time": "2026-07-11T09:51:00Z",
+          "name": "Jane",
+          "user_email": "jane@os.dev"
+        },
+        {
+          "id": "ext_p7",
+          "join_time": "2026-07-11T09:30:00Z",
+          "leave_time": "2026-07-11T09:51:00Z",
+          "name": "Tom Williams",
+          "user_email": "tom@initech.io"
+        }
+      ],
+      "_transcript_vtt": "WEBVTT\n\n1\n09:30:00.000 --> 09:32:59.000\nJane Smith (OS): Wanted to check in ahead of the renewal.\n\n2\n09:33:00.000 --> 09:35:59.000\nTom Williams: I'll be straight with you, the team has mostly stopped using it.\n\n3\n09:36:00.000 --> 09:38:59.000\nJane Smith (OS): Sorry to hear that. What happened?\n\n4\n09:39:00.000 --> 09:41:59.000\nTom Williams: The integration with our warehouse broke after your update in May and it took three weeks to get a reply from support. By then people had gone back to the old process.\n\n5\n09:42:00.000 --> 09:44:59.000\nJane Smith (OS): That's on us. If we fixed the integration would you reconsider?\n\n6\n09:45:00.000 --> 09:47:59.000\nTom Williams: Maybe. But I'm not putting it to the board this year. Ask me again in the new financial year.\n\n7\n09:48:00.000 --> 09:50:59.000\nJane Smith (OS): Understood.\n",
+      "account_id": "acct_os_mock",
+      "duration": 21,
+      "host_email": "jane@os.dev",
+      "host_id": "usr_jane",
+      "id": 81000000002,
+      "recording_count": 2,
+      "recording_files": [
+        {
+          "download_url": "https://api.zoom.us/rec/download/zc2.m4a",
+          "file_extension": "M4A",
+          "file_size": 18000000,
+          "file_type": "M4A",
+          "id": "rf_zc2_audio",
+          "meeting_id": "b3Mtem9vbS16YzI=",
+          "recording_end": "2026-07-11T09:51:00Z",
+          "recording_start": "2026-07-11T09:30:00Z",
+          "recording_type": "audio_only",
+          "status": "completed"
+        },
+        {
+          "download_url": "https://api.zoom.us/v2/meetings/81000000002/transcript.vtt",
+          "file_extension": "VTT",
+          "file_size": 4200,
+          "file_type": "TRANSCRIPT",
+          "id": "rf_zc2_transcript",
+          "meeting_id": "b3Mtem9vbS16YzI=",
+          "recording_end": "2026-07-11T09:51:00Z",
+          "recording_start": "2026-07-11T09:30:00Z",
+          "recording_type": "audio_transcript",
+          "status": "completed"
+        }
+      ],
+      "share_url": "https://api.zoom.us/rec/share/b3Mtem9vbS16YzI=",
+      "start_time": "2026-07-11T09:30:00Z",
+      "timezone": "UTC",
+      "topic": "Initech \u2014 renewal check-in",
+      "total_size": 18421000,
+      "type": 2,
+      "uuid": "b3Mtem9vbS16YzI="
+    },
+    "source_id": "b3Mtem9vbS16YzI="
+  },
+  {
+    "payload": {
+      "_company_domain": "globex.com",
+      "_participants": [
+        {
+          "id": "usr_alex",
+          "join_time": "2026-07-14T13:00:00Z",
+          "leave_time": "2026-07-14T13:28:00Z",
+          "name": "Alex",
+          "user_email": "alex@os.dev"
+        },
+        {
+          "id": "ext_p4",
+          "join_time": "2026-07-14T13:00:00Z",
+          "leave_time": "2026-07-14T13:28:00Z",
+          "name": "Mike Chen",
+          "user_email": "mike@globex.com"
+        }
+      ],
+      "_transcript_vtt": "WEBVTT\n\n1\n13:00:00.000 --> 13:03:59.000\nAlex Chen (OS): You mentioned wanting to bring Lisa's team on.\n\n2\n13:04:00.000 --> 13:07:59.000\nMike Chen: Yes. Marketing wants the same reporting sales has.\n\n3\n13:08:00.000 --> 13:11:59.000\nAlex Chen (OS): Anything missing for them?\n\n4\n13:12:00.000 --> 13:15:59.000\nMike Chen: The attribution reporting isn't there yet. Lisa builds it by hand every Monday, which is about four hours she'd rather not spend.\n\n5\n13:16:00.000 --> 13:19:59.000\nAlex Chen (OS): That's on the roadmap for Q4.\n\n6\n13:20:00.000 --> 13:23:59.000\nMike Chen: Then let's do it when that ships. Budget's approved either way, I just don't want to onboard her twice.\n\n7\n13:24:00.000 --> 13:27:59.000\nAlex Chen (OS): Makes sense. I'll come back when it's dated.\n",
+      "account_id": "acct_os_mock",
+      "duration": 28,
+      "host_email": "alex@os.dev",
+      "host_id": "usr_alex",
+      "id": 81000000003,
+      "recording_count": 2,
+      "recording_files": [
+        {
+          "download_url": "https://api.zoom.us/rec/download/zc3.m4a",
+          "file_extension": "M4A",
+          "file_size": 18000000,
+          "file_type": "M4A",
+          "id": "rf_zc3_audio",
+          "meeting_id": "b3Mtem9vbS16YzM=",
+          "recording_end": "2026-07-14T13:28:00Z",
+          "recording_start": "2026-07-14T13:00:00Z",
+          "recording_type": "audio_only",
+          "status": "completed"
+        },
+        {
+          "download_url": "https://api.zoom.us/v2/meetings/81000000003/transcript.vtt",
+          "file_extension": "VTT",
+          "file_size": 4200,
+          "file_type": "TRANSCRIPT",
+          "id": "rf_zc3_transcript",
+          "meeting_id": "b3Mtem9vbS16YzM=",
+          "recording_end": "2026-07-14T13:28:00Z",
+          "recording_start": "2026-07-14T13:00:00Z",
+          "recording_type": "audio_transcript",
+          "status": "completed"
+        }
+      ],
+      "share_url": "https://api.zoom.us/rec/share/b3Mtem9vbS16YzM=",
+      "start_time": "2026-07-14T13:00:00Z",
+      "timezone": "UTC",
+      "topic": "Globex \u2014 expansion to the growth team",
+      "total_size": 18428000,
+      "type": 2,
+      "uuid": "b3Mtem9vbS16YzM="
+    },
+    "source_id": "b3Mtem9vbS16YzM="
+  },
+  {
+    "payload": {
+      "_company_domain": "cyberdyne.ai",
+      "_participants": [
+        {
+          "id": "usr_alex",
+          "join_time": "2026-07-15T16:00:00Z",
+          "leave_time": "2026-07-15T16:18:00Z",
+          "name": "Alex",
+          "user_email": "alex@os.dev"
+        },
+        {
+          "id": "ext_p20",
+          "join_time": "2026-07-15T16:00:00Z",
+          "leave_time": "2026-07-15T16:18:00Z",
+          "name": "Miles Dyson",
+          "user_email": "miles@cyberdyne.ai"
+        }
+      ],
+      "_transcript_vtt": "WEBVTT\n\n1\n16:00:00.000 --> 16:02:59.000\nAlex Chen (OS): Thanks for taking the call. What prompted you to look?\n\n2\n16:03:00.000 --> 16:05:59.000\nMiles Dyson: Our CTO asked me to survey the market. I'm gathering options, that's all.\n\n3\n16:06:00.000 --> 16:08:59.000\nAlex Chen (OS): Happy to help. Is there a problem you're trying to solve?\n\n4\n16:09:00.000 --> 16:11:59.000\nMiles Dyson: Not a specific one. We're fine on our current stack for now.\n\n5\n16:12:00.000 --> 16:14:59.000\nAlex Chen (OS): Any timeline for a decision?\n\n6\n16:15:00.000 --> 16:17:59.000\nMiles Dyson: None. If anything happens it won't be this year.\n",
+      "account_id": "acct_os_mock",
+      "duration": 18,
+      "host_email": "alex@os.dev",
+      "host_id": "usr_alex",
+      "id": 81000000004,
+      "recording_count": 2,
+      "recording_files": [
+        {
+          "download_url": "https://api.zoom.us/rec/download/zc4.m4a",
+          "file_extension": "M4A",
+          "file_size": 18000000,
+          "file_type": "M4A",
+          "id": "rf_zc4_audio",
+          "meeting_id": "b3Mtem9vbS16YzQ=",
+          "recording_end": "2026-07-15T16:18:00Z",
+          "recording_start": "2026-07-15T16:00:00Z",
+          "recording_type": "audio_only",
+          "status": "completed"
+        },
+        {
+          "download_url": "https://api.zoom.us/v2/meetings/81000000004/transcript.vtt",
+          "file_extension": "VTT",
+          "file_size": 4200,
+          "file_type": "TRANSCRIPT",
+          "id": "rf_zc4_transcript",
+          "meeting_id": "b3Mtem9vbS16YzQ=",
+          "recording_end": "2026-07-15T16:18:00Z",
+          "recording_start": "2026-07-15T16:00:00Z",
+          "recording_type": "audio_transcript",
+          "status": "completed"
+        }
+      ],
+      "share_url": "https://api.zoom.us/rec/share/b3Mtem9vbS16YzQ=",
+      "start_time": "2026-07-15T16:00:00Z",
+      "timezone": "UTC",
+      "topic": "Cyberdyne \u2014 intro call",
+      "total_size": 18418000,
+      "type": 2,
+      "uuid": "b3Mtem9vbS16YzQ="
+    },
+    "source_id": "b3Mtem9vbS16YzQ="
+  }
+]

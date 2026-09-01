@@ -31,6 +31,9 @@ person:
   klaviyo.profiles._full_name: name
   klaviyo.profiles.attributes.phone_number: phone
   klaviyo.profiles.attributes.title: title
+  activecampaign.contacts.email: email
+  activecampaign.contacts._full_name: name
+  activecampaign.contacts.phone: phone
   sendgrid.contacts.email: email
   sendgrid.contacts._full_name: name
   sendgrid.contacts.phone_number: phone
@@ -112,6 +115,12 @@ meeting:
   calendly.scheduled_events.start_time: started_at
   calendly.scheduled_events.end_time: ended_at
   calendly.scheduled_events._host_email: email
+  zoom.meetings.topic: name
+  zoom.meetings.start_time: started_at
+  zoom.meetings._ended_at: ended_at
+  zoom.meetings._external_email: email
+  zoom.meetings._external_domain: domain
+  zoom.meetings._transcript_text: transcript
 
 event:
   customerio.activities.type: event_name
@@ -136,6 +145,37 @@ email_campaign:
   sendgrid.singlesends.send_at: sent_at
   klaviyo.flows.attributes.name: name
   klaviyo.flows.attributes.status: status
+  activecampaign.campaigns.name: name
+  activecampaign.campaigns.send_amt: sends
+  activecampaign.campaigns.opens: opens
+  activecampaign.campaigns.linkclicks: clicks
+  activecampaign.campaigns.sdate: sent_at
+
+campaign:
+  google_ads.campaigns.campaign.name: name
+  google_ads.campaigns.campaign.status: status
+  google_ads.campaigns.metrics.costMicros: spend
+  google_ads.campaigns.metrics.conversions: conversions
+  google_ads.campaigns.metrics.clicks: clicks
+  google_ads.campaigns.metrics.impressions: impressions
+  meta.campaigns.name: name
+  meta.campaigns.status: status
+  meta.campaigns.objective: category
+  meta.insights.spend: spend
+  meta.insights.conversions: conversions
+  meta.insights.clicks: clicks
+  meta.insights.impressions: impressions
+
+traffic_report:
+  google_analytics.report_rows._report_date: report_date
+  google_analytics.report_rows._channel: channel
+  google_analytics.report_rows._sessions: sessions
+  google_analytics.report_rows._users: users
+  google_analytics.report_rows._pageviews: pageviews
+
+data_source:
+  segment.sources.name: name
+  segment.sources.slug: category
 
 audience:
   mailchimp.lists.name: name

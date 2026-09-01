@@ -405,3 +405,109 @@ class TestTwilioPage:
         assert paginator("page_twilio").extract({"messages": [{"sid": "s1"}]}) == [
             {"sid": "s1"}
         ]
+
+
+class TestBatchThreeRegistration:
+    def test_the_two_new_modes_are_registered(self):
+        assert {"cursor_meta", "cursor_segment"} <= set(pag.PAGINATORS)
+        assert isinstance(pag.resolve("cursor_meta"), pag.MetaCursor)
+        assert isinstance(pag.resolve("cursor_segment"), pag.SegmentCursor)
+
+
+class TestMetaCursor:
+    def test_the_data_list_is_extracted(self):
+        assert paginator("cursor_meta").extract({"data": [{"id": "1"}]}) == [
+            {"id": "1"}
+        ]
+
+    def test_a_next_link_with_a_cursor_advances_on_after(self):
+        body = {
+            "data": [],
+            "paging": {"next": "https://graph/x?after=c1", "cursors": {"after": "c1"}},
+        }
+        assert paginator("cursor_meta").next_params(body, {"limit": 25}) == {
+            "limit": 25,
+            "after": "c1",
+        }
+
+    @pytest.mark.parametrize(
+        "body",
+        [
+            {"data": [], "paging": {"next": "https://graph/x"}},
+            {"data": [], "paging": {"cursors": {"after": "c1"}}},
+            {"data": [], "paging": {}},
+            {"data": []},
+        ],
+    )
+    def test_the_walk_ends(self, body):
+        assert paginator("cursor_meta").next_params(body, {"limit": 25}) is None
+
+
+class TestSegmentCursor:
+    def make(self):
+        return pag.SegmentCursor("sources")
+
+    def test_the_collection_comes_out_of_the_envelope(self):
+        assert self.make().extract({"data": {"sources": [{"id": 1}]}}) == [{"id": 1}]
+
+    def test_a_body_missing_its_data_envelope_is_refused(self):
+        with pytest.raises(pag.PaginationError, match="expected data.sources list"):
+            self.make().extract({"sources": []})
+
+    def test_a_collection_that_is_not_a_list_is_refused(self):
+        with pytest.raises(pag.PaginationError, match="expected data.sources list"):
+            self.make().extract({"data": {"sources": "x"}})
+
+    def test_the_cursor_rides_a_dotted_param(self):
+        body = {"data": {"sources": [], "pagination": {"next": "c1"}}}
+        assert self.make().next_params(body, {}) == {"pagination.cursor": "c1"}
+
+    @pytest.mark.parametrize(
+        "body",
+        [
+            {"data": {"sources": [], "pagination": {}}},
+            {"data": {}},
+        ],
+    )
+    def test_the_walk_ends(self, body):
+        assert self.make().next_params(body, {}) is None
+
+
+class TestOffsetParamNames:
+    def test_a_custom_count_param_is_read_and_carried(self):
+        body = {"results": [{}] * 25, "total_count": 100}
+        assert pag.Offset("results", count_param="limit").next_params(
+            body, {"limit": 25, "offset": 0}
+        ) == {"limit": 25, "offset": 25}
+
+    def test_a_custom_offset_param_names_the_hop(self):
+        body = {"results": [{}] * 10}
+        assert pag.Offset(
+            "results", count_param="limit", offset_param="skip"
+        ).next_params(body, {"limit": 10, "skip": 0}) == {"limit": 10, "skip": 10}
+
+    def test_a_short_page_still_ends_the_custom_walk(self):
+        body = {"lists": [{}] * 3}
+        assert (
+            pag.Offset("lists", count_param="limit").next_params(body, {"limit": 20})
+            is None
+        )
+
+    def test_the_defaults_are_still_count_and_offset(self):
+        body = {"results": [{}] * 10}
+        assert pag.Offset(
+            "results", count_param="count", offset_param="offset"
+        ).next_params(body, {"count": 10, "offset": 0}) == {"count": 10, "offset": 10}
+
+    def test_a_nested_string_total_falls_back_to_the_short_page_rule(self):
+        body = {"results": [{}] * 9, "meta": {"total": "22"}}
+        assert (
+            pag.Offset("results").next_params(body, {"count": 10, "offset": 0}) is None
+        )
+
+    def test_a_full_page_with_a_nested_string_total_keeps_going(self):
+        body = {"results": [{}] * 10, "meta": {"total": "22"}}
+        assert pag.Offset("results").next_params(body, {"count": 10, "offset": 0}) == {
+            "count": 10,
+            "offset": 10,
+        }

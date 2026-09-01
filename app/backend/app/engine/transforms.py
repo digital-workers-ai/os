@@ -34,8 +34,16 @@ def _finite_float(value) -> float:
     return number
 
 
+_MICROS = {"google_ads"}
+
+MAX_TRANSCRIPT_CHARS = 60_000
+
+
 def normalize_money(source, object_type, value):
-    return round(_finite_float(value), 6)
+    amount = _finite_float(value)
+    if source in _MICROS:
+        amount = amount / 1_000_000
+    return round(amount, 6)
 
 
 def normalize_number(source, object_type, value):
@@ -100,6 +108,12 @@ def normalize_text(source, object_type, value):
     if not text:
         raise TransformError("empty")
     return text
+
+
+def normalize_transcript(source, object_type, value):
+    lines = [line.strip() for line in str(value).replace("\r\n", "\n").split("\n")]
+    text = "\n".join(line for line in lines if line)
+    return text[:MAX_TRANSCRIPT_CHARS]
 
 
 _synonyms_cache: dict | None = None
@@ -177,8 +191,14 @@ def _parse_format(text: str, fmt: str) -> datetime:
 
 
 def normalize_date(source, object_type, value):
+    compact = str(value).strip()
+    if re.fullmatch(r"\d{8}", compact) and "1970" <= compact[:4] <= "2100":
+        try:
+            return _iso_utc(datetime.strptime(compact, "%Y%m%d").replace(tzinfo=UTC))
+        except ValueError:
+            raise TransformError("not_a_date", compact) from None
     numeric = value.strip() if isinstance(value, str) else value
-    if isinstance(value, (int, float)) or (
+    if isinstance(value, int | float) or (
         isinstance(numeric, str) and re.fullmatch(r"-?\d+(\.\d+)?", numeric)
     ):
         try:
@@ -219,6 +239,7 @@ TRANSFORMS = {
     "normalize_ref": normalize_ref,
     "normalize_status": normalize_status,
     "normalize_text": normalize_text,
+    "normalize_transcript": normalize_transcript,
 }
 
 TRANSFORM_TYPES = {
@@ -232,6 +253,7 @@ TRANSFORM_TYPES = {
     "normalize_ref": "string",
     "normalize_status": "string",
     "normalize_text": "string",
+    "normalize_transcript": "string",
 }
 
 

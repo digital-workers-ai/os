@@ -8,6 +8,8 @@ from app.engine import ontology, resolver
 from app.engine import transforms as tf
 from app.engine.report import SyncReport
 
+BLANK_PRESERVING = {"normalize_transcript"}
+
 ANY_SCALAR = st.one_of(
     st.none(),
     st.booleans(),
@@ -45,7 +47,8 @@ class TestEveryTransformIsTotal:
             assert math.isfinite(result)
         else:
             assert isinstance(result, str)
-            assert result.strip(), "a blank string is a refusal wearing a value"
+            if name not in BLANK_PRESERVING:
+                assert result.strip(), "a blank string is a refusal wearing a value"
 
     @pytest.mark.parametrize("name", sorted(tf.TRANSFORMS))
     @given(value=ANY_SCALAR)

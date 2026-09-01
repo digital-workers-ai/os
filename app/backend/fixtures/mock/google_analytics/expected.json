@@ -1,0 +1,39 @@
+{
+  "clears": {},
+  "extracted": {
+    "report_rows": {
+      "traffic_report": {
+        "08c6a6fb4e374018f8a68a23dbfb7cce": {
+          "channel": "social",
+          "pageviews": "680.0",
+          "report_date": "2026-07-01T00:00:00Z",
+          "sessions": "310.0",
+          "users": "250.0"
+        },
+        "0a8fce70a4d4e37b8632b3197dbf04fe": {
+          "channel": "direct",
+          "pageviews": "1800.0",
+          "report_date": "2026-07-01T00:00:00Z",
+          "sessions": "820.0",
+          "users": "650.0"
+        },
+        "20c76243f4b56f51b9e50e9c6d52c415": {
+          "channel": "organic_search",
+          "pageviews": "3200.0",
+          "report_date": "2026-07-01T00:00:00Z",
+          "sessions": "1250.0",
+          "users": "980.0"
+        },
+        "d608036768c59edecac44221556d9825": {
+          "channel": "paid_search",
+          "pageviews": "1100.0",
+          "report_date": "2026-07-01T00:00:00Z",
+          "sessions": "540.0",
+          "users": "420.0"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "google_analytics"
+}

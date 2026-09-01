@@ -1,0 +1,23 @@
+{
+  "clears": {},
+  "extracted": {
+    "sources": {
+      "data_source": {
+        "src_abc123": {
+          "category": "javascript",
+          "name": "Production Website"
+        },
+        "src_def456": {
+          "category": "python",
+          "name": "Backend Service"
+        },
+        "src_ghi789": {
+          "category": "ios",
+          "name": "iOS App"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "segment"
+}

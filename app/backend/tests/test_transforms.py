@@ -416,6 +416,86 @@ class TestATagOnlyLocalPartKeepsItsAddress:
             assert t.normalize_email("hubspot", "contacts", once) == once
 
 
+class TestGoogleAdsMicros:
+    def test_google_ads_sends_micros(self):
+        assert t.normalize_money("google_ads", "campaigns", "45230000000") == 45230.0
+
+    def test_an_integer_micros_amount_divides(self):
+        assert t.normalize_money("google_ads", "campaigns", 1_500_000) == 1.5
+
+    def test_micros_round_at_six_decimals(self):
+        assert t.normalize_money("google_ads", "campaigns", 1_234_567) == 1.234567
+
+    def test_a_single_micro_survives(self):
+        assert t.normalize_money("google_ads", "campaigns", 1) == 0.000001
+
+    def test_other_sources_stay_major_units(self):
+        assert (
+            t.normalize_money("stripe", "subscriptions", "45230000000") == 45230000000.0
+        )
+
+    def test_linkedin_budgets_are_not_micros(self):
+        assert t.normalize_money("linkedin", "ad_accounts", "50000.00") == 50000.0
+
+
+class TestTranscript:
+    def test_speaker_turns_keep_their_lines(self):
+        raw = "Jane: hello\n\nBob: hi\n"
+        assert t.normalize_transcript("zoom", "meetings", raw) == "Jane: hello\nBob: hi"
+
+    def test_each_line_is_stripped(self):
+        assert (
+            t.normalize_transcript("zoom", "meetings", "  Jane: hello  \n  Bob: hi ")
+            == "Jane: hello\nBob: hi"
+        )
+
+    def test_windows_newlines_are_normalized(self):
+        assert (
+            t.normalize_transcript("zoom", "meetings", "Jane: hi\r\nBob: yo")
+            == "Jane: hi\nBob: yo"
+        )
+
+    def test_a_multi_line_turn_is_not_fused_into_one_line(self):
+        raw = "Jane: first point\nJane: second point\nBob: reply"
+        assert t.normalize_transcript("zoom", "meetings", raw) == raw
+
+    @pytest.mark.parametrize("raw", ["", "   ", "\n\n", " \n \n "])
+    def test_blank_input_is_an_empty_string(self, raw):
+        assert t.normalize_transcript("zoom", "meetings", raw) == ""
+
+    def test_the_transform_is_registered_as_a_string(self):
+        assert t.TRANSFORMS["normalize_transcript"] is t.normalize_transcript
+        assert t.TRANSFORM_TYPES["normalize_transcript"] == "string"
+
+
+class TestCompactDates:
+    def test_ga4_compact_dates_are_not_1970_unix_timestamps(self):
+        assert (
+            t.normalize_date("google_analytics", "report_rows", "20260701")
+            == "2026-07-01T00:00:00Z"
+        )
+
+    def test_eight_digits_with_a_bad_month_are_refused(self):
+        with pytest.raises(t.TransformError) as e:
+            t.normalize_date("google_analytics", "report_rows", "20261301")
+        assert e.value.reason == "not_a_date"
+
+    def test_eight_digits_outside_the_year_guard_are_not_an_epoch(self):
+        with pytest.raises(t.TransformError) as e:
+            t.normalize_date("google_analytics", "report_rows", "12345678")
+        assert e.value.reason == "not_a_date"
+
+    def test_the_year_guard_bounds_are_read_as_dates(self):
+        assert (
+            t.normalize_date("google_analytics", "report_rows", "19700101")
+            == "1970-01-01T00:00:00Z"
+        )
+        assert (
+            t.normalize_date("google_analytics", "report_rows", "21001231")
+            == "2100-12-31T00:00:00Z"
+        )
+
+
 class TestTwilioRfc2822Dates:
     def test_twilio_still_speaks_rfc_2822(self):
         assert (

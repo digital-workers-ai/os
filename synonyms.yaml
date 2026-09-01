@@ -13,3 +13,7 @@ woocommerce:
 klaviyo:
   flows:
     live: active
+google_ads:
+  campaigns:
+    enabled: active
+    removed: archived

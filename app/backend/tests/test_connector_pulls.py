@@ -1,4 +1,5 @@
 import importlib
+import json
 import pkgutil
 
 import httpx
@@ -24,6 +25,12 @@ ALL_SOURCES = {
     "mailchimp",
     "twilio",
     "google_sheets",
+    "meta",
+    "google_ads",
+    "google_analytics",
+    "activecampaign",
+    "zoom",
+    "segment",
 }
 
 
@@ -326,6 +333,7 @@ class TestCredentials:
 
 class TestRegistry:
     def test_every_connector_module_is_discovered(self):
+        assert len(ALL_SOURCES) == 20
         assert set(registry.discover()) == ALL_SOURCES
 
     def test_discovery_is_cached(self):
@@ -591,6 +599,194 @@ class TestWhatTheBatchTwoConnectorsAskFor:
         }
         assert len(seen) == 3
         assert all(r.url.params.get("per_page") == "100" for r in seen)
+
+
+class TestBatchThreeShapes:
+    async def test_google_ads_counts_a_row_with_no_campaign_id(self, pull):
+        notes, stored = await pull(
+            connector("google_ads"),
+            [
+                {
+                    "results": [
+                        {"campaign": {"id": "c1"}},
+                        {"campaign": {}},
+                        {"metrics": {}},
+                    ]
+                }
+            ],
+        )
+        assert [(s["object_type"], s["source_id"]) for s in stored] == [
+            ("campaigns", "c1")
+        ]
+        assert notes == {"missing_id": 2}
+
+    async def test_meta_counts_an_insight_row_with_no_id(self, pull):
+        notes, stored = await pull(connector("meta"), {"data": [{"no_id": True}]})
+        assert stored == []
+        assert notes["missing_id"] >= 1
+
+    async def test_google_ads_reads_a_bare_dict_body(self, pull):
+        notes, stored = await pull(
+            connector("google_ads"), {"results": [{"campaign": {"id": "c9"}}]}
+        )
+        assert notes is None
+        assert [s["source_id"] for s in stored] == ["c9"]
+
+    @pytest.mark.parametrize("body", [[], "not a collection"])
+    async def test_google_ads_stores_nothing_from_an_alien_body(self, pull, body):
+        notes, stored = await pull(connector("google_ads"), body)
+        assert notes is None and stored == []
+
+
+class TestGoogleAnalyticsPull:
+    @pytest.fixture
+    def report_pages(self, monkeypatch):
+        seen = []
+
+        def _install(pages):
+            def handler(request):
+                body = json.loads(request.content)
+                seen.append(body)
+                return httpx.Response(200, json=pages[body["offset"]])
+
+            monkeypatch.setattr(client, "_transport", httpx.MockTransport(handler))
+            return seen
+
+        yield _install
+        monkeypatch.setattr(client, "_transport", None)
+
+    @staticmethod
+    def _row(day, channel):
+        return {
+            "dimensionValues": [{"value": day}, {"value": channel}],
+            "metricValues": [{"value": "1"}, {"value": "2"}, {"value": "3"}],
+        }
+
+    async def test_the_offset_walk_stops_at_the_row_count(self, report_pages):
+        seen = report_pages(
+            {
+                0: {
+                    "rows": [self._row("20260701", c) for c in ("a", "b", "c")],
+                    "rowCount": 5,
+                },
+                3: {
+                    "rows": [self._row("20260701", c) for c in ("d", "e")],
+                    "rowCount": 5,
+                },
+            }
+        )
+        stored = []
+
+        async def store(session, **kwargs):
+            stored.append(kwargs)
+
+        notes = await connector("google_analytics").pull(None, store)
+
+        assert notes is None
+        assert [b["offset"] for b in seen] == [0, 3]
+        assert len(stored) == 5
+        assert all(len(s["source_id"]) == 32 for s in stored)
+        assert all(s["object_type"] == "report_rows" for s in stored)
+        assert len({s["source_id"] for s in stored}) == 5
+
+    async def test_an_empty_page_with_no_row_count_ends_the_walk(self, report_pages):
+        seen = report_pages({0: {"rows": []}})
+        stored = []
+
+        async def store(session, **kwargs):
+            stored.append(kwargs)
+
+        await connector("google_analytics").pull(None, store)
+
+        assert len(seen) == 1
+        assert stored == []
+
+
+class TestWhatTheBatchThreeConnectorsAskFor:
+    @pytest.fixture
+    def capture(self, monkeypatch):
+        seen = []
+
+        def _install(handler_or_body):
+            def handler(request):
+                seen.append(request)
+                if callable(handler_or_body):
+                    return httpx.Response(200, json=handler_or_body(request))
+                return httpx.Response(200, json=handler_or_body)
+
+            monkeypatch.setattr(client, "_transport", httpx.MockTransport(handler))
+            return seen
+
+        yield _install
+        monkeypatch.setattr(client, "_transport", None)
+
+    async def test_meta_asks_for_campaign_level_insights(self, capture):
+        seen = capture({"data": [], "paging": {}})
+
+        async def store(session, **kwargs):
+            pass
+
+        await connector("meta").pull(None, store)
+
+        insights = [r for r in seen if r.url.path.endswith("/insights")]
+        assert insights, "no insights request was issued"
+        assert all(r.url.params.get("level") == "campaign" for r in insights)
+
+    async def test_segment_walks_the_cursor_envelope_to_the_end(self, capture):
+        def body(request):
+            if request.url.params.get("pagination.cursor") == "cur2":
+                return {
+                    "data": {
+                        "sources": [{"name": "workspace-two"}],
+                        "pagination": {},
+                    }
+                }
+            return {
+                "data": {
+                    "sources": [{"id": "src_1", "name": "one"}],
+                    "pagination": {"next": "cur2"},
+                }
+            }
+
+        seen = capture(body)
+        stored = []
+
+        async def store(session, **kwargs):
+            stored.append(kwargs)
+
+        notes = await connector("segment").pull(None, store)
+
+        assert notes is None
+        assert [r.url.path for r in seen] == ["/sources", "/sources"]
+        assert all(r.url.params.get("pagination.count") == "1" for r in seen)
+        assert seen[1].url.params.get("pagination.cursor") == "cur2"
+        assert [(s["object_type"], s["source_id"]) for s in stored] == [
+            ("sources", "src_1"),
+            ("sources", "workspace-two"),
+        ]
+
+    async def test_activecampaign_walks_contacts_then_campaigns_with_its_token(
+        self, capture
+    ):
+        seen = capture({"contacts": [{"id": "10"}], "campaigns": [{"id": "20"}]})
+        stored = []
+
+        async def store(session, **kwargs):
+            stored.append(kwargs)
+
+        notes = await connector("activecampaign").pull(None, store)
+
+        assert notes is None
+        assert {r.url.path for r in seen} == {
+            "/api/3/contacts",
+            "/api/3/campaigns",
+        }
+        assert all(r.url.params.get("limit") == "8" for r in seen)
+        assert all(r.headers.get("Api-Token") == "mock_ac_token" for r in seen)
+        assert {(s["object_type"], s["source_id"]) for s in stored} == {
+            ("contacts", "10"),
+            ("campaigns", "20"),
+        }
 
 
 class TestSheetRowsSharingACompanyAreACountedCollision:

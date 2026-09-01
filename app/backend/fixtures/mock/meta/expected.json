@@ -1,0 +1,67 @@
+{
+  "clears": {},
+  "extracted": {
+    "campaigns": {
+      "campaign": {
+        "ad12": {
+          "category": "engagement",
+          "currency": "usd",
+          "name": "Developer Community",
+          "status": "active"
+        },
+        "ad3": {
+          "category": "conversions",
+          "currency": "usd",
+          "name": "Retargeting - Website Visitors",
+          "status": "active"
+        },
+        "ad5": {
+          "category": "awareness",
+          "currency": "usd",
+          "name": "Summer Campaign 2026",
+          "status": "active"
+        },
+        "ad9": {
+          "category": "awareness",
+          "currency": "usd",
+          "name": "B2B Brand Awareness",
+          "status": "active"
+        }
+      }
+    },
+    "insights": {
+      "campaign": {
+        "ad12": {
+          "clicks": "950.0",
+          "conversions": "30.0",
+          "currency": "usd",
+          "impressions": "85000.0",
+          "spend": "12000.0"
+        },
+        "ad3": {
+          "clicks": "1800.0",
+          "conversions": "65.0",
+          "currency": "usd",
+          "impressions": "120000.0",
+          "spend": "62000.0"
+        },
+        "ad5": {
+          "clicks": "5200.0",
+          "conversions": "120.0",
+          "currency": "usd",
+          "impressions": "450000.0",
+          "spend": "120000.0"
+        },
+        "ad9": {
+          "clicks": "12000.0",
+          "conversions": "180.0",
+          "currency": "usd",
+          "impressions": "800000.0",
+          "spend": "250000.0"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "meta"
+}

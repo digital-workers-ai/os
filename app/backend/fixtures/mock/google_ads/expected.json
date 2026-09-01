@@ -1,0 +1,47 @@
+{
+  "clears": {},
+  "extracted": {
+    "campaigns": {
+      "campaign": {
+        "ad1": {
+          "clicks": "1245.0",
+          "conversions": "89.0",
+          "currency": "usd",
+          "impressions": "28340.0",
+          "name": "Brand Search - Exact",
+          "spend": "45230.0",
+          "status": "active"
+        },
+        "ad11": {
+          "clicks": "800.0",
+          "conversions": "15.0",
+          "currency": "usd",
+          "impressions": "35000.0",
+          "name": "Financial Services",
+          "spend": "24000.0",
+          "status": "paused"
+        },
+        "ad2": {
+          "clicks": "2150.0",
+          "conversions": "42.0",
+          "currency": "usd",
+          "impressions": "45200.0",
+          "name": "Competitor Targeting",
+          "spend": "89200.0",
+          "status": "active"
+        },
+        "ad8": {
+          "clicks": "8500.0",
+          "conversions": "320.0",
+          "currency": "usd",
+          "impressions": "180000.0",
+          "name": "Enterprise SaaS Keywords",
+          "spend": "420000.0",
+          "status": "active"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "google_ads"
+}

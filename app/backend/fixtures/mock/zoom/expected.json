@@ -1,0 +1,43 @@
+{
+  "clears": {},
+  "extracted": {
+    "meetings": {
+      "meeting": {
+        "b3Mtem9vbS16YzE=": {
+          "domain": "wayne.co",
+          "email": "bruce@wayne.co",
+          "ended_at": "2026-07-08T15:34:00Z",
+          "name": "Wayne Enterprises <> OS \u2014 pricing and rollout",
+          "started_at": "2026-07-08T15:00:00Z",
+          "transcript": "Jane Smith (OS): Thanks for making time. Where did you land after the trial?\nBruce Wayne: Honestly the trial sold it. My team stopped exporting to spreadsheets on day two.\nJane Smith (OS): Good to hear. Anything still blocking?\nBruce Wayne: Two things. The per-seat price is above what we budgeted, and getting the data in took our engineer most of a week.\nJane Smith (OS): Understood on both. What's your timeline?\nBruce Wayne: We want to sign before the end of this quarter. Procurement needs two weeks, so realistically mid-September.\nJane Smith (OS): I'll get you a revised quote today.\nBruce Wayne: Do that and we're moving forward."
+        },
+        "b3Mtem9vbS16YzI=": {
+          "domain": "initech.io",
+          "email": "tom@initech.io",
+          "ended_at": "2026-07-11T09:51:00Z",
+          "name": "Initech \u2014 renewal check-in",
+          "started_at": "2026-07-11T09:30:00Z",
+          "transcript": "Jane Smith (OS): Wanted to check in ahead of the renewal.\nTom Williams: I'll be straight with you, the team has mostly stopped using it.\nJane Smith (OS): Sorry to hear that. What happened?\nTom Williams: The integration with our warehouse broke after your update in May and it took three weeks to get a reply from support. By then people had gone back to the old process.\nJane Smith (OS): That's on us. If we fixed the integration would you reconsider?\nTom Williams: Maybe. But I'm not putting it to the board this year. Ask me again in the new financial year.\nJane Smith (OS): Understood."
+        },
+        "b3Mtem9vbS16YzM=": {
+          "domain": "globex.com",
+          "email": "mike@globex.com",
+          "ended_at": "2026-07-14T13:28:00Z",
+          "name": "Globex \u2014 expansion to the growth team",
+          "started_at": "2026-07-14T13:00:00Z",
+          "transcript": "Alex Chen (OS): You mentioned wanting to bring Lisa's team on.\nMike Chen: Yes. Marketing wants the same reporting sales has.\nAlex Chen (OS): Anything missing for them?\nMike Chen: The attribution reporting isn't there yet. Lisa builds it by hand every Monday, which is about four hours she'd rather not spend.\nAlex Chen (OS): That's on the roadmap for Q4.\nMike Chen: Then let's do it when that ships. Budget's approved either way, I just don't want to onboard her twice.\nAlex Chen (OS): Makes sense. I'll come back when it's dated."
+        },
+        "b3Mtem9vbS16YzQ=": {
+          "domain": "cyberdyne.ai",
+          "email": "miles@cyberdyne.ai",
+          "ended_at": "2026-07-15T16:18:00Z",
+          "name": "Cyberdyne \u2014 intro call",
+          "started_at": "2026-07-15T16:00:00Z",
+          "transcript": "Alex Chen (OS): Thanks for taking the call. What prompted you to look?\nMiles Dyson: Our CTO asked me to survey the market. I'm gathering options, that's all.\nAlex Chen (OS): Happy to help. Is there a problem you're trying to solve?\nMiles Dyson: Not a specific one. We're fine on our current stack for now.\nAlex Chen (OS): Any timeline for a decision?\nMiles Dyson: None. If anything happens it won't be this year."
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "zoom"
+}

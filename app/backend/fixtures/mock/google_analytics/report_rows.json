@@ -1,0 +1,98 @@
+[
+  {
+    "payload": {
+      "dimensionValues": [
+        {
+          "value": "20260701"
+        },
+        {
+          "value": "Organic Search"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "1250"
+        },
+        {
+          "value": "980"
+        },
+        {
+          "value": "3200"
+        }
+      ]
+    },
+    "source_id": "20c76243f4b56f51b9e50e9c6d52c415"
+  },
+  {
+    "payload": {
+      "dimensionValues": [
+        {
+          "value": "20260701"
+        },
+        {
+          "value": "Direct"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "820"
+        },
+        {
+          "value": "650"
+        },
+        {
+          "value": "1800"
+        }
+      ]
+    },
+    "source_id": "0a8fce70a4d4e37b8632b3197dbf04fe"
+  },
+  {
+    "payload": {
+      "dimensionValues": [
+        {
+          "value": "20260701"
+        },
+        {
+          "value": "Paid Search"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "540"
+        },
+        {
+          "value": "420"
+        },
+        {
+          "value": "1100"
+        }
+      ]
+    },
+    "source_id": "d608036768c59edecac44221556d9825"
+  },
+  {
+    "payload": {
+      "dimensionValues": [
+        {
+          "value": "20260701"
+        },
+        {
+          "value": "Social"
+        }
+      ],
+      "metricValues": [
+        {
+          "value": "310"
+        },
+        {
+          "value": "250"
+        },
+        {
+          "value": "680"
+        }
+      ]
+    },
+    "source_id": "08c6a6fb4e374018f8a68a23dbfb7cce"
+  }
+]
