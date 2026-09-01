@@ -1,0 +1,23 @@
+{
+  "clears": {},
+  "extracted": {
+    "ad_accounts": {
+      "ad_account": {
+        "549764905678": {
+          "country": "US",
+          "currency": "usd",
+          "name": "Acme Corp",
+          "status": "active"
+        },
+        "549764905679": {
+          "country": "US",
+          "currency": "usd",
+          "name": "Globex Marketing",
+          "status": "active"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "pinterest"
+}

@@ -1,0 +1,31 @@
+{
+  "clears": {},
+  "extracted": {
+    "events": {
+      "event": {
+        "evt_ev1": {
+          "email": "jane@acme.io",
+          "event_name": "page_view",
+          "occurred_at": "2026-07-14T10:00:00Z"
+        },
+        "evt_ev2": {
+          "email": "jane@acme.io",
+          "event_name": "feature_used",
+          "occurred_at": "2026-07-14T10:05:00Z"
+        },
+        "evt_ev3": {
+          "email": "john.doe@acme.io",
+          "event_name": "page_view",
+          "occurred_at": "2026-07-14T09:00:00Z"
+        },
+        "evt_ev4": {
+          "email": "john.doe@acme.io",
+          "event_name": "api_call",
+          "occurred_at": "2026-07-14T09:10:00Z"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "amplitude"
+}

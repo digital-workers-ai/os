@@ -1,7 +1,7 @@
 import logging
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import delete
+from sqlalchemy import delete, func, select
 
 from app.config import settings
 from app.models import SyncRun
@@ -120,6 +120,52 @@ async def run_all(sessionmaker, sources: list[str] | None = None) -> dict:
         "rows_written": sum(r["rows_written"] for r in results),
         "results": results,
     }
+
+
+async def status(session) -> list[dict]:
+    rows = (
+        await session.execute(
+            select(
+                SyncRun.source,
+                func.max(SyncRun.started_at).label("last_attempt"),
+                func.max(SyncRun.started_at).filter(SyncRun.ok).label("last_success"),
+                func.max(SyncRun.started_at)
+                .filter(SyncRun.ok, SyncRun.rows_written > 0)
+                .label("last_new_data"),
+                func.count().label("attempts"),
+            ).group_by(SyncRun.source)
+        )
+    ).all()
+    known = {r.source: r for r in rows}
+
+    last_detail = dict(
+        (
+            await session.execute(
+                select(SyncRun.source, SyncRun.detail)
+                .distinct(SyncRun.source)
+                .order_by(SyncRun.source, SyncRun.started_at.desc())
+            )
+        ).all()
+    )
+
+    out = []
+    for source in sorted(registry.discover()):
+        r = known.get(source)
+        out.append(
+            {
+                "source": source,
+                "last_attempt": r.last_attempt.isoformat() if r else None,
+                "last_success": (
+                    r.last_success.isoformat() if r and r.last_success else None
+                ),
+                "last_new_data": (
+                    r.last_new_data.isoformat() if r and r.last_new_data else None
+                ),
+                "attempts": r.attempts if r else 0,
+                "detail": last_detail.get(source),
+            }
+        )
+    return out
 
 
 async def prune_sync_runs(session) -> None:

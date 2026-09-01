@@ -1,0 +1,27 @@
+{
+  "clears": {},
+  "extracted": {
+    "events": {
+      "event_definition": {
+        "evt_click_signup": {
+          "category": "custom",
+          "name": "click_signup_button"
+        },
+        "evt_form_submit": {
+          "category": "custom",
+          "name": "form_submission"
+        },
+        "evt_page_pricing": {
+          "category": "custom",
+          "name": "visit_pricing_page"
+        },
+        "evt_rage_click": {
+          "category": "system",
+          "name": "rage_click"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "smartlook"
+}

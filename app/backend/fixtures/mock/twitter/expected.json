@@ -1,0 +1,23 @@
+{
+  "clears": {},
+  "extracted": {
+    "accounts": {
+      "ad_account": {
+        "twacct_acme_001": {
+          "country": "US",
+          "currency": "usd",
+          "name": "Acme Corp Ads",
+          "status": "active"
+        },
+        "twacct_globex_001": {
+          "country": "US",
+          "currency": "usd",
+          "name": "Globex Inc Advertising",
+          "status": "active"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "twitter"
+}

@@ -166,6 +166,7 @@ _DATE_FORMATS = (
     "%Y-%m-%dT%H:%M:%S.%f%z",
     "%Y-%m-%dT%H:%M:%S%z",
     "%Y-%m-%dT%H:%M:%S",
+    "%Y-%m-%d %H:%M:%S.%f",
     "%a, %d %b %Y %H:%M:%S %z",
     "%Y-%m-%d",
 )

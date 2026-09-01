@@ -6,7 +6,7 @@ import httpx
 import pytest
 
 from app import sync
-from app.sources import client, creds, registry, util
+from app.sources import catalog, client, creds, registry, util
 from app.sources.hubspot import connector as hubspot
 from app.sources.stripe import connector as stripe
 
@@ -31,6 +31,13 @@ ALL_SOURCES = {
     "activecampaign",
     "zoom",
     "segment",
+    "amplitude",
+    "mixpanel",
+    "smartlook",
+    "snapchat",
+    "twitter",
+    "pinterest",
+    "linkedin",
 }
 
 
@@ -333,7 +340,7 @@ class TestCredentials:
 
 class TestRegistry:
     def test_every_connector_module_is_discovered(self):
-        assert len(ALL_SOURCES) == 20
+        assert len(ALL_SOURCES) == 27
         assert set(registry.discover()) == ALL_SOURCES
 
     def test_discovery_is_cached(self):
@@ -462,6 +469,21 @@ class TestASingleRequestPullAdmitsWhatItCannotKnow:
         stats = await self._pull(connector("woocommerce"), rows, [{"id": 1}])
         assert stats.truncated is False
 
+    async def test_snapchat_reports_a_full_page_as_possibly_incomplete(self, rows):
+        stats = await self._pull(
+            connector("snapchat"),
+            rows,
+            {"organizations": [{"id": f"o{n}"} for n in range(100)]},
+        )
+        assert stats.truncated is True
+        assert any("page" in r for r in stats.truncation_reasons)
+
+    async def test_snapchat_short_pages_are_complete(self, rows):
+        stats = await self._pull(
+            connector("snapchat"), rows, {"organizations": [{"id": "o1"}]}
+        )
+        assert stats.truncated is False
+
 
 class TestBasicAuthCredentials:
     @pytest.mark.parametrize(
@@ -470,6 +492,8 @@ class TestBasicAuthCredentials:
             ("mailchimp", ("anystring", "mock_mailchimp_key")),
             ("twilio", ("mock_account_sid", "mock_auth_token")),
             ("woocommerce", ("mock_consumer_key", "mock_consumer_secret")),
+            ("mixpanel", ("mock_mixpanel_secret", "")),
+            ("amplitude", ("mock_amplitude_key", "mock_amplitude_secret")),
         ],
     )
     def test_the_basic_auth_pair_is_declared(self, source, auth):
@@ -812,3 +836,173 @@ class TestSheetRowsSharingACompanyAreACountedCollision:
         assert result["results"][0]["rows_colliding"] == 1
         detail = result["results"][0]["detail"] or ""
         assert "rows/Acme" in detail and "collision" in detail.lower()
+
+
+class TestExportStreams:
+    @pytest.mark.parametrize("name", ["amplitude", "mixpanel"])
+    async def test_a_blank_line_is_skipped_silently(self, pull, name):
+        notes, stored = await pull(
+            connector(name), None, text='{"a":1}\n\n   \n{"a":2}'
+        )
+        assert len(stored) == 2
+        assert notes is None
+
+    @pytest.mark.parametrize("name", ["amplitude", "mixpanel"])
+    async def test_a_malformed_line_is_counted_not_fatal(self, pull, name):
+        notes, stored = await pull(
+            connector(name), None, text='{"a":1}\nnot json at all\n{"a":2}'
+        )
+        assert len(stored) == 2
+        assert notes == {"malformed_lines": 1}
+
+    @pytest.mark.parametrize("name", ["amplitude", "mixpanel"])
+    async def test_a_line_with_no_vendor_id_is_keyed_by_its_content(self, pull, name):
+        _notes, stored = await pull(connector(name), None, text='{"no_id_here":1}')
+        assert len(stored[0]["source_id"]) == 32
+        assert stored[0]["object_type"] == "events"
+
+    async def test_amplitude_prefers_the_vendor_insert_id(self, pull):
+        _notes, stored = await pull(
+            connector("amplitude"), None, text='{"insert_id":"abc","uuid":"z"}'
+        )
+        assert stored[0]["source_id"] == "abc"
+
+    async def test_amplitude_falls_back_to_the_uuid(self, pull):
+        _notes, stored = await pull(connector("amplitude"), None, text='{"uuid":"z"}')
+        assert stored[0]["source_id"] == "z"
+
+    async def test_mixpanel_reads_its_id_out_of_properties(self, pull):
+        _notes, stored = await pull(
+            connector("mixpanel"), None, text='{"properties":{"$insert_id":"mp-1"}}'
+        )
+        assert stored[0]["source_id"] == "mp-1"
+
+
+class TestBatchFourShapes:
+    async def test_snapchat_counts_an_org_with_no_id(self, pull):
+        notes, stored = await pull(
+            connector("snapchat"),
+            {"organizations": [{"organization": {"id": "o1"}}, {"organization": {}}]},
+        )
+        assert [s["source_id"] for s in stored] == ["o1"]
+        assert notes == {"missing_id": 1}
+
+    async def test_snapchat_refuses_a_body_that_is_not_a_list(self, pull):
+        notes, stored = await pull(
+            connector("snapchat"), {"organizations": {"id": "o1"}}
+        )
+        assert notes is None and stored == []
+
+    async def test_twitter_refuses_a_body_that_is_not_a_list(self, pull):
+        notes, stored = await pull(connector("twitter"), {"data": {"id": "a1"}})
+        assert notes is None and stored == []
+
+    async def test_smartlook_accepts_a_bare_list(self, pull):
+        _notes, stored = await pull(connector("smartlook"), [{"id": "e1"}])
+        assert [(s["object_type"], s["source_id"]) for s in stored] == [
+            ("events", "e1")
+        ]
+
+    async def test_smartlook_treats_an_unusable_shape_as_no_events(self, pull):
+        notes, stored = await pull(connector("smartlook"), {"data": "not a list"})
+        assert stored == [] and notes is None
+
+    async def test_smartlook_treats_a_scalar_body_as_no_events(self, pull):
+        notes, stored = await pull(connector("smartlook"), "not a collection")
+        assert stored == [] and notes is None
+
+    async def test_twitter_stores_the_accounts_it_is_given(self, pull):
+        notes, stored = await pull(connector("twitter"), {"data": [{"id": "a1"}]})
+        assert notes is None
+        assert [(s["object_type"], s["source_id"]) for s in stored] == [
+            ("accounts", "a1")
+        ]
+
+
+class TestWhatTheBatchFourConnectorsAskFor:
+    @pytest.fixture
+    def capture(self, monkeypatch):
+        seen = []
+
+        def _install(handler_or_body):
+            def handler(request):
+                seen.append(request)
+                if callable(handler_or_body):
+                    return httpx.Response(200, json=handler_or_body(request))
+                return httpx.Response(200, json=handler_or_body)
+
+            monkeypatch.setattr(client, "_transport", httpx.MockTransport(handler))
+            return seen
+
+        yield _install
+        monkeypatch.setattr(client, "_transport", None)
+
+    async def test_pinterest_walks_the_bookmark_to_its_end(self, capture):
+        def body(request):
+            if request.url.params.get("bookmark") == "b2":
+                return {"items": [{"id": "aa2"}], "bookmark": None}
+            return {"items": [{"id": "aa1"}], "bookmark": "b2"}
+
+        seen = capture(body)
+        stored = []
+
+        async def store(session, **kwargs):
+            stored.append(kwargs)
+
+        notes = await connector("pinterest").pull(None, store)
+
+        assert notes is None
+        assert [r.url.path for r in seen] == ["/ad_accounts", "/ad_accounts"]
+        assert all(r.url.params.get("page_size") == "1" for r in seen)
+        assert seen[1].url.params.get("bookmark") == "b2"
+        assert [(s["object_type"], s["source_id"]) for s in stored] == [
+            ("ad_accounts", "aa1"),
+            ("ad_accounts", "aa2"),
+        ]
+
+    async def test_linkedin_walks_the_page_token_with_its_three_headers(self, capture):
+        def body(request):
+            if request.url.params.get("pageToken") == "t1":
+                return {"elements": [{"id": 102}], "metadata": {}}
+            return {"elements": [{"id": 101}], "metadata": {"nextPageToken": "t1"}}
+
+        seen = capture(body)
+        stored = []
+
+        async def store(session, **kwargs):
+            stored.append(kwargs)
+
+        notes = await connector("linkedin").pull(None, store)
+
+        assert notes is None
+        assert [r.url.path for r in seen] == ["/adAccounts", "/adAccounts"]
+        assert all(r.url.params.get("q") == "search" for r in seen)
+        assert all(r.url.params.get("pageSize") == "1" for r in seen)
+        assert seen[1].url.params.get("pageToken") == "t1"
+        for request in seen:
+            assert request.headers.get("Authorization") == "Bearer mock_linkedin_token"
+            assert request.headers.get("linkedin-version") == "202401"
+            assert request.headers.get("x-restli-protocol-version") == "2.0.0"
+        assert [(s["object_type"], s["source_id"]) for s in stored] == [
+            ("ad_accounts", "101"),
+            ("ad_accounts", "102"),
+        ]
+
+
+class TestCatalog:
+    def test_an_unlabelled_source_falls_back_rather_than_crashing(self):
+        row = catalog.entry("never_registered")
+        assert row["category"] == "Other"
+        assert row["label"] == "never_registered"
+        assert row["unlocks"] == ""
+
+    def test_a_connector_with_no_catalog_entry_is_a_build_error(self, monkeypatch):
+        monkeypatch.setattr(catalog, "_META", dict(list(catalog._META.items())[:5]))
+        with pytest.raises(RuntimeError, match="missing metadata"):
+            catalog.catalog()
+
+    def test_the_catalog_names_all_sources_in_order(self):
+        rows = catalog.catalog()
+        assert [r["source"] for r in rows] == sorted(ALL_SOURCES)
+        for row in rows:
+            assert row["label"] and row["category"] and row["unlocks"]

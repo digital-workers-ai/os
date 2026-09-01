@@ -1,0 +1,17 @@
+{
+  "clears": {},
+  "extracted": {
+    "organizations": {
+      "ad_account": {
+        "org_acme_001": {
+          "country": "US",
+          "currency": "usd",
+          "name": "Acme Corp Marketing",
+          "status": "active"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "snapchat"
+}

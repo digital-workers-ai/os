@@ -1,0 +1,40 @@
+[
+  {
+    "payload": {
+      "country": "US",
+      "created_time": 1710500000,
+      "currency": "USD",
+      "id": "549764905678",
+      "name": "Acme Corp",
+      "owner": {
+        "username": "acmecorp"
+      },
+      "permissions": [
+        "ADMIN",
+        "ANALYST",
+        "CAMPAIGN_MANAGER"
+      ],
+      "status": "ACTIVE",
+      "updated_time": 1720000000
+    },
+    "source_id": "549764905678"
+  },
+  {
+    "payload": {
+      "country": "US",
+      "created_time": 1715000000,
+      "currency": "USD",
+      "id": "549764905679",
+      "name": "Globex Marketing",
+      "owner": {
+        "username": "globex"
+      },
+      "permissions": [
+        "ADMIN"
+      ],
+      "status": "ACTIVE",
+      "updated_time": 1720500000
+    },
+    "source_id": "549764905679"
+  }
+]

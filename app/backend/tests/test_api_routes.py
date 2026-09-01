@@ -97,6 +97,34 @@ class TestSources:
         assert seen["sources"] == ["hubspot"]
         assert body["failed"] == 0
 
+    async def test_the_catalog_lists_every_source_in_order(self, api):
+        rows = (await api.get("/api/sources")).json()["sources"]
+        assert len(rows) == 27
+        assert [r["source"] for r in rows] == sorted(r["source"] for r in rows)
+
+    async def test_every_row_carries_its_metadata_and_status(self, api):
+        rows = (await api.get("/api/sources")).json()["sources"]
+        for row in rows:
+            assert {
+                "source",
+                "label",
+                "category",
+                "unlocks",
+                "last_attempt",
+                "last_success",
+                "last_new_data",
+                "attempts",
+                "detail",
+            } <= set(row)
+
+    async def test_a_never_synced_source_reports_zero_attempts(self, api):
+        rows = (await api.get("/api/sources")).json()["sources"]
+        row = next(r for r in rows if r["source"] == "hubspot")
+        assert row["attempts"] == 0
+        assert row["last_attempt"] is None
+        assert row["last_success"] is None
+        assert row["last_new_data"] is None
+
 
 class TestTheSyncEndpointHandlesItsOwnAdvertisedInputs:
     async def test_an_empty_body_syncs_everything_rather_than_500ing(

@@ -1,0 +1,21 @@
+[
+  {
+    "payload": {
+      "country": "US",
+      "created_at": "2025-01-10T08:00:00.000Z",
+      "currency": "USD",
+      "id": "org_acme_001",
+      "my_display_name": "Jane Smith",
+      "my_invited_email": "jane@acme.io",
+      "my_member_id": "mem_jane_001",
+      "name": "Acme Corp Marketing",
+      "roles": [
+        "admin"
+      ],
+      "state": "ACTIVE",
+      "type": "ENTERPRISE",
+      "updated_at": "2026-06-15T10:30:00.000Z"
+    },
+    "source_id": "org_acme_001"
+  }
+]

@@ -336,6 +336,70 @@ class TestZoomMeetingUuidEscaping:
             assert path.count("/") == 4, path
 
 
+class TestStatusAnswersThreeDifferentQuestions:
+    NOW = datetime(2026, 8, 30, 12, 0, tzinfo=UTC)
+
+    def _run(self, *, ok, rows_written=0, detail=None, minutes_ago=0):
+        return SyncRun(
+            source="hubspot",
+            ok=ok,
+            rows_written=rows_written,
+            detail=detail,
+            started_at=self.NOW - timedelta(minutes=minutes_ago),
+        )
+
+    async def _status_row(self, session, source="hubspot"):
+        rows = await sync.status(session)
+        return next(r for r in rows if r["source"] == source)
+
+    async def test_a_failed_run_bumps_the_attempt_but_not_the_success(self, session):
+        session.add(self._run(ok=False, detail="provider is down"))
+        await session.flush()
+        row = await self._status_row(session)
+        assert row["last_attempt"] is not None
+        assert row["last_success"] is None
+        assert row["last_new_data"] is None
+
+    async def test_an_ok_run_with_no_rows_is_a_success_without_new_data(self, session):
+        session.add(self._run(ok=True, rows_written=0))
+        await session.flush()
+        row = await self._status_row(session)
+        assert row["last_success"] == row["last_attempt"]
+        assert row["last_new_data"] is None
+
+    async def test_attempts_counts_every_run_regardless_of_outcome(self, session):
+        session.add(self._run(ok=False, minutes_ago=30))
+        session.add(self._run(ok=True, rows_written=5, minutes_ago=20))
+        session.add(self._run(ok=True, rows_written=0, minutes_ago=10))
+        await session.flush()
+        row = await self._status_row(session)
+        assert row["attempts"] == 3
+        assert row["last_attempt"] == (self.NOW - timedelta(minutes=10)).isoformat()
+        assert row["last_success"] == (self.NOW - timedelta(minutes=10)).isoformat()
+        assert row["last_new_data"] == (self.NOW - timedelta(minutes=20)).isoformat()
+
+    async def test_the_detail_is_the_newest_runs_not_an_earlier_ones(self, session):
+        session.add(self._run(ok=False, detail="older failure", minutes_ago=60))
+        session.add(self._run(ok=True, detail="newest note", minutes_ago=5))
+        await session.flush()
+        row = await self._status_row(session)
+        assert row["detail"] == "newest note"
+
+    async def test_a_never_synced_source_still_appears(self, session):
+        rows = await sync.status(session)
+        assert [r["source"] for r in rows] == sorted(registry.discover())
+        assert len(rows) == 27
+        stripe_row = next(r for r in rows if r["source"] == "stripe")
+        assert stripe_row == {
+            "source": "stripe",
+            "last_attempt": None,
+            "last_success": None,
+            "last_new_data": None,
+            "attempts": 0,
+            "detail": None,
+        }
+
+
 class TestRetentionIsEnforcedNotJustDeclared:
     async def test_a_sync_run_past_the_window_is_pruned(self, session, monkeypatch):
         monkeypatch.setattr(settings, "SYNC_RUN_RETENTION_DAYS", 30)

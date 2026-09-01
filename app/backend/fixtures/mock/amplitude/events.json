@@ -1,0 +1,134 @@
+[
+  {
+    "payload": {
+      "amplitude_id": 9876543210,
+      "app": 12345,
+      "browser": "Chrome",
+      "browser_version": "126",
+      "city": "San Francisco",
+      "country": "United States",
+      "device_id": "device_ev1",
+      "event_id": 1000,
+      "event_properties": {
+        "page": "/dashboard",
+        "session_id": "sess_001"
+      },
+      "event_time": "2026-07-14 10:00:00.000000",
+      "event_type": "page_view",
+      "insert_id": "evt_ev1",
+      "ip_address": "203.0.113.42",
+      "library": "amplitude-js/8.21.0",
+      "os_name": "Mac OS X",
+      "platform": "Web",
+      "region": "CA",
+      "session_id": 1720835200000,
+      "user_id": "user_jane_acme",
+      "user_properties": {
+        "company": "Acme Corp",
+        "email": "jane@acme.io",
+        "name": "Jane Smith",
+        "plan": "professional"
+      }
+    },
+    "source_id": "evt_ev1"
+  },
+  {
+    "payload": {
+      "amplitude_id": 9876543211,
+      "app": 12345,
+      "browser": "Chrome",
+      "browser_version": "126",
+      "city": "San Francisco",
+      "country": "United States",
+      "device_id": "device_ev2",
+      "event_id": 1001,
+      "event_properties": {
+        "feature": "reports",
+        "session_id": "sess_001"
+      },
+      "event_time": "2026-07-14 10:05:00.000000",
+      "event_type": "feature_used",
+      "insert_id": "evt_ev2",
+      "ip_address": "203.0.113.42",
+      "library": "amplitude-js/8.21.0",
+      "os_name": "Mac OS X",
+      "platform": "Web",
+      "region": "CA",
+      "session_id": 1720835200000,
+      "user_id": "user_jane_acme",
+      "user_properties": {
+        "company": "Acme Corp",
+        "email": "jane@acme.io",
+        "name": "Jane Smith",
+        "plan": "professional"
+      }
+    },
+    "source_id": "evt_ev2"
+  },
+  {
+    "payload": {
+      "amplitude_id": 9876543212,
+      "app": 12345,
+      "browser": "Chrome",
+      "browser_version": "126",
+      "city": "San Francisco",
+      "country": "United States",
+      "device_id": "device_ev3",
+      "event_id": 1002,
+      "event_properties": {
+        "page": "/settings",
+        "session_id": "sess_002"
+      },
+      "event_time": "2026-07-14 09:00:00.000000",
+      "event_type": "page_view",
+      "insert_id": "evt_ev3",
+      "ip_address": "203.0.113.42",
+      "library": "amplitude-js/8.21.0",
+      "os_name": "Mac OS X",
+      "platform": "Web",
+      "region": "CA",
+      "session_id": 1721835200000,
+      "user_id": "user_john_acme",
+      "user_properties": {
+        "company": "Acme Corp",
+        "email": "john.doe@acme.io",
+        "name": "John Doe",
+        "plan": "professional"
+      }
+    },
+    "source_id": "evt_ev3"
+  },
+  {
+    "payload": {
+      "amplitude_id": 9876543213,
+      "app": 12345,
+      "browser": "Chrome",
+      "browser_version": "126",
+      "city": "San Francisco",
+      "country": "United States",
+      "device_id": "device_ev4",
+      "event_id": 1003,
+      "event_properties": {
+        "endpoint": "/v1/data",
+        "session_id": "sess_002"
+      },
+      "event_time": "2026-07-14 09:10:00.000000",
+      "event_type": "api_call",
+      "insert_id": "evt_ev4",
+      "ip_address": "203.0.113.42",
+      "library": "amplitude-js/8.21.0",
+      "os_name": "Mac OS X",
+      "platform": "Web",
+      "region": "CA",
+      "session_id": 1721835200000,
+      "user_id": "user_john_acme",
+      "user_properties": {
+        "company": "Acme Corp",
+        "email": "john.doe@acme.io",
+        "name": "John Doe",
+        "plan": "professional"
+      }
+    },
+    "source_id": "evt_ev4"
+  }
+]

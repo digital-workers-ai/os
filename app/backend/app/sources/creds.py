@@ -96,6 +96,47 @@ _MOCK: dict[str, tuple[str, dict, tuple | None, dict]] = {
     ),
     "activecampaign": ("/activecampaign", {"Api-Token": "mock_ac_token"}, None, {}),
     "zoom": ("/zoom", {"Authorization": "Bearer mock_zoom_token"}, None, {}),
+    "amplitude": (
+        "/amplitude",
+        {},
+        ("mock_amplitude_key", "mock_amplitude_secret"),
+        {},
+    ),
+    "mixpanel": ("/mixpanel", {}, ("mock_mixpanel_secret", ""), {}),
+    "smartlook": (
+        "/smartlook",
+        {"Authorization": "Bearer mock_smartlook_token"},
+        None,
+        {},
+    ),
+    "snapchat": (
+        "/snapchat",
+        {"Authorization": "Bearer mock_snapchat_token"},
+        None,
+        {},
+    ),
+    "twitter": (
+        "/twitter",
+        {"Authorization": "Bearer mock_twitter_token"},
+        None,
+        {},
+    ),
+    "pinterest": (
+        "/pinterest/v5",
+        {"Authorization": "Bearer mock_pinterest_token"},
+        None,
+        {},
+    ),
+    "linkedin": (
+        "/linkedin/rest",
+        {
+            "Authorization": "Bearer mock_linkedin_token",
+            "linkedin-version": "202401",
+            "x-restli-protocol-version": "2.0.0",
+        },
+        None,
+        {},
+    ),
     "segment": ("/segment", {"Authorization": "Bearer mock_segment_token"}, None, {}),
 }
 

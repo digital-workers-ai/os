@@ -1,0 +1,82 @@
+[
+  {
+    "payload": {
+      "event": "page_view",
+      "properties": {
+        "$browser": "Chrome",
+        "$city": "San Francisco",
+        "$country_code": "US",
+        "$current_url": "https://app.acme.io/dashboard",
+        "$insert_id": "mp_ev1",
+        "$os": "Mac OS X",
+        "$region": "CA",
+        "distinct_id": "user_jane_acme",
+        "mp_lib": "web",
+        "page": "/dashboard",
+        "session_id": "sess_001",
+        "time": 1720454400
+      }
+    },
+    "source_id": "mp_ev1"
+  },
+  {
+    "payload": {
+      "event": "feature_used",
+      "properties": {
+        "$browser": "Chrome",
+        "$city": "San Francisco",
+        "$country_code": "US",
+        "$current_url": "https://app.acme.io/",
+        "$insert_id": "mp_ev2",
+        "$os": "Mac OS X",
+        "$region": "CA",
+        "distinct_id": "user_jane_acme",
+        "feature": "reports",
+        "mp_lib": "web",
+        "session_id": "sess_001",
+        "time": 1720454400
+      }
+    },
+    "source_id": "mp_ev2"
+  },
+  {
+    "payload": {
+      "event": "page_view",
+      "properties": {
+        "$browser": "Chrome",
+        "$city": "San Francisco",
+        "$country_code": "US",
+        "$current_url": "https://app.acme.io/settings",
+        "$insert_id": "mp_ev3",
+        "$os": "Mac OS X",
+        "$region": "CA",
+        "distinct_id": "user_john_acme",
+        "mp_lib": "web",
+        "page": "/settings",
+        "session_id": "sess_002",
+        "time": 1720454400
+      }
+    },
+    "source_id": "mp_ev3"
+  },
+  {
+    "payload": {
+      "event": "api_call",
+      "properties": {
+        "$browser": "Chrome",
+        "$city": "San Francisco",
+        "$country_code": "US",
+        "$current_url": "https://app.acme.io/",
+        "$insert_id": "mp_ev4",
+        "$os": "Mac OS X",
+        "$region": "CA",
+        "distinct_id": "user_john_acme",
+        "endpoint": "/v1/data",
+        "mp_lib": "web",
+        "session_id": "sess_002",
+        "time": 1720454400
+      }
+    },
+    "source_id": "mp_ev4"
+  }
+]
