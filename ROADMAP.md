@@ -22,7 +22,7 @@ Every PR fulfills a feature: something runnable, stated as a demo criterion the 
 ## Widen: the estate
 
 - [x] 12. feat: six more sources (batch 1: zendesk, intercom, klaviyo, calendly, sendgrid, customerio) — connectors + knowledge lines + fixture replays + the links match branch. Demo: sync-all lands rows for each; dead_paths empty; persons still 22 across eight tools.
-- [ ] 13. feat: six more sources (batch 2: salesforce, shopify, woocommerce, mailchimp, twilio, google_sheets) — basic auth, header pagination, offset pagination, the SOQL cursor chain. Fixes: D2 (sheets numbers refuse rather than strip), F3 (reported as collisions, not resolved). F1 already landed with slice 5's client.
+- [x] 13. feat: six more sources (batch 2: salesforce, shopify, woocommerce, mailchimp, twilio, google_sheets) — basic auth, header pagination, offset pagination, the SOQL cursor chain. Fixes: D2 (sheets numbers refuse rather than strip), F3 (reported as collisions, not resolved). F1 already landed with slice 5's client.
 - [ ] 14. feat: six more sources (batch 3), including Zoom transcripts (J-area NUL/VTT handling).
 - [ ] 15. feat: remaining sources (batch 4) — all 27 syncing; sources catalog UI-ready via API.
 - [ ] 16. feat: the build refuses a broken estate — checks.py cross-validates every knowledge file at boot; a bad mapping fails startup, named. Brings: full knowledge validation.

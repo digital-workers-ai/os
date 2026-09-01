@@ -68,7 +68,7 @@ class TestShippedCatalog:
             metrics.parse_spec(spec)
 
     def test_money_labels_are_discovered_from_the_transforms(self):
-        assert metrics.money_labels() == {"amount", "mrr"}
+        assert metrics.money_labels() == {"amount", "mrr", "price"}
 
 
 class TestProvenance:

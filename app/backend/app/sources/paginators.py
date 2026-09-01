@@ -1,3 +1,4 @@
+import re
 from typing import Any
 from urllib.parse import unquote
 
@@ -12,6 +13,9 @@ class Paginator:
 
     def next_params(self, data: Any, params: dict) -> dict | None:
         raise NotImplementedError
+
+    def next_from_headers(self, headers: Any, params: dict) -> dict | None:
+        return None
 
     def _require_list(self, data: Any, key: str) -> list:
         if not isinstance(data, dict):
@@ -129,6 +133,64 @@ class CalendlyToken(Paginator):
         return {**params, "page_token": token} if token else None
 
 
+class Offset(Paginator):
+    TOTAL_KEYS = ("total_count", "total_items", "total")
+
+    def __init__(self, list_key: str):
+        self.list_key = list_key
+
+    def extract(self, data):
+        return self._require_list(data, self.list_key)
+
+    def next_params(self, data, params):
+        count = int(params.get("count", 100))
+        offset = int(params.get("offset", 0))
+        page_len = len(self.extract(data))
+        total = None
+        for key in self.TOTAL_KEYS:
+            if isinstance(data.get(key), int | float):
+                total = int(data[key])
+                break
+        if total is not None:
+            if offset + count >= total:
+                return None
+        elif page_len < count:
+            return None
+        return {**params, "offset": offset + count}
+
+
+class ShopifyLink(Paginator):
+    def __init__(self, key: str):
+        self.key = key
+
+    def extract(self, data):
+        return self._require_list(data, self.key)
+
+    def next_params(self, data, params):
+        return None
+
+    def next_from_headers(self, headers, params):
+        link = headers.get("Link") or headers.get("link") or ""
+        match = re.search(r'<[^>]*[?&]page_info=([^&>]+)[^>]*>;\s*rel="next"', link)
+        if not match:
+            return None
+        return {"limit": params.get("limit"), "page_info": match.group(1)}
+
+
+class TwilioPage(Paginator):
+    def extract(self, data):
+        return self._require_list(data, "messages")
+
+    def next_params(self, data, params):
+        if not data.get("next_page_uri"):
+            return None
+        return {
+            **params,
+            "Page": int(data.get("page", 0)) + 1,
+            "PageToken": data.get("next_page_token") or "",
+        }
+
+
 PAGINATORS: dict[str, Paginator] = {
     "cursor_customerio": CustomerioCursor(),
     "cursor_customerio_activities": CustomerioActivityCursor(),
@@ -137,6 +199,7 @@ PAGINATORS: dict[str, Paginator] = {
     "cursor_klaviyo": KlaviyoCursor(),
     "cursor_stripe": StripeCursor(),
     "cursor_zendesk": ZendeskCursor(),
+    "page_twilio": TwilioPage(),
     "token_calendly": CalendlyToken(),
 }
 

@@ -410,13 +410,12 @@ class TestBatchTwoCompositeNames:
         assert extract.reshape("products", payload) == [payload]
 
     def test_the_six_composite_name_hooks_agree(self):
-        from app.sources.salesforce import extract as salesforce
-        from app.sources.shopify import extract as shopify
-        from app.sources.woocommerce import extract as woocommerce
-
         from app.sources.hubspot import extract as hubspot
         from app.sources.klaviyo import extract as klaviyo
+        from app.sources.salesforce import extract as salesforce
         from app.sources.sendgrid import extract as sendgrid
+        from app.sources.shopify import extract as shopify
+        from app.sources.woocommerce import extract as woocommerce
 
         cases = [
             (
@@ -453,6 +452,12 @@ class TestGoogleSheetsHook:
         from app.sources.google_sheets import extract
 
         assert extract.MONEY_COLUMNS == ("Amount",)
+
+    def test_other_object_types_pass_through(self):
+        from app.sources.google_sheets import extract
+
+        payload = {"Amount": "ask Dave"}
+        assert extract.reshape("tabs", payload) == [payload]
 
     def test_a_typed_money_cell_is_cleaned(self):
         from app.sources.google_sheets import extract
