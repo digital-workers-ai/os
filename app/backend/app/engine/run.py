@@ -1,6 +1,5 @@
 import time
 import uuid
-from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import delete, func, select
 
@@ -24,7 +23,6 @@ from app.models import (
     EntityCanonical,
     EntityFact,
     FactCurrent,
-    MetricSnapshot,
 )
 from app.sources import registry
 from app.store import first_seen_query, latest_rows_query
@@ -323,9 +321,3 @@ async def prune(session) -> None:
         .all()
     )
     await session.execute(delete(EngineRun).where(EngineRun.seq < min(keep)))
-    await session.execute(
-        delete(MetricSnapshot).where(
-            MetricSnapshot.recorded_at
-            < datetime.now(UTC) - timedelta(days=settings.SNAPSHOT_RETENTION_DAYS)
-        )
-    )

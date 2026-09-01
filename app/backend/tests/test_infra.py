@@ -76,29 +76,3 @@ def test_reset_all_clears_every_registered_cache():
     assert registry._cache is None
     assert hooks._cache is None
     assert transforms._synonyms_cache is None
-
-
-async def test_a_snapshot_past_the_window_is_pruned(session, monkeypatch):
-    from datetime import UTC, datetime, timedelta
-
-    from sqlalchemy import select
-
-    from app.config import settings
-    from app.engine import run
-    from app.models import EngineRun, MetricSnapshot
-
-    monkeypatch.setattr(settings, "SNAPSHOT_RETENTION_DAYS", 400)
-    now = datetime.now(UTC)
-    session.add(EngineRun(ok=True, report={}))
-    session.add(
-        MetricSnapshot(metric="mrr", value=1.0, recorded_at=now - timedelta(days=401))
-    )
-    session.add(
-        MetricSnapshot(metric="mrr", value=2.0, recorded_at=now - timedelta(days=399))
-    )
-    await session.flush()
-
-    await run.prune(session)
-
-    kept = (await session.execute(select(MetricSnapshot))).scalars().all()
-    assert [r.value for r in kept] == [2.0]
