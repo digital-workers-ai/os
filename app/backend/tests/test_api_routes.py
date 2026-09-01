@@ -471,3 +471,18 @@ class TestInsights:
         response = await api.get("/api/insights/rules?severity=bogus")
         assert response.status_code == 200
         assert response.json()["findings"] == []
+
+    async def test_goals_over_an_empty_estate_are_unknown_not_missed(self, api):
+        response = await api.get("/api/insights/goals")
+        assert response.status_code == 200
+        body = response.json()
+        assert {row["goal"] for row in body["goals"]} == {
+            "expand_active_subscriptions",
+            "grow_mrr",
+            "grow_won_value",
+            "keep_churn_low",
+        }
+        assert all(row["met"] is None for row in body["goals"])
+        assert body["missed"] == 0
+        assert body["met"] == 0
+        assert body["unknown"] == len(body["goals"])
