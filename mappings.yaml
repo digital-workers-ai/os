@@ -2,6 +2,9 @@ company:
   hubspot.companies.properties.domain: domain
   hubspot.companies.properties.industry: industry
   hubspot.companies.properties.name: name
+  salesforce.accounts.Website: domain
+  salesforce.accounts.Industry: industry
+  salesforce.accounts.Name: name
   stripe.customers.name: name
   stripe.customers.email: domain
   zendesk.organizations.external_id: domain
@@ -11,6 +14,10 @@ company:
 person:
   hubspot.contacts.properties.email: email
   hubspot.contacts._full_name: name
+  salesforce.contacts.Email: email
+  salesforce.contacts._full_name: name
+  salesforce.contacts.Phone: phone
+  salesforce.contacts.Title: title
   stripe.customers.email: email
   zendesk.users.email: email
   zendesk.users.name: name
@@ -28,12 +35,48 @@ person:
   sendgrid.contacts._full_name: name
   sendgrid.contacts.phone_number: phone
   sendgrid.contacts.custom_fields.role: title
+  shopify.customers.email: email
+  shopify.customers._full_name: name
+  shopify.customers.phone: phone
+  woocommerce.customers.email: email
+  woocommerce.customers._full_name: name
+  woocommerce.customers.billing.phone: phone
 
 deal:
   hubspot.deals.properties.dealname: name
   hubspot.deals.properties.amount: amount
   hubspot.deals.properties.dealstage: status
   hubspot.deals.properties.closedate: closed_at
+  salesforce.opportunities.Name: name
+  salesforce.opportunities.Amount: amount
+  salesforce.opportunities.StageName: status
+  salesforce.opportunities.CloseDate: closed_at
+  salesforce.opportunities.AccountId: account_ref
+  google_sheets.rows.Deal Stage: status
+  google_sheets.rows.Close Date: closed_at
+  google_sheets.rows.Owner: owner
+  google_sheets.rows._amount: amount
+
+order:
+  shopify.orders.total_price: amount
+  shopify.orders.currency: currency
+  shopify.orders.financial_status: status
+  shopify.orders.email: email
+  shopify.orders.created_at: placed_at
+  woocommerce.orders.total: amount
+  woocommerce.orders.currency: currency
+  woocommerce.orders.status: status
+  woocommerce.orders.billing.email: email
+  woocommerce.orders._placed_at: placed_at
+
+product:
+  shopify.products.title: name
+  shopify.products.status: status
+  shopify.products.product_type: category
+  woocommerce.products.name: name
+  woocommerce.products.status: status
+  woocommerce.products.sku: sku
+  woocommerce.products.price: price
 
 subscription:
   stripe.subscriptions.customer: customer_ref
@@ -56,6 +99,13 @@ ticket:
   intercom.conversations.source.author.email: email
   intercom.conversations.created_at: opened_at
 
+message:
+  twilio.messages.status: status
+  twilio.messages.price: amount
+  twilio.messages.price_unit: currency
+  twilio.messages.date_sent: occurred_at
+  twilio.messages.to: phone
+
 meeting:
   calendly.scheduled_events.name: name
   calendly.scheduled_events.status: status
@@ -70,6 +120,13 @@ event:
 
 email_campaign:
   customerio.campaigns.name: name
+  mailchimp.campaigns.settings.title: name
+  mailchimp.campaigns.settings.subject_line: subject
+  mailchimp.campaigns.status: status
+  mailchimp.campaigns.emails_sent: sends
+  mailchimp.campaigns.report_summary.opens: opens
+  mailchimp.campaigns.report_summary.clicks: clicks
+  mailchimp.campaigns.send_time: sent_at
   sendgrid.singlesends.name: name
   sendgrid.singlesends.status: status
   sendgrid.singlesends.email_config.subject: subject
@@ -81,5 +138,7 @@ email_campaign:
   klaviyo.flows.attributes.status: status
 
 audience:
+  mailchimp.lists.name: name
+  mailchimp.lists.stats.member_count: members
   customerio.segments.name: name
   customerio.segments.count: members

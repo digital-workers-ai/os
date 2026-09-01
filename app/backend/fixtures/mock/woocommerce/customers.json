@@ -1,0 +1,98 @@
+[
+  {
+    "payload": {
+      "_links": {
+        "collection": [
+          {
+            "href": "http://localhost:8100/woocommerce/wc/v3/customers"
+          }
+        ],
+        "self": [
+          {
+            "href": "http://localhost:8100/woocommerce/wc/v3/customers/12"
+          }
+        ]
+      },
+      "avatar_url": "https://secure.gravatar.com/avatar/mock1",
+      "billing": {
+        "address_1": "123 Main St",
+        "city": "San Francisco",
+        "company": "Acme Corp",
+        "country": "US",
+        "email": "jane@acme.io",
+        "first_name": "Jane",
+        "last_name": "Smith",
+        "phone": "+14155551234",
+        "postcode": "94105",
+        "state": "CA"
+      },
+      "date_created": "2025-03-15T10:30:00",
+      "email": "jane@acme.io",
+      "first_name": "Jane",
+      "id": 12,
+      "is_paying_customer": true,
+      "last_name": "Smith",
+      "role": "customer",
+      "shipping": {
+        "address_1": "123 Main St",
+        "city": "San Francisco",
+        "company": "Acme Corp",
+        "country": "US",
+        "first_name": "Jane",
+        "last_name": "Smith",
+        "postcode": "94105",
+        "state": "CA"
+      },
+      "username": "janesmith"
+    },
+    "source_id": "12"
+  },
+  {
+    "payload": {
+      "_links": {
+        "collection": [
+          {
+            "href": "http://localhost:8100/woocommerce/wc/v3/customers"
+          }
+        ],
+        "self": [
+          {
+            "href": "http://localhost:8100/woocommerce/wc/v3/customers/13"
+          }
+        ]
+      },
+      "avatar_url": "https://secure.gravatar.com/avatar/mock2",
+      "billing": {
+        "address_1": "456 Oak Ave",
+        "city": "Austin",
+        "company": "Globex Inc",
+        "country": "US",
+        "email": "mike@globex.com",
+        "first_name": "Mike",
+        "last_name": "Chen",
+        "phone": "+15125550201",
+        "postcode": "78701",
+        "state": "TX"
+      },
+      "date_created": "2025-02-01T14:00:00",
+      "email": "mike@globex.com",
+      "first_name": "Mike",
+      "id": 13,
+      "is_paying_customer": true,
+      "last_name": "Chen",
+      "role": "customer",
+      "shipping": {
+        "address_1": "456 Oak Ave",
+        "city": "Austin",
+        "company": "Globex Inc",
+        "country": "US",
+        "first_name": "Mike",
+        "last_name": "Chen",
+        "postcode": "78701",
+        "state": "TX"
+      },
+      "username": "mikechen"
+    },
+    "source_id": "13"
+  }
+]

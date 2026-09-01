@@ -414,3 +414,23 @@ class TestATagOnlyLocalPartKeepsItsAddress:
         for address in ("+jane@acme.io", "jane+crm@acme.io", "jane@acme.io", "+@0.0"):
             once = t.normalize_email("hubspot", "contacts", address)
             assert t.normalize_email("hubspot", "contacts", once) == once
+
+
+class TestTwilioRfc2822Dates:
+    def test_twilio_still_speaks_rfc_2822(self):
+        assert (
+            t.normalize_date("twilio", "messages", "Mon, 14 Jul 2026 10:30:01 +0000")
+            == "2026-07-14T10:30:01Z"
+        )
+
+    def test_the_observed_at_field_parses_through_the_same_gate(self):
+        assert (
+            t.normalize_date("twilio", "messages", "Sat, 01 Aug 2026 12:00:00 +0000")
+            == "2026-08-01T12:00:00Z"
+        )
+
+    def test_a_non_utc_offset_lands_on_the_utc_instant(self):
+        assert (
+            t.normalize_date("twilio", "messages", "Sat, 01 Aug 2026 12:00:00 +0200")
+            == "2026-08-01T10:00:00Z"
+        )

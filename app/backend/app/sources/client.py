@@ -56,12 +56,20 @@ def redact_url(url: str) -> str:
 
 
 class SourceClient:
-    def __init__(self, source: str, base_url: str, *, headers: dict | None = None):
+    def __init__(
+        self,
+        source: str,
+        base_url: str,
+        *,
+        headers: dict | None = None,
+        auth: tuple | None = None,
+    ):
         self.source = source
         self.base_url = base_url.rstrip("/")
         parts = urlsplit(self.base_url)
         self.origin = urlunsplit((parts.scheme, parts.netloc, "", "", ""))
         self.headers = headers or {}
+        self.auth = auth
         self.pages_read = 0
         self.truncated = False
         self.truncation_reasons: list[str] = []
@@ -81,7 +89,9 @@ class SourceClient:
         last_detail = ""
         for attempt in range(_MAX_ATTEMPTS):
             try:
-                r = await client.request(method, url, headers=self.headers, **kwargs)
+                r = await client.request(
+                    method, url, headers=self.headers, auth=self.auth, **kwargs
+                )
             except httpx.HTTPError as e:
                 last_detail = f"{type(e).__name__} requesting {redact_url(url)}"
             else:
@@ -171,10 +181,15 @@ class SourceClient:
 
                 next_params = paginator.next_params(data, page_params)
                 if next_params is None:
+                    next_params = paginator.next_from_headers(r.headers, page_params)
+                if next_params is None:
                     break
                 page_params = next_params
 
         return records
+
+    def truncate(self, reason: str) -> None:
+        self._truncate(reason)
 
     def _truncate(self, reason: str) -> None:
         self.truncated = True

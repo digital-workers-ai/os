@@ -1,0 +1,120 @@
+[
+  {
+    "payload": {
+      "_links": {
+        "collection": [
+          {
+            "href": "http://localhost:8100/woocommerce/wc/v3/products"
+          }
+        ],
+        "self": [
+          {
+            "href": "http://localhost:8100/woocommerce/wc/v3/products/93"
+          }
+        ]
+      },
+      "categories": [
+        {
+          "id": 15,
+          "name": "Widgets",
+          "slug": "widgets"
+        }
+      ],
+      "date_created": "2025-01-10T09:00:00",
+      "dimensions": {
+        "height": "3",
+        "length": "10",
+        "width": "5"
+      },
+      "featured": false,
+      "id": 93,
+      "images": [
+        {
+          "alt": "Widget Pro",
+          "id": 201,
+          "name": "widget-pro",
+          "src": "https://mystore.com/wp-content/uploads/widget-pro.jpg"
+        }
+      ],
+      "manage_stock": true,
+      "name": "Widget Pro",
+      "on_sale": false,
+      "price": "89.99",
+      "purchasable": true,
+      "regular_price": "89.99",
+      "sale_price": "",
+      "sku": "WP-001",
+      "slug": "widget-pro",
+      "status": "publish",
+      "stock_quantity": 150,
+      "stock_status": "instock",
+      "tags": [
+        {
+          "id": 30,
+          "name": "bestseller",
+          "slug": "bestseller"
+        }
+      ],
+      "total_sales": 245,
+      "type": "simple",
+      "weight": "0.88"
+    },
+    "source_id": "93"
+  },
+  {
+    "payload": {
+      "_links": {
+        "collection": [
+          {
+            "href": "http://localhost:8100/woocommerce/wc/v3/products"
+          }
+        ],
+        "self": [
+          {
+            "href": "http://localhost:8100/woocommerce/wc/v3/products/94"
+          }
+        ]
+      },
+      "categories": [
+        {
+          "id": 16,
+          "name": "Gadgets",
+          "slug": "gadgets"
+        }
+      ],
+      "date_created": "2025-06-15T10:00:00",
+      "dimensions": {
+        "height": "2",
+        "length": "8",
+        "width": "4"
+      },
+      "featured": false,
+      "id": 94,
+      "images": [
+        {
+          "alt": "Gadget Lite",
+          "id": 202,
+          "name": "gadget-lite",
+          "src": "https://mystore.com/wp-content/uploads/gadget-lite.jpg"
+        }
+      ],
+      "manage_stock": true,
+      "name": "Gadget Lite",
+      "on_sale": false,
+      "price": "89.99",
+      "purchasable": true,
+      "regular_price": "89.99",
+      "sale_price": "",
+      "sku": "GL-001",
+      "slug": "gadget-lite",
+      "status": "publish",
+      "stock_quantity": 300,
+      "stock_status": "instock",
+      "tags": [],
+      "total_sales": 120,
+      "type": "simple",
+      "weight": "0.35"
+    },
+    "source_id": "94"
+  }
+]

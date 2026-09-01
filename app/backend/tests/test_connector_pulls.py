@@ -4,6 +4,7 @@ import pkgutil
 import httpx
 import pytest
 
+from app import sync
 from app.sources import client, creds, registry, util
 from app.sources.hubspot import connector as hubspot
 from app.sources.stripe import connector as stripe
@@ -17,6 +18,12 @@ ALL_SOURCES = {
     "calendly",
     "sendgrid",
     "customerio",
+    "salesforce",
+    "shopify",
+    "woocommerce",
+    "mailchimp",
+    "twilio",
+    "google_sheets",
 }
 
 
@@ -351,3 +358,261 @@ class TestRegistry:
         with pytest.raises(registry.ConnectorRegistrationError, match=message):
             registry.discover()
         monkeypatch.setattr(registry, "_cache", None)
+
+
+class TestGoogleSheets:
+    async def test_a_sheet_with_only_a_header_row_stores_nothing(self, pull):
+        notes, stored = await pull(
+            connector("google_sheets"), {"values": [["Name", "Amount"]]}
+        )
+        assert notes is None and stored == []
+
+    async def test_an_empty_sheet_stores_nothing(self, pull):
+        notes, stored = await pull(connector("google_sheets"), {"values": []})
+        assert notes is None and stored == []
+
+    async def test_a_row_longer_than_its_header_is_counted_and_kept(self, pull):
+        notes, stored = await pull(
+            connector("google_sheets"),
+            {"values": [["Name", "Amount"], ["Acme", "100", "surprise"]]},
+        )
+        assert notes == {"ragged_rows": 1}
+        assert stored[0]["raw_payload"]["_extra_2"] == "surprise"
+
+    async def test_a_row_with_an_empty_key_column_is_keyed_by_content(self, pull):
+        _notes, stored = await pull(
+            connector("google_sheets"), {"values": [["Name", "Amount"], ["", "100"]]}
+        )
+        assert len(stored[0]["source_id"]) == 32
+
+    async def test_a_short_row_pads_rather_than_misaligning(self, pull):
+        _notes, stored = await pull(
+            connector("google_sheets"), {"values": [["Name", "Amount"], ["Acme"]]}
+        )
+        assert stored[0]["raw_payload"] == {"Name": "Acme", "Amount": None}
+
+
+class TestWooCommerceBodyShapes:
+    async def test_a_bare_list_is_the_records(self, pull):
+        _notes, stored = await pull(connector("woocommerce"), [{"id": 1}])
+        assert {(s["object_type"], s["source_id"]) for s in stored} == {
+            ("products", "1"),
+            ("orders", "1"),
+            ("customers", "1"),
+        }
+
+    async def test_a_dict_body_yields_each_endpoints_own_key(self, pull):
+        _notes, stored = await pull(
+            connector("woocommerce"),
+            {
+                "products": [{"id": 11}],
+                "orders": [{"id": 22}],
+                "customers": [{"id": 33}],
+            },
+        )
+        assert {(s["object_type"], s["source_id"]) for s in stored} == {
+            ("products", "11"),
+            ("orders", "22"),
+            ("customers", "33"),
+        }
+
+    async def test_any_other_shape_is_no_records(self, pull):
+        notes, stored = await pull(connector("woocommerce"), "not a collection")
+        assert notes is None and stored == []
+
+
+class TestASingleRequestPullAdmitsWhatItCannotKnow:
+    @pytest.fixture
+    def rows(self, monkeypatch):
+        def _install(body):
+            def handler(request):
+                return httpx.Response(200, json=body)
+
+            monkeypatch.setattr(client, "_transport", httpx.MockTransport(handler))
+
+        yield _install
+        monkeypatch.setattr(client, "_transport", None)
+
+    async def _pull(self, module, rows, body):
+        rows(body)
+
+        async def store(session, **kwargs):
+            pass
+
+        with client.collect_stats() as stats:
+            await module.pull(None, store)
+        return stats
+
+    async def test_woocommerce_reports_a_full_page_as_possibly_incomplete(self, rows):
+        stats = await self._pull(
+            connector("woocommerce"), rows, [{"id": n} for n in range(100)]
+        )
+        assert stats.truncated is True
+        assert any("full page" in r for r in stats.truncation_reasons)
+
+    async def test_woocommerce_short_pages_are_complete(self, rows):
+        stats = await self._pull(connector("woocommerce"), rows, [{"id": 1}])
+        assert stats.truncated is False
+
+
+class TestBasicAuthCredentials:
+    @pytest.mark.parametrize(
+        "source,auth",
+        [
+            ("mailchimp", ("anystring", "mock_mailchimp_key")),
+            ("twilio", ("mock_account_sid", "mock_auth_token")),
+            ("woocommerce", ("mock_consumer_key", "mock_consumer_secret")),
+        ],
+    )
+    def test_the_basic_auth_pair_is_declared(self, source, auth):
+        assert creds.credentials_for(source).auth == auth
+
+    @pytest.mark.parametrize("source", ["hubspot", "stripe", "salesforce", "shopify"])
+    def test_bearer_sources_declare_no_auth_pair(self, source):
+        assert creds.credentials_for(source).auth is None
+
+
+class TestWhatTheBatchTwoConnectorsAskFor:
+    @pytest.fixture
+    def capture(self, monkeypatch):
+        seen = []
+
+        def _install(body):
+            def handler(request):
+                seen.append(request)
+                return httpx.Response(200, json=body)
+
+            monkeypatch.setattr(client, "_transport", httpx.MockTransport(handler))
+            return seen
+
+        yield _install
+        monkeypatch.setattr(client, "_transport", None)
+
+    async def test_shopify_walks_its_three_json_endpoints(self, capture):
+        seen = capture(
+            {
+                "products": [{"id": 1}],
+                "orders": [{"id": 2}],
+                "customers": [{"id": 3}],
+            }
+        )
+        stored = []
+
+        async def store(session, **kwargs):
+            stored.append(kwargs)
+
+        notes = await connector("shopify").pull(None, store)
+
+        assert notes is None
+        assert {r.url.path for r in seen} == {
+            "/admin/api/2024-01/products.json",
+            "/admin/api/2024-01/orders.json",
+            "/admin/api/2024-01/customers.json",
+        }
+        assert all(r.url.params.get("limit") == "1" for r in seen)
+        assert {(s["object_type"], s["source_id"]) for s in stored} == {
+            ("products", "1"),
+            ("orders", "2"),
+            ("customers", "3"),
+        }
+
+    async def test_mailchimp_walks_lists_then_campaigns_by_offset(self, capture):
+        seen = capture(
+            {
+                "lists": [{"id": "l1"}],
+                "campaigns": [{"id": "c1"}],
+                "total_items": 1,
+            }
+        )
+        stored = []
+
+        async def store(session, **kwargs):
+            stored.append(kwargs)
+
+        notes = await connector("mailchimp").pull(None, store)
+
+        assert notes is None
+        assert {r.url.path for r in seen} == {"/3.0/lists", "/3.0/campaigns"}
+        assert all(r.url.params.get("count") == "5" for r in seen)
+        assert all(r.url.params.get("offset") == "0" for r in seen)
+        assert {(s["object_type"], s["source_id"]) for s in stored} == {
+            ("lists", "l1"),
+            ("campaigns", "c1"),
+        }
+
+    async def test_twilio_asks_its_account_messages_with_basic_auth(self, capture):
+        seen = capture({"messages": [{"sid": "SM1"}]})
+        stored = []
+
+        async def store(session, **kwargs):
+            stored.append(kwargs)
+
+        notes = await connector("twilio").pull(None, store)
+
+        assert notes is None
+        assert [r.url.path for r in seen] == [
+            "/2010-04-01/Accounts/mock_account_sid/Messages.json"
+        ]
+        assert seen[0].url.params.get("PageSize") == "1"
+        assert seen[0].headers.get("Authorization", "").startswith("Basic ")
+        assert [(s["object_type"], s["source_id"]) for s in stored] == [
+            ("messages", "SM1")
+        ]
+
+    async def test_google_sheets_asks_for_the_pipeline_range(self, capture):
+        seen = capture({"values": [["Company"], ["Acme"]]})
+        stored = []
+
+        async def store(session, **kwargs):
+            stored.append(kwargs)
+
+        await connector("google_sheets").pull(None, store)
+
+        assert len(seen) == 1
+        assert "/spreadsheets/" in seen[0].url.path
+        assert seen[0].url.path.endswith("/values/Pipeline!A1:F20")
+        assert [(s["object_type"], s["source_id"]) for s in stored] == [
+            ("rows", "Acme")
+        ]
+
+    async def test_woocommerce_issues_one_capped_request_per_endpoint(self, capture):
+        seen = capture([{"id": 1}])
+
+        async def store(session, **kwargs):
+            pass
+
+        notes = await connector("woocommerce").pull(None, store)
+
+        assert notes is None
+        assert {r.url.path.rsplit("/", 1)[-1] for r in seen} == {
+            "products",
+            "orders",
+            "customers",
+        }
+        assert len(seen) == 3
+        assert all(r.url.params.get("per_page") == "100" for r in seen)
+
+
+class TestSheetRowsSharingACompanyAreACountedCollision:
+    async def test_two_rows_with_one_company_collide_in_the_sync_receipt(
+        self, session, sessionmaker_for_test, monkeypatch
+    ):
+        def handler(request):
+            return httpx.Response(
+                200,
+                json={
+                    "values": [
+                        ["Company", "Amount"],
+                        ["Acme", "100"],
+                        ["Acme", "200"],
+                    ]
+                },
+            )
+
+        monkeypatch.setattr(client, "_transport", httpx.MockTransport(handler))
+        result = await sync.run_all(sessionmaker_for_test, ["google_sheets"])
+        monkeypatch.setattr(client, "_transport", None)
+
+        assert result["results"][0]["rows_colliding"] == 1
+        detail = result["results"][0]["detail"] or ""
+        assert "rows/Acme" in detail and "collision" in detail.lower()

@@ -1,0 +1,39 @@
+{
+  "clears": {},
+  "extracted": {
+    "rows": {
+      "deal": {
+        "Acme Corp": {
+          "amount": "45000.0",
+          "closed_at": "2026-08-15T00:00:00Z",
+          "currency": "usd",
+          "owner": "Jane Smith",
+          "status": "negotiation"
+        },
+        "Globex Inc": {
+          "amount": "28000.0",
+          "closed_at": "2026-07-30T00:00:00Z",
+          "currency": "usd",
+          "owner": "Bob Johnson",
+          "status": "proposal"
+        },
+        "Initech LLC": {
+          "amount": "12500.0",
+          "closed_at": "2026-09-01T00:00:00Z",
+          "currency": "usd",
+          "owner": "Jane Smith",
+          "status": "discovery"
+        },
+        "Wayne Enterprises": {
+          "amount": "85000.0",
+          "closed_at": "2026-06-20T00:00:00Z",
+          "currency": "usd",
+          "owner": "Alice Brown",
+          "status": "closed_won"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "google_sheets"
+}

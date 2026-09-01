@@ -7,12 +7,17 @@ from app.config import settings
 class Credentials:
     base_url: str
     headers: dict = field(default_factory=dict)
+    auth: tuple | None = None
 
 
-_MOCK: dict[str, tuple[str, dict]] = {
-    "hubspot": ("/hubspot", {"Authorization": "Bearer mock_hs_token"}),
-    "stripe": ("/stripe", {"Authorization": "Bearer mock_stripe_key"}),
-    "zendesk": ("/zendesk/api/v2", {"Authorization": "Bearer mock_zendesk_token"}),
+_MOCK: dict[str, tuple[str, dict, tuple | None]] = {
+    "hubspot": ("/hubspot", {"Authorization": "Bearer mock_hs_token"}, None),
+    "stripe": ("/stripe", {"Authorization": "Bearer mock_stripe_key"}, None),
+    "zendesk": (
+        "/zendesk/api/v2",
+        {"Authorization": "Bearer mock_zendesk_token"},
+        None,
+    ),
     "intercom": (
         "/intercom",
         {
@@ -20,6 +25,7 @@ _MOCK: dict[str, tuple[str, dict]] = {
             "Accept": "application/json",
             "intercom-version": "2.10",
         },
+        None,
     ),
     "klaviyo": (
         "/klaviyo",
@@ -27,15 +33,36 @@ _MOCK: dict[str, tuple[str, dict]] = {
             "Authorization": "Klaviyo-API-Key mock_klaviyo_key",
             "revision": "2024-10-15",
         },
+        None,
     ),
-    "calendly": ("/calendly", {"Authorization": "Bearer mock_calendly_token"}),
-    "sendgrid": ("/sendgrid", {"Authorization": "Bearer mock_sendgrid_key"}),
-    "customerio": ("/customerio", {"Authorization": "Bearer mock_cio_token"}),
+    "calendly": ("/calendly", {"Authorization": "Bearer mock_calendly_token"}, None),
+    "sendgrid": ("/sendgrid", {"Authorization": "Bearer mock_sendgrid_key"}, None),
+    "customerio": ("/customerio", {"Authorization": "Bearer mock_cio_token"}, None),
+    "salesforce": (
+        "/salesforce/services/data/v67.0",
+        {"Authorization": "Bearer mock_sf_token"},
+        None,
+    ),
+    "shopify": ("/shopify", {"X-Shopify-Access-Token": "mock_shopify_token"}, None),
+    "google_sheets": (
+        "/sheets/v4",
+        {"Authorization": "Bearer mock_sheets_token"},
+        None,
+    ),
+    "mailchimp": ("/mailchimp", {}, ("anystring", "mock_mailchimp_key")),
+    "twilio": ("/twilio", {}, ("mock_account_sid", "mock_auth_token")),
+    "woocommerce": (
+        "/woocommerce/wc/v3",
+        {},
+        ("mock_consumer_key", "mock_consumer_secret"),
+    ),
 }
 
 
 def credentials_for(source: str) -> Credentials:
     if source not in _MOCK:
         raise KeyError(f"no credentials configured for source {source!r}")
-    prefix, headers = _MOCK[source]
-    return Credentials(base_url=f"{settings.MOCK_BASE_URL}{prefix}", headers=headers)
+    prefix, headers, auth = _MOCK[source]
+    return Credentials(
+        base_url=f"{settings.MOCK_BASE_URL}{prefix}", headers=headers, auth=auth
+    )

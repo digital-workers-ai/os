@@ -1,0 +1,55 @@
+{
+  "clears": {},
+  "extracted": {
+    "customers": {
+      "person": {
+        "7000000001": {
+          "email": "jane@acme.io",
+          "name": "Jane Smith",
+          "phone": "+14155551234"
+        },
+        "7000000002": {
+          "email": "mike@globex.com",
+          "name": "Mike Chen",
+          "phone": "+15125550201"
+        }
+      }
+    },
+    "orders": {
+      "order": {
+        "5000000001": {
+          "amount": "272.93",
+          "currency": "usd",
+          "email": "jane@acme.io",
+          "placed_at": "2026-07-10T18:30:00Z",
+          "status": "paid"
+        },
+        "5000000002": {
+          "amount": "97.64",
+          "currency": "usd",
+          "email": "mike@globex.com",
+          "placed_at": "2026-07-12T12:00:00Z",
+          "status": "paid"
+        }
+      }
+    },
+    "products": {
+      "product": {
+        "30001": {
+          "category": "widget",
+          "currency": "usd",
+          "name": "Widget Pro",
+          "status": "active"
+        },
+        "30002": {
+          "category": "gadget",
+          "currency": "usd",
+          "name": "Gadget Lite",
+          "status": "active"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "shopify"
+}

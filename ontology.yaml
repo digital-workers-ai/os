@@ -22,6 +22,23 @@ entities:
       status: string
       closed_at: date
       currency: string
+      account_ref: string
+      owner: string
+  order:
+    attrs:
+      amount: number
+      currency: string
+      status: string
+      email: string
+      placed_at: date
+  product:
+    attrs:
+      name: string
+      currency: string
+      status: string
+      category: string
+      sku: string
+      price: number
   subscription:
     attrs:
       customer_ref: string
@@ -38,6 +55,13 @@ entities:
       email: string
       organization_ref: string
       opened_at: date
+  message:
+    attrs:
+      status: string
+      amount: number
+      currency: string
+      phone: string
+      occurred_at: date
   meeting:
     attrs:
       name: string
@@ -65,16 +89,36 @@ entities:
       members: number
 
 source_priority:
+  - salesforce
   - hubspot
   - stripe
   - zendesk
   - intercom
-  - klaviyo
+  - shopify
+  - woocommerce
   - sendgrid
+  - mailchimp
   - customerio
+  - klaviyo
   - calendly
+  - twilio
 
 relationships:
+  - rel: belongs_to
+    from: deal
+    to: company
+    cardinality: many_to_one
+    via: account_ref
+  - rel: placed_by
+    from: order
+    to: person
+    cardinality: many_to_one
+    match: email
+  - rel: sent_to
+    from: message
+    to: person
+    cardinality: many_to_one
+    match: phone
   - rel: belongs_to
     from: subscription
     to: company

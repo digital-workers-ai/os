@@ -1,0 +1,68 @@
+[
+  {
+    "payload": {
+      "campaign_defaults": {
+        "from_email": "hello@acme.io",
+        "from_name": "Acme Team",
+        "language": "en",
+        "subject": ""
+      },
+      "contact": {
+        "address1": "123 Main St",
+        "city": "San Francisco",
+        "company": "Acme Corp",
+        "country": "US",
+        "state": "CA",
+        "zip": "94105"
+      },
+      "date_created": "2025-01-15T10:00:00+00:00",
+      "id": "mc_list_001",
+      "list_rating": 4,
+      "name": "Main Newsletter",
+      "permission_reminder": "You signed up on our website.",
+      "stats": {
+        "campaign_count": 8,
+        "cleaned_count": 45,
+        "click_rate": 0.076,
+        "member_count": 4500,
+        "open_rate": 0.42,
+        "unsubscribe_count": 120
+      },
+      "web_id": 123456
+    },
+    "source_id": "mc_list_001"
+  },
+  {
+    "payload": {
+      "campaign_defaults": {
+        "from_email": "product@acme.io",
+        "from_name": "Acme Product",
+        "language": "en",
+        "subject": ""
+      },
+      "contact": {
+        "address1": "123 Main St",
+        "city": "San Francisco",
+        "company": "Acme Corp",
+        "country": "US",
+        "state": "CA",
+        "zip": "94105"
+      },
+      "date_created": "2025-06-01T08:00:00+00:00",
+      "id": "mc_list_002",
+      "list_rating": 3,
+      "name": "Product Updates",
+      "permission_reminder": "You opted in for product updates.",
+      "stats": {
+        "campaign_count": 4,
+        "cleaned_count": 12,
+        "click_rate": 0.065,
+        "member_count": 2100,
+        "open_rate": 0.38,
+        "unsubscribe_count": 35
+      },
+      "web_id": 123457
+    },
+    "source_id": "mc_list_002"
+  }
+]

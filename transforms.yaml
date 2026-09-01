@@ -13,6 +13,12 @@ closed_at: normalize_date
 mrr: normalize_money
 currency: normalize_currency
 started_at: normalize_date
+owner: normalize_text
+account_ref: normalize_ref
+category: normalize_status
+sku: normalize_text
+price: normalize_money
+placed_at: normalize_date
 customer_ref: normalize_ref
 external_ref: normalize_ref
 organization_ref: normalize_ref
