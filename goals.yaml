@@ -21,3 +21,12 @@ keep_churn_low:
   metric: churned_subscriptions
   target: 5
   strategy: at_most
+
+hold_average_deal_size:
+  label: Hold Average Deal Size In Band
+  metric: avg_deal_size
+  target: 25000
+  strategy: threshold_band
+  params:
+    band_low: 0.8
+    band_high: 1.25

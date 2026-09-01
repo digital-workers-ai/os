@@ -20,3 +20,6 @@ google_ads:
 twitter:
   accounts:
     accepted: active
+mailchimp:
+  campaigns:
+    save: draft

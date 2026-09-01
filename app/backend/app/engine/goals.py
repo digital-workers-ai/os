@@ -100,7 +100,8 @@ async def evaluate_over(session, defs, metric_values):
         history = []
         if strategy_name in strategies.NEEDS_HISTORY:
             history = await _history_for(session, metric)
-        outcome = strategy(float(row["value"]), target, history, {})
+        params = {**strategies.defaults(strategy_name), **(spec.get("params") or {})}
+        outcome = strategy(float(row["value"]), target, history, params)
         result = {
             **base,
             "current": row["value"],

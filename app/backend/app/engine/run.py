@@ -5,6 +5,7 @@ from sqlalchemy import delete, func, select
 
 from app.config import settings
 from app.engine import (
+    checks,
     links,
     mappings,
     ontology,
@@ -73,9 +74,14 @@ async def _clear_projection(session) -> None:
         await session.execute(delete(table))
 
 
-async def rebuild(session) -> dict:
+async def rebuild(session, *, run_checks: bool = True) -> dict:
     started = time.monotonic()
     report = SyncReport()
+
+    if run_checks:
+        problems = checks.run()
+        if problems:
+            raise checks.BuildCheckError(problems)
 
     got_lock = (
         await session.execute(select(func.pg_try_advisory_xact_lock(_REBUILD_LOCK_ID)))

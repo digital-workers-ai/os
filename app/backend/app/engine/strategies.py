@@ -54,6 +54,23 @@ def at_most(current, target, history, params):
     return Outcome(met=current <= target, progress=_under(current, target))
 
 
+def threshold_band(current, target, history, params):
+    low = float(params.get("band_low", 0.8))
+    high = float(params.get("band_high", 1.2))
+    if not _finite(current, target, low, high):
+        return _unknown("value is not a finite number")
+    edges = sorted((target * low, target * high))
+    hit = edges[0] <= current <= edges[1]
+    outside = (
+        0.0 if hit else round(min(abs(current - edges[0]), abs(current - edges[1])), 4)
+    )
+    return Outcome(
+        met=hit,
+        progress=100.0 if hit else None,
+        detail={"band": [round(e, 4) for e in edges], "outside_band_by": outside},
+    )
+
+
 def _trend_refusal(current, target, history):
     if len(history) < 2:
         return _unknown(NEEDS_HISTORY_REASON)
@@ -80,6 +97,24 @@ def increasing(current, target, history, params):
     )
 
 
-STRATEGIES = {"at_least": at_least, "at_most": at_most, "increasing": increasing}
+STRATEGIES = {
+    "at_least": at_least,
+    "at_most": at_most,
+    "increasing": increasing,
+    "threshold_band": threshold_band,
+}
 
 NEEDS_HISTORY = {"increasing"}
+
+PARAMS = {
+    "at_least": (),
+    "at_most": (),
+    "increasing": (),
+    "threshold_band": ("band_low", "band_high"),
+}
+
+_DEFAULTS = {"threshold_band": {"band_low": 0.8, "band_high": 1.2}}
+
+
+def defaults(name):
+    return dict(_DEFAULTS.get(name, {}))
