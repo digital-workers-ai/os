@@ -4,7 +4,7 @@ from fastapi import Depends, Query
 
 from app.api.routers import insights as router
 from app.db import get_session
-from app.engine import rules
+from app.engine import goals, rules
 
 
 @router.get("/rules")
@@ -23,6 +23,11 @@ async def list_rules(severity: str | None = Query(None), session=Depends(get_ses
         },
         "report": report.as_dict(),
     }
+
+
+@router.get("/goals")
+async def goal_report(session=Depends(get_session)):
+    return await goals.evaluate(session)
 
 
 @router.get("/rules/definitions")

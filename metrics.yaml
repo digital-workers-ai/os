@@ -29,6 +29,13 @@ active_subscriptions:
   filter:
     status: active
 
+churned_subscriptions:
+  label: Churned Subscriptions
+  entity: subscription
+  expression: COUNT(entity)
+  filter:
+    status: canceled
+
 deal_count:
   label: Deals
   entity: deal

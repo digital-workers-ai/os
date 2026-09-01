@@ -12,6 +12,7 @@ htmlcov/
 /app/backend/synonyms.yaml
 /app/backend/metrics.yaml
 /app/backend/rules.yaml
+/app/backend/goals.yaml
 .mutmut-cache
 .pytest_cache/
 .hypothesis/

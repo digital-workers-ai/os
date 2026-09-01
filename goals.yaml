@@ -1,0 +1,23 @@
+expand_active_subscriptions:
+  label: Grow The Active Subscription Base
+  metric: active_subscriptions
+  target: 20
+  strategy: increasing
+
+grow_mrr:
+  label: Grow Monthly Recurring Revenue
+  metric: mrr
+  target: 30000
+  strategy: at_least
+
+grow_won_value:
+  label: Grow Won Deal Value
+  metric: won_value
+  target: 200000
+  strategy: at_least
+
+keep_churn_low:
+  label: Keep Churned Subscriptions Under Five
+  metric: churned_subscriptions
+  target: 5
+  strategy: at_most
