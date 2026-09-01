@@ -15,6 +15,9 @@ entities:
       external_ref: string
     identity:
       - email
+      - external_ref
+    identity_scope:
+      external_ref: tenant
   deal:
     attrs:
       name: string

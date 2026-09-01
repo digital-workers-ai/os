@@ -123,7 +123,13 @@ async def rebuild(session, *, run_checks: bool = True) -> dict:
         first_seen=first_seen,
     )
 
-    resolution = resolver.resolve(_resolver_records(projected, onto), onto, report)
+    resolution = resolver.resolve(
+        _resolver_records(projected, onto),
+        onto,
+        report,
+        bucket_cap=settings.ER_BUCKET_CAP,
+        one_record_per_source=settings.ER_ONE_RECORD_PER_SOURCE,
+    )
     folded = survivorship.fold(resolution["clusters"], projected, onto, report)
 
     previously = dict(
@@ -150,7 +156,7 @@ async def rebuild(session, *, run_checks: bool = True) -> dict:
     for label in [k for k, v in report.match_rates.items() if not v["candidates"]]:
         del report.match_rates[label]
 
-    aliases: dict = {}
+    aliases = dict(resolution["aliases"])
     retired: list = []
     of_record = resolution["of_record"]
     for old_id, anchor_key in sorted(previously.items(), key=lambda p: str(p[0])):

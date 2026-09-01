@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     ENGINE_RUN_RETENTION: int = 200
     MOCK_BASE_URL: str = "http://localhost:8192"
     CONNECTOR_MAX_PAGES: int = 500
+    ER_BUCKET_CAP: int = 50
+    ER_ONE_RECORD_PER_SOURCE: bool = True
     CONNECTOR_MAX_BYTES: int = 50 * 1024 * 1024
 
     model_config = {"env_file": ".env", "extra": "ignore"}

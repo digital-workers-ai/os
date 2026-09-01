@@ -7,6 +7,10 @@ DEFAULT_ONTOLOGY = BACKEND_DIR / "ontology.yaml"
 
 TYPES = ("string", "number", "date")
 
+IDENTITY_SCOPES = ("global", "tenant")
+
+DEFAULT_IDENTITY_SCOPE = "global"
+
 CARDINALITIES = ("many_to_one", "one_to_one", "one_to_many", "many_to_many")
 
 
@@ -33,6 +37,10 @@ class EntitySpec:
     name: str
     attrs: dict
     identity: tuple = ()
+    identity_scope: dict | None = None
+
+    def scope_of(self, attr: str) -> str:
+        return (self.identity_scope or {}).get(attr, DEFAULT_IDENTITY_SCOPE)
 
 
 @dataclass(frozen=True)
@@ -48,6 +56,12 @@ class Ontology:
     def identity_attrs(self, entity: str) -> tuple:
         spec = self.entities.get(entity)
         return spec.identity if spec else ()
+
+    def tenant_scoped_attrs(self, entity: str) -> tuple:
+        spec = self.entities.get(entity)
+        if not spec:
+            return ()
+        return tuple(a for a in spec.identity if spec.scope_of(a) == "tenant")
 
     def priority_index(self, source: str) -> int:
         try:
@@ -84,8 +98,29 @@ def load(path=None) -> Ontology:
                 raise OntologyError(
                     f"{name}: identity attr {attr!r} is not a declared attr"
                 )
+        scopes = spec.get("identity_scope") or {}
+        if not isinstance(scopes, dict):
+            raise OntologyError(
+                f"entity {name!r}: `identity_scope:` must be a mapping of "
+                "identity attr to scope"
+            )
+        for attr, scope in scopes.items():
+            if attr not in identity:
+                raise OntologyError(
+                    f"{name}: identity_scope names {attr!r}, which is not in "
+                    "`identity:` — a scope on something that is not merge "
+                    "evidence has nothing to qualify"
+                )
+            if scope not in IDENTITY_SCOPES:
+                raise OntologyError(
+                    f"{name}.{attr}: identity scope {scope!r} is not one of "
+                    f"{list(IDENTITY_SCOPES)}"
+                )
         entities[str(name)] = EntitySpec(
-            name=str(name), attrs=dict(attrs), identity=tuple(identity)
+            name=str(name),
+            attrs=dict(attrs),
+            identity=tuple(identity),
+            identity_scope={str(k): str(v) for k, v in scopes.items()},
         )
 
     relationships = []
