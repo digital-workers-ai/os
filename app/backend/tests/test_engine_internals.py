@@ -2,7 +2,7 @@ from datetime import UTC, datetime
 
 import pytest
 
-from app.engine import mappings, ontology, pipeline
+from app.engine import mappings, metrics, ontology, pipeline
 from app.engine.report import SyncReport
 from app.sources import hooks
 
@@ -80,8 +80,28 @@ class TestExtractFailuresCostOneRecord:
 
 class TestCurrencyLookup:
     async def test_no_ids_means_no_query_at_all(self, session, count_queries):
-        from app.engine import metrics
-
         with count_queries() as counter:
             assert await metrics._currencies(session, set()) == set()
         assert counter.total == 0
+
+
+class TestSnapshotsSkipWhatCannotBeStored:
+    async def test_a_metric_that_errored_is_not_snapshotted(self, session, monkeypatch):
+        async def broken(session, defs):
+            return {
+                "good": {"value": 1, "entities": 1},
+                "bad": {"error": "could not read"},
+            }
+
+        monkeypatch.setattr(metrics, "evaluate_definitions", broken)
+        assert await metrics.record_snapshots(session) == 1
+
+    async def test_a_non_finite_value_is_not_snapshotted(self, session, monkeypatch):
+        async def broken(session, defs):
+            return {
+                "good": {"value": 1, "entities": 1},
+                "bad": {"value": float("nan"), "entities": 1},
+            }
+
+        monkeypatch.setattr(metrics, "evaluate_definitions", broken)
+        assert await metrics.record_snapshots(session) == 1

@@ -91,3 +91,24 @@ async def test_every_value_is_finite_or_none(metrics_body):
 
 async def test_mrr_names_the_raw_field_that_feeds_it(metrics_body):
     assert "stripe.subscriptions._amount_monthly" in metrics_body["mrr"]["raw_fields"]
+
+
+async def test_reading_metrics_writes_no_history(api, metrics_body):
+    await api.get("/api/metrics")
+    assert (await api.get("/api/metrics/history")).json()["history"] == []
+
+
+async def test_a_snapshot_records_every_definition(api, metrics_body):
+    written = (await api.post("/api/metrics/snapshots")).json()["written"]
+    assert written == 9
+
+
+async def test_history_shows_the_measured_estate_newest_first(api, metrics_body):
+    await api.post("/api/metrics/snapshots")
+    await api.post("/api/metrics/snapshots")
+    rows = (await api.get("/api/metrics/history")).json()["history"]
+    assert len(rows) == 18
+    mrr = next(row for row in rows if row["metric"] == "mrr")
+    assert mrr["value"] == 17147.0
+    recorded = [row["recorded_at"] for row in rows]
+    assert recorded == sorted(recorded, reverse=True)
