@@ -1,0 +1,29 @@
+{
+  "clears": {},
+  "extracted": {
+    "ad_accounts": {
+      "ad_account": {
+        "512345678": {
+          "budget": "50000.0",
+          "currency": "usd",
+          "name": "Acme Corp - Marketing",
+          "status": "active"
+        },
+        "512345679": {
+          "budget": "25000.0",
+          "currency": "usd",
+          "name": "Globex Inc - Lead Gen",
+          "status": "active"
+        },
+        "512345680": {
+          "budget": "100000.0",
+          "currency": "usd",
+          "name": "Hooli - Enterprise",
+          "status": "active"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "linkedin"
+}

@@ -133,6 +133,10 @@ class TestStatus:
         assert t.normalize_status("hubspot", "invoices", "closedwon") == "closedwon"
         assert t.normalize_status("hubspot", "tickets", "Closed Won") == "closed_won"
 
+    def test_a_twitter_accepted_account_is_active(self):
+        assert t.normalize_status("twitter", "accounts", "ACCEPTED") == "active"
+        assert t.normalize_status("hubspot", "deals", "accepted") == "accepted"
+
 
 class TestSynonymsLoader:
     def test_the_shipped_file_loads_and_folds_closedwon(self):
@@ -223,6 +227,12 @@ class TestDate:
         assert (
             t.normalize_date("hubspot", "deals", "2026-07-01 12:30:00+02:00")
             == "2026-07-01T10:30:00Z"
+        )
+
+    def test_amplitudes_space_separated_microseconds(self):
+        assert (
+            t.normalize_date("amplitude", "events", "2026-07-14 10:00:00.000000")
+            == "2026-07-14T10:00:00Z"
         )
 
 

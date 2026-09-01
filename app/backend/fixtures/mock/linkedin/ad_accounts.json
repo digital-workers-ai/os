@@ -1,0 +1,62 @@
+[
+  {
+    "payload": {
+      "created": 1710500000000,
+      "currency": "USD",
+      "id": 512345678,
+      "lastModified": 1720000000000,
+      "name": "Acme Corp - Marketing",
+      "reference": "urn:li:organization:12345",
+      "servingStatuses": [
+        "RUNNABLE"
+      ],
+      "status": "ACTIVE",
+      "totalBudget": {
+        "amount": "50000.00",
+        "currencyCode": "USD"
+      },
+      "type": "BUSINESS"
+    },
+    "source_id": "512345678"
+  },
+  {
+    "payload": {
+      "created": 1715000000000,
+      "currency": "USD",
+      "id": 512345679,
+      "lastModified": 1720500000000,
+      "name": "Globex Inc - Lead Gen",
+      "reference": "urn:li:organization:67890",
+      "servingStatuses": [
+        "RUNNABLE"
+      ],
+      "status": "ACTIVE",
+      "totalBudget": {
+        "amount": "25000.00",
+        "currencyCode": "USD"
+      },
+      "type": "BUSINESS"
+    },
+    "source_id": "512345679"
+  },
+  {
+    "payload": {
+      "created": 1712000000000,
+      "currency": "USD",
+      "id": 512345680,
+      "lastModified": 1720500000000,
+      "name": "Hooli - Enterprise",
+      "reference": "urn:li:organization:11111",
+      "servingStatuses": [
+        "RUNNABLE"
+      ],
+      "status": "ACTIVE",
+      "totalBudget": {
+        "amount": "100000.00",
+        "currencyCode": "USD"
+      },
+      "type": "BUSINESS"
+    },
+    "source_id": "512345680"
+  }
+]

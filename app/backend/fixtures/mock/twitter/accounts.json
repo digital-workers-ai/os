@@ -1,0 +1,40 @@
+[
+  {
+    "payload": {
+      "approval_status": "ACCEPTED",
+      "business_id": "twbiz_acme_001",
+      "business_name": "Acme Corp",
+      "country_code": "US",
+      "created_at": "2025-01-10T08:00:00Z",
+      "currency": "USD",
+      "deleted": false,
+      "id": "twacct_acme_001",
+      "industry_type": "TECHNOLOGY",
+      "name": "Acme Corp Ads",
+      "salt": "abc123def456",
+      "timezone": "US/Eastern",
+      "timezone_switch_at": "2025-01-10T08:00:00Z",
+      "updated_at": "2026-07-01T12:00:00Z"
+    },
+    "source_id": "twacct_acme_001"
+  },
+  {
+    "payload": {
+      "approval_status": "ACCEPTED",
+      "business_id": "twbiz_globex_001",
+      "business_name": "Globex Inc",
+      "country_code": "US",
+      "created_at": "2025-03-15T09:00:00Z",
+      "currency": "USD",
+      "deleted": false,
+      "id": "twacct_globex_001",
+      "industry_type": "RETAIL",
+      "name": "Globex Inc Advertising",
+      "salt": "ghi789jkl012",
+      "timezone": "US/Pacific",
+      "timezone_switch_at": "2025-03-15T09:00:00Z",
+      "updated_at": "2026-06-20T14:00:00Z"
+    },
+    "source_id": "twacct_globex_001"
+  }
+]

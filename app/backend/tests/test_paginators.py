@@ -511,3 +511,61 @@ class TestOffsetParamNames:
             "count": 10,
             "offset": 10,
         }
+
+
+class TestBatchFourRegistration:
+    def test_the_two_new_modes_are_registered(self):
+        assert {"bookmark_pinterest", "token_linkedin"} <= set(pag.PAGINATORS)
+        assert isinstance(pag.resolve("bookmark_pinterest"), pag.PinterestBookmark)
+        assert isinstance(pag.resolve("token_linkedin"), pag.LinkedinToken)
+
+
+class TestWhereTheBatchFourCursorsLive:
+    def test_pinterest_reads_a_bookmark(self):
+        assert paginator("bookmark_pinterest").next_params(
+            {"items": [], "bookmark": "b1"}, {}
+        ) == {"bookmark": "b1"}
+
+    def test_pinterest_extracts_its_items_list(self):
+        assert paginator("bookmark_pinterest").extract({"items": [{"id": "a"}]}) == [
+            {"id": "a"}
+        ]
+
+    def test_linkedin_reads_metadata_next_page_token(self):
+        body = {"elements": [], "metadata": {"nextPageToken": "t1"}}
+        assert paginator("token_linkedin").next_params(body, {}) == {"pageToken": "t1"}
+
+    def test_linkedin_extracts_its_elements_list(self):
+        assert paginator("token_linkedin").extract({"elements": [{"id": "a"}]}) == [
+            {"id": "a"}
+        ]
+
+
+class TestWhatStopsTheBatchFourWalk:
+    @pytest.mark.parametrize(
+        "name,body",
+        [
+            ("bookmark_pinterest", {"items": [], "bookmark": None}),
+            ("bookmark_pinterest", {"items": []}),
+            ("token_linkedin", {"elements": [], "metadata": {}}),
+            ("token_linkedin", {"elements": []}),
+        ],
+    )
+    def test_the_walk_ends(self, name, body):
+        assert paginator(name).next_params(body, {"limit": 2}) is None
+
+
+class TestBatchFourParamsAreCarried:
+    @pytest.mark.parametrize(
+        "name,body",
+        [
+            ("bookmark_pinterest", {"items": [], "bookmark": "b1"}),
+            ("token_linkedin", {"elements": [], "metadata": {"nextPageToken": "t1"}}),
+        ],
+    )
+    def test_the_original_query_survives_the_hop(self, name, body):
+        nxt = paginator(name).next_params(
+            body, {"updated_since": "2026-01-01", "limit": 50}
+        )
+        assert nxt["updated_since"] == "2026-01-01"
+        assert nxt["limit"] == 50

@@ -1,0 +1,27 @@
+{
+  "clears": {},
+  "extracted": {
+    "events": {
+      "event": {
+        "mp_ev1": {
+          "event_name": "page_view",
+          "occurred_at": "2024-07-08T16:00:00Z"
+        },
+        "mp_ev2": {
+          "event_name": "feature_used",
+          "occurred_at": "2024-07-08T16:00:00Z"
+        },
+        "mp_ev3": {
+          "event_name": "page_view",
+          "occurred_at": "2024-07-08T16:00:00Z"
+        },
+        "mp_ev4": {
+          "event_name": "api_call",
+          "occurred_at": "2024-07-08T16:00:00Z"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "mixpanel"
+}
