@@ -17,7 +17,7 @@ Every PR fulfills a feature: something runnable, stated as a demo criterion the 
 - [x] 8. feat: the first metric — MRR over the canonical layer with receipts; `GET /api/metrics` answers with the number and what produced it. Brings: metrics grammar subset, metrics.yaml first lines, metrics API.
 - [x] 9. feat: metrics remember — `POST /api/metrics/snapshots` is the one history writer (deliberately not the rebuild: a series must count scheduled runs, not pipeline runs), `GET /api/metrics/history`. Brings: `metric_snapshot` table, history never pruned by design. Fixes: E1, E6 (E5 is inferred-only code — moved to 21).
 - [x] 10. feat: rules surface attention — rule predicates over facts; `GET /api/insights/rules` names entities worth a look. Brings: rules.py, rules.yaml subset.
-- [ ] 11. feat: goals judge metrics — targets + strategies; `GET /api/insights/goals` says met/unmet with progress. Brings: strategies.py, goals.py, goals.yaml subset. Fixes: E1–E4 as their grammar arrives.
+- [x] 11. feat: goals judge metrics — targets + strategies; `GET /api/insights/goals` says met/unmet with progress. Brings: strategies.py (at_least/at_most/increasing), goals.py, goals.yaml. Fixes: E2 (consumer half), E6 (consumer half), J13. Param strategies + check_goals + H4 wait for 16; E3 with the first negative metric filter.
 
 ## Widen: the estate
 
