@@ -17,3 +17,6 @@ google_ads:
   campaigns:
     enabled: active
     removed: archived
+twitter:
+  accounts:
+    accepted: active

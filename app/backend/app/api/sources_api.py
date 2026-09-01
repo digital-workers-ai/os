@@ -1,9 +1,19 @@
-from fastapi import Body, HTTPException
+from fastapi import Body, Depends, HTTPException
 
 from app import sync
 from app.api.routers import sources as router
-from app.db import async_session
-from app.sources import registry
+from app.db import async_session, get_session
+from app.sources import catalog, registry
+
+
+@router.get("/sources")
+async def list_sources(session=Depends(get_session)):
+    status_rows = {r["source"]: r for r in await sync.status(session)}
+    return {
+        "sources": [
+            {**entry, **status_rows[entry["source"]]} for entry in catalog.catalog()
+        ]
+    }
 
 
 @router.post("/sync")

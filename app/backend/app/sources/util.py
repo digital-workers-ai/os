@@ -1,4 +1,5 @@
 import hashlib
+import json
 
 from app.sources.client import SourceClient
 from app.sources.creds import credentials_for
@@ -35,6 +36,27 @@ def pick_id(record: dict, *fields: str) -> str | None:
         if v is not None and str(v).strip():
             return str(v)
     return None
+
+
+async def store_ndjson(session, store, text: str, *, source: str, id_of) -> dict | None:
+    malformed = 0
+    for line in text.strip().split("\n"):
+        if not line.strip():
+            continue
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            malformed += 1
+            continue
+        vendor_id = id_of(event)
+        await store(
+            session,
+            source=source,
+            object_type="events",
+            source_id=str(vendor_id) if vendor_id else content_id(line),
+            raw_payload=event,
+        )
+    return {"malformed_lines": malformed} if malformed else None
 
 
 async def store_all(

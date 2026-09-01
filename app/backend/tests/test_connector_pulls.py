@@ -907,6 +907,17 @@ class TestBatchFourShapes:
         notes, stored = await pull(connector("smartlook"), {"data": "not a list"})
         assert stored == [] and notes is None
 
+    async def test_smartlook_treats_a_scalar_body_as_no_events(self, pull):
+        notes, stored = await pull(connector("smartlook"), "not a collection")
+        assert stored == [] and notes is None
+
+    async def test_twitter_stores_the_accounts_it_is_given(self, pull):
+        notes, stored = await pull(connector("twitter"), {"data": [{"id": "a1"}]})
+        assert notes is None
+        assert [(s["object_type"], s["source_id"]) for s in stored] == [
+            ("accounts", "a1")
+        ]
+
 
 class TestWhatTheBatchFourConnectorsAskFor:
     @pytest.fixture

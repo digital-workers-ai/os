@@ -76,6 +76,17 @@ entities:
       event_name: string
       email: string
       occurred_at: date
+  event_definition:
+    attrs:
+      name: string
+      category: string
+  ad_account:
+    attrs:
+      name: string
+      status: string
+      currency: string
+      country: string
+      budget: number
   email_campaign:
     attrs:
       name: string
@@ -128,7 +139,14 @@ source_priority:
   - twilio
   - google_ads
   - meta
+  - linkedin
+  - pinterest
+  - snapchat
+  - twitter
+  - amplitude
+  - mixpanel
   - segment
+  - smartlook
   - google_analytics
   - google_sheets
 

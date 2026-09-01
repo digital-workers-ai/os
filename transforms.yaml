@@ -36,6 +36,8 @@ spend: normalize_money
 conversions: normalize_number
 impressions: normalize_number
 report_date: normalize_date
+country: normalize_text
+budget: normalize_money
 sessions: normalize_number
 users: normalize_number
 pageviews: normalize_number

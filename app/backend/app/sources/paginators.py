@@ -160,6 +160,24 @@ class CalendlyToken(Paginator):
         return {**params, "page_token": token} if token else None
 
 
+class PinterestBookmark(Paginator):
+    def extract(self, data):
+        return self._require_list(data, "items")
+
+    def next_params(self, data, params):
+        bookmark = data.get("bookmark")
+        return {**params, "bookmark": bookmark} if bookmark else None
+
+
+class LinkedinToken(Paginator):
+    def extract(self, data):
+        return self._require_list(data, "elements")
+
+    def next_params(self, data, params):
+        token = (data.get("metadata") or {}).get("nextPageToken")
+        return {**params, "pageToken": token} if token else None
+
+
 class Offset(Paginator):
     TOTAL_KEYS = ("total_count", "total_items", "total")
 
@@ -227,6 +245,7 @@ class TwilioPage(Paginator):
 
 
 PAGINATORS: dict[str, Paginator] = {
+    "bookmark_pinterest": PinterestBookmark(),
     "cursor_customerio": CustomerioCursor(),
     "cursor_customerio_activities": CustomerioActivityCursor(),
     "cursor_hubspot": HubspotCursor(),
@@ -238,6 +257,7 @@ PAGINATORS: dict[str, Paginator] = {
     "cursor_zendesk": ZendeskCursor(),
     "page_twilio": TwilioPage(),
     "token_calendly": CalendlyToken(),
+    "token_linkedin": LinkedinToken(),
 }
 
 

@@ -126,6 +126,15 @@ event:
   customerio.activities.type: event_name
   customerio.activities.customer_id: email
   customerio.activities.timestamp: occurred_at
+  amplitude.events.event_type: event_name
+  amplitude.events.user_properties.email: email
+  amplitude.events.event_time: occurred_at
+  mixpanel.events.event: event_name
+  mixpanel.events.properties.time: occurred_at
+
+event_definition:
+  smartlook.events.name: name
+  smartlook.events.type: category
 
 email_campaign:
   customerio.campaigns.name: name
@@ -176,6 +185,24 @@ traffic_report:
 data_source:
   segment.sources.name: name
   segment.sources.slug: category
+
+ad_account:
+  linkedin.ad_accounts.name: name
+  linkedin.ad_accounts.status: status
+  linkedin.ad_accounts.currency: currency
+  linkedin.ad_accounts.totalBudget.amount: budget
+  pinterest.ad_accounts.name: name
+  pinterest.ad_accounts.status: status
+  pinterest.ad_accounts.currency: currency
+  pinterest.ad_accounts.country: country
+  snapchat.organizations.name: name
+  snapchat.organizations.state: status
+  snapchat.organizations.currency: currency
+  snapchat.organizations.country: country
+  twitter.accounts.name: name
+  twitter.accounts.approval_status: status
+  twitter.accounts.currency: currency
+  twitter.accounts.country_code: country
 
 audience:
   mailchimp.lists.name: name
