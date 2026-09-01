@@ -142,7 +142,15 @@ async def list_entities(
     }
 
 
-@router.get("/entities/{canonical_id}")
+@router.get(
+    "/entities/{canonical_id}",
+    responses={
+        404: {
+            "description": "no such canonical entity, or an "
+            "alias pointing at a missing one"
+        }
+    },
+)
 async def get_entity(canonical_id: str, session=Depends(get_session)):
     try:
         wanted = uuid.UUID(str(canonical_id))
