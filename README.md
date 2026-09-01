@@ -38,6 +38,7 @@ A value the transform refused (garbage date, non-numeric amount) becomes none of
 - `synonyms.yaml` — which provider spellings fold to one canonical status
 - `metrics.yaml` — the numbers the estate answers with, as declared aggregates
 - `rules.yaml` — the conditions worth a human's attention, as declared predicates
+- `goals.yaml` — the targets the business holds itself to, judged by strategies
 
 Adding a field, a metric, or a rule to the system is editing a YAML line, not writing code.
 
@@ -46,6 +47,8 @@ Adding a field, a metric, or a rule to the system is editing a YAML line, not wr
 **Snapshot** — one metric's value written down with a timestamp: a diary entry for a number. Live values (`GET /api/metrics`) are always *now* and forget; `POST /api/metrics/snapshots` records every metric as a row, and repeated scheduled calls accumulate the series `GET /api/metrics/history` serves — what charts draw and trend goals judge. Three rules, each from a real bug: only the snapshot route writes history (never a rebuild or a page load — v4's read-triggered snapshots turned history into a graph of how often the dashboard was open); a run that measured nothing stores NULL, not zero, with the row still written ("couldn't measure" and "measured zero" are different claims, and "nothing measured" differs from "nobody ran the job"); a broken metric costs one row, never the snapshot.
 
 **Insights (rules and findings)** — the estate naming what deserves a look. A rule, declared in `rules.yaml`, is a claim about **one entity's own attributes** — "a subscription whose status is `past_due`", "a deal past its own close date" — with a severity meaning *how quickly someone wants to know*, not confidence. Cross-entity questions are deliberately outside the grammar: that needs a join, and the limitation is stated rather than disguised. Evaluating the rules (`GET /api/insights/rules`) produces **findings**, each carrying receipts: the canonical entity, a human anchor, the company it hangs off (walked in through canonical links), and per-condition evidence — for an `is_null` rule, the absence itself is the evidence. Two conventions hold everything up: **absence is not falsity** (a cleared status is not "a status that isn't closed"; only `exists`/`is_null` are satisfiable by a missing value), and **unreadability is counted** — zero findings over a clean estate and zero findings over unparseable dates are different claims, and the report says which. The clock is a parameter, serialized as `as_of`: a rule about something being fourteen days old has an answer that depends on when you asked.
+
+**Goals and strategies** — a goal, declared in `goals.yaml`, is a target for a metric plus a **strategy**: the judgment rule that decides met or not. `at_least` and `at_most` judge the current value against a threshold (met on equality; a zero target reads done-or-not rather than dividing by zero). `increasing` judges the *snapshot series*, not just its endpoints — a dip that recovers higher is a rise, a shed-and-re-add back to the same level is not, and fewer than two points is not a trend. Strategies are pure functions over values — no clock, no database — returning `(met, progress, detail)`, and no input makes one raise. The verdict vocabulary is three-valued on purpose: **met**, **missed**, and **unknown** — and unknown is never folded into missed. A goal refuses to judge what the estate cannot answer, with the reason on the row: the metric doesn't exist, it errored, it spans currencies, it produced no value, or *nothing matched over an empty estate* — while zero matches over a *real* population is a genuine measurement and an `at_most` goal goes green on it. Served by `GET /api/insights/goals`; every target in the file was picked by a person.
 
 **Transform** — a pure normalizing function (`normalize_domain`, `normalize_money`, …). Transforms refuse rather than guess: a value they can't interpret raises a named reason (`not_a_date`, `not_a_number`) that lands in the report. A closed registry — data never selects arbitrary code.
 
@@ -66,7 +69,7 @@ The stack is Docker Compose (`app/docker-compose.yml`): postgres :5442, mock :81
 ## Layout
 
 - `ROADMAP.md` — the feature-slice plan to v11 parity, checkbox-tracked
-- `mappings.yaml`, `ontology.yaml`, `transforms.yaml`, `synonyms.yaml`, `metrics.yaml`, `rules.yaml` — the knowledge files
+- `mappings.yaml`, `ontology.yaml`, `transforms.yaml`, `synonyms.yaml`, `metrics.yaml`, `rules.yaml`, `goals.yaml` — the knowledge files
 - `app/backend/` — FastAPI backend; tests in `app/backend/tests/`
 - `app/backend/app/sources/` — one package per source: connector plus extract hook
 - `mock/` — vendored mock providers (verbatim; exempt from repo style rules)
