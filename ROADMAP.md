@@ -21,7 +21,7 @@ Every PR fulfills a feature: something runnable, stated as a demo criterion the 
 
 ## Widen: the estate
 
-- [ ] 12. feat: six more sources (batch 1) — connectors + the mappings/transforms/extract hooks each needs + fixture replays. Demo: sync-all lands rows for each; dead_paths empty.
+- [x] 12. feat: six more sources (batch 1: zendesk, intercom, klaviyo, calendly, sendgrid, customerio) — connectors + knowledge lines + fixture replays + the links match branch. Demo: sync-all lands rows for each; dead_paths empty; persons still 22 across eight tools.
 - [ ] 13. feat: six more sources (batch 2). Fixes: D2 (sheets number stripping), F1 (per-request page budget).
 - [ ] 14. feat: six more sources (batch 3), including Zoom transcripts (J-area NUL/VTT handling).
 - [ ] 15. feat: remaining sources (batch 4) — all 27 syncing; sources catalog UI-ready via API.

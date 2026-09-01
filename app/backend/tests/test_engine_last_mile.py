@@ -401,6 +401,7 @@ class TestSelfReferentialEdges:
             self._onto(),
             projected={key: self._entity("c1", "c1")},
             of_record={key: "canonical-1"},
+            folded=[],
             report=report,
         )
         assert edges == []
@@ -416,6 +417,7 @@ class TestSelfReferentialEdges:
                 parent: self._entity("c2", ""),
             },
             of_record={child: "canonical-1", parent: "canonical-2"},
+            folded=[],
             report=report,
         )
         assert len(edges) == 1

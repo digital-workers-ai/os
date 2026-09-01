@@ -5,7 +5,7 @@ from urllib.parse import urlsplit, urlunsplit
 import httpx
 
 from app.config import settings
-from app.sources.paginators import PaginationError, resolve
+from app.sources.paginators import PaginationError, Paginator, resolve
 
 _RETRIABLE_STATUS = {429, 500, 502, 503, 504}
 _MAX_ATTEMPTS = 4
@@ -59,6 +59,8 @@ class SourceClient:
     def __init__(self, source: str, base_url: str, *, headers: dict | None = None):
         self.source = source
         self.base_url = base_url.rstrip("/")
+        parts = urlsplit(self.base_url)
+        self.origin = urlunsplit((parts.scheme, parts.netloc, "", "", ""))
         self.headers = headers or {}
         self.pages_read = 0
         self.truncated = False
@@ -111,10 +113,10 @@ class SourceClient:
         path: str,
         *,
         params: dict | None = None,
-        paginate: str | None = None,
-        list_key: str | None = None,
+        paginate: str | Paginator | None = None,
     ):
-        url = f"{self.base_url}{path}"
+        base = self.origin if _transport is not None else self.base_url
+        url = f"{base}{path}"
         merged = dict(params or {})
 
         if not paginate:

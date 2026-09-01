@@ -136,7 +136,7 @@ class TestPagination:
             )
         )
         rows = await SourceClient("hubspot", "http://api").get(
-            "/companies", paginate="cursor_hubspot", list_key="results"
+            "/companies", paginate="cursor_hubspot"
         )
         assert [r["id"] for r in rows] == [1, 2]
 
@@ -149,9 +149,7 @@ class TestPagination:
             )
         )
         source_client = SourceClient("hubspot", "http://api")
-        rows = await source_client.get(
-            "/companies", paginate="cursor_hubspot", list_key="results"
-        )
+        rows = await source_client.get("/companies", paginate="cursor_hubspot")
         assert source_client.truncated is True
         assert any("repeated cursor" in r for r in source_client.truncation_reasons)
         assert len(rows) >= 1
@@ -173,9 +171,7 @@ class TestPagination:
 
         transport(handler)
         source_client = SourceClient("hubspot", "http://api")
-        await source_client.get(
-            "/companies", paginate="cursor_hubspot", list_key="results"
-        )
+        await source_client.get("/companies", paginate="cursor_hubspot")
         assert source_client.truncated is True
         assert any("page cap 2" in r for r in source_client.truncation_reasons)
 
@@ -196,9 +192,7 @@ class TestPagination:
 
         transport(handler)
         source_client = SourceClient("hubspot", "http://api")
-        await source_client.get(
-            "/companies", paginate="cursor_hubspot", list_key="results"
-        )
+        await source_client.get("/companies", paginate="cursor_hubspot")
         assert source_client.truncated is True
         assert any("byte cap" in r for r in source_client.truncation_reasons)
 
@@ -212,9 +206,7 @@ class TestPagination:
             )
         )
         source_client = SourceClient("hubspot", "http://api")
-        rows = await source_client.get(
-            "/companies", paginate="cursor_hubspot", list_key="results"
-        )
+        rows = await source_client.get("/companies", paginate="cursor_hubspot")
         assert [r["id"] for r in rows] == [1]
         assert source_client.truncated is True
         assert any("mid-pagination" in r for r in source_client.truncation_reasons)
@@ -223,14 +215,14 @@ class TestPagination:
         transport(responder(httpx.Response(500)))
         with pytest.raises(ConnectorError):
             await SourceClient("hubspot", "http://api").get(
-                "/companies", paginate="cursor_hubspot", list_key="results"
+                "/companies", paginate="cursor_hubspot"
             )
 
     async def test_a_body_shaped_wrong_for_its_paginator_is_named(self, transport):
         transport(responder(json_page({"unexpected": "shape"})))
         with pytest.raises(ConnectorError):
             await SourceClient("hubspot", "http://api").get(
-                "/companies", paginate="cursor_hubspot", list_key="results"
+                "/companies", paginate="cursor_hubspot"
             )
 
 
@@ -250,12 +242,8 @@ class TestThePageCapIsPerWalk:
 
         transport(handler)
         source_client = SourceClient("hubspot", "http://api")
-        first = await source_client.get(
-            "/companies", paginate="cursor_hubspot", list_key="results"
-        )
-        second = await source_client.get(
-            "/deals", paginate="cursor_hubspot", list_key="results"
-        )
+        first = await source_client.get("/companies", paginate="cursor_hubspot")
+        second = await source_client.get("/deals", paginate="cursor_hubspot")
 
         assert len(first) == 2
         assert len(second) == 2, "the second endpoint was starved by the first"
@@ -276,9 +264,7 @@ class TestThePageCapIsPerWalk:
 
         transport(handler)
         source_client = SourceClient("hubspot", "http://api")
-        rows = await source_client.get(
-            "/companies", paginate="cursor_hubspot", list_key="results"
-        )
+        rows = await source_client.get("/companies", paginate="cursor_hubspot")
         assert len(rows) == 3
         assert source_client.truncated is True
 
@@ -290,10 +276,8 @@ class TestThePageCapIsPerWalk:
 
         transport(handler)
         source_client = SourceClient("hubspot", "http://api")
-        await source_client.get(
-            "/companies", paginate="cursor_hubspot", list_key="results"
-        )
-        await source_client.get("/deals", paginate="cursor_hubspot", list_key="results")
+        await source_client.get("/companies", paginate="cursor_hubspot")
+        await source_client.get("/deals", paginate="cursor_hubspot")
         assert source_client.pages_read == 2
 
 
@@ -317,7 +301,7 @@ class TestStatsCollection:
         )
         with client.collect_stats() as stats:
             await SourceClient("hubspot", "http://api").get(
-                "/companies", paginate="cursor_hubspot", list_key="results"
+                "/companies", paginate="cursor_hubspot"
             )
         assert stats.truncated is True
         assert stats.truncation_reasons

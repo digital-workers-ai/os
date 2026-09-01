@@ -91,11 +91,13 @@ async def rebuild(session) -> dict:
     line_index = mappings.by_object(lines)
     transform_map = transforms.load_map()
     connectors = registry.discover()
-    for line in lines:
-        report.declare_path(line.entity, line.key)
 
     rows = (await session.execute(latest_rows_query())).scalars().all()
     rows = sorted(rows, key=lambda r: r.seq)
+    present_sources = {row.source for row in rows}
+    for line in lines:
+        if line.source in present_sources:
+            report.declare_path(line.entity, line.key)
     report.count("raw_events_read", len(rows))
 
     first_seen = {
@@ -128,13 +130,19 @@ async def rebuild(session) -> dict:
 
     live_canonical = {f.canonical_id for f in folded}
     edges = links.build(
-        onto, projected=projected, of_record=resolution["of_record"], report=report
+        onto,
+        projected=projected,
+        of_record=resolution["of_record"],
+        folded=folded,
+        report=report,
     )
     edges = [
         e
         for e in edges
         if e.from_canonical in live_canonical and e.to_canonical in live_canonical
     ]
+    for label in [k for k, v in report.match_rates.items() if not v["candidates"]]:
+        del report.match_rates[label]
 
     aliases: dict = {}
     retired: list = []

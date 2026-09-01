@@ -226,6 +226,12 @@ class TestCalendlyArrayHook:
 
         return extract.reshape("scheduled_events", payload)
 
+    def test_other_object_types_pass_through(self):
+        from app.sources.calendly import extract
+
+        payload = {"uri": "https://api.calendly.com/x/1"}
+        assert extract.reshape("invitees", payload) == [payload]
+
     def test_the_first_membership_becomes_the_host(self):
         out = self._reshape(
             {

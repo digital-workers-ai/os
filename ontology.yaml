@@ -10,6 +10,9 @@ entities:
     attrs:
       email: string
       name: string
+      phone: string
+      title: string
+      external_ref: string
     identity:
       - email
   deal:
@@ -26,10 +29,50 @@ entities:
       currency: string
       status: string
       started_at: date
+  ticket:
+    attrs:
+      subject: string
+      status: string
+      priority: string
+      channel: string
+      email: string
+      organization_ref: string
+      opened_at: date
+  meeting:
+    attrs:
+      name: string
+      status: string
+      email: string
+      started_at: date
+      ended_at: date
+  event:
+    attrs:
+      event_name: string
+      email: string
+      occurred_at: date
+  email_campaign:
+    attrs:
+      name: string
+      subject: string
+      status: string
+      sends: number
+      opens: number
+      clicks: number
+      sent_at: date
+  audience:
+    attrs:
+      name: string
+      members: number
 
 source_priority:
   - hubspot
   - stripe
+  - zendesk
+  - intercom
+  - klaviyo
+  - sendgrid
+  - customerio
+  - calendly
 
 relationships:
   - rel: belongs_to
@@ -37,3 +80,23 @@ relationships:
     to: company
     cardinality: many_to_one
     via: customer_ref
+  - rel: belongs_to
+    from: ticket
+    to: company
+    cardinality: many_to_one
+    via: organization_ref
+  - rel: raised_by
+    from: ticket
+    to: person
+    cardinality: many_to_one
+    match: email
+  - rel: performed_by
+    from: event
+    to: person
+    cardinality: many_to_one
+    match: email
+  - rel: attended_by
+    from: meeting
+    to: person
+    cardinality: many_to_one
+    match: email
