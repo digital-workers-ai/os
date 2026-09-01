@@ -119,14 +119,207 @@ def is_blocked(attr: str, value: str) -> str | None:
     return None
 
 
-def resolve(records, onto, report) -> dict:
+def _corroborates(
+    left: Record, right: Record, attr: str, identity_attrs
+) -> bool | None:
+    shared = [
+        a
+        for a in identity_attrs
+        if a != attr
+        and str(left.identity.get(a) or "").strip()
+        and str(right.identity.get(a) or "").strip()
+    ]
+    if not shared:
+        return None
+    return any(
+        str(left.identity[a]).strip().lower() == str(right.identity[a]).strip().lower()
+        for a in shared
+    )
+
+
+def _namespace_verdicts(ordered, onto, report) -> tuple:
+    holders: dict = {}
+    for record in ordered:
+        for attr in onto.tenant_scoped_attrs(record.entity_type):
+            value = record.identity.get(attr)
+            if value is None or not str(value).strip():
+                continue
+            holders.setdefault((record.entity_type, attr, str(value)), {}).setdefault(
+                record.source, record
+            )
+
+    tally: dict = {}
+    witnessed: set = set()
+    unwitnessed: dict = {}
+    for (entity_type, attr, value), by_source in holders.items():
+        identity_attrs = onto.identity_attrs(entity_type)
+        sources = sorted(by_source)
+        for position, left in enumerate(sources):
+            for right in sources[position + 1 :]:
+                verdict = _corroborates(
+                    by_source[left], by_source[right], attr, identity_attrs
+                )
+                if verdict is None:
+                    report.count(
+                        f"identity_unwitnessed/{entity_type}/{attr}/{left}|{right}"
+                    )
+                    key = (entity_type, attr, frozenset((left, right)))
+                    unwitnessed[key] = unwitnessed.get(key, 0) + 1
+                    continue
+                slot = tally.setdefault(
+                    (entity_type, attr, frozenset((left, right))), [0, 0]
+                )
+                slot[0 if verdict else 1] += 1
+                if verdict:
+                    witnessed.add((entity_type, attr, value))
+
+    split = set()
+    for key, (agreed, disagreed) in sorted(tally.items(), key=str):
+        if disagreed <= agreed:
+            continue
+        entity_type, attr, pair = key
+        left, right = sorted(pair)
+        split.add(key)
+        report.oversize(
+            "namespace_not_shared",
+            {
+                "entity_type": entity_type,
+                "attr": attr,
+                "sources": [left, right],
+                "corroborated": agreed,
+                "contradicted": disagreed,
+                "detail": (
+                    f"{left} and {right} share {disagreed} {attr} value(s) whose "
+                    f"records disagree on every other identity attr, against "
+                    f"{agreed} that agree — so {attr} is not one namespace across "
+                    "these two tools, it is each tool numbering its own rows. "
+                    f"{attr} is refused as evidence between them unless a specific "
+                    "value is corroborated; other evidence still merges normally"
+                ),
+            },
+        )
+
+    for key, count in sorted(unwitnessed.items(), key=str):
+        if key in split or tally.get(key, (0, 0))[0]:
+            continue
+        entity_type, attr, pair = key
+        left, right = sorted(pair)
+        split.add(key)
+        report.oversize(
+            "namespace_unwitnessed",
+            {
+                "entity_type": entity_type,
+                "attr": attr,
+                "sources": [left, right],
+                "corroborated": 0,
+                "contradicted": 0,
+                "unwitnessed": count,
+                "detail": (
+                    f"{left} and {right} share {count} {attr} value(s), and no "
+                    f"pair of records holding one agrees on any other identity "
+                    f"attr — so nothing says {attr} is one namespace across these "
+                    "two tools rather than each numbering its own rows. It is "
+                    "refused as evidence between them; a single corroborated "
+                    "value anywhere would restore it"
+                ),
+            },
+        )
+    return split, witnessed
+
+
+def resolve(
+    records, onto, report, *, bucket_cap: int = 50, one_record_per_source: bool = True
+) -> dict:
     ordered = sorted(
         records, key=lambda r: (r.order, r.source, r.entity_type, r.source_id)
     )
 
+    bucket_sources: dict = {}
+    for record in ordered:
+        for attr in onto.identity_attrs(record.entity_type):
+            value = record.identity.get(attr)
+            if value is None or is_blocked(attr, str(value)):
+                continue
+            bucket_sources.setdefault(
+                (record.entity_type, attr, str(value)), []
+            ).append(record.source)
+
+    quarantined_buckets = set()
+    for bucket, sources in bucket_sources.items():
+        entity_type, attr, value = bucket
+        if len(sources) > len(set(sources)):
+            quarantined_buckets.add(bucket)
+            duplicated = sorted({s for s in sources if sources.count(s) > 1})
+            report.oversize(
+                "shared_across_records",
+                {
+                    "entity_type": entity_type,
+                    "attr": attr,
+                    "value": value[:80],
+                    "records": len(sources),
+                    "sources": len(set(sources)),
+                    "detail": (
+                        f"{attr}={value[:40]!r} appears on "
+                        f"{len(sources)} records from only {len(set(sources))} "
+                        f"source(s) — {duplicated} holds it more than once, so "
+                        "it identifies a function or a group, not one thing"
+                    ),
+                },
+            )
+        elif len(sources) > bucket_cap:
+            quarantined_buckets.add(bucket)
+            report.oversize(
+                "identity_bucket",
+                {
+                    "entity_type": entity_type,
+                    "attr": attr,
+                    "value": value[:80],
+                    "records": len(sources),
+                    "cap": bucket_cap,
+                    "detail": (
+                        f"{len(sources)} records share {attr}="
+                        f"{value[:40]!r} — a value that many things share is "
+                        "a placeholder, not an identifier; the whole bucket "
+                        "is quarantined rather than merged"
+                    ),
+                },
+            )
+
+    namespace_split, namespace_witnessed = _namespace_verdicts(ordered, onto, report)
+
     clusters: list = []
     index: dict = {}
     of_record: dict = {}
+    merged_into: dict = {}
+
+    def refuse_source_bound(record, canonical, detail: str) -> None:
+        report.oversize(
+            "one_record_per_source",
+            {
+                "entity_type": record.entity_type,
+                "record": record.anchor_key,
+                "canonical": str(canonical),
+                "detail": detail,
+            },
+        )
+
+    def mint(record, evidence: str) -> int:
+        cluster = Cluster(
+            canonical_id=canonical_id_for(record.anchor_key),
+            entity_type=record.entity_type,
+            anchor_key=record.anchor_key,
+            minted_order=record.order,
+        )
+        cluster.members[record.key] = evidence
+        cluster.sources.add(record.source)
+        clusters.append(cluster)
+        of_record[record.key] = len(clusters) - 1
+        return len(clusters) - 1
+
+    def resolve_index(i: int) -> int:
+        while i in merged_into:
+            i = merged_into[i]
+        return i
 
     for record in ordered:
         identity_attrs = onto.identity_attrs(record.entity_type)
@@ -144,43 +337,111 @@ def resolve(records, onto, report) -> dict:
                     )
                     continue
                 usable += 1
+                bucket = (record.entity_type, attr, str(value))
+                if bucket in quarantined_buckets:
+                    continue
                 evidence_keys.append((attr, str(value)))
             if usable == 0:
                 report.no_identity(record.entity_type, record.source)
 
-        position = None
+        hits: list = []
+        matched_by: dict = {}
         for attr, value in evidence_keys:
             found = index.get((record.entity_type, attr, value))
             if found is None:
                 continue
-            cluster = clusters[found]
-            cluster.members[record.key] = f"{attr}={value}"
-            cluster.sources.add(record.source)
-            position = found
-            break
+            found = resolve_index(found)
+            candidate = clusters[found]
+            blocked = [
+                s
+                for s in candidate.sources
+                if (record.entity_type, attr, frozenset((record.source, s)))
+                in namespace_split
+            ]
+            if blocked and (record.entity_type, attr, value) in namespace_witnessed:
+                report.count(f"namespace_value_witnessed/{record.entity_type}/{attr}")
+                blocked = []
+            if blocked:
+                report.oversize(
+                    "namespace_not_shared_merge",
+                    {
+                        "entity_type": record.entity_type,
+                        "record": record.anchor_key,
+                        "attr": attr,
+                        "canonical": str(candidate.canonical_id),
+                        "sources": sorted(blocked),
+                        "detail": (
+                            f"{record.anchor_key} matches this cluster on {attr}="
+                            f"{value!r}, but {attr} is not one namespace between "
+                            f"{record.source} and {sorted(blocked)} — the merge is "
+                            "refused on this evidence. Before guard 5 this merged "
+                            "two strangers and reported nothing"
+                        ),
+                    },
+                )
+                continue
+            if found not in hits:
+                hits.append(found)
+            matched_by.setdefault(found, (attr, value))
+        hits.sort()
 
-        if position is None:
-            cluster = Cluster(
-                canonical_id=canonical_id_for(record.anchor_key),
-                entity_type=record.entity_type,
-                anchor_key=record.anchor_key,
-                minted_order=record.order,
-            )
-            evidence = (
+        if not hits:
+            position = mint(
+                record,
                 f"{evidence_keys[0][0]}={evidence_keys[0][1]}"
                 if evidence_keys
-                else "singleton"
+                else "singleton",
             )
-            cluster.members[record.key] = evidence
-            cluster.sources.add(record.source)
-            clusters.append(cluster)
-            position = len(clusters) - 1
+            for attr, value in evidence_keys:
+                index.setdefault((record.entity_type, attr, value), position)
+            continue
 
-        of_record[record.key] = position
+        survivor = hits[0]
+        target = clusters[survivor]
+
+        if one_record_per_source and record.source in target.sources:
+            refuse_source_bound(
+                record,
+                target.canonical_id,
+                f"{record.source} already has a record in this cluster "
+                f"({min(target.members)[2]}); a real thing has at most one "
+                "record per source, so this merge is refused and the record "
+                "stays on its own",
+            )
+            mint(record, "unmerged_source_bound")
+            continue
+
+        matched = matched_by[survivor]
+        target.members[record.key] = f"{matched[0]}={matched[1]}"
+        target.sources.add(record.source)
+        of_record[record.key] = survivor
+
+        for other in hits[1:]:
+            loser = clusters[other]
+            clash = loser.sources & target.sources
+            if one_record_per_source and clash:
+                refuse_source_bound(
+                    record,
+                    target.canonical_id,
+                    f"merging {loser.anchor_key} would put two "
+                    f"{min(clash)} records in one cluster — refused, the "
+                    "clusters stay apart",
+                )
+                continue
+            target.members.update(loser.members)
+            target.sources |= loser.sources
+            merged_into[other] = survivor
+
         for attr, value in evidence_keys:
-            index.setdefault((record.entity_type, attr, value), position)
+            index.setdefault((record.entity_type, attr, value), survivor)
 
     return {
-        "clusters": clusters,
-        "of_record": {key: clusters[i].canonical_id for key, i in of_record.items()},
+        "clusters": [c for i, c in enumerate(clusters) if i not in merged_into],
+        "aliases": {
+            clusters[i].canonical_id: clusters[resolve_index(i)].canonical_id
+            for i in merged_into
+        },
+        "of_record": {
+            key: clusters[resolve_index(i)].canonical_id for key, i in of_record.items()
+        },
     }

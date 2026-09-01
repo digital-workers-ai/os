@@ -42,6 +42,7 @@ services:
       - ../metrics.yaml:/app/metrics.yaml
       - ../rules.yaml:/app/rules.yaml
       - ../goals.yaml:/app/goals.yaml
+      - ../mock:/adversarial/seeds:ro
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')\""]
       interval: 5s

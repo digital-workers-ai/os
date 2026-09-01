@@ -112,3 +112,52 @@ class TestResolveProperties:
         memberships = [key for c in result["clusters"] for key in c.members]
         assert sorted(memberships) == sorted(record.key for record in records)
         assert set(result["of_record"]) == {record.key for record in records}
+
+
+PERSON_RECORDS = st.lists(
+    st.builds(
+        lambda source, sid, order, email, ref: resolver.Record(
+            source=source,
+            entity_type="person",
+            source_id=sid,
+            order=order,
+            identity={k: v for k, v in (("email", email), ("external_ref", ref)) if v},
+        ),
+        source=st.sampled_from(["hubspot", "stripe", "zendesk", "intercom"]),
+        sid=st.text(alphabet="abcdef0123456789", min_size=1, max_size=4),
+        order=st.integers(min_value=1, max_value=50),
+        email=st.one_of(
+            st.none(), st.sampled_from(["a@acme.io", "b@acme.io", "c@globex.com"])
+        ),
+        ref=st.one_of(st.none(), st.sampled_from(["X1", "X2", "X3"])),
+    ),
+    max_size=8,
+    unique_by=lambda r: r.key,
+)
+
+
+def _resolved(records):
+    return resolver.resolve(records, ONTO, SyncReport())
+
+
+@given(records=PERSON_RECORDS)
+@settings(max_examples=200, deadline=None)
+def test_no_alias_ever_points_at_another_alias(records):
+    result = _resolved(records)
+    assert not (set(result["aliases"].values()) & set(result["aliases"]))
+
+
+@given(records=PERSON_RECORDS)
+@settings(max_examples=200, deadline=None)
+def test_no_alias_is_also_a_live_cluster(records):
+    result = _resolved(records)
+    live = {c.canonical_id for c in result["clusters"]}
+    assert not (live & set(result["aliases"]))
+
+
+@given(records=PERSON_RECORDS)
+@settings(max_examples=200, deadline=None)
+def test_a_cluster_never_holds_two_records_from_one_source(records):
+    for cluster in _resolved(records)["clusters"]:
+        sources = [key[0] for key in cluster.members]
+        assert len(sources) == len(set(sources))

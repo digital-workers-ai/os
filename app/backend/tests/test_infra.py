@@ -1,10 +1,14 @@
+from pathlib import Path
+
 import pytest
 from sqlalchemy import text
 
 import app.db
 import app.main
-from app.config import Settings
+from app.config import Settings, settings
+from app.engine import run
 from app.models import RawEvent
+from tests import ground_truth
 
 
 def test_database_url_default_points_at_the_stack():
@@ -103,3 +107,32 @@ def test_reset_all_clears_every_registered_cache():
     assert registry._cache is None
     assert hooks._cache is None
     assert transforms._synonyms_cache is None
+
+
+def test_the_adversarial_corpus_is_mounted_so_its_suite_cannot_silently_skip():
+    root = Path(ground_truth.ADVERSARIAL_ROOT)
+    assert (root / "seeds").is_dir(), (
+        f"{ground_truth.ADVERSARIAL_ROOT}/seeds is absent inside the stack — "
+        "restart the backend so docker-compose.yml mounts ../mock there"
+    )
+    assert (root / "seeds" / "adversarial.py").is_file()
+
+
+def test_the_er_settings_ship_their_defaults():
+    assert Settings.model_fields["ER_BUCKET_CAP"].default == 50
+    assert Settings.model_fields["ER_ONE_RECORD_PER_SOURCE"].default is True
+
+
+async def test_the_rebuild_passes_the_er_settings_to_resolve(session, monkeypatch):
+    captured = {}
+
+    def capture(records, onto, report, **kwargs):
+        captured.update(kwargs)
+        return {"clusters": [], "aliases": {}, "of_record": {}}
+
+    monkeypatch.setattr(run.resolver, "resolve", capture)
+    await run.rebuild(session, run_checks=False)
+    assert captured == {
+        "bucket_cap": settings.ER_BUCKET_CAP,
+        "one_record_per_source": settings.ER_ONE_RECORD_PER_SOURCE,
+    }
