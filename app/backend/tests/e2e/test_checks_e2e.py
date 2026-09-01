@@ -20,7 +20,6 @@ ALL_FILES = (
     "ontology.yaml",
     "transforms.yaml",
     "metrics.yaml",
-    "sources.yaml",
     "rules.yaml",
     "goals.yaml",
 )
@@ -56,7 +55,6 @@ def _broken_estate(tmp_path):
         ontology_path=tmp_path / "ontology.yaml",
         transforms_path=tmp_path / "transforms.yaml",
         metrics_path=tmp_path / "metrics.yaml",
-        sources_path=tmp_path / "sources.yaml",
         rules_path=tmp_path / "rules.yaml",
         goals_path=tmp_path / "goals.yaml",
     )

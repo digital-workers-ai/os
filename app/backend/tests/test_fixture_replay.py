@@ -4,11 +4,11 @@ from pathlib import Path
 
 import pytest
 
-from app.engine import mappings, ontology, pipeline, transforms
+from app.engine import checks, mappings, ontology, pipeline, transforms
 from app.engine.report import SyncReport
 from app.sources import registry
 
-FIXTURES = Path(__file__).resolve().parent.parent / "fixtures"
+FIXTURES = checks.REAL_FIXTURES.parent
 CAPTURED_AT = datetime(2026, 8, 2, tzinfo=UTC)
 
 
@@ -120,12 +120,6 @@ class TestRealFixtures:
         assert dict(report.skips) == expected["skips"]
 
 
-def _checks():
-    from app.engine import checks
-
-    return checks
-
-
 class TestTheLabelIsLoadBearing:
     def test_every_mapped_source_has_at_least_mock_fixtures(self):
         mapped = {ln.source for ln in mappings.load()}
@@ -134,34 +128,24 @@ class TestTheLabelIsLoadBearing:
             f"no captured payloads for {sorted(mapped - captured)}"
         )
 
-    def test_provider_validated_requires_real_fixtures(self):
-        status = _checks().load_source_status()
-        real = {d.name for d in REAL_DIRS}
+    def test_provider_validated_requires_a_replayable_capture(self):
+        replayable = {d.name for d in REAL_DIRS}
         claiming = {
             s
-            for s, e in status.items()
-            if (e or {}).get("status") == "provider-validated"
+            for s, e in checks.source_status().items()
+            if e["status"] == "provider-validated"
         }
-        assert claiming <= real, (
-            f"{sorted(claiming - real)} claim provider-validated with no "
-            "fixtures under fixtures/real/"
+        assert claiming <= replayable, (
+            f"{sorted(claiming - replayable)} derive provider-validated from a "
+            "fixtures/real/ dir that holds no replayable capture"
         )
 
-    def test_real_fixtures_imply_the_label_was_updated(self):
-        status = _checks().load_source_status()
-        real = {d.name for d in REAL_DIRS}
-        for source in sorted(real):
-            assert status.get(source, {}).get("status") == "provider-validated", (
-                f"{source} has real fixtures but is still marked "
-                f"{status.get(source, {}).get('status')!r}"
-            )
-
     def test_a_source_is_only_enabled_if_a_provider_payload_replays(self):
-        real = {d.name for d in REAL_DIRS}
-        status = _checks().load_source_status()
-        for source in _checks().enabled_sources():
-            assert status.get(source, {}).get("status") == "provider-validated"
-            assert source in real, f"{source} is enabled with no real fixtures"
+        replayable = {d.name for d in REAL_DIRS}
+        for source in checks.enabled_sources():
+            assert source in replayable, (
+                f"{source} is enabled with no replayable real fixtures"
+            )
 
     def test_the_real_fixture_gap_is_counted_rather_than_implied(self):
         real = {d.name for d in REAL_DIRS}

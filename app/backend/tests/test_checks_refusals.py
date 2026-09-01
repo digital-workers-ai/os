@@ -13,7 +13,6 @@ ALL_FILES = (
     "ontology.yaml",
     "transforms.yaml",
     "metrics.yaml",
-    "sources.yaml",
     "rules.yaml",
     "goals.yaml",
 )
@@ -42,7 +41,6 @@ def files(tmp_path):
                 ontology_path=tmp_path / "ontology.yaml",
                 transforms_path=tmp_path / "transforms.yaml",
                 metrics_path=tmp_path / "metrics.yaml",
-                sources_path=tmp_path / "sources.yaml",
                 rules_path=tmp_path / "rules.yaml",
                 goals_path=tmp_path / "goals.yaml",
             )
@@ -115,38 +113,6 @@ class TestMappingsAgainstTheOntology:
 
         files.edit("transforms.yaml", mutate)
         assert any("orphan transform entry never runs" in p for p in files.problems())
-
-
-class TestSourcesFile:
-    def test_a_connector_with_no_status_row_is_refused(self, files):
-        def mutate(doc):
-            doc["sources"].pop("hubspot")
-
-        files.edit("sources.yaml", mutate)
-        assert any("has no status row" in p for p in files.problems())
-
-    def test_an_unknown_status_lists_the_valid_ones(self, files):
-        def mutate(doc):
-            doc["sources"]["hubspot"]["status"] = "probably-fine"
-
-        files.edit("sources.yaml", mutate)
-        assert any("probably-fine" in p for p in files.problems())
-
-    def test_a_status_row_with_no_connector_is_refused(self, files):
-        def mutate(doc):
-            doc["sources"]["imaginary_crm"] = {"status": "mock-validated"}
-
-        files.edit("sources.yaml", mutate)
-        assert any("has a status row but no connector" in p for p in files.problems())
-
-    def test_a_mapped_source_may_not_claim_to_be_unmapped(self, files):
-        def mutate(doc):
-            doc["sources"]["hubspot"]["status"] = "unmapped"
-
-        files.edit("sources.yaml", mutate)
-        assert any(
-            "marked unmapped but has mapping lines" in p for p in files.problems()
-        )
 
 
 class TestGoalChecks:

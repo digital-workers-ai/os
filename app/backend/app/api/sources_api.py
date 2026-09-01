@@ -10,18 +10,18 @@ from app.sources import catalog, registry
 @router.get("/sources")
 async def list_sources(session=Depends(get_session)):
     status_rows = {r["source"]: r for r in await sync.status(session)}
-    validation = checks.load_source_status()
+    validation = checks.source_status()
     rows = []
     for entry in catalog.catalog():
         source = entry["source"]
-        declared = validation.get(source, {})
+        derived = validation[source]
         rows.append(
             {
                 **entry,
                 **status_rows.get(source, {}),
-                "validation": declared.get("status", "unknown"),
-                "entities": declared.get("entities", []),
-                "enabled_by_default": declared.get("status") == "provider-validated",
+                "validation": derived["status"],
+                "entities": derived["entities"],
+                "enabled_by_default": derived["status"] == "provider-validated",
             }
         )
     return {

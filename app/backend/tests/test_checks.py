@@ -16,7 +16,6 @@ ALL_FILES = (
     "ontology.yaml",
     "transforms.yaml",
     "metrics.yaml",
-    "sources.yaml",
     "rules.yaml",
     "goals.yaml",
 )
@@ -42,7 +41,6 @@ def files(tmp_path):
                 ontology_path=tmp_path / "ontology.yaml",
                 transforms_path=tmp_path / "transforms.yaml",
                 metrics_path=tmp_path / "metrics.yaml",
-                sources_path=tmp_path / "sources.yaml",
                 rules_path=tmp_path / "rules.yaml",
                 goals_path=tmp_path / "goals.yaml",
             )
@@ -193,30 +191,6 @@ class TestEachCheckFires:
         )
         assert any("customerio" in p and "extract" in p for p in files.problems())
 
-    def test_a_connector_with_no_status_row(self, files):
-        files.edit("sources.yaml", lambda d: d["sources"].pop("zendesk"))
-        assert any("has no status row" in p for p in files.problems())
-
-    def test_a_mapped_source_still_marked_unmapped(self, files):
-        files.edit(
-            "sources.yaml",
-            lambda d: d["sources"].update({"stripe": {"status": "unmapped"}}),
-        )
-        assert any(
-            "marked unmapped but has mapping lines" in p for p in files.problems()
-        )
-
-    def test_an_unmapped_source_claiming_validation(self, files):
-        files.edit(
-            "mappings.yaml",
-            lambda d: [
-                section.pop(key)
-                for section in d.values()
-                for key in [k for k in section if k.startswith("segment.")]
-            ],
-        )
-        assert any("has no mapping lines" in p for p in files.problems())
-
 
 class TestAccountCurrencyExemption:
     def test_a_money_mapping_source_must_declare_or_map_its_currency(
@@ -243,23 +217,33 @@ class TestAccountCurrencyExemption:
 
 class TestValidationLabels:
     def test_nothing_ships_on_by_default_until_it_is_provider_validated(self):
-        status = checks.load_source_status()
+        status = checks.source_status()
         for source in checks.enabled_sources():
             assert status[source]["status"] == "provider-validated", source
 
-    def test_the_pilot_sources_are_labelled_mock_validated(self):
-        status = checks.load_source_status()
+    def test_the_pilot_sources_derive_mock_validated(self):
+        status = checks.source_status()
         for source in ("hubspot", "salesforce", "stripe", "customerio", "google_ads"):
             assert status[source]["status"] == "mock-validated"
 
-    def test_a_provider_validated_source_is_enabled(self, monkeypatch):
-        monkeypatch.setattr(
-            checks,
-            "load_source_status",
-            lambda path=None: {
-                "zoom": {"status": "provider-validated"},
-                "stripe": {"status": "provider-validated"},
-                "hubspot": {"status": "mock-validated"},
-            },
-        )
+    def test_a_source_with_no_mapping_lines_derives_unmapped(self):
+        status = checks.source_status(lines=[])
+        assert {entry["status"] for entry in status.values()} == {"unmapped"}
+        assert all(entry["entities"] == [] for entry in status.values())
+
+    def test_a_real_fixture_dir_derives_provider_validated(self, tmp_path, monkeypatch):
+        (tmp_path / "stripe").mkdir()
+        (tmp_path / "zoom").mkdir()
+        (tmp_path / "notes.txt").touch()
+        monkeypatch.setattr(checks, "REAL_FIXTURES", tmp_path)
+        status = checks.source_status()
+        assert status["stripe"]["status"] == "provider-validated"
+        assert status["zoom"]["status"] == "provider-validated"
+        assert status["hubspot"]["status"] == "mock-validated"
         assert checks.enabled_sources() == ["stripe", "zoom"]
+
+    def test_entities_derive_from_the_mapping_lines(self):
+        status = checks.source_status()
+        assert status["stripe"]["entities"] == ["company", "person", "subscription"]
+        assert status["hubspot"]["entities"] == ["company", "deal", "person"]
+        assert status["segment"]["entities"] == ["data_source"]

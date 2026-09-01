@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import yaml
 
 from app.caches import BACKEND_DIR
@@ -12,9 +10,7 @@ from app.engine.transforms import (
 )
 from app.sources import hooks, registry
 
-DEFAULT_SOURCES = BACKEND_DIR / "sources.yaml"
-
-VALID_STATUSES = ("provider-validated", "mock-validated", "unmapped")
+REAL_FIXTURES = BACKEND_DIR / "fixtures" / "real"
 
 ACCOUNT_LEVEL_ATTR = "currency"
 
@@ -25,9 +21,28 @@ class BuildCheckError(RuntimeError):
         super().__init__("build checks failed:\n  - " + "\n  - ".join(problems))
 
 
-def load_source_status(path=None) -> dict:
-    doc = yaml.safe_load(Path(path or DEFAULT_SOURCES).read_text()) or {}
-    return dict(doc.get("sources") or {})
+def source_status(lines=None) -> dict:
+    if lines is None:
+        lines = mappings.load()
+    replayed = (
+        {d.name for d in REAL_FIXTURES.iterdir() if d.is_dir()}
+        if REAL_FIXTURES.is_dir()
+        else set()
+    )
+    entities_by_source: dict = {}
+    for line in lines:
+        entities_by_source.setdefault(line.source, set()).add(line.entity)
+    status = {}
+    for source in sorted(registry.discover()):
+        entities = entities_by_source.get(source, set())
+        if source in replayed:
+            label = "provider-validated"
+        elif entities:
+            label = "mock-validated"
+        else:
+            label = "unmapped"
+        status[source] = {"status": label, "entities": sorted(entities)}
+    return status
 
 
 def _labels_by_entity(lines) -> dict:
@@ -42,7 +57,6 @@ def run(
     ontology_path=None,
     transforms_path=None,
     metrics_path=None,
-    sources_path=None,
     rules_path=None,
     goals_path=None,
 ) -> list[str]:
@@ -260,36 +274,6 @@ def run(
                     "be empty, so the number could not show its receipts"
                 )
 
-    status = load_source_status(sources_path)
-    mapped_sources = {line.source for line in lines}
-    for source in sorted(connectors):
-        entry = status.get(source)
-        if entry is None:
-            problems.append(
-                f"sources.yaml: connector {source!r} has no status row — a "
-                "source whose validation level is unstated is a source that "
-                "silently poses as validated"
-            )
-            continue
-        if entry.get("status") not in VALID_STATUSES:
-            problems.append(
-                f"sources.yaml: {source!r} status {entry.get('status')!r} is not "
-                f"one of {list(VALID_STATUSES)}"
-            )
-        if source in mapped_sources and entry.get("status") == "unmapped":
-            problems.append(
-                f"sources.yaml: {source!r} is marked unmapped but has mapping lines"
-            )
-        if source not in mapped_sources and entry.get("status") != "unmapped":
-            problems.append(
-                f"sources.yaml: {source!r} claims {entry.get('status')!r} but "
-                "has no mapping lines"
-            )
-    problems += [
-        f"sources.yaml: {source!r} has a status row but no connector"
-        for source in sorted(set(status) - connectors)
-    ]
-
     try:
         problems += check_rules(onto, rules.load(rules_path))
     except (rules.RuleError, yaml.YAMLError) as e:
@@ -420,9 +404,8 @@ def check_goals(definitions, metric_defs=None) -> list[str]:
 
 
 def enabled_sources() -> list[str]:
-    status = load_source_status()
     return sorted(
         source
-        for source, entry in status.items()
-        if entry.get("status") == "provider-validated"
+        for source, entry in source_status().items()
+        if entry["status"] == "provider-validated"
     )

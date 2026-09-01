@@ -17,4 +17,3 @@ htmlcov/
 .pytest_cache/
 .hypothesis/
 .ruff_cache/
-/app/backend/sources.yaml

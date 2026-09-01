@@ -550,7 +550,6 @@ class TestMetricsFileThatRaisesDuringChecks:
             "ontology.yaml",
             "transforms.yaml",
             "metrics.yaml",
-            "sources.yaml",
             "rules.yaml",
             "goals.yaml",
         ):
@@ -562,7 +561,6 @@ class TestMetricsFileThatRaisesDuringChecks:
             ontology_path=tmp_path / "ontology.yaml",
             transforms_path=tmp_path / "transforms.yaml",
             metrics_path=tmp_path / "metrics.yaml",
-            sources_path=tmp_path / "sources.yaml",
             rules_path=tmp_path / "rules.yaml",
             goals_path=tmp_path / "goals.yaml",
         )
