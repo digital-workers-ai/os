@@ -62,6 +62,41 @@ class TestIdentity:
             ont.load(write(tmp_path, doc))
 
 
+class TestIdentityScope:
+    def _doc(self):
+        doc = a_doc()
+        doc["entities"]["company"]["identity"] = ["domain"]
+        return doc
+
+    def test_the_scope_block_must_be_a_mapping(self, tmp_path):
+        doc = self._doc()
+        doc["entities"]["company"]["identity_scope"] = ["domain"]
+        with pytest.raises(ont.OntologyError, match="must be a mapping"):
+            ont.load(write(tmp_path, doc))
+
+    def test_a_scope_on_something_that_is_not_merge_evidence_is_refused(self, tmp_path):
+        doc = self._doc()
+        doc["entities"]["company"]["identity_scope"] = {"name": "tenant"}
+        with pytest.raises(ont.OntologyError, match="has nothing to qualify"):
+            ont.load(write(tmp_path, doc))
+
+    def test_an_unknown_scope_lists_the_known_ones(self, tmp_path):
+        doc = self._doc()
+        doc["entities"]["company"]["identity_scope"] = {"domain": "galactic"}
+        with pytest.raises(ont.OntologyError, match="is not one of"):
+            ont.load(write(tmp_path, doc))
+
+    def test_a_tenant_scoped_attr_is_reported_as_such(self, tmp_path):
+        doc = self._doc()
+        doc["entities"]["company"]["identity_scope"] = {"domain": "tenant"}
+        loaded = ont.load(write(tmp_path, doc))
+        assert loaded.tenant_scoped_attrs("company") == ("domain",)
+
+    def test_an_unknown_entity_has_no_tenant_scoped_attrs(self, tmp_path):
+        loaded = ont.load(write(tmp_path, self._doc()))
+        assert loaded.tenant_scoped_attrs("nonexistent") == ()
+
+
 class TestRelationships:
     def _with(self, tmp_path, *rels):
         doc = a_doc(relationships=list(rels))
