@@ -1,0 +1,86 @@
+[
+  {
+    "payload": {
+      "cdate": "2025-03-15T00:00:00-05:00",
+      "email": "jane@acme.io",
+      "firstName": "Jane",
+      "id": "1",
+      "lastName": "Smith",
+      "links": {
+        "bounceLogs": "/api/3/contacts/1/bounceLogs",
+        "contactAutomations": "/api/3/contacts/1/contactAutomations",
+        "contactData": "/api/3/contacts/1/contactData",
+        "contactDeals": "/api/3/contacts/1/contactDeals",
+        "contactLists": "/api/3/contacts/1/contactLists",
+        "contactTags": "/api/3/contacts/1/contactTags"
+      },
+      "orgname": "Acme Corp",
+      "phone": "+14155550101",
+      "udate": "2026-07-14T00:00:00-05:00"
+    },
+    "source_id": "1"
+  },
+  {
+    "payload": {
+      "cdate": "2025-04-01T00:00:00-05:00",
+      "email": "john.doe@acme.io",
+      "firstName": "John",
+      "id": "2",
+      "lastName": "Doe",
+      "links": {
+        "bounceLogs": "/api/3/contacts/2/bounceLogs",
+        "contactAutomations": "/api/3/contacts/2/contactAutomations",
+        "contactData": "/api/3/contacts/2/contactData",
+        "contactDeals": "/api/3/contacts/2/contactDeals",
+        "contactLists": "/api/3/contacts/2/contactLists",
+        "contactTags": "/api/3/contacts/2/contactTags"
+      },
+      "orgname": "Acme Corp",
+      "phone": "+14155550102",
+      "udate": "2026-07-10T00:00:00-05:00"
+    },
+    "source_id": "2"
+  },
+  {
+    "payload": {
+      "cdate": "2025-06-01T00:00:00-05:00",
+      "email": "sarah@acme.io",
+      "firstName": "Sarah",
+      "id": "3",
+      "lastName": "Johnson",
+      "links": {
+        "bounceLogs": "/api/3/contacts/3/bounceLogs",
+        "contactAutomations": "/api/3/contacts/3/contactAutomations",
+        "contactData": "/api/3/contacts/3/contactData",
+        "contactDeals": "/api/3/contacts/3/contactDeals",
+        "contactLists": "/api/3/contacts/3/contactLists",
+        "contactTags": "/api/3/contacts/3/contactTags"
+      },
+      "orgname": "Acme Corp",
+      "phone": "",
+      "udate": "2026-07-12T00:00:00-05:00"
+    },
+    "source_id": "3"
+  },
+  {
+    "payload": {
+      "cdate": "2025-02-01T00:00:00-05:00",
+      "email": "mike@globex.com",
+      "firstName": "Mike",
+      "id": "4",
+      "lastName": "Chen",
+      "links": {
+        "bounceLogs": "/api/3/contacts/4/bounceLogs",
+        "contactAutomations": "/api/3/contacts/4/contactAutomations",
+        "contactData": "/api/3/contacts/4/contactData",
+        "contactDeals": "/api/3/contacts/4/contactDeals",
+        "contactLists": "/api/3/contacts/4/contactLists",
+        "contactTags": "/api/3/contacts/4/contactTags"
+      },
+      "orgname": "Globex Inc",
+      "phone": "+15125550201",
+      "udate": "2026-07-15T00:00:00-05:00"
+    },
+    "source_id": "4"
+  }
+]

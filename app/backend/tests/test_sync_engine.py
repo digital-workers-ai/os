@@ -1,3 +1,4 @@
+import importlib
 from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import func, select
@@ -303,6 +304,36 @@ class TestTwoRecordsSharingAnIdAreNotSilentlyOne:
         assert "7 id collision(s)" in detail, detail
         assert detail.count("companies/D-") == 5, detail
         assert "companies/D-5" not in detail
+
+
+def _zoom():
+    return importlib.import_module("app.sources.zoom")
+
+
+class TestZoomMeetingUuidEscaping:
+    def test_a_slash_in_a_uuid_is_double_encoded(self):
+        assert _zoom().participants_path("/ajXKmvfGQxa9d6bF0Q==") == (
+            "/v2/past_meetings/%252FajXKmvfGQxa9d6bF0Q%253D%253D/participants"
+        )
+
+    def test_a_double_slash_inside_a_uuid_is_double_encoded(self):
+        path = _zoom().participants_path("abc//def==")
+        assert "%252F%252F" in path
+
+    def test_an_ordinary_uuid_is_encoded_once(self):
+        assert _zoom().participants_path("aDYbmzoNQGGJfSJTMHwCoQ==") == (
+            "/v2/past_meetings/aDYbmzoNQGGJfSJTMHwCoQ%3D%3D/participants"
+        )
+
+    def test_a_plus_is_escaped(self):
+        assert "+" not in _zoom().participants_path("ab+cd==")
+
+    def test_the_uuid_is_never_interpolated_raw(self):
+        for uuid in ("/a/b==", "x//y==", "plain=="):
+            path = _zoom().participants_path(uuid)
+            assert path.startswith("/v2/past_meetings/")
+            assert path.endswith("/participants")
+            assert path.count("/") == 4, path
 
 
 class TestRetentionIsEnforcedNotJustDeclared:

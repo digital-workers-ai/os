@@ -1,0 +1,70 @@
+[
+  {
+    "payload": {
+      "account_id": "act_000001",
+      "budget_remaining": "0",
+      "created_time": "2026-06-15T00:00:00+0000",
+      "daily_budget": "7500",
+      "id": "ad3",
+      "lifetime_budget": "0",
+      "name": "Retargeting - Website Visitors",
+      "objective": "CONVERSIONS",
+      "start_time": "2026-06-15T00:00:00-0700",
+      "status": "ACTIVE",
+      "stop_time": null,
+      "updated_time": "2026-07-15T00:00:00+0000"
+    },
+    "source_id": "ad3"
+  },
+  {
+    "payload": {
+      "account_id": "act_000002",
+      "budget_remaining": "0",
+      "created_time": "2026-06-01T00:00:00+0000",
+      "daily_budget": "15000",
+      "id": "ad5",
+      "lifetime_budget": "0",
+      "name": "Summer Campaign 2026",
+      "objective": "AWARENESS",
+      "start_time": "2026-06-01T00:00:00-0700",
+      "status": "ACTIVE",
+      "stop_time": null,
+      "updated_time": "2026-07-15T00:00:00+0000"
+    },
+    "source_id": "ad5"
+  },
+  {
+    "payload": {
+      "account_id": "act_000006",
+      "budget_remaining": "0",
+      "created_time": "2026-05-15T00:00:00+0000",
+      "daily_budget": "30000",
+      "id": "ad9",
+      "lifetime_budget": "0",
+      "name": "B2B Brand Awareness",
+      "objective": "AWARENESS",
+      "start_time": "2026-05-15T00:00:00-0700",
+      "status": "ACTIVE",
+      "stop_time": null,
+      "updated_time": "2026-07-15T00:00:00+0000"
+    },
+    "source_id": "ad9"
+  },
+  {
+    "payload": {
+      "account_id": "act_000007",
+      "budget_remaining": "0",
+      "created_time": "2026-07-01T00:00:00+0000",
+      "daily_budget": "2000",
+      "id": "ad12",
+      "lifetime_budget": "0",
+      "name": "Developer Community",
+      "objective": "ENGAGEMENT",
+      "start_time": "2026-07-01T00:00:00-0700",
+      "status": "ACTIVE",
+      "stop_time": null,
+      "updated_time": "2026-07-15T00:00:00+0000"
+    },
+    "source_id": "ad12"
+  }
+]

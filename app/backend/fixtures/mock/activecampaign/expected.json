@@ -1,0 +1,65 @@
+{
+  "clears": {
+    "phone/activecampaign": 1
+  },
+  "extracted": {
+    "campaigns": {
+      "email_campaign": {
+        "1": {
+          "clicks": "342.0",
+          "name": "July Newsletter",
+          "opens": "1890.0",
+          "sends": "4500.0",
+          "sent_at": "2026-07-01T09:00:00Z"
+        },
+        "2": {
+          "clicks": "580.0",
+          "name": "Product Launch Announcement",
+          "opens": "2100.0",
+          "sends": "4200.0",
+          "sent_at": "2026-07-05T10:00:00Z"
+        },
+        "3": {
+          "clicks": "890.0",
+          "name": "Summer Sale",
+          "opens": "1520.0",
+          "sends": "3800.0",
+          "sent_at": "2026-07-08T08:00:00Z"
+        },
+        "4": {
+          "clicks": "45.0",
+          "name": "Onboarding Welcome",
+          "opens": "98.0",
+          "sends": "120.0",
+          "sent_at": "2026-07-10T14:00:00Z"
+        }
+      }
+    },
+    "contacts": {
+      "person": {
+        "1": {
+          "email": "jane@acme.io",
+          "name": "Jane Smith",
+          "phone": "+14155550101"
+        },
+        "2": {
+          "email": "john.doe@acme.io",
+          "name": "John Doe",
+          "phone": "+14155550102"
+        },
+        "3": {
+          "email": "sarah@acme.io",
+          "name": "Sarah Johnson",
+          "phone": null
+        },
+        "4": {
+          "email": "mike@globex.com",
+          "name": "Mike Chen",
+          "phone": "+15125550201"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "activecampaign"
+}

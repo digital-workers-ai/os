@@ -5,7 +5,7 @@ import pytest
 
 from app.engine import mappings, ontology, pipeline, transforms
 from app.engine.report import SyncReport
-from app.sources import registry
+from app.sources import hooks, registry
 
 INGESTED = datetime(2026, 8, 2, 12, 0, tzinfo=UTC)
 
@@ -384,3 +384,146 @@ class TestOneBadRowDoesNotStopTheRebuild:
         projected, report = self.project_rows(kit, rows)
         assert projected
         assert not [k for k in report.records_skipped if "row_failed" in k]
+
+
+class TestMultiObjectMerge:
+    def _kit(self):
+        onto = ontology.Ontology(
+            entities={
+                "campaign": ontology.EntitySpec(
+                    name="campaign",
+                    attrs={"name": "string", "status": "string", "spend": "string"},
+                    identity=("name",),
+                )
+            }
+        )
+        lines = [
+            mappings.parse_line("campaign", "ads.campaigns.name", "name", "t"),
+            mappings.parse_line("campaign", "ads.campaigns.status", "status", "t"),
+            mappings.parse_line("campaign", "ads.insights.status", "status", "t"),
+            mappings.parse_line("campaign", "ads.insights.spend", "spend", "t"),
+        ]
+        return onto, mappings.by_object(lines)
+
+    def _rows(self):
+        return [
+            SimpleNamespace(
+                source="ads",
+                object_type="campaigns",
+                source_id="camp_1",
+                raw_payload={"name": "Brand", "status": "ACTIVE"},
+                id="raw-1",
+                ingested_at=INGESTED,
+                seq=1,
+            ),
+            SimpleNamespace(
+                source="ads",
+                object_type="insights",
+                source_id="camp_1",
+                raw_payload={"status": "PAUSED", "spend": "10.00"},
+                id="raw-2",
+                ingested_at=INGESTED,
+                seq=2,
+            ),
+        ]
+
+    def _project(self):
+        onto, line_index = self._kit()
+        report = SyncReport()
+        projected = pipeline.project_rows(
+            self._rows(),
+            onto=onto,
+            line_index=line_index,
+            transform_map={},
+            report=report,
+            connectors={},
+        )
+        return projected, report
+
+    def test_two_object_types_land_as_one_entity_with_merged_facts(self):
+        projected, report = self._project()
+        assert list(projected) == [("ads", "campaign", "camp_1")]
+        entity = projected["ads", "campaign", "camp_1"]
+        assert entity.facts["name"].value == "Brand"
+        assert entity.facts["spend"].value == "10.00"
+        assert entity.facts["status"].value == "PAUSED"
+        assert report.counts["multi_object_entity/ads/campaign"] == 1
+
+    def test_the_merged_entity_remembers_both_object_types(self):
+        projected, _ = self._project()
+        entity = projected["ads", "campaign", "camp_1"]
+        assert entity.object_types == {"campaigns", "insights"}
+
+
+class TestAHookCaveatIsNotADiscard:
+    def _vtt(self, *blocks):
+        return "WEBVTT\n\n" + "\n\n".join(
+            f"{n}\n00:00:0{n}.000 --> 00:00:0{n + 1}.000\n{body}"
+            for n, body in enumerate(blocks, start=1)
+        )
+
+    def test_one_speakerless_cue_does_not_discard_the_transcript(self, kit):
+        payload = {
+            "uuid": "m1",
+            "host_email": "rep@elise.io",
+            "_participants": [{"user_email": "bruce@acme.io"}],
+            "_transcript_vtt": self._vtt(
+                "Jane Smith: what is blocking you?", "a line with no speaker label"
+            ),
+        }
+        out, report = project(kit, "zoom", "meetings", payload, source_id="m1")
+        assert "what is blocking you?" in out["meeting"].facts["transcript"].value
+        assert report.counts["hook_note/transcript/zoom/cues_without_a_speaker"] == 1
+        assert "transcript/zoom/cues_without_a_speaker" not in report.skips
+
+    def test_a_transcript_capped_at_the_bound_is_kept_not_dropped(self, kit):
+        long_line = "Jane Smith: " + ("word " * 20_000)
+        payload = {
+            "uuid": "m2",
+            "host_email": "rep@elise.io",
+            "_participants": [{"user_email": "bruce@acme.io"}],
+            "_transcript_vtt": self._vtt(long_line),
+        }
+        out, report = project(kit, "zoom", "meetings", payload, source_id="m2")
+        assert out["meeting"].facts["transcript"].value
+        assert report.counts["hook_note/transcript/zoom/truncated_at_cap"] == 1
+
+    def test_a_hook_that_computed_nothing_is_still_a_skip(self, kit):
+        _out, report = project(
+            kit,
+            "stripe",
+            "subscriptions",
+            {
+                "id": "sub_9",
+                "customer": "cus_123",
+                "status": "active",
+                "items": {"data": []},
+            },
+            source_id="sub_9",
+        )
+        assert report.skips["mrr/stripe/no_subscription_items"] == 1
+        assert not any(key.startswith("hook_note/") for key in report.counts)
+
+
+class TestAHookNoteFiresOnlyWhenTheFieldIsPresent:
+    def _reshape_with_note(self, properties):
+        record = {"properties": properties, "_hook_skips": [["properties", "partial"]]}
+        return lambda source, object_type, payload: [record]
+
+    def test_a_note_on_a_present_field_keeps_the_value_and_counts_the_note(
+        self, kit, monkeypatch
+    ):
+        monkeypatch.setattr(
+            hooks, "reshape", self._reshape_with_note({"domain": "acme.io"})
+        )
+        out, report = project(kit, "hubspot", "companies", {})
+        assert out["company"].facts["domain"].value == "acme.io"
+        assert report.counts["hook_note/domain/hubspot/partial"] == 1
+        assert "domain/hubspot/partial" not in report.skips
+
+    def test_a_note_on_an_absent_field_stays_a_counted_skip(self, kit, monkeypatch):
+        monkeypatch.setattr(hooks, "reshape", self._reshape_with_note({}))
+        out, report = project(kit, "hubspot", "companies", {})
+        assert out == {}
+        assert report.skips["domain/hubspot/partial"] == 1
+        assert not any(key.startswith("hook_note/") for key in report.counts)

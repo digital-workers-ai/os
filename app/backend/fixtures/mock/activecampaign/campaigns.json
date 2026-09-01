@@ -1,0 +1,102 @@
+[
+  {
+    "payload": {
+      "cdate": "2026-06-20T10:00:00-05:00",
+      "hardbounces": "6",
+      "id": "1",
+      "linkclicks": "342",
+      "links": {
+        "campaignMessage": "/api/3/campaigns/1/campaignMessage"
+      },
+      "mdate": "2026-07-01T09:00:00Z",
+      "name": "July Newsletter",
+      "opens": "1890",
+      "sdate": "2026-07-01T09:00:00Z",
+      "send_amt": "4500",
+      "softbounces": "16",
+      "status": "5",
+      "subscriberclicks": "290",
+      "total_amt": "4500",
+      "type": "single",
+      "uniquelinkclicks": "307",
+      "uniqueopens": "1606",
+      "unsubscribes": "8"
+    },
+    "source_id": "1"
+  },
+  {
+    "payload": {
+      "cdate": "2026-06-20T10:00:00-05:00",
+      "hardbounces": "5",
+      "id": "2",
+      "linkclicks": "580",
+      "links": {
+        "campaignMessage": "/api/3/campaigns/2/campaignMessage"
+      },
+      "mdate": "2026-07-05T10:00:00Z",
+      "name": "Product Launch Announcement",
+      "opens": "2100",
+      "sdate": "2026-07-05T10:00:00Z",
+      "send_amt": "4200",
+      "softbounces": "12",
+      "status": "5",
+      "subscriberclicks": "493",
+      "total_amt": "4200",
+      "type": "single",
+      "uniquelinkclicks": "522",
+      "uniqueopens": "1785",
+      "unsubscribes": "5"
+    },
+    "source_id": "2"
+  },
+  {
+    "payload": {
+      "cdate": "2026-06-20T10:00:00-05:00",
+      "hardbounces": "9",
+      "id": "3",
+      "linkclicks": "890",
+      "links": {
+        "campaignMessage": "/api/3/campaigns/3/campaignMessage"
+      },
+      "mdate": "2026-07-08T08:00:00Z",
+      "name": "Summer Sale",
+      "opens": "1520",
+      "sdate": "2026-07-08T08:00:00Z",
+      "send_amt": "3800",
+      "softbounces": "21",
+      "status": "5",
+      "subscriberclicks": "756",
+      "total_amt": "3800",
+      "type": "single",
+      "uniquelinkclicks": "801",
+      "uniqueopens": "1292",
+      "unsubscribes": "12"
+    },
+    "source_id": "3"
+  },
+  {
+    "payload": {
+      "cdate": "2026-06-20T10:00:00-05:00",
+      "hardbounces": "0",
+      "id": "4",
+      "linkclicks": "45",
+      "links": {
+        "campaignMessage": "/api/3/campaigns/4/campaignMessage"
+      },
+      "mdate": "2026-07-10T14:00:00Z",
+      "name": "Onboarding Welcome",
+      "opens": "98",
+      "sdate": "2026-07-10T14:00:00Z",
+      "send_amt": "120",
+      "softbounces": "0",
+      "status": "5",
+      "subscriberclicks": "38",
+      "total_amt": "120",
+      "type": "single",
+      "uniquelinkclicks": "40",
+      "uniqueopens": "83",
+      "unsubscribes": "0"
+    },
+    "source_id": "4"
+  }
+]

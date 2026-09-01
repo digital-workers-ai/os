@@ -1,0 +1,126 @@
+[
+  {
+    "payload": {
+      "adGroup": {
+        "id": "ag_ad1",
+        "name": "Brand Search - Exact - Ad Group",
+        "status": "ENABLED"
+      },
+      "campaign": {
+        "advertisingChannelType": "SEARCH",
+        "biddingStrategyType": "TARGET_CPA",
+        "id": "ad1",
+        "name": "Brand Search - Exact",
+        "status": "ENABLED"
+      },
+      "metrics": {
+        "allConversions": "92.0",
+        "averageCpc": "36329317",
+        "averageCpm": "1595977417",
+        "clicks": "1245",
+        "conversions": "89.0",
+        "conversionsValue": "12460.00",
+        "costMicros": "45230000000",
+        "ctr": "0.043931",
+        "impressions": "28340"
+      },
+      "segments": {
+        "date": "2026-07-01"
+      }
+    },
+    "source_id": "ad1"
+  },
+  {
+    "payload": {
+      "adGroup": {
+        "id": "ag_ad2",
+        "name": "Competitor Targeting - Ad Group",
+        "status": "ENABLED"
+      },
+      "campaign": {
+        "advertisingChannelType": "SEARCH",
+        "biddingStrategyType": "MAXIMIZE_CONVERSIONS",
+        "id": "ad2",
+        "name": "Competitor Targeting",
+        "status": "ENABLED"
+      },
+      "metrics": {
+        "allConversions": "45.0",
+        "averageCpc": "41488372",
+        "averageCpm": "1973451327",
+        "clicks": "2150",
+        "conversions": "42.0",
+        "conversionsValue": "5880.00",
+        "costMicros": "89200000000",
+        "ctr": "0.047566",
+        "impressions": "45200"
+      },
+      "segments": {
+        "date": "2026-07-01"
+      }
+    },
+    "source_id": "ad2"
+  },
+  {
+    "payload": {
+      "adGroup": {
+        "id": "ag_ad8",
+        "name": "Enterprise SaaS Keywords - Ad Group",
+        "status": "ENABLED"
+      },
+      "campaign": {
+        "advertisingChannelType": "SEARCH",
+        "biddingStrategyType": "TARGET_CPA",
+        "id": "ad8",
+        "name": "Enterprise SaaS Keywords",
+        "status": "ENABLED"
+      },
+      "metrics": {
+        "allConversions": "323.0",
+        "averageCpc": "49411764",
+        "averageCpm": "2333333333",
+        "clicks": "8500",
+        "conversions": "320.0",
+        "conversionsValue": "44800.00",
+        "costMicros": "420000000000",
+        "ctr": "0.047222",
+        "impressions": "180000"
+      },
+      "segments": {
+        "date": "2026-07-01"
+      }
+    },
+    "source_id": "ad8"
+  },
+  {
+    "payload": {
+      "adGroup": {
+        "id": "ag_d11",
+        "name": "Financial Services - Ad Group",
+        "status": "PAUSED"
+      },
+      "campaign": {
+        "advertisingChannelType": "SEARCH",
+        "biddingStrategyType": "MAXIMIZE_CONVERSIONS",
+        "id": "ad11",
+        "name": "Financial Services",
+        "status": "PAUSED"
+      },
+      "metrics": {
+        "allConversions": "18.0",
+        "averageCpc": "30000000",
+        "averageCpm": "685714285",
+        "clicks": "800",
+        "conversions": "15.0",
+        "conversionsValue": "2100.00",
+        "costMicros": "24000000000",
+        "ctr": "0.022857",
+        "impressions": "35000"
+      },
+      "segments": {
+        "date": "2026-07-01"
+      }
+    },
+    "source_id": "ad11"
+  }
+]

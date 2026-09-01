@@ -15,6 +15,7 @@ from app.models import (
     Entity,
     EntityCanonical,
     EntityFact,
+    FactCurrent,
 )
 
 INGESTED = datetime(2026, 8, 1, 12, 0, tzinfo=UTC)
@@ -337,6 +338,76 @@ class TestARebuildWritesTheEdges:
         link = (await session.execute(select(CanonicalLink))).scalar_one()
         assert link.rel == "belongs_to"
         assert link.grounding == "via:customer_ref"
+
+
+class TestACampaignFedByTwoObjectTypes:
+    async def _seed(self, session):
+        await store.save_raw(
+            session,
+            source="meta",
+            object_type="campaigns",
+            source_id="camp_1",
+            raw_payload={"id": "camp_1", "name": "Brand", "status": "ACTIVE"},
+        )
+        await store.save_raw(
+            session,
+            source="meta",
+            object_type="insights",
+            source_id="camp_1",
+            raw_payload={
+                "campaign_id": "camp_1",
+                "account_id": "act_1",
+                "spend": "10.00",
+                "impressions": "5",
+            },
+        )
+        await session.commit()
+
+    async def test_a_rebuild_lands_one_canonical_campaign(self, session):
+        await self._seed(session)
+        result = await run.rebuild(session)
+
+        assert result["report"]["counts"]["multi_object_entity/meta/campaign"] == 1
+        canonicals = (
+            (
+                await session.execute(
+                    select(EntityCanonical).where(
+                        EntityCanonical.entity_type == "campaign"
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        )
+        assert len(canonicals) == 1
+
+    async def test_the_canonical_facts_come_from_both_object_types(self, session):
+        await self._seed(session)
+        await run.rebuild(session)
+
+        canonical_id = (
+            (
+                await session.execute(
+                    select(EntityCanonical.canonical_id).where(
+                        EntityCanonical.entity_type == "campaign"
+                    )
+                )
+            )
+            .scalars()
+            .one()
+        )
+        attrs = set(
+            (
+                await session.execute(
+                    select(FactCurrent.attr).where(
+                        FactCurrent.canonical_id == canonical_id
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        )
+        assert {"name", "spend"} <= attrs
 
 
 class TestSurvivorshipSkipsAbsentMembers:

@@ -126,6 +126,100 @@ class TestBodies:
             await SourceClient("hubspot", "http://api").get("/x")
 
 
+class TestPost:
+    async def test_a_post_sends_its_json_and_parses_the_reply(self, transport):
+        seen = {}
+
+        def handler(request):
+            seen["method"] = request.method
+            seen["body"] = request.content
+            return json_page({"created": True})
+
+        transport(handler)
+        result = await SourceClient("intercom", "http://api").post(
+            "/search", json={"query": "x"}
+        )
+        assert result == {"created": True}
+        assert seen["method"] == "POST"
+        assert b"query" in seen["body"]
+
+    async def test_a_post_with_a_bad_body_is_also_named(self, transport):
+        transport(responder(httpx.Response(200, text="not json")))
+        with pytest.raises(ConnectorError, match="invalid JSON body"):
+            await SourceClient("intercom", "http://api").post(
+                "/search", json={"query": "x"}
+            )
+
+
+class TestConstructorParams:
+    async def test_the_default_params_ride_a_get(self, transport):
+        seen = {}
+
+        def handler(request):
+            seen.update(request.url.params)
+            return json_page({"ok": True})
+
+        transport(handler)
+        await SourceClient("meta", "http://api", params={"access_token": "T"}).get(
+            "/ads", params={"limit": "5"}
+        )
+        assert seen == {"access_token": "T", "limit": "5"}
+
+    async def test_the_default_params_ride_a_post(self, transport):
+        seen = {}
+
+        def handler(request):
+            seen.update(request.url.params)
+            return json_page({"ok": True})
+
+        transport(handler)
+        await SourceClient("meta", "http://api", params={"access_token": "T"}).post(
+            "/search", json={"q": "x"}
+        )
+        assert seen == {"access_token": "T"}
+
+    @pytest.mark.parametrize("method", ["get", "post", "get_text"])
+    async def test_the_token_never_reaches_the_error(self, transport, method):
+        transport(responder(httpx.Response(401)))
+        source_client = SourceClient(
+            "meta", "http://api", params={"access_token": "SECRET"}
+        )
+        calls = {
+            "get": lambda: source_client.get("/ads"),
+            "post": lambda: source_client.post("/search", json={}),
+            "get_text": lambda: source_client.get_text("/export"),
+        }
+        with pytest.raises(ConnectorError) as caught:
+            await calls[method]()
+        assert "SECRET" not in str(caught.value)
+
+
+class TestGetText:
+    async def test_text_bodies_come_back_raw_for_ndjson_exports(self, transport):
+        transport(responder(httpx.Response(200, text='{"a":1}\n{"a":2}')))
+        body = await SourceClient("segment", "http://api").get_text("/export")
+        assert body.count("\n") == 1
+
+    async def test_an_oversized_export_is_truncated_and_says_so(
+        self, transport, monkeypatch
+    ):
+        monkeypatch.setattr(settings, "CONNECTOR_MAX_BYTES", 64)
+        transport(responder(httpx.Response(200, text="x" * 5000)))
+        source_client = SourceClient("segment", "http://api")
+        body = await source_client.get_text("/export")
+        assert len(body) <= 64
+        assert source_client.truncated is True
+        assert any("byte cap" in r for r in source_client.truncation_reasons)
+
+    async def test_an_export_inside_the_cap_is_untouched(self, transport, monkeypatch):
+        monkeypatch.setattr(settings, "CONNECTOR_MAX_BYTES", 10_000)
+        transport(responder(httpx.Response(200, text='{"a":1}\n{"a":2}')))
+        source_client = SourceClient("segment", "http://api")
+        body = await source_client.get_text("/export")
+        assert body.count("\n") == 1
+        assert source_client.truncated is False
+
+
 class TestPagination:
     async def test_every_page_is_walked_and_concatenated(self, transport):
         transport(

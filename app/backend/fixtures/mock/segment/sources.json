@@ -1,0 +1,98 @@
+[
+  {
+    "payload": {
+      "createdAt": "2025-01-15T10:00:00.000Z",
+      "enabled": true,
+      "id": "src_abc123",
+      "labels": [
+        {
+          "key": "environment",
+          "value": "production"
+        }
+      ],
+      "metadata": {
+        "categories": [
+          "Website"
+        ],
+        "description": "Track events from your website",
+        "id": "javascript",
+        "isCloudEventSource": false,
+        "name": "Javascript",
+        "slug": "javascript"
+      },
+      "name": "Production Website",
+      "settings": {},
+      "slug": "javascript",
+      "updatedAt": "2026-06-01T14:00:00.000Z",
+      "workspaceId": "ws_mock_001",
+      "writeKeys": [
+        "wk_mock_xxxxxxxxxxxx"
+      ]
+    },
+    "source_id": "src_abc123"
+  },
+  {
+    "payload": {
+      "createdAt": "2025-03-20T08:30:00.000Z",
+      "enabled": true,
+      "id": "src_def456",
+      "labels": [
+        {
+          "key": "environment",
+          "value": "production"
+        }
+      ],
+      "metadata": {
+        "categories": [
+          "Server"
+        ],
+        "description": "Track events from your Python server",
+        "id": "python",
+        "isCloudEventSource": false,
+        "name": "Python",
+        "slug": "python"
+      },
+      "name": "Backend Service",
+      "settings": {},
+      "slug": "python",
+      "updatedAt": "2026-05-15T11:00:00.000Z",
+      "workspaceId": "ws_mock_001",
+      "writeKeys": [
+        "wk_mock_yyyyyyyyyyyy"
+      ]
+    },
+    "source_id": "src_def456"
+  },
+  {
+    "payload": {
+      "createdAt": "2025-06-01T12:00:00.000Z",
+      "enabled": true,
+      "id": "src_ghi789",
+      "labels": [
+        {
+          "key": "environment",
+          "value": "production"
+        }
+      ],
+      "metadata": {
+        "categories": [
+          "Mobile"
+        ],
+        "description": "Track events from your iOS app",
+        "id": "ios",
+        "isCloudEventSource": false,
+        "name": "iOS",
+        "slug": "ios"
+      },
+      "name": "iOS App",
+      "settings": {},
+      "slug": "ios",
+      "updatedAt": "2026-07-01T09:00:00.000Z",
+      "workspaceId": "ws_mock_001",
+      "writeKeys": [
+        "wk_mock_zzzzzzzzzzzz"
+      ]
+    },
+    "source_id": "src_ghi789"
+  }
+]

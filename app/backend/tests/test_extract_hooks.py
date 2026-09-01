@@ -2,6 +2,7 @@ import pkgutil
 
 import pytest
 
+from app.engine.resolver import FREE_MAIL_DOMAINS
 from app.sources import hooks
 from app.sources.hubspot import extract as hubspot_hook
 from app.sources.stripe import extract as stripe_hook
@@ -308,6 +309,9 @@ class TestDiscovery:
             "shopify",
             "woocommerce",
             "google_sheets",
+            "google_analytics",
+            "activecampaign",
+            "zoom",
         }
 
     def test_a_package_without_an_extract_module_contributes_no_hook(self, monkeypatch):
@@ -409,7 +413,9 @@ class TestBatchTwoCompositeNames:
         payload = {"id": 1, "name": "Widget"}
         assert extract.reshape("products", payload) == [payload]
 
-    def test_the_six_composite_name_hooks_agree(self):
+    def test_the_seven_composite_name_hooks_agree(self):
+        from app.sources.activecampaign import extract as activecampaign
+
         from app.sources.hubspot import extract as hubspot
         from app.sources.klaviyo import extract as klaviyo
         from app.sources.salesforce import extract as salesforce
@@ -431,6 +437,7 @@ class TestBatchTwoCompositeNames:
                 "profiles",
                 {"attributes": {"first_name": "Jane", "last_name": "Smith"}},
             ),
+            (activecampaign, "contacts", {"firstName": "Jane", "lastName": "Smith"}),
             (sendgrid, "contacts", {"first_name": "Jane", "last_name": "Smith"}),
         ]
         for module, object_type, payload in cases:
@@ -527,3 +534,277 @@ class TestSheetNumbersAreParsedNotStripped:
     @pytest.mark.parametrize("raw", ["n/a", "TBD", "1.2M", "45 EUR", "--"])
     def test_anything_carrying_a_unit_or_a_word_is_refused(self, raw):
         assert self._to_number(raw) is None
+
+
+class TestGoogleAnalyticsHook:
+    @staticmethod
+    def _row(dims, metrics):
+        return {
+            "dimensionValues": [{"value": d} for d in dims],
+            "metricValues": [{"value": m} for m in metrics],
+        }
+
+    def _reshape(self, payload):
+        from app.sources.google_analytics import extract
+
+        return extract.reshape("report_rows", payload)
+
+    def test_positional_arrays_are_zipped_using_the_report_schema(self):
+        out = self._reshape(
+            self._row(["20260701", "Organic Search"], ["1250", "980", "3200"])
+        )
+        assert out[0]["_report_date"] == "20260701"
+        assert out[0]["_channel"] == "Organic Search"
+        assert out[0]["_sessions"] == "1250"
+        assert out[0]["_users"] == "980"
+        assert out[0]["_pageviews"] == "3200"
+
+    def test_a_row_whose_arity_disagrees_is_refused_not_zipped(self):
+        with pytest.raises(hooks.ExtractError):
+            self._reshape(self._row(["20260701"], ["1250", "980"]))
+
+    def test_other_object_types_pass_through(self):
+        from app.sources.google_analytics import extract
+
+        payload = {"name": "properties/123"}
+        assert extract.reshape("properties", payload) == [payload]
+
+
+class TestZoomAccountLink:
+    @staticmethod
+    def _reshape(payload):
+        from app.sources.zoom import extract
+
+        return extract.reshape("meetings", payload)
+
+    def _meeting(self, participants, **extra):
+        return {
+            "host_email": "jane@elise.dev",
+            "start_time": "2026-07-08T15:00:00Z",
+            "duration": 30,
+            "_participants": participants,
+            **extra,
+        }
+
+    def test_the_attendees_domain_becomes_the_account_link(self):
+        out = self._reshape(
+            self._meeting(
+                [{"user_email": "jane@elise.dev"}, {"user_email": "bruce@wayne.co"}]
+            )
+        )[0]
+        assert out["_external_email"] == "bruce@wayne.co"
+        assert out["_external_domain"] == "wayne.co"
+        assert "_hook_skips" not in out
+
+    @pytest.mark.parametrize("domain", sorted(FREE_MAIL_DOMAINS))
+    def test_a_consumer_mailbox_is_not_an_employer(self, domain):
+        mailbox = f"bruce@{domain}"
+        out = self._reshape(self._meeting([{"user_email": mailbox}]))[0]
+        assert "_external_domain" not in out
+        assert out["_external_email"] == mailbox
+        assert ["_external_domain", "free_mail_domain"] in out["_hook_skips"]
+
+    def test_no_host_email_means_no_account_guess(self):
+        out = self._reshape(
+            {
+                "start_time": "2026-07-08T15:00:00Z",
+                "duration": 30,
+                "_participants": [
+                    {"user_email": "jane@elise.dev"},
+                    {"user_email": "bruce@wayne.co"},
+                ],
+            }
+        )[0]
+        assert "_external_email" not in out
+        assert "_external_domain" not in out
+
+    def test_a_missing_host_is_a_counted_skip(self):
+        out = self._reshape(
+            {
+                "start_time": "2026-07-08T15:00:00Z",
+                "duration": 30,
+                "_participants": [{"user_email": "bruce@wayne.co"}],
+            }
+        )[0]
+        assert ["_external_email", "no_host_email"] in out["_hook_skips"]
+
+    def test_an_empty_host_email_is_treated_as_missing(self):
+        out = self._reshape(
+            self._meeting([{"user_email": "bruce@wayne.co"}], host_email="  ")
+        )[0]
+        assert "_external_email" not in out
+        assert ["_external_email", "no_host_email"] in out["_hook_skips"]
+
+    def test_our_own_side_of_the_call_is_never_the_account(self):
+        out = self._reshape(self._meeting([{"user_email": "alex@elise.dev"}]))[0]
+        assert "_external_domain" not in out
+
+    def test_a_participant_that_is_not_a_dict_is_skipped_over(self):
+        out = self._reshape(
+            self._meeting(["not a dict", {"user_email": "bruce@wayne.co"}])
+        )[0]
+        assert out["_external_email"] == "bruce@wayne.co"
+
+    def test_an_entry_without_an_at_sign_is_skipped_over(self):
+        out = self._reshape(
+            self._meeting([{"user_email": "masked"}, {"user_email": "bruce@wayne.co"}])
+        )[0]
+        assert out["_external_email"] == "bruce@wayne.co"
+
+    def test_an_all_internal_call_is_a_counted_absence(self):
+        out = self._reshape(
+            self._meeting(
+                [{"user_email": "jane@elise.dev"}, {"user_email": "alex@elise.dev"}]
+            )
+        )[0]
+        assert "_external_email" not in out
+        assert ["_external_email", "no_external_attendee"] in out["_hook_skips"]
+
+    def test_the_first_surviving_attendee_wins(self):
+        out = self._reshape(
+            self._meeting(
+                [
+                    {"user_email": "jane@elise.dev"},
+                    {"user_email": "bruce@wayne.co"},
+                    {"user_email": "tony@stark.io"},
+                ]
+            )
+        )[0]
+        assert out["_external_email"] == "bruce@wayne.co"
+        assert out["_external_domain"] == "wayne.co"
+
+
+class TestZoomTranscripts:
+    @staticmethod
+    def _reshape(payload):
+        from app.sources.zoom import extract
+
+        return extract.reshape("meetings", payload)
+
+    def _payload(self, vtt=None, **extra):
+        body = {"uuid": "abc", "topic": "Call", "_participants": []}
+        if vtt is not None:
+            body["_transcript_vtt"] = vtt
+        body.update(extra)
+        return body
+
+    def test_a_vtt_with_speakers_becomes_dialogue_joined_by_newlines(self):
+        vtt = (
+            "WEBVTT\n\n1\n00:00:01.000 --> 00:00:03.000\n"
+            "Jane Smith: what is blocking you?\n\n"
+            "2\n00:00:04.000 --> 00:00:06.000\n"
+            "Mike Ross: the deploy\n"
+        )
+        record = self._reshape(self._payload(vtt))[0]
+        assert record["_transcript_text"] == (
+            "Jane Smith: what is blocking you?\nMike Ross: the deploy"
+        )
+
+    def test_a_transcript_that_never_downloaded_is_a_counted_skip(self):
+        record = self._reshape(self._payload(_transcript_error="HTTPError: 404"))[0]
+        assert "_transcript_text" not in record
+        assert ["_transcript_text", "download_failed"] in record["_hook_skips"]
+
+    def test_a_vtt_with_no_speech_is_a_counted_skip(self):
+        record = self._reshape(self._payload("WEBVTT\n\n"))[0]
+        assert "_transcript_text" not in record
+        assert ["_transcript_text", "vtt_had_no_speech"] in record["_hook_skips"]
+
+    def test_a_speakerless_cue_is_noted_alongside_the_dialogue(self):
+        vtt = (
+            "WEBVTT\n\n1\n00:00:01.000 --> 00:00:03.000\n"
+            "Jane Smith: hello\n\n"
+            "2\n00:00:04.000 --> 00:00:06.000\n"
+            "a line with no speaker label\n"
+        )
+        record = self._reshape(self._payload(vtt))[0]
+        assert record["_transcript_text"] == "Jane Smith: hello"
+        assert ["_transcript_text", "cues_without_a_speaker"] in record["_hook_skips"]
+
+    def test_an_enormous_transcript_is_truncated_and_noted(self):
+        from app.engine import transforms
+
+        line = "Jane Smith: " + ("word " * 50) + "\n"
+        cue = "1\n00:00:01.000 --> 00:00:03.000\n"
+        vtt = "WEBVTT\n\n" + "\n".join(cue + line for _ in range(400))
+        record = self._reshape(self._payload(vtt))[0]
+        assert len(record["_transcript_text"]) <= transforms.MAX_TRANSCRIPT_CHARS
+        assert ["_transcript_text", "truncated_at_cap"] in record["_hook_skips"]
+
+    def test_the_end_time_is_start_plus_the_duration_in_minutes(self):
+        record = self._reshape(
+            self._payload(start_time="2026-07-08T15:00:00Z", duration=30)
+        )[0]
+        assert record["_ended_at"] == "2026-07-08T15:30:00Z"
+
+    def test_an_unparseable_start_time_is_a_counted_skip(self):
+        record = self._reshape(
+            self._payload("WEBVTT\n", start_time="not a timestamp", duration=30)
+        )[0]
+        assert "_ended_at" not in record
+        assert ["_ended_at", "unparseable_start_time"] in record["_hook_skips"]
+
+    def test_other_object_types_pass_through(self):
+        from app.sources.zoom import extract
+
+        payload = {"id": "u1", "email": "jane@elise.dev"}
+        assert extract.reshape("users", payload) == [payload]
+
+    def test_the_shared_constants_are_imported_not_copied(self):
+        from app.sources.zoom import extract
+
+        from app.engine import resolver, transforms
+
+        assert extract.FREE_MAIL_DOMAINS is resolver.FREE_MAIL_DOMAINS
+        assert extract.MAX_TRANSCRIPT_CHARS is transforms.MAX_TRANSCRIPT_CHARS
+
+
+class TestZoomCueParsing:
+    @staticmethod
+    def _parse(vtt):
+        from app.sources.zoom import extract
+
+        return extract.parse_vtt(vtt)
+
+    def test_a_cue_carrying_only_a_number_and_a_timestamp_is_skipped(self):
+        vtt = (
+            "WEBVTT\n\n"
+            "1\n00:00:01.000 --> 00:00:03.000\n\n"
+            "2\n00:00:04.000 --> 00:00:06.000\nJane Smith: hello\n"
+        )
+        utterances, unattributed = self._parse(vtt)
+        assert [u[0] for u in utterances] == ["Jane Smith"]
+        assert unattributed == 0
+
+    def test_a_speaker_of_eighty_chars_is_still_a_speaker(self):
+        name = "x" * 80
+        vtt = f"WEBVTT\n\n1\n00:00:01.000 --> 00:00:03.000\n{name}: hello\n"
+        utterances, unattributed = self._parse(vtt)
+        assert utterances == [(name, "hello")]
+        assert unattributed == 0
+
+    def test_a_speaker_beyond_eighty_chars_is_an_unattributed_cue(self):
+        name = "x" * 81
+        vtt = f"WEBVTT\n\n1\n00:00:01.000 --> 00:00:03.000\n{name}: hello\n"
+        utterances, unattributed = self._parse(vtt)
+        assert utterances == []
+        assert unattributed == 1
+
+    def test_a_speakerless_cue_is_counted_not_given_to_the_previous_speaker(self):
+        vtt = (
+            "WEBVTT\n\n1\n00:00:01.000 --> 00:00:03.000\n"
+            "Jane Smith: hello\n\n"
+            "2\n00:00:04.000 --> 00:00:06.000\n"
+            "words from nobody\n"
+        )
+        utterances, unattributed = self._parse(vtt)
+        assert utterances == [("Jane Smith", "hello")]
+        assert unattributed == 1
+
+    def test_a_multi_line_cue_is_joined_before_matching(self):
+        vtt = (
+            "WEBVTT\n\n1\n00:00:01.000 --> 00:00:03.000\n"
+            "Jane Smith: part one\npart two\n"
+        )
+        utterances, _ = self._parse(vtt)
+        assert utterances == [("Jane Smith", "part one part two")]
