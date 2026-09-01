@@ -1,8 +1,8 @@
 import httpx
 import pytest
-from app.sources.salesforce import connector as salesforce
 
 from app.sources import client
+from app.sources.salesforce import connector as salesforce
 
 
 @pytest.fixture
