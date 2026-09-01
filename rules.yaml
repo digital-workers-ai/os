@@ -1,0 +1,44 @@
+subscription_past_due:
+  label: Subscription Past Due
+  entity: subscription
+  severity: high
+  all:
+    - {attr: status, equals: past_due}
+
+revenue_at_risk:
+  label: Significant Revenue On A Subscription Not Active
+  entity: subscription
+  severity: high
+  all:
+    - {attr: mrr, gte: 1000}
+    - {attr: status, not_equals: active}
+
+stalled_deal:
+  label: Deal Past Its Own Forecast Close Date
+  entity: deal
+  severity: high
+  all:
+    - {attr: status, not_equals: closed_won}
+    - {attr: status, not_equals: closed_lost}
+    - {attr: closed_at, older_than_days: 14}
+
+subscription_canceled:
+  label: Subscription Canceled
+  entity: subscription
+  severity: medium
+  all:
+    - {attr: status, equals: canceled}
+
+company_without_industry:
+  label: Company With No Industry
+  entity: company
+  severity: low
+  all:
+    - {attr: industry, is_null: true}
+
+new_subscription:
+  label: Subscription Started In The Last 30 Days
+  entity: subscription
+  severity: low
+  all:
+    - {attr: started_at, within_days: 30}
