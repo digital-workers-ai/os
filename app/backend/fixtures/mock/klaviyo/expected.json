@@ -1,0 +1,53 @@
+{
+  "clears": {
+    "phone/klaviyo": 1
+  },
+  "extracted": {
+    "flows": {
+      "email_campaign": {
+        "kl_flow_001": {
+          "name": "Welcome Series",
+          "status": "active"
+        },
+        "kl_flow_002": {
+          "name": "Abandoned Cart",
+          "status": "active"
+        },
+        "kl_flow_003": {
+          "name": "Post-Purchase Follow-up",
+          "status": "active"
+        }
+      }
+    },
+    "profiles": {
+      "person": {
+        "kl_prof_p1": {
+          "email": "jane@acme.io",
+          "name": "Jane Smith",
+          "phone": "+14155550101",
+          "title": "VP Sales"
+        },
+        "kl_prof_p2": {
+          "email": "john.doe@acme.io",
+          "name": "John Doe",
+          "phone": "+14155550102",
+          "title": "CTO"
+        },
+        "kl_prof_p3": {
+          "email": "sarah@acme.io",
+          "name": "Sarah Johnson",
+          "phone": null,
+          "title": "Marketing Director"
+        },
+        "kl_prof_p4": {
+          "email": "mike@globex.com",
+          "name": "Mike Chen",
+          "phone": "+15125550201",
+          "title": "CEO"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "klaviyo"
+}

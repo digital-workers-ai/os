@@ -219,9 +219,86 @@ class TestCompositeNames:
         assert hubspot_hook.reshape("companies", payload) == [payload]
 
 
+class TestCalendlyArrayHook:
+    @staticmethod
+    def _reshape(payload):
+        from app.sources.calendly import extract
+
+        return extract.reshape("scheduled_events", payload)
+
+    def test_the_first_membership_becomes_the_host(self):
+        out = self._reshape(
+            {
+                "name": "30 Minute Demo",
+                "event_memberships": [{"user_email": "jane@acme.io"}],
+            }
+        )
+        assert out[0]["_host_email"] == "jane@acme.io"
+        assert "_hook_skips" not in out[0]
+
+    def test_a_multi_host_meeting_counts_what_it_dropped(self):
+        out = self._reshape(
+            {
+                "event_memberships": [
+                    {"user_email": "jane@acme.io"},
+                    {"user_email": "mike@globex.com"},
+                ]
+            }
+        )
+        assert out[0]["_host_email"] == "jane@acme.io"
+        assert out[0]["_hook_skips"] == [["_host_email", "multi_host_meeting"]]
+
+    def test_no_memberships_is_a_counted_skip(self):
+        out = self._reshape({"event_memberships": []})
+        assert "_host_email" not in out[0]
+        assert out[0]["_hook_skips"] == [["_host_email", "no_event_memberships"]]
+
+    def test_memberships_that_are_not_a_list_are_a_counted_skip(self):
+        out = self._reshape({"event_memberships": "oops"})
+        assert "_host_email" not in out[0]
+        assert out[0]["_hook_skips"] == [["_host_email", "no_event_memberships"]]
+
+
+class TestBatchOneCompositeNames:
+    def test_klaviyo_composes_from_the_attributes_block(self):
+        from app.sources.klaviyo import extract
+
+        out = extract.reshape(
+            "profiles",
+            {"id": "p1", "attributes": {"first_name": "Jane", "last_name": "Smith"}},
+        )
+        assert out[0]["_full_name"] == "Jane Smith"
+
+    def test_klaviyo_flows_pass_through(self):
+        from app.sources.klaviyo import extract
+
+        payload = {"id": "f1", "attributes": {"name": "Welcome"}}
+        assert extract.reshape("flows", payload) == [payload]
+
+    def test_sendgrid_composes_from_the_top_level(self):
+        from app.sources.sendgrid import extract
+
+        out = extract.reshape(
+            "contacts", {"id": "s1", "first_name": "Jane", "last_name": "Smith"}
+        )
+        assert out[0]["_full_name"] == "Jane Smith"
+
+    def test_sendgrid_singlesends_pass_through(self):
+        from app.sources.sendgrid import extract
+
+        payload = {"id": "ss1", "name": "July Newsletter"}
+        assert extract.reshape("singlesends", payload) == [payload]
+
+
 class TestDiscovery:
     def test_every_source_package_with_an_extract_module_is_a_hook(self):
-        assert set(hooks.hooks()) == {"hubspot", "stripe"}
+        assert set(hooks.hooks()) == {
+            "hubspot",
+            "stripe",
+            "calendly",
+            "klaviyo",
+            "sendgrid",
+        }
 
     def test_a_package_without_an_extract_module_contributes_no_hook(self, monkeypatch):
         hooks._reset()

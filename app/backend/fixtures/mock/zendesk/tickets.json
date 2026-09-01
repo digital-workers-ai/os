@@ -1,0 +1,198 @@
+[
+  {
+    "payload": {
+      "assignee_id": 30001,
+      "created_at": "2026-07-10T09:00:00Z",
+      "custom_fields": [
+        {
+          "id": 360001,
+          "value": "initech.io"
+        },
+        {
+          "id": 360002,
+          "value": ""
+        }
+      ],
+      "description": "Billing discrepancy on June invoice",
+      "external_id": null,
+      "group_id": 50001,
+      "id": 1001,
+      "organization_id": 40003,
+      "priority": "high",
+      "raw_subject": "Billing discrepancy on June invoice",
+      "requester_id": 20001,
+      "status": "open",
+      "subject": "Billing discrepancy on June invoice",
+      "submitter_id": 20001,
+      "tags": [
+        "high",
+        "email",
+        "open"
+      ],
+      "type": "problem",
+      "updated_at": "2026-07-14T11:00:00Z",
+      "url": "https://mock.zendesk.com/api/v2/tickets/1001.json",
+      "via": {
+        "channel": "email",
+        "source": {
+          "from": {
+            "address": "tom@initech.io",
+            "name": "Tom Williams"
+          },
+          "to": {
+            "address": "support@acme.io",
+            "name": "Support"
+          }
+        }
+      }
+    },
+    "source_id": "1001"
+  },
+  {
+    "payload": {
+      "assignee_id": 30001,
+      "created_at": "2026-07-12T14:00:00Z",
+      "custom_fields": [
+        {
+          "id": 360001,
+          "value": "initech.io"
+        },
+        {
+          "id": 360002,
+          "value": ""
+        }
+      ],
+      "description": "Integration failing since update",
+      "external_id": null,
+      "group_id": 50001,
+      "id": 1002,
+      "organization_id": 40003,
+      "priority": "urgent",
+      "raw_subject": "Integration failing since update",
+      "requester_id": 20002,
+      "status": "open",
+      "subject": "Integration failing since update",
+      "submitter_id": 20002,
+      "tags": [
+        "urgent",
+        "email",
+        "open"
+      ],
+      "type": "problem",
+      "updated_at": "2026-07-14T16:00:00Z",
+      "url": "https://mock.zendesk.com/api/v2/tickets/1002.json",
+      "via": {
+        "channel": "email",
+        "source": {
+          "from": {
+            "address": "amy.brown@initech.io",
+            "name": "Amy Brown"
+          },
+          "to": {
+            "address": "support@acme.io",
+            "name": "Support"
+          }
+        }
+      }
+    },
+    "source_id": "1002"
+  },
+  {
+    "payload": {
+      "assignee_id": 30001,
+      "created_at": "2026-07-08T10:00:00Z",
+      "custom_fields": [
+        {
+          "id": 360001,
+          "value": "initech.io"
+        },
+        {
+          "id": 360002,
+          "value": ""
+        }
+      ],
+      "description": "Cannot export reports",
+      "external_id": null,
+      "group_id": 50001,
+      "id": 1003,
+      "organization_id": 40003,
+      "priority": "normal",
+      "raw_subject": "Cannot export reports",
+      "requester_id": 20003,
+      "status": "pending",
+      "subject": "Cannot export reports",
+      "submitter_id": 20003,
+      "tags": [
+        "normal",
+        "email",
+        "pending"
+      ],
+      "type": "question",
+      "updated_at": "2026-07-12T09:00:00Z",
+      "url": "https://mock.zendesk.com/api/v2/tickets/1003.json",
+      "via": {
+        "channel": "email",
+        "source": {
+          "from": {
+            "address": "chris@initech.io",
+            "name": "Chris Taylor"
+          },
+          "to": {
+            "address": "support@acme.io",
+            "name": "Support"
+          }
+        }
+      }
+    },
+    "source_id": "1003"
+  },
+  {
+    "payload": {
+      "assignee_id": 30001,
+      "created_at": "2026-07-05T11:00:00Z",
+      "custom_fields": [
+        {
+          "id": 360001,
+          "value": "initech.io"
+        },
+        {
+          "id": 360002,
+          "value": ""
+        }
+      ],
+      "description": "Feature request: bulk import",
+      "external_id": null,
+      "group_id": 50001,
+      "id": 1004,
+      "organization_id": 40003,
+      "priority": "low",
+      "raw_subject": "Feature request: bulk import",
+      "requester_id": 20004,
+      "status": "open",
+      "subject": "Feature request: bulk import",
+      "submitter_id": 20004,
+      "tags": [
+        "low",
+        "email",
+        "open"
+      ],
+      "type": "question",
+      "updated_at": "2026-07-05T11:00:00Z",
+      "url": "https://mock.zendesk.com/api/v2/tickets/1004.json",
+      "via": {
+        "channel": "email",
+        "source": {
+          "from": {
+            "address": "tom@initech.io",
+            "name": "Tom Williams"
+          },
+          "to": {
+            "address": "support@acme.io",
+            "name": "Support"
+          }
+        }
+      }
+    },
+    "source_id": "1004"
+  }
+]

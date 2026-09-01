@@ -1,0 +1,50 @@
+[
+  {
+    "payload": {
+      "count": 1250,
+      "description": "Customers with active subscriptions",
+      "id": 1,
+      "name": "Active Customers",
+      "progress": 100,
+      "state": "finished",
+      "type": "dynamic"
+    },
+    "source_id": "1"
+  },
+  {
+    "payload": {
+      "count": 87,
+      "description": "Customers who canceled",
+      "id": 2,
+      "name": "Churned",
+      "progress": 100,
+      "state": "finished",
+      "type": "dynamic"
+    },
+    "source_id": "2"
+  },
+  {
+    "payload": {
+      "count": 340,
+      "description": "Users in trial period",
+      "id": 3,
+      "name": "Trial Users",
+      "progress": 100,
+      "state": "finished",
+      "type": "dynamic"
+    },
+    "source_id": "3"
+  },
+  {
+    "payload": {
+      "count": 45,
+      "description": "Customers with MRR > $2000",
+      "id": 4,
+      "name": "High MRR",
+      "progress": 100,
+      "state": "finished",
+      "type": "manual"
+    },
+    "source_id": "4"
+  }
+]

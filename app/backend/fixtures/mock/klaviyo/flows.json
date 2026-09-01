@@ -1,0 +1,98 @@
+[
+  {
+    "payload": {
+      "attributes": {
+        "archived": false,
+        "created": "2025-02-01T10:00:00+00:00",
+        "name": "Welcome Series",
+        "status": "live",
+        "trigger_type": "Added to List",
+        "updated": "2026-06-15T08:00:00+00:00"
+      },
+      "id": "kl_flow_001",
+      "links": {
+        "self": "/api/flows/kl_flow_001"
+      },
+      "relationships": {
+        "flow-actions": {
+          "links": {
+            "related": "/api/flows/kl_flow_001/flow-actions",
+            "self": "/api/flows/kl_flow_001/relationships/flow-actions"
+          }
+        },
+        "tags": {
+          "links": {
+            "related": "/api/flows/kl_flow_001/tags",
+            "self": "/api/flows/kl_flow_001/relationships/tags"
+          }
+        }
+      },
+      "type": "flow"
+    },
+    "source_id": "kl_flow_001"
+  },
+  {
+    "payload": {
+      "attributes": {
+        "archived": false,
+        "created": "2025-04-10T14:00:00+00:00",
+        "name": "Abandoned Cart",
+        "status": "live",
+        "trigger_type": "Metric",
+        "updated": "2026-07-01T09:00:00+00:00"
+      },
+      "id": "kl_flow_002",
+      "links": {
+        "self": "/api/flows/kl_flow_002"
+      },
+      "relationships": {
+        "flow-actions": {
+          "links": {
+            "related": "/api/flows/kl_flow_002/flow-actions",
+            "self": "/api/flows/kl_flow_002/relationships/flow-actions"
+          }
+        },
+        "tags": {
+          "links": {
+            "related": "/api/flows/kl_flow_002/tags",
+            "self": "/api/flows/kl_flow_002/relationships/tags"
+          }
+        }
+      },
+      "type": "flow"
+    },
+    "source_id": "kl_flow_002"
+  },
+  {
+    "payload": {
+      "attributes": {
+        "archived": false,
+        "created": "2025-06-20T11:00:00+00:00",
+        "name": "Post-Purchase Follow-up",
+        "status": "live",
+        "trigger_type": "Metric",
+        "updated": "2026-06-28T16:00:00+00:00"
+      },
+      "id": "kl_flow_003",
+      "links": {
+        "self": "/api/flows/kl_flow_003"
+      },
+      "relationships": {
+        "flow-actions": {
+          "links": {
+            "related": "/api/flows/kl_flow_003/flow-actions",
+            "self": "/api/flows/kl_flow_003/relationships/flow-actions"
+          }
+        },
+        "tags": {
+          "links": {
+            "related": "/api/flows/kl_flow_003/tags",
+            "self": "/api/flows/kl_flow_003/relationships/tags"
+          }
+        }
+      },
+      "type": "flow"
+    },
+    "source_id": "kl_flow_003"
+  }
+]

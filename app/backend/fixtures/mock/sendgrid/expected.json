@@ -1,0 +1,77 @@
+{
+  "clears": {
+    "phone/sendgrid": 1
+  },
+  "extracted": {
+    "contacts": {
+      "person": {
+        "sg_contact_p1": {
+          "email": "jane@acme.io",
+          "name": "Jane Smith",
+          "phone": "+14155550101",
+          "title": "VP Sales"
+        },
+        "sg_contact_p2": {
+          "email": "john.doe@acme.io",
+          "name": "John Doe",
+          "phone": "+14155550102",
+          "title": "CTO"
+        },
+        "sg_contact_p3": {
+          "email": "sarah@acme.io",
+          "name": "Sarah Johnson",
+          "phone": null,
+          "title": "Marketing Director"
+        },
+        "sg_contact_p4": {
+          "email": "mike@globex.com",
+          "name": "Mike Chen",
+          "phone": "+15125550201",
+          "title": "CEO"
+        }
+      }
+    },
+    "singlesends": {
+      "email_campaign": {
+        "sg_ss_ec1": {
+          "clicks": "342.0",
+          "name": "July Newsletter",
+          "opens": "1890.0",
+          "sends": "4500.0",
+          "sent_at": "2026-07-01T09:00:00Z",
+          "status": "triggered",
+          "subject": "What's new in July"
+        },
+        "sg_ss_ec2": {
+          "clicks": "580.0",
+          "name": "Product Launch Announcement",
+          "opens": "2100.0",
+          "sends": "4200.0",
+          "sent_at": "2026-07-05T10:00:00Z",
+          "status": "triggered",
+          "subject": "Introducing our new feature"
+        },
+        "sg_ss_ec3": {
+          "clicks": "890.0",
+          "name": "Summer Sale",
+          "opens": "1520.0",
+          "sends": "3800.0",
+          "sent_at": "2026-07-08T08:00:00Z",
+          "status": "triggered",
+          "subject": "Limited time: 30% off all plans"
+        },
+        "sg_ss_ec4": {
+          "clicks": "45.0",
+          "name": "Onboarding Welcome",
+          "opens": "98.0",
+          "sends": "120.0",
+          "sent_at": "2026-07-10T14:00:00Z",
+          "status": "triggered",
+          "subject": "Welcome to Acme \u2014 getting started"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "sendgrid"
+}

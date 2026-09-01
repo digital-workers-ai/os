@@ -1,0 +1,39 @@
+{
+  "clears": {},
+  "extracted": {
+    "scheduled_events": {
+      "meeting": {
+        "evt_001": {
+          "email": "jane@acme.io",
+          "ended_at": "2026-06-05T14:30:00Z",
+          "name": "30 Minute Demo",
+          "started_at": "2026-06-05T14:00:00Z",
+          "status": "active"
+        },
+        "evt_002": {
+          "email": "jane@acme.io",
+          "ended_at": "2026-06-10T16:45:00Z",
+          "name": "Discovery Call",
+          "started_at": "2026-06-10T16:00:00Z",
+          "status": "active"
+        },
+        "evt_003": {
+          "email": "jane@acme.io",
+          "ended_at": "2026-06-15T10:30:00Z",
+          "name": "30 Minute Demo",
+          "started_at": "2026-06-15T10:00:00Z",
+          "status": "canceled"
+        },
+        "evt_004": {
+          "email": "jane@acme.io",
+          "ended_at": "2026-06-20T11:45:00Z",
+          "name": "Product Walkthrough",
+          "started_at": "2026-06-20T11:00:00Z",
+          "status": "active"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "calendly"
+}

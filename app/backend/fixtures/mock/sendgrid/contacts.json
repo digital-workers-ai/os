@@ -1,0 +1,82 @@
+[
+  {
+    "payload": {
+      "alternate_emails": [],
+      "created_at": "2025-03-15T00:00:00Z",
+      "custom_fields": {
+        "company": "Acme Corp",
+        "role": "VP Sales"
+      },
+      "email": "jane@acme.io",
+      "first_name": "Jane",
+      "id": "sg_contact_p1",
+      "last_name": "Smith",
+      "list_ids": [
+        "sg_list_001"
+      ],
+      "phone_number": "+14155550101",
+      "updated_at": "2026-07-14T00:00:00Z"
+    },
+    "source_id": "sg_contact_p1"
+  },
+  {
+    "payload": {
+      "alternate_emails": [],
+      "created_at": "2025-04-01T00:00:00Z",
+      "custom_fields": {
+        "company": "Acme Corp",
+        "role": "CTO"
+      },
+      "email": "john.doe@acme.io",
+      "first_name": "John",
+      "id": "sg_contact_p2",
+      "last_name": "Doe",
+      "list_ids": [
+        "sg_list_001"
+      ],
+      "phone_number": "+14155550102",
+      "updated_at": "2026-07-10T00:00:00Z"
+    },
+    "source_id": "sg_contact_p2"
+  },
+  {
+    "payload": {
+      "alternate_emails": [],
+      "created_at": "2025-06-01T00:00:00Z",
+      "custom_fields": {
+        "company": "Acme Corp",
+        "role": "Marketing Director"
+      },
+      "email": "sarah@acme.io",
+      "first_name": "Sarah",
+      "id": "sg_contact_p3",
+      "last_name": "Johnson",
+      "list_ids": [
+        "sg_list_001"
+      ],
+      "phone_number": null,
+      "updated_at": "2026-07-12T00:00:00Z"
+    },
+    "source_id": "sg_contact_p3"
+  },
+  {
+    "payload": {
+      "alternate_emails": [],
+      "created_at": "2025-02-01T00:00:00Z",
+      "custom_fields": {
+        "company": "Globex Inc",
+        "role": "CEO"
+      },
+      "email": "mike@globex.com",
+      "first_name": "Mike",
+      "id": "sg_contact_p4",
+      "last_name": "Chen",
+      "list_ids": [
+        "sg_list_001"
+      ],
+      "phone_number": "+15125550201",
+      "updated_at": "2026-07-15T00:00:00Z"
+    },
+    "source_id": "sg_contact_p4"
+  }
+]

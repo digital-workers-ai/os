@@ -1,0 +1,142 @@
+[
+  {
+    "payload": {
+      "calendar_event": {
+        "external_id": "google_cal_abc123",
+        "kind": "google"
+      },
+      "created_at": "2026-06-03T09:15:00.000000Z",
+      "end_time": "2026-06-05T14:30:00.000000Z",
+      "event_memberships": [
+        {
+          "user": "https://api.calendly.com/users/abc123def456",
+          "user_email": "jane@acme.io",
+          "user_name": "Jane Smith"
+        }
+      ],
+      "event_type": "https://api.calendly.com/event_types/et_demo30",
+      "invitees_counter": {
+        "active": 1,
+        "limit": 1,
+        "total": 1
+      },
+      "location": {
+        "join_url": "https://meet.google.com/abc-defg-hij",
+        "status": "pushed",
+        "type": "google_conference"
+      },
+      "name": "30 Minute Demo",
+      "start_time": "2026-06-05T14:00:00.000000Z",
+      "status": "active",
+      "updated_at": "2026-06-03T09:15:00.000000Z",
+      "uri": "https://api.calendly.com/scheduled_events/evt_001"
+    },
+    "source_id": "evt_001"
+  },
+  {
+    "payload": {
+      "calendar_event": {
+        "external_id": "google_cal_def456",
+        "kind": "google"
+      },
+      "created_at": "2026-06-08T11:30:00.000000Z",
+      "end_time": "2026-06-10T16:45:00.000000Z",
+      "event_memberships": [
+        {
+          "user": "https://api.calendly.com/users/abc123def456",
+          "user_email": "jane@acme.io",
+          "user_name": "Jane Smith"
+        }
+      ],
+      "event_type": "https://api.calendly.com/event_types/et_discovery",
+      "invitees_counter": {
+        "active": 2,
+        "limit": 5,
+        "total": 2
+      },
+      "location": {
+        "join_url": "https://zoom.us/j/123456789",
+        "status": "pushed",
+        "type": "zoom"
+      },
+      "name": "Discovery Call",
+      "start_time": "2026-06-10T16:00:00.000000Z",
+      "status": "active",
+      "updated_at": "2026-06-08T11:30:00.000000Z",
+      "uri": "https://api.calendly.com/scheduled_events/evt_002"
+    },
+    "source_id": "evt_002"
+  },
+  {
+    "payload": {
+      "calendar_event": {
+        "external_id": "google_cal_ghi789",
+        "kind": "google"
+      },
+      "cancellation": {
+        "canceled_by": "Invitee",
+        "reason": "Schedule conflict"
+      },
+      "created_at": "2026-06-12T08:45:00.000000Z",
+      "end_time": "2026-06-15T10:30:00.000000Z",
+      "event_memberships": [
+        {
+          "user": "https://api.calendly.com/users/abc123def456",
+          "user_email": "jane@acme.io",
+          "user_name": "Jane Smith"
+        }
+      ],
+      "event_type": "https://api.calendly.com/event_types/et_demo30",
+      "invitees_counter": {
+        "active": 0,
+        "limit": 1,
+        "total": 1
+      },
+      "location": {
+        "join_url": "https://meet.google.com/xyz-uvwx-rst",
+        "status": "pushed",
+        "type": "google_conference"
+      },
+      "name": "30 Minute Demo",
+      "start_time": "2026-06-15T10:00:00.000000Z",
+      "status": "canceled",
+      "updated_at": "2026-06-14T16:00:00.000000Z",
+      "uri": "https://api.calendly.com/scheduled_events/evt_003"
+    },
+    "source_id": "evt_003"
+  },
+  {
+    "payload": {
+      "calendar_event": {
+        "external_id": "google_cal_jkl012",
+        "kind": "google"
+      },
+      "created_at": "2026-06-18T14:00:00.000000Z",
+      "end_time": "2026-06-20T11:45:00.000000Z",
+      "event_memberships": [
+        {
+          "user": "https://api.calendly.com/users/abc123def456",
+          "user_email": "jane@acme.io",
+          "user_name": "Jane Smith"
+        }
+      ],
+      "event_type": "https://api.calendly.com/event_types/et_walkthrough",
+      "invitees_counter": {
+        "active": 1,
+        "limit": 1,
+        "total": 1
+      },
+      "location": {
+        "join_url": "https://zoom.us/j/987654321",
+        "status": "pushed",
+        "type": "zoom"
+      },
+      "name": "Product Walkthrough",
+      "start_time": "2026-06-20T11:00:00.000000Z",
+      "status": "active",
+      "updated_at": "2026-06-18T14:00:00.000000Z",
+      "uri": "https://api.calendly.com/scheduled_events/evt_004"
+    },
+    "source_id": "evt_004"
+  }
+]

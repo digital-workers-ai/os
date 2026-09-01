@@ -1,0 +1,101 @@
+{
+  "clears": {
+    "phone/zendesk": 1
+  },
+  "extracted": {
+    "organizations": {
+      "company": {
+        "40001": {
+          "domain": "acme.io",
+          "industry": "Software",
+          "name": "Acme Corp"
+        },
+        "40002": {
+          "domain": "globex.com",
+          "industry": "Marketing",
+          "name": "Globex Inc"
+        },
+        "40003": {
+          "domain": "initech.io",
+          "industry": "Finance",
+          "name": "Initech LLC"
+        },
+        "40004": {
+          "domain": "umbrella.dev",
+          "industry": "Healthcare",
+          "name": "Umbrella Systems"
+        }
+      }
+    },
+    "tickets": {
+      "ticket": {
+        "1001": {
+          "channel": "email",
+          "email": "tom@initech.io",
+          "opened_at": "2026-07-10T09:00:00Z",
+          "organization_ref": "40003",
+          "priority": "high",
+          "status": "open",
+          "subject": "Billing discrepancy on June invoice"
+        },
+        "1002": {
+          "channel": "email",
+          "email": "amy.brown@initech.io",
+          "opened_at": "2026-07-12T14:00:00Z",
+          "organization_ref": "40003",
+          "priority": "urgent",
+          "status": "open",
+          "subject": "Integration failing since update"
+        },
+        "1003": {
+          "channel": "email",
+          "email": "chris@initech.io",
+          "opened_at": "2026-07-08T10:00:00Z",
+          "organization_ref": "40003",
+          "priority": "normal",
+          "status": "pending",
+          "subject": "Cannot export reports"
+        },
+        "1004": {
+          "channel": "email",
+          "email": "tom@initech.io",
+          "opened_at": "2026-07-05T11:00:00Z",
+          "organization_ref": "40003",
+          "priority": "low",
+          "status": "open",
+          "subject": "Feature request: bulk import"
+        }
+      }
+    },
+    "users": {
+      "person": {
+        "20001": {
+          "email": "jane@acme.io",
+          "external_ref": "user_jane_acme",
+          "name": "Jane Smith",
+          "phone": "+14155550101"
+        },
+        "20002": {
+          "email": "john.doe@acme.io",
+          "external_ref": "user_john_acme",
+          "name": "John Doe",
+          "phone": "+14155550102"
+        },
+        "20003": {
+          "email": "sarah@acme.io",
+          "external_ref": "user_sarah_acme",
+          "name": "Sarah Johnson",
+          "phone": null
+        },
+        "20004": {
+          "email": "mike@globex.com",
+          "external_ref": "user_mike_globex",
+          "name": "Mike Chen",
+          "phone": "+15125550201"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "zendesk"
+}

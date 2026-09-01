@@ -1,0 +1,106 @@
+[
+  {
+    "payload": {
+      "created_at": "2025-01-15T00:00:00Z",
+      "details": "Software, Professional plan",
+      "domain_names": [
+        "acme.io"
+      ],
+      "external_id": "acme.io",
+      "id": 40001,
+      "name": "Acme Corp",
+      "organization_fields": {
+        "employee_count": 120,
+        "industry": "Software",
+        "mrr": 1800.0,
+        "plan": "professional"
+      },
+      "shared_comments": false,
+      "shared_tickets": false,
+      "tags": [
+        "customer"
+      ],
+      "updated_at": "2026-07-10T14:00:00Z",
+      "url": "https://mock.zendesk.com/api/v2/organizations/40001.json"
+    },
+    "source_id": "40001"
+  },
+  {
+    "payload": {
+      "created_at": "2025-01-15T00:00:00Z",
+      "details": "Marketing, Professional plan",
+      "domain_names": [
+        "globex.com"
+      ],
+      "external_id": "globex.com",
+      "id": 40002,
+      "name": "Globex Inc",
+      "organization_fields": {
+        "employee_count": 85,
+        "industry": "Marketing",
+        "mrr": 2400.0,
+        "plan": "professional"
+      },
+      "shared_comments": false,
+      "shared_tickets": false,
+      "tags": [
+        "customer"
+      ],
+      "updated_at": "2026-07-10T14:00:00Z",
+      "url": "https://mock.zendesk.com/api/v2/organizations/40002.json"
+    },
+    "source_id": "40002"
+  },
+  {
+    "payload": {
+      "created_at": "2025-01-15T00:00:00Z",
+      "details": "Finance, Enterprise plan",
+      "domain_names": [
+        "initech.io"
+      ],
+      "external_id": "initech.io",
+      "id": 40003,
+      "name": "Initech LLC",
+      "organization_fields": {
+        "employee_count": 200,
+        "industry": "Finance",
+        "mrr": 4800.0,
+        "plan": "enterprise"
+      },
+      "shared_comments": false,
+      "shared_tickets": false,
+      "tags": [
+        "customer"
+      ],
+      "updated_at": "2026-07-10T14:00:00Z",
+      "url": "https://mock.zendesk.com/api/v2/organizations/40003.json"
+    },
+    "source_id": "40003"
+  },
+  {
+    "payload": {
+      "created_at": "2025-01-15T00:00:00Z",
+      "details": "Healthcare, Starter plan",
+      "domain_names": [
+        "umbrella.dev"
+      ],
+      "external_id": "umbrella.dev",
+      "id": 40004,
+      "name": "Umbrella Systems",
+      "organization_fields": {
+        "employee_count": 50,
+        "industry": "Healthcare",
+        "mrr": 49.0,
+        "plan": "starter"
+      },
+      "shared_comments": false,
+      "shared_tickets": false,
+      "tags": [
+        "customer"
+      ],
+      "updated_at": "2026-07-10T14:00:00Z",
+      "url": "https://mock.zendesk.com/api/v2/organizations/40004.json"
+    },
+    "source_id": "40004"
+  }
+]

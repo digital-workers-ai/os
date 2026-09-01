@@ -1,0 +1,102 @@
+[
+  {
+    "payload": {
+      "active": true,
+      "created_at": "2025-03-15T00:00:00Z",
+      "email": "jane@acme.io",
+      "external_id": "user_jane_acme",
+      "id": 20001,
+      "name": "Jane Smith",
+      "organization_id": 40001,
+      "phone": "+14155550101",
+      "role": "end-user",
+      "tags": [
+        "customer"
+      ],
+      "updated_at": "2026-07-14T00:00:00Z",
+      "url": "https://mock.zendesk.com/api/v2/users/20001.json",
+      "user_fields": {
+        "company_domain": "acme.io",
+        "mrr": 1800.0,
+        "plan": "professional"
+      },
+      "verified": true
+    },
+    "source_id": "20001"
+  },
+  {
+    "payload": {
+      "active": true,
+      "created_at": "2025-04-01T00:00:00Z",
+      "email": "john.doe@acme.io",
+      "external_id": "user_john_acme",
+      "id": 20002,
+      "name": "John Doe",
+      "organization_id": 40001,
+      "phone": "+14155550102",
+      "role": "end-user",
+      "tags": [
+        "customer"
+      ],
+      "updated_at": "2026-07-10T00:00:00Z",
+      "url": "https://mock.zendesk.com/api/v2/users/20002.json",
+      "user_fields": {
+        "company_domain": "acme.io",
+        "mrr": 1800.0,
+        "plan": "professional"
+      },
+      "verified": true
+    },
+    "source_id": "20002"
+  },
+  {
+    "payload": {
+      "active": true,
+      "created_at": "2025-06-01T00:00:00Z",
+      "email": "sarah@acme.io",
+      "external_id": "user_sarah_acme",
+      "id": 20003,
+      "name": "Sarah Johnson",
+      "organization_id": 40001,
+      "phone": null,
+      "role": "end-user",
+      "tags": [
+        "customer"
+      ],
+      "updated_at": "2026-07-12T00:00:00Z",
+      "url": "https://mock.zendesk.com/api/v2/users/20003.json",
+      "user_fields": {
+        "company_domain": "acme.io",
+        "mrr": 1800.0,
+        "plan": "professional"
+      },
+      "verified": true
+    },
+    "source_id": "20003"
+  },
+  {
+    "payload": {
+      "active": true,
+      "created_at": "2025-02-01T00:00:00Z",
+      "email": "mike@globex.com",
+      "external_id": "user_mike_globex",
+      "id": 20004,
+      "name": "Mike Chen",
+      "organization_id": 40002,
+      "phone": "+15125550201",
+      "role": "end-user",
+      "tags": [
+        "customer"
+      ],
+      "updated_at": "2026-07-15T00:00:00Z",
+      "url": "https://mock.zendesk.com/api/v2/users/20004.json",
+      "user_fields": {
+        "company_domain": "globex.com",
+        "mrr": 2400.0,
+        "plan": "professional"
+      },
+      "verified": true
+    },
+    "source_id": "20004"
+  }
+]

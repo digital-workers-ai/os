@@ -103,3 +103,164 @@ class TestExistingParamsAreCarried:
         )
         assert nxt["updated_since"] == "2026-01-01"
         assert nxt["limit"] == 50
+
+    @pytest.mark.parametrize(
+        "name,body",
+        [
+            (
+                "cursor_intercom",
+                {"data": [], "pages": {"next": {"starting_after": "c1"}}},
+            ),
+            ("cursor_customerio", {"campaigns": [], "next_cursor": "c1"}),
+            (
+                "token_calendly",
+                {"collection": [], "pagination": {"next_page_token": "t1"}},
+            ),
+        ],
+    )
+    def test_the_original_query_survives_a_batch_one_hop(self, name, body):
+        nxt = paginator(name).next_params(body, {"updated_since": "2026-01-01"})
+        assert nxt["updated_since"] == "2026-01-01"
+
+
+class TestBatchOneRegistration:
+    def test_the_six_new_modes_are_registered(self):
+        assert {
+            "cursor_zendesk",
+            "cursor_intercom",
+            "cursor_customerio",
+            "cursor_customerio_activities",
+            "cursor_klaviyo",
+            "token_calendly",
+        } <= set(pag.PAGINATORS)
+
+
+class TestWhereTheBatchOneCursorsLive:
+    def test_zendesk_reads_meta_after_cursor(self):
+        body = {"tickets": [], "meta": {"has_more": True, "after_cursor": "c1"}}
+        assert paginator("cursor_zendesk").next_params(body, {"page[size]": 6}) == {
+            "page[size]": 6,
+            "page[after]": "c1",
+        }
+
+    def test_intercom_reads_pages_next_starting_after(self):
+        body = {"data": [], "pages": {"next": {"starting_after": "c1"}}}
+        assert paginator("cursor_intercom").next_params(body, {}) == {
+            "starting_after": "c1"
+        }
+
+    def test_customerio_pages_on_cursor(self):
+        assert paginator("cursor_customerio").next_params(
+            {"campaigns": [], "next_cursor": "c1"}, {}
+        ) == {"cursor": "c1"}
+
+    def test_customerio_activities_page_on_start_not_cursor(self):
+        assert paginator("cursor_customerio_activities").next_params(
+            {"activities": [], "next_cursor": "c1"}, {}
+        ) == {"start": "c1"}
+
+    def test_klaviyo_lifts_the_cursor_out_of_its_next_link(self):
+        body = {
+            "data": [],
+            "links": {
+                "next": "https://a.klaviyo.com/api/x?page%5Bcursor%5D=c1&sort=id"
+            },
+        }
+        assert paginator("cursor_klaviyo").next_params(body, {}) == {
+            "page[cursor]": "c1"
+        }
+
+    def test_calendly_reads_pagination_next_page_token(self):
+        body = {"collection": [], "pagination": {"next_page_token": "t1"}}
+        assert paginator("token_calendly").next_params(body, {}) == {"page_token": "t1"}
+
+
+class TestWhatStopsTheBatchOneWalk:
+    @pytest.mark.parametrize(
+        "name,body",
+        [
+            (
+                "cursor_zendesk",
+                {"tickets": [], "meta": {"has_more": False, "after_cursor": "c1"}},
+            ),
+            ("cursor_zendesk", {"tickets": [], "meta": {"has_more": True}}),
+            ("cursor_intercom", {"data": [], "pages": {"next": {}}}),
+            ("cursor_customerio", {"campaigns": [], "next_cursor": None}),
+            ("cursor_customerio_activities", {"activities": []}),
+            ("cursor_klaviyo", {"data": [], "links": {}}),
+            ("token_calendly", {"collection": [], "pagination": {}}),
+        ],
+    )
+    def test_the_walk_ends(self, name, body):
+        assert paginator(name).next_params(body, {"limit": 2}) is None
+
+    def test_klaviyo_stops_when_no_recognised_marker_is_present(self):
+        assert (
+            paginator("cursor_klaviyo").next_params(
+                {
+                    "data": [],
+                    "links": {"next": "https://a.klaviyo.com/api/x?something=else"},
+                },
+                {},
+            )
+            is None
+        )
+
+
+class TestKlaviyoCursorsAreNotDoubleEncoded:
+    def test_an_encoded_cursor_is_decoded_before_it_is_re_sent(self):
+        body = {
+            "data": [],
+            "links": {
+                "next": "https://a.klaviyo.com/api/x?page%5Bcursor%5D=bWFyaw%3D%3D"
+            },
+        }
+        assert paginator("cursor_klaviyo").next_params(body, {}) == {
+            "page[cursor]": "bWFyaw=="
+        }
+
+    @pytest.mark.parametrize("marker", ["page%5Bcursor%5D=", "page[cursor]="])
+    def test_either_encoding_of_the_cursor_is_read(self, marker):
+        body = {
+            "data": [],
+            "links": {"next": f"https://a.klaviyo.com/api/x?{marker}c1&z=1"},
+        }
+        assert paginator("cursor_klaviyo").next_params(body, {}) == {
+            "page[cursor]": "c1"
+        }
+
+
+class TestKeyedCursors:
+    @pytest.mark.parametrize("name", ["cursor_zendesk", "cursor_customerio"])
+    def test_a_body_that_is_not_an_object_is_refused(self, name):
+        with pytest.raises(pag.PaginationError, match="expected object"):
+            paginator(name).extract(["not", "an", "object"])
+
+    @pytest.mark.parametrize("name", ["cursor_zendesk", "cursor_customerio"])
+    def test_an_error_envelope_is_refused_rather_than_iterated(self, name):
+        with pytest.raises(pag.PaginationError, match="shape drift or error body"):
+            paginator(name).extract({"error": "invalid token"})
+
+    def test_zendesk_finds_whichever_collection_is_present(self):
+        assert paginator("cursor_zendesk").extract({"organizations": [{"id": 1}]}) == [
+            {"id": 1}
+        ]
+
+    def test_customerio_finds_whichever_collection_is_present(self):
+        assert paginator("cursor_customerio").extract({"segments": [{"id": 1}]}) == [
+            {"id": 1}
+        ]
+
+
+class TestIntercomCollectionKeyIsParameterized:
+    def test_the_declared_key_is_extracted(self):
+        assert pag.IntercomCursor("conversations").extract(
+            {"conversations": [{"id": 1}]}
+        ) == [{"id": 1}]
+
+    def test_the_default_key_is_data(self):
+        assert pag.IntercomCursor().extract({"data": [{"id": 1}]}) == [{"id": 1}]
+
+    def test_an_instance_resolves_as_itself(self):
+        built = pag.IntercomCursor("conversations")
+        assert pag.resolve(built) is built

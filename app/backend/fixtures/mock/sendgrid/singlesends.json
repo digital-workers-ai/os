@@ -1,0 +1,114 @@
+[
+  {
+    "payload": {
+      "categories": [],
+      "created_at": "2026-06-20T10:00:00Z",
+      "email_config": {
+        "sender_id": 12345,
+        "subject": "What's new in July",
+        "suppression_group_id": null
+      },
+      "id": "sg_ss_ec1",
+      "name": "July Newsletter",
+      "send_at": "2026-07-01T09:00:00Z",
+      "stats": {
+        "bounces": 90,
+        "clicks": 342,
+        "delivered": 4365,
+        "opens": 1890,
+        "requests": 4500,
+        "spam_reports": 0,
+        "unique_clicks": 307,
+        "unique_opens": 1606,
+        "unsubscribes": 22
+      },
+      "status": "triggered",
+      "updated_at": "2026-07-01T09:00:00Z"
+    },
+    "source_id": "sg_ss_ec1"
+  },
+  {
+    "payload": {
+      "categories": [],
+      "created_at": "2026-06-20T10:00:00Z",
+      "email_config": {
+        "sender_id": 12345,
+        "subject": "Introducing our new feature",
+        "suppression_group_id": null
+      },
+      "id": "sg_ss_ec2",
+      "name": "Product Launch Announcement",
+      "send_at": "2026-07-05T10:00:00Z",
+      "stats": {
+        "bounces": 84,
+        "clicks": 580,
+        "delivered": 4074,
+        "opens": 2100,
+        "requests": 4200,
+        "spam_reports": 0,
+        "unique_clicks": 522,
+        "unique_opens": 1785,
+        "unsubscribes": 21
+      },
+      "status": "triggered",
+      "updated_at": "2026-07-05T10:00:00Z"
+    },
+    "source_id": "sg_ss_ec2"
+  },
+  {
+    "payload": {
+      "categories": [],
+      "created_at": "2026-06-20T10:00:00Z",
+      "email_config": {
+        "sender_id": 12345,
+        "subject": "Limited time: 30% off all plans",
+        "suppression_group_id": null
+      },
+      "id": "sg_ss_ec3",
+      "name": "Summer Sale",
+      "send_at": "2026-07-08T08:00:00Z",
+      "stats": {
+        "bounces": 76,
+        "clicks": 890,
+        "delivered": 3686,
+        "opens": 1520,
+        "requests": 3800,
+        "spam_reports": 0,
+        "unique_clicks": 801,
+        "unique_opens": 1292,
+        "unsubscribes": 19
+      },
+      "status": "triggered",
+      "updated_at": "2026-07-08T08:00:00Z"
+    },
+    "source_id": "sg_ss_ec3"
+  },
+  {
+    "payload": {
+      "categories": [],
+      "created_at": "2026-06-20T10:00:00Z",
+      "email_config": {
+        "sender_id": 12345,
+        "subject": "Welcome to Acme \u2014 getting started",
+        "suppression_group_id": null
+      },
+      "id": "sg_ss_ec4",
+      "name": "Onboarding Welcome",
+      "send_at": "2026-07-10T14:00:00Z",
+      "stats": {
+        "bounces": 2,
+        "clicks": 45,
+        "delivered": 116,
+        "opens": 98,
+        "requests": 120,
+        "spam_reports": 0,
+        "unique_clicks": 40,
+        "unique_opens": 83,
+        "unsubscribes": 0
+      },
+      "status": "triggered",
+      "updated_at": "2026-07-10T14:00:00Z"
+    },
+    "source_id": "sg_ss_ec4"
+  }
+]

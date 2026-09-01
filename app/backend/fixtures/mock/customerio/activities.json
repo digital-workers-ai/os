@@ -1,0 +1,61 @@
+[
+  {
+    "payload": {
+      "campaign_id": 101,
+      "campaign_name": "Welcome Series",
+      "customer_id": "jane@acme.io",
+      "data": {
+        "subject": "Welcome to the platform!",
+        "template_id": 201
+      },
+      "delivery_id": "del_000",
+      "timestamp": 1720500000,
+      "type": "email_sent"
+    },
+    "source_id": "del_000"
+  },
+  {
+    "payload": {
+      "campaign_id": 101,
+      "campaign_name": "Welcome Series",
+      "customer_id": "john.doe@acme.io",
+      "data": {
+        "template_id": 201
+      },
+      "delivery_id": "del_001",
+      "timestamp": 1720503600,
+      "type": "email_opened"
+    },
+    "source_id": "del_001"
+  },
+  {
+    "payload": {
+      "campaign_id": 101,
+      "campaign_name": "Welcome Series",
+      "customer_id": "sarah@acme.io",
+      "data": {
+        "link_url": "https://app.example.com/getting-started",
+        "template_id": 201
+      },
+      "delivery_id": "del_002",
+      "timestamp": 1720507200,
+      "type": "email_clicked"
+    },
+    "source_id": "del_002"
+  },
+  {
+    "payload": {
+      "campaign_id": 101,
+      "campaign_name": "Welcome Series",
+      "customer_id": "mike@globex.com",
+      "data": {
+        "subject": "Welcome to the platform!",
+        "template_id": 201
+      },
+      "delivery_id": "del_003",
+      "timestamp": 1720510800,
+      "type": "email_sent"
+    },
+    "source_id": "del_003"
+  }
+]

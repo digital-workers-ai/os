@@ -3,6 +3,7 @@ from datetime import UTC, datetime
 from app.engine import links, ontology, resolver
 from app.engine.pipeline import ProjectedEntity, ProjectedFact
 from app.engine.report import SyncReport
+from app.engine.survivorship import FoldedFact
 
 ONTO = ontology.load()
 NOW = datetime(2026, 8, 1, tzinfo=UTC)
@@ -35,11 +36,38 @@ def canonical(entity):
     return resolver.canonical_id_for(entity.anchor_key)
 
 
-def build(entities, of_record=None):
+def folded_of(entities):
+    out = []
+    for e in entities:
+        for attr, fact in e.facts.items():
+            out.append(
+                FoldedFact(
+                    canonical_id=canonical(e),
+                    entity_type=e.entity_type,
+                    attr=attr,
+                    value=fact.value,
+                    value_num=None,
+                    source=e.source,
+                    entity_key=e.key,
+                    raw_event_id="raw",
+                    observed_at=NOW,
+                    disagreements=0,
+                )
+            )
+    return out
+
+
+def build(entities, of_record=None, folded=None):
     projected = {e.key: e for e in entities}
     of_record = of_record or {e.key: canonical(e) for e in entities}
     report = SyncReport()
-    edges = links.build(ONTO, projected=projected, of_record=of_record, report=report)
+    edges = links.build(
+        ONTO,
+        projected=projected,
+        of_record=of_record,
+        folded=folded if folded is not None else folded_of(entities),
+        report=report,
+    )
     return edges, report
 
 
@@ -144,10 +172,74 @@ class TestUnboundedCardinality:
         of_record = {e.key: canonical(e) for e in (company, sub)}
         report = SyncReport()
         edges = links.build(
-            onto, projected=projected, of_record=of_record, report=report
+            onto, projected=projected, of_record=of_record, folded=[], report=report
         )
         assert len(edges) == 1
         assert report.quarantines == []
+
+
+class TestMatchEdges:
+    def test_a_shared_normalized_value_joins(self):
+        person = record("hubspot", "person", "p1", email="jane@acme.io")
+        event = record(
+            "customerio", "event", "del_1", email="jane@acme.io", event_name="opened"
+        )
+        edges, _ = build([person, event])
+        assert [e.rel for e in edges] == ["performed_by"]
+        assert edges[0].from_canonical == canonical(event)
+        assert edges[0].to_canonical == canonical(person)
+        assert edges[0].grounding == "match:email"
+
+    def test_it_resolves_against_canonical_entities_so_expected_one_is_true(self):
+        hs = record("hubspot", "person", "p1", email="jane@acme.io")
+        stripe = record("stripe", "person", "cus_1", email="jane@acme.io")
+        event = record("customerio", "event", "del_1", email="jane@acme.io")
+        merged = resolver.canonical_id_for(hs.anchor_key)
+        of_record = {hs.key: merged, stripe.key: merged, event.key: canonical(event)}
+        folded = [
+            FoldedFact(
+                canonical_id=merged,
+                entity_type="person",
+                attr="email",
+                value="jane@acme.io",
+                value_num=None,
+                source="hubspot",
+                entity_key=hs.key,
+                raw_event_id="raw",
+                observed_at=NOW,
+                disagreements=0,
+            ),
+            FoldedFact(
+                canonical_id=canonical(event),
+                entity_type="event",
+                attr="email",
+                value="jane@acme.io",
+                value_num=None,
+                source="customerio",
+                entity_key=event.key,
+                raw_event_id="raw",
+                observed_at=NOW,
+                disagreements=0,
+            ),
+        ]
+        edges, report = build([hs, stripe, event], of_record=of_record, folded=folded)
+        assert len(edges) == 1
+        assert report.quarantines == []
+
+    def test_an_unmerged_duplicate_is_a_cardinality_violation_and_gets_no_link(self):
+        one = record("hubspot", "person", "p1", email="jane@acme.io")
+        two = record("stripe", "person", "cus_1", email="jane@acme.io")
+        event = record("customerio", "event", "del_1", email="jane@acme.io")
+        edges, report = build([one, two, event])
+        assert edges == []
+        assert len(report.quarantines) == 1
+        assert "expected 1" in report.quarantines[0]["detail"]
+
+    def test_an_event_whose_email_matches_nobody_is_dangling(self):
+        event = record("customerio", "event", "del_1", email="ghost@acme.io")
+        edges, report = build([event])
+        assert edges == []
+        assert report.dangling_refs["event performed_by person"] == 1
 
 
 class TestReporting:
