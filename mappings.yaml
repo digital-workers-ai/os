@@ -4,11 +4,30 @@ company:
   hubspot.companies.properties.name: name
   stripe.customers.name: name
   stripe.customers.email: domain
+  zendesk.organizations.external_id: domain
+  zendesk.organizations.name: name
+  zendesk.organizations.organization_fields.industry: industry
 
 person:
   hubspot.contacts.properties.email: email
   hubspot.contacts._full_name: name
   stripe.customers.email: email
+  zendesk.users.email: email
+  zendesk.users.name: name
+  zendesk.users.phone: phone
+  zendesk.users.external_id: external_ref
+  intercom.contacts.external_id: external_ref
+  intercom.contacts.email: email
+  intercom.contacts.name: name
+  intercom.contacts.phone: phone
+  klaviyo.profiles.attributes.email: email
+  klaviyo.profiles._full_name: name
+  klaviyo.profiles.attributes.phone_number: phone
+  klaviyo.profiles.attributes.title: title
+  sendgrid.contacts.email: email
+  sendgrid.contacts._full_name: name
+  sendgrid.contacts.phone_number: phone
+  sendgrid.contacts.custom_fields.role: title
 
 deal:
   hubspot.deals.properties.dealname: name
@@ -22,3 +41,45 @@ subscription:
   stripe.subscriptions.currency: currency
   stripe.subscriptions.status: status
   stripe.subscriptions.start_date: started_at
+
+ticket:
+  zendesk.tickets.subject: subject
+  zendesk.tickets.status: status
+  zendesk.tickets.priority: priority
+  zendesk.tickets.organization_id: organization_ref
+  zendesk.tickets.via.channel: channel
+  zendesk.tickets.via.source.from.address: email
+  zendesk.tickets.created_at: opened_at
+  intercom.conversations.title: subject
+  intercom.conversations.state: status
+  intercom.conversations.priority: priority
+  intercom.conversations.source.author.email: email
+  intercom.conversations.created_at: opened_at
+
+meeting:
+  calendly.scheduled_events.name: name
+  calendly.scheduled_events.status: status
+  calendly.scheduled_events.start_time: started_at
+  calendly.scheduled_events.end_time: ended_at
+  calendly.scheduled_events._host_email: email
+
+event:
+  customerio.activities.type: event_name
+  customerio.activities.customer_id: email
+  customerio.activities.timestamp: occurred_at
+
+email_campaign:
+  customerio.campaigns.name: name
+  sendgrid.singlesends.name: name
+  sendgrid.singlesends.status: status
+  sendgrid.singlesends.email_config.subject: subject
+  sendgrid.singlesends.stats.requests: sends
+  sendgrid.singlesends.stats.opens: opens
+  sendgrid.singlesends.stats.clicks: clicks
+  sendgrid.singlesends.send_at: sent_at
+  klaviyo.flows.attributes.name: name
+  klaviyo.flows.attributes.status: status
+
+audience:
+  customerio.segments.name: name
+  customerio.segments.count: members

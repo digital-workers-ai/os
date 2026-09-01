@@ -1,0 +1,190 @@
+[
+  {
+    "payload": {
+      "contacts": {
+        "contacts": [
+          {
+            "external_id": "user_tom_initech",
+            "id": "con_p7",
+            "type": "contact"
+          }
+        ],
+        "type": "contact.list"
+      },
+      "created_at": 1720108800,
+      "id": "conv_t1",
+      "open": true,
+      "priority": "priority",
+      "source": {
+        "author": {
+          "email": "tom@initech.io",
+          "id": "con_p7",
+          "name": "Tom Williams",
+          "type": "user"
+        },
+        "body": "<p>Billing discrepancy on June invoice</p>",
+        "delivered_as": "customer_initiated",
+        "id": "conv_t1",
+        "subject": "",
+        "type": "conversation"
+      },
+      "state": "open",
+      "statistics": {
+        "count_assignments": 1,
+        "time_to_admin_reply": 300,
+        "time_to_assignment": 120,
+        "time_to_first_close": 7200,
+        "type": "conversation_statistics"
+      },
+      "tags": {
+        "tags": [],
+        "type": "tag.list"
+      },
+      "title": "Billing discrepancy on June invoice",
+      "type": "conversation",
+      "updated_at": 1720368000
+    },
+    "source_id": "conv_t1"
+  },
+  {
+    "payload": {
+      "contacts": {
+        "contacts": [
+          {
+            "external_id": "user_amy_initech",
+            "id": "con_p8",
+            "type": "contact"
+          }
+        ],
+        "type": "contact.list"
+      },
+      "created_at": 1720195200,
+      "id": "conv_t2",
+      "open": true,
+      "priority": "priority",
+      "source": {
+        "author": {
+          "email": "amy.brown@initech.io",
+          "id": "con_p8",
+          "name": "Amy Brown",
+          "type": "user"
+        },
+        "body": "<p>Integration failing since update</p>",
+        "delivered_as": "customer_initiated",
+        "id": "conv_t2",
+        "subject": "",
+        "type": "conversation"
+      },
+      "state": "open",
+      "statistics": {
+        "count_assignments": 1,
+        "time_to_admin_reply": 300,
+        "time_to_assignment": 120,
+        "time_to_first_close": 7200,
+        "type": "conversation_statistics"
+      },
+      "tags": {
+        "tags": [],
+        "type": "tag.list"
+      },
+      "title": "Integration failing since update",
+      "type": "conversation",
+      "updated_at": 1720454400
+    },
+    "source_id": "conv_t2"
+  },
+  {
+    "payload": {
+      "contacts": {
+        "contacts": [
+          {
+            "external_id": "user_chris_initech",
+            "id": "con_p9",
+            "type": "contact"
+          }
+        ],
+        "type": "contact.list"
+      },
+      "created_at": 1720281600,
+      "id": "conv_t3",
+      "open": false,
+      "priority": "not_priority",
+      "source": {
+        "author": {
+          "email": "chris@initech.io",
+          "id": "con_p9",
+          "name": "Chris Taylor",
+          "type": "user"
+        },
+        "body": "<p>Cannot export reports</p>",
+        "delivered_as": "customer_initiated",
+        "id": "conv_t3",
+        "subject": "",
+        "type": "conversation"
+      },
+      "state": "closed",
+      "statistics": {
+        "count_assignments": 1,
+        "time_to_admin_reply": 300,
+        "time_to_assignment": 120,
+        "time_to_first_close": 7200,
+        "type": "conversation_statistics"
+      },
+      "tags": {
+        "tags": [],
+        "type": "tag.list"
+      },
+      "title": "Cannot export reports",
+      "type": "conversation",
+      "updated_at": 1720540800
+    },
+    "source_id": "conv_t3"
+  },
+  {
+    "payload": {
+      "contacts": {
+        "contacts": [
+          {
+            "external_id": "user_tom_initech",
+            "id": "con_p7",
+            "type": "contact"
+          }
+        ],
+        "type": "contact.list"
+      },
+      "created_at": 1720368000,
+      "id": "conv_t4",
+      "open": true,
+      "priority": "not_priority",
+      "source": {
+        "author": {
+          "email": "tom@initech.io",
+          "id": "con_p7",
+          "name": "Tom Williams",
+          "type": "user"
+        },
+        "body": "<p>Feature request: bulk import</p>",
+        "delivered_as": "customer_initiated",
+        "id": "conv_t4",
+        "subject": "",
+        "type": "conversation"
+      },
+      "state": "open",
+      "statistics": {
+        "count_assignments": 1,
+        "time_to_admin_reply": 300,
+        "time_to_assignment": 120,
+        "time_to_first_close": 7200,
+        "type": "conversation_statistics"
+      },
+      "tags": {
+        "tags": [],
+        "type": "tag.list"
+      },
+      "title": "Feature request: bulk import",
+      "type": "conversation",
+      "updated_at": 1720627200
+    },
+    "source_id": "conv_t4"
+  }
+]

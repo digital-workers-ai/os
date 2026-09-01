@@ -303,7 +303,76 @@ class TestEpochTimestamps:
         assert t.normalize_date("hubspot", "deals", -self.EPOCH_2026).startswith("19")
 
 
+class TestPhone:
+    def test_a_leading_plus_survives(self):
+        assert (
+            t.normalize_phone("zendesk", "users", "+1 (415) 555-0100") == "+14155550100"
+        )
+
+    def test_formatting_is_stripped(self):
+        assert t.normalize_phone("intercom", "contacts", "415.555.0100") == "4155550100"
+
+    def test_a_bare_number_is_not_given_a_country_code(self):
+        assert t.normalize_phone("zendesk", "users", "4155550100") == "4155550100"
+
+    def test_seven_digits_is_the_floor(self):
+        assert t.normalize_phone("zendesk", "users", "555-0100") == "5550100"
+
+    def test_six_digits_is_below_the_floor(self):
+        with pytest.raises(t.TransformError) as e:
+            t.normalize_phone("zendesk", "users", "555-010")
+        assert e.value.reason == "not_a_phone"
+
+    def test_fifteen_digits_is_the_ceiling(self):
+        assert (
+            t.normalize_phone("zendesk", "users", "+123456789012345")
+            == "+123456789012345"
+        )
+
+    def test_sixteen_digits_is_beyond_the_ceiling(self):
+        with pytest.raises(t.TransformError) as e:
+            t.normalize_phone("zendesk", "users", "+1234567890123456")
+        assert e.value.reason == "not_a_phone"
+
+    @pytest.mark.parametrize("raw", ["", "n/a", "123"])
+    def test_a_non_phone_is_refused(self, raw):
+        with pytest.raises(t.TransformError) as e:
+            t.normalize_phone("klaviyo", "profiles", raw)
+        assert e.value.reason == "not_a_phone"
+
+
+class TestNumber:
+    def test_a_string_typed_number_coerces(self):
+        assert t.normalize_number("klaviyo", "flows", "42.5") == 42.5
+
+    def test_float_noise_is_killed_at_six_decimals(self):
+        assert t.normalize_number("sendgrid", "singlesends", 0.1 + 0.2) == 0.3
+
+    def test_the_seventh_decimal_is_rounded_away(self):
+        assert t.normalize_number("sendgrid", "singlesends", 1.23456789) == 1.234568
+
+    def test_booleans_are_refused(self):
+        with pytest.raises(t.TransformError) as e:
+            t.normalize_number("klaviyo", "flows", True)
+        assert e.value.reason == "not_a_number"
+
+    def test_nan_is_refused(self):
+        with pytest.raises(t.TransformError):
+            t.normalize_number("klaviyo", "flows", float("nan"))
+
+    def test_infinity_is_refused(self):
+        with pytest.raises(t.TransformError) as e:
+            t.normalize_number("klaviyo", "flows", float("inf"))
+        assert e.value.reason == "not_finite"
+
+
 class TestRegistry:
+    def test_the_batch_one_transforms_are_registered_with_their_types(self):
+        assert t.TRANSFORMS["normalize_phone"] is t.normalize_phone
+        assert t.TRANSFORMS["normalize_number"] is t.normalize_number
+        assert t.TRANSFORM_TYPES["normalize_phone"] == "string"
+        assert t.TRANSFORM_TYPES["normalize_number"] == "number"
+
     def test_every_yaml_name_resolves(self):
         for label, name in t.load_map().items():
             assert name in t.TRANSFORMS, f"{label} names an unknown transform"

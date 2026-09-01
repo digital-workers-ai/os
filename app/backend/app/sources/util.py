@@ -25,11 +25,13 @@ async def store_all(
     source: str,
     object_type: str,
     id_fields: tuple = ("id",),
+    id_of=None,
     notes: dict | None = None,
 ) -> dict:
     notes = notes if notes is not None else {}
     for r in records:
-        rid = pick_id(r, *id_fields)
+        rid = id_of(r) if id_of else pick_id(r, *id_fields)
+        rid = str(rid) if rid is not None and str(rid).strip() else None
         if rid is None:
             notes["missing_id"] = notes.get("missing_id", 0) + 1
             continue

@@ -38,6 +38,19 @@ def normalize_money(source, object_type, value):
     return round(_finite_float(value), 6)
 
 
+def normalize_number(source, object_type, value):
+    return round(_finite_float(value), 6)
+
+
+def normalize_phone(source, object_type, value):
+    text = str(value).strip()
+    plus = text.startswith("+")
+    digits = re.sub(r"\D", "", text)
+    if not 7 <= len(digits) <= 15:
+        raise TransformError("not_a_phone", text[:40])
+    return f"+{digits}" if plus else digits
+
+
 def normalize_currency(source, object_type, value):
     code = str(value).strip().lower()
     if not _CURRENCY.match(code):
@@ -200,6 +213,8 @@ TRANSFORMS = {
     "normalize_domain": normalize_domain,
     "normalize_email": normalize_email,
     "normalize_money": normalize_money,
+    "normalize_number": normalize_number,
+    "normalize_phone": normalize_phone,
     "normalize_ref": normalize_ref,
     "normalize_status": normalize_status,
     "normalize_text": normalize_text,
@@ -211,6 +226,8 @@ TRANSFORM_TYPES = {
     "normalize_domain": "string",
     "normalize_email": "string",
     "normalize_money": "number",
+    "normalize_number": "number",
+    "normalize_phone": "string",
     "normalize_ref": "string",
     "normalize_status": "string",
     "normalize_text": "string",

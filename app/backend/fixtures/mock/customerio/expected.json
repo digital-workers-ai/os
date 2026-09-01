@@ -1,0 +1,67 @@
+{
+  "clears": {},
+  "extracted": {
+    "activities": {
+      "event": {
+        "del_000": {
+          "email": "jane@acme.io",
+          "event_name": "email_sent",
+          "occurred_at": "2024-07-09T04:40:00Z"
+        },
+        "del_001": {
+          "email": "john.doe@acme.io",
+          "event_name": "email_opened",
+          "occurred_at": "2024-07-09T05:40:00Z"
+        },
+        "del_002": {
+          "email": "sarah@acme.io",
+          "event_name": "email_clicked",
+          "occurred_at": "2024-07-09T06:40:00Z"
+        },
+        "del_003": {
+          "email": "mike@globex.com",
+          "event_name": "email_sent",
+          "occurred_at": "2024-07-09T07:40:00Z"
+        }
+      }
+    },
+    "campaigns": {
+      "email_campaign": {
+        "101": {
+          "name": "July Newsletter"
+        },
+        "102": {
+          "name": "Product Launch Announcement"
+        },
+        "103": {
+          "name": "Summer Sale"
+        },
+        "104": {
+          "name": "Onboarding Welcome"
+        }
+      }
+    },
+    "segments": {
+      "audience": {
+        "1": {
+          "members": "1250.0",
+          "name": "Active Customers"
+        },
+        "2": {
+          "members": "87.0",
+          "name": "Churned"
+        },
+        "3": {
+          "members": "340.0",
+          "name": "Trial Users"
+        },
+        "4": {
+          "members": "45.0",
+          "name": "High MRR"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "customerio"
+}

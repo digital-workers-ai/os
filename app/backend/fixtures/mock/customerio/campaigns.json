@@ -1,0 +1,70 @@
+[
+  {
+    "payload": {
+      "actions_count": 4,
+      "active": true,
+      "created": 1719878400,
+      "id": 101,
+      "msg_templates_count": 3,
+      "name": "July Newsletter",
+      "tags": [
+        "email",
+        "july"
+      ],
+      "type": "triggered",
+      "updated": 1720500000
+    },
+    "source_id": "101"
+  },
+  {
+    "payload": {
+      "actions_count": 5,
+      "active": true,
+      "created": 1719964800,
+      "id": 102,
+      "msg_templates_count": 4,
+      "name": "Product Launch Announcement",
+      "tags": [
+        "email",
+        "product"
+      ],
+      "type": "triggered",
+      "updated": 1720500000
+    },
+    "source_id": "102"
+  },
+  {
+    "payload": {
+      "actions_count": 6,
+      "active": true,
+      "created": 1720051200,
+      "id": 103,
+      "msg_templates_count": 5,
+      "name": "Summer Sale",
+      "tags": [
+        "email",
+        "summer"
+      ],
+      "type": "triggered",
+      "updated": 1720500000
+    },
+    "source_id": "103"
+  },
+  {
+    "payload": {
+      "actions_count": 7,
+      "active": true,
+      "created": 1720137600,
+      "id": 104,
+      "msg_templates_count": 6,
+      "name": "Onboarding Welcome",
+      "tags": [
+        "email",
+        "onboarding"
+      ],
+      "type": "triggered",
+      "updated": 1720500000
+    },
+    "source_id": "104"
+  }
+]

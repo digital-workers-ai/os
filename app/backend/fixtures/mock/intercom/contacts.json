@@ -1,0 +1,210 @@
+[
+  {
+    "payload": {
+      "browser": "Chrome",
+      "browser_version": "126.0.0",
+      "companies": {
+        "data": [
+          {
+            "company_id": "acme.io",
+            "id": "comp_c1",
+            "name": "Acme Corp",
+            "type": "company"
+          }
+        ],
+        "has_more": false,
+        "total_count": 1,
+        "type": "list"
+      },
+      "created_at": 1710500000,
+      "custom_attributes": {
+        "company": "Acme Corp",
+        "company_domain": "acme.io",
+        "mrr": 1800.0,
+        "plan": "professional"
+      },
+      "email": "jane@acme.io",
+      "external_id": "user_jane_acme",
+      "id": "con_p1",
+      "last_seen_at": 1720454400,
+      "location": {
+        "city": "San Francisco",
+        "country": "United States",
+        "country_code": "US",
+        "region": "CA",
+        "type": "location"
+      },
+      "name": "Jane Smith",
+      "os": "Mac OS X 14.5",
+      "phone": "+14155550101",
+      "role": "user",
+      "signed_up_at": 1710500000,
+      "tags": {
+        "data": [],
+        "has_more": false,
+        "total_count": 0,
+        "type": "list"
+      },
+      "type": "contact",
+      "updated_at": 1720454400,
+      "workspace_id": "ws_mock_001"
+    },
+    "source_id": "con_p1"
+  },
+  {
+    "payload": {
+      "browser": "Chrome",
+      "browser_version": "126.0.0",
+      "companies": {
+        "data": [
+          {
+            "company_id": "acme.io",
+            "id": "comp_c1",
+            "name": "Acme Corp",
+            "type": "company"
+          }
+        ],
+        "has_more": false,
+        "total_count": 1,
+        "type": "list"
+      },
+      "created_at": 1710586400,
+      "custom_attributes": {
+        "company": "Acme Corp",
+        "company_domain": "acme.io",
+        "mrr": 1800.0,
+        "plan": "professional"
+      },
+      "email": "john.doe@acme.io",
+      "external_id": "user_john_acme",
+      "id": "con_p2",
+      "last_seen_at": 1720454400,
+      "location": {
+        "city": "San Francisco",
+        "country": "United States",
+        "country_code": "US",
+        "region": "CA",
+        "type": "location"
+      },
+      "name": "John Doe",
+      "os": "Mac OS X 14.5",
+      "phone": "+14155550102",
+      "role": "user",
+      "signed_up_at": 1710586400,
+      "tags": {
+        "data": [],
+        "has_more": false,
+        "total_count": 0,
+        "type": "list"
+      },
+      "type": "contact",
+      "updated_at": 1720454400,
+      "workspace_id": "ws_mock_001"
+    },
+    "source_id": "con_p2"
+  },
+  {
+    "payload": {
+      "browser": "Chrome",
+      "browser_version": "126.0.0",
+      "companies": {
+        "data": [
+          {
+            "company_id": "acme.io",
+            "id": "comp_c1",
+            "name": "Acme Corp",
+            "type": "company"
+          }
+        ],
+        "has_more": false,
+        "total_count": 1,
+        "type": "list"
+      },
+      "created_at": 1710672800,
+      "custom_attributes": {
+        "company": "Acme Corp",
+        "company_domain": "acme.io",
+        "mrr": 1800.0,
+        "plan": "professional"
+      },
+      "email": "sarah@acme.io",
+      "external_id": "user_sarah_acme",
+      "id": "con_p3",
+      "last_seen_at": 1720454400,
+      "location": {
+        "city": "San Francisco",
+        "country": "United States",
+        "country_code": "US",
+        "region": "CA",
+        "type": "location"
+      },
+      "name": "Sarah Johnson",
+      "os": "Mac OS X 14.5",
+      "phone": null,
+      "role": "user",
+      "signed_up_at": 1710672800,
+      "tags": {
+        "data": [],
+        "has_more": false,
+        "total_count": 0,
+        "type": "list"
+      },
+      "type": "contact",
+      "updated_at": 1720454400,
+      "workspace_id": "ws_mock_001"
+    },
+    "source_id": "con_p3"
+  },
+  {
+    "payload": {
+      "browser": "Chrome",
+      "browser_version": "126.0.0",
+      "companies": {
+        "data": [
+          {
+            "company_id": "globex.com",
+            "id": "comp_c2",
+            "name": "Globex Inc",
+            "type": "company"
+          }
+        ],
+        "has_more": false,
+        "total_count": 1,
+        "type": "list"
+      },
+      "created_at": 1710759200,
+      "custom_attributes": {
+        "company": "Globex Inc",
+        "company_domain": "globex.com",
+        "mrr": 2400.0,
+        "plan": "professional"
+      },
+      "email": "mike@globex.com",
+      "external_id": "user_mike_globex",
+      "id": "con_p4",
+      "last_seen_at": 1720454400,
+      "location": {
+        "city": "Austin",
+        "country": "United States",
+        "country_code": "US",
+        "region": "TX",
+        "type": "location"
+      },
+      "name": "Mike Chen",
+      "os": "Mac OS X 14.5",
+      "phone": "+15125550201",
+      "role": "user",
+      "signed_up_at": 1710759200,
+      "tags": {
+        "data": [],
+        "has_more": false,
+        "total_count": 0,
+        "type": "list"
+      },
+      "type": "contact",
+      "updated_at": 1720454400,
+      "workspace_id": "ws_mock_001"
+    },
+    "source_id": "con_p4"
+  }
+]

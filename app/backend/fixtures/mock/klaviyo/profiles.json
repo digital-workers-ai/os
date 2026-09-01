@@ -1,0 +1,250 @@
+[
+  {
+    "payload": {
+      "attributes": {
+        "created": "2025-03-15T00:00:00+00:00",
+        "email": "jane@acme.io",
+        "external_id": "p1",
+        "first_name": "Jane",
+        "image": null,
+        "last_event_date": "2026-07-14T00:00:00+00:00",
+        "last_name": "Smith",
+        "location": {
+          "city": "San Francisco",
+          "country": "US",
+          "region": "CA",
+          "zip": null
+        },
+        "organization": "Acme Corp",
+        "phone_number": "+14155550101",
+        "predictive_analytics": {
+          "average_days_between_orders": null,
+          "average_order_value": 0,
+          "churn_probability": 0,
+          "expected_date_of_next_order": null,
+          "historic_clv": 0,
+          "historic_number_of_orders": 0,
+          "predicted_clv": 0,
+          "predicted_number_of_orders": 0,
+          "total_clv": 0
+        },
+        "properties": {},
+        "subscriptions": {
+          "email": {
+            "marketing": {
+              "consent": "SUBSCRIBED"
+            }
+          }
+        },
+        "title": "VP Sales",
+        "updated": "2026-07-14T00:00:00+00:00"
+      },
+      "id": "kl_prof_p1",
+      "links": {
+        "self": "/api/profiles/kl_prof_p1"
+      },
+      "relationships": {
+        "lists": {
+          "links": {
+            "related": "/api/profiles/kl_prof_p1/lists",
+            "self": "/api/profiles/kl_prof_p1/relationships/lists"
+          }
+        },
+        "segments": {
+          "links": {
+            "related": "/api/profiles/kl_prof_p1/segments",
+            "self": "/api/profiles/kl_prof_p1/relationships/segments"
+          }
+        }
+      },
+      "type": "profile"
+    },
+    "source_id": "kl_prof_p1"
+  },
+  {
+    "payload": {
+      "attributes": {
+        "created": "2025-04-01T00:00:00+00:00",
+        "email": "john.doe@acme.io",
+        "external_id": "p2",
+        "first_name": "John",
+        "image": null,
+        "last_event_date": "2026-07-10T00:00:00+00:00",
+        "last_name": "Doe",
+        "location": {
+          "city": "San Francisco",
+          "country": "US",
+          "region": "CA",
+          "zip": null
+        },
+        "organization": "Acme Corp",
+        "phone_number": "+14155550102",
+        "predictive_analytics": {
+          "average_days_between_orders": null,
+          "average_order_value": 0,
+          "churn_probability": 0,
+          "expected_date_of_next_order": null,
+          "historic_clv": 0,
+          "historic_number_of_orders": 0,
+          "predicted_clv": 0,
+          "predicted_number_of_orders": 0,
+          "total_clv": 0
+        },
+        "properties": {},
+        "subscriptions": {
+          "email": {
+            "marketing": {
+              "consent": "SUBSCRIBED"
+            }
+          }
+        },
+        "title": "CTO",
+        "updated": "2026-07-10T00:00:00+00:00"
+      },
+      "id": "kl_prof_p2",
+      "links": {
+        "self": "/api/profiles/kl_prof_p2"
+      },
+      "relationships": {
+        "lists": {
+          "links": {
+            "related": "/api/profiles/kl_prof_p2/lists",
+            "self": "/api/profiles/kl_prof_p2/relationships/lists"
+          }
+        },
+        "segments": {
+          "links": {
+            "related": "/api/profiles/kl_prof_p2/segments",
+            "self": "/api/profiles/kl_prof_p2/relationships/segments"
+          }
+        }
+      },
+      "type": "profile"
+    },
+    "source_id": "kl_prof_p2"
+  },
+  {
+    "payload": {
+      "attributes": {
+        "created": "2025-06-01T00:00:00+00:00",
+        "email": "sarah@acme.io",
+        "external_id": "p3",
+        "first_name": "Sarah",
+        "image": null,
+        "last_event_date": "2026-07-12T00:00:00+00:00",
+        "last_name": "Johnson",
+        "location": {
+          "city": "San Francisco",
+          "country": "US",
+          "region": "CA",
+          "zip": null
+        },
+        "organization": "Acme Corp",
+        "phone_number": null,
+        "predictive_analytics": {
+          "average_days_between_orders": null,
+          "average_order_value": 0,
+          "churn_probability": 0,
+          "expected_date_of_next_order": null,
+          "historic_clv": 0,
+          "historic_number_of_orders": 0,
+          "predicted_clv": 0,
+          "predicted_number_of_orders": 0,
+          "total_clv": 0
+        },
+        "properties": {},
+        "subscriptions": {
+          "email": {
+            "marketing": {
+              "consent": "SUBSCRIBED"
+            }
+          }
+        },
+        "title": "Marketing Director",
+        "updated": "2026-07-12T00:00:00+00:00"
+      },
+      "id": "kl_prof_p3",
+      "links": {
+        "self": "/api/profiles/kl_prof_p3"
+      },
+      "relationships": {
+        "lists": {
+          "links": {
+            "related": "/api/profiles/kl_prof_p3/lists",
+            "self": "/api/profiles/kl_prof_p3/relationships/lists"
+          }
+        },
+        "segments": {
+          "links": {
+            "related": "/api/profiles/kl_prof_p3/segments",
+            "self": "/api/profiles/kl_prof_p3/relationships/segments"
+          }
+        }
+      },
+      "type": "profile"
+    },
+    "source_id": "kl_prof_p3"
+  },
+  {
+    "payload": {
+      "attributes": {
+        "created": "2025-02-01T00:00:00+00:00",
+        "email": "mike@globex.com",
+        "external_id": "p4",
+        "first_name": "Mike",
+        "image": null,
+        "last_event_date": "2026-07-15T00:00:00+00:00",
+        "last_name": "Chen",
+        "location": {
+          "city": "Austin",
+          "country": "US",
+          "region": "TX",
+          "zip": null
+        },
+        "organization": "Globex Inc",
+        "phone_number": "+15125550201",
+        "predictive_analytics": {
+          "average_days_between_orders": null,
+          "average_order_value": 0,
+          "churn_probability": 0,
+          "expected_date_of_next_order": null,
+          "historic_clv": 0,
+          "historic_number_of_orders": 0,
+          "predicted_clv": 0,
+          "predicted_number_of_orders": 0,
+          "total_clv": 0
+        },
+        "properties": {},
+        "subscriptions": {
+          "email": {
+            "marketing": {
+              "consent": "SUBSCRIBED"
+            }
+          }
+        },
+        "title": "CEO",
+        "updated": "2026-07-15T00:00:00+00:00"
+      },
+      "id": "kl_prof_p4",
+      "links": {
+        "self": "/api/profiles/kl_prof_p4"
+      },
+      "relationships": {
+        "lists": {
+          "links": {
+            "related": "/api/profiles/kl_prof_p4/lists",
+            "self": "/api/profiles/kl_prof_p4/relationships/lists"
+          }
+        },
+        "segments": {
+          "links": {
+            "related": "/api/profiles/kl_prof_p4/segments",
+            "self": "/api/profiles/kl_prof_p4/relationships/segments"
+          }
+        }
+      },
+      "type": "profile"
+    },
+    "source_id": "kl_prof_p4"
+  }
+]

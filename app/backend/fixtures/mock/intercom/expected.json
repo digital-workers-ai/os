@@ -1,0 +1,69 @@
+{
+  "clears": {
+    "phone/intercom": 1
+  },
+  "extracted": {
+    "contacts": {
+      "person": {
+        "con_p1": {
+          "email": "jane@acme.io",
+          "external_ref": "user_jane_acme",
+          "name": "Jane Smith",
+          "phone": "+14155550101"
+        },
+        "con_p2": {
+          "email": "john.doe@acme.io",
+          "external_ref": "user_john_acme",
+          "name": "John Doe",
+          "phone": "+14155550102"
+        },
+        "con_p3": {
+          "email": "sarah@acme.io",
+          "external_ref": "user_sarah_acme",
+          "name": "Sarah Johnson",
+          "phone": null
+        },
+        "con_p4": {
+          "email": "mike@globex.com",
+          "external_ref": "user_mike_globex",
+          "name": "Mike Chen",
+          "phone": "+15125550201"
+        }
+      }
+    },
+    "conversations": {
+      "ticket": {
+        "conv_t1": {
+          "email": "tom@initech.io",
+          "opened_at": "2024-07-04T16:00:00Z",
+          "priority": "priority",
+          "status": "open",
+          "subject": "Billing discrepancy on June invoice"
+        },
+        "conv_t2": {
+          "email": "amy.brown@initech.io",
+          "opened_at": "2024-07-05T16:00:00Z",
+          "priority": "priority",
+          "status": "open",
+          "subject": "Integration failing since update"
+        },
+        "conv_t3": {
+          "email": "chris@initech.io",
+          "opened_at": "2024-07-06T16:00:00Z",
+          "priority": "not_priority",
+          "status": "closed",
+          "subject": "Cannot export reports"
+        },
+        "conv_t4": {
+          "email": "tom@initech.io",
+          "opened_at": "2024-07-07T16:00:00Z",
+          "priority": "not_priority",
+          "status": "open",
+          "subject": "Feature request: bulk import"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "intercom"
+}
