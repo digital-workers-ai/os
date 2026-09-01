@@ -64,6 +64,33 @@ async def test_server_timestamps_are_timezone_aware(session):
     assert event.ingested_at.tzinfo is not None
 
 
+def _counting_loader():
+    calls = {"n": 0}
+
+    def load():
+        calls["n"] += 1
+        return {"loads": calls["n"]}
+
+    return load
+
+
+def test_cached_reads_the_loader_once():
+    from app import caches
+
+    get = caches.cached(_counting_loader())
+    assert get() == {"loads": 1}
+    assert get() == {"loads": 1}
+
+
+def test_reset_all_makes_a_cached_loader_run_again():
+    from app import caches
+
+    get = caches.cached(_counting_loader())
+    assert get() == {"loads": 1}
+    caches.reset_all()
+    assert get() == {"loads": 2}
+
+
 def test_reset_all_clears_every_registered_cache():
     from app import caches
     from app.engine import transforms

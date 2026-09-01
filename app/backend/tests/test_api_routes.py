@@ -429,3 +429,45 @@ class TestReport:
             response = await api.post("/api/rebuild")
         assert response.status_code == 409
         assert "already in progress" in response.json()["detail"]
+
+
+class TestInsights:
+    async def test_an_empty_estate_is_zero_findings_with_a_report(self, api):
+        body = (await api.get("/api/insights/rules")).json()
+        assert body["findings"] == []
+        assert body["rules"] > 0
+        assert body["report"] == {"evaluated": 0, "unreadable": {}}
+        assert set(body["by_severity"]) == {"high", "medium", "low"}
+
+    async def test_as_of_is_on_the_payload_and_timezone_aware(self, api):
+        body = (await api.get("/api/insights/rules")).json()
+        assert datetime.fromisoformat(body["as_of"]).tzinfo is not None
+
+    async def test_the_severity_filter_narrows_the_findings(self, api, canonical):
+        await canonical("subscription", {"status": "past_due", "mrr": "100"})
+        everything = (await api.get("/api/insights/rules")).json()["findings"]
+        assert "subscription_past_due" in {f["rule"] for f in everything}
+        highs = (await api.get("/api/insights/rules?severity=high")).json()["findings"]
+        assert len(highs) <= len(everything)
+        assert all(f["severity"] == "high" for f in highs)
+
+    async def test_by_severity_counts_the_filtered_findings(self, api, canonical):
+        await canonical("subscription", {"status": "past_due", "mrr": "100"})
+        body = (await api.get("/api/insights/rules?severity=medium")).json()
+        assert body["by_severity"] == {"high": 0, "medium": 0, "low": 0}
+
+    async def test_the_catalogue_is_served_without_touching_the_database(
+        self, api, count_queries
+    ):
+        with count_queries() as counter:
+            response = await api.get("/api/insights/rules/definitions")
+        assert counter.total == 0
+        rules = response.json()["rules"]
+        assert rules
+        for definition in rules.values():
+            assert {"label", "entity", "severity", "all", "any"} <= set(definition)
+
+    async def test_an_unknown_severity_is_an_empty_page_not_an_error(self, api):
+        response = await api.get("/api/insights/rules?severity=bogus")
+        assert response.status_code == 200
+        assert response.json()["findings"] == []
