@@ -92,9 +92,11 @@ class TestReadsNeverWrite:
 
 
 class TestTrendHistoryComesFromSnapshots:
-    async def _snapshot(self, session, metric, value, at):
+    async def _snapshot(self, session, metric, value, at, **over):
         session.add(
-            MetricSnapshot(metric=metric, value=value, entities=5, recorded_at=at)
+            MetricSnapshot(
+                metric=metric, value=value, entities=5, recorded_at=at, **over
+            )
         )
         await session.flush()
 
@@ -128,6 +130,59 @@ class TestTrendHistoryComesFromSnapshots:
         )
         assert results[0]["met"] is None
         assert "not enough history" in results[0]["unknown"]
+
+    async def test_a_series_that_spans_two_producers_is_not_a_trend(self, session):
+        base = datetime(2026, 7, 1, tzinfo=UTC)
+        await self._snapshot(
+            session,
+            "interest_share",
+            10.0,
+            base,
+            inferred=True,
+            vocabulary_sha="a" * 64,
+            produced_by="claude-opus-5@v1",
+        )
+        await self._snapshot(
+            session,
+            "interest_share",
+            90.0,
+            base + timedelta(days=1),
+            inferred=True,
+            vocabulary_sha="b" * 64,
+            produced_by="claude-opus-5@v2",
+        )
+        results = await goals.evaluate_over(
+            session,
+            _goal(metric="interest_share", strategy="increasing", target=50.0),
+            {"interest_share": {"value": 90.0, "entities": 5, "inferred": True}},
+        )
+        assert results[0]["met"] is None
+        assert "comparable" in results[0]["unknown"]
+
+
+class TestAnEstimateSaysSo:
+    async def test_a_goal_on_an_inferred_metric_is_marked_inferred(self, session):
+        results = await goals.evaluate_over(
+            session,
+            _goal(metric="interest_share"),
+            {
+                "interest_share": {
+                    "value": 500,
+                    "entities": 3,
+                    "inferred": True,
+                    "reading": "sales_call",
+                    "vocabulary_sha": "abc123def456",
+                }
+            },
+        )
+        assert results[0]["inferred"] is True
+        assert results[0]["reading"] == "sales_call"
+
+    async def test_a_goal_on_a_measured_metric_is_not(self, session):
+        results = await goals.evaluate_over(
+            session, _goal(), {"mrr": {"value": 500, "entities": 3}}
+        )
+        assert results[0].get("inferred") is not True
 
 
 class TestTheHappyPath:

@@ -250,6 +250,35 @@ class TestEnrichmentBindsToTheOntology:
         assert "enrichment.yaml" in problems[0]
 
 
+class TestInferredMetricsPassTheBuild:
+    def test_reading_fields_are_not_ontology_attr_problems(self, files):
+        problems = files.problems()
+        assert not any("not an attr of meeting" in p for p in problems)
+
+    def test_the_no_raw_field_rule_exempts_inferred_metrics(self, files):
+        problems = files.problems()
+        assert not any("no raw field feeds it" in p for p in problems)
+
+    def test_an_inferred_metric_over_reading_fields_passes_checks(self, files):
+        files.edit(
+            "metrics.yaml",
+            lambda d: d.update(
+                {
+                    "strong_calls": {
+                        "label": "Strong Calls",
+                        "entity": "meeting",
+                        "source": "enriched",
+                        "inferred": True,
+                        "reading": "sales_call",
+                        "expression": "COUNT(entity)",
+                        "filter": {"interest": "strong"},
+                    }
+                }
+            ),
+        )
+        assert files.problems() == []
+
+
 class TestAccountCurrencyExemption:
     def test_a_money_mapping_source_must_declare_or_map_its_currency(
         self, files, monkeypatch
