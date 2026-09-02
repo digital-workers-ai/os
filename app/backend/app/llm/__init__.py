@@ -18,3 +18,30 @@ def client():
 def reset() -> None:
     global _client
     _client = None
+
+
+async def parse(
+    *, model, max_tokens, system, user, output_format, client_override=None
+):
+    api = client_override or client()
+    try:
+        response = await api.messages.parse(
+            model=model,
+            max_tokens=max_tokens,
+            system=system,
+            messages=[{"role": "user", "content": user}],
+            output_format=output_format,
+        )
+    except anthropic.APIError as exc:
+        raise LLMError(f"{type(exc).__name__}: {exc}") from exc
+    except Exception as exc:
+        raise LLMError(f"{type(exc).__name__}: {exc}") from exc
+
+    if getattr(response, "stop_reason", None) == "refusal":
+        raise LLMError("the model declined to answer")
+    parsed = getattr(response, "parsed_output", None)
+    if parsed is None:
+        raise LLMError(
+            f"no parsed output (stop_reason={getattr(response, 'stop_reason', None)!r})"
+        )
+    return parsed, getattr(response, "model", model)
