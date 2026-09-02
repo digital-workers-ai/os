@@ -34,7 +34,6 @@ class TestClientLifecycle:
     def test_importing_the_module_never_needs_a_credential(self, monkeypatch):
         llm = importlib.import_module("app.llm")
         monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
-        monkeypatch.delenv("ANTHROPIC_AUTH_TOKEN", raising=False)
         llm.reset()
         importlib.reload(llm)
         llm.reset()
@@ -49,10 +48,9 @@ class TestStartupRefusesAMisconfiguredDeploy:
         with pytest.raises(config.StartupError, match="ENRICHMENT_ENABLED"):
             config.validate_startup(env={})
 
-    @pytest.mark.parametrize("name", ["ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN"])
-    def test_either_credential_form_satisfies_it(self, name, monkeypatch):
+    def test_the_api_key_satisfies_it(self, monkeypatch):
         monkeypatch.setattr(config.settings, "ENRICHMENT_ENABLED", True)
-        config.validate_startup(env={name: "sk-something"})
+        config.validate_startup(env={"ANTHROPIC_API_KEY": "sk-something"})
 
     def test_a_credential_with_enrichment_off_is_allowed_but_unused(self):
         config.validate_startup(env={"ANTHROPIC_API_KEY": "sk-something"})
