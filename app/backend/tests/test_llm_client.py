@@ -209,6 +209,50 @@ class TestParse:
         assert "max_tokens" in str(caught.value)
 
 
+class TestConverse:
+    async def test_the_raw_response_is_returned_for_the_caller_to_loop_on(self):
+        response = Response([Block("hi")])
+        client = FakeClient(response)
+        assert (
+            await llm.converse(
+                model="m",
+                max_tokens=1,
+                system="s",
+                messages=[],
+                tools=[],
+                client_override=client,
+            )
+            is response
+        )
+
+    async def test_tools_and_messages_reach_the_wire_unchanged(self):
+        client = FakeClient(Response([Block("hi")]))
+        tools = [{"name": "get_metrics"}]
+        messages = [{"role": "user", "content": "mrr?"}]
+        await llm.converse(
+            model="m",
+            max_tokens=2,
+            system="s",
+            messages=messages,
+            tools=tools,
+            client_override=client,
+        )
+        sent = client.messages.calls[0]
+        assert sent["tools"] == tools and sent["messages"] == messages
+
+    async def test_a_wire_error_becomes_an_llm_error(self):
+        client = FakeClient(raises=api_error("rate limited"))
+        with pytest.raises(llm.LLMError, match="rate limited"):
+            await llm.converse(
+                model="m",
+                max_tokens=1,
+                system="s",
+                messages=[],
+                tools=[],
+                client_override=client,
+            )
+
+
 class TestStartupRefusesAMisconfiguredDeploy:
     def test_a_clean_environment_boots_with_enrichment_off(self):
         assert config.validate_startup(env={}) is None
@@ -230,6 +274,11 @@ class TestStartupRefusesAMisconfiguredDeploy:
         with pytest.raises(config.StartupError, match="COACHING_ENABLED"):
             config.validate_startup(env={})
 
+    def test_conversation_on_without_a_credential_refuses_the_boot(self, monkeypatch):
+        monkeypatch.setattr(config.settings, "CONVERSATION_ENABLED", True)
+        with pytest.raises(config.StartupError, match="CONVERSATION_ENABLED"):
+            config.validate_startup(env={})
+
 
 def test_enrichment_ships_off_by_default():
     assert config.settings.ENRICHMENT_ENABLED is False
@@ -237,3 +286,7 @@ def test_enrichment_ships_off_by_default():
 
 def test_coaching_ships_off_by_default():
     assert config.settings.COACHING_ENABLED is False
+
+
+def test_conversation_ships_off_by_default():
+    assert config.settings.CONVERSATION_ENABLED is False

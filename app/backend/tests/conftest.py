@@ -139,6 +139,28 @@ async def link(session):
 
 
 @pytest.fixture
+def statements(db_engine):
+    from contextlib import contextmanager
+
+    from sqlalchemy import event
+
+    @contextmanager
+    def _capturing():
+        seen: list[str] = []
+
+        def _on_execute(conn, cursor, statement, params, context, many):
+            seen.append(statement)
+
+        event.listen(db_engine.sync_engine, "before_cursor_execute", _on_execute)
+        try:
+            yield seen
+        finally:
+            event.remove(db_engine.sync_engine, "before_cursor_execute", _on_execute)
+
+    return _capturing
+
+
+@pytest.fixture
 def count_queries(db_engine):
     from contextlib import contextmanager
 

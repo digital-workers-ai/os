@@ -3,7 +3,7 @@ import os
 from pydantic_settings import BaseSettings
 
 ANTHROPIC_CREDENTIAL_ENV = "ANTHROPIC_API_KEY"
-LLM_FLAGS = ("ENRICHMENT_ENABLED", "COACHING_ENABLED")
+LLM_FLAGS = ("ENRICHMENT_ENABLED", "COACHING_ENABLED", "CONVERSATION_ENABLED")
 
 
 class Settings(BaseSettings):
@@ -23,6 +23,13 @@ class Settings(BaseSettings):
     COACHING_ENABLED: bool = False
     COACHING_MODEL: str = "claude-sonnet-5"
     COACHING_MAX_TOKENS: int = 8000
+    CONVERSATION_ENABLED: bool = False
+    CONVERSATION_MODEL: str = "claude-sonnet-5"
+    CONVERSATION_MAX_TOKENS: int = 8000
+    CONVERSATION_MAX_TURNS: int = 8
+    CONVERSATION_MAX_TOOL_RESULT_CHARS: int = 12_000
+    CONVERSATION_MAX_HISTORY_TURNS: int = 12
+    CONVERSATION_MAX_TURN_CHARS: int = 4_000
 
     model_config = {"env_file": ".env", "extra": "ignore"}
 

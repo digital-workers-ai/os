@@ -247,6 +247,38 @@ class BriefingRun(Base):
     )
 
 
+class ConversationThread(Base):
+    __tablename__ = "conversation_thread"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # row identity, random UUID: 6f1c…, 9b2d…
+    seq = Column(BigInteger, Identity(), unique=True, nullable=False)  # monotonic thread counter: 1, 2, 3
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # thread creation timestamp: server now(), 2026-08-30T12:00:00Z
+    updated_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # last turn timestamp: server now(), 2026-08-30T12:05:00Z
+
+    __table_args__ = (
+        Index("ix_conversation_thread_seq", text("seq DESC")),
+    )
+
+
+class ConversationTurn(Base):
+    __tablename__ = "conversation_turn"
+
+    seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic turn counter: 1, 2, 3
+    thread_id = Column(UUID(as_uuid=True), ForeignKey("conversation_thread.id", ondelete="CASCADE"), nullable=False)  # owning thread: 9c17…, 0d4e…
+    question = Column(Text, nullable=False)  # what the user asked: "what is mrr?"
+    answer = Column(Text, nullable=False)  # what the model answered: "MRR is 17,147."
+    receipts = Column(JSONB, nullable=False, server_default=text("'[]'::jsonb"))  # tool calls behind answer: [{"tool": "get_metrics", "input": {}}]
+    model = Column(String(128), nullable=False)  # model that answered: claude-sonnet-5, claude-test
+    prompt_version = Column(String(32), nullable=False)  # prompt wording pin: 2026-08-02.1
+    loop_turns = Column(Integer, nullable=False, server_default=text("0"))  # model calls this turn: 1, 3
+    exhausted = Column(Boolean, nullable=False, server_default=text("false"))  # stopped at turn cap: true, false
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: server now(), 2026-08-30T12:00:00Z
+
+    __table_args__ = (
+        Index("ix_conversation_turn_thread_seq", "thread_id", text("seq DESC")),
+    )
+
+
 class SyncRun(Base):
     __tablename__ = "sync_run"
 
