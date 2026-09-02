@@ -170,6 +170,9 @@ class MetricSnapshot(Base):
     metric = Column(String(128), nullable=False)  # metric definition name: mrr, deal_count
     value = Column(Float)  # null means no reading: 17147.0, null
     entities = Column(Integer, nullable=False, server_default=text("0"))  # entities measured over: 0, 42
+    inferred = Column(Boolean, nullable=False, server_default=text("false"))  # value came from model: true, false
+    vocabulary_sha = Column(String(64))  # vocabulary digest, inferred only: "d41d…", null
+    produced_by = Column(String(512))  # model@prompt, comma-joined: "claude-sonnet-5@2026-08-02.1", null
     recorded_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # snapshot timestamp: server now(), 2026-08-30T12:00:00Z
 
     __table_args__ = (

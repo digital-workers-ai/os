@@ -42,8 +42,20 @@ async def get_history(
                 "metric": row.metric,
                 "value": row.value,
                 "entities": row.entities,
+                "inferred": row.inferred,
+                "produced_by": row.produced_by,
+                "vocabulary_sha": (row.vocabulary_sha or "")[:12] or None,
                 "recorded_at": row.recorded_at.isoformat(),
             }
             for row in rows
         ]
     }
+
+
+@router.get("/history/{metric}")
+async def get_series(
+    metric: str,
+    limit: int = Query(500, ge=1, le=2000),
+    session=Depends(get_session),
+):
+    return await metrics.history(session, metric, limit=limit)

@@ -240,6 +240,8 @@ def run(
             )
             continue
         for term in parsed["terms"]:
+            if term["source"] == "enriched":
+                continue
             if term["operand"] != "entity" and term["operand"] not in spec_entity.attrs:
                 problems.append(
                     f"metric {name!r}: aggregates {term['operand']!r}, which is "
@@ -265,12 +267,12 @@ def run(
     lineage = metrics.provenance(defs or {}, lines)
     for name in sorted(defs or {}):
         if name in lineage and not lineage[name]["raw_fields"]:
-            terms = metrics.parse_spec(defs[name])["terms"]
+            reparsed = metrics.parse_spec(defs[name])
             counts_only = all(
                 term["operand"] == "entity" and not (term["filter"] or {})
-                for term in terms
+                for term in reparsed["terms"]
             )
-            if not counts_only:
+            if not counts_only and not reparsed["inferred"]:
                 problems.append(
                     f"metric {name!r}: no raw field feeds it — provenance would "
                     "be empty, so the number could not show its receipts"
