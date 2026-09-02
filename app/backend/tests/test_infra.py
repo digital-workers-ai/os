@@ -1,13 +1,13 @@
 from pathlib import Path
 
 import pytest
-from sqlalchemy import text
+from sqlalchemy import select, text
 
 import app.db
 import app.main
 from app.config import Settings, settings
 from app.engine import run
-from app.models import RawEvent
+from app.models import EngineRun, RawEvent
 from tests import ground_truth
 
 
@@ -136,3 +136,15 @@ async def test_the_rebuild_passes_the_er_settings_to_resolve(session, monkeypatc
         "bucket_cap": settings.ER_BUCKET_CAP,
         "one_record_per_source": settings.ER_ONE_RECORD_PER_SOURCE,
     }
+
+
+async def test_only_the_newest_engine_runs_survive(session, monkeypatch):
+    monkeypatch.setattr(settings, "ENGINE_RUN_RETENTION", 3)
+    for n in range(5):
+        session.add(EngineRun(ok=True, raw_events_read=n, report={}))
+    await session.flush()
+
+    await run.prune(session)
+
+    kept = (await session.execute(select(EngineRun))).scalars().all()
+    assert sorted(r.raw_events_read for r in kept) == [2, 3, 4]

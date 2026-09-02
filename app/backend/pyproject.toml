@@ -63,5 +63,5 @@ testpaths = ["tests"]
 filterwarnings = ["ignore::DeprecationWarning"]
 markers = [
     "e2e: needs the full compose stack up (postgres + mock providers)",
-    "llm: calls the real Anthropic API — opt in with --llm, costs money",
+    "llm: calls the real Anthropic API — deselected by test.sh; run tests/live with -m llm and a real key",
 ]

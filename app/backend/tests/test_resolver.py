@@ -580,6 +580,54 @@ class TestTheAttrIndexGoesStaleAndIsRepairedOnRead:
         assert len(result["of_record"]) == 3
 
 
+class TestMultiAttrEvidence:
+    def person(self, source, source_id, order, **identity):
+        return rec(source, source_id, order, entity_type="person", **identity)
+
+    def test_both_attrs_matching_records_the_ontology_first_attr(self):
+        result, _ = resolve(
+            [
+                self.person(
+                    "hubspot", "p1", 1, email="jo@acme.io", external_ref="EXT-1"
+                ),
+                self.person(
+                    "stripe", "p2", 2, email="jo@acme.io", external_ref="EXT-1"
+                ),
+            ]
+        )
+        assert len(result["clusters"]) == 1
+        members = result["clusters"][0].members
+        assert members[("stripe", "person", "p2")] == "email=jo@acme.io"
+
+    def test_neither_attr_matching_stays_apart(self):
+        result, _ = resolve(
+            [
+                self.person(
+                    "hubspot", "p1", 1, email="jo@acme.io", external_ref="EXT-1"
+                ),
+                self.person(
+                    "stripe", "p2", 2, email="al@globex.com", external_ref="EXT-2"
+                ),
+            ]
+        )
+        assert len(result["clusters"]) == 2
+
+    def test_a_new_external_ref_on_a_known_email_still_merges(self):
+        result, _ = resolve(
+            [
+                self.person(
+                    "hubspot", "p1", 1, email="jo@acme.io", external_ref="EXT-1"
+                ),
+                self.person(
+                    "stripe", "p2", 2, email="jo@acme.io", external_ref="EXT-2"
+                ),
+            ]
+        )
+        assert len(result["clusters"]) == 1
+        members = result["clusters"][0].members
+        assert members[("stripe", "person", "p2")] == "email=jo@acme.io"
+
+
 class TestBlocklistUnit:
     @pytest.mark.parametrize(
         "attr,value,expected",

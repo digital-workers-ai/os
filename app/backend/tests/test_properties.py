@@ -4,11 +4,16 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from app.engine import ontology, resolver
+from app.engine import ontology, resolver, strategies
 from app.engine import transforms as tf
 from app.engine.report import SyncReport
+from app.sources import paginators
 
 BLANK_PRESERVING = {"normalize_transcript"}
+
+FINITE = st.floats(
+    allow_nan=False, allow_infinity=False, min_value=-1e12, max_value=1e12
+)
 
 ANY_SCALAR = st.one_of(
     st.none(),
@@ -161,3 +166,91 @@ def test_a_cluster_never_holds_two_records_from_one_source(records):
     for cluster in _resolved(records)["clusters"]:
         sources = [key[0] for key in cluster.members]
         assert len(sources) == len(set(sources))
+
+
+class TestStrategiesNeverInventAVerdict:
+    NOT_FINITE = st.sampled_from([float("nan"), float("inf"), float("-inf")])
+
+    @pytest.mark.parametrize("name", sorted(strategies.STRATEGIES))
+    @given(
+        bad=NOT_FINITE,
+        target=FINITE,
+        history=st.lists(FINITE, min_size=2, max_size=6),
+    )
+    @settings(max_examples=200, deadline=None)
+    def test_a_non_finite_current_value_is_never_decided(
+        self, name, bad, target, history
+    ):
+        assert strategies.STRATEGIES[name](bad, target, history, {}).met is None
+
+    @pytest.mark.parametrize("name", sorted(strategies.STRATEGIES))
+    @given(
+        current=FINITE,
+        bad=NOT_FINITE,
+        history=st.lists(FINITE, min_size=2, max_size=6),
+    )
+    @settings(max_examples=200, deadline=None)
+    def test_a_non_finite_target_is_never_decided(self, name, current, bad, history):
+        assert strategies.STRATEGIES[name](current, bad, history, {}).met is None
+
+    def test_the_trend_verdict_reads_the_series_not_the_current_value(self):
+        history, target = [1.0, 2.0], 1.0
+        baseline = strategies.increasing(0.0, target, history, {})
+        for current in (1e9, -1e9):
+            outcome = strategies.increasing(current, target, history, {})
+            assert outcome.detail["trend"] == baseline.detail["trend"]
+
+    @pytest.mark.parametrize("name", sorted(strategies.STRATEGIES))
+    @given(current=FINITE, target=FINITE, history=st.lists(FINITE, max_size=6))
+    @settings(max_examples=300, deadline=None)
+    def test_progress_is_always_a_percentage_or_nothing(
+        self, name, current, target, history
+    ):
+        outcome = strategies.STRATEGIES[name](current, target, history, {})
+        if outcome.progress is not None:
+            assert 0.0 <= outcome.progress <= 100.0
+
+    @pytest.mark.parametrize("name", sorted(strategies.STRATEGIES))
+    @given(current=FINITE, target=FINITE, history=st.lists(FINITE, max_size=6))
+    @settings(max_examples=200, deadline=None)
+    def test_an_undecided_outcome_always_says_why(self, name, current, target, history):
+        outcome = strategies.STRATEGIES[name](current, target, history, {})
+        if outcome.met is None:
+            assert outcome.detail.get("unknown")
+
+
+class TestPaginatorsFailLoudly:
+    BODY = st.recursive(
+        st.one_of(st.none(), st.booleans(), st.integers(), st.text()),
+        lambda children: st.one_of(
+            st.lists(children, max_size=3),
+            st.dictionaries(st.text(max_size=6), children, max_size=3),
+        ),
+        max_leaves=8,
+    )
+
+    @pytest.mark.parametrize("name", sorted(paginators.PAGINATORS))
+    @given(body=BODY)
+    @settings(max_examples=200, deadline=None)
+    def test_extract_returns_a_list_or_raises(self, name, body):
+        try:
+            records = paginators.PAGINATORS[name].extract(body)
+        except paginators.PaginationError:
+            return
+        assert isinstance(records, list)
+
+    @pytest.mark.parametrize("name", sorted(paginators.PAGINATORS))
+    @given(
+        body=BODY,
+        params=st.dictionaries(st.text(max_size=5), st.text(max_size=5), max_size=3),
+    )
+    @settings(max_examples=200, deadline=None)
+    def test_next_params_either_advances_or_stops(self, name, body, params):
+        try:
+            nxt = paginators.PAGINATORS[name].next_params(body, params)
+        except (paginators.PaginationError, AttributeError, TypeError):
+            return
+        if nxt is None:
+            return
+        assert isinstance(nxt, dict)
+        assert nxt != params
