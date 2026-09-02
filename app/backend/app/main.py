@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
 from app.api import register_routes
+from app.config import validate_startup
 from app.db import create_schema
 from app.engine import checks
 
@@ -15,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app):
+    validate_startup()
     await create_schema()
     problems = checks.run()
     if problems:

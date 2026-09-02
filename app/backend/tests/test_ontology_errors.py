@@ -230,8 +230,9 @@ class TestBoot:
             ran.append("checks")
             return []
 
+        monkeypatch.setattr(main, "validate_startup", lambda: ran.append("config"))
         monkeypatch.setattr(main, "create_schema", schema)
         monkeypatch.setattr(main.checks, "run", clean)
         async with main.lifespan(main.app):
             ran.append("serving")
-        assert ran == ["schema", "checks", "serving"]
+        assert ran == ["config", "schema", "checks", "serving"]
