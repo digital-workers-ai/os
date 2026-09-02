@@ -5,7 +5,16 @@ import pytest
 from sqlalchemy import func, select
 
 from app import store
-from app.engine import links, mappings, ontology, pipeline, resolver, run, survivorship
+from app.engine import (
+    links,
+    mappings,
+    metrics,
+    ontology,
+    pipeline,
+    resolver,
+    run,
+    survivorship,
+)
 from app.engine.pipeline import ProjectedEntity, ProjectedFact
 from app.engine.report import SyncReport
 from app.models import (
@@ -566,3 +575,40 @@ class TestMetricsFileThatRaisesDuringChecks:
         )
         assert any(p.startswith("metrics:") for p in problems)
         assert len(problems) > 1
+
+
+class TestEnrichedMetricSpecs:
+    def _spec(self, **overrides):
+        spec = {
+            "entity": "meeting",
+            "source": "enriched",
+            "inferred": True,
+            "reading": "sales_call",
+            "expression": "COUNT(entity)",
+        }
+        spec.update(overrides)
+        return spec
+
+    def test_a_field_the_reading_does_not_declare_is_refused(self):
+        with pytest.raises(metrics.MetricSpecError, match="is not a field of reading"):
+            metrics.parse_spec(self._spec(expression="COUNT(never_declared)"))
+
+    def test_summing_a_label_is_refused_as_a_category_error(self):
+        with pytest.raises(metrics.MetricSpecError, match="category error"):
+            metrics.parse_spec(self._spec(expression="SUM(pain_points)"))
+
+    def test_an_unknown_population_is_refused(self):
+        with pytest.raises(metrics.MetricSpecError):
+            metrics.parse_spec(self._spec(population="everyone"))
+
+    @pytest.mark.parametrize("population", ["read", "all"])
+    def test_the_two_declared_populations_are_accepted(self, population):
+        assert metrics.parse_spec(self._spec(population=population))
+
+    def test_a_reading_that_does_not_exist_is_refused(self):
+        with pytest.raises(metrics.MetricSpecError, match="not declared in enrichment"):
+            metrics.parse_spec(self._spec(reading="tea_leaves"))
+
+    def test_a_window_on_an_inferred_metric_is_refused(self):
+        with pytest.raises(metrics.MetricSpecError, match="never ran"):
+            metrics.parse_spec(self._spec(window_days=30))

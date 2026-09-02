@@ -459,6 +459,18 @@ class TestMetrics:
     async def test_out_of_range_history_limits_are_refused(self, api, query):
         assert (await api.get(f"/api/metrics/history?{query}")).status_code == 422
 
+    async def test_a_series_declares_whether_its_points_are_comparable(self, api):
+        await api.post("/api/metrics/snapshots")
+        body = (await api.get("/api/metrics/history/deal_count")).json()
+        assert "comparable" in body
+
+    async def test_the_flat_history_carries_the_lineage_fields(self, api):
+        await api.post("/api/metrics/snapshots")
+        rows = (await api.get("/api/metrics/history")).json()["history"]
+        assert rows
+        for row in rows:
+            assert {"inferred", "produced_by", "vocabulary_sha"} <= set(row)
+
 
 class TestReport:
     async def test_no_rebuild_yet_says_so_rather_than_reporting_zeroes(self, api):
@@ -679,7 +691,10 @@ class TestNullBytesInQueryParameters:
 
 
 class TestANullByteInThePathIsRefusedToo:
-    @pytest.mark.parametrize("path", ["/api/entities/%00", "/api/enrichment/%00"])
+    @pytest.mark.parametrize(
+        "path",
+        ["/api/entities/%00", "/api/enrichment/%00", "/api/metrics/history/%00"],
+    )
     async def test_a_null_byte_in_a_path_segment_is_a_422_or_a_404(self, api, path):
         response = await api.get(path)
         assert response.status_code != 500, response.text

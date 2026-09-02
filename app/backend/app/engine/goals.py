@@ -41,7 +41,18 @@ def _refusal(row):
 
 async def _history_for(session, metric):
     series = await metrics.history(session, metric)
-    return [p["value"] for p in series["points"] if p["value"] is not None]
+    if not series["comparable"]:
+        return [], (
+            "the stored series is not comparable: it spans "
+            f"{series['breaks'] + 1} runs produced by different "
+            "vocabularies, models or prompts"
+        )
+    runs = series["runs"]
+    if not runs:
+        return [], None
+    return [
+        point["value"] for point in runs[-1]["points"] if point["value"] is not None
+    ], None
 
 
 async def evaluate_over(session, defs, metric_values):
@@ -97,9 +108,19 @@ async def evaluate_over(session, defs, metric_values):
             results.append({**base, "current": None, "met": None, "unknown": refusal})
             continue
 
-        history = []
+        history, history_refusal = [], None
         if strategy_name in strategies.NEEDS_HISTORY:
-            history = await _history_for(session, metric)
+            history, history_refusal = await _history_for(session, metric)
+        if history_refusal:
+            results.append(
+                {
+                    **base,
+                    "current": row.get("value"),
+                    "met": None,
+                    "unknown": history_refusal,
+                }
+            )
+            continue
         params = {**strategies.defaults(strategy_name), **(spec.get("params") or {})}
         outcome = strategy(float(row["value"]), target, history, params)
         result = {
@@ -112,6 +133,11 @@ async def evaluate_over(session, defs, metric_values):
         }
         if outcome.met is None and "unknown" not in result:
             result["unknown"] = "the strategy could not decide from these inputs"
+        if row.get("inferred"):
+            result["inferred"] = True
+            for key in ("reading", "vocabulary_sha", "produced_by"):
+                if row.get(key):
+                    result[key] = row[key]
         results.append(result)
     return results
 

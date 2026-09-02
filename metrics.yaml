@@ -62,3 +62,40 @@ avg_deal_size:
   label: Average Deal Size
   entity: deal
   expression: AVG(amount)
+
+strong_interest_share:
+  label: Share of Read Calls with Strong Interest
+  entity: meeting
+  source: enriched
+  inferred: true
+  reading: sales_call
+  op: "/"
+  terms:
+    - expression: COUNT(entity)
+      filter:
+        interest: strong
+    - expression: COUNT(entity)
+      filter: {}
+
+calls_citing_pricing:
+  label: Read Calls Citing Pricing
+  entity: meeting
+  source: enriched
+  inferred: true
+  reading: sales_call
+  expression: COUNT(entity)
+  filter:
+    pain_points: pricing
+
+pain_points_per_read_call:
+  label: Pain Points Named per Read Call
+  entity: meeting
+  source: enriched
+  inferred: true
+  reading: sales_call
+  op: "/"
+  terms:
+    - expression: COUNT(pain_points)
+      filter: {}
+    - expression: COUNT(entity)
+      filter: {}
