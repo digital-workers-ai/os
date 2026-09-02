@@ -226,6 +226,27 @@ class EnrichmentRun(Base):
     )
 
 
+class BriefingRun(Base):
+    __tablename__ = "briefing_run"
+
+    seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic briefing counter: 1, 2, 3
+    role = Column(String(64), nullable=False)  # briefing audience role: ceo, head_of_sales
+    ok = Column(Boolean, nullable=False)  # model call succeeded: true, false
+    model = Column(String(128), nullable=False)  # model configured for run: claude-sonnet-5, claude-test
+    prompt_version = Column(String(32), nullable=False)  # prompt wording pin: 2026-08-02.1
+    prompts_sha = Column(String(64), nullable=False)  # digest of role prompts: "a3f9…", "0c7a…"
+    input_sha = Column(String(64), nullable=False)  # SHA-256 of context block: "b2d4…", "9e10…"
+    read_manifest = Column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))  # what the model saw: {"metrics": {"mrr": 17147.0}}
+    briefing = Column(Text)  # narration, null when failed: "Pipeline is up.", null
+    error = Column(Text)  # failure detail: "APIError: down", null
+    duration_ms = Column(Integer, nullable=False, server_default=text("0"))  # call wall time: 12, 3400
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # run timestamp: server now(), 2026-08-30T12:00:00Z
+
+    __table_args__ = (
+        Index("ix_briefing_run_role_seq", "role", text("seq DESC")),
+    )
+
+
 class SyncRun(Base):
     __tablename__ = "sync_run"
 

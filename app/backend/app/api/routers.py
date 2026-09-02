@@ -8,8 +8,9 @@ entities = APIRouter(prefix="/api", tags=["entities"])
 metrics = APIRouter(prefix="/api/metrics", tags=["metrics"])
 enrichment = APIRouter(prefix="/api/enrichment", tags=["enrichment"])
 insights = APIRouter(prefix="/api/insights", tags=["insights"])
+coaching = APIRouter(prefix="/api/coaching", tags=["coaching"])
 
-ROUTERS = (sources, raw, entities, metrics, enrichment, insights)
+ROUTERS = (sources, raw, entities, metrics, enrichment, insights, coaching)
 HANDLER_MODULES = (
     "app.api.raw_api",
     "app.api.sources_api",
@@ -17,6 +18,7 @@ HANDLER_MODULES = (
     "app.api.metrics_api",
     "app.api.enrichment_api",
     "app.api.insights_api",
+    "app.api.coaching_api",
 )
 
 

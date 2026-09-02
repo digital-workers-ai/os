@@ -6,14 +6,6 @@ __pycache__/
 coverage.json
 htmlcov/
 /app/backend/mutants/
-/app/backend/mappings.yaml
-/app/backend/ontology.yaml
-/app/backend/transforms.yaml
-/app/backend/synonyms.yaml
-/app/backend/metrics.yaml
-/app/backend/rules.yaml
-/app/backend/goals.yaml
-/app/backend/enrichment.yaml
 .mutmut-cache
 .pytest_cache/
 .hypothesis/

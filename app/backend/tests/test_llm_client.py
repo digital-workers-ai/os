@@ -83,6 +83,52 @@ class TestClientLifecycle:
         llm.reset()
 
 
+class TestComplete:
+    async def test_text_blocks_are_joined(self):
+        client = FakeClient(Response([Block("one "), Block("two")]))
+        assert await llm.complete("sys", "usr", client_override=client) == "one two"
+
+    async def test_non_text_blocks_are_ignored(self):
+        client = FakeClient(Response([Block("kept"), Block("dropped", "thinking")]))
+        assert await llm.complete("sys", "usr", client_override=client) == "kept"
+
+    async def test_the_model_and_token_cap_are_passed_through(self):
+        client = FakeClient(Response([Block("ok")]))
+        await llm.complete(
+            "sys", "usr", model="m", max_tokens=7, client_override=client
+        )
+        sent = client.messages.calls[0]
+        assert sent["model"] == "m" and sent["max_tokens"] == 7
+        assert sent["system"] == "sys"
+        assert sent["messages"] == [{"role": "user", "content": "usr"}]
+
+    async def test_defaults_come_from_settings_when_not_given(self):
+        client = FakeClient(Response([Block("ok")]))
+        await llm.complete("sys", "usr", client_override=client)
+        sent = client.messages.calls[0]
+        assert sent["model"] == config.settings.COACHING_MODEL
+        assert sent["max_tokens"] == config.settings.COACHING_MAX_TOKENS
+
+    async def test_a_wire_error_becomes_an_llm_error_naming_its_cause(self):
+        client = FakeClient(raises=api_error("upstream is down"))
+        with pytest.raises(llm.LLMError) as caught:
+            await llm.complete("sys", "usr", client_override=client)
+        assert "APIError" in str(caught.value)
+        assert "upstream is down" in str(caught.value)
+
+    async def test_a_safety_refusal_is_named_rather_than_read_as_empty(self):
+        client = FakeClient(Response([], stop_reason="refusal"))
+        with pytest.raises(llm.LLMError, match="declined to answer"):
+            await llm.complete("sys", "usr", client_override=client)
+
+    @pytest.mark.parametrize("content", [[], [Block("")], [Block("   ")]])
+    async def test_an_empty_answer_reports_the_stop_reason(self, content):
+        client = FakeClient(Response(content, stop_reason="max_tokens"))
+        with pytest.raises(llm.LLMError) as caught:
+            await llm.complete("sys", "usr", client_override=client)
+        assert "max_tokens" in str(caught.value)
+
+
 class TestParse:
     async def test_the_parsed_object_and_the_answering_model_come_back(self):
         client = FakeClient(
@@ -179,6 +225,15 @@ class TestStartupRefusesAMisconfiguredDeploy:
     def test_a_credential_with_enrichment_off_is_allowed_but_unused(self):
         config.validate_startup(env={"ANTHROPIC_API_KEY": "sk-something"})
 
+    def test_coaching_on_without_a_credential_refuses_the_boot(self, monkeypatch):
+        monkeypatch.setattr(config.settings, "COACHING_ENABLED", True)
+        with pytest.raises(config.StartupError, match="COACHING_ENABLED"):
+            config.validate_startup(env={})
+
 
 def test_enrichment_ships_off_by_default():
     assert config.settings.ENRICHMENT_ENABLED is False
+
+
+def test_coaching_ships_off_by_default():
+    assert config.settings.COACHING_ENABLED is False

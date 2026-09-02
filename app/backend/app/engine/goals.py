@@ -1,7 +1,7 @@
 from app import caches
 from app.engine import metrics, strategies
 
-DEFAULT_GOALS = caches.BACKEND_DIR / "goals.yaml"
+DEFAULT_GOALS = caches.KNOWLEDGE_DIR / "goals.yaml"
 
 REQUIRED = ("metric", "target", "strategy")
 

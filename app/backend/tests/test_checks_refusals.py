@@ -7,7 +7,7 @@ import yaml
 from app import caches
 from app.engine import checks
 
-KNOWLEDGE = Path(caches.BACKEND_DIR)
+KNOWLEDGE = Path(caches.KNOWLEDGE_DIR)
 ALL_FILES = (
     "mappings.yaml",
     "ontology.yaml",

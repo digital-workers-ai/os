@@ -5,6 +5,8 @@ import yaml
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
 
+KNOWLEDGE_DIR = BACKEND_DIR / "knowledge"
+
 MAX_OFFSET = 2**63 - 1
 
 _resets: list[Callable[[], None]] = []

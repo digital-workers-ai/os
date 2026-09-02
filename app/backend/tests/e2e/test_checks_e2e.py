@@ -14,7 +14,7 @@ from app.main import app
 
 pytestmark = pytest.mark.e2e
 
-KNOWLEDGE = Path(caches.BACKEND_DIR)
+KNOWLEDGE = Path(caches.KNOWLEDGE_DIR)
 ALL_FILES = (
     "mappings.yaml",
     "ontology.yaml",
