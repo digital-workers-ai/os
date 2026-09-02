@@ -194,7 +194,7 @@ class EnrichedFact(Base):
     quote_verified = Column(Boolean, nullable=False, server_default=text("false"))  # span found in text: true, false
     input_sha = Column(String(64), nullable=False)  # SHA-256 of text read: "a3f9…", "0c7a…"
     vocabulary_sha = Column(String(64), nullable=False)  # spec digest when read: "d41d…", "9e10…"
-    model = Column(String(128), nullable=False)  # model that answered: claude-opus-5, claude-test
+    model = Column(String(128), nullable=False)  # model that answered: claude-sonnet-5, claude-test
     prompt_version = Column(String(32), nullable=False)  # prompt wording pin: 2026-08-02.1
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: server now(), 2026-08-30T12:00:00Z
 
@@ -211,7 +211,7 @@ class EnrichmentRun(Base):
     seq = Column(BigInteger, Identity(), unique=True, nullable=False)  # monotonic run counter: 1, 2, 3
     reading = Column(String(64), nullable=False)  # reading spec name: sales_call, support_call
     vocabulary_sha = Column(String(64), nullable=False)  # spec digest at run: "d41d…", "9e10…"
-    model = Column(String(128), nullable=False)  # model configured for run: claude-opus-5
+    model = Column(String(128), nullable=False)  # model configured for run: claude-sonnet-5
     prompt_version = Column(String(32), nullable=False)  # prompt wording pin: 2026-08-02.1
     read = Column(Integer, nullable=False, server_default=text("0"))  # entities read and stored: 0, 6
     failed = Column(Integer, nullable=False, server_default=text("0"))  # entities that errored: 0, 1

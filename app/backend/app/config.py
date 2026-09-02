@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     ER_ONE_RECORD_PER_SOURCE: bool = True
     CONNECTOR_MAX_BYTES: int = 50 * 1024 * 1024
     ENRICHMENT_ENABLED: bool = False
-    ENRICHMENT_MODEL: str = "claude-opus-5"
+    ENRICHMENT_MODEL: str = "claude-sonnet-5"
     ENRICHMENT_MAX_TOKENS: int = 8000
     ENRICHMENT_MAX_CALLS_PER_RUN: int = 200
     ENRICHMENT_CONCURRENCY: int = 4

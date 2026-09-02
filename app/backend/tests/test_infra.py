@@ -124,7 +124,7 @@ def test_the_er_settings_ship_their_defaults():
 
 
 def test_the_enrichment_settings_ship_their_defaults():
-    assert Settings.model_fields["ENRICHMENT_MODEL"].default == "claude-opus-5"
+    assert Settings.model_fields["ENRICHMENT_MODEL"].default == "claude-sonnet-5"
     assert Settings.model_fields["ENRICHMENT_MAX_TOKENS"].default == 8000
     assert Settings.model_fields["ENRICHMENT_MAX_CALLS_PER_RUN"].default == 200
     assert Settings.model_fields["ENRICHMENT_CONCURRENCY"].default == 4
