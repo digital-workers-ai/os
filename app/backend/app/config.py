@@ -30,7 +30,6 @@ class Settings(BaseSettings):
     CONVERSATION_MAX_TOOL_RESULT_CHARS: int = 12_000
     CONVERSATION_MAX_HISTORY_TURNS: int = 12
     CONVERSATION_MAX_TURN_CHARS: int = 4_000
-    CONVERSATION_THREAD_RETENTION: int = 50
 
     model_config = {"env_file": ".env", "extra": "ignore"}
 

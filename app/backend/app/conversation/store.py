@@ -1,7 +1,7 @@
 import uuid
 from datetime import UTC, datetime
 
-from sqlalchemy import delete, select, update
+from sqlalchemy import select, update
 
 from app.config import settings
 from app.models import ConversationThread, ConversationTurn
@@ -11,25 +11,7 @@ async def create_conversation(session) -> uuid.UUID:
     row = ConversationThread()
     session.add(row)
     await session.flush()
-    await prune_conversations(session)
     return row.id
-
-
-async def prune_conversations(session) -> None:
-    keep = (
-        (
-            await session.execute(
-                select(ConversationThread.seq)
-                .order_by(ConversationThread.seq.desc())
-                .limit(settings.CONVERSATION_THREAD_RETENTION)
-            )
-        )
-        .scalars()
-        .all()
-    )
-    await session.execute(
-        delete(ConversationThread).where(ConversationThread.seq < min(keep))
-    )
 
 
 async def get_conversation(

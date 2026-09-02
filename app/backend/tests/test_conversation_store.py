@@ -1,28 +1,23 @@
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 
-from app.config import settings
 from app.conversation import store
 from app.models import ConversationThread, ConversationTurn
 
 
-class TestConversationRetention:
-    async def test_only_the_newest_conversations_survive(self, session, monkeypatch):
-        monkeypatch.setattr(settings, "CONVERSATION_THREAD_RETENTION", 2)
+class TestThreadsAreNeverDeleted:
+    async def test_every_created_thread_survives(self, session):
         ids = [await store.create_conversation(session) for _ in range(3)]
         await session.flush()
         kept = (await session.execute(select(ConversationThread))).scalars().all()
-        assert {row.id for row in kept} == {ids[1], ids[2]}
+        assert {row.id for row in kept} == set(ids)
 
-    async def test_pruning_drops_the_turns_with_their_thread(
-        self, session, monkeypatch
-    ):
-        monkeypatch.setattr(settings, "CONVERSATION_THREAD_RETENTION", 1)
-        first = await store.create_conversation(session)
+    async def test_schema_cascades_turns_on_direct_thread_delete(self, session):
+        thread_id = await store.create_conversation(session)
         await store.append_turn(
             session,
-            first,
+            thread_id,
             "old?",
             {
                 "answer": "old.",
@@ -32,8 +27,9 @@ class TestConversationRetention:
                 "prompt_version": "2026-08-02.1",
             },
         )
-        await store.create_conversation(session)
-        await session.flush()
+        await session.execute(
+            delete(ConversationThread).where(ConversationThread.id == thread_id)
+        )
         turns = (await session.execute(select(ConversationTurn))).scalars().all()
         assert turns == []
 
