@@ -80,3 +80,17 @@ async def parse(
             f"no parsed output (stop_reason={getattr(response, 'stop_reason', None)!r})"
         )
     return parsed, getattr(response, "model", model)
+
+
+async def converse(*, model, max_tokens, system, messages, tools, client_override=None):
+    api = client_override or client()
+    try:
+        return await api.messages.create(
+            model=model,
+            max_tokens=max_tokens,
+            system=system,
+            messages=messages,
+            tools=tools,
+        )
+    except anthropic.APIError as exc:
+        raise LLMError(f"{type(exc).__name__}: {exc}") from exc
