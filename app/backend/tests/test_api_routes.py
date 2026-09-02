@@ -570,6 +570,68 @@ class TestInsights:
         assert body["unknown"] == len(body["goals"])
 
 
+class TestCoachingLayer:
+    @pytest.fixture
+    def coaching_transacting(self, sessionmaker_for_test, monkeypatch):
+        coaching_api = importlib.import_module("app.api.coaching_api")
+        monkeypatch.setattr(coaching_api, "async_session", sessionmaker_for_test)
+
+    def _run(self, **overrides):
+        from app.models import BriefingRun
+
+        base = {
+            "role": "ceo",
+            "ok": True,
+            "model": "claude-test",
+            "prompt_version": "2026-08-02.1",
+            "prompts_sha": "a" * 64,
+            "input_sha": "b" * 64,
+            "read_manifest": {"metrics": {"mrr": 3}},
+            "briefing": "Pipeline is up.",
+            "duration_ms": 12,
+        }
+        return BriefingRun(**{**base, **overrides})
+
+    async def test_the_index_names_its_roles_and_pins_its_prompts(self, api):
+        body = (await api.get("/api/coaching")).json()
+        assert body["roles"]
+        assert len(body["prompts_sha"]) == 12
+        assert body["inferred"] is True
+        assert body["enabled"] is False
+
+    async def test_a_role_with_no_stored_briefing_is_a_404(
+        self, api, coaching_transacting
+    ):
+        response = await api.get("/api/coaching/ceo")
+        assert response.status_code == 404
+        assert "ceo" in response.json()["detail"]
+
+    async def test_generating_while_the_layer_is_off_is_a_409(
+        self, api, coaching_transacting
+    ):
+        response = await api.post("/api/coaching/ceo")
+        assert response.status_code == 409
+        assert "COACHING_ENABLED" in response.json()["detail"]
+
+    async def test_a_stored_briefing_comes_back_with_its_lineage(
+        self, api, session, coaching_transacting
+    ):
+        session.add(self._run())
+        await session.commit()
+        body = (await api.get("/api/coaching/ceo")).json()
+        assert body["briefing"] == "Pipeline is up."
+        assert body["input_sha"] == "b" * 12
+        assert body["read_manifest"] == {"metrics": {"mrr": 3}}
+        assert body["inferred"] is True
+
+    async def test_a_failed_run_is_not_served_as_the_latest_briefing(
+        self, api, session, coaching_transacting
+    ):
+        session.add(self._run(ok=False, briefing=None, error="model refused"))
+        await session.commit()
+        assert (await api.get("/api/coaching/ceo")).status_code == 404
+
+
 class TestEnrichmentLayer:
     def _fact(self, value="pricing", verified=True):
         from app.models import EnrichedFact
@@ -693,7 +755,12 @@ class TestNullBytesInQueryParameters:
 class TestANullByteInThePathIsRefusedToo:
     @pytest.mark.parametrize(
         "path",
-        ["/api/entities/%00", "/api/enrichment/%00", "/api/metrics/history/%00"],
+        [
+            "/api/entities/%00",
+            "/api/enrichment/%00",
+            "/api/metrics/history/%00",
+            "/api/coaching/%00",
+        ],
     )
     async def test_a_null_byte_in_a_path_segment_is_a_422_or_a_404(self, api, path):
         response = await api.get(path)
@@ -712,6 +779,7 @@ class TestDocumentedResponses:
         for path in (
             "/api/entities/{canonical_id}",
             "/api/enrichment/{canonical_id}",
+            "/api/coaching/{role}",
         ):
             documented = spec["paths"][path]["get"]["responses"]
             assert "404" in documented, f"{path} can 404 and does not say so"

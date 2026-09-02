@@ -43,6 +43,7 @@ services:
       - ../rules.yaml:/app/rules.yaml
       - ../goals.yaml:/app/goals.yaml
       - ../enrichment.yaml:/app/enrichment.yaml
+      - ../prompts:/app/prompts
       - ../mock:/adversarial/seeds:ro
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')\""]

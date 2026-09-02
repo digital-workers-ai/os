@@ -12,6 +12,7 @@ EXCLUDED = {
     ("POST", "/api/rebuild"),
     ("POST", "/api/metrics/snapshots"),
     ("POST", "/api/enrichment/run"),
+    ("POST", "/api/coaching/{role}"),
 }
 
 
