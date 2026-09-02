@@ -18,6 +18,7 @@ ALL_FILES = (
     "metrics.yaml",
     "rules.yaml",
     "goals.yaml",
+    "enrichment.yaml",
 )
 
 
@@ -35,15 +36,17 @@ def files(tmp_path):
             mutate(doc)
             path.write_text(yaml.safe_dump(doc, sort_keys=False))
 
-        def problems(self):
-            return checks.run(
-                mapping_paths=[tmp_path / "mappings.yaml"],
-                ontology_path=tmp_path / "ontology.yaml",
-                transforms_path=tmp_path / "transforms.yaml",
-                metrics_path=tmp_path / "metrics.yaml",
-                rules_path=tmp_path / "rules.yaml",
-                goals_path=tmp_path / "goals.yaml",
-            )
+        def problems(self, **overrides):
+            kwargs = {
+                "mapping_paths": [tmp_path / "mappings.yaml"],
+                "ontology_path": tmp_path / "ontology.yaml",
+                "transforms_path": tmp_path / "transforms.yaml",
+                "metrics_path": tmp_path / "metrics.yaml",
+                "rules_path": tmp_path / "rules.yaml",
+                "goals_path": tmp_path / "goals.yaml",
+            }
+            kwargs.update(overrides)
+            return checks.run(**kwargs)
 
     return Bundle()
 
@@ -190,6 +193,61 @@ class TestEachCheckFires:
             ),
         )
         assert any("customerio" in p and "extract" in p for p in files.problems())
+
+
+class TestEnrichmentBindsToTheOntology:
+    def _problems(self, files):
+        return files.problems(enrichment_paths=[files.root / "enrichment.yaml"])
+
+    def test_the_shipped_reading_binds_to_what_the_ontology_declares(self, files):
+        assert self._problems(files) == []
+
+    def test_build_checks_see_the_committed_file(self):
+        assert checks.run() == []
+
+    def test_an_entity_the_ontology_does_not_declare_is_a_build_problem(self, files):
+        files.edit(
+            "enrichment.yaml",
+            lambda d: d["readings"]["sales_call"].update(
+                {"entity": "there_is_no_such_entity"}
+            ),
+        )
+        problems = self._problems(files)
+        assert any("there_is_no_such_entity" in p for p in problems), problems
+
+    def test_an_attr_the_ontology_does_not_declare_is_a_build_problem(self, files):
+        files.edit(
+            "enrichment.yaml",
+            lambda d: d["readings"]["sales_call"].update(
+                {"input": "there_is_no_such_attr"}
+            ),
+        )
+        problems = self._problems(files)
+        assert any("there_is_no_such_attr" in p for p in problems), problems
+
+    def test_an_input_attr_that_is_not_a_string_is_a_build_problem(self, files):
+        files.edit(
+            "enrichment.yaml",
+            lambda d: d["readings"]["sales_call"].update({"input": "started_at"}),
+        )
+        problems = self._problems(files)
+        assert any("nothing in it to read" in p for p in problems), problems
+
+    def test_an_identity_attr_is_never_an_input(self, files):
+        files.edit(
+            "enrichment.yaml",
+            lambda d: d["readings"]["sales_call"].update(
+                {"entity": "person", "input": "email"}
+            ),
+        )
+        problems = self._problems(files)
+        assert any("merge" in p and "identity" in p for p in problems), problems
+
+    def test_a_broken_vocabulary_is_a_single_problem_naming_the_file(self, files):
+        files.edit("enrichment.yaml", lambda d: d.pop("readings"))
+        problems = self._problems(files)
+        assert len(problems) == 1
+        assert "enrichment.yaml" in problems[0]
 
 
 class TestAccountCurrencyExemption:

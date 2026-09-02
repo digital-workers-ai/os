@@ -1,0 +1,102 @@
+readings:
+
+  sales_call:
+    entity: meeting
+    input: transcript
+    description: >-
+      A recorded sales call between one of our representatives and a prospect
+      evaluating our product. Read only what the participants actually say. The
+      prospect is the person who does NOT work for us; when the two sides
+      disagree, the prospect's own words decide.
+
+    fields:
+
+      interest:
+        type: one_of
+        description: >-
+          What the prospect is DOING about buying, not how warm the
+          conversation felt. A friendly call where nothing is happening is weak
+          interest; a blunt call where budget is approved is strong. Take the
+          first label below that fits, reading down in order.
+        labels:
+          strong: >-
+            They have decided, or all that remains is timing. Budget is
+            approved, or they discuss contracts, start dates, rollout, or who
+            signs. Still counts as strong when the purchase is gated on a
+            roadmap item or a date they are waiting for.
+          moderate: >-
+            Actively evaluating and doing the work: running a security or
+            procurement review, comparing vendors, taking materials back to a
+            team, or naming a window in which they will decide. Engaged, and
+            not yet committed.
+          weak: >-
+            Interest exists but is conditional or dormant. They will consider
+            it only if something else is fixed first, defer it to a future
+            budget cycle, or are open in principle while doing nothing about
+            it. An unhappy existing customer who says they will buy nothing
+            more until a problem is resolved belongs here.
+          none: >-
+            They are not evaluating at all. They say there is no problem to
+            solve, are only collecting options because someone told them to,
+            or describe a need this product does not serve. Reach for this only
+            when nothing in the call points at a future purchase.
+
+      pain_points:
+        type: many_of
+        description: >-
+          Problems the prospect says they have TODAY, in their words. A
+          feature they merely liked is not a pain point, and neither is a
+          problem our representative suggested they might have. Return an empty
+          list when they described none — an invented pain point is worse than
+          a missing one.
+        labels:
+          pricing: >-
+            Cost is a blocker: too expensive, hard to justify, budget is
+            unavailable or must be fought for.
+          integration_complexity: >-
+            Connecting the product to their existing systems looks difficult,
+            slow, or requires engineering they do not have.
+          missing_features: >-
+            Something they need does not exist in the product, or exists only
+            in a form that does not fit them.
+          performance: >-
+            Slowness, latency, timeouts, or capacity limits in what they use
+            today or expect from us.
+          support_quality: >-
+            Their current vendor is unresponsive, unhelpful, or escalations go
+            nowhere.
+          onboarding_time: >-
+            Getting started takes too long — implementation, migration,
+            training, or time-to-first-value.
+          reporting_gaps: >-
+            They cannot see or measure what they need: missing dashboards,
+            unexportable data, numbers that disagree.
+          manual_work: >-
+            People are doing repetitive work by hand — copying between tools,
+            maintaining spreadsheets, re-keying data.
+          security_compliance: >-
+            Security review, certifications, data residency, audit, or
+            regulatory requirements are an obstacle.
+          vendor_lock_in: >-
+            Difficulty leaving a current vendor, or unwillingness to be tied to
+            a new one — contracts, proprietary formats, migration cost.
+
+      timing:
+        type: one_of
+        description: >-
+          When the purchase is expected to happen, relative to the date of the
+          call. Use the date either side names and the prospect does not
+          dispute — a delivery date our representative gives and the prospect
+          agrees to wait for is a timeline, not the absence of one, and a
+          window the prospect gives for deciding is the best available
+          estimate of when they will buy. Do not infer a date from enthusiasm.
+        labels:
+          immediate: Ready now — this month, or already in procurement.
+          this_quarter: Within the calendar quarter the call falls in.
+          next_quarter: The quarter after the one the call falls in.
+          next_year: A future budget year, or "next year" in their words.
+          no_timeline: >-
+            Nobody named a date. Use this when the prospect is explicitly
+            undecided, says it depends on something neither side can schedule,
+            or rules out buying without saying when that might change — not
+            merely because the date came from our side of the call.

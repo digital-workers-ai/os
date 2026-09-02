@@ -123,6 +123,13 @@ def test_the_er_settings_ship_their_defaults():
     assert Settings.model_fields["ER_ONE_RECORD_PER_SOURCE"].default is True
 
 
+def test_the_enrichment_settings_ship_their_defaults():
+    assert Settings.model_fields["ENRICHMENT_MODEL"].default == "claude-opus-5"
+    assert Settings.model_fields["ENRICHMENT_MAX_TOKENS"].default == 8000
+    assert Settings.model_fields["ENRICHMENT_MAX_CALLS_PER_RUN"].default == 200
+    assert Settings.model_fields["ENRICHMENT_CONCURRENCY"].default == 4
+
+
 async def test_the_rebuild_passes_the_er_settings_to_resolve(session, monkeypatch):
     captured = {}
 

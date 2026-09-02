@@ -1,3 +1,4 @@
+import importlib
 import uuid
 from datetime import UTC, datetime
 
@@ -78,11 +79,20 @@ class TestOffsetsThatReachTheDriver:
     async def test_an_offset_past_the_bigint_range_is_refused(self, api):
         assert (await api.get(f"/api/raw?offset={2**63}")).status_code == 422
 
-    @pytest.mark.parametrize("route", ["/api/records", "/api/entities"])
-    async def test_the_largest_legal_offset_is_accepted_everywhere(self, api, route):
+    @pytest.mark.parametrize(
+        "route,collection",
+        [
+            ("/api/records", "entities"),
+            ("/api/entities", "entities"),
+            ("/api/enrichment", "facts"),
+        ],
+    )
+    async def test_the_largest_legal_offset_is_accepted_everywhere(
+        self, api, route, collection
+    ):
         response = await api.get(f"{route}?offset={2**63 - 1}")
         assert response.status_code == 200
-        assert response.json()["entities"] == []
+        assert response.json()[collection] == []
 
 
 class TestSources:
@@ -548,6 +558,96 @@ class TestInsights:
         assert body["unknown"] == len(body["goals"])
 
 
+class TestEnrichmentLayer:
+    def _fact(self, value="pricing", verified=True):
+        from app.models import EnrichedFact
+
+        return EnrichedFact(
+            canonical_id=uuid.uuid4(),
+            entity_type="meeting",
+            reading="sales_call",
+            attr="pain_points",
+            value=value,
+            quote="they said so" if verified else "never said this",
+            quote_verified=verified,
+            input_sha="c" * 64,
+            vocabulary_sha="d" * 64,
+            model="claude-test",
+            prompt_version="2026-08-02.1",
+        )
+
+    async def test_the_vocabulary_is_served_with_a_digest_per_reading(self, api):
+        body = (await api.get("/api/enrichment/vocabulary")).json()
+        assert body["readings"]
+        for reading in body["readings"].values():
+            assert reading["sha"], "a reading with no digest cannot be pinned"
+
+    async def test_an_empty_table_reports_coverage_rather_than_nothing(self, api):
+        body = (await api.get("/api/enrichment")).json()
+        assert body["total"] == 0
+        assert body["by_value"] == {}
+        assert body["coverage"]
+        assert body["inferred"] is True
+
+    async def test_coverage_is_also_served_on_its_own(self, api):
+        body = (await api.get("/api/enrichment/coverage")).json()
+        assert body["readings"]
+
+    async def test_an_id_that_is_not_a_uuid_is_a_404_not_a_500(self, api):
+        response = await api.get("/api/enrichment/not-a-uuid")
+        assert response.status_code == 404
+
+    async def test_an_unknown_but_well_formed_id_is_simply_empty(self, api):
+        body = (await api.get(f"/api/enrichment/{uuid.uuid4()}")).json()
+        assert body["facts"] == []
+
+    async def test_running_while_the_layer_is_off_is_a_409(self, api, monkeypatch):
+        enrichment_api = importlib.import_module("app.api.enrichment_api")
+        monkeypatch.setattr(enrichment_api.settings, "ENRICHMENT_ENABLED", False)
+        response = await api.post("/api/enrichment/run")
+        assert response.status_code == 409
+        assert "ENRICHMENT_ENABLED" in response.json()["detail"]
+
+    async def test_a_run_passes_its_arguments_through(self, api, monkeypatch):
+        enrichment_api = importlib.import_module("app.api.enrichment_api")
+        seen = {}
+
+        async def fake_enrich(session, reading_name=None, force=False, limit=None):
+            seen.update(reading=reading_name, force=force, limit=limit)
+            return {"read": 0, "skipped": 0}
+
+        monkeypatch.setattr(enrichment_api.enrichment_store, "enrich", fake_enrich)
+        await api.post("/api/enrichment/run?reading=call_signals&force=true&limit=5")
+        assert seen == {"reading": "call_signals", "force": True, "limit": 5}
+
+    @pytest.mark.parametrize("query", ["limit=0", "limit=501", "offset=-1"])
+    async def test_out_of_range_paging_is_refused(self, api, query):
+        assert (await api.get(f"/api/enrichment?{query}")).status_code == 422
+
+    @pytest.mark.parametrize(
+        "query,expected",
+        [
+            ("attr=pain_points", 2),
+            ("value=pricing", 1),
+            ("unverified_only=true", 1),
+            ("attr=pain_points&value=pricing", 1),
+            ("attr=pain_points&unverified_only=true", 1),
+        ],
+    )
+    async def test_each_filter_narrows_the_rows(self, api, session, query, expected):
+        session.add(self._fact(value="pricing", verified=True))
+        session.add(self._fact(value="timeline", verified=False))
+        await session.flush()
+        body = (await api.get(f"/api/enrichment?{query}")).json()
+        assert body["total"] == expected
+
+    async def test_a_composed_quote_is_counted_as_unverified(self, api, session):
+        session.add(self._fact(verified=False))
+        await session.flush()
+        body = (await api.get("/api/enrichment")).json()
+        assert body["unverified_quotes"] == 1
+
+
 class TestNullBytesInQueryParameters:
     ROUTES = [
         "/api/raw?source=%00",
@@ -556,6 +656,7 @@ class TestNullBytesInQueryParameters:
         "/api/records?source=%00",
         "/api/entities?entity_type=%00",
         "/api/metrics/history?metric=%00",
+        "/api/enrichment?attr=%00",
     ]
 
     @pytest.mark.parametrize("route", ROUTES)
@@ -578,8 +679,9 @@ class TestNullBytesInQueryParameters:
 
 
 class TestANullByteInThePathIsRefusedToo:
-    async def test_a_null_byte_in_a_path_segment_is_a_422_or_a_404(self, api):
-        response = await api.get("/api/entities/%00")
+    @pytest.mark.parametrize("path", ["/api/entities/%00", "/api/enrichment/%00"])
+    async def test_a_null_byte_in_a_path_segment_is_a_422_or_a_404(self, api, path):
+        response = await api.get(path)
         assert response.status_code != 500, response.text
         assert response.status_code in (404, 422)
 
@@ -592,5 +694,9 @@ class TestANullByteInThePathIsRefusedToo:
 class TestDocumentedResponses:
     async def test_the_documented_responses_include_the_404(self, api):
         spec = (await api.get("/openapi.json")).json()
-        documented = spec["paths"]["/api/entities/{canonical_id}"]["get"]["responses"]
-        assert "404" in documented
+        for path in (
+            "/api/entities/{canonical_id}",
+            "/api/enrichment/{canonical_id}",
+        ):
+            documented = spec["paths"][path]["get"]["responses"]
+            assert "404" in documented, f"{path} can 404 and does not say so"
