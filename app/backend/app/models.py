@@ -13,6 +13,7 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    UniqueConstraint,
     text,
 )
 from sqlalchemy.dialects.postgresql import JSONB, UUID
@@ -177,6 +178,48 @@ class MetricSnapshot(Base):
             "AND value > '-Infinity'::float8 AND value < 'Infinity'::float8)",
             name="snapshot_finite"),
         Index("ix_snapshot_metric_time", "metric", text("recorded_at DESC")),
+    )
+
+
+class EnrichedFact(Base):
+    __tablename__ = "enriched_fact"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # row identity, random UUID: 6f1c…, 9b2d…
+    canonical_id = Column(UUID(as_uuid=True), nullable=False)  # entity read, never cascades: 9c17…, 0d4e…
+    entity_type = Column(String(64), nullable=False)  # ontology entity kind: meeting
+    reading = Column(String(64), nullable=False)  # reading spec name: sales_call, support_call
+    attr = Column(String(128), nullable=False)  # question asked: interest, pain_points, timing
+    value = Column(String(128), nullable=False)  # label answered: strong, pricing, this_quarter
+    quote = Column(Text, nullable=False)  # claimed supporting span: "the pricing is what stalls us"
+    quote_verified = Column(Boolean, nullable=False, server_default=text("false"))  # span found in text: true, false
+    input_sha = Column(String(64), nullable=False)  # SHA-256 of text read: "a3f9…", "0c7a…"
+    vocabulary_sha = Column(String(64), nullable=False)  # spec digest when read: "d41d…", "9e10…"
+    model = Column(String(128), nullable=False)  # model that answered: claude-sonnet-5, claude-test
+    prompt_version = Column(String(32), nullable=False)  # prompt wording pin: 2026-08-02.1
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: server now(), 2026-08-30T12:00:00Z
+
+    __table_args__ = (
+        UniqueConstraint("canonical_id", "reading", "attr", "value", name="enriched_identity"),
+        Index("ix_enriched_stale", "reading", "vocabulary_sha", "canonical_id", "input_sha"),
+    )
+
+
+class EnrichmentRun(Base):
+    __tablename__ = "enrichment_run"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # row identity, random UUID: 6f1c…, 9b2d…
+    seq = Column(BigInteger, Identity(), unique=True, nullable=False)  # monotonic run counter: 1, 2, 3
+    reading = Column(String(64), nullable=False)  # reading spec name: sales_call, support_call
+    vocabulary_sha = Column(String(64), nullable=False)  # spec digest at run: "d41d…", "9e10…"
+    model = Column(String(128), nullable=False)  # model configured for run: claude-sonnet-5
+    prompt_version = Column(String(32), nullable=False)  # prompt wording pin: 2026-08-02.1
+    read = Column(Integer, nullable=False, server_default=text("0"))  # entities read and stored: 0, 6
+    failed = Column(Integer, nullable=False, server_default=text("0"))  # entities that errored: 0, 1
+    truncated_at_cap = Column(Boolean, nullable=False, server_default=text("false"))  # stopped at call cap: true, false
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # run timestamp: server now(), 2026-08-30T12:00:00Z
+
+    __table_args__ = (
+        Index("ix_enrichment_run_reading", "reading", text("seq DESC")),
     )
 
 

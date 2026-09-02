@@ -8,6 +8,7 @@ from app.engine.transforms import (
     TransformError,
     load_map,
 )
+from app.enrichment import vocabulary
 from app.sources import hooks, registry
 
 REAL_FIXTURES = BACKEND_DIR / "fixtures" / "real"
@@ -59,6 +60,7 @@ def run(
     metrics_path=None,
     rules_path=None,
     goals_path=None,
+    enrichment_paths=None,
 ) -> list[str]:
     problems: list[str] = []
 
@@ -274,6 +276,8 @@ def run(
                     "be empty, so the number could not show its receipts"
                 )
 
+    problems += check_enrichment(onto, enrichment_paths)
+
     try:
         problems += check_rules(onto, rules.load(rules_path))
     except (rules.RuleError, yaml.YAMLError) as e:
@@ -400,6 +404,46 @@ def check_goals(definitions, metric_defs=None) -> list[str]:
             float(spec["target"])
         except (TypeError, ValueError):
             problems.append(f"goal {name!r}: target {spec['target']!r} is not numeric")
+    return problems
+
+
+def check_enrichment(onto, enrichment_paths=None) -> list[str]:
+    problems: list[str] = []
+    try:
+        readings = vocabulary.load(enrichment_paths)
+    except vocabulary.VocabularyError as e:
+        return [str(e)]
+
+    for name, reading in sorted(readings.items()):
+        spec = onto.entities.get(reading.entity)
+        if spec is None:
+            problems.append(
+                f"enrichment.yaml: reading {name!r} reads entity "
+                f"{reading.entity!r}, which ontology.yaml does not declare"
+            )
+            continue
+        if reading.input_attr not in spec.attrs:
+            problems.append(
+                f"enrichment.yaml: reading {name!r} reads "
+                f"{reading.entity}.{reading.input_attr}, which is not an attr "
+                f"of {reading.entity} in ontology.yaml"
+            )
+            continue
+        declared = spec.attrs[reading.input_attr]
+        if declared != "string":
+            problems.append(
+                f"enrichment.yaml: reading {name!r} reads "
+                f"{reading.entity}.{reading.input_attr}, declared as "
+                f"{declared!r} — the layer reads free text, and a number or a "
+                "date has nothing in it to read"
+            )
+        if reading.input_attr in (spec.identity or ()):
+            problems.append(
+                f"enrichment.yaml: reading {name!r} reads "
+                f"{reading.entity}.{reading.input_attr}, which is a merge "
+                "identity attr — feeding an identifier to a model is never "
+                "what was meant"
+            )
     return problems
 
 

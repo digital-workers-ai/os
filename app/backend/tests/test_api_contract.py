@@ -11,6 +11,7 @@ EXCLUDED = {
     ("POST", "/api/sync"),
     ("POST", "/api/rebuild"),
     ("POST", "/api/metrics/snapshots"),
+    ("POST", "/api/enrichment/run"),
 }
 
 

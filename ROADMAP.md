@@ -32,7 +32,7 @@ Every PR fulfills a feature: something runnable, stated as a demo criterion the 
 ## Inference, behind the boundary
 
 - [x] 19. feat: one door to the model — app/llm quarantine (by convention), validate_startup. Brings: enablement flags with their enforcement. Minimal by consumer: app/llm is the lazy client + LLMError alone (complete/parse/converse arrive with 22/20/23); only ENRICHMENT_ENABLED lands (coaching/conversation flags wait for their layers); boot order now ["config","schema","checks","serving"]. The AST boundary suite was built, then removed in review (Carlos): quarantine is a convention PR review upholds, not a proof the suite enforces.
-- [ ] 20. feat: a transcript becomes labeled facts — enrichment vocabulary + reader + store + API; coverage stated, not assumed. Fixes: G1, G2, G3.
+- [x] 20. feat: a transcript becomes labeled facts — enrichment vocabulary + reader + store + API; coverage stated, not assumed. Fixes: G1, G2, G3. Shipped as one PR (Carlos's call at ~2.4k lines). llm.parse lands with its consumer (G2's three catches whole); live suite behind the llm marker, no --llm option (test.sh's -m filter already gates); no collection-gating tests; enrichment.yaml at repo root, checked by check_enrichment at boot.
 - [ ] 21. feat: inferred metrics — metrics over `enriched_fact`, digest-stamped snapshots. Fixes: E4, E5.
 - [ ] 22. feat: a role gets a briefing — coaching briefer + prompts + API, fenced estate data.
 - [ ] 23. feat: ask the estate a question — conversation agent + tools + threads + API. Fixes: H2 (narrowable metrics tool).
