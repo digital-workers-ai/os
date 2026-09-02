@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from app.caches import BACKEND_DIR, load_mapping
+from app.caches import KNOWLEDGE_DIR, load_mapping
 
-DEFAULT_ONTOLOGY = BACKEND_DIR / "ontology.yaml"
+DEFAULT_ONTOLOGY = KNOWLEDGE_DIR / "ontology.yaml"
 
 TYPES = ("string", "number", "date")
 

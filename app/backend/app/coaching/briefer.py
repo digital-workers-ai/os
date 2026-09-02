@@ -6,12 +6,12 @@ from pathlib import Path
 from sqlalchemy import select
 
 from app import llm
-from app.caches import BACKEND_DIR
+from app.caches import KNOWLEDGE_DIR
 from app.config import settings
 from app.engine import goals, metrics, rules
 from app.models import BriefingRun
 
-PROMPTS = BACKEND_DIR / "prompts"
+PROMPTS = KNOWLEDGE_DIR / "briefs"
 
 PROMPT_VERSION = "2026-08-02.1"
 

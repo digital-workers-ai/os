@@ -10,7 +10,7 @@ from app.sources.google_sheets import connector as google_sheets_connector
 from app.sources.hubspot import connector as hubspot_connector
 from app.sources.salesforce import connector as salesforce_connector
 
-KNOWLEDGE = Path(caches.BACKEND_DIR)
+KNOWLEDGE = Path(caches.KNOWLEDGE_DIR)
 ALL_FILES = (
     "mappings.yaml",
     "ontology.yaml",

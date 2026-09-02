@@ -3,10 +3,10 @@ import re
 from datetime import UTC, datetime
 from pathlib import Path
 
-from app.caches import BACKEND_DIR, load_mapping, register
+from app.caches import KNOWLEDGE_DIR, load_mapping, register
 
-DEFAULT_TRANSFORMS = BACKEND_DIR / "transforms.yaml"
-DEFAULT_SYNONYMS = BACKEND_DIR / "synonyms.yaml"
+DEFAULT_TRANSFORMS = KNOWLEDGE_DIR / "transforms.yaml"
+DEFAULT_SYNONYMS = KNOWLEDGE_DIR / "synonyms.yaml"
 
 _WS = re.compile(r"\s+")
 _HOST = re.compile(

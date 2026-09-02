@@ -8,9 +8,9 @@ from pathlib import Path
 from pydantic import BaseModel, ConfigDict, create_model
 
 from app import caches
-from app.caches import BACKEND_DIR, load_mapping
+from app.caches import KNOWLEDGE_DIR, load_mapping
 
-DEFAULT_ENRICHMENT_FILES = [BACKEND_DIR / "enrichment.yaml"]
+DEFAULT_ENRICHMENT_FILES = [KNOWLEDGE_DIR / "enrichment.yaml"]
 
 KINDS = ("one_of", "many_of")
 _SNAKE = re.compile(r"^[a-z][a-z0-9_]*$")

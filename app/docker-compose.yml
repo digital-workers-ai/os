@@ -35,15 +35,7 @@ services:
         condition: service_healthy
     volumes:
       - ./backend:/app
-      - ../mappings.yaml:/app/mappings.yaml
-      - ../ontology.yaml:/app/ontology.yaml
-      - ../transforms.yaml:/app/transforms.yaml
-      - ../synonyms.yaml:/app/synonyms.yaml
-      - ../metrics.yaml:/app/metrics.yaml
-      - ../rules.yaml:/app/rules.yaml
-      - ../goals.yaml:/app/goals.yaml
-      - ../enrichment.yaml:/app/enrichment.yaml
-      - ../prompts:/app/prompts
+      - ../knowledge:/app/knowledge
       - ../mock:/adversarial/seeds:ro
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')\""]
