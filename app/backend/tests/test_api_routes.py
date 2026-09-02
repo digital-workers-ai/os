@@ -592,13 +592,6 @@ class TestCoachingLayer:
         }
         return BriefingRun(**{**base, **overrides})
 
-    async def test_the_index_names_its_roles_and_pins_its_prompts(self, api):
-        body = (await api.get("/api/coaching")).json()
-        assert body["roles"]
-        assert len(body["prompts_sha"]) == 12
-        assert body["inferred"] is True
-        assert body["enabled"] is False
-
     async def test_a_role_with_no_stored_briefing_is_a_404(
         self, api, coaching_transacting
     ):

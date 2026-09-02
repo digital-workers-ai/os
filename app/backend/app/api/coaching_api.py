@@ -2,21 +2,7 @@ from fastapi import HTTPException, Request
 
 from app.api.routers import coaching as router
 from app.coaching import briefer
-from app.config import settings
 from app.db import async_session
-
-
-@router.get("")
-async def index():
-    return {
-        "enabled": settings.COACHING_ENABLED,
-        "model": settings.COACHING_MODEL,
-        "prompt_version": briefer.PROMPT_VERSION,
-        "prompts_sha": briefer.prompts_sha()[:12],
-        "roles": briefer.roles(),
-        "inferred": True,
-        "note": "narration over measured numbers, not a measurement",
-    }
 
 
 @router.api_route(
