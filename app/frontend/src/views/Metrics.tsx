@@ -244,7 +244,7 @@ export function Metrics() {
                         <Value value={m.value} />
                       </TableCell>
                       <TableCell className="text-right tabular-nums">{m.entities === undefined ? '—' : num(m.entities)}</TableCell>
-                      <TableCell>{m.inferred && m.reading && <Mono>{m.reading}</Mono>}</TableCell>
+                      <TableCell>{m.inferred && m.reading ? <Mono>{m.reading}</Mono> : '—'}</TableCell>
                     </TableRow>
                   )
                 })}
