@@ -132,6 +132,11 @@ const ROW = 'cursor-pointer hover:bg-dbb-sand/50'
 const PRE = 'mt-4 max-h-[480px] overflow-auto rounded-lg bg-dbb-surface p-3 font-mono text-xs'
 const WRAP = 'break-words'
 const SPLIT = 'grid gap-6 lg:grid-cols-[1fr_1.2fr]'
+const PAGE_FILL = 'lg:flex lg:flex-col lg:h-[calc(100vh-11.25rem-1px)]'
+const SPLIT_FILL = 'grid items-start gap-6 lg:grid-cols-[1.2fr_1fr] lg:grid-rows-[minmax(0,1fr)] lg:flex-1 lg:min-h-0'
+const FILL = 'min-w-0 lg:flex lg:flex-col lg:max-h-full'
+const BODY = 'lg:min-h-0 lg:overflow-y-auto lg:-mx-6 lg:px-6 lg:-mb-6 lg:pb-6 lg:rounded-b-xl'
+const STICKY_HEAD = '[&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-card [&_th]:shadow-[inset_0_-1px_0_theme(colors.dbb.warm)]'
 
 function Count({ n }: { n: number }) {
   return <span className="ml-1.5 tabular-nums opacity-60">{num(n)}</span>
@@ -313,7 +318,7 @@ function Detail({
     : []
 
   return (
-    <SectionCard title={d ? `${d.entity_type} · ${d.anchor}` : 'Entity'} className="min-w-0">
+    <SectionCard title={d ? `${d.entity_type} · ${d.anchor}` : 'Entity'} className={FILL} bodyClassName={BODY}>
       <ErrorBanner error={detail.error} className="mb-3" />
       {detail.loading && !detail.data && <Loading />}
       {retired && (
@@ -492,10 +497,10 @@ function Canonical() {
   const rows = list.data?.entities ?? []
 
   return (
-    <div className={SPLIT}>
-      <SectionCard title="Canonical entities" description="click an entity to open it">
+    <div className="flex flex-col gap-6 lg:h-full">
+      <SectionCard title="Canonical entities" description="click an entity to open it" className="shrink-0">
         <ErrorBanner error={list.error} className="mb-3" />
-        <div className="mb-4 flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2">
           <FilterChip on={type === ''} onClick={() => pick('')}>
             all
             <Count n={all} />
@@ -507,67 +512,71 @@ function Canonical() {
             </FilterChip>
           ))}
         </div>
-        {list.loading && !list.data ? (
-          <Loading />
-        ) : rows.length === 0 ? (
-          <Empty>no entities</Empty>
-        ) : (
-          <Table className="table-fixed">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-28">Type</TableHead>
-                <TableHead className="w-64">Anchor</TableHead>
-                <TableHead className={cn(NUM, 'w-24')}>Members</TableHead>
-                <TableHead className="w-32">Id</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map((r) => {
-                const name = r.facts.name ?? r.facts.subject ?? r.facts.event_name
-                return (
-                  <TableRow
-                    key={r.canonical_id}
-                    className={ROW}
-                    data-state={r.canonical_id === selected ? 'selected' : undefined}
-                    aria-selected={r.canonical_id === selected}
-                    onClick={() => open(r.canonical_id)}
-                  >
-                    <TableCell>
-                      <Pill>{r.entity_type}</Pill>
-                    </TableCell>
-                    <TableCell className={KEY}>
-                      {show(name ?? r.anchor)}
-                      {name ? <span className={cn(MONO, 'block font-normal text-dbb-muted')}>{r.anchor}</span> : null}
-                    </TableCell>
-                    <TableCell className={NUM}>{num(r.members)}</TableCell>
-                    <TableCell>
-                      <Id id={r.canonical_id} />
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
-        )}
-        {list.data && (
-          <Pager
-            offset={offset}
-            count={rows.length}
-            total={list.data.total}
-            onPage={setOffset}
-            size={size}
-            allSize={Math.min(list.data.total, 500)}
-            onSize={changeSize}
-          />
-        )}
       </SectionCard>
-      {selected ? (
-        <Detail id={selected} trace={trace} onOpen={open} onTrace={setTrace} />
-      ) : (
-        <SectionCard title="Entity" className="min-w-0">
-          <Empty>select an entity</Empty>
+      <div className={SPLIT_FILL}>
+        <SectionCard className={FILL} bodyClassName={BODY}>
+          {list.loading && !list.data ? (
+            <Loading />
+          ) : rows.length === 0 ? (
+            <Empty>no entities</Empty>
+          ) : (
+            <Table className="table-fixed" wrapperClassName="overflow-x-visible">
+              <TableHeader className={STICKY_HEAD}>
+                <TableRow>
+                  <TableHead className="w-28">Type</TableHead>
+                  <TableHead className="w-64">Anchor</TableHead>
+                  <TableHead className={cn(NUM, 'w-24')}>Members</TableHead>
+                  <TableHead className="w-32">Id</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rows.map((r) => {
+                  const name = r.facts.name ?? r.facts.subject ?? r.facts.event_name
+                  return (
+                    <TableRow
+                      key={r.canonical_id}
+                      className={ROW}
+                      data-state={r.canonical_id === selected ? 'selected' : undefined}
+                      aria-selected={r.canonical_id === selected}
+                      onClick={() => open(r.canonical_id)}
+                    >
+                      <TableCell>
+                        <Pill>{r.entity_type}</Pill>
+                      </TableCell>
+                      <TableCell className={KEY}>
+                        {show(name ?? r.anchor)}
+                        {name ? <span className={cn(MONO, 'block font-normal text-dbb-muted')}>{r.anchor}</span> : null}
+                      </TableCell>
+                      <TableCell className={NUM}>{num(r.members)}</TableCell>
+                      <TableCell>
+                        <Id id={r.canonical_id} />
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          )}
+          {list.data && (
+            <Pager
+              offset={offset}
+              count={rows.length}
+              total={list.data.total}
+              onPage={setOffset}
+              size={size}
+              allSize={Math.min(list.data.total, 500)}
+              onSize={changeSize}
+            />
+          )}
         </SectionCard>
-      )}
+        {selected ? (
+          <Detail id={selected} trace={trace} onOpen={open} onTrace={setTrace} />
+        ) : (
+          <SectionCard className={FILL} bodyClassName={BODY}>
+            <Empty>select an entity</Empty>
+          </SectionCard>
+        )}
+      </div>
     </div>
   )
 }
@@ -794,12 +803,12 @@ function RawSide() {
 
 export function Entities() {
   return (
-    <Tabs defaultValue="canonical">
-      <TabsList>
+    <Tabs defaultValue="canonical" className={PAGE_FILL}>
+      <TabsList className="shrink-0">
         <TabsTrigger value="canonical">Canonical</TabsTrigger>
         <TabsTrigger value="raw">Raw side</TabsTrigger>
       </TabsList>
-      <TabsContent value="canonical">
+      <TabsContent value="canonical" className="lg:min-h-0 lg:flex-1">
         <Canonical />
       </TabsContent>
       <TabsContent value="raw">
