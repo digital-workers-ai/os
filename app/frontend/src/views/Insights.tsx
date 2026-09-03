@@ -301,7 +301,7 @@ export function Insights() {
         {!goals && !goalsError && <Muted>loading…</Muted>}
         {goals && goals.goals.length === 0 && <Muted>no goals defined</Muted>}
         {goals && goals.goals.length > 0 && (
-          <div className="flex flex-col gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          <div className="flex flex-col gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {goals.goals.map((g) => (
               <GoalCard key={g.goal} g={g} />
             ))}
