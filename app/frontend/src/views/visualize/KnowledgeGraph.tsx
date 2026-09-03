@@ -7,24 +7,18 @@ import {
   type MouseEvent as ReactMouseEvent,
   type RefObject,
 } from 'react'
-import {
-  forceCenter,
-  forceCollide,
-  forceLink,
-  forceManyBody,
-  forceSimulation,
-  type SimulationLinkDatum,
-  type SimulationNodeDatum,
-} from 'd3-force'
 import { Check, Copy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Empty } from '@/components/ui/empty'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { plural } from '@/lib/format'
 import { HoverTip, TypeChip, typeColor, useHover } from './shared'
 
 export interface GraphNode {
   canonical_id: string
   entity_type: string
   anchor: string
+  label: string
   members: number
 }
 
@@ -43,27 +37,346 @@ export interface GraphResponse {
 
 export interface GraphView {
   typeFilter: string
-  showIsolated: boolean
   hidden: Set<string>
-  seed: number
+  focus: string | null
 }
 
-interface SimNode extends SimulationNodeDatum {
-  id: string
+export interface Cluster {
+  hub: GraphNode
+  nodes: GraphNode[]
+  edges: GraphEdge[]
+}
+
+export interface GraphScope {
+  types: string[]
+  degree: Map<string, number>
+  clusters: Cluster[]
+  unlinked: GraphNode[]
+  edgeCount: number
+}
+
+const RING_STEP = 56
+const FOCUS_RING_STEP = 110
+const ARC_SPACING = 22
+const LABEL_ALL_MAX = 12
+const LABEL_CHARS = 22
+const SUN_PAD = 10
+const GUTTER = 20
+const HUB_PRIORITY: Record<string, number> = { company: 2, person: 1 }
+
+export const displayLabel = (n: GraphNode) =>
+  n.label === n.anchor ? n.anchor.slice(n.anchor.lastIndexOf('|') + 1) : n.label
+
+const truncate = (s: string) => (s.length > LABEL_CHARS ? `${s.slice(0, LABEL_CHARS - 1)}…` : s)
+
+const adjacency = (edges: GraphEdge[]) => {
+  const adj = new Map<string, Set<string>>()
+  const link = (a: string, b: string) => {
+    if (!adj.has(a)) adj.set(a, new Set())
+    adj.get(a)!.add(b)
+  }
+  for (const e of edges) {
+    link(e.from, e.to)
+    link(e.to, e.from)
+  }
+  return adj
+}
+
+function pickHub(nodes: GraphNode[], degree: Map<string, number>) {
+  const rank = (n: GraphNode) => [HUB_PRIORITY[n.entity_type] ?? 0, degree.get(n.canonical_id) ?? 0]
+  return nodes.reduce((best, n) => {
+    const [bp, bd] = rank(best)
+    const [np, nd] = rank(n)
+    if (np !== bp) return np > bp ? n : best
+    if (nd !== bd) return nd > bd ? n : best
+    return displayLabel(n) < displayLabel(best) ? n : best
+  })
+}
+
+export function scopeGraph(data: GraphResponse, view: Pick<GraphView, 'typeFilter' | 'hidden'>): GraphScope {
+  const types = Object.keys(data.counts.by_type).sort()
+  const lens = new Set<string>()
+  if (view.typeFilter !== 'all') {
+    const fullAdj = adjacency(data.edges)
+    for (const n of data.nodes) {
+      if (n.entity_type !== view.typeFilter) continue
+      lens.add(n.canonical_id)
+      for (const m of fullAdj.get(n.canonical_id) ?? []) lens.add(m)
+    }
+  }
+  const nodes = data.nodes.filter(
+    (n) => (view.typeFilter === 'all' || lens.has(n.canonical_id)) && !view.hidden.has(n.entity_type),
+  )
+  const byId = new Map(nodes.map((n) => [n.canonical_id, n]))
+  const edges = data.edges.filter((e) => byId.has(e.from) && byId.has(e.to))
+  const degree = new Map<string, number>()
+  for (const e of edges) {
+    degree.set(e.from, (degree.get(e.from) ?? 0) + 1)
+    degree.set(e.to, (degree.get(e.to) ?? 0) + 1)
+  }
+  const adj = adjacency(edges)
+  const seen = new Set<string>()
+  const clusters: Cluster[] = []
+  for (const start of nodes) {
+    if (seen.has(start.canonical_id) || !adj.has(start.canonical_id)) continue
+    const found: GraphNode[] = []
+    const queue = [start.canonical_id]
+    seen.add(start.canonical_id)
+    while (queue.length) {
+      const id = queue.shift()!
+      found.push(byId.get(id)!)
+      for (const m of adj.get(id) ?? []) {
+        if (seen.has(m)) continue
+        seen.add(m)
+        queue.push(m)
+      }
+    }
+    const ids = new Set(found.map((n) => n.canonical_id))
+    clusters.push({ hub: pickHub(found, degree), nodes: found, edges: edges.filter((e) => ids.has(e.from)) })
+  }
+  clusters.sort(
+    (a, b) => b.nodes.length - a.nodes.length || displayLabel(a.hub).localeCompare(displayLabel(b.hub)),
+  )
+  return { types, degree, clusters, unlinked: nodes.filter((n) => !degree.has(n.canonical_id)), edgeCount: edges.length }
+}
+
+export const graphSummary = (scope: GraphScope) => {
+  const linked = scope.clusters.reduce((n, c) => n + c.nodes.length, 0)
+  return `${plural(scope.clusters.length, 'cluster')} · ${linked} linked nodes · ${scope.unlinked.length} unlinked · ${plural(scope.edgeCount, 'edge')}`
+}
+
+type Anchor = 'start' | 'end' | 'middle'
+
+interface Box {
+  x0: number
+  y0: number
+  x1: number
+  y1: number
+}
+
+interface Spot {
+  x: number
+  y: number
+  anchor: Anchor
+}
+
+interface Dot {
   node: GraphNode
-  degree: number
+  x: number
+  y: number
   r: number
+  angle: number
+  depth: number
+  degree: number
+  branch: boolean
 }
 
-interface SimLink extends SimulationLinkDatum<SimNode> {
+interface Link {
+  a: Dot
+  b: Dot
   edge: GraphEdge
 }
 
-const H = 640
-const PAD = 24
-const TICKS = 300
+interface Label extends Spot {
+  id: string
+  text: string
+  strong: boolean
+}
 
-const EMPTY_LAYOUT = { nodes: [] as SimNode[], links: [] as SimLink[], ms: 0 }
+interface Sun {
+  hub: GraphNode
+  heading: string
+  radius: number
+  dots: Dot[]
+  links: Link[]
+  labels: Label[]
+  bounds: Box
+}
+
+interface PlacedSun {
+  sun: Sun
+  ox: number
+  oy: number
+}
+
+const textBox = (spot: Spot, text: string, px: number): Box => {
+  const w = text.length * px * 0.6 + 2
+  const x0 = spot.anchor === 'start' ? spot.x : spot.anchor === 'end' ? spot.x - w : spot.x - w / 2
+  return { x0, y0: spot.y - px * 0.8, x1: x0 + w, y1: spot.y + px * 0.25 }
+}
+
+const boxesHit = (a: Box, b: Box) => a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 && b.y0 < a.y1
+
+const circleHits = (box: Box, dot: Dot) => {
+  const dx = dot.x - Math.min(Math.max(dot.x, box.x0), box.x1)
+  const dy = dot.y - Math.min(Math.max(dot.y, box.y0), box.y1)
+  return dx * dx + dy * dy < dot.r * dot.r
+}
+
+const grow = (box: Box, other: Box) => {
+  box.x0 = Math.min(box.x0, other.x0)
+  box.y0 = Math.min(box.y0, other.y0)
+  box.x1 = Math.max(box.x1, other.x1)
+  box.y1 = Math.max(box.y1, other.y1)
+}
+
+function layoutSun(cluster: Cluster, degree: Map<string, number>, maxMembers: number, step: number, labelDepth: number): Sun {
+  const byId = new Map(cluster.nodes.map((n) => [n.canonical_id, n]))
+  const adj = adjacency(cluster.edges)
+  const hubId = cluster.hub.canonical_id
+  const byTypeThenLabel = (a: string, b: string) => {
+    const na = byId.get(a)!
+    const nb = byId.get(b)!
+    return na.entity_type.localeCompare(nb.entity_type) || displayLabel(na).localeCompare(displayLabel(nb))
+  }
+  const depth = new Map([[hubId, 0]])
+  const children = new Map<string, string[]>()
+  const queue = [hubId]
+  while (queue.length) {
+    const id = queue.shift()!
+    const kids = [...(adj.get(id) ?? [])].filter((m) => !depth.has(m)).sort(byTypeThenLabel)
+    children.set(id, kids)
+    for (const k of kids) {
+      depth.set(k, depth.get(id)! + 1)
+      queue.push(k)
+    }
+  }
+  const leaves = new Map<string, number>()
+  const countLeaves = (id: string): number => {
+    const kids = children.get(id)!
+    const n = kids.length ? kids.reduce((sum, k) => sum + countLeaves(k), 0) : 1
+    leaves.set(id, n)
+    return n
+  }
+  const totalLeaves = countLeaves(hubId)
+  const angle = new Map<string, number>()
+  const assignSector = (id: string, a0: number, a1: number) => {
+    angle.set(id, (a0 + a1) / 2)
+    let a = a0
+    for (const k of children.get(id)!) {
+      const span = ((a1 - a0) * leaves.get(k)!) / leaves.get(id)!
+      assignSector(k, a, a + span)
+      a += span
+    }
+  }
+  assignSector(hubId, -Math.PI / 2, 1.5 * Math.PI)
+  const maxDepth = Math.max(...depth.values())
+  const ring = [0, Math.max(step, (totalLeaves * ARC_SPACING) / (2 * Math.PI))]
+  for (let d = 2; d <= maxDepth; d++) ring.push(ring[d - 1] + step)
+  const dots: Dot[] = cluster.nodes.map((node) => {
+    const id = node.canonical_id
+    const d = depth.get(id)!
+    const a = angle.get(id)!
+    return {
+      node,
+      x: ring[d] * Math.cos(a),
+      y: ring[d] * Math.sin(a),
+      r: 5 + (6 * (node.members - 1)) / Math.max(1, maxMembers - 1),
+      angle: a,
+      depth: d,
+      degree: degree.get(id) ?? 0,
+      branch: children.get(id)!.length > 0,
+    }
+  })
+  const dotById = new Map(dots.map((d) => [d.node.canonical_id, d]))
+  const links = cluster.edges.map((edge) => ({ a: dotById.get(edge.from)!, b: dotById.get(edge.to)!, edge }))
+  const radius = ring[maxDepth] + Math.max(...dots.map((d) => d.r)) + 8
+  const heading = truncate(displayLabel(cluster.hub))
+  const headingBox = textBox({ x: 0, y: -radius - 8, anchor: 'middle' }, heading, 11)
+  const taken: Box[] = [headingBox]
+  const labels: Label[] = []
+  const wanted = dots
+    .filter((d) => d.depth > 0 && (d.branch || d.depth <= labelDepth))
+    .sort((a, b) => Number(b.branch) - Number(a.branch) || a.depth - b.depth)
+  for (const d of wanted) {
+    const text = truncate(displayLabel(d.node))
+    const sx = Math.cos(d.angle) >= 0 ? 1 : -1
+    const sy = Math.sin(d.angle) >= 0 ? 1 : -1
+    const anchorOf = (s: number): Anchor => (s > 0 ? 'start' : 'end')
+    const side = (s: number): Spot => ({ x: d.x + s * (d.r + 4), y: d.y + 3.5, anchor: anchorOf(s) })
+    const vertical = (s: number): Spot => ({ x: d.x, y: s > 0 ? d.y + d.r + 11 : d.y - d.r - 5, anchor: 'middle' })
+    const diagonal = (h: number, v: number): Spot => ({
+      x: d.x + h * (d.r + 2),
+      y: v > 0 ? d.y + d.r + 9 : d.y - d.r - 3,
+      anchor: anchorOf(h),
+    })
+    const spots = [
+      side(sx),
+      vertical(sy),
+      diagonal(sx, sy),
+      diagonal(sx, -sy),
+      vertical(-sy),
+      diagonal(-sx, sy),
+      diagonal(-sx, -sy),
+      side(-sx),
+    ]
+    for (const spot of spots) {
+      const box = textBox(spot, text, 10)
+      if (taken.some((t) => boxesHit(box, t)) || dots.some((o) => circleHits(box, o))) continue
+      taken.push(box)
+      labels.push({ id: d.node.canonical_id, text, strong: d.branch, ...spot })
+      break
+    }
+  }
+  const bounds: Box = { x0: -radius, y0: headingBox.y0, x1: radius, y1: radius }
+  for (const t of taken) grow(bounds, t)
+  bounds.x0 -= SUN_PAD
+  bounds.y0 -= SUN_PAD
+  bounds.x1 += SUN_PAD
+  bounds.y1 += SUN_PAD
+  return { hub: cluster.hub, heading, radius, dots, links, labels, bounds }
+}
+
+interface Shelf {
+  x: number
+  w: number
+  y: number
+}
+
+function raise(skyline: Shelf[], x: number, right: number, top: number) {
+  const next: Shelf[] = []
+  for (const s of skyline) {
+    const end = s.x + s.w
+    if (end <= x || s.x >= right) {
+      next.push(s)
+      continue
+    }
+    if (s.x < x) next.push({ x: s.x, w: x - s.x, y: s.y })
+    if (end > right) next.push({ x: right, w: end - right, y: s.y })
+  }
+  next.push({ x, w: right - x, y: top })
+  return next.sort((a, b) => a.x - b.x)
+}
+
+function tile(suns: Sun[], width: number) {
+  const placed: PlacedSun[] = []
+  const pending = [...suns]
+  let skyline: Shelf[] = [{ x: 0, w: width, y: 0 }]
+  let height = 0
+  while (pending.length) {
+    let i = 0
+    for (let j = 1; j < skyline.length; j++) if (skyline[j].y < skyline[i].y) i = j
+    const { x, y } = skyline[i]
+    let end = i
+    let room = 0
+    while (end < skyline.length && skyline[end].y <= y) room += skyline[end++].w
+    room = Math.min(room, width - x)
+    const k = pending.findIndex((s) => s.bounds.x1 - s.bounds.x0 <= room)
+    if (k < 0 && (x > 0 || room < width)) {
+      skyline = raise(skyline, x, x + room, Math.min(skyline[i - 1]?.y ?? Infinity, skyline[end]?.y ?? Infinity))
+      continue
+    }
+    const [sun] = pending.splice(Math.max(k, 0), 1)
+    const w = sun.bounds.x1 - sun.bounds.x0
+    const h = sun.bounds.y1 - sun.bounds.y0
+    placed.push({ sun, ox: x - sun.bounds.x0, oy: y - sun.bounds.y0 })
+    skyline = raise(skyline, x, Math.min(width, x + w + GUTTER), y + h + GUTTER)
+    height = Math.max(height, y + h)
+  }
+  return { suns: placed, height }
+}
+
+const EMPTY_LAYOUT = { suns: [] as PlacedSun[], height: 0 }
 
 function useWidth(ref: RefObject<HTMLElement>) {
   const [width, setWidth] = useState(0)
@@ -77,109 +390,50 @@ function useWidth(ref: RefObject<HTMLElement>) {
   return width
 }
 
-const degreesOf = (data: GraphResponse) => {
-  const degree = new Map<string, number>()
-  for (const e of data.edges) {
-    degree.set(e.from, (degree.get(e.from) ?? 0) + 1)
-    degree.set(e.to, (degree.get(e.to) ?? 0) + 1)
-  }
-  return degree
-}
-
-const mulberry32 = (seed: number) => () => {
-  seed = (seed + 0x6d2b79f5) | 0
-  let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
-  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
-  return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-}
-
-function fitToViewBox(nodes: SimNode[], W: number) {
-  if (nodes.length === 0) return
-  const xs = nodes.map((n) => n.x ?? 0)
-  const ys = nodes.map((n) => n.y ?? 0)
-  const minX = Math.min(...xs)
-  const maxX = Math.max(...xs)
-  const minY = Math.min(...ys)
-  const maxY = Math.max(...ys)
-  const scale = Math.min(2, (W - 2 * PAD) / Math.max(1, maxX - minX), (H - 2 * PAD) / Math.max(1, maxY - minY))
-  const cx = (minX + maxX) / 2
-  const cy = (minY + maxY) / 2
-  for (const n of nodes) {
-    n.x = W / 2 + ((n.x ?? 0) - cx) * scale
-    n.y = H / 2 + ((n.y ?? 0) - cy) * scale
-  }
-}
-
-function runLayout(nodes: GraphNode[], edges: GraphEdge[], degree: Map<string, number>, seed: number, W: number) {
-  const started = performance.now()
-  const rng = mulberry32(seed)
-  const maxMembers = nodes.reduce((m, n) => Math.max(m, n.members), 1)
-  const simNodes: SimNode[] = nodes.map((n) => ({
-    id: n.canonical_id,
-    node: n,
-    degree: degree.get(n.canonical_id) ?? 0,
-    r: 4 + 6 * ((n.members - 1) / Math.max(1, maxMembers - 1)),
-    x: W / 2 + (rng() - 0.5) * W * 0.8,
-    y: H / 2 + (rng() - 0.5) * H * 0.8,
-  }))
-  const links: SimLink[] = edges.map((e) => ({ source: e.from, target: e.to, edge: e }))
-  const sim = forceSimulation(simNodes)
-    .randomSource(rng)
-    .force('link', forceLink<SimNode, SimLink>(links).id((d) => d.id).distance(36))
-    .force('charge', forceManyBody().strength(-50))
-    .force('center', forceCenter(W / 2, H / 2))
-    .force('collide', forceCollide<SimNode>((d) => d.r + 3))
-    .stop()
-  for (let i = 0; i < TICKS; i++) sim.tick()
-  fitToViewBox(simNodes, W)
-  return { nodes: simNodes, links, ms: Math.round(performance.now() - started) }
-}
-
-const shortLabel = (anchor: string) => (anchor.length > 28 ? `${anchor.slice(0, 27)}…` : anchor)
-
 export function GraphControls({
-  data,
+  counts,
+  scope,
   view,
   onChange,
 }: {
-  data: GraphResponse
+  counts: GraphResponse['counts']
+  scope: GraphScope
   view: GraphView
   onChange: (view: GraphView) => void
 }) {
-  const types = useMemo(() => Object.keys(data.counts.by_type).sort(), [data])
-  const isolated = useMemo(() => {
-    const degree = degreesOf(data)
-    return data.nodes.filter((n) => !degree.has(n.canonical_id)).length
-  }, [data])
+  const hubs = useMemo(
+    () => [...scope.clusters].sort((a, b) => displayLabel(a.hub).localeCompare(displayLabel(b.hub))),
+    [scope],
+  )
+  const focus = hubs.some((c) => c.hub.canonical_id === view.focus) ? view.focus! : 'all'
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Select value={view.typeFilter} onValueChange={(typeFilter) => onChange({ ...view, typeFilter })}>
-        <SelectTrigger className="h-8 w-[190px] text-xs">
+      <Select value={focus} onValueChange={(v) => onChange({ ...view, focus: v === 'all' ? null : v })}>
+        <SelectTrigger className="h-8 w-[210px] text-xs" aria-label="focus cluster">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All types · {data.counts.nodes}</SelectItem>
-          {types.map((t) => (
-            <SelectItem key={t} value={t}>
-              {t} · {data.counts.by_type[t]}
+          <SelectItem value="all">All clusters · {scope.clusters.length}</SelectItem>
+          {hubs.map((c) => (
+            <SelectItem key={c.hub.canonical_id} value={c.hub.canonical_id}>
+              {displayLabel(c.hub)} · {c.nodes.length}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
-      <button
-        type="button"
-        onClick={() => onChange({ ...view, showIsolated: !view.showIsolated })}
-        className={`h-8 rounded-full border px-3 text-xs transition-colors ${
-          view.showIsolated
-            ? 'border-dbb-charcoal bg-dbb-charcoal text-white'
-            : 'border-dbb-warm bg-white text-dbb-muted hover:bg-dbb-sand'
-        }`}
-      >
-        Isolated · {isolated}
-      </button>
-      <Button variant="outline" size="sm" onClick={() => onChange({ ...view, seed: view.seed + 1 })}>
-        Re-layout
-      </Button>
+      <Select value={view.typeFilter} onValueChange={(typeFilter) => onChange({ ...view, typeFilter })}>
+        <SelectTrigger className="h-8 w-[190px] text-xs" aria-label="type filter">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All types · {counts.nodes}</SelectItem>
+          {scope.types.map((t) => (
+            <SelectItem key={t} value={t}>
+              {t} · {counts.by_type[t]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   )
 }
@@ -206,25 +460,30 @@ function NodePanel({
   degree,
   edges,
   byId,
+  hubs,
   types,
   onSelect,
+  onFocus,
 }: {
   node: GraphNode
   degree: number
   edges: GraphEdge[]
   byId: Map<string, GraphNode>
+  hubs: Set<string>
   types: string[]
   onSelect: (id: string) => void
+  onFocus: (id: string) => void
 }) {
   return (
     <div className="space-y-3">
-      <div className="break-all text-sm font-medium text-dbb-charcoal">{node.anchor}</div>
+      <div className="break-words text-sm font-medium text-dbb-charcoal">{displayLabel(node)}</div>
       <div className="flex flex-wrap items-center gap-2 text-xs text-dbb-muted">
         <TypeChip type={node.entity_type} color={typeColor(node.entity_type, types)} />
         <span>
           {node.members} members · degree {degree}
         </span>
       </div>
+      <div className="break-all font-mono text-[11px] text-dbb-muted">{node.anchor}</div>
       <CopyId id={node.canonical_id} />
       <div className="text-xs font-medium text-dbb-charcoal">Edges · {edges.length}</div>
       {edges.length === 0 ? (
@@ -239,13 +498,16 @@ function NodePanel({
               <li key={i}>
                 <button
                   type="button"
-                  onClick={() => onSelect(otherId)}
+                  onClick={() => (hubs.has(otherId) ? onFocus(otherId) : onSelect(otherId))}
                   className="flex w-full flex-col items-start gap-0.5 py-1.5 text-left hover:bg-dbb-sand"
                 >
                   <span className="font-mono text-[11px] text-dbb-muted">
                     {out ? '→' : '←'} {e.rel} · {e.grounding}
                   </span>
-                  <span className="break-all text-xs text-dbb-charcoal">{other?.anchor ?? otherId}</span>
+                  <span className="break-words text-xs text-dbb-charcoal">
+                    {other ? displayLabel(other) : otherId}
+                    {other && hubs.has(otherId) && <span className="ml-1 text-dbb-muted">· cluster hub</span>}
+                  </span>
                 </button>
               </li>
             )
@@ -258,40 +520,50 @@ function NodePanel({
 
 export function KnowledgeGraph({
   data,
+  scope,
   view,
   onChange,
 }: {
   data: GraphResponse
+  scope: GraphScope
   view: GraphView
   onChange: (view: GraphView) => void
 }) {
-  const types = useMemo(() => Object.keys(data.counts.by_type).sort(), [data])
-  const degree = useMemo(() => degreesOf(data), [data])
+  const { types, degree } = scope
   const byId = useMemo(() => new Map(data.nodes.map((n) => [n.canonical_id, n])), [data])
-
-  const scoped = useMemo(
-    () =>
-      data.nodes.filter(
-        (n) =>
-          (view.typeFilter === 'all' || n.entity_type === view.typeFilter) && !view.hidden.has(n.entity_type),
-      ),
-    [data, view.typeFilter, view.hidden],
-  )
-  const isolatedCount = useMemo(() => scoped.filter((n) => !degree.has(n.canonical_id)).length, [scoped, degree])
+  const maxMembers = useMemo(() => data.nodes.reduce((m, n) => Math.max(m, n.members), 1), [data])
+  const hubs = useMemo(() => new Set(scope.clusters.map((c) => c.hub.canonical_id)), [scope])
+  const unlinkedByType = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const n of scope.unlinked) counts.set(n.entity_type, (counts.get(n.entity_type) ?? 0) + 1)
+    return [...counts].sort((a, b) => b[1] - a[1])
+  }, [scope])
 
   const { rootRef, hover, show, hide } = useHover()
   const width = useWidth(rootRef)
+  const focused = scope.clusters.find((c) => c.hub.canonical_id === view.focus)
 
   const laid = useMemo(() => {
     if (width === 0) return EMPTY_LAYOUT
-    const visible = view.showIsolated ? scoped : scoped.filter((n) => degree.has(n.canonical_id))
-    const ids = new Set(visible.map((n) => n.canonical_id))
-    const edges = data.edges.filter((e) => ids.has(e.from) && ids.has(e.to))
-    return runLayout(visible, edges, degree, view.seed, width)
-  }, [data, scoped, degree, view.showIsolated, view.seed, width])
-
-  const scopedTypes = useMemo(() => new Set(scoped.map((n) => n.entity_type)), [scoped])
-  const labelAll = laid.nodes.length <= 40
+    if (focused) {
+      let step = FOCUS_RING_STEP
+      let sun = layoutSun(focused, degree, maxMembers, step, Infinity)
+      while (sun.bounds.x1 - sun.bounds.x0 > width && step > RING_STEP) {
+        step = Math.max(RING_STEP, step * 0.85)
+        sun = layoutSun(focused, degree, maxMembers, step, Infinity)
+      }
+      const w = sun.bounds.x1 - sun.bounds.x0
+      return { suns: [{ sun, ox: (width - w) / 2 - sun.bounds.x0, oy: -sun.bounds.y0 }], height: sun.bounds.y1 - sun.bounds.y0 }
+    }
+    const half = (width - GUTTER) / 2
+    const suns = scope.clusters.map((c) => {
+      const labelDepth = c.nodes.length <= LABEL_ALL_MAX ? Infinity : 0
+      const sun = layoutSun(c, degree, maxMembers, RING_STEP, labelDepth)
+      const tooWide = labelDepth > 1 && sun.bounds.x1 - sun.bounds.x0 > half
+      return tooWide ? layoutSun(c, degree, maxMembers, RING_STEP, 1) : sun
+    })
+    return tile(suns, width)
+  }, [scope, focused, degree, maxMembers, width])
 
   const [selected, setSelected] = useState<string | null>(null)
   const [pan, setPan] = useState({ x: 0, y: 0, k: 1 })
@@ -308,6 +580,7 @@ export function KnowledgeGraph({
     const svg = svgRef.current
     if (!svg) return
     const onWheel = (e: WheelEvent) => {
+      if (!e.ctrlKey && !e.metaKey) return
       e.preventDefault()
       const ctm = svg.getScreenCTM()
       if (!ctm) return
@@ -320,7 +593,7 @@ export function KnowledgeGraph({
     }
     svg.addEventListener('wheel', onWheel, { passive: false })
     return () => svg.removeEventListener('wheel', onWheel)
-  }, [])
+  }, [laid.height])
 
   const onMouseDown = (e: ReactMouseEvent) => {
     drag.current = { x: e.clientX, y: e.clientY, px: pan.x, py: pan.y, moved: false }
@@ -332,7 +605,7 @@ export function KnowledgeGraph({
     const dx = (e.clientX - d.x) / scale
     const dy = (e.clientY - d.y) / scale
     if (Math.abs(dx) + Math.abs(dy) > 2) d.moved = true
-    setPan((v) => ({ ...v, x: d.px + dx, y: d.py + dy }))
+    if (d.moved) setPan((v) => ({ ...v, x: d.px + dx, y: d.py + dy }))
   }
   const onMouseUp = () => {
     dragged.current = drag.current?.moved ?? false
@@ -345,6 +618,10 @@ export function KnowledgeGraph({
     else hidden.add(t)
     onChange({ ...view, hidden })
   }
+  const focusOn = (id: string) => {
+    setSelected(id)
+    onChange({ ...view, focus: id })
+  }
 
   const selectedNode = selected ? byId.get(selected) : undefined
   const selectedEdges = useMemo(
@@ -355,82 +632,120 @@ export function KnowledgeGraph({
   return (
     <div className="flex flex-col gap-6 lg:flex-row">
       <div className="min-w-0 flex-1">
-        <p className="mb-2 text-xs text-dbb-muted">
-          {scoped.length} nodes · {laid.links.length} edges · {scopedTypes.size} types · {isolatedCount} isolated{' '}
-          {view.showIsolated ? 'shown' : 'hidden'} · layout {laid.ms}ms
-        </p>
+        {scope.unlinked.length > 0 && (
+          <div className="mb-3 flex flex-wrap items-center gap-1.5 text-xs text-dbb-muted">
+            <span className="mr-1">{scope.unlinked.length} unlinked:</span>
+            {unlinkedByType.map(([t, n]) => (
+              <TypeChip key={t} type={t} color={typeColor(t, types)}>
+                {n}
+              </TypeChip>
+            ))}
+          </div>
+        )}
         <div ref={rootRef} className="relative overflow-hidden rounded-lg border border-dbb-warm bg-white">
-          <svg
-            ref={svgRef}
-            viewBox={`0 0 ${width || 1} ${H}`}
-            className="h-[640px] w-full cursor-grab select-none active:cursor-grabbing"
-            role="img"
-            aria-label={`Knowledge graph of ${scoped.length} entities`}
-            onMouseDown={onMouseDown}
-            onMouseMove={onMouseMove}
-            onMouseUp={onMouseUp}
-            onMouseLeave={() => {
-              onMouseUp()
-              hide()
-            }}
-          >
-            <g transform={`translate(${pan.x} ${pan.y}) scale(${pan.k})`}>
-              {laid.links.map((l, i) => {
-                const s = l.source as SimNode
-                const t = l.target as SimNode
-                const lit = selected !== null && (s.id === selected || t.id === selected)
-                return (
-                  <g
-                    key={i}
-                    onMouseMove={(e) =>
-                      show(e, l.edge.rel, [`${s.node.anchor} → ${t.node.anchor}`, l.edge.grounding])
-                    }
-                    onMouseLeave={hide}
-                  >
-                    <line
-                      x1={s.x}
-                      y1={s.y}
-                      x2={t.x}
-                      y2={t.y}
-                      stroke={lit ? '#1A1A1A' : '#E0DCC1'}
-                      strokeOpacity={0.8}
-                      strokeWidth={lit ? 1.5 : 1}
-                    />
-                    <line x1={s.x} y1={s.y} x2={t.x} y2={t.y} stroke="transparent" strokeWidth={8} />
-                  </g>
-                )
-              })}
-              {laid.nodes.map((n) => (
-                <g key={n.id}>
-                  <circle
-                    cx={n.x}
-                    cy={n.y}
-                    r={n.r}
-                    fill={typeColor(n.node.entity_type, types)}
-                    stroke={selected === n.id ? '#1A1A1A' : '#FFFFFF'}
-                    strokeWidth={selected === n.id ? 2 : 1}
-                    className="cursor-pointer"
-                    onMouseMove={(e) =>
-                      show(e, n.node.anchor, [n.node.entity_type, `${n.node.members} members · degree ${n.degree}`])
-                    }
-                    onMouseLeave={hide}
-                    onClick={() => {
-                      if (!dragged.current) setSelected(n.id)
-                    }}
-                  />
-                  {(labelAll || n.degree >= 2) && (
+          {width > 0 && laid.suns.length === 0 ? (
+            <Empty>No links among the visible types.</Empty>
+          ) : (
+            <svg
+              ref={svgRef}
+              viewBox={`0 0 ${width || 1} ${laid.height || 1}`}
+              style={{ height: laid.height || 1 }}
+              className="w-full cursor-grab select-none active:cursor-grabbing"
+              role="img"
+              aria-label={`Knowledge graph of ${scope.clusters.length} clusters`}
+              onMouseDown={onMouseDown}
+              onMouseMove={onMouseMove}
+              onMouseUp={onMouseUp}
+              onMouseLeave={() => {
+                onMouseUp()
+                hide()
+              }}
+            >
+              <g transform={`translate(${pan.x} ${pan.y}) scale(${pan.k})`}>
+                {laid.suns.map(({ sun, ox, oy }) => (
+                  <g key={sun.hub.canonical_id} transform={`translate(${ox} ${oy})`}>
+                    <circle r={sun.radius} fill="none" stroke="#E0DCC1" strokeDasharray="4 4" />
                     <text
-                      x={(n.x ?? 0) + n.r + 3}
-                      y={(n.y ?? 0) + 3}
-                      className="pointer-events-none fill-dbb-charcoal text-[10px]"
+                      y={-sun.radius - 8}
+                      textAnchor="middle"
+                      className="cursor-pointer fill-dbb-charcoal text-[11px] font-medium"
+                      onClick={() => {
+                        if (!dragged.current) focusOn(sun.hub.canonical_id)
+                      }}
                     >
-                      {shortLabel(n.node.anchor)}
+                      {sun.heading}
                     </text>
-                  )}
-                </g>
-              ))}
-            </g>
-          </svg>
+                    {sun.links.map((l, i) => {
+                      const lit = selected !== null && (l.a.node.canonical_id === selected || l.b.node.canonical_id === selected)
+                      return (
+                        <g
+                          key={i}
+                          onMouseMove={(e) =>
+                            show(e, l.edge.rel, [`${displayLabel(l.a.node)} → ${displayLabel(l.b.node)}`, l.edge.grounding])
+                          }
+                          onMouseLeave={hide}
+                        >
+                          <line
+                            x1={l.a.x}
+                            y1={l.a.y}
+                            x2={l.b.x}
+                            y2={l.b.y}
+                            stroke={lit ? '#1A1A1A' : '#E0DCC1'}
+                            strokeOpacity={0.9}
+                            strokeWidth={lit ? 1.5 : 1}
+                          />
+                          <line x1={l.a.x} y1={l.a.y} x2={l.b.x} y2={l.b.y} stroke="transparent" strokeWidth={8} />
+                        </g>
+                      )
+                    })}
+                    {sun.dots.map((d) => {
+                      const id = d.node.canonical_id
+                      const color = typeColor(d.node.entity_type, types)
+                      return (
+                        <g key={id}>
+                          {d.depth === 0 && <circle cx={d.x} cy={d.y} r={d.r + 3.5} fill="none" stroke={color} strokeOpacity={0.35} />}
+                          <circle
+                            cx={d.x}
+                            cy={d.y}
+                            r={d.r}
+                            fill={color}
+                            stroke={selected === id ? '#1A1A1A' : '#FFFFFF'}
+                            strokeWidth={selected === id ? 2 : 1.5}
+                            className="cursor-pointer"
+                            onMouseMove={(e) =>
+                              show(e, displayLabel(d.node), [
+                                d.node.entity_type,
+                                `${d.node.members} members · degree ${d.degree}`,
+                              ])
+                            }
+                            onMouseLeave={hide}
+                            onClick={() => {
+                              if (!dragged.current) setSelected(id)
+                            }}
+                          />
+                        </g>
+                      )
+                    })}
+                    {sun.labels.map((l) => (
+                      <text
+                        key={l.id}
+                        x={l.x}
+                        y={l.y}
+                        textAnchor={l.anchor}
+                        paintOrder="stroke"
+                        stroke="#FFFFFF"
+                        strokeWidth={3}
+                        strokeLinejoin="round"
+                        className={`pointer-events-none text-[10px] ${l.strong ? 'fill-dbb-charcoal' : 'fill-dbb-muted'}`}
+                      >
+                        {l.text}
+                      </text>
+                    ))}
+                  </g>
+                ))}
+              </g>
+            </svg>
+          )}
           <HoverTip hover={hover} width={width} />
         </div>
         <div className="mt-3 flex flex-wrap gap-1.5">
@@ -439,7 +754,7 @@ export function KnowledgeGraph({
               key={t}
               type={t}
               color={typeColor(t, types)}
-              active={!view.hidden.has(t) && (view.typeFilter === 'all' || view.typeFilter === t)}
+              active={!view.hidden.has(t)}
               onClick={() => toggleType(t)}
             >
               {data.counts.by_type[t]}
@@ -447,18 +762,23 @@ export function KnowledgeGraph({
           ))}
         </div>
       </div>
-      <aside className="shrink-0 rounded-lg border border-dbb-warm bg-dbb-surface p-4 lg:w-[320px]">
+      <aside className="shrink-0 rounded-lg border border-dbb-warm bg-dbb-surface p-4 lg:w-[280px]">
         {selectedNode ? (
           <NodePanel
             node={selectedNode}
             degree={degree.get(selectedNode.canonical_id) ?? 0}
             edges={selectedEdges}
             byId={byId}
+            hubs={hubs}
             types={types}
             onSelect={setSelected}
+            onFocus={focusOn}
           />
         ) : (
-          <p className="text-xs text-dbb-muted">Click a node to see its edges. Drag to pan, wheel to zoom.</p>
+          <p className="text-xs text-dbb-muted">
+            Each dashed circle is one cluster, named after its hub. Click a node to see its edges; click a cluster name to
+            focus it. Drag to pan, ⌘-wheel to zoom.
+          </p>
         )}
       </aside>
     </div>
