@@ -329,7 +329,7 @@ export function Insights() {
                       <TableCell>{f.entity_type}</TableCell>
                       <TableCell>{f.company ?? '—'}</TableCell>
                       <TableCell>
-                        <Chips entries={Object.entries(f.evidence)} />
+                        <Chips entries={Object.entries(f.evidence)} stack />
                       </TableCell>
                     </TableRow>
                   ))}
