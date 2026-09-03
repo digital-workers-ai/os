@@ -276,7 +276,7 @@ export function Metrics() {
           </Section>
         </SectionCard>
       ) : (
-        <SectionCard title="Series" className={`min-w-0 ${FILL}`} bodyClassName={BODY}>
+        <SectionCard className={`min-w-0 ${FILL}`} bodyClassName={BODY}>
           <Empty>select a metric</Empty>
         </SectionCard>
       )}
