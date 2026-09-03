@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react'
-import { asApiError, get, post, type ApiError } from '@/api'
+import { asApiError, get, type ApiError } from '@/api'
 import { SectionCard } from '@/components/SectionCard'
 import { Section } from '@/components/SectionHeading'
 import { Banner, ErrorBanner } from '@/components/ui/banner'
-import { Button } from '@/components/ui/button'
 import { Empty } from '@/components/ui/empty'
 import { Mono } from '@/components/ui/mono'
 import { Pill } from '@/components/ui/pill'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { num, plural, relTime } from '@/lib/format'
+import { num, relTime } from '@/lib/format'
 
 interface InferredFrom {
   reading: string
@@ -60,10 +59,6 @@ interface Series {
   comparable: boolean
   breaks: number
   inferred: boolean
-}
-
-interface SnapshotResponse {
-  written: number
 }
 
 const SPLIT = 'grid items-start gap-6 lg:grid-cols-[0.65fr_0.35fr]'
@@ -175,9 +170,6 @@ export function Metrics() {
   const [selected, setSelected] = useState<string | null>(null)
   const [series, setSeries] = useState<Series | null>(null)
   const [seriesError, setSeriesError] = useState<ApiError | null>(null)
-  const [snapping, setSnapping] = useState(false)
-  const [written, setWritten] = useState<number | null>(null)
-  const [snapError, setSnapError] = useState<ApiError | null>(null)
 
   const loadMetrics = () =>
     get<MetricsResponse>('/api/metrics')
@@ -203,20 +195,6 @@ export function Metrics() {
     if (selected) loadSeries(selected)
   }, [selected])
 
-  const snapshot = async () => {
-    setSnapping(true)
-    setSnapError(null)
-    try {
-      setWritten((await post<SnapshotResponse>('/api/metrics/snapshots')).written)
-    } catch (e) {
-      setSnapError(asApiError(e))
-    } finally {
-      setSnapping(false)
-      loadMetrics()
-      if (selected) loadSeries(selected)
-    }
-  }
-
   const rows = Object.entries(metrics?.metrics ?? {})
   const row = selected ? metrics?.metrics[selected] : undefined
   const open = series && series.metric === selected ? series : null
@@ -228,17 +206,8 @@ export function Metrics() {
         description="click a metric to open its series"
         className={FILL}
         bodyClassName={BODY}
-        headerRight={
-          <div className="flex items-center gap-3">
-            {written !== null && <span className="text-sm text-dbb-muted">{plural(written, 'snapshot')} written</span>}
-            <Button size="sm" disabled={snapping || !metrics} onClick={snapshot}>
-              {snapping ? 'snapshotting…' : 'Snapshot now'}
-            </Button>
-          </div>
-        }
       >
         <ErrorBanner error={metricsError} className="mb-3" />
-        <ErrorBanner error={snapError} className="mb-3" />
         {!metrics && !metricsError ? (
           <Empty>loading…</Empty>
         ) : (
