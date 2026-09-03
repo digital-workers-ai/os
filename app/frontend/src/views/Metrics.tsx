@@ -66,7 +66,7 @@ interface SnapshotResponse {
   written: number
 }
 
-const SPLIT = 'grid gap-6 lg:grid-cols-[1fr_1.2fr]'
+const SPLIT = 'grid gap-6 lg:grid-cols-[0.8fr_1.2fr]'
 
 const verdict = (s: Series) =>
   s.runs.length === 0
