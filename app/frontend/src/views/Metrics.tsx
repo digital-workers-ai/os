@@ -142,11 +142,11 @@ function RunSection({ run }: { run: Run }) {
       <div className="flex flex-col gap-4">
         <Sparkline points={run.points} />
         <div className="min-w-0">
-          <Table>
+          <Table className="table-fixed">
             <TableHeader>
               <TableRow>
-                <TableHead className="text-right">Value</TableHead>
-                <TableHead className="text-right">Entities</TableHead>
+                <TableHead className="w-28 text-right">Value</TableHead>
+                <TableHead className="w-24 text-right">Entities</TableHead>
                 <TableHead>Recorded</TableHead>
               </TableRow>
             </TableHeader>
@@ -157,9 +157,7 @@ function RunSection({ run }: { run: Run }) {
                     <Value value={p.value} />
                   </TableCell>
                   <TableCell className="text-right tabular-nums">{num(p.entities)}</TableCell>
-                  <TableCell>
-                    <Mono>{p.recorded_at}</Mono> {recordedAt(p.recorded_at)}
-                  </TableCell>
+                  <TableCell title={p.recorded_at}>{recordedAt(p.recorded_at)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -227,6 +225,7 @@ export function Metrics() {
       <SectionCard
         title={`Metrics${metrics ? ` (${rows.length})` : ''}`}
         description="click a metric to open its series"
+        className={STICKY}
         headerRight={
           <div className="flex items-center gap-3">
             {written !== null && <span className="text-sm text-dbb-muted">{plural(written, 'snapshot')} written</span>}
