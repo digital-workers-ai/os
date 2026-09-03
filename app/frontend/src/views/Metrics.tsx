@@ -284,15 +284,7 @@ export function Metrics() {
       </SectionCard>
 
       {selected ? (
-        <SectionCard
-          title={`Series — ${row?.label ?? selected}`}
-          className={STICKY}
-          headerRight={
-            <Button variant="outline" size="sm" onClick={() => loadSeries(selected)}>
-              Refresh
-            </Button>
-          }
-        >
+        <SectionCard title={`Series — ${row?.label ?? selected}`} className={STICKY}>
           <ErrorBanner error={seriesError} className="mb-3" />
           {row?.error && (
             <Banner tone="err" className="mb-3">
