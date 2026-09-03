@@ -1,12 +1,12 @@
 import { useContext, useEffect } from 'react'
 import { SetPageTitleContext } from '@/context/PageTitleContext'
 
-export function PageHeader({ title, description }: { title: string; description?: string }) {
+export function PageHeader({ title }: { title: string }) {
   const setPageTitle = useContext(SetPageTitleContext)
 
   useEffect(() => {
-    setPageTitle?.({ title, description })
-  }, [setPageTitle, title, description])
+    setPageTitle?.(title)
+  }, [setPageTitle, title])
 
   return null
 }

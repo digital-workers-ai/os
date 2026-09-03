@@ -486,10 +486,9 @@ function Canonical() {
     <div className={SPLIT_FILL}>
       <SectionCard
         title="Canonical entities"
-        description="click an entity to open it"
         headerRight={
           <Select value={type || ALL} onValueChange={(v) => pick(v === ALL ? '' : v)}>
-            <SelectTrigger className="h-7 w-44">
+            <SelectTrigger className="h-6 w-44">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -514,7 +513,7 @@ function Canonical() {
           <Table className="table-fixed" wrapperClassName="overflow-x-visible">
             <TableHeader className={STICKY_HEAD}>
               <TableRow>
-                <TableHead className="w-28">Type</TableHead>
+                <TableHead className="w-28">Entity ({num(list.data?.total ?? rows.length)})</TableHead>
                 <TableHead className="w-64">Anchor</TableHead>
                 <TableHead className={cn(NUM, 'w-24')}>Members</TableHead>
               </TableRow>
@@ -686,11 +685,10 @@ function RawSide() {
     <div className={SPLIT_FILL}>
       <SectionCard
         title="Records"
-        description="click a record to see its facts and raw events"
         headerRight={
           <div className="flex items-center gap-2">
             <Select value={type || ALL} onValueChange={(v) => setType(v === ALL ? '' : v)}>
-              <SelectTrigger className="h-7 w-40">
+              <SelectTrigger className="h-6 w-40">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -703,7 +701,7 @@ function RawSide() {
               </SelectContent>
             </Select>
             <Select value={source || ALL} onValueChange={(v) => setSource(v === ALL ? '' : v)}>
-              <SelectTrigger className="h-7 w-40">
+              <SelectTrigger className="h-6 w-40">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -729,7 +727,7 @@ function RawSide() {
           <Table className="table-fixed" wrapperClassName="overflow-x-visible">
             <TableHeader className={STICKY_HEAD}>
               <TableRow>
-                <TableHead className="w-28">Source</TableHead>
+                <TableHead className="w-28">Source ({num(records.data?.total ?? rows.length)})</TableHead>
                 <TableHead className="w-36">Source id</TableHead>
                 <TableHead className="w-28">Object type</TableHead>
                 <TableHead className="w-24">Type</TableHead>

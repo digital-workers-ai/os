@@ -63,7 +63,7 @@ interface Series {
 }
 
 const SPLIT = 'grid items-start gap-6 lg:grid-cols-[0.65fr_0.35fr]'
-const FILL = 'lg:flex lg:flex-col lg:max-h-[calc(100vh-12.75rem-1px)]'
+const FILL = 'lg:flex lg:flex-col lg:max-h-[calc(100vh-11.25rem-1px)]'
 const BODY = 'lg:min-h-0 lg:overflow-y-auto lg:-mx-6 lg:px-6 lg:-mb-6 lg:pb-6 lg:rounded-b-xl'
 
 const recordedAt = (iso: string) => {
@@ -210,7 +210,7 @@ export function Metrics() {
             <Table className="table-fixed" wrapperClassName="overflow-x-visible">
               <TableHeader className="[&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-card [&_th]:shadow-[inset_0_-1px_0_theme(colors.dbb.warm)]">
                 <TableRow>
-                  <TableHead className="w-64">Metric</TableHead>
+                  <TableHead className="w-64">Metric ({num(rows.length)})</TableHead>
                   <TableHead className="w-32">Entity</TableHead>
                   <TableHead className="w-24 text-right">Value</TableHead>
                   <TableHead className="w-28 text-right">Entities</TableHead>
