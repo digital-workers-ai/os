@@ -287,8 +287,11 @@ export function Metrics() {
                     onClick={() => setSelected(name)}
                   >
                     <TableCell>
-                      <span className="font-medium text-dbb-charcoal">{m.label}</span> <Mono>{name}</Mono>
-                      {m.entity && ` · ${m.entity}`}
+                      <span className="block font-medium text-dbb-charcoal">{m.label}</span>
+                      <Mono className="block">
+                        {name}
+                        {m.entity && ` · ${m.entity}`}
+                      </Mono>
                     </TableCell>
                     <TableCell className="text-right tabular-nums text-dbb-charcoal">
                       <Value value={m.value} />
