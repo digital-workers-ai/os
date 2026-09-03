@@ -19,12 +19,12 @@ export function SectionCard({
   return (
     <Card className={className}>
       {(title || description || headerRight) && (
-        <CardHeader className="shrink-0">
-          <div className="min-w-0">
-            {title && <CardTitle>{title}</CardTitle>}
-            {description && <CardDescription className="mt-0.5">{description}</CardDescription>}
+        <CardHeader className="shrink-0 flex-col items-stretch gap-0">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">{title && <CardTitle>{title}</CardTitle>}</div>
+            {headerRight && <div className="shrink-0">{headerRight}</div>}
           </div>
-          {headerRight && <div className="shrink-0">{headerRight}</div>}
+          {description && <CardDescription className="mt-0.5">{description}</CardDescription>}
         </CardHeader>
       )}
       <CardContent className={bodyClassName}>{children}</CardContent>

@@ -489,7 +489,7 @@ function Canonical() {
         description="click an entity to open it"
         headerRight={
           <Select value={type || ALL} onValueChange={(v) => pick(v === ALL ? '' : v)}>
-            <SelectTrigger className="h-8 w-44">
+            <SelectTrigger className="h-7 w-44">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -688,9 +688,9 @@ function RawSide() {
         title="Records"
         description="click a record to see its facts and raw events"
         headerRight={
-          <div className="flex flex-col items-end gap-2">
+          <div className="flex items-center gap-2">
             <Select value={type || ALL} onValueChange={(v) => setType(v === ALL ? '' : v)}>
-              <SelectTrigger className="h-8 w-40">
+              <SelectTrigger className="h-7 w-40">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -703,7 +703,7 @@ function RawSide() {
               </SelectContent>
             </Select>
             <Select value={source || ALL} onValueChange={(v) => setSource(v === ALL ? '' : v)}>
-              <SelectTrigger className="h-8 w-40">
+              <SelectTrigger className="h-7 w-40">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
