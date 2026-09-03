@@ -135,7 +135,7 @@ const PRE = 'mt-4 max-h-[480px] overflow-auto rounded-lg bg-dbb-surface p-3 font
 const WRAP = 'break-words'
 const SPLIT = 'grid gap-6 lg:grid-cols-[1fr_1.2fr]'
 const PAGE_FILL = 'lg:flex lg:flex-col lg:h-[calc(100vh-11.25rem-1px)]'
-const SPLIT_FILL = 'grid items-start gap-6 lg:grid-cols-[1.2fr_1fr] lg:grid-rows-[minmax(0,1fr)] lg:flex-1 lg:min-h-0'
+const SPLIT_FILL = 'grid items-start gap-6 lg:grid-cols-[1.02fr_1.18fr] lg:grid-rows-[minmax(0,1fr)] lg:flex-1 lg:min-h-0'
 const FILL = 'min-w-0 lg:flex lg:flex-col lg:max-h-full'
 const BODY = 'lg:min-h-0 lg:overflow-y-auto lg:-mx-6 lg:px-6 lg:-mb-6 lg:pb-6 lg:rounded-b-xl'
 const STICKY_HEAD = '[&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-card [&_th]:shadow-[inset_0_-1px_0_theme(colors.dbb.warm)]'
@@ -331,24 +331,23 @@ function Detail({
       )}
       {d && (
         <>
-          <div className="space-y-1 text-sm text-dbb-muted">
-            <p>
-              <Id id={d.canonical_id} full />
-            </p>
-            {d.resolved_from_alias && (
-              <p>
-                <Pill tone="warn">alias</Pill> resolved from <Mono>{d.resolved_from_alias}</Mono>
-              </p>
-            )}
-            {d.aliases.length > 0 && (
-              <p>
-                aliases:{' '}
-                {d.aliases.map((a) => (
-                  <Mono key={a}>{a} </Mono>
-                ))}
-              </p>
-            )}
-          </div>
+          {(d.resolved_from_alias || d.aliases.length > 0) && (
+            <div className="space-y-1 text-sm text-dbb-muted">
+              {d.resolved_from_alias && (
+                <p>
+                  <Pill tone="warn">alias</Pill> resolved from <Mono>{d.resolved_from_alias}</Mono>
+                </p>
+              )}
+              {d.aliases.length > 0 && (
+                <p>
+                  aliases:{' '}
+                  {d.aliases.map((a) => (
+                    <Mono key={a}>{a} </Mono>
+                  ))}
+                </p>
+              )}
+            </div>
+          )}
           <Section title={counted('Members', d.members.length)}>
             <Table>
               <TableHeader>
@@ -384,7 +383,7 @@ function Detail({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Attr</TableHead>
+                    <TableHead className="w-[100px] min-w-[100px]">Attr</TableHead>
                     <TableHead>Value</TableHead>
                     <TableHead>Winning source</TableHead>
                     <TableHead>Observed</TableHead>
@@ -397,7 +396,7 @@ function Detail({
                     const { raw_event_id: rid, source } = f
                     return (
                       <TableRow key={f.attr}>
-                        <TableCell className={KEY}>
+                        <TableCell className={cn(KEY, 'whitespace-nowrap')}>
                           <Mono>{f.attr}</Mono>
                         </TableCell>
                         <TableCell>
@@ -520,7 +519,6 @@ function Canonical() {
                   <TableHead className="w-28">Type</TableHead>
                   <TableHead className="w-64">Anchor</TableHead>
                   <TableHead className={cn(NUM, 'w-24')}>Members</TableHead>
-                  <TableHead className="w-32">Id</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -542,9 +540,6 @@ function Canonical() {
                         {name ? <span className={cn(MONO, 'block font-normal text-dbb-muted')}>{r.anchor}</span> : null}
                       </TableCell>
                       <TableCell className={NUM}>{num(r.members)}</TableCell>
-                      <TableCell>
-                        <Id id={r.canonical_id} />
-                      </TableCell>
                     </TableRow>
                   )
                 })}
