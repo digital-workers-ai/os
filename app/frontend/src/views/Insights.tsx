@@ -129,7 +129,8 @@ function GoalsTable({ goals }: { goals: Goal[] }) {
           return (
             <TableRow key={g.goal}>
               <TableCell>
-                <span className="font-medium text-dbb-charcoal">{g.label}</span> <Mono>{g.goal}</Mono>
+                <span className="block font-medium text-dbb-charcoal">{g.label}</span>
+                <Mono className="block">{g.goal}</Mono>
               </TableCell>
               <TableCell className="whitespace-nowrap">
                 {g.metric ? <Mono className="block">{g.metric}</Mono> : '—'}
@@ -183,7 +184,8 @@ function Definitions({ defs }: { defs: DefinitionsResponse }) {
         {Object.entries(defs.rules).map(([name, r]) => (
           <TableRow key={name}>
             <TableCell>
-              <span className="font-medium text-dbb-charcoal">{r.label}</span> <Mono>{name}</Mono>
+              <span className="block font-medium text-dbb-charcoal">{r.label}</span>
+              <Mono className="block">{name}</Mono>
             </TableCell>
             <TableCell>{r.entity}</TableCell>
             <TableCell>
@@ -331,7 +333,8 @@ export function Insights() {
                         <Pill tone={severityTone(f.severity)}>{f.severity}</Pill>
                       </TableCell>
                       <TableCell>
-                        <span className="font-medium text-dbb-charcoal">{f.label}</span> <Mono>{f.rule}</Mono>
+                        <span className="block font-medium text-dbb-charcoal">{f.label}</span>
+                        <Mono className="block">{f.rule}</Mono>
                       </TableCell>
                       <TableCell>{f.entity_type}</TableCell>
                       <TableCell>{f.company ?? '—'}</TableCell>
