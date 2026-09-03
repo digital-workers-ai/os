@@ -273,7 +273,7 @@ export function Metrics() {
                   <TableHead className="w-32">Entity</TableHead>
                   <TableHead className="w-24 text-right">Value</TableHead>
                   <TableHead className="w-28 text-right">Entities</TableHead>
-                  <TableHead className="w-56">Inferred</TableHead>
+                  <TableHead className="w-56">Inferred from</TableHead>
                   <TableHead className="w-56">Unavailable</TableHead>
                 </TableRow>
               </TableHeader>
