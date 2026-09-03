@@ -1,4 +1,5 @@
 import uuid
+from collections import Counter
 
 from fastapi import Depends, HTTPException, Query
 from sqlalchemy import func, select
@@ -266,6 +267,71 @@ async def get_entity(canonical_id: str, session=Depends(get_session)):
                 }
                 for link in links_in
             ],
+        },
+    }
+
+
+@router.get("/graph")
+async def graph(
+    entity_type: str | None = None,
+    limit: int = Query(5000, ge=1, le=20000),
+    session=Depends(get_session),
+):
+    wanted = (
+        select(EntityCanonical.canonical_id)
+        .order_by(EntityCanonical.minted_seq)
+        .limit(limit)
+    )
+    if entity_type:
+        wanted = wanted.where(EntityCanonical.entity_type == entity_type)
+    nodes = (
+        (
+            await session.execute(
+                select(EntityCanonical).where(EntityCanonical.canonical_id.in_(wanted))
+            )
+        )
+        .scalars()
+        .all()
+    )
+    edges = (
+        (
+            await session.execute(
+                select(CanonicalLink).where(
+                    CanonicalLink.from_canonical.in_(wanted),
+                    CanonicalLink.to_canonical.in_(wanted),
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    by_type = Counter(n.entity_type for n in nodes)
+    return {
+        "nodes": [
+            {
+                "canonical_id": str(n.canonical_id),
+                "entity_type": n.entity_type,
+                "anchor": n.anchor_key,
+                "members": n.member_count,
+            }
+            for n in sorted(nodes, key=lambda n: (n.entity_type, n.anchor_key))
+        ],
+        "edges": sorted(
+            (
+                {
+                    "from": str(e.from_canonical),
+                    "to": str(e.to_canonical),
+                    "rel": e.rel,
+                    "grounding": e.grounding,
+                }
+                for e in edges
+            ),
+            key=lambda e: (e["from"], e["to"], e["rel"]),
+        ),
+        "counts": {
+            "nodes": len(nodes),
+            "edges": len(edges),
+            "by_type": dict(sorted(by_type.items())),
         },
     }
 
