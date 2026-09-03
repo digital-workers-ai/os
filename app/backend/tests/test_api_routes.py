@@ -405,6 +405,19 @@ class TestEntitiesList:
         assert body["by_type"] == {"company": 1}
         assert body["entities"][0]["facts"] == {"name": "Acme", "domain": "acme.io"}
 
+    async def test_each_row_carries_the_same_label_the_graph_serves(
+        self, api, canonical
+    ):
+        await canonical("company", {"domain": "acme.io", "name": "Acme"})
+        await canonical("person", {"email": "jane@acme.io"})
+        await canonical("deal", {"amount": "100"})
+        body = (await api.get("/api/entities")).json()
+        assert [e["label"] for e in body["entities"]] == [
+            "Acme",
+            "jane@acme.io",
+            "test|deal|3",
+        ]
+
     async def test_the_type_filter_narrows_rows_and_the_count_together(
         self, api, canonical
     ):
@@ -452,6 +465,7 @@ class TestEntityDetail:
         await link(deal, "belongs_to", acme)
         body = (await api.get(f"/api/entities/{acme}")).json()
         assert body["canonical_id"] == str(acme)
+        assert body["label"] == "Acme"
         assert [f["attr"] for f in body["facts"]] == ["name"]
         assert body["members"] == []
         assert body["links"]["in"][0]["rel"] == "belongs_to"
@@ -535,9 +549,59 @@ class TestGraph:
                 "canonical_id": str(acme),
                 "entity_type": "company",
                 "anchor": "test|company|1",
+                "label": "Acme",
                 "members": 2,
             }
         ]
+
+    async def test_a_node_is_labeled_by_its_name_not_its_anchor(self, api, canonical):
+        await canonical("company", {"domain": "acme.io", "name": "Acme Corp."})
+        body = (await api.get("/api/graph")).json()
+        assert body["nodes"][0]["label"] == "Acme Corp."
+
+    async def test_a_node_with_only_an_email_is_labeled_by_it(self, api, canonical):
+        await canonical("person", {"email": "jane@acme.io", "phone": "555"})
+        body = (await api.get("/api/graph")).json()
+        assert body["nodes"][0]["label"] == "jane@acme.io"
+
+    async def test_a_node_with_no_labeling_fact_falls_back_to_its_anchor(
+        self, api, canonical
+    ):
+        await canonical("deal", {"amount": "100", "status": "open"})
+        body = (await api.get("/api/graph")).json()
+        assert body["nodes"][0]["label"] == "test|deal|1"
+
+    async def test_the_label_preference_order_holds_when_several_are_present(
+        self, api, canonical
+    ):
+        order = ("name", "title", "subject", "email", "domain", "external_ref")
+        for skip in range(len(order)):
+            await canonical("person", {attr: attr.upper() for attr in order[skip:]})
+        body = (await api.get("/api/graph")).json()
+        by_anchor = {n["anchor"]: n["label"] for n in body["nodes"]}
+        assert [by_anchor[f"test|person|{n + 1}"] for n in range(len(order))] == [
+            attr.upper() for attr in order
+        ]
+
+    async def test_the_label_survives_the_entity_type_filter(self, api, canonical):
+        await canonical("person", {"name": "Jane Doe"})
+        await canonical("company", {"name": "Acme"})
+        body = (await api.get("/api/graph?entity_type=company")).json()
+        assert [n["label"] for n in body["nodes"]] == ["Acme"]
+
+    async def test_labeling_costs_the_same_queries_at_any_node_count(
+        self, api, canonical, count_queries
+    ):
+        for n in range(5):
+            await canonical("company", {"name": f"c{n}", "domain": f"c{n}.io"})
+        with count_queries() as few:
+            await api.get("/api/graph")
+        for n in range(5, 50):
+            await canonical("company", {"name": f"c{n}", "domain": f"c{n}.io"})
+        with count_queries() as many:
+            body = (await api.get("/api/graph")).json()
+        assert body["counts"]["nodes"] == 50
+        assert many.total == few.total
 
     async def test_every_edge_is_the_one_the_detail_route_serves(
         self, api, canonical, link
