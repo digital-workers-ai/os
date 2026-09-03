@@ -1,6 +1,7 @@
 import { useEffect, useState, type MouseEvent } from 'react'
 import { asApiError, get, type ApiError } from '@/api'
 import { SectionCard } from '@/components/SectionCard'
+import { Section } from '@/components/SectionHeading'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Empty } from '@/components/ui/empty'
 import { Input } from '@/components/ui/input'
@@ -135,6 +136,8 @@ function Count({ n }: { n: number }) {
   return <span className="ml-1.5 tabular-nums opacity-60">{num(n)}</span>
 }
 
+const counted = (label: string, n: number) => `${label} · ${num(n)}`
+
 function useGet<T>(path: string | null) {
   const [got, setGot] = useState<{ path: string; data: T | null; error: ApiError | null } | null>(null)
   useEffect(() => {
@@ -250,23 +253,29 @@ function RawTrace({ trace }: { trace: Trace }) {
   const done = state?.id === trace.id ? state : null
   const filter = query({ source: trace.source, object_type: trace.objectType })
   return (
-    <SectionCard
-      title="Raw event"
-      description={
-        <span className={WRAP}>
-          <Mono>{trace.id}</Mono> looked up by scanning <Mono>/api/raw?{filter}</Mono>
-        </span>
-      }
-    >
+    <Section title="Raw event">
+      <p className={cn('mb-3 text-sm text-dbb-muted', WRAP)}>
+        <Mono>{trace.id}</Mono> looked up by scanning <Mono>/api/raw?{filter}</Mono>
+      </p>
       <ErrorBanner error={done?.error ?? null} className="mb-3" />
       {!done && <Empty>scanning…</Empty>}
       {done && !done.error && !done.event && <Empty>no raw event with that id under this filter</Empty>}
       {done?.event && <RawEventView event={done.event} />}
-    </SectionCard>
+    </Section>
   )
 }
 
-function Detail({ id, onOpen, onTrace }: { id: string; onOpen: (id: string) => void; onTrace: (t: Trace) => void }) {
+function Detail({
+  id,
+  trace,
+  onOpen,
+  onTrace,
+}: {
+  id: string
+  trace: Trace | null
+  onOpen: (id: string) => void
+  onTrace: (t: Trace) => void
+}) {
   const detail = useGet<EntityResponse>(`/api/entities/${id}`)
   const [anchors, setAnchors] = useState<Record<string, string>>({})
   const d = detail.data && !('retired' in detail.data) ? detail.data : null
@@ -303,7 +312,7 @@ function Detail({ id, onOpen, onTrace }: { id: string; onOpen: (id: string) => v
     : []
 
   return (
-    <SectionCard title={d ? `${d.entity_type} · ${d.anchor}` : 'Entity'}>
+    <SectionCard title={d ? `${d.entity_type} · ${d.anchor}` : 'Entity'} className="min-w-0">
       <ErrorBanner error={detail.error} className="mb-3" />
       {detail.loading && <Empty>loading…</Empty>}
       {retired && (
@@ -313,15 +322,15 @@ function Detail({ id, onOpen, onTrace }: { id: string; onOpen: (id: string) => v
       )}
       {d && (
         <>
-          <div className="mb-4 space-y-1 text-sm text-dbb-muted">
+          <div className="space-y-1 text-sm text-dbb-muted">
             <p>
               <Id id={d.canonical_id} full />
             </p>
             {d.resolved_from_alias && (
-                <p>
-                  <Pill tone="warn">alias</Pill> resolved from <Mono>{d.resolved_from_alias}</Mono>
-                </p>
-              )}
+              <p>
+                <Pill tone="warn">alias</Pill> resolved from <Mono>{d.resolved_from_alias}</Mono>
+              </p>
+            )}
             {d.aliases.length > 0 && (
               <p>
                 aliases:{' '}
@@ -331,140 +340,125 @@ function Detail({ id, onOpen, onTrace }: { id: string; onOpen: (id: string) => v
               </p>
             )}
           </div>
-          <Tabs defaultValue="members">
-            <TabsList>
-              <TabsTrigger value="members">
-                Members
-                <Count n={d.members.length} />
-              </TabsTrigger>
-              <TabsTrigger value="facts">
-                Facts
-                <Count n={d.facts.length} />
-              </TabsTrigger>
-              <TabsTrigger value="links">
-                Links
-                <Count n={links.length} />
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="members" className="mt-4">
+          <Section title={counted('Members', d.members.length)}>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Source</TableHead>
+                  <TableHead>Source id</TableHead>
+                  <TableHead>Object type</TableHead>
+                  <TableHead>Evidence</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {d.members.map((m) => (
+                  <TableRow key={`${m.source}|${m.object_type}|${m.source_id}`}>
+                    <TableCell>
+                      <Mono>{m.source}</Mono>
+                    </TableCell>
+                    <TableCell className={KEY}>
+                      <Mono>{m.source_id}</Mono>
+                    </TableCell>
+                    <TableCell>
+                      <Mono>{m.object_type}</Mono>
+                    </TableCell>
+                    <TableCell>{m.evidence}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Section>
+          <Section title={counted('Facts', d.facts.length)}>
+            {d.facts.length === 0 ? (
+              <Empty>no facts</Empty>
+            ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Source</TableHead>
-                    <TableHead>Source id</TableHead>
-                    <TableHead>Object type</TableHead>
-                    <TableHead>Evidence</TableHead>
+                    <TableHead>Attr</TableHead>
+                    <TableHead>Value</TableHead>
+                    <TableHead>Winning source</TableHead>
+                    <TableHead>Observed</TableHead>
+                    <TableHead className={NUM}>Disagreements</TableHead>
+                    <TableHead>Raw event</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {d.members.map((m) => (
-                    <TableRow key={`${m.source}|${m.object_type}|${m.source_id}`}>
+                  {d.facts.map((f) => {
+                    const { raw_event_id: rid, source } = f
+                    return (
+                      <TableRow key={f.attr}>
+                        <TableCell className={KEY}>
+                          <Mono>{f.attr}</Mono>
+                        </TableCell>
+                        <TableCell>
+                          <span className={cn('block max-w-[40ch]', WRAP)}>{show(f.value)}</span>
+                        </TableCell>
+                        <TableCell>{source ? <Mono>{source}</Mono> : '—'}</TableCell>
+                        <TableCell className="whitespace-nowrap" title={f.observed_at}>
+                          {relTime(f.observed_at)}
+                        </TableCell>
+                        <TableCell className={NUM}>
+                          {f.disagreements > 0 ? <Pill tone="warn">{num(f.disagreements)}</Pill> : '0'}
+                        </TableCell>
+                        <TableCell>
+                          {rid && source ? (
+                            <button
+                              type="button"
+                              className={cn(LINK, MONO)}
+                              title={`${rid} — open raw event`}
+                              onClick={() => onTrace({ id: rid, source, objectType: objectTypeFor(source) })}
+                            >
+                              {short(rid)}
+                            </button>
+                          ) : (
+                            '—'
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            )}
+          </Section>
+          <Section title={counted('Links', links.length)}>
+            {links.length === 0 ? (
+              <Empty>no links</Empty>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Direction</TableHead>
+                    <TableHead>Relationship</TableHead>
+                    <TableHead>Target</TableHead>
+                    <TableHead>Grounding</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {links.map((l) => (
+                    <TableRow key={`${l.dir}|${l.rel}|${l.other}`}>
                       <TableCell>
-                        <Mono>{m.source}</Mono>
-                      </TableCell>
-                      <TableCell className={KEY}>
-                        <Mono>{m.source_id}</Mono>
+                        <Pill>{l.dir}</Pill>
                       </TableCell>
                       <TableCell>
-                        <Mono>{m.object_type}</Mono>
+                        <Mono>{l.rel}</Mono>
                       </TableCell>
-                      <TableCell>{m.evidence}</TableCell>
+                      <TableCell>
+                        <button type="button" className={LINK} title={l.other} onClick={() => onOpen(l.other)}>
+                          {anchors[l.other] || short(l.other)}
+                        </button>
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        <Grounding value={l.grounding} />
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-            </TabsContent>
-            <TabsContent value="facts" className="mt-4">
-              {d.facts.length === 0 ? (
-                <Empty>no facts</Empty>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Attr</TableHead>
-                      <TableHead>Value</TableHead>
-                      <TableHead>Winning source</TableHead>
-                      <TableHead>Observed</TableHead>
-                      <TableHead className={NUM}>Disagreements</TableHead>
-                      <TableHead>Raw event</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {d.facts.map((f) => {
-                      const { raw_event_id: rid, source } = f
-                      return (
-                        <TableRow key={f.attr}>
-                          <TableCell className={KEY}>
-                            <Mono>{f.attr}</Mono>
-                          </TableCell>
-                          <TableCell>
-                            <span className={cn('block max-w-[40ch]', WRAP)}>{show(f.value)}</span>
-                          </TableCell>
-                          <TableCell>{source ? <Mono>{source}</Mono> : '—'}</TableCell>
-                          <TableCell className="whitespace-nowrap" title={f.observed_at}>
-                            {relTime(f.observed_at)}
-                          </TableCell>
-                          <TableCell className={NUM}>
-                            {f.disagreements > 0 ? <Pill tone="warn">{num(f.disagreements)}</Pill> : '0'}
-                          </TableCell>
-                          <TableCell>
-                            {rid && source ? (
-                              <button
-                                type="button"
-                                className={cn(LINK, MONO)}
-                                title={`${rid} — open raw event`}
-                                onClick={() => onTrace({ id: rid, source, objectType: objectTypeFor(source) })}
-                              >
-                                {short(rid)}
-                              </button>
-                            ) : (
-                              '—'
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      )
-                    })}
-                  </TableBody>
-                </Table>
-              )}
-            </TabsContent>
-            <TabsContent value="links" className="mt-4">
-              {links.length === 0 ? (
-                <Empty>no links</Empty>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Direction</TableHead>
-                      <TableHead>Relationship</TableHead>
-                      <TableHead>Target</TableHead>
-                      <TableHead>Grounding</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {links.map((l) => (
-                      <TableRow key={`${l.dir}|${l.rel}|${l.other}`}>
-                        <TableCell>
-                          <Pill>{l.dir}</Pill>
-                        </TableCell>
-                        <TableCell>
-                          <Mono>{l.rel}</Mono>
-                        </TableCell>
-                        <TableCell>
-                          <button type="button" className={LINK} title={l.other} onClick={() => onOpen(l.other)}>
-                            {anchors[l.other] || short(l.other)}
-                          </button>
-                        </TableCell>
-                        <TableCell className="whitespace-nowrap">
-                          <Grounding value={l.grounding} />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </TabsContent>
-          </Tabs>
+            )}
+          </Section>
+          {trace && <RawTrace trace={trace} />}
         </>
       )}
     </SectionCard>
@@ -493,7 +487,7 @@ function Canonical() {
 
   return (
     <div className={SPLIT}>
-      <SectionCard title={`Canonical entities${list.data ? ` (${num(list.data.total)})` : ''}`}>
+      <SectionCard title={`Canonical entities${list.data ? ` (${num(list.data.total)})` : ''}`} description="click an entity to open it">
         <ErrorBanner error={list.error} className="mb-3" />
         <div className="mb-4 flex flex-wrap gap-2">
           <FilterChip on={type === ''} onClick={() => pick('')}>
@@ -551,16 +545,13 @@ function Canonical() {
         )}
         {list.data && <Pager offset={offset} count={rows.length} total={list.data.total} onPage={setOffset} />}
       </SectionCard>
-      <div className="flex min-w-0 flex-col gap-6">
-        {selected ? (
-          <Detail id={selected} onOpen={open} onTrace={setTrace} />
-        ) : (
-          <SectionCard title="Entity">
-            <Empty>select an entity</Empty>
-          </SectionCard>
-        )}
-        {trace && <RawTrace trace={trace} />}
-      </div>
+      {selected ? (
+        <Detail id={selected} trace={trace} onOpen={open} onTrace={setTrace} />
+      ) : (
+        <SectionCard title="Entity" className="min-w-0">
+          <Empty>select an entity</Empty>
+        </SectionCard>
+      )}
     </div>
   )
 }
@@ -680,79 +671,77 @@ function RawSide() {
         )}
         {records.data && <Pager offset={offset} count={rows.length} total={records.data.total} onPage={setOffset} />}
       </SectionCard>
-      <div className="flex min-w-0 flex-col gap-6">
-        <SectionCard title={`Raw events${raw.data ? ` (${num(raw.data.total)})` : ''}`}>
-          <ErrorBanner error={raw.error} className="mb-3" />
-          <div className="mb-4 flex flex-wrap items-center gap-2">
-            <Input
-              className="h-8 w-40"
-              placeholder="source"
-              value={rawSource}
-              onChange={(e) => {
-                setRawSource(e.target.value)
-                setRawOffset(0)
-              }}
-            />
-            <Input
-              className="h-8 w-40"
-              placeholder="object_type"
-              value={rawType}
-              onChange={(e) => {
-                setRawType(e.target.value)
-                setRawOffset(0)
-              }}
-            />
-          </div>
-          {raw.loading ? (
-            <Empty>loading…</Empty>
-          ) : events.length === 0 ? (
-            <Empty>no raw events</Empty>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className={NUM}>Seq</TableHead>
-                  <TableHead>Source</TableHead>
-                  <TableHead>Object type</TableHead>
-                  <TableHead>Source id</TableHead>
-                  <TableHead>Ingested</TableHead>
-                  <TableHead>Id</TableHead>
+      <SectionCard title={`Raw events${raw.data ? ` (${num(raw.data.total)})` : ''}`} className="min-w-0">
+        <ErrorBanner error={raw.error} className="mb-3" />
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <Input
+            className="h-8 w-40"
+            placeholder="source"
+            value={rawSource}
+            onChange={(e) => {
+              setRawSource(e.target.value)
+              setRawOffset(0)
+            }}
+          />
+          <Input
+            className="h-8 w-40"
+            placeholder="object_type"
+            value={rawType}
+            onChange={(e) => {
+              setRawType(e.target.value)
+              setRawOffset(0)
+            }}
+          />
+        </div>
+        {raw.loading ? (
+          <Empty>loading…</Empty>
+        ) : events.length === 0 ? (
+          <Empty>no raw events</Empty>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className={NUM}>Seq</TableHead>
+                <TableHead>Source</TableHead>
+                <TableHead>Object type</TableHead>
+                <TableHead>Source id</TableHead>
+                <TableHead>Ingested</TableHead>
+                <TableHead>Id</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {events.map((e) => (
+                <TableRow
+                  key={e.id}
+                  className={ROW}
+                  data-state={picked?.id === e.id ? 'selected' : undefined}
+                  aria-selected={picked?.id === e.id}
+                  onClick={() => setPicked(e)}
+                >
+                  <TableCell className={NUM}>{num(e.seq)}</TableCell>
+                  <TableCell>
+                    <Mono>{e.source}</Mono>
+                  </TableCell>
+                  <TableCell>
+                    <Mono>{e.object_type}</Mono>
+                  </TableCell>
+                  <TableCell className={KEY}>
+                    <Mono>{e.source_id}</Mono>
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap" title={e.ingested_at}>
+                    {relTime(e.ingested_at)}
+                  </TableCell>
+                  <TableCell>
+                    <Id id={e.id} />
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {events.map((e) => (
-                  <TableRow
-                    key={e.id}
-                    className={ROW}
-                    data-state={picked?.id === e.id ? 'selected' : undefined}
-                    aria-selected={picked?.id === e.id}
-                    onClick={() => setPicked(e)}
-                  >
-                    <TableCell className={NUM}>{num(e.seq)}</TableCell>
-                    <TableCell>
-                      <Mono>{e.source}</Mono>
-                    </TableCell>
-                    <TableCell>
-                      <Mono>{e.object_type}</Mono>
-                    </TableCell>
-                    <TableCell className={KEY}>
-                      <Mono>{e.source_id}</Mono>
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap" title={e.ingested_at}>
-                      {relTime(e.ingested_at)}
-                    </TableCell>
-                    <TableCell>
-                      <Id id={e.id} />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-          {raw.data && <Pager offset={rawOffset} count={events.length} total={raw.data.total} onPage={setRawOffset} />}
-        </SectionCard>
-        <SectionCard title="Payload">{picked ? <RawEventView event={picked} /> : <Empty>select a raw event</Empty>}</SectionCard>
-      </div>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+        {raw.data && <Pager offset={rawOffset} count={events.length} total={raw.data.total} onPage={setRawOffset} />}
+        <Section title="Payload">{picked ? <RawEventView event={picked} /> : <Empty>select a raw event</Empty>}</Section>
+      </SectionCard>
     </div>
   )
 }

@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { asApiError, get, post, type ApiError } from '@/api'
 import { SectionCard } from '@/components/SectionCard'
+import { Section } from '@/components/SectionHeading'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Button } from '@/components/ui/button'
 import { Empty } from '@/components/ui/empty'
 import { Input } from '@/components/ui/input'
 import { Mono } from '@/components/ui/mono'
 import { Chip, Pill } from '@/components/ui/pill'
-import { num, relTime, short } from '@/lib/format'
+import { num, plural, relTime, short } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { LayerOff, useLoad } from './shared'
 
@@ -64,23 +65,24 @@ function Receipts({ receipts }: { receipts: Receipt[] }) {
 
 function AnswerMeta({ answer }: { answer: Answer }) {
   return (
-    <div className="space-y-2 rounded-lg border border-dbb-warm p-3">
-      <div className="flex flex-wrap items-center gap-1.5">
-        <Chip>
-          turns <strong>{num(answer.turns)}</strong>
-        </Chip>
-        {answer.exhausted && <Pill tone="err">exhausted</Pill>}
-        {answer.truncated && <Pill tone="warn">truncated</Pill>}
-        <Chip>
-          model <strong>{answer.model}</strong>
-        </Chip>
-        <Chip>
-          prompt <strong>{answer.prompt_version}</strong>
-        </Chip>
+    <Section title={`Last answer · ${plural(answer.receipts.length, 'receipt')}`}>
+      <div className="space-y-2">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <Chip>
+            turns <strong>{num(answer.turns)}</strong>
+          </Chip>
+          {answer.exhausted && <Pill tone="err">exhausted</Pill>}
+          {answer.truncated && <Pill tone="warn">truncated</Pill>}
+          <Chip>
+            model <strong>{answer.model}</strong>
+          </Chip>
+          <Chip>
+            prompt <strong>{answer.prompt_version}</strong>
+          </Chip>
+        </div>
+        <Receipts receipts={answer.receipts} />
       </div>
-      <p className="text-sm font-medium text-dbb-charcoal">Receipts ({answer.receipts.length})</p>
-      <Receipts receipts={answer.receipts} />
-    </div>
+    </Section>
   )
 }
 
@@ -115,11 +117,11 @@ function Conversation({ id, onAsked }: { id: string; onAsked: () => void }) {
       {transcript.loading && <Empty>loading…</Empty>}
       {transcript.data && turns.length === 0 && <Empty>no turns yet</Empty>}
       {turns.length > 0 && (
-        <ol className="space-y-3">
+        <ol className="divide-y divide-dbb-warm/50">
           {turns.map((t, i) => (
-            <li key={i} className="space-y-1 rounded-lg border border-dbb-warm p-3">
+            <li key={i} className="space-y-1 py-3 first:pt-0">
               <p className="font-medium text-dbb-charcoal">{t.question}</p>
-              <p className="text-sm text-dbb-muted whitespace-pre-wrap">{t.answer}</p>
+              <p className="whitespace-pre-wrap text-sm text-dbb-muted">{t.answer}</p>
               <p className="text-[11px] text-dbb-muted" title={t.created_at}>
                 {relTime(t.created_at)}
               </p>

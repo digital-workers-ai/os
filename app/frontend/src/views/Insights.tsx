@@ -3,13 +3,12 @@ import { asApiError, get, type ApiError } from '@/api'
 import { Inferred } from '@/components/Inferred'
 import { SectionCard } from '@/components/SectionCard'
 import { ErrorBanner } from '@/components/ui/banner'
-import { Button } from '@/components/ui/button'
 import { Empty } from '@/components/ui/empty'
 import { Mono } from '@/components/ui/mono'
 import { Chip, Pill, type Tone } from '@/components/ui/pill'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { num, plural, relTime } from '@/lib/format'
+import { num, plural, when } from '@/lib/format'
 
 interface Finding {
   rule: string
@@ -115,7 +114,7 @@ function GoalsTable({ goals }: { goals: Goal[] }) {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Goal</TableHead>
+          <TableHead>Goal ({num(goals.length)})</TableHead>
           <TableHead>Metric</TableHead>
           <TableHead className="text-right">Target</TableHead>
           <TableHead className="text-right">Current</TableHead>
@@ -132,9 +131,9 @@ function GoalsTable({ goals }: { goals: Goal[] }) {
               <TableCell>
                 <span className="font-medium text-dbb-charcoal">{g.label}</span> <Mono>{g.goal}</Mono>
               </TableCell>
-              <TableCell>
-                {g.metric ? <Mono>{g.metric}</Mono> : '—'}
-                {g.strategy && ` · ${g.strategy}`}
+              <TableCell className="whitespace-nowrap">
+                {g.metric ? <Mono className="block">{g.metric}</Mono> : '—'}
+                {g.strategy && <span className="block">{g.strategy}</span>}
               </TableCell>
               <TableCell className="text-right tabular-nums">{g.target === undefined ? '—' : num(g.target)}</TableCell>
               <TableCell className="text-right tabular-nums">
@@ -174,7 +173,7 @@ function Definitions({ defs }: { defs: DefinitionsResponse }) {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Rule</TableHead>
+          <TableHead>Rule ({num(Object.keys(defs.rules).length)})</TableHead>
           <TableHead>Entity</TableHead>
           <TableHead>Severity</TableHead>
           <TableHead>Conditions</TableHead>
@@ -256,20 +255,15 @@ export function Insights() {
   return (
     <div className="space-y-6">
       <SectionCard
-        title={`Goals${goals ? ` (${goals.goals.length})` : ''}`}
+        title="Goals"
         headerRight={
-          <div className="flex flex-wrap items-center gap-3">
-            {goals && (
-              <div className="flex flex-wrap gap-1.5">
-                <Pill tone="ok">{num(goals.met)} met</Pill>
-                <Pill tone="err">{num(goals.missed)} missed</Pill>
-                <Pill tone="unknown">{num(goals.unknown)} unknown</Pill>
-              </div>
-            )}
-            <Button variant="outline" size="sm" onClick={loadGoals}>
-              Refresh
-            </Button>
-          </div>
+          goals && (
+            <div className="flex flex-wrap gap-1.5">
+              <Pill tone="ok">{num(goals.met)} met</Pill>
+              <Pill tone="err">{num(goals.missed)} missed</Pill>
+              <Pill tone="unknown">{num(goals.unknown)} unknown</Pill>
+            </div>
+          )
         }
       >
         <ErrorBanner error={goalsError} className="mb-3" />
@@ -279,20 +273,19 @@ export function Insights() {
       </SectionCard>
 
       <SectionCard
-        title={`Findings${rules ? ` (${findings.length})` : ''}`}
-        headerRight={
-          <Button variant="outline" size="sm" onClick={loadRules}>
-            Refresh
-          </Button>
+        title="Findings"
+        description={
+          rules && (
+            <>
+              {plural(rules.rules, 'rule')} over {num(rules.report.evaluated)} entities · as of{' '}
+              <span title={rules.as_of}>{when(rules.as_of)}</span>
+            </>
+          )
         }
       >
         <ErrorBanner error={rulesError} className="mb-3" />
         {rules && (
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <p className="text-sm text-dbb-muted">
-              {plural(rules.rules, 'rule')} over {num(rules.report.evaluated)} entities · as of{' '}
-              <Mono className="text-dbb-charcoal">{rules.as_of}</Mono> ({relTime(rules.as_of)})
-            </p>
             <div className="flex flex-wrap gap-1.5">
               {Object.entries(rules.by_severity).map(([s, n]) => (
                 <Pill key={s} tone={severityTone(s)}>
@@ -315,7 +308,7 @@ export function Insights() {
         <Tabs defaultValue="findings">
           <TabsList className="mt-4">
             <TabsTrigger value="findings">Findings</TabsTrigger>
-            <TabsTrigger value="definitions">Rule definitions{defs ? ` (${Object.keys(defs.rules).length})` : ''}</TabsTrigger>
+            <TabsTrigger value="definitions">Rule definitions</TabsTrigger>
           </TabsList>
           <TabsContent value="findings">
             {!rules && !rulesError && <Empty>loading…</Empty>}
@@ -324,10 +317,9 @@ export function Insights() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Severity</TableHead>
+                    <TableHead>Severity ({num(findings.length)})</TableHead>
                     <TableHead>Rule</TableHead>
                     <TableHead>Entity</TableHead>
-                    <TableHead>Anchor</TableHead>
                     <TableHead>Company</TableHead>
                     <TableHead>Evidence</TableHead>
                   </TableRow>
@@ -342,7 +334,6 @@ export function Insights() {
                         <span className="font-medium text-dbb-charcoal">{f.label}</span> <Mono>{f.rule}</Mono>
                       </TableCell>
                       <TableCell>{f.entity_type}</TableCell>
-                      <TableCell className="whitespace-nowrap font-mono text-xs">{f.anchor}</TableCell>
                       <TableCell>{f.company ?? '—'}</TableCell>
                       <TableCell>
                         <Chips entries={Object.entries(f.evidence)} />

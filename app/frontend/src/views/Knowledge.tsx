@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { get } from '@/api'
 import { SectionCard } from '@/components/SectionCard'
+import { Section } from '@/components/SectionHeading'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Empty } from '@/components/ui/empty'
 import { Mono } from '@/components/ui/mono'
@@ -8,8 +9,10 @@ import { Chip, Pill } from '@/components/ui/pill'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { num, short } from '@/lib/format'
+import { num, plural } from '@/lib/format'
+import { cn } from '@/lib/utils'
 import { ALL, Enabled, useLoad } from './inference/shared'
+import { Readings, type Vocabulary } from './inference/Vocabulary'
 
 interface EntitySpec {
   identity: string[]
@@ -88,41 +91,9 @@ interface MetricDefinitions {
   provenance: Record<string, Provenance>
 }
 
-interface VocabLabel {
-  label: string
-  means: string
-}
-
-interface VocabField {
-  name: string
-  type: string
-  description: string
-  labels: VocabLabel[]
-}
-
-interface Reading {
-  entity: string
-  input: string
-  description: string
-  sha: string
-  fields: VocabField[]
-}
-
-interface Vocabulary {
-  enabled: boolean
-  model: string
-  readings: Record<string, Reading>
-}
-
 const keyCol = 'font-medium text-dbb-charcoal'
 
-function Heading({ children, count }: { children: ReactNode; count: number }) {
-  return (
-    <h4 className="text-sm font-medium text-dbb-charcoal">
-      {children} <span className="font-normal text-dbb-muted">({num(count)})</span>
-    </h4>
-  )
-}
+const counted = (label: string, n: number) => `${label} · ${num(n)}`
 
 function Loaded<T>({
   got,
@@ -136,10 +107,10 @@ function Loaded<T>({
   if (got.error) return <ErrorBanner error={got.error} />
   if (!got.data) return <Empty>loading…</Empty>
   return (
-    <div className="space-y-4">
+    <>
       <p className="text-sm text-dbb-muted">{count(got.data)}</p>
       {children(got.data)}
-    </div>
+    </>
   )
 }
 
@@ -173,9 +144,8 @@ const expressionText = (m: MetricDef) =>
 function OntologyTab({ o }: { o: Ontology }) {
   const entities = Object.entries(o.entities)
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <Heading count={o.source_priority.length}>Source priority</Heading>
+    <>
+      <Section title={counted('Source priority', o.source_priority.length)}>
         <div className="flex flex-wrap gap-1.5">
           {o.source_priority.map((s, i) => (
             <Chip key={s}>
@@ -183,35 +153,53 @@ function OntologyTab({ o }: { o: Ontology }) {
             </Chip>
           ))}
         </div>
-      </div>
-      <div className="space-y-2">
-        <Heading count={entities.length}>Entities</Heading>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {entities.map(([name, spec]) => (
-            <div key={name} className="rounded-lg border border-dbb-warm p-3">
-              <Heading count={Object.keys(spec.attrs).length}>{name}</Heading>
-              <Table>
-                <TableBody>
-                  {Object.entries(spec.attrs).map(([attr, type]) => (
-                    <TableRow key={attr}>
-                      <TableCell className="py-1 font-mono text-xs text-dbb-charcoal">
-                        <span className="inline-flex items-center gap-1.5">
-                          {attr}
-                          {spec.identity.includes(attr) && <Pill tone="ok">identity</Pill>}
-                        </span>
-                      </TableCell>
-                      <TableCell className="py-1">{type}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              {spec.identity.length === 0 && <p className="mt-2 text-sm text-dbb-muted">no identity attrs</p>}
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="space-y-2">
-        <Heading count={o.relationships.length}>Relationships</Heading>
+      </Section>
+      <Section title={counted('Entities', entities.length)}>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Entity</TableHead>
+              <TableHead>Attributes</TableHead>
+              <TableHead>Identity</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {entities.map(([name, spec]) => {
+              const attrs = Object.entries(spec.attrs)
+              return (
+                <TableRow key={name}>
+                  <TableCell className={cn(keyCol, 'whitespace-nowrap align-top')}>
+                    {name} <span className="font-normal text-dbb-muted">{num(attrs.length)}</span>
+                  </TableCell>
+                  <TableCell className="align-top">
+                    <span className="flex flex-wrap gap-1">
+                      {attrs.map(([attr, type]) => (
+                        <Chip key={attr} className="font-mono">
+                          <strong>{attr}</strong>:{type}
+                        </Chip>
+                      ))}
+                    </span>
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap align-top">
+                    {spec.identity.length === 0 ? (
+                      '—'
+                    ) : (
+                      <span className="inline-flex flex-wrap gap-1">
+                        {spec.identity.map((a) => (
+                          <Pill key={a} tone="ok">
+                            {a}
+                          </Pill>
+                        ))}
+                      </span>
+                    )}
+                  </TableCell>
+                </TableRow>
+              )
+            })}
+          </TableBody>
+        </Table>
+      </Section>
+      <Section title={counted('Relationships', o.relationships.length)}>
         <Table>
           <TableHeader>
             <TableRow>
@@ -238,8 +226,8 @@ function OntologyTab({ o }: { o: Ontology }) {
             ))}
           </TableBody>
         </Table>
-      </div>
-    </div>
+      </Section>
+    </>
   )
 }
 
@@ -249,59 +237,71 @@ function MappingsTab({ m }: { m: Mappings }) {
   const lines = source ? m.lines.filter((l) => l.source === source) : m.lines
   const hooked = lines.filter((l) => l.from_hook).length
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-3 text-sm text-dbb-muted">
-        <Select value={source || ALL} onValueChange={(v) => setSource(v === ALL ? '' : v)}>
-          <SelectTrigger className="h-8 w-48">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL}>all sources ({sources.length})</SelectItem>
-            {sources.map((s) => (
-              <SelectItem key={s} value={s}>
-                {s}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <span>
-          {num(lines.length)} lines · {num(hooked)} hook-produced fields
-        </span>
-      </div>
-      <p className="text-sm text-dbb-muted">
-        hook sources ({m.hook_sources.length}): {m.hook_sources.join(', ')}
-      </p>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Source</TableHead>
-            <TableHead>Object type</TableHead>
-            <TableHead>Path</TableHead>
-            <TableHead>Entity.label</TableHead>
-            <TableHead>Transform</TableHead>
-            <TableHead>Origin</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {lines.map((l) => (
-            <TableRow key={`${l.source}|${l.object_type}|${l.path}|${l.entity}|${l.label}`}>
-              <TableCell className={keyCol}>{l.source}</TableCell>
-              <TableCell>
-                <Mono>{l.object_type}</Mono>
-              </TableCell>
-              <TableCell>
-                <Mono>{l.path}</Mono>
-              </TableCell>
-              <TableCell>
-                {l.entity}.<span className={keyCol}>{l.label}</span>
-              </TableCell>
-              <TableCell>{l.transform ? <Mono>{l.transform}</Mono> : '—'}</TableCell>
-              <TableCell>{l.from_hook ? <Pill tone="warn">hook</Pill> : <Pill>payload</Pill>}</TableCell>
+    <>
+      <Section
+        title={counted('Lines', lines.length)}
+        right={
+          <Select value={source || ALL} onValueChange={(v) => setSource(v === ALL ? '' : v)}>
+            <SelectTrigger className="h-8 w-48">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>all sources ({sources.length})</SelectItem>
+              {sources.map((s) => (
+                <SelectItem key={s} value={s}>
+                  {s}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        }
+      >
+        <p className="mb-3 text-sm text-dbb-muted">{num(hooked)} hook-produced fields</p>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Source</TableHead>
+              <TableHead>Object type</TableHead>
+              <TableHead>Path</TableHead>
+              <TableHead>Entity.label</TableHead>
+              <TableHead>Transform</TableHead>
+              <TableHead>Origin</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+          </TableHeader>
+          <TableBody>
+            {lines.map((l) => (
+              <TableRow key={`${l.source}|${l.object_type}|${l.path}|${l.entity}|${l.label}`}>
+                <TableCell className={keyCol}>{l.source}</TableCell>
+                <TableCell>
+                  <Mono>{l.object_type}</Mono>
+                </TableCell>
+                <TableCell>
+                  <Mono>{l.path}</Mono>
+                </TableCell>
+                <TableCell>
+                  {l.entity}.<span className={keyCol}>{l.label}</span>
+                </TableCell>
+                <TableCell>{l.transform ? <Mono>{l.transform}</Mono> : '—'}</TableCell>
+                <TableCell>{l.from_hook ? <Pill tone="warn">hook</Pill> : <Pill>payload</Pill>}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Section>
+      <Section title={counted('Hook sources', m.hook_sources.length)}>
+        {m.hook_sources.length === 0 ? (
+          <p className="text-sm text-dbb-muted">none</p>
+        ) : (
+          <div className="flex flex-wrap gap-1.5">
+            {m.hook_sources.map((s) => (
+              <Chip key={s}>
+                <strong>{s}</strong>
+              </Chip>
+            ))}
+          </div>
+        )}
+      </Section>
+    </>
   )
 }
 
@@ -309,9 +309,8 @@ function TransformsTab({ t }: { t: Transforms }) {
   const labels = Object.entries(t.labels).sort(([a], [b]) => a.localeCompare(b))
   const users = (fn: string) => labels.filter(([, f]) => f === fn).length
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <Heading count={Object.keys(t.registry).length}>Registry</Heading>
+    <>
+      <Section title={counted('Registry', Object.keys(t.registry).length)}>
         <div className="flex flex-wrap gap-1.5">
           {Object.entries(t.registry).map(([fn, r]) => (
             <Chip key={fn}>
@@ -319,9 +318,8 @@ function TransformsTab({ t }: { t: Transforms }) {
             </Chip>
           ))}
         </div>
-      </div>
-      <div className="space-y-2">
-        <Heading count={labels.length}>Labels</Heading>
+      </Section>
+      <Section title={counted('Labels', labels.length)}>
         <Table>
           <TableHeader>
             <TableRow>
@@ -344,126 +342,87 @@ function TransformsTab({ t }: { t: Transforms }) {
             ))}
           </TableBody>
         </Table>
-      </div>
-    </div>
+      </Section>
+    </>
   )
 }
 
 function MetricsTab({ m }: { m: MetricDefinitions }) {
+  const definitions = Object.entries(m.definitions)
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead>Entity</TableHead>
-          <TableHead>Expression</TableHead>
-          <TableHead>Filter</TableHead>
-          <TableHead>Kind</TableHead>
-          <TableHead>Raw fields</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {Object.entries(m.definitions).map(([name, d]) => {
-          const p = m.provenance[name]
-          return (
-            <TableRow key={name}>
-              <TableCell className="align-top">
-                <span className={keyCol}>{d.label}</span> <Mono>{name}</Mono>
-              </TableCell>
-              <TableCell className="align-top">{d.entity}</TableCell>
-              <TableCell className="align-top">
-                <Mono>{expressionText(d)}</Mono>
-              </TableCell>
-              <TableCell className="align-top">{filterText(d.filter) ? <Mono>{filterText(d.filter)}</Mono> : '—'}</TableCell>
-              <TableCell className="align-top">
-                {d.inferred ? (
-                  <span className="inline-flex flex-wrap items-center gap-1.5">
-                    <Pill tone="warn">inferred</Pill>
-                    <span>
-                      reading <Mono>{d.reading}</Mono>
-                    </span>
-                    {p?.inferred_from && (
+    <Section title={counted('Definitions', definitions.length)}>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Entity</TableHead>
+            <TableHead>Expression</TableHead>
+            <TableHead>Filter</TableHead>
+            <TableHead>Kind</TableHead>
+            <TableHead>Raw fields</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {definitions.map(([name, d]) => {
+            const p = m.provenance[name]
+            return (
+              <TableRow key={name}>
+                <TableCell className="align-top">
+                  <span className={keyCol}>{d.label}</span> <Mono>{name}</Mono>
+                </TableCell>
+                <TableCell className="align-top">{d.entity}</TableCell>
+                <TableCell className="align-top">
+                  <Mono>{expressionText(d)}</Mono>
+                </TableCell>
+                <TableCell className="align-top">{filterText(d.filter) ? <Mono>{filterText(d.filter)}</Mono> : '—'}</TableCell>
+                <TableCell className="align-top">
+                  {d.inferred ? (
+                    <span className="inline-flex flex-wrap items-center gap-1.5">
+                      <Pill tone="warn">inferred</Pill>
                       <span>
-                        reads <Mono>{p.inferred_from.reads}</Mono> · {p.inferred_from.vocabulary} <Mono>{p.inferred_from.vocabulary_sha}</Mono>
+                        reading <Mono>{d.reading}</Mono>
                       </span>
-                    )}
-                  </span>
-                ) : (
-                  <Pill tone="ok">observed</Pill>
-                )}
-              </TableCell>
-              <TableCell className="align-top">
-                {p && p.raw_fields.length > 0 ? (
-                  <ul className="space-y-0.5">
-                    {p.raw_fields.map((f) => (
-                      <li key={f}>
-                        <Mono>{f}</Mono>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  '—'
-                )}
-              </TableCell>
-            </TableRow>
-          )
-        })}
-      </TableBody>
-    </Table>
+                      {p?.inferred_from && (
+                        <span>
+                          reads <Mono>{p.inferred_from.reads}</Mono> · {p.inferred_from.vocabulary} <Mono>{p.inferred_from.vocabulary_sha}</Mono>
+                        </span>
+                      )}
+                    </span>
+                  ) : (
+                    <Pill tone="ok">observed</Pill>
+                  )}
+                </TableCell>
+                <TableCell className="align-top">
+                  {p && p.raw_fields.length > 0 ? (
+                    <span className="flex flex-wrap gap-1">
+                      {p.raw_fields.map((f) => (
+                        <Mono key={f}>{f}</Mono>
+                      ))}
+                    </span>
+                  ) : (
+                    '—'
+                  )}
+                </TableCell>
+              </TableRow>
+            )
+          })}
+        </TableBody>
+      </Table>
+    </Section>
   )
 }
 
 function EnrichmentTab({ v }: { v: Vocabulary }) {
-  const readings = Object.entries(v.readings)
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2 text-sm text-dbb-muted">
+    <>
+      <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-dbb-muted">
         <Enabled on={v.enabled} />
         <span>
           model <Mono>{v.model}</Mono>
         </span>
-        <span>
-          · {readings.length} {readings.length === 1 ? 'reading' : 'readings'}
-        </span>
-      </div>
-      {readings.map(([name, r]) => (
-        <div key={name} className="space-y-3 rounded-lg border border-dbb-warm p-3">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-dbb-muted">
-            <span className={keyCol}>{name}</span>
-            <span>
-              reads{' '}
-              <Mono>
-                {r.entity}.{r.input}
-              </Mono>
-            </span>
-            <span>
-              sha <Mono title={r.sha}>{short(r.sha, 12)}</Mono>
-            </span>
-          </div>
-          <p className="max-w-prose text-sm text-dbb-muted">{r.description}</p>
-          {r.fields.map((f) => (
-            <div key={f.name} className="space-y-1 border-t border-dbb-warm/30 pt-3">
-              <div className="flex flex-wrap items-center gap-2 text-sm text-dbb-muted">
-                <span className="font-mono text-xs text-dbb-charcoal">{f.name}</span>
-                <Pill>{f.type}</Pill>
-                <span>({f.labels.length} labels)</span>
-              </div>
-              <p className="max-w-prose text-sm text-dbb-muted">{f.description}</p>
-              <Table>
-                <TableBody>
-                  {f.labels.map((l) => (
-                    <TableRow key={l.label}>
-                      <TableCell className="w-px whitespace-nowrap py-1 font-mono text-xs text-dbb-charcoal">{l.label}</TableCell>
-                      <TableCell className="py-1">{l.means}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          ))}
-        </div>
-      ))}
-    </div>
+      </p>
+      <Readings vocabulary={v} />
+    </>
   )
 }
 
@@ -508,7 +467,7 @@ export function Knowledge() {
           <Loaded
             got={ontology}
             count={(o) =>
-              `${Object.keys(o.entities).length} entities · ${o.relationships.length} relationships · ${o.source_priority.length} sources`
+              `${num(Object.keys(o.entities).length)} entities · ${plural(o.relationships.length, 'relationship')} · ${plural(o.source_priority.length, 'source')}`
             }
           >
             {(o) => <OntologyTab o={o} />}
@@ -517,7 +476,7 @@ export function Knowledge() {
         <TabsContent value="mappings">
           <Loaded
             got={mappings}
-            count={(m) => `${num(m.lines.length)} lines · ${num(m.lines.filter((l) => l.from_hook).length)} hook-produced`}
+            count={(m) => `${plural(m.lines.length, 'line')} · ${num(m.lines.filter((l) => l.from_hook).length)} hook-produced`}
           >
             {(m) => <MappingsTab m={m} />}
           </Loaded>
@@ -525,7 +484,7 @@ export function Knowledge() {
         <TabsContent value="transforms">
           <Loaded
             got={transforms}
-            count={(t) => `${Object.keys(t.registry).length} functions · ${Object.keys(t.labels).length} labels`}
+            count={(t) => `${plural(Object.keys(t.registry).length, 'function')} · ${plural(Object.keys(t.labels).length, 'label')}`}
           >
             {(t) => <TransformsTab t={t} />}
           </Loaded>
@@ -534,7 +493,7 @@ export function Knowledge() {
           <Loaded
             got={metrics}
             count={(m) =>
-              `${Object.keys(m.definitions).length} definitions · ${Object.values(m.definitions).filter((d) => d.inferred).length} inferred`
+              `${plural(Object.keys(m.definitions).length, 'definition')} · ${num(Object.values(m.definitions).filter((d) => d.inferred).length)} inferred`
             }
           >
             {(m) => <MetricsTab m={m} />}
@@ -544,7 +503,10 @@ export function Knowledge() {
           <Loaded
             got={vocabulary}
             count={(v) =>
-              `${Object.keys(v.readings).length} readings · ${Object.values(v.readings).reduce((n, r) => n + r.fields.length, 0)} fields`
+              `${plural(Object.keys(v.readings).length, 'reading')} · ${plural(
+                Object.values(v.readings).reduce((n, r) => n + r.fields.length, 0),
+                'field',
+              )}`
             }
           >
             {(v) => <EnrichmentTab v={v} />}

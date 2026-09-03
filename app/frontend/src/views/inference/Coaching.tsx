@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { asApiError, get, post, type ApiError } from '@/api'
 import { SectionCard } from '@/components/SectionCard'
+import { Section } from '@/components/SectionHeading'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Button } from '@/components/ui/button'
 import { Empty } from '@/components/ui/empty'
@@ -70,7 +71,7 @@ const fromStored = (b: StoredBriefing): Briefing => ({
 function BriefingView({ briefing, fresh }: { briefing: Briefing; fresh: boolean }) {
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-1.5">
+      <p className="flex flex-wrap items-center gap-1.5">
         {fresh && <Pill tone="ok">just generated</Pill>}
         <Chip>
           model <strong>{briefing.model}</strong>
@@ -88,8 +89,8 @@ function BriefingView({ briefing, fresh }: { briefing: Briefing; fresh: boolean 
         <Chip title={briefing.generated_at}>
           generated <strong>{relTime(briefing.generated_at)}</strong>
         </Chip>
-      </div>
-      <p className="text-sm leading-relaxed whitespace-pre-wrap text-dbb-charcoal">{briefing.briefing}</p>
+      </p>
+      <p className="max-w-prose whitespace-pre-wrap text-sm leading-relaxed text-dbb-charcoal">{briefing.briefing}</p>
     </div>
   )
 }
@@ -123,9 +124,9 @@ function Role({ role }: { role: string }) {
   const briefing = generated ?? (stored.data ? fromStored(stored.data) : null)
 
   return (
-    <SectionCard
+    <Section
       title={role}
-      headerRight={
+      right={
         <Button size="sm" disabled={generating} onClick={generate}>
           {generating ? 'generating…' : 'Generate'}
         </Button>
@@ -133,11 +134,13 @@ function Role({ role }: { role: string }) {
     >
       <div className="space-y-3">
         <LayerOff error={error} />
-        {stored.loading && <Empty>loading…</Empty>}
-        {!briefing && stored.error && (stored.error.status === 404 ? <Empty>{stored.error.detail}</Empty> : <ErrorBanner error={stored.error} />)}
+        {stored.loading && <p className="text-sm text-dbb-muted">loading…</p>}
+        {!briefing &&
+          stored.error &&
+          (stored.error.status === 404 ? <p className="text-sm text-dbb-muted">{stored.error.detail}</p> : <ErrorBanner error={stored.error} />)}
         {briefing && <BriefingView briefing={briefing} fresh={generated !== null} />}
       </div>
-    </SectionCard>
+    </Section>
   )
 }
 
@@ -145,40 +148,33 @@ export function Coaching() {
   const index = useLoad(() => get<CoachingIndex>('/api/coaching'), [])
   const data = index.data
   return (
-    <SectionCard title="Coaching">
-      <div className="space-y-4">
-        <ErrorBanner error={index.error} />
-        {index.loading && <Empty>loading…</Empty>}
-        {data && (
-          <>
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-dbb-muted">
-              <Enabled on={data.enabled} />
-              <span>
-                model <Mono>{data.model}</Mono>
-              </span>
-              <span>
-                · prompt <Mono>{data.prompt_version}</Mono>
-              </span>
-              <span>
-                · prompts sha <Mono>{data.prompts_sha}</Mono>
-              </span>
-            </div>
-            <div className="flex flex-wrap items-center gap-2 text-sm text-dbb-muted">
-              {data.inferred && <Pill tone="warn">inferred</Pill>}
-              <span>{data.note}</span>
-            </div>
-            {data.roles.length === 0 ? (
-              <Empty>no role prompts found</Empty>
-            ) : (
-              <div className="grid gap-4 md:grid-cols-2">
-                {data.roles.map((role) => (
-                  <Role key={role} role={role} />
-                ))}
-              </div>
-            )}
-          </>
-        )}
-      </div>
+    <SectionCard
+      title="Coaching"
+      description={
+        data && (
+          <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-1">
+            <Enabled on={data.enabled} />
+            <span>
+              model <Mono>{data.model}</Mono>
+            </span>
+            <span>
+              · prompt <Mono>{data.prompt_version}</Mono>
+            </span>
+            <span>
+              · prompts sha <Mono>{data.prompts_sha}</Mono>
+            </span>
+            {data.inferred && <Pill tone="warn">inferred</Pill>}
+            <span>{data.note}</span>
+          </span>
+        )
+      }
+    >
+      <ErrorBanner error={index.error} className="mb-3" />
+      {index.loading && <Empty>loading…</Empty>}
+      {data && data.roles.length === 0 && <Empty>no role prompts found</Empty>}
+      {data?.roles.map((role) => (
+        <Role key={role} role={role} />
+      ))}
     </SectionCard>
   )
 }

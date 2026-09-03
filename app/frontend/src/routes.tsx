@@ -14,7 +14,6 @@ export interface RouteDef {
   icon: LucideIcon
   end?: boolean
   title: string
-  subtitle: string
   view: ComponentType
 }
 
@@ -25,7 +24,6 @@ export const ROUTES: RouteDef[] = [
     icon: Home,
     end: true,
     title: 'Insights',
-    subtitle: 'goals and findings over the canonical estate',
     view: Insights,
   },
   {
@@ -33,7 +31,6 @@ export const ROUTES: RouteDef[] = [
     label: 'Metrics',
     icon: ChartColumn,
     title: 'Metrics',
-    subtitle: 'metric series and snapshots computed from the estate',
     view: Metrics,
   },
   {
@@ -41,7 +38,6 @@ export const ROUTES: RouteDef[] = [
     label: 'Entities',
     icon: Boxes,
     title: 'Entities',
-    subtitle: 'canonical entities and the raw records behind them',
     view: Entities,
   },
   {
@@ -49,7 +45,6 @@ export const ROUTES: RouteDef[] = [
     label: 'Inference',
     icon: Sparkles,
     title: 'Inference',
-    subtitle: 'ask, coaching, and enrichment over the estate',
     view: Inference,
   },
   {
@@ -57,7 +52,6 @@ export const ROUTES: RouteDef[] = [
     label: 'Knowledge',
     icon: BookOpen,
     title: 'Knowledge',
-    subtitle: 'the committed ontology, mappings, transforms, metrics, and vocabulary',
     view: Knowledge,
   },
   {
@@ -65,7 +59,6 @@ export const ROUTES: RouteDef[] = [
     label: 'Estate',
     icon: Database,
     title: 'Estate',
-    subtitle: 'sources, sync activity, rebuild, and the engine report',
     view: Estate,
   },
   {
@@ -73,7 +66,6 @@ export const ROUTES: RouteDef[] = [
     label: 'Visualize',
     icon: ChartLine,
     title: 'Visualize',
-    subtitle: 'charts over the canonical estate',
     view: Visualize,
   },
 ]

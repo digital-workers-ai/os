@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { asApiError, get, post, type ApiError } from '@/api'
 import { SectionCard } from '@/components/SectionCard'
+import { Section } from '@/components/SectionHeading'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Button } from '@/components/ui/button'
 import { Empty } from '@/components/ui/empty'
@@ -10,35 +11,9 @@ import { PAGE, Pager } from '@/components/ui/pager'
 import { Chip, Pill } from '@/components/ui/pill'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { num, relTime, short } from '@/lib/format'
+import { num, plural, relTime, short } from '@/lib/format'
 import { ALL, Enabled, LayerOff, useLoad } from './shared'
-
-interface Gloss {
-  label: string
-  means: string
-}
-
-interface Field {
-  name: string
-  type: string
-  description: string
-  labels: Gloss[]
-}
-
-interface Reading {
-  entity: string
-  input: string
-  description: string
-  sha: string
-  fields: Field[]
-}
-
-interface Vocabulary {
-  enabled: boolean
-  model: string
-  readings: Record<string, Reading>
-}
+import { Readings, type Vocabulary } from './Vocabulary'
 
 interface LastRun {
   at: string
@@ -129,8 +104,6 @@ const numCol = 'text-right tabular-nums'
 
 const keyCol = 'font-medium text-dbb-charcoal'
 
-const keep = 'data-[state=inactive]:hidden'
-
 function Verified({ ok }: { ok: boolean }) {
   return <Pill tone={ok ? 'ok' : 'err'}>{ok ? 'verified' : 'unverified'}</Pill>
 }
@@ -194,14 +167,14 @@ function CoverageTable({ rows }: { rows: Coverage[] }) {
 
 function RunResult({ report }: { report: RunReport }) {
   return (
-    <div className="space-y-3 rounded-lg border border-dbb-warm p-3">
-      <div className="flex flex-wrap items-center gap-2 text-sm text-dbb-muted">
+    <>
+      <p className="mb-3 flex flex-wrap items-center gap-2 text-sm text-dbb-muted">
         <span>
           {num(report.calls)} calls · {num(report.rows)} rows · {num(report.failed)} failed · {num(report.unverified_quotes)} unverified
           quotes · {num(report.reconciled)} reconciled · {num(report.duration_ms)} ms
         </span>
         {report.truncated_at_cap && <Pill tone="warn">truncated at cap</Pill>}
-      </div>
+      </p>
       <Table>
         <TableHeader>
           <TableRow>
@@ -237,67 +210,11 @@ function RunResult({ report }: { report: RunReport }) {
           ))}
         </TableBody>
       </Table>
-    </div>
+    </>
   )
 }
 
-function VocabularyTab({ vocabulary }: { vocabulary: Vocabulary }) {
-  return (
-    <div className="space-y-6">
-      {Object.entries(vocabulary.readings).map(([name, r]) => (
-        <div key={name} className="space-y-2">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-dbb-muted">
-            <span className="font-medium text-dbb-charcoal">{name}</span>
-            <span>
-              reads{' '}
-              <Mono>
-                {r.entity}.{r.input}
-              </Mono>
-            </span>
-            <span>
-              sha <Mono title={r.sha}>{short(r.sha, 12)}</Mono>
-            </span>
-            <span>· {r.fields.length} fields</span>
-          </div>
-          <p className="text-sm text-dbb-muted">{r.description}</p>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Field</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Labels</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {r.fields.map((f) => (
-                <TableRow key={f.name}>
-                  <TableCell className="align-top font-mono text-xs text-dbb-charcoal">{f.name}</TableCell>
-                  <TableCell className="align-top">
-                    <Pill>{f.type}</Pill>
-                  </TableCell>
-                  <TableCell className="max-w-md align-top">{f.description}</TableCell>
-                  <TableCell className="align-top">
-                    <dl className="space-y-1">
-                      {f.labels.map((g) => (
-                        <div key={g.label} className="flex gap-3">
-                          <dt className="w-44 shrink-0 font-mono text-xs text-dbb-charcoal">{g.label}</dt>
-                          <dd>{g.means}</dd>
-                        </div>
-                      ))}
-                    </dl>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function FactsTab({ vocabulary, onPick }: { vocabulary: Vocabulary | null; onPick: (id: string) => void }) {
+function Facts({ vocabulary, onPick }: { vocabulary: Vocabulary | null; onPick: (id: string) => void }) {
   const [attr, setAttr] = useState('')
   const [value, setValue] = useState('')
   const [unverified, setUnverified] = useState(false)
@@ -317,8 +234,18 @@ function FactsTab({ vocabulary, onPick }: { vocabulary: Vocabulary | null; onPic
   const byValue = Object.entries(data?.by_value ?? {})
 
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-2">
+    <SectionCard
+      title={`Enriched facts${data ? ` (${num(data.total)})` : ''}`}
+      description={
+        data && (
+          <span className="inline-flex flex-wrap items-center gap-2">
+            <Pill tone="warn">inferred</Pill>
+            <span>{data.counts}</span>
+          </span>
+        )
+      }
+    >
+      <div className="mb-3 flex flex-wrap items-center gap-2">
         <Select
           value={attr || ALL}
           onValueChange={(v) => {
@@ -371,26 +298,18 @@ function FactsTab({ vocabulary, onPick }: { vocabulary: Vocabulary | null; onPic
           unverified quotes only
         </label>
       </div>
-      <ErrorBanner error={facts.error} />
+      <ErrorBanner error={facts.error} className="mb-3" />
       {data && (
-        <>
-          <div className="flex flex-wrap items-center gap-2 text-sm text-dbb-muted">
-            <Pill tone="warn">inferred</Pill>
-            <span>{data.counts}</span>
-          </div>
-          <p className="text-sm text-dbb-muted">
+        <p className="mb-3 flex flex-wrap items-center gap-1.5 text-sm text-dbb-muted">
+          <span>
             {num(data.total)} facts · {num(data.unverified_quotes)} unverified quotes
-          </p>
-          {byValue.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {byValue.map(([k, v]) => (
-                <Chip key={k}>
-                  {k} <strong>{num(v)}</strong>
-                </Chip>
-              ))}
-            </div>
-          )}
-        </>
+          </span>
+          {byValue.map(([k, v]) => (
+            <Chip key={k}>
+              {k} <strong>{num(v)}</strong>
+            </Chip>
+          ))}
+        </p>
       )}
       {facts.loading && <Empty>loading…</Empty>}
       {data && data.facts.length === 0 && <Empty>no enriched facts match</Empty>}
@@ -438,7 +357,7 @@ function FactsTab({ vocabulary, onPick }: { vocabulary: Vocabulary | null; onPic
         </Table>
       )}
       {data && <Pager offset={offset} count={data.facts.length} total={data.total} onPage={setOffset} />}
-    </div>
+    </SectionCard>
   )
 }
 
@@ -446,15 +365,15 @@ function EntityFacts({ id }: { id: string }) {
   const entity = useLoad(() => get<EntityReadings>(`/api/enrichment/${encodeURIComponent(id)}`), [id])
   const rows = entity.data?.facts ?? []
   return (
-    <div className="space-y-3">
-      <ErrorBanner error={entity.error} />
+    <>
+      <ErrorBanner error={entity.error} className="mb-3" />
       {entity.data && (
-        <div className="flex flex-wrap items-center gap-2 text-sm text-dbb-muted">
+        <p className="mb-3 flex flex-wrap items-center gap-2 text-sm text-dbb-muted">
           <Pill tone="warn">inferred</Pill>
           <span>
             readings for <Mono>{entity.data.canonical_id}</Mono>
           </span>
-        </div>
+        </p>
       )}
       {entity.loading && <Empty>loading…</Empty>}
       {entity.data && rows.length === 0 && <Empty>no readings stored for this entity</Empty>}
@@ -500,7 +419,7 @@ function EntityFacts({ id }: { id: string }) {
           </TableBody>
         </Table>
       )}
-    </div>
+    </>
   )
 }
 
@@ -515,7 +434,7 @@ export function Enrichment() {
   const [runError, setRunError] = useState<ApiError | null>(null)
   const [entityInput, setEntityInput] = useState('')
   const [entityId, setEntityId] = useState('')
-  const [tab, setTab] = useState('vocabulary')
+  const entityCard = useRef<HTMLDivElement>(null)
 
   const run = async () => {
     setRunning(true)
@@ -538,113 +457,112 @@ export function Enrichment() {
   const pick = (id: string) => {
     setEntityInput(id)
     setEntityId(id)
-    setTab('entity')
+    entityCard.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   const readings = Object.keys(vocab.data?.readings ?? {})
 
   return (
-    <SectionCard
-      title="Enrichment"
-      headerRight={
-        <form
-          className="flex flex-wrap items-center gap-2"
-          onSubmit={(e) => {
-            e.preventDefault()
-            run()
-          }}
-        >
-          <Select value={reading || ALL} onValueChange={(v) => setReading(v === ALL ? '' : v)}>
-            <SelectTrigger className="h-8 w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>all readings</SelectItem>
-              {readings.map((r) => (
-                <SelectItem key={r} value={r}>
-                  {r}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <label className="inline-flex items-center gap-1.5 text-sm text-dbb-muted">
-            <input type="checkbox" className="accent-dbb-charcoal" checked={force} onChange={(e) => setForce(e.target.checked)} />
-            force
-          </label>
-          <Input
-            type="number"
-            min={1}
-            max={1000}
-            placeholder="limit"
-            className="h-8 w-20"
-            value={limit}
-            onChange={(e) => setLimit(e.target.value)}
-          />
-          <Button size="sm" type="submit" disabled={running}>
-            {running ? 'running…' : 'Run'}
-          </Button>
-        </form>
-      }
-    >
-      <div className="space-y-4">
-        <ErrorBanner error={vocab.error} />
-        {vocab.data && (
-          <div className="flex flex-wrap items-center gap-2 text-sm text-dbb-muted">
-            <Enabled on={vocab.data.enabled} />
-            <span>
-              model <Mono>{vocab.data.model}</Mono>
+    <div className="space-y-6">
+      <SectionCard
+        title="Enrichment"
+        description={
+          vocab.data && (
+            <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-1">
+              <Enabled on={vocab.data.enabled} />
+              <span>
+                model <Mono>{vocab.data.model}</Mono>
+              </span>
+              {!vocab.data.enabled && <span>· the one layer that calls a model; nothing is read until it is switched on</span>}
             </span>
-            {!vocab.data.enabled && <span>· the one layer that calls a model; nothing is read until it is switched on</span>}
-          </div>
-        )}
+          )
+        }
+        headerRight={
+          <form
+            className="flex flex-wrap items-center gap-2"
+            onSubmit={(e) => {
+              e.preventDefault()
+              run()
+            }}
+          >
+            <Select value={reading || ALL} onValueChange={(v) => setReading(v === ALL ? '' : v)}>
+              <SelectTrigger className="h-8 w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL}>all readings</SelectItem>
+                {readings.map((r) => (
+                  <SelectItem key={r} value={r}>
+                    {r}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <label className="inline-flex items-center gap-1.5 text-sm text-dbb-muted">
+              <input type="checkbox" className="accent-dbb-charcoal" checked={force} onChange={(e) => setForce(e.target.checked)} />
+              force
+            </label>
+            <Input
+              type="number"
+              min={1}
+              max={1000}
+              placeholder="limit"
+              className="h-8 w-20"
+              value={limit}
+              onChange={(e) => setLimit(e.target.value)}
+            />
+            <Button size="sm" type="submit" disabled={running}>
+              {running ? 'running…' : 'Run'}
+            </Button>
+          </form>
+        }
+      >
+        <ErrorBanner error={vocab.error} className="mb-3" />
         <LayerOff error={runError} />
-        {report && <RunResult report={report} />}
-        <div className="space-y-1">
-          <h4 className="text-sm font-medium text-dbb-charcoal">Coverage</h4>
-          <p className="text-sm text-dbb-muted">
+        {report && (
+          <Section title="Last run">
+            <RunResult report={report} />
+          </Section>
+        )}
+        <Section title="Coverage">
+          <p className="mb-3 text-sm text-dbb-muted">
             Four separate claims per reading, not one number: eligible entities carry input text; read under the current vocabulary;
             read under a retired vocabulary; never read at all.
           </p>
-        </div>
-        <ErrorBanner error={coverage.error} />
-        {coverage.loading && <Empty>loading…</Empty>}
-        {coverage.data && <CoverageTable rows={coverage.data.readings} />}
-        <Tabs value={tab} onValueChange={setTab}>
-          <TabsList>
-            <TabsTrigger value="vocabulary">Vocabulary</TabsTrigger>
-            <TabsTrigger value="facts">Facts</TabsTrigger>
-            <TabsTrigger value="entity">One entity</TabsTrigger>
-          </TabsList>
-          <TabsContent value="vocabulary" forceMount className={keep}>
-            {vocab.data ? <VocabularyTab vocabulary={vocab.data} /> : <Empty>loading…</Empty>}
-          </TabsContent>
-          <TabsContent value="facts" forceMount className={keep}>
-            <FactsTab vocabulary={vocab.data} onPick={pick} />
-          </TabsContent>
-          <TabsContent value="entity" forceMount className={keep}>
-            <div className="space-y-3">
-              <form
-                className="flex items-center gap-2"
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  setEntityId(entityInput.trim())
-                }}
-              >
-                <Input
-                  placeholder="canonical id"
-                  className="h-8 max-w-md font-mono text-xs"
-                  value={entityInput}
-                  onChange={(e) => setEntityInput(e.target.value)}
-                />
-                <Button size="sm" type="submit" disabled={!entityInput.trim()}>
-                  Load
-                </Button>
-              </form>
-              {entityId ? <EntityFacts id={entityId} /> : <Empty>paste a canonical id, or pick one from the facts tab</Empty>}
-            </div>
-          </TabsContent>
-        </Tabs>
+          <ErrorBanner error={coverage.error} className="mb-3" />
+          {coverage.loading && <Empty>loading…</Empty>}
+          {coverage.data && <CoverageTable rows={coverage.data.readings} />}
+        </Section>
+      </SectionCard>
+
+      <SectionCard title="Vocabulary" description={vocab.data && plural(readings.length, 'reading')}>
+        {vocab.data ? <Readings vocabulary={vocab.data} /> : <Empty>loading…</Empty>}
+      </SectionCard>
+
+      <Facts vocabulary={vocab.data} onPick={pick} />
+
+      <div ref={entityCard} className="scroll-mt-6">
+        <SectionCard title="One entity" description="every reading stored for a single canonical id">
+          <form
+            className="mb-3 flex items-center gap-2"
+            onSubmit={(e) => {
+              e.preventDefault()
+              setEntityId(entityInput.trim())
+            }}
+          >
+            <Input
+              placeholder="canonical id"
+              className="h-8 max-w-md font-mono text-xs"
+              value={entityInput}
+              onChange={(e) => setEntityInput(e.target.value)}
+            />
+            <Button size="sm" type="submit" disabled={!entityInput.trim()}>
+              Load
+            </Button>
+          </form>
+          {entityId ? <EntityFacts id={entityId} /> : <Empty>paste a canonical id, or pick one from the facts table</Empty>}
+        </SectionCard>
       </div>
-    </SectionCard>
+    </div>
   )
 }

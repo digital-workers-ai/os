@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react'
 import { asApiError, get, post, type ApiError } from '@/api'
 import { Inferred } from '@/components/Inferred'
 import { SectionCard } from '@/components/SectionCard'
+import { Section } from '@/components/SectionHeading'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Button } from '@/components/ui/button'
 import { Empty } from '@/components/ui/empty'
 import { Mono } from '@/components/ui/mono'
 import { Pill } from '@/components/ui/pill'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { num, plural, relTime, short } from '@/lib/format'
 
 interface InferredFrom {
@@ -146,19 +146,23 @@ function Sparkline({ points }: { points: Point[] }) {
 
 function RunSection({ run, index }: { run: Run; index: number }) {
   return (
-    <section>
-      <h4 className="text-xs uppercase tracking-wide text-dbb-muted">
-        Run {index + 1} · {plural(run.points.length, 'point')} ·{' '}
-        {run.inferred ? (
-          <>
-            inferred{run.vocabulary_sha && <span className="ml-1 font-mono normal-case">{short(run.vocabulary_sha, 12)}</span>}
-            {run.produced_by && <span className="ml-1 font-mono normal-case">{run.produced_by}</span>}
-          </>
-        ) : (
-          'measured'
-        )}
-      </h4>
-      <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-start">
+    <Section
+      title={
+        <>
+          Run {index + 1} · {plural(run.points.length, 'point')} ·{' '}
+          {run.inferred ? (
+            <>
+              inferred
+              {run.vocabulary_sha && <Mono className="ml-1 normal-case">{short(run.vocabulary_sha, 12)}</Mono>}
+              {run.produced_by && <Mono className="ml-1 normal-case">{run.produced_by}</Mono>}
+            </>
+          ) : (
+            'measured'
+          )}
+        </>
+      }
+    >
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
         <Sparkline points={run.points} />
         <div className="min-w-0 flex-1">
           <Table>
@@ -185,7 +189,7 @@ function RunSection({ run, index }: { run: Run; index: number }) {
           </Table>
         </div>
       </div>
-    </section>
+    </Section>
   )
 }
 
@@ -309,6 +313,14 @@ export function Metrics() {
       {selected && (
         <SectionCard
           title={`Series — ${row?.label ?? selected}`}
+          description={
+            open && (
+              <>
+                {verdict(open)}
+                {open.inferred && ' · inferred series'}
+              </>
+            )
+          }
           headerRight={
             <Button variant="outline" size="sm" onClick={() => loadSeries(selected)}>
               Refresh
@@ -317,24 +329,12 @@ export function Metrics() {
         >
           <ErrorBanner error={seriesError} className="mb-3" />
           {!open && !seriesError && <Empty>loading…</Empty>}
-          {open && (
-            <p className="text-sm font-medium text-dbb-charcoal">
-              {verdict(open)}
-              {open.inferred && <span className="font-normal text-dbb-muted"> · inferred series</span>}
-            </p>
+          {open && open.runs.map((run, i) => <RunSection key={i} run={run} index={i} />)}
+          {row && (
+            <Section title="Receipts">
+              <pre className="overflow-auto rounded-lg bg-dbb-surface p-3 font-mono text-xs">{JSON.stringify(row, null, 2)}</pre>
+            </Section>
           )}
-          <Tabs defaultValue="points">
-            <TabsList className="mt-4">
-              <TabsTrigger value="points">Points</TabsTrigger>
-              <TabsTrigger value="receipts">Receipts</TabsTrigger>
-            </TabsList>
-            <TabsContent value="points" className="space-y-6">
-              {open && open.runs.map((run, i) => <RunSection key={i} run={run} index={i} />)}
-            </TabsContent>
-            <TabsContent value="receipts">
-              {row && <pre className="overflow-auto rounded-lg bg-dbb-surface p-3 font-mono text-xs">{JSON.stringify(row, null, 2)}</pre>}
-            </TabsContent>
-          </Tabs>
         </SectionCard>
       )}
     </div>

@@ -14,3 +14,11 @@ export function relTime(iso: string | null): string {
   if (secs < 86400) return `${Math.round(secs / 3600)}h ago`
   return `${Math.round(secs / 86400)}d ago`
 }
+
+export function when(iso: string): string {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return 'never'
+  return d.toDateString() === new Date().toDateString()
+    ? relTime(iso)
+    : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
