@@ -1,18 +1,29 @@
 import uuid
 
-from fastapi import Body, HTTPException
+from fastapi import Body, HTTPException, Query, Request
 
 from app.api.routers import conversation as router
+from app.caches import MAX_OFFSET
 from app.conversation import agent, store
 from app.db import async_session
 
 
-@router.post("/conversations")
-async def create_conversation():
+@router.api_route("/conversations", methods=["GET", "POST"])
+async def conversations(
+    request: Request,
+    limit: int = Query(50, ge=1, le=500),
+    offset: int = Query(0, ge=0, le=MAX_OFFSET),
+):
     async with async_session() as session:
-        conversation_id = await store.create_conversation(session)
-        await session.commit()
-    return {"conversation_id": str(conversation_id)}
+        if request.method == "POST":
+            conversation_id = await store.create_conversation(session)
+            await session.commit()
+            return {"conversation_id": str(conversation_id)}
+        return {
+            "conversations": await store.list_conversations(
+                session, limit=limit, offset=offset
+            )
+        }
 
 
 @router.get(

@@ -30,6 +30,29 @@ async def get_conversation(
     )
 
 
+async def list_conversations(session, *, limit: int, offset: int) -> list[dict]:
+    rows = (
+        (
+            await session.execute(
+                select(ConversationThread)
+                .order_by(ConversationThread.updated_at.desc())
+                .limit(limit)
+                .offset(offset)
+            )
+        )
+        .scalars()
+        .all()
+    )
+    return [
+        {
+            "conversation_id": str(row.id),
+            "created_at": row.created_at.isoformat(),
+            "updated_at": row.updated_at.isoformat(),
+        }
+        for row in rows
+    ]
+
+
 async def load_history(session, conversation_id: uuid.UUID) -> list[dict]:
     rows = (
         (
