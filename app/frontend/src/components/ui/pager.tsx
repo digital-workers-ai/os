@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button'
 import { num } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
-export const PAGE = 10
+export const PAGE = 5
 
 export function Pager({
   offset,
