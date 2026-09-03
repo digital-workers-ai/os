@@ -9,6 +9,7 @@ import { Pill } from '@/components/ui/pill'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { num, relTime } from '@/lib/format'
+import { cn } from '@/lib/utils'
 
 const ALL = '*'
 
@@ -30,6 +31,7 @@ export function Activity({
   tick: number
 }) {
   const [offset, setOffset] = useState(0)
+  const [size, setSize] = useState(PAGE)
   const [page, setPage] = useState<SyncRunsResponse | null>(null)
   const [error, setError] = useState<ApiError | null>(null)
 
@@ -40,7 +42,7 @@ export function Activity({
   useEffect(() => {
     let live = true
     api
-      .syncRuns(source, PAGE, offset)
+      .syncRuns(source, size, offset)
       .then((r) => {
         if (!live) return
         setPage(r)
@@ -50,11 +52,15 @@ export function Activity({
     return () => {
       live = false
     }
-  }, [source, offset, tick])
+  }, [source, offset, size, tick])
 
   const labels = new Map(sources.map((s) => [s.source, s.label]))
   const runs = page?.runs ?? []
   const total = page?.total ?? 0
+  const changeSize = (n: number) => {
+    setSize(n)
+    setOffset(0)
+  }
 
   return (
     <SectionCard
@@ -74,7 +80,18 @@ export function Activity({
               ))}
             </SelectContent>
           </Select>
-          {page && <Pager className="mt-0 border-0 pt-0" offset={offset} count={runs.length} total={total} onPage={setOffset} />}
+          {page && (
+            <Pager
+              className="mt-0 border-0 pt-0"
+              offset={offset}
+              count={runs.length}
+              total={total}
+              onPage={setOffset}
+              size={size}
+              allSize={Math.min(total, 500)}
+              onSize={changeSize}
+            />
+          )}
         </div>
       }
     >
@@ -84,14 +101,14 @@ export function Activity({
       ) : runs.length === 0 ? (
         <Empty>no sync runs yet</Empty>
       ) : (
-        <Table>
+        <Table className="table-fixed">
           <TableHeader>
             <TableRow>
-              <TableHead>When</TableHead>
-              <TableHead>Source</TableHead>
-              <TableHead>Outcome</TableHead>
-              <TableHead className={NUM}>Rows</TableHead>
-              <TableHead>Detail</TableHead>
+              <TableHead className="w-32">When</TableHead>
+              <TableHead className="w-48">Source</TableHead>
+              <TableHead className="w-28">Outcome</TableHead>
+              <TableHead className={cn(NUM, 'w-24')}>Rows</TableHead>
+              <TableHead className="w-64">Detail</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

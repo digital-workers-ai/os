@@ -219,8 +219,9 @@ function Facts({ vocabulary, onPick }: { vocabulary: Vocabulary | null; onPick: 
   const [value, setValue] = useState('')
   const [unverified, setUnverified] = useState(false)
   const [offset, setOffset] = useState(0)
+  const [size, setSize] = useState(PAGE)
 
-  const params = new URLSearchParams({ limit: String(PAGE), offset: String(offset) })
+  const params = new URLSearchParams({ limit: String(size), offset: String(offset) })
   if (attr) params.set('attr', attr)
   if (value) params.set('value', value)
   if (unverified) params.set('unverified_only', 'true')
@@ -232,6 +233,10 @@ function Facts({ vocabulary, onPick }: { vocabulary: Vocabulary | null; onPick: 
   const labels = [...new Set(fields.filter((f) => !attr || f.name === attr).flatMap((f) => f.labels.map((g) => g.label)))]
   const data = facts.data
   const byValue = Object.entries(data?.by_value ?? {})
+  const changeSize = (n: number) => {
+    setSize(n)
+    setOffset(0)
+  }
 
   return (
     <SectionCard
@@ -314,16 +319,16 @@ function Facts({ vocabulary, onPick }: { vocabulary: Vocabulary | null; onPick: 
       {facts.loading && <Empty>loading…</Empty>}
       {data && data.facts.length === 0 && <Empty>no enriched facts match</Empty>}
       {data && data.facts.length > 0 && (
-        <Table>
+        <Table className="table-fixed">
           <TableHeader>
             <TableRow>
-              <TableHead>Entity</TableHead>
-              <TableHead>Reading</TableHead>
-              <TableHead>Attr</TableHead>
-              <TableHead>Value</TableHead>
-              <TableHead>Quote</TableHead>
-              <TableHead>Model</TableHead>
-              <TableHead>Vocabulary</TableHead>
+              <TableHead className="w-32">Entity</TableHead>
+              <TableHead className="w-32">Reading</TableHead>
+              <TableHead className="w-32">Attr</TableHead>
+              <TableHead className="w-32">Value</TableHead>
+              <TableHead className="w-64">Quote</TableHead>
+              <TableHead className="w-40">Model</TableHead>
+              <TableHead className="w-40">Vocabulary</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -356,7 +361,17 @@ function Facts({ vocabulary, onPick }: { vocabulary: Vocabulary | null; onPick: 
           </TableBody>
         </Table>
       )}
-      {data && <Pager offset={offset} count={data.facts.length} total={data.total} onPage={setOffset} />}
+      {data && (
+        <Pager
+          offset={offset}
+          count={data.facts.length}
+          total={data.total}
+          onPage={setOffset}
+          size={size}
+          allSize={Math.min(data.total, 500)}
+          onSize={changeSize}
+        />
+      )}
     </SectionCard>
   )
 }

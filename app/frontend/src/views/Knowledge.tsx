@@ -269,11 +269,19 @@ function OntologyTab({ o }: { o: Ontology }) {
 function MappingsTab({ m }: { m: Mappings }) {
   const [source, setSource] = useState('')
   const [offset, setOffset] = useState(0)
+  const [size, setSize] = useState(PAGE)
   const sources = [...new Set(m.lines.map((l) => l.source))].sort()
   const lines = source ? m.lines.filter((l) => l.source === source) : m.lines
   const hooked = lines.filter((l) => l.from_hook).length
-  const page = lines.slice(offset, offset + PAGE)
-  useEffect(() => setOffset(0), [m.lines])
+  const page = lines.slice(offset, offset + size)
+  const changeSize = (n: number) => {
+    setSize(n)
+    setOffset(0)
+  }
+  useEffect(() => {
+    setOffset(0)
+    setSize(PAGE)
+  }, [m.lines])
   return (
     <>
       <Section
@@ -301,15 +309,15 @@ function MappingsTab({ m }: { m: Mappings }) {
         }
       >
         <p className="mb-3 text-sm text-dbb-muted">{num(hooked)} hook-produced fields</p>
-        <Table>
+        <Table className="table-fixed">
           <TableHeader>
             <TableRow>
-              <TableHead>Source</TableHead>
-              <TableHead>Object type</TableHead>
-              <TableHead>Path</TableHead>
-              <TableHead>Entity.label</TableHead>
-              <TableHead>Transform</TableHead>
-              <TableHead>Origin</TableHead>
+              <TableHead className="w-28">Source</TableHead>
+              <TableHead className="w-32">Object type</TableHead>
+              <TableHead className="w-64">Path</TableHead>
+              <TableHead className="w-48">Entity.label</TableHead>
+              <TableHead className="w-32">Transform</TableHead>
+              <TableHead className="w-24">Origin</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -331,7 +339,7 @@ function MappingsTab({ m }: { m: Mappings }) {
             ))}
           </TableBody>
         </Table>
-        <Pager offset={offset} count={page.length} total={lines.length} onPage={setOffset} />
+        <Pager offset={offset} count={page.length} total={lines.length} onPage={setOffset} size={size} allSize={lines.length} onSize={changeSize} />
       </Section>
       <Section title={counted('Hook sources', m.hook_sources.length)}>
         {m.hook_sources.length === 0 ? (
@@ -352,10 +360,18 @@ function MappingsTab({ m }: { m: Mappings }) {
 
 function TransformsTab({ t }: { t: Transforms }) {
   const [offset, setOffset] = useState(0)
+  const [size, setSize] = useState(PAGE)
   const labels = Object.entries(t.labels).sort(([a], [b]) => a.localeCompare(b))
   const users = (fn: string) => labels.filter(([, f]) => f === fn).length
-  const page = labels.slice(offset, offset + PAGE)
-  useEffect(() => setOffset(0), [t.labels])
+  const page = labels.slice(offset, offset + size)
+  const changeSize = (n: number) => {
+    setSize(n)
+    setOffset(0)
+  }
+  useEffect(() => {
+    setOffset(0)
+    setSize(PAGE)
+  }, [t.labels])
   return (
     <>
       <Section title={counted('Registry', Object.keys(t.registry).length)}>
@@ -368,12 +384,12 @@ function TransformsTab({ t }: { t: Transforms }) {
         </div>
       </Section>
       <Section title={counted('Labels', labels.length)}>
-        <Table>
+        <Table className="table-fixed">
           <TableHeader>
             <TableRow>
-              <TableHead>Label</TableHead>
-              <TableHead>Function</TableHead>
-              <TableHead>Produces</TableHead>
+              <TableHead className="w-56">Label</TableHead>
+              <TableHead className="w-48">Function</TableHead>
+              <TableHead className="w-48">Produces</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -390,7 +406,7 @@ function TransformsTab({ t }: { t: Transforms }) {
             ))}
           </TableBody>
         </Table>
-        <Pager offset={offset} count={page.length} total={labels.length} onPage={setOffset} />
+        <Pager offset={offset} count={page.length} total={labels.length} onPage={setOffset} size={size} allSize={labels.length} onSize={changeSize} />
       </Section>
     </>
   )
@@ -398,20 +414,28 @@ function TransformsTab({ t }: { t: Transforms }) {
 
 function MetricsTab({ m }: { m: MetricDefinitions }) {
   const [offset, setOffset] = useState(0)
+  const [size, setSize] = useState(PAGE)
   const definitions = Object.entries(m.definitions)
-  const page = definitions.slice(offset, offset + PAGE)
-  useEffect(() => setOffset(0), [m.definitions])
+  const page = definitions.slice(offset, offset + size)
+  const changeSize = (n: number) => {
+    setSize(n)
+    setOffset(0)
+  }
+  useEffect(() => {
+    setOffset(0)
+    setSize(PAGE)
+  }, [m.definitions])
   return (
     <Section title={counted('Definitions', definitions.length)}>
-      <Table>
+      <Table className="table-fixed">
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Entity</TableHead>
-            <TableHead>Expression</TableHead>
-            <TableHead>Filter</TableHead>
-            <TableHead>Kind</TableHead>
-            <TableHead>Raw fields</TableHead>
+            <TableHead className="w-56">Name</TableHead>
+            <TableHead className="w-28">Entity</TableHead>
+            <TableHead className="w-64">Expression</TableHead>
+            <TableHead className="w-48">Filter</TableHead>
+            <TableHead className="w-64">Kind</TableHead>
+            <TableHead className="w-56">Raw fields</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -446,7 +470,7 @@ function MetricsTab({ m }: { m: MetricDefinitions }) {
                 </TableCell>
                 <TableCell className="align-top">
                   {p && p.raw_fields.length > 0 ? (
-                    <span className="flex flex-wrap gap-1">
+                    <span className="flex flex-col items-start gap-1">
                       {p.raw_fields.map((f) => (
                         <Mono key={f}>{f}</Mono>
                       ))}
@@ -460,25 +484,33 @@ function MetricsTab({ m }: { m: MetricDefinitions }) {
           })}
         </TableBody>
       </Table>
-      <Pager offset={offset} count={page.length} total={definitions.length} onPage={setOffset} />
+      <Pager offset={offset} count={page.length} total={definitions.length} onPage={setOffset} size={size} allSize={definitions.length} onSize={changeSize} />
     </Section>
   )
 }
 
 function RulesTab({ r }: { r: Rules }) {
   const [offset, setOffset] = useState(0)
+  const [size, setSize] = useState(PAGE)
   const rules = Object.entries(r.rules)
-  const page = rules.slice(offset, offset + PAGE)
-  useEffect(() => setOffset(0), [r.rules])
+  const page = rules.slice(offset, offset + size)
+  const changeSize = (n: number) => {
+    setSize(n)
+    setOffset(0)
+  }
+  useEffect(() => {
+    setOffset(0)
+    setSize(PAGE)
+  }, [r.rules])
   return (
     <Section title={counted('Rules', rules.length)}>
-      <Table>
+      <Table className="table-fixed">
         <TableHeader>
           <TableRow>
-            <TableHead>Rule</TableHead>
-            <TableHead>Entity</TableHead>
-            <TableHead>Severity</TableHead>
-            <TableHead>Conditions</TableHead>
+            <TableHead className="w-48">Rule</TableHead>
+            <TableHead className="w-28">Entity</TableHead>
+            <TableHead className="w-28">Severity</TableHead>
+            <TableHead className="w-96">Conditions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -510,26 +542,34 @@ function RulesTab({ r }: { r: Rules }) {
           ))}
         </TableBody>
       </Table>
-      <Pager offset={offset} count={page.length} total={rules.length} onPage={setOffset} />
+      <Pager offset={offset} count={page.length} total={rules.length} onPage={setOffset} size={size} allSize={rules.length} onSize={changeSize} />
     </Section>
   )
 }
 
 function GoalsTab({ g }: { g: Goals }) {
   const [offset, setOffset] = useState(0)
+  const [size, setSize] = useState(PAGE)
   const goals = Object.entries(g.goals)
-  const page = goals.slice(offset, offset + PAGE)
-  useEffect(() => setOffset(0), [g.goals])
+  const page = goals.slice(offset, offset + size)
+  const changeSize = (n: number) => {
+    setSize(n)
+    setOffset(0)
+  }
+  useEffect(() => {
+    setOffset(0)
+    setSize(PAGE)
+  }, [g.goals])
   return (
     <Section title={counted('Goals', goals.length)}>
-      <Table>
+      <Table className="table-fixed">
         <TableHeader>
           <TableRow>
-            <TableHead>Goal</TableHead>
-            <TableHead>Metric</TableHead>
-            <TableHead className="text-right">Target</TableHead>
-            <TableHead>Strategy</TableHead>
-            <TableHead>Params</TableHead>
+            <TableHead className="w-40">Goal</TableHead>
+            <TableHead className="w-40">Metric</TableHead>
+            <TableHead className="text-right w-24">Target</TableHead>
+            <TableHead className="w-32">Strategy</TableHead>
+            <TableHead className="w-64">Params</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -563,7 +603,7 @@ function GoalsTab({ g }: { g: Goals }) {
           })}
         </TableBody>
       </Table>
-      <Pager offset={offset} count={page.length} total={goals.length} onPage={setOffset} />
+      <Pager offset={offset} count={page.length} total={goals.length} onPage={setOffset} size={size} allSize={goals.length} onSize={changeSize} />
     </Section>
   )
 }

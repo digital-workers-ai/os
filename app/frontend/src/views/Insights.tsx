@@ -92,8 +92,16 @@ const goalDetail = (g: Goal): [string, unknown][] => {
 
 function GoalsTable({ goals }: { goals: Goal[] }) {
   const [offset, setOffset] = useState(0)
-  useEffect(() => setOffset(0), [goals])
-  const page = goals.slice(offset, offset + PAGE)
+  const [size, setSize] = useState(PAGE)
+  const changeSize = (n: number) => {
+    setSize(n)
+    setOffset(0)
+  }
+  useEffect(() => {
+    setOffset(0)
+    setSize(PAGE)
+  }, [goals])
+  const page = goals.slice(offset, offset + size)
   return (
     <>
       <Table>
@@ -151,7 +159,7 @@ function GoalsTable({ goals }: { goals: Goal[] }) {
           })}
         </TableBody>
       </Table>
-      <Pager offset={offset} count={page.length} total={goals.length} onPage={setOffset} />
+      <Pager offset={offset} count={page.length} total={goals.length} onPage={setOffset} size={size} allSize={goals.length} onSize={changeSize} />
     </>
   )
 }
@@ -162,6 +170,11 @@ export function Insights() {
   const [goals, setGoals] = useState<GoalsResponse | null>(null)
   const [goalsError, setGoalsError] = useState<ApiError | null>(null)
   const [findingsOffset, setFindingsOffset] = useState(0)
+  const [findingsSize, setFindingsSize] = useState(PAGE)
+  const changeFindingsSize = (n: number) => {
+    setFindingsSize(n)
+    setFindingsOffset(0)
+  }
 
   const loadRules = () =>
     get<RulesResponse>('/api/insights/rules')
@@ -184,10 +197,13 @@ export function Insights() {
     loadGoals()
   }, [])
 
-  useEffect(() => setFindingsOffset(0), [rules])
+  useEffect(() => {
+    setFindingsOffset(0)
+    setFindingsSize(PAGE)
+  }, [rules])
 
   const findings = rules ? [...rules.findings].sort(bySeverity) : []
-  const findingsPage = findings.slice(findingsOffset, findingsOffset + PAGE)
+  const findingsPage = findings.slice(findingsOffset, findingsOffset + findingsSize)
   const unreadable = Object.entries(rules?.report.unreadable ?? {})
   const unreadableTotal = unreadable.reduce((sum, [, n]) => sum + n, 0)
 
@@ -240,14 +256,14 @@ export function Insights() {
         {rules && findings.length === 0 && <Empty>no findings</Empty>}
         {findings.length > 0 && (
           <>
-            <Table>
+            <Table className="table-fixed">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Severity ({num(findings.length)})</TableHead>
-                  <TableHead>Rule</TableHead>
-                  <TableHead>Entity</TableHead>
-                  <TableHead>Company</TableHead>
-                  <TableHead>Evidence</TableHead>
+                  <TableHead className="w-20">Severity ({num(findings.length)})</TableHead>
+                  <TableHead className="w-[368px]">Rule</TableHead>
+                  <TableHead className="w-28">Entity</TableHead>
+                  <TableHead className="w-28">Company</TableHead>
+                  <TableHead className="w-60">Evidence</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -269,7 +285,15 @@ export function Insights() {
                 ))}
               </TableBody>
             </Table>
-            <Pager offset={findingsOffset} count={findingsPage.length} total={findings.length} onPage={setFindingsOffset} />
+            <Pager
+              offset={findingsOffset}
+              count={findingsPage.length}
+              total={findings.length}
+              onPage={setFindingsOffset}
+              size={findingsSize}
+              allSize={findings.length}
+              onSize={changeFindingsSize}
+            />
           </>
         )}
       </SectionCard>

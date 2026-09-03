@@ -179,6 +179,11 @@ export function Estate() {
   const [report, setReport] = useState<ReportResponse | null>(null)
   const [reportError, setReportError] = useState<ApiError | null>(null)
   const [offset, setOffset] = useState(0)
+  const [size, setSize] = useState(PAGE)
+  const changeSize = (n: number) => {
+    setSize(n)
+    setOffset(0)
+  }
 
   const loadSources = () =>
     api
@@ -203,7 +208,10 @@ export function Estate() {
     loadReport()
   }, [])
 
-  useEffect(() => setOffset(0), [sources])
+  useEffect(() => {
+    setOffset(0)
+    setSize(PAGE)
+  }, [sources])
 
   const runSync = async (only?: string[]) => {
     setSyncing(only ? only.join(',') : 'all')
@@ -238,7 +246,7 @@ export function Estate() {
   }
 
   const rows = sources?.sources ?? []
-  const page = rows.slice(offset, offset + PAGE)
+  const page = rows.slice(offset, offset + size)
 
   return (
     <Tabs value={tab} onValueChange={setTab}>
@@ -267,18 +275,18 @@ export function Estate() {
           {!sources && !sourcesError ? (
             <Empty>loading…</Empty>
           ) : (
-            <Table>
+            <Table className="table-fixed">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Source</TableHead>
-                  <TableHead>Validation</TableHead>
-                  <TableHead>Entities</TableHead>
-                  <TableHead>Last sync</TableHead>
-                  <TableHead className={NUM}>Attempts</TableHead>
-                  <TableHead>Rows</TableHead>
-                  <TableHead>Enabled</TableHead>
-                  <TableHead>Detail</TableHead>
-                  <TableHead />
+                  <TableHead className="w-64">Source</TableHead>
+                  <TableHead className="w-32">Validation</TableHead>
+                  <TableHead className="w-32">Entities</TableHead>
+                  <TableHead className="w-40">Last sync</TableHead>
+                  <TableHead className={cn(NUM, 'w-24')}>Attempts</TableHead>
+                  <TableHead className="w-64">Rows</TableHead>
+                  <TableHead className="w-24">Enabled</TableHead>
+                  <TableHead className="w-48">Detail</TableHead>
+                  <TableHead className="w-24" />
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -341,7 +349,9 @@ export function Estate() {
               </TableBody>
             </Table>
           )}
-          {rows.length > 0 && <Pager offset={offset} count={page.length} total={rows.length} onPage={setOffset} />}
+          {rows.length > 0 && (
+            <Pager offset={offset} count={page.length} total={rows.length} onPage={setOffset} size={size} allSize={rows.length} onSize={changeSize} />
+          )}
 
           {(sync || syncError) && (
             <Section title="Last sync">

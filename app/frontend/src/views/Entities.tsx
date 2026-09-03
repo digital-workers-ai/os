@@ -468,9 +468,10 @@ function Detail({
 function Canonical() {
   const [type, setType] = useState('')
   const [offset, setOffset] = useState(0)
+  const [size, setSize] = useState(PAGE)
   const [selected, setSelected] = useState<string | null>(null)
   const [trace, setTrace] = useState<Trace | null>(null)
-  const list = useGet<EntitiesResponse>(`/api/entities?${query({ entity_type: type, limit: PAGE, offset })}`)
+  const list = useGet<EntitiesResponse>(`/api/entities?${query({ entity_type: type, limit: size, offset })}`)
 
   const pick = (t: string) => {
     setType(t)
@@ -479,6 +480,10 @@ function Canonical() {
   const open = (id: string) => {
     setSelected(id)
     setTrace(null)
+  }
+  const changeSize = (n: number) => {
+    setSize(n)
+    setOffset(0)
   }
 
   const byType = Object.entries(list.data?.by_type ?? {})
@@ -506,13 +511,13 @@ function Canonical() {
         ) : rows.length === 0 ? (
           <Empty>no entities</Empty>
         ) : (
-          <Table>
+          <Table className="table-fixed">
             <TableHeader>
               <TableRow>
-                <TableHead>Type</TableHead>
-                <TableHead>Anchor</TableHead>
-                <TableHead className={NUM}>Members</TableHead>
-                <TableHead>Id</TableHead>
+                <TableHead className="w-28">Type</TableHead>
+                <TableHead className="w-64">Anchor</TableHead>
+                <TableHead className={cn(NUM, 'w-24')}>Members</TableHead>
+                <TableHead className="w-32">Id</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -543,7 +548,17 @@ function Canonical() {
             </TableBody>
           </Table>
         )}
-        {list.data && <Pager offset={offset} count={rows.length} total={list.data.total} onPage={setOffset} />}
+        {list.data && (
+          <Pager
+            offset={offset}
+            count={rows.length}
+            total={list.data.total}
+            onPage={setOffset}
+            size={size}
+            allSize={Math.min(list.data.total, 500)}
+            onSize={changeSize}
+          />
+        )}
       </SectionCard>
       {selected ? (
         <Detail id={selected} trace={trace} onOpen={open} onTrace={setTrace} />
@@ -560,16 +575,26 @@ function RawSide() {
   const [type, setType] = useState('')
   const [source, setSource] = useState('')
   const [offset, setOffset] = useState(0)
-  const records = useGet<RecordsResponse>(`/api/records?${query({ entity_type: type, source, limit: PAGE, offset })}`)
+  const [size, setSize] = useState(PAGE)
+  const records = useGet<RecordsResponse>(`/api/records?${query({ entity_type: type, source, limit: size, offset })}`)
+  const changeSize = (n: number) => {
+    setSize(n)
+    setOffset(0)
+  }
 
   const [rawSource, setRawSource] = useState('')
   const [rawType, setRawType] = useState('')
   const [rawOffset, setRawOffset] = useState(0)
+  const [rawSize, setRawSize] = useState(PAGE)
   const [want, setWant] = useState<string | null>(null)
   const [picked, setPicked] = useState<RawEvent | null>(null)
   const raw = useGet<RawResponse>(
-    `/api/raw?${query({ source: rawSource, object_type: rawType, limit: PAGE, offset: rawOffset })}`,
+    `/api/raw?${query({ source: rawSource, object_type: rawType, limit: rawSize, offset: rawOffset })}`,
   )
+  const changeRawSize = (n: number) => {
+    setRawSize(n)
+    setRawOffset(0)
+  }
 
   useEffect(() => {
     if (!want || !raw.data) return
@@ -628,20 +653,20 @@ function RawSide() {
         ) : rows.length === 0 ? (
           <Empty>no records</Empty>
         ) : (
-          <Table>
+          <Table className="table-fixed">
             <TableHeader>
               <TableRow>
-                <TableHead>Source</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Source id</TableHead>
-                <TableHead>Object type</TableHead>
-                <TableHead>Facts</TableHead>
+                <TableHead className="w-28">Source</TableHead>
+                <TableHead className="w-28">Type</TableHead>
+                <TableHead className="w-40">Source id</TableHead>
+                <TableHead className="w-32">Object type</TableHead>
+                <TableHead className="w-80">Facts</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map((r) => (
+              {rows.map((r, i) => (
                 <TableRow
-                  key={`${r.source}|${r.object_type}|${r.source_id}`}
+                  key={`${r.source}|${r.object_type}|${r.source_id}|${i}`}
                   className={ROW}
                   data-state={picked?.source === r.source && picked?.source_id === r.source_id ? 'selected' : undefined}
                   aria-selected={picked?.source === r.source && picked?.source_id === r.source_id}
@@ -669,7 +694,17 @@ function RawSide() {
             </TableBody>
           </Table>
         )}
-        {records.data && <Pager offset={offset} count={rows.length} total={records.data.total} onPage={setOffset} />}
+        {records.data && (
+          <Pager
+            offset={offset}
+            count={rows.length}
+            total={records.data.total}
+            onPage={setOffset}
+            size={size}
+            allSize={Math.min(records.data.total, 500)}
+            onSize={changeSize}
+          />
+        )}
       </SectionCard>
       <SectionCard title={`Raw events${raw.data ? ` (${num(raw.data.total)})` : ''}`} className="min-w-0">
         <ErrorBanner error={raw.error} className="mb-3" />
@@ -698,15 +733,15 @@ function RawSide() {
         ) : events.length === 0 ? (
           <Empty>no raw events</Empty>
         ) : (
-          <Table>
+          <Table className="table-fixed">
             <TableHeader>
               <TableRow>
-                <TableHead className={NUM}>Seq</TableHead>
-                <TableHead>Source</TableHead>
-                <TableHead>Object type</TableHead>
-                <TableHead>Source id</TableHead>
-                <TableHead>Ingested</TableHead>
-                <TableHead>Id</TableHead>
+                <TableHead className={cn(NUM, 'w-20')}>Seq</TableHead>
+                <TableHead className="w-28">Source</TableHead>
+                <TableHead className="w-32">Object type</TableHead>
+                <TableHead className="w-40">Source id</TableHead>
+                <TableHead className="w-32">Ingested</TableHead>
+                <TableHead className="w-28">Id</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -739,7 +774,17 @@ function RawSide() {
             </TableBody>
           </Table>
         )}
-        {raw.data && <Pager offset={rawOffset} count={events.length} total={raw.data.total} onPage={setRawOffset} />}
+        {raw.data && (
+          <Pager
+            offset={rawOffset}
+            count={events.length}
+            total={raw.data.total}
+            onPage={setRawOffset}
+            size={rawSize}
+            allSize={Math.min(raw.data.total, 500)}
+            onSize={changeRawSize}
+          />
+        )}
         <Section title="Payload">{picked ? <RawEventView event={picked} /> : <Empty>select a raw event</Empty>}</Section>
       </SectionCard>
     </div>

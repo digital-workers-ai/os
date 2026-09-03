@@ -37,7 +37,7 @@ export function Chip({ title, className, children }: { title?: string; className
     <span
       title={title}
       className={cn(
-        'inline-block rounded-full border border-dbb-warm px-2 py-0.5 text-[11px] text-dbb-muted [&_strong]:font-medium [&_strong]:text-dbb-charcoal',
+        'inline-block break-all rounded-full border border-dbb-warm px-2 py-0.5 text-[11px] text-dbb-muted [&_strong]:font-medium [&_strong]:text-dbb-charcoal',
         className,
       )}
     >
