@@ -273,7 +273,7 @@ export function Metrics() {
                   <TableHead className="w-56">Metric</TableHead>
                   <TableHead className="w-24 text-right">Value</TableHead>
                   <TableHead className="w-28 text-right">Entities</TableHead>
-                  <TableHead className="w-56">Provenance</TableHead>
+                  <TableHead className="w-56">Inferred</TableHead>
                   <TableHead className="w-56">Unavailable</TableHead>
                 </TableRow>
               </TableHeader>
@@ -288,21 +288,15 @@ export function Metrics() {
                   >
                     <TableCell>
                       <span className="block font-medium text-dbb-charcoal">{m.label}</span>
-                      <Mono className="block">
-                        {name}
-                        {m.entity && ` · ${m.entity}`}
-                      </Mono>
+                      <Mono className="block">{name}</Mono>
+                      {m.entity && <Mono className="block">{m.entity}</Mono>}
                     </TableCell>
                     <TableCell className="text-right tabular-nums text-dbb-charcoal">
                       <Value value={m.value} />
                     </TableCell>
                     <TableCell className="text-right tabular-nums">{m.entities === undefined ? '—' : num(m.entities)}</TableCell>
                     <TableCell>
-                      {m.inferred ? (
-                        <Inferred reading={m.reading} sha={m.vocabulary_sha} producedBy={m.produced_by?.join(', ') || null} />
-                      ) : (
-                        <Pill tone="neutral">measured</Pill>
-                      )}
+                      {m.inferred && <Inferred reading={m.reading} sha={m.vocabulary_sha} producedBy={m.produced_by?.join(', ') || null} />}
                     </TableCell>
                     <TableCell>
                       <Unavailable row={m} />
