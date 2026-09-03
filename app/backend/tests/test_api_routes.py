@@ -19,6 +19,7 @@ from app.models import (
     Entity,
     EntityFact,
     RawEvent,
+    SyncRun,
 )
 from app.sources import hooks
 
@@ -95,6 +96,7 @@ class TestOffsetsThatReachTheDriver:
             ("/api/entities", "entities"),
             ("/api/enrichment", "facts"),
             ("/api/conversation/conversations", "conversations"),
+            ("/api/sync/runs", "runs"),
         ],
     )
     async def test_the_largest_legal_offset_is_accepted_everywhere(
@@ -220,6 +222,82 @@ class TestTheSyncEndpointHandlesItsOwnAdvertisedInputs:
         response = await api.post("/api/sync", json={"sources": sources})
         assert response.status_code == 422
         assert "must be a list" in response.json()["detail"]
+
+
+class TestSyncRuns:
+    def _run(
+        self, source="hubspot", ok=True, rows_written=0, detail=None, minutes_ago=0
+    ):
+        return SyncRun(
+            source=source,
+            ok=ok,
+            rows_written=rows_written,
+            detail=detail,
+            started_at=SEEN - timedelta(minutes=minutes_ago),
+        )
+
+    async def test_an_empty_estate_is_zero_runs_not_an_error(self, api):
+        body = (await api.get("/api/sync/runs")).json()
+        assert body == {"total": 0, "limit": 50, "offset": 0, "runs": []}
+
+    async def test_runs_are_listed_newest_first_with_every_column(self, api, session):
+        session.add(self._run(ok=False, detail="provider is down", minutes_ago=30))
+        session.add(self._run(source="stripe", rows_written=2, minutes_ago=20))
+        session.add(self._run(rows_written=5, minutes_ago=10))
+        await session.flush()
+        body = (await api.get("/api/sync/runs")).json()
+        assert body["total"] == 3
+        rows = body["runs"]
+        assert [(r["source"], r["rows_written"]) for r in rows] == [
+            ("hubspot", 5),
+            ("stripe", 2),
+            ("hubspot", 0),
+        ]
+        assert set(rows[0]) == {
+            "id",
+            "source",
+            "ok",
+            "rows_written",
+            "detail",
+            "started_at",
+        }
+        assert rows[0]["started_at"] == (SEEN - timedelta(minutes=10)).isoformat()
+        assert rows[2]["ok"] is False
+        assert rows[2]["detail"] == "provider is down"
+
+    async def test_runs_that_share_an_instant_come_back_in_a_stable_order(
+        self, api, session
+    ):
+        twins = [self._run(minutes_ago=5) for _ in range(2)]
+        session.add_all(twins)
+        await session.flush()
+        served = [r["id"] for r in (await api.get("/api/sync/runs")).json()["runs"]]
+        assert served == sorted(str(t.id) for t in twins)
+
+    async def test_the_source_filter_narrows_rows_and_the_count_together(
+        self, api, session
+    ):
+        session.add(self._run(minutes_ago=10))
+        session.add(self._run(source="stripe", minutes_ago=20))
+        session.add(self._run(minutes_ago=30))
+        await session.flush()
+        body = (await api.get("/api/sync/runs?source=stripe")).json()
+        assert body["total"] == 1
+        assert [r["source"] for r in body["runs"]] == ["stripe"]
+
+    async def test_paging_walks_without_repeating(self, api, session):
+        for n in range(3):
+            session.add(self._run(minutes_ago=n))
+        await session.flush()
+        first = (await api.get("/api/sync/runs?limit=2&offset=0")).json()
+        second = (await api.get("/api/sync/runs?limit=2&offset=2")).json()
+        assert len(first["runs"]) == 2 and len(second["runs"]) == 1
+        ids = {r["id"] for r in first["runs"] + second["runs"]}
+        assert len(ids) == 3
+
+    @pytest.mark.parametrize("query", ["limit=0", "limit=501", "offset=-1"])
+    async def test_out_of_range_paging_is_refused_not_clamped(self, api, query):
+        assert (await api.get(f"/api/sync/runs?{query}")).status_code == 422
 
 
 def _entity(entity_type="company", source="hubspot", source_id="c1", first_seq=1):
@@ -889,6 +967,7 @@ class TestNullBytesInQueryParameters:
         "/api/entities?entity_type=%00",
         "/api/metrics/history?metric=%00",
         "/api/enrichment?attr=%00",
+        "/api/sync/runs?source=%00",
     ]
 
     @pytest.mark.parametrize("route", ROUTES)
