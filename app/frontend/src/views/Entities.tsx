@@ -1,7 +1,5 @@
 import { useEffect, useState, type MouseEvent } from 'react'
-import { createPortal } from 'react-dom'
 import { asApiError, get, type ApiError } from '@/api'
-import { HEADING_RIGHT_ID } from '@/components/Layout'
 import { SectionCard } from '@/components/SectionCard'
 import { Section } from '@/components/SectionHeading'
 import { ErrorBanner } from '@/components/ui/banner'
@@ -136,7 +134,6 @@ const SPLIT_FILL = 'grid items-start gap-6 lg:grid-cols-[1.02fr_1.18fr] lg:grid-
 const FILL = 'min-w-0 lg:flex lg:flex-col lg:max-h-full'
 const BODY = 'lg:min-h-0 lg:overflow-y-auto lg:-mx-6 lg:px-6 lg:-mb-6 lg:pb-6 lg:rounded-b-xl'
 const STICKY_HEAD = '[&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-card [&_th]:shadow-[inset_0_-1px_0_theme(colors.dbb.warm)]'
-const TOGGLE = 'h-6 rounded-md px-2.5 py-0 text-xs after:hidden data-[state=active]:bg-white data-[state=active]:shadow-sm'
 
 const counted = (label: string, n: number) => `${label} · ${num(n)}`
 
@@ -777,28 +774,16 @@ function RawSide() {
 }
 
 export function Entities() {
-  const [slot, setSlot] = useState<HTMLElement | null>(null)
-  useEffect(() => {
-    setSlot(document.getElementById(HEADING_RIGHT_ID))
-  }, [])
   return (
     <Tabs defaultValue="canonical" className={PAGE_FILL}>
-      {slot &&
-        createPortal(
-          <TabsList className="gap-0.5 rounded-lg border-0 bg-dbb-sand p-0.5">
-            <TabsTrigger value="canonical" className={TOGGLE}>
-              Canonical
-            </TabsTrigger>
-            <TabsTrigger value="raw" className={TOGGLE}>
-              Raw side
-            </TabsTrigger>
-          </TabsList>,
-          slot,
-        )}
-      <TabsContent value="canonical" className="mt-0 lg:min-h-0 lg:flex-1">
+      <TabsList className="shrink-0">
+        <TabsTrigger value="canonical">Canonical</TabsTrigger>
+        <TabsTrigger value="raw">Raw side</TabsTrigger>
+      </TabsList>
+      <TabsContent value="canonical" className="lg:min-h-0 lg:flex-1">
         <Canonical />
       </TabsContent>
-      <TabsContent value="raw" className="mt-0 lg:min-h-0 lg:flex-1">
+      <TabsContent value="raw" className="lg:min-h-0 lg:flex-1">
         <RawSide />
       </TabsContent>
     </Tabs>
