@@ -62,7 +62,7 @@ interface Series {
 }
 
 const SPLIT = 'grid items-start gap-6 lg:grid-cols-[0.65fr_0.35fr]'
-const FILL = 'lg:flex lg:flex-col lg:max-h-[calc(100vh-11.25rem-1px)]'
+const FILL = 'lg:flex lg:flex-col lg:max-h-[calc(100vh-12.75rem-1px)]'
 const BODY = 'lg:min-h-0 lg:overflow-y-auto'
 
 const recordedAt = (iso: string) => {
@@ -201,12 +201,7 @@ export function Metrics() {
 
   return (
     <div className={SPLIT}>
-      <SectionCard
-        title={`Metrics${metrics ? ` (${rows.length})` : ''}`}
-        description="click a metric to open its series"
-        className={FILL}
-        bodyClassName={BODY}
-      >
+      <SectionCard className={FILL} bodyClassName={BODY}>
         <ErrorBanner error={metricsError} className="mb-3" />
         {!metrics && !metricsError ? (
           <Empty>loading…</Empty>
@@ -260,7 +255,7 @@ export function Metrics() {
       </SectionCard>
 
       {selected ? (
-        <SectionCard title={`Series — ${row?.label ?? selected}`} className={`min-w-0 ${FILL}`} bodyClassName={BODY}>
+        <SectionCard title={row?.label ?? selected} className={`min-w-0 ${FILL}`} bodyClassName={BODY}>
           <ErrorBanner error={seriesError} className="mb-3" />
           {row?.error && (
             <Banner tone="err" className="mb-3">

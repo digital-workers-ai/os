@@ -14,6 +14,7 @@ export interface RouteDef {
   icon: LucideIcon
   end?: boolean
   title: string
+  description?: string
   view: ComponentType
 }
 
@@ -31,6 +32,7 @@ export const ROUTES: RouteDef[] = [
     label: 'Metrics',
     icon: ChartColumn,
     title: 'Metrics',
+    description: 'click a metric to open its series',
     view: Metrics,
   },
   {
