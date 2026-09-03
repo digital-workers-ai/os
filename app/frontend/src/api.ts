@@ -98,6 +98,22 @@ export interface SyncResponse {
   results: SyncResult[]
 }
 
+export interface SyncRun {
+  id: string
+  source: string
+  ok: boolean
+  rows_written: number
+  detail: string | null
+  started_at: string
+}
+
+export interface SyncRunsResponse {
+  total: number
+  limit: number
+  offset: number
+  runs: SyncRun[]
+}
+
 export interface MatchRate {
   candidates: number
   matched: number
@@ -154,6 +170,11 @@ export const api = {
   health: () => get<Health>('/api/health'),
   sources: () => get<SourcesResponse>('/api/sources'),
   sync: (sources?: string[]) => post<SyncResponse>('/api/sync', sources ? { sources } : {}),
+  syncRuns: (source: string, limit: number, offset: number) => {
+    const params = new URLSearchParams({ limit: String(limit), offset: String(offset) })
+    if (source) params.set('source', source)
+    return get<SyncRunsResponse>(`/api/sync/runs?${params}`)
+  },
   rebuild: () => post<RebuildResponse>('/api/rebuild'),
   report: () => get<ReportResponse>('/api/report'),
 }

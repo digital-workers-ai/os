@@ -1,3 +1,4 @@
+import './Estate.css'
 import { useEffect, useState } from 'react'
 import {
   api,
@@ -12,6 +13,7 @@ import {
 import { Json } from '../components/Json'
 import { Empty, Panel, num, relTime } from '../components/Panel'
 import { Status } from '../components/Status'
+import { Activity } from './estate/Activity'
 
 const validationClass = (v: string) =>
   v === 'provider-validated' ? 'ok' : v === 'mock-validated' ? 'warn' : ''
@@ -182,6 +184,8 @@ export function Estate() {
   const [syncing, setSyncing] = useState<string | null>(null)
   const [sync, setSync] = useState<SyncResponse | null>(null)
   const [syncError, setSyncError] = useState<ApiError | null>(null)
+  const [synced, setSynced] = useState(0)
+  const [activitySource, setActivitySource] = useState('')
   const [rebuilding, setRebuilding] = useState(false)
   const [rebuild, setRebuild] = useState<RebuildResponse | null>(null)
   const [rebuildError, setRebuildError] = useState<ApiError | null>(null)
@@ -220,6 +224,7 @@ export function Estate() {
       setSyncError(asApiError(e))
     } finally {
       setSyncing(null)
+      setSynced((n) => n + 1)
       loadSources()
     }
   }
@@ -276,7 +281,12 @@ export function Estate() {
                 return (
                   <tr key={r.source}>
                     <td>
-                      <strong>{r.label}</strong> <code className="dim">{r.source}</code>
+                      <strong>
+                        <button className="link-btn" title="show activity" onClick={() => setActivitySource(r.source)}>
+                          {r.label}
+                        </button>
+                      </strong>{' '}
+                      <code className="dim">{r.source}</code>
                     </td>
                     <td>
                       <span className={'pill ' + validationClass(r.validation)}>{r.validation}</span>
@@ -324,6 +334,8 @@ export function Estate() {
           </table>
         )}
       </Panel>
+
+      <Activity sources={rows} source={activitySource} onSource={setActivitySource} tick={synced} />
 
       {(sync || syncError) && (
         <Panel title="Last sync">
