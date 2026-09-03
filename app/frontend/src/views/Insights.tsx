@@ -1,11 +1,16 @@
-import { useEffect, useState, type ReactNode } from 'react'
-import { asApiError, get, type ApiError } from '../api'
+import { useEffect, useState } from 'react'
+import { asApiError, get, type ApiError } from '@/api'
+import { Inferred } from '@/components/Inferred'
 import { SectionCard } from '@/components/SectionCard'
+import { ErrorBanner } from '@/components/ui/banner'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { Empty } from '@/components/ui/empty'
+import { Mono } from '@/components/ui/mono'
+import { Chip, Pill, type Tone } from '@/components/ui/pill'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { cn } from '@/lib/utils'
+import { num, plural, relTime } from '@/lib/format'
 
 interface Finding {
   rule: string
@@ -68,34 +73,11 @@ interface GoalsResponse {
   unknown: number
 }
 
-const num = (n: number) => n.toLocaleString()
-const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`
-
-const relTime = (iso: string) => {
-  const then = new Date(iso).getTime()
-  if (Number.isNaN(then)) return 'never'
-  const secs = Math.max(0, Math.round((Date.now() - then) / 1000))
-  if (secs < 60) return `${secs}s ago`
-  if (secs < 3600) return `${Math.round(secs / 60)}m ago`
-  if (secs < 86400) return `${Math.round(secs / 3600)}h ago`
-  return `${Math.round(secs / 86400)}d ago`
-}
-
 const SEVERITIES = ['high', 'medium', 'low']
 const severityRank = (s: string) => (SEVERITIES.includes(s) ? SEVERITIES.indexOf(s) : SEVERITIES.length)
 
 const bySeverity = (a: Finding, b: Finding) =>
   severityRank(a.severity) - severityRank(b.severity) || a.rule.localeCompare(b.rule) || a.anchor.localeCompare(b.anchor)
-
-type Tone = 'ok' | 'warn' | 'err' | 'unknown' | 'neutral'
-
-const TONES: Record<Tone, string> = {
-  ok: 'bg-dbb-up/10 text-dbb-up',
-  warn: 'bg-amber-50 text-amber-800',
-  err: 'bg-dbb-clay/10 text-dbb-clay',
-  unknown: 'border border-dashed border-dbb-warm text-dbb-muted',
-  neutral: 'bg-dbb-sand text-dbb-charcoal',
-}
 
 const severityTone = (s: string): Tone => (s === 'high' ? 'err' : s === 'medium' ? 'warn' : 'neutral')
 const verdictOf = (met: boolean | null) => (met === null ? 'unknown' : met ? 'met' : 'missed')
@@ -109,46 +91,14 @@ const describe = (c: Condition) =>
 const formatValue = (v: unknown) =>
   Array.isArray(v) ? v.map((n) => (typeof n === 'number' ? num(n) : String(n))).join(' – ') : typeof v === 'number' ? num(v) : String(v)
 
-function Pill({ tone, children }: { tone: Tone; children: ReactNode }) {
-  return <span className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium', TONES[tone])}>{children}</span>
-}
-
-function Chip({ className, children }: { className?: string; children: ReactNode }) {
-  return <span className={cn('inline-flex items-center rounded-full border border-dbb-warm px-2 py-0.5 text-[11px] text-dbb-muted', className)}>{children}</span>
-}
-
 function Chips({ entries }: { entries: [string, unknown][] }) {
   return (
     <span className="inline-flex flex-wrap gap-1">
       {entries.map(([k, v]) => (
         <Chip key={k}>
-          {k}=<span className="font-medium text-dbb-charcoal">{formatValue(v)}</span>
+          {k}=<strong>{formatValue(v)}</strong>
         </Chip>
       ))}
-    </span>
-  )
-}
-
-function ErrorLine({ error }: { error: ApiError | null }) {
-  if (!error) return null
-  return (
-    <p role="alert" className="mb-3 text-sm text-dbb-clay">
-      <span className="font-mono text-xs">{error.status || 'network'}</span> {error.detail}
-    </p>
-  )
-}
-
-function Muted({ children }: { children: ReactNode }) {
-  return <p className="text-sm text-dbb-muted">{children}</p>
-}
-
-function Inferred({ reading, sha, producedBy }: { reading?: string; sha?: string; producedBy?: string }) {
-  return (
-    <span className="inline-flex flex-wrap items-center gap-1.5">
-      <Pill tone="warn">inferred</Pill>
-      {reading && <span className="font-mono text-xs text-dbb-charcoal">{reading}</span>}
-      {sha && <span className="font-mono text-xs text-dbb-muted">{sha.slice(0, 12)}</span>}
-      {producedBy && <span className="font-mono text-xs text-dbb-muted">{producedBy}</span>}
     </span>
   )
 }
@@ -163,7 +113,7 @@ function GoalCard({ g }: { g: Goal }) {
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <div className="text-sm font-semibold leading-snug text-dbb-charcoal">{g.label}</div>
-          <div className="mt-0.5 font-mono text-[11px] text-dbb-muted">{g.goal}</div>
+          <Mono className="mt-0.5 block text-[11px] text-dbb-muted">{g.goal}</Mono>
         </div>
         <Pill tone={verdictTone(g.met)}>{verdictOf(g.met)}</Pill>
       </div>
@@ -212,7 +162,7 @@ function Definitions({ defs }: { defs: DefinitionsResponse }) {
         {Object.entries(defs.rules).map(([name, r]) => (
           <TableRow key={name}>
             <TableCell>
-              <span className="font-medium text-dbb-charcoal">{r.label}</span> <span className="font-mono text-xs">{name}</span>
+              <span className="font-medium text-dbb-charcoal">{r.label}</span> <Mono>{name}</Mono>
             </TableCell>
             <TableCell>{r.entity}</TableCell>
             <TableCell>
@@ -222,12 +172,12 @@ function Definitions({ defs }: { defs: DefinitionsResponse }) {
               <span className="inline-flex flex-wrap gap-1">
                 {r.all.flatMap(describe).map((text) => (
                   <Chip key={'all ' + text}>
-                    all: <span className="ml-1 font-medium text-dbb-charcoal">{text}</span>
+                    all: <strong>{text}</strong>
                   </Chip>
                 ))}
                 {r.any.flatMap(describe).map((text) => (
                   <Chip key={'any ' + text}>
-                    any: <span className="ml-1 font-medium text-dbb-charcoal">{text}</span>
+                    any: <strong>{text}</strong>
                   </Chip>
                 ))}
               </span>
@@ -297,11 +247,11 @@ export function Insights() {
             Refresh
           </Button>
         </div>
-        <ErrorLine error={goalsError} />
-        {!goals && !goalsError && <Muted>loading…</Muted>}
-        {goals && goals.goals.length === 0 && <Muted>no goals defined</Muted>}
+        <ErrorBanner error={goalsError} className="mb-3" />
+        {!goals && !goalsError && <Empty>loading…</Empty>}
+        {goals && goals.goals.length === 0 && <Empty>no goals defined</Empty>}
         {goals && goals.goals.length > 0 && (
-          <div className="flex flex-col gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {goals.goals.map((g) => (
               <GoalCard key={g.goal} g={g} />
             ))}
@@ -317,13 +267,13 @@ export function Insights() {
           </Button>
         }
       >
-        <ErrorLine error={rulesError} />
+        <ErrorBanner error={rulesError} className="mb-3" />
         {rules && (
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <Muted>
+            <p className="text-sm text-dbb-muted">
               {plural(rules.rules, 'rule')} over {num(rules.report.evaluated)} entities · as of{' '}
-              <span className="font-mono text-xs text-dbb-charcoal">{rules.as_of}</span> ({relTime(rules.as_of)})
-            </Muted>
+              <Mono className="text-dbb-charcoal">{rules.as_of}</Mono> ({relTime(rules.as_of)})
+            </p>
             <div className="flex flex-wrap gap-1.5">
               {Object.entries(rules.by_severity).map(([s, n]) => (
                 <Pill key={s} tone={severityTone(s)}>
@@ -349,8 +299,8 @@ export function Insights() {
             <TabsTrigger value="definitions">Rule definitions{defs ? ` (${Object.keys(defs.rules).length})` : ''}</TabsTrigger>
           </TabsList>
           <TabsContent value="findings">
-            {!rules && !rulesError && <Muted>loading…</Muted>}
-            {rules && findings.length === 0 && <Muted>no findings</Muted>}
+            {!rules && !rulesError && <Empty>loading…</Empty>}
+            {rules && findings.length === 0 && <Empty>no findings</Empty>}
             {findings.length > 0 && (
               <Table>
                 <TableHeader>
@@ -370,7 +320,7 @@ export function Insights() {
                         <Pill tone={severityTone(f.severity)}>{f.severity}</Pill>
                       </TableCell>
                       <TableCell>
-                        <span className="font-medium text-dbb-charcoal">{f.label}</span> <span className="font-mono text-xs">{f.rule}</span>
+                        <span className="font-medium text-dbb-charcoal">{f.label}</span> <Mono>{f.rule}</Mono>
                       </TableCell>
                       <TableCell>{f.entity_type}</TableCell>
                       <TableCell className="whitespace-nowrap font-mono text-xs">{f.anchor}</TableCell>
@@ -385,8 +335,8 @@ export function Insights() {
             )}
           </TabsContent>
           <TabsContent value="definitions">
-            <ErrorLine error={defsError} />
-            {!defs && !defsError && <Muted>loading…</Muted>}
+            <ErrorBanner error={defsError} className="mb-3" />
+            {!defs && !defsError && <Empty>loading…</Empty>}
             {defs && <Definitions defs={defs} />}
           </TabsContent>
         </Tabs>

@@ -1,10 +1,15 @@
 import { useState } from 'react'
-import { asApiError, get, post, type ApiError } from '../../api'
+import { asApiError, get, post, type ApiError } from '@/api'
 import { SectionCard } from '@/components/SectionCard'
+import { ErrorBanner } from '@/components/ui/banner'
 import { Button } from '@/components/ui/button'
+import { Empty } from '@/components/ui/empty'
 import { Input } from '@/components/ui/input'
+import { Mono } from '@/components/ui/mono'
+import { Chip, Pill } from '@/components/ui/pill'
+import { num, relTime, short } from '@/lib/format'
 import { cn } from '@/lib/utils'
-import { Chip, Empty, Fail, LayerOff, Mono, Pill, num, relTime, useLoad } from './shared'
+import { LayerOff, useLoad } from './shared'
 
 interface Thread {
   conversation_id: string
@@ -106,10 +111,7 @@ function Conversation({ id, onAsked }: { id: string; onAsked: () => void }) {
 
   return (
     <div className="space-y-4">
-      <p className="break-all text-xs text-dbb-muted">
-        thread <Mono>{id}</Mono>
-      </p>
-      <Fail error={transcript.error} />
+      <ErrorBanner error={transcript.error} />
       {transcript.loading && <Empty>loading…</Empty>}
       {transcript.data && turns.length === 0 && <Empty>no turns yet</Empty>}
       {turns.length > 0 && (
@@ -166,7 +168,7 @@ export function Ask() {
   const rows = threads.data?.conversations ?? []
 
   return (
-    <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[260px_1fr]">
+    <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
       <SectionCard
         title="Threads"
         headerRight={
@@ -176,7 +178,7 @@ export function Ask() {
         }
       >
         <div className="space-y-2">
-          <Fail error={threads.error} />
+          <ErrorBanner error={threads.error} />
           <LayerOff error={createError} />
           {threads.loading && <Empty>loading…</Empty>}
           {threads.data && rows.length === 0 && <Empty>no threads yet</Empty>}
@@ -192,7 +194,7 @@ export function Ask() {
                   t.conversation_id === selected && 'bg-dbb-sand',
                 )}
               >
-                <span className="font-mono text-xs text-dbb-charcoal">{t.conversation_id.slice(0, 8)}</span>
+                <Mono className="text-dbb-charcoal">{short(t.conversation_id)}</Mono>
                 <span className="text-xs text-dbb-muted" title={t.updated_at}>
                   {relTime(t.updated_at)}
                 </span>
@@ -201,7 +203,17 @@ export function Ask() {
           </div>
         </div>
       </SectionCard>
-      <SectionCard title="Conversation" className="min-w-0">
+      <SectionCard
+        title="Conversation"
+        description={
+          selected && (
+            <>
+              thread <Mono className="break-all">{selected}</Mono>
+            </>
+          )
+        }
+        className="min-w-0"
+      >
         {selected ? <Conversation key={selected} id={selected} onAsked={threads.reload} /> : <Empty>pick a thread, or start a new one</Empty>}
       </SectionCard>
     </div>

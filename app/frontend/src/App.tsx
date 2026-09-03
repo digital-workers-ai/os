@@ -8,20 +8,14 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Layout />}>
-          {ROUTES.map(({ to, title, subtitle, view: View, legacy }) => (
+          {ROUTES.map(({ to, title, subtitle, view: View }) => (
             <Route
               key={to}
               path={to}
               element={
                 <>
                   <PageHeader title={title} subtitle={subtitle} />
-                  {legacy ? (
-                    <div className="legacy">
-                      <View />
-                    </div>
-                  ) : (
-                    <View />
-                  )}
+                  <View />
                 </>
               }
             />

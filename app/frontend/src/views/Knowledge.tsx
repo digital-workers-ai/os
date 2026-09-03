@@ -1,10 +1,15 @@
 import { useState, type ReactNode } from 'react'
-import { get } from '../api'
+import { get } from '@/api'
 import { SectionCard } from '@/components/SectionCard'
+import { ErrorBanner } from '@/components/ui/banner'
+import { Empty } from '@/components/ui/empty'
+import { Mono } from '@/components/ui/mono'
+import { Chip, Pill } from '@/components/ui/pill'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ALL, Chip, Empty, Enabled, Fail, Mono, Pill, num, short, useLoad } from './inference/shared'
+import { num, short } from '@/lib/format'
+import { ALL, Enabled, useLoad } from './inference/shared'
 
 interface EntitySpec {
   identity: string[]
@@ -128,7 +133,7 @@ function Loaded<T>({
   count: (d: T) => string
   children: (d: T) => ReactNode
 }) {
-  if (got.error) return <Fail error={got.error} />
+  if (got.error) return <ErrorBanner error={got.error} />
   if (!got.data) return <Empty>loading…</Empty>
   return (
     <div className="space-y-4">
@@ -181,7 +186,7 @@ function OntologyTab({ o }: { o: Ontology }) {
       </div>
       <div className="space-y-2">
         <Heading count={entities.length}>Entities</Heading>
-        <div className="flex flex-col gap-4 md:grid md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {entities.map(([name, spec]) => (
             <div key={name} className="rounded-lg border border-dbb-warm p-3">
               <Heading count={Object.keys(spec.attrs).length}>{name}</Heading>
@@ -192,7 +197,7 @@ function OntologyTab({ o }: { o: Ontology }) {
                       <TableCell className="py-1 font-mono text-xs text-dbb-charcoal">
                         <span className="inline-flex items-center gap-1.5">
                           {attr}
-                          {spec.identity.includes(attr) && <Pill tone="up">identity</Pill>}
+                          {spec.identity.includes(attr) && <Pill tone="ok">identity</Pill>}
                         </span>
                       </TableCell>
                       <TableCell className="py-1">{type}</TableCell>
@@ -384,7 +389,7 @@ function MetricsTab({ m }: { m: MetricDefinitions }) {
                     )}
                   </span>
                 ) : (
-                  <Pill tone="up">observed</Pill>
+                  <Pill tone="ok">observed</Pill>
                 )}
               </TableCell>
               <TableCell className="align-top">
@@ -432,7 +437,7 @@ function EnrichmentTab({ v }: { v: Vocabulary }) {
               </Mono>
             </span>
             <span>
-              sha <Mono title={r.sha}>{short(r.sha)}</Mono>
+              sha <Mono title={r.sha}>{short(r.sha, 12)}</Mono>
             </span>
           </div>
           <p className="max-w-prose text-sm text-dbb-muted">{r.description}</p>

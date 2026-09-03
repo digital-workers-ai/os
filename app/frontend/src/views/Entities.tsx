@@ -1,11 +1,16 @@
-import { useEffect, useState, type MouseEvent, type ReactNode } from 'react'
+import { useEffect, useState, type MouseEvent } from 'react'
 import { asApiError, get, type ApiError } from '@/api'
 import { SectionCard } from '@/components/SectionCard'
-import { Button } from '@/components/ui/button'
+import { ErrorBanner } from '@/components/ui/banner'
+import { Empty } from '@/components/ui/empty'
 import { Input } from '@/components/ui/input'
+import { Mono } from '@/components/ui/mono'
+import { PAGE, Pager } from '@/components/ui/pager'
+import { FilterChip, Pill } from '@/components/ui/pill'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { num, relTime, short } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 interface EntityRow {
@@ -105,30 +110,14 @@ interface Trace {
   objectType?: string
 }
 
-const PAGE = 50
 const SCAN = 500
 const ALL = '*'
-
-const num = (n: number) => n.toLocaleString()
-
-function relTime(iso: string | null): string {
-  if (!iso) return 'never'
-  const then = new Date(iso).getTime()
-  if (Number.isNaN(then)) return 'never'
-  const secs = Math.max(0, Math.round((Date.now() - then) / 1000))
-  if (secs < 60) return `${secs}s ago`
-  if (secs < 3600) return `${Math.round(secs / 60)}m ago`
-  if (secs < 86400) return `${Math.round(secs / 3600)}h ago`
-  return `${Math.round(secs / 86400)}d ago`
-}
 
 const query = (params: Record<string, string | number | undefined>) =>
   Object.entries(params)
     .filter(([, v]) => v !== undefined && v !== '')
     .map(([k, v]) => `${k}=${encodeURIComponent(String(v))}`)
     .join('&')
-
-const short = (id: string) => id.slice(0, 8) + '…'
 
 const show = (v: unknown) =>
   v === null || v === undefined ? '—' : typeof v === 'object' ? JSON.stringify(v) : String(v)
@@ -140,57 +129,10 @@ const LINK = 'text-dbb-charcoal underline decoration-dotted decoration-dbb-muted
 const ROW = 'cursor-pointer hover:bg-dbb-sand/50'
 const PRE = 'mt-4 max-h-[480px] overflow-auto rounded-lg bg-dbb-surface p-3 font-mono text-xs'
 const WRAP = 'break-words'
-const SPLIT = 'flex flex-col gap-6 lg:grid lg:grid-cols-[1fr_1.2fr]'
-
-const TONES = {
-  ok: 'bg-dbb-up/10 text-dbb-up',
-  warn: 'bg-amber-50 text-amber-800',
-  neutral: 'bg-dbb-sand text-dbb-charcoal',
-}
-
-function Pill({ tone = 'neutral', className, children }: { tone?: keyof typeof TONES; className?: string; children: ReactNode }) {
-  return (
-    <span className={cn('inline-flex items-center whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-medium', TONES[tone], className)}>
-      {children}
-    </span>
-  )
-}
-
-function Mono({ children }: { children: ReactNode }) {
-  return <span className={MONO}>{children}</span>
-}
+const SPLIT = 'grid gap-6 lg:grid-cols-[1fr_1.2fr]'
 
 function Count({ n }: { n: number }) {
   return <span className="ml-1.5 tabular-nums opacity-60">{num(n)}</span>
-}
-
-function Empty({ children }: { children: ReactNode }) {
-  return <p className="py-8 text-center text-sm text-dbb-muted">{children}</p>
-}
-
-function ErrorBanner({ error }: { error: ApiError | null }) {
-  if (!error) return null
-  return (
-    <div role="alert" className="mb-3 rounded-lg border border-dbb-clay/30 bg-dbb-clay/5 px-3 py-2 text-sm text-dbb-clay">
-      <span className={MONO}>{error.status || 'network'}</span> {error.detail}
-    </div>
-  )
-}
-
-function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; children: ReactNode }) {
-  return (
-    <button
-      type="button"
-      aria-pressed={on}
-      onClick={onClick}
-      className={cn(
-        'rounded-full border px-2.5 py-1 text-xs font-medium transition-colors',
-        on ? 'border-dbb-warm bg-dbb-sand text-dbb-charcoal' : 'border-dbb-warm/50 text-dbb-muted hover:border-dbb-warm',
-      )}
-    >
-      {children}
-    </button>
-  )
 }
 
 function useGet<T>(path: string | null) {
@@ -235,32 +177,6 @@ function Id({ id, full = false }: { id: string; full?: boolean }) {
         </Pill>
       )}
     </button>
-  )
-}
-
-function Pager({
-  offset,
-  count,
-  total,
-  onPage,
-}: {
-  offset: number
-  count: number
-  total: number
-  onPage: (offset: number) => void
-}) {
-  return (
-    <div className="mt-3 flex items-center gap-1 border-t border-dbb-warm/50 pt-2 text-sm text-dbb-muted">
-      <Button variant="ghost" size="sm" className="h-7 px-2" disabled={offset === 0} onClick={() => onPage(Math.max(0, offset - PAGE))}>
-        ← Prev
-      </Button>
-      <span className="px-1 tabular-nums">
-        {total === 0 ? '0' : `${num(offset + 1)}–${num(offset + count)}`} / {num(total)}
-      </span>
-      <Button variant="ghost" size="sm" className="h-7 px-2" disabled={offset + count >= total} onClick={() => onPage(offset + PAGE)}>
-        Next →
-      </Button>
-    </div>
   )
 }
 
@@ -334,11 +250,15 @@ function RawTrace({ trace }: { trace: Trace }) {
   const done = state?.id === trace.id ? state : null
   const filter = query({ source: trace.source, object_type: trace.objectType })
   return (
-    <SectionCard title="Raw event">
-      <p className={cn('mb-3 text-sm text-dbb-muted', WRAP)}>
-        <Mono>{trace.id}</Mono> looked up by scanning <Mono>/api/raw?{filter}</Mono>
-      </p>
-      <ErrorBanner error={done?.error ?? null} />
+    <SectionCard
+      title="Raw event"
+      description={
+        <span className={WRAP}>
+          <Mono>{trace.id}</Mono> looked up by scanning <Mono>/api/raw?{filter}</Mono>
+        </span>
+      }
+    >
+      <ErrorBanner error={done?.error ?? null} className="mb-3" />
       {!done && <Empty>scanning…</Empty>}
       {done && !done.error && !done.event && <Empty>no raw event with that id under this filter</Empty>}
       {done?.event && <RawEventView event={done.event} />}
@@ -384,7 +304,7 @@ function Detail({ id, onOpen, onTrace }: { id: string; onOpen: (id: string) => v
 
   return (
     <SectionCard title={d ? `${d.entity_type} · ${d.anchor}` : 'Entity'}>
-      <ErrorBanner error={detail.error} />
+      <ErrorBanner error={detail.error} className="mb-3" />
       {detail.loading && <Empty>loading…</Empty>}
       {retired && (
         <p className="text-sm text-dbb-muted">
@@ -574,17 +494,17 @@ function Canonical() {
   return (
     <div className={SPLIT}>
       <SectionCard title={`Canonical entities${list.data ? ` (${num(list.data.total)})` : ''}`}>
-        <ErrorBanner error={list.error} />
+        <ErrorBanner error={list.error} className="mb-3" />
         <div className="mb-4 flex flex-wrap gap-2">
-          <Chip on={type === ''} onClick={() => pick('')}>
+          <FilterChip on={type === ''} onClick={() => pick('')}>
             all
             <Count n={all} />
-          </Chip>
+          </FilterChip>
           {byType.map(([t, n]) => (
-            <Chip key={t} on={type === t} onClick={() => pick(t)}>
+            <FilterChip key={t} on={type === t} onClick={() => pick(t)}>
               {t}
               <Count n={n} />
-            </Chip>
+            </FilterChip>
           ))}
         </div>
         {list.loading ? (
@@ -680,8 +600,8 @@ function RawSide() {
 
   return (
     <div className={SPLIT}>
-      <SectionCard title={`Records${records.data ? ` (${num(records.data.total)})` : ''}`}>
-        <ErrorBanner error={records.error} />
+      <SectionCard title={`Records${records.data ? ` (${num(records.data.total)})` : ''}`} description="click a record to peek at its raw events">
+        <ErrorBanner error={records.error} className="mb-3" />
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <Select
             value={type || ALL}
@@ -711,7 +631,6 @@ function RawSide() {
               setOffset(0)
             }}
           />
-          <span className="text-sm text-dbb-muted">click a record to peek at its raw events</span>
         </div>
         {records.loading ? (
           <Empty>loading…</Empty>
@@ -763,7 +682,7 @@ function RawSide() {
       </SectionCard>
       <div className="flex min-w-0 flex-col gap-6">
         <SectionCard title={`Raw events${raw.data ? ` (${num(raw.data.total)})` : ''}`}>
-          <ErrorBanner error={raw.error} />
+          <ErrorBanner error={raw.error} className="mb-3" />
           <div className="mb-4 flex flex-wrap items-center gap-2">
             <Input
               className="h-8 w-40"

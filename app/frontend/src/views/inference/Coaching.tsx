@@ -1,8 +1,13 @@
 import { useState } from 'react'
-import { asApiError, get, post, type ApiError } from '../../api'
+import { asApiError, get, post, type ApiError } from '@/api'
 import { SectionCard } from '@/components/SectionCard'
+import { ErrorBanner } from '@/components/ui/banner'
 import { Button } from '@/components/ui/button'
-import { Chip, Empty, Enabled, Fail, LayerOff, Mono, Pill, num, relTime, useLoad } from './shared'
+import { Empty } from '@/components/ui/empty'
+import { Mono } from '@/components/ui/mono'
+import { Chip, Pill } from '@/components/ui/pill'
+import { num, relTime } from '@/lib/format'
+import { Enabled, LayerOff, useLoad } from './shared'
 
 interface CoachingIndex {
   enabled: boolean
@@ -66,7 +71,7 @@ function BriefingView({ briefing, fresh }: { briefing: Briefing; fresh: boolean 
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-1.5">
-        {fresh && <Pill tone="up">just generated</Pill>}
+        {fresh && <Pill tone="ok">just generated</Pill>}
         <Chip>
           model <strong>{briefing.model}</strong>
         </Chip>
@@ -129,7 +134,7 @@ function Role({ role }: { role: string }) {
       <div className="space-y-3">
         <LayerOff error={error} />
         {stored.loading && <Empty>loading…</Empty>}
-        {!briefing && stored.error && (stored.error.status === 404 ? <Empty>{stored.error.detail}</Empty> : <Fail error={stored.error} />)}
+        {!briefing && stored.error && (stored.error.status === 404 ? <Empty>{stored.error.detail}</Empty> : <ErrorBanner error={stored.error} />)}
         {briefing && <BriefingView briefing={briefing} fresh={generated !== null} />}
       </div>
     </SectionCard>
@@ -142,7 +147,7 @@ export function Coaching() {
   return (
     <SectionCard title="Coaching">
       <div className="space-y-4">
-        <Fail error={index.error} />
+        <ErrorBanner error={index.error} />
         {index.loading && <Empty>loading…</Empty>}
         {data && (
           <>
@@ -165,7 +170,7 @@ export function Coaching() {
             {data.roles.length === 0 ? (
               <Empty>no role prompts found</Empty>
             ) : (
-              <div className="flex flex-col gap-4 md:grid md:grid-cols-2">
+              <div className="grid gap-4 md:grid-cols-2">
                 {data.roles.map((role) => (
                   <Role key={role} role={role} />
                 ))}

@@ -1,12 +1,18 @@
 import { useState } from 'react'
-import { asApiError, get, post, type ApiError } from '../../api'
+import { asApiError, get, post, type ApiError } from '@/api'
 import { SectionCard } from '@/components/SectionCard'
+import { ErrorBanner } from '@/components/ui/banner'
 import { Button } from '@/components/ui/button'
+import { Empty } from '@/components/ui/empty'
 import { Input } from '@/components/ui/input'
+import { Mono } from '@/components/ui/mono'
+import { PAGE, Pager } from '@/components/ui/pager'
+import { Chip, Pill } from '@/components/ui/pill'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ALL, Chip, Empty, Enabled, Fail, LayerOff, Mono, Pill, num, relTime, short, useLoad } from './shared'
+import { num, relTime, short } from '@/lib/format'
+import { ALL, Enabled, LayerOff, useLoad } from './shared'
 
 interface Gloss {
   label: string
@@ -119,8 +125,6 @@ interface EntityReadings {
   facts: EntityFact[]
 }
 
-const PAGE = 50
-
 const numCol = 'text-right tabular-nums'
 
 const keyCol = 'font-medium text-dbb-charcoal'
@@ -128,7 +132,7 @@ const keyCol = 'font-medium text-dbb-charcoal'
 const keep = 'data-[state=inactive]:hidden'
 
 function Verified({ ok }: { ok: boolean }) {
-  return <Pill tone={ok ? 'up' : 'err'}>{ok ? 'verified' : 'unverified'}</Pill>
+  return <Pill tone={ok ? 'ok' : 'err'}>{ok ? 'verified' : 'unverified'}</Pill>
 }
 
 function Quote({ fact }: { fact: { quote: string | null; quote_verified: boolean } }) {
@@ -251,7 +255,7 @@ function VocabularyTab({ vocabulary }: { vocabulary: Vocabulary }) {
               </Mono>
             </span>
             <span>
-              sha <Mono title={r.sha}>{short(r.sha)}</Mono>
+              sha <Mono title={r.sha}>{short(r.sha, 12)}</Mono>
             </span>
             <span>· {r.fields.length} fields</span>
           </div>
@@ -367,7 +371,7 @@ function FactsTab({ vocabulary, onPick }: { vocabulary: Vocabulary | null; onPic
           unverified quotes only
         </label>
       </div>
-      <Fail error={facts.error} />
+      <ErrorBanner error={facts.error} />
       {data && (
         <>
           <div className="flex flex-wrap items-center gap-2 text-sm text-dbb-muted">
@@ -375,8 +379,7 @@ function FactsTab({ vocabulary, onPick }: { vocabulary: Vocabulary | null; onPic
             <span>{data.counts}</span>
           </div>
           <p className="text-sm text-dbb-muted">
-            {num(data.total)} facts · {num(data.unverified_quotes)} unverified quotes · showing {num(data.offset)}–
-            {num(Math.min(data.offset + data.facts.length, data.total))}
+            {num(data.total)} facts · {num(data.unverified_quotes)} unverified quotes
           </p>
           {byValue.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
@@ -409,7 +412,7 @@ function FactsTab({ vocabulary, onPick }: { vocabulary: Vocabulary | null; onPic
               <TableRow key={i}>
                 <TableCell>
                   <Button variant="link" size="sm" className="h-auto p-0 font-mono text-xs" onClick={() => onPick(f.canonical_id)}>
-                    {f.canonical_id.slice(0, 8)}
+                    {short(f.canonical_id)}
                   </Button>{' '}
                   {f.entity_type}
                 </TableCell>
@@ -434,14 +437,7 @@ function FactsTab({ vocabulary, onPick }: { vocabulary: Vocabulary | null; onPic
           </TableBody>
         </Table>
       )}
-      <div className="flex items-center justify-end gap-2">
-        <Button variant="outline" size="sm" disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - PAGE))}>
-          prev
-        </Button>
-        <Button variant="outline" size="sm" disabled={!data || offset + PAGE >= data.total} onClick={() => setOffset(offset + PAGE)}>
-          next
-        </Button>
-      </div>
+      {data && <Pager offset={offset} count={data.facts.length} total={data.total} onPage={setOffset} />}
     </div>
   )
 }
@@ -451,7 +447,7 @@ function EntityFacts({ id }: { id: string }) {
   const rows = entity.data?.facts ?? []
   return (
     <div className="space-y-3">
-      <Fail error={entity.error} />
+      <ErrorBanner error={entity.error} />
       {entity.data && (
         <div className="flex flex-wrap items-center gap-2 text-sm text-dbb-muted">
           <Pill tone="warn">inferred</Pill>
@@ -591,7 +587,7 @@ export function Enrichment() {
       }
     >
       <div className="space-y-4">
-        <Fail error={vocab.error} />
+        <ErrorBanner error={vocab.error} />
         {vocab.data && (
           <div className="flex flex-wrap items-center gap-2 text-sm text-dbb-muted">
             <Enabled on={vocab.data.enabled} />
@@ -610,7 +606,7 @@ export function Enrichment() {
             read under a retired vocabulary; never read at all.
           </p>
         </div>
-        <Fail error={coverage.error} />
+        <ErrorBanner error={coverage.error} />
         {coverage.loading && <Empty>loading…</Empty>}
         {coverage.data && <CoverageTable rows={coverage.data.readings} />}
         <Tabs value={tab} onValueChange={setTab}>

@@ -10,11 +10,16 @@ import {
   type SyncResponse,
 } from '@/api'
 import { SectionCard } from '@/components/SectionCard'
+import { Banner, ErrorBanner } from '@/components/ui/banner'
 import { Button } from '@/components/ui/button'
+import { Empty } from '@/components/ui/empty'
+import { Mono } from '@/components/ui/mono'
+import { Pill, type Tone } from '@/components/ui/pill'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { num, relTime } from '@/lib/format'
 import { cn } from '@/lib/utils'
-import { Activity, Empty, ErrorBanner, KEY, LINK, MONO, NUM, PRE, Pill, num, relTime, type Tone } from './estate/Activity'
+import { Activity, KEY, LINK, MONO, NUM, PRE } from './estate/Activity'
 
 const validationTone = (v: string): Tone =>
   v === 'provider-validated' ? 'ok' : v === 'mock-validated' ? 'warn' : 'neutral'
@@ -81,7 +86,7 @@ function Report({ report }: { report: EngineReport }) {
   const other = Object.entries(report).filter(([k]) => !SECTIONED.includes(k as keyof EngineReport))
   return (
     <>
-      <div className="flex flex-col gap-4 md:grid md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <Counts title="totals" rows={report.totals} />
         <Counts title="counts" rows={report.counts} />
         <Counts title="skips" rows={report.skips} />
@@ -107,7 +112,7 @@ function Report({ report }: { report: EngineReport }) {
           <ul className="space-y-1 text-sm">
             {report.oversized.map((o, i) => (
               <li key={i}>
-                <Pill tone="warn">{o.kind}</Pill> <span className={MONO}>{JSON.stringify(o)}</span>
+                <Pill tone="warn">{o.kind}</Pill> <Mono>{JSON.stringify(o)}</Mono>
               </li>
             ))}
           </ul>
@@ -241,6 +246,7 @@ export function Estate() {
       <TabsContent value="sources" className="flex flex-col gap-6">
         <SectionCard
           title={`Sources${sources ? ` (${rows.length})` : ''}`}
+          description={sources?.validation_coverage.detail}
           headerRight={
             <div className="flex gap-2">
               <Button size="sm" disabled={syncing !== null || !sources} onClick={() => runSync()}>
@@ -252,8 +258,7 @@ export function Estate() {
             </div>
           }
         >
-          <ErrorBanner error={sourcesError} />
-          {sources && <p className="mb-4 text-sm text-dbb-muted">{sources.validation_coverage.detail}</p>}
+          <ErrorBanner error={sourcesError} className="mb-3" />
           {!sources && !sourcesError ? (
             <Empty>loading…</Empty>
           ) : (
@@ -281,7 +286,7 @@ export function Estate() {
                         <button type="button" className={cn(KEY, LINK)} title="show activity" onClick={() => showActivity(r.source)}>
                           {r.label}
                         </button>{' '}
-                        <span className={MONO}>{r.source}</span>
+                        <Mono>{r.source}</Mono>
                       </TableCell>
                       <TableCell>
                         <Pill tone={validationTone(r.validation)}>{r.validation}</Pill>
@@ -292,7 +297,7 @@ export function Estate() {
                           'never'
                         ) : (
                           <>
-                            <Pill tone={lastOk ? 'ok' : 'failed'}>{lastOk ? 'ok' : 'failed'}</Pill> {relTime(r.last_attempt)}
+                            <Pill tone={lastOk ? 'ok' : 'err'}>{lastOk ? 'ok' : 'failed'}</Pill> {relTime(r.last_attempt)}
                           </>
                         )}
                       </TableCell>
@@ -304,7 +309,7 @@ export function Estate() {
                             {last.rows_refused ? (
                               <>
                                 {' '}
-                                <Pill tone="failed">{num(last.rows_refused)} refused</Pill>
+                                <Pill tone="err">{num(last.rows_refused)} refused</Pill>
                               </>
                             ) : null}
                             {last.rows_colliding ? (
@@ -335,7 +340,7 @@ export function Estate() {
 
         {(sync || syncError) && (
           <SectionCard title="Last sync">
-            <ErrorBanner error={syncError} />
+            <ErrorBanner error={syncError} className="mb-3" />
             {sync && (
               <>
                 <p className="mb-3 text-sm text-dbb-muted">
@@ -360,7 +365,7 @@ export function Estate() {
                       <TableRow key={r.source}>
                         <TableCell className={cn(KEY, MONO)}>{r.source}</TableCell>
                         <TableCell>
-                          <Pill tone={r.ok ? 'ok' : 'failed'}>{r.ok ? 'ok' : 'failed'}</Pill>
+                          <Pill tone={r.ok ? 'ok' : 'err'}>{r.ok ? 'ok' : 'failed'}</Pill>
                         </TableCell>
                         <TableCell className={NUM}>{num(r.rows_fetched)}</TableCell>
                         <TableCell className={NUM}>{num(r.rows_written)}</TableCell>
@@ -381,15 +386,15 @@ export function Estate() {
         {(rebuild || rebuildError) && (
           <SectionCard title="Rebuild">
             {rebuildError?.status === 409 ? (
-              <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-                <span className={MONO}>409</span> rebuild in progress — {rebuildError.detail}
-              </div>
+              <Banner>
+                <Mono>409</Mono> rebuild in progress — {rebuildError.detail}
+              </Banner>
             ) : (
-              <ErrorBanner error={rebuildError} />
+              <ErrorBanner error={rebuildError} className="mb-3" />
             )}
             {rebuild && (
               <p className="text-sm text-dbb-muted">
-                <Pill tone={rebuild.ok ? 'ok' : 'failed'}>{rebuild.ok ? 'ok' : 'failed'}</Pill> · {num(rebuild.entities)} entities ·{' '}
+                <Pill tone={rebuild.ok ? 'ok' : 'err'}>{rebuild.ok ? 'ok' : 'failed'}</Pill> · {num(rebuild.entities)} entities ·{' '}
                 {num(rebuild.canonical)} canonical · {num(rebuild.links)} links · {num(rebuild.facts)} facts ·{' '}
                 {num(rebuild.raw_events_read)} raw events read · {num(rebuild.duration_ms)} ms
               </p>
@@ -411,12 +416,12 @@ export function Estate() {
             </Button>
           }
         >
-          <ErrorBanner error={reportError} />
+          <ErrorBanner error={reportError} className="mb-3" />
           {!report && !reportError && <Empty>loading…</Empty>}
           {report && !report.ran && <Empty>{report.detail}</Empty>}
           {report?.ran && (
             <p className="text-sm text-dbb-muted">
-              <Pill tone={report.ok ? 'ok' : 'failed'}>{report.ok ? 'ok' : 'failed'}</Pill> · ran {relTime(report.created_at)} ·{' '}
+              <Pill tone={report.ok ? 'ok' : 'err'}>{report.ok ? 'ok' : 'failed'}</Pill> · ran {relTime(report.created_at)} ·{' '}
               {num(report.duration_ms)} ms · {num(report.raw_events_read)} raw events read · {num(report.entities)} entities ·{' '}
               {num(report.facts)} facts
             </p>

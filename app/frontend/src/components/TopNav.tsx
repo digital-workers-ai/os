@@ -4,30 +4,24 @@ import { api, asApiError } from '@/api'
 import { PRODUCT, SECTION } from '@/brand'
 import { ROUTES } from '@/routes'
 import { DigitalWorkersMark } from '@/components/DigitalWorkersMark'
+import { Pill } from '@/components/ui/pill'
 
 const navItem = (isActive: boolean) =>
   `flex items-center gap-2 px-3 py-1.5 rounded-lg text-[13px] font-medium whitespace-nowrap transition-all duration-150 ${
     isActive ? 'bg-white text-dbb-charcoal shadow-[0_1px_3px_rgba(0,0,0,0.06)]' : 'text-[#555] hover:bg-black/[0.04]'
   }`
 
-const pill = 'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium whitespace-nowrap'
-
 function HealthPill() {
   const health = useQuery({ queryKey: ['health'], queryFn: api.health, retry: false, refetchInterval: 30_000 })
   if (health.isError) {
     return (
-      <span className={`${pill} bg-dbb-clay/10 text-dbb-clay`} title={asApiError(health.error).detail}>
+      <Pill tone="err" title={asApiError(health.error).detail}>
         backend unreachable
-      </span>
+      </Pill>
     )
   }
   if (health.isPending) return <span className="text-[11px] text-dbb-muted">connecting…</span>
-  const ok = health.data.status === 'ok'
-  return (
-    <span className={`${pill} ${ok ? 'bg-dbb-up/10 text-dbb-up' : 'bg-amber-50 text-amber-800'}`}>
-      health {health.data.status}
-    </span>
-  )
+  return <Pill tone={health.data.status === 'ok' ? 'ok' : 'warn'}>health {health.data.status}</Pill>
 }
 
 export function TopNav() {

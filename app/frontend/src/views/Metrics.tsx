@@ -1,10 +1,15 @@
-import { useEffect, useState, type ReactNode } from 'react'
-import { asApiError, get, post, type ApiError } from '../api'
+import { useEffect, useState } from 'react'
+import { asApiError, get, post, type ApiError } from '@/api'
+import { Inferred } from '@/components/Inferred'
 import { SectionCard } from '@/components/SectionCard'
+import { ErrorBanner } from '@/components/ui/banner'
 import { Button } from '@/components/ui/button'
+import { Empty } from '@/components/ui/empty'
+import { Mono } from '@/components/ui/mono'
+import { Pill } from '@/components/ui/pill'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { cn } from '@/lib/utils'
+import { num, plural, relTime, short } from '@/lib/format'
 
 interface InferredFrom {
   reading: string
@@ -62,62 +67,13 @@ interface SnapshotResponse {
   written: number
 }
 
-const num = (n: number) => n.toLocaleString()
-const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`
-
-const relTime = (iso: string) => {
-  const then = new Date(iso).getTime()
-  if (Number.isNaN(then)) return 'never'
-  const secs = Math.max(0, Math.round((Date.now() - then) / 1000))
-  if (secs < 60) return `${secs}s ago`
-  if (secs < 3600) return `${Math.round(secs / 60)}m ago`
-  if (secs < 86400) return `${Math.round(secs / 3600)}h ago`
-  return `${Math.round(secs / 86400)}d ago`
-}
-
 const verdict = (s: Series) =>
   s.runs.length === 0
     ? 'no snapshots yet'
     : `${plural(s.runs.length, 'run')} — ${s.comparable ? 'comparable' : 'not comparable'}, ${plural(s.breaks, 'break')}`
 
-type Tone = 'warn' | 'unknown' | 'neutral'
-
-const TONES: Record<Tone, string> = {
-  warn: 'bg-amber-50 text-amber-800',
-  unknown: 'border border-dashed border-dbb-warm text-dbb-muted',
-  neutral: 'bg-dbb-sand text-dbb-charcoal',
-}
-
-function Pill({ tone, children }: { tone: Tone; children: ReactNode }) {
-  return <span className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium', TONES[tone])}>{children}</span>
-}
-
-function ErrorLine({ error }: { error: ApiError | null }) {
-  if (!error) return null
-  return (
-    <p role="alert" className="mb-3 text-sm text-dbb-clay">
-      <span className="font-mono text-xs">{error.status || 'network'}</span> {error.detail}
-    </p>
-  )
-}
-
-function Muted({ children }: { children: ReactNode }) {
-  return <p className="text-sm text-dbb-muted">{children}</p>
-}
-
 function Value({ value }: { value: number | null | undefined }) {
   return value === null || value === undefined ? <Pill tone="unknown">unknown</Pill> : <>{num(value)}</>
-}
-
-function Inferred({ reading, sha, producedBy }: { reading?: string; sha?: string | null; producedBy?: string | null }) {
-  return (
-    <span className="inline-flex flex-wrap items-center gap-1.5">
-      <Pill tone="warn">inferred</Pill>
-      {reading && <span className="font-mono text-xs text-dbb-charcoal">{reading}</span>}
-      {sha && <span className="font-mono text-xs">{sha.slice(0, 12)}</span>}
-      {producedBy && <span className="font-mono text-xs">{producedBy}</span>}
-    </span>
-  )
 }
 
 function Unavailable({ row }: { row: MetricRow }) {
@@ -137,7 +93,7 @@ const PAD = 5
 function Sparkline({ points }: { points: Point[] }) {
   const values = points.map((p) => p.value)
   const known = values.filter((v): v is number => v !== null)
-  if (known.length === 0) return <Muted>no values to plot</Muted>
+  if (known.length === 0) return <p className="text-sm text-dbb-muted">no values to plot</p>
   const min = Math.min(...known)
   const max = Math.max(...known)
   const x = (i: number) => (points.length === 1 ? W / 2 : PAD + (i * (W - 2 * PAD)) / (points.length - 1))
@@ -195,7 +151,7 @@ function RunSection({ run, index }: { run: Run; index: number }) {
         Run {index + 1} · {plural(run.points.length, 'point')} ·{' '}
         {run.inferred ? (
           <>
-            inferred{run.vocabulary_sha && <span className="ml-1 font-mono normal-case">{run.vocabulary_sha.slice(0, 12)}</span>}
+            inferred{run.vocabulary_sha && <span className="ml-1 font-mono normal-case">{short(run.vocabulary_sha, 12)}</span>}
             {run.produced_by && <span className="ml-1 font-mono normal-case">{run.produced_by}</span>}
           </>
         ) : (
@@ -221,7 +177,7 @@ function RunSection({ run, index }: { run: Run; index: number }) {
                   </TableCell>
                   <TableCell className="text-right tabular-nums">{num(p.entities)}</TableCell>
                   <TableCell>
-                    <span className="font-mono text-xs">{p.recorded_at}</span> {relTime(p.recorded_at)}
+                    <Mono>{p.recorded_at}</Mono> {relTime(p.recorded_at)}
                   </TableCell>
                 </TableRow>
               ))}
@@ -289,6 +245,7 @@ export function Metrics() {
     <div className="space-y-6">
       <SectionCard
         title={`Metrics${metrics ? ` (${rows.length})` : ''}`}
+        description="click a metric to open its series"
         headerRight={
           <div className="flex items-center gap-3">
             {written !== null && <span className="text-sm text-dbb-muted">{plural(written, 'snapshot')} written</span>}
@@ -298,13 +255,12 @@ export function Metrics() {
           </div>
         }
       >
-        <ErrorLine error={metricsError} />
-        <ErrorLine error={snapError} />
+        <ErrorBanner error={metricsError} className="mb-3" />
+        <ErrorBanner error={snapError} className="mb-3" />
         {!metrics && !metricsError ? (
-          <Muted>loading…</Muted>
+          <Empty>loading…</Empty>
         ) : (
           <>
-            <p className="mb-3 text-sm text-dbb-muted">click a metric to open its series</p>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -325,7 +281,7 @@ export function Metrics() {
                     onClick={() => setSelected(name)}
                   >
                     <TableCell>
-                      <span className="font-medium text-dbb-charcoal">{m.label}</span> <span className="font-mono text-xs">{name}</span>
+                      <span className="font-medium text-dbb-charcoal">{m.label}</span> <Mono>{name}</Mono>
                       {m.entity && ` · ${m.entity}`}
                     </TableCell>
                     <TableCell className="text-right tabular-nums text-dbb-charcoal">
@@ -359,8 +315,8 @@ export function Metrics() {
             </Button>
           }
         >
-          <ErrorLine error={seriesError} />
-          {!open && !seriesError && <Muted>loading…</Muted>}
+          <ErrorBanner error={seriesError} className="mb-3" />
+          {!open && !seriesError && <Empty>loading…</Empty>}
           {open && (
             <p className="text-sm font-medium text-dbb-charcoal">
               {verdict(open)}

@@ -16,7 +16,6 @@ export interface RouteDef {
   title: string
   subtitle: string
   view: ComponentType
-  legacy?: boolean
 }
 
 export const ROUTES: RouteDef[] = [

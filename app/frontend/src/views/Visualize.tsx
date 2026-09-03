@@ -2,6 +2,8 @@ import { useState, type ReactNode } from 'react'
 import { useQuery, type UseQueryResult } from '@tanstack/react-query'
 import { asApiError, get } from '@/api'
 import { SectionCard } from '@/components/SectionCard'
+import { ErrorBanner } from '@/components/ui/banner'
+import { Empty } from '@/components/ui/empty'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { GraphControls, KnowledgeGraph, type GraphResponse, type GraphView } from './visualize/KnowledgeGraph'
 import { OntologyGraph, type OntologyResponse } from './visualize/OntologyGraph'
@@ -10,8 +12,8 @@ type Tab = 'graph' | 'ontology'
 
 function Loaded<T>({ query, children }: { query: UseQueryResult<T>; children: (data: T) => ReactNode }) {
   if (query.data) return <>{children(query.data)}</>
-  if (query.error) return <p className="text-sm text-dbb-down">{asApiError(query.error).detail}</p>
-  return <p className="text-sm text-dbb-muted">Loading…</p>
+  if (query.error) return <ErrorBanner error={asApiError(query.error)} />
+  return <Empty>loading…</Empty>
 }
 
 export function Visualize() {
