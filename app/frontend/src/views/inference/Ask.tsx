@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { asApiError, get, post, type ApiError } from '../../api'
-import { Empty, Panel, num, relTime } from '../../components/Panel'
-import { Status } from '../../components/Status'
-import { LayerOff, useLoad } from './shared'
+import { SectionCard } from '@/components/SectionCard'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
+import { Chip, Empty, Fail, LayerOff, Mono, Pill, num, relTime, useLoad } from './shared'
 
 interface Thread {
   conversation_id: string
@@ -38,18 +40,16 @@ interface Answer {
 }
 
 function Receipts({ receipts }: { receipts: Receipt[] }) {
-  if (receipts.length === 0) return <Empty>no tools were called</Empty>
+  if (receipts.length === 0) return <p className="text-sm text-dbb-muted">no tools were called</p>
   return (
-    <div className="receipts">
+    <div className="space-y-1.5">
       {receipts.map((r, i) => (
-        <div key={i} className="chips">
-          <span className="chip">
-            <strong>{r.tool}</strong>
-          </span>
+        <div key={i} className="flex flex-wrap items-center gap-1.5">
+          <Pill>{r.tool}</Pill>
           {Object.entries(r.input ?? {}).map(([k, v]) => (
-            <span key={k} className="chip">
+            <Chip key={k}>
               {k} <strong>{typeof v === 'string' ? v : JSON.stringify(v)}</strong>
-            </span>
+            </Chip>
           ))}
         </div>
       ))}
@@ -57,29 +57,24 @@ function Receipts({ receipts }: { receipts: Receipt[] }) {
   )
 }
 
-function AnswerView({ answer }: { answer: Answer }) {
+function AnswerMeta({ answer }: { answer: Answer }) {
   return (
-    <div className="answer">
-      <div>
-        <div className="chips">
-          <span className="chip">
-            turns <strong>{num(answer.turns)}</strong>
-          </span>
-          {answer.exhausted && <span className="pill err">exhausted</span>}
-          {answer.truncated && <span className="pill warn">truncated</span>}
-          <span className="chip">
-            model <strong>{answer.model}</strong>
-          </span>
-          <span className="chip">
-            prompt <strong>{answer.prompt_version}</strong>
-          </span>
-        </div>
-        <pre className="prose">{answer.answer}</pre>
+    <div className="space-y-2 rounded-lg border border-dbb-warm p-3">
+      <div className="flex flex-wrap items-center gap-1.5">
+        <Chip>
+          turns <strong>{num(answer.turns)}</strong>
+        </Chip>
+        {answer.exhausted && <Pill tone="err">exhausted</Pill>}
+        {answer.truncated && <Pill tone="warn">truncated</Pill>}
+        <Chip>
+          model <strong>{answer.model}</strong>
+        </Chip>
+        <Chip>
+          prompt <strong>{answer.prompt_version}</strong>
+        </Chip>
       </div>
-      <div>
-        <h3>Receipts ({answer.receipts.length})</h3>
-        <Receipts receipts={answer.receipts} />
-      </div>
+      <p className="text-sm font-medium text-dbb-charcoal">Receipts ({answer.receipts.length})</p>
+      <Receipts receipts={answer.receipts} />
     </div>
   )
 }
@@ -110,46 +105,40 @@ function Conversation({ id, onAsked }: { id: string; onAsked: () => void }) {
   const turns = transcript.data?.turns ?? []
 
   return (
-    <div className="panel-body">
-      <h3>
-        Transcript <code className="dim">{id}</code>
-      </h3>
-      <Status error={transcript.error} />
+    <div className="space-y-4">
+      <p className="break-all text-xs text-dbb-muted">
+        thread <Mono>{id}</Mono>
+      </p>
+      <Fail error={transcript.error} />
       {transcript.loading && <Empty>loading…</Empty>}
       {transcript.data && turns.length === 0 && <Empty>no turns yet</Empty>}
       {turns.length > 0 && (
-        <ol className="turns">
+        <ol className="space-y-3">
           {turns.map((t, i) => (
-            <li key={i} className="turn">
-              <div className="q">{t.question}</div>
-              <pre className="prose">{t.answer}</pre>
-              <div className="dim" title={t.created_at}>
+            <li key={i} className="space-y-1 rounded-lg border border-dbb-warm p-3">
+              <p className="font-medium text-dbb-charcoal">{t.question}</p>
+              <p className="text-sm text-dbb-muted whitespace-pre-wrap">{t.answer}</p>
+              <p className="text-[11px] text-dbb-muted" title={t.created_at}>
                 {relTime(t.created_at)}
-              </div>
+              </p>
             </li>
           ))}
         </ol>
       )}
-      <h3>Question</h3>
+      {answer && <AnswerMeta answer={answer} />}
+      <LayerOff error={askError} />
       <form
-        className="form"
+        className="flex items-center gap-2"
         onSubmit={(e) => {
           e.preventDefault()
           ask()
         }}
       >
-        <input
-          className="wide"
-          placeholder="ask about the business"
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-        />
-        <button className="btn" type="submit" disabled={asking || !question.trim()}>
-          {asking ? 'asking…' : 'Ask'}
-        </button>
+        <Input placeholder="ask about the business" value={question} onChange={(e) => setQuestion(e.target.value)} />
+        <Button type="submit" disabled={asking || !question.trim()}>
+          {asking ? 'asking…' : 'Send'}
+        </Button>
       </form>
-      <LayerOff error={askError} />
-      {answer && <AnswerView answer={answer} />}
     </div>
   )
 }
@@ -177,40 +166,44 @@ export function Ask() {
   const rows = threads.data?.conversations ?? []
 
   return (
-    <Panel
-      title={`Ask${threads.data ? ` (${rows.length} threads)` : ''}`}
-      actions={
-        <button className="btn" disabled={creating} onClick={create}>
-          {creating ? 'creating…' : 'New thread'}
-        </button>
-      }
-    >
-      <div className="ask">
-        <aside className="threads">
-          <Status error={threads.error} />
-          <Status error={createError} />
+    <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[260px_1fr]">
+      <SectionCard
+        title="Threads"
+        headerRight={
+          <Button variant="outline" size="sm" disabled={creating} onClick={create}>
+            {creating ? 'creating…' : 'New thread'}
+          </Button>
+        }
+      >
+        <div className="space-y-2">
+          <Fail error={threads.error} />
+          <LayerOff error={createError} />
           {threads.loading && <Empty>loading…</Empty>}
           {threads.data && rows.length === 0 && <Empty>no threads yet</Empty>}
-          {rows.map((t) => (
-            <button
-              key={t.conversation_id}
-              className="thread"
-              aria-current={t.conversation_id === selected ? 'true' : undefined}
-              onClick={() => setSelected(t.conversation_id)}
-            >
-              <code>{t.conversation_id.slice(0, 8)}</code>
-              <span className="dim" title={t.updated_at}>
-                {relTime(t.updated_at)}
-              </span>
-            </button>
-          ))}
-        </aside>
-        {selected ? (
-          <Conversation key={selected} id={selected} onAsked={threads.reload} />
-        ) : (
-          <Empty>pick a thread, or start a new one</Empty>
-        )}
-      </div>
-    </Panel>
+          <div className="flex flex-col gap-1">
+            {rows.map((t) => (
+              <button
+                key={t.conversation_id}
+                type="button"
+                aria-current={t.conversation_id === selected ? 'true' : undefined}
+                onClick={() => setSelected(t.conversation_id)}
+                className={cn(
+                  'flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-left hover:bg-dbb-sand/60',
+                  t.conversation_id === selected && 'bg-dbb-sand',
+                )}
+              >
+                <span className="font-mono text-xs text-dbb-charcoal">{t.conversation_id.slice(0, 8)}</span>
+                <span className="text-xs text-dbb-muted" title={t.updated_at}>
+                  {relTime(t.updated_at)}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </SectionCard>
+      <SectionCard title="Conversation" className="min-w-0">
+        {selected ? <Conversation key={selected} id={selected} onAsked={threads.reload} /> : <Empty>pick a thread, or start a new one</Empty>}
+      </SectionCard>
+    </div>
   )
 }

@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { asApiError, get, post, type ApiError } from '../api'
-import { Json } from '../components/Json'
-import { Empty, Panel, num, relTime } from '../components/Panel'
-import { Status } from '../components/Status'
-import './Metrics.css'
+import { SectionCard } from '@/components/SectionCard'
+import { Button } from '@/components/ui/button'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { cn } from '@/lib/utils'
 
 interface InferredFrom {
   reading: string
@@ -61,32 +62,60 @@ interface SnapshotResponse {
   written: number
 }
 
+const num = (n: number) => n.toLocaleString()
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`
+
+const relTime = (iso: string) => {
+  const then = new Date(iso).getTime()
+  if (Number.isNaN(then)) return 'never'
+  const secs = Math.max(0, Math.round((Date.now() - then) / 1000))
+  if (secs < 60) return `${secs}s ago`
+  if (secs < 3600) return `${Math.round(secs / 60)}m ago`
+  if (secs < 86400) return `${Math.round(secs / 3600)}h ago`
+  return `${Math.round(secs / 86400)}d ago`
+}
 
 const verdict = (s: Series) =>
   s.runs.length === 0
     ? 'no snapshots yet'
     : `${plural(s.runs.length, 'run')} — ${s.comparable ? 'comparable' : 'not comparable'}, ${plural(s.breaks, 'break')}`
 
-function Value({ value }: { value: number | null | undefined }) {
-  return value === null || value === undefined ? <span className="pill">unknown</span> : <>{num(value)}</>
+type Tone = 'warn' | 'unknown' | 'neutral'
+
+const TONES: Record<Tone, string> = {
+  warn: 'bg-amber-50 text-amber-800',
+  unknown: 'border border-dashed border-dbb-warm text-dbb-muted',
+  neutral: 'bg-dbb-sand text-dbb-charcoal',
 }
 
-function InferredBadge({
-  reading,
-  sha,
-  producedBy,
-}: {
-  reading?: string
-  sha?: string | null
-  producedBy?: string | null
-}) {
+function Pill({ tone, children }: { tone: Tone; children: ReactNode }) {
+  return <span className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium', TONES[tone])}>{children}</span>
+}
+
+function ErrorLine({ error }: { error: ApiError | null }) {
+  if (!error) return null
   return (
-    <span className="inferred">
-      <span className="pill warn">inferred</span>
-      {reading && <code>{reading}</code>}
-      {sha && <code className="dim">{sha.slice(0, 12)}</code>}
-      {producedBy && <code className="dim">{producedBy}</code>}
+    <p role="alert" className="mb-3 text-sm text-dbb-clay">
+      <span className="font-mono text-xs">{error.status || 'network'}</span> {error.detail}
+    </p>
+  )
+}
+
+function Muted({ children }: { children: ReactNode }) {
+  return <p className="text-sm text-dbb-muted">{children}</p>
+}
+
+function Value({ value }: { value: number | null | undefined }) {
+  return value === null || value === undefined ? <Pill tone="unknown">unknown</Pill> : <>{num(value)}</>
+}
+
+function Inferred({ reading, sha, producedBy }: { reading?: string; sha?: string | null; producedBy?: string | null }) {
+  return (
+    <span className="inline-flex flex-wrap items-center gap-1.5">
+      <Pill tone="warn">inferred</Pill>
+      {reading && <span className="font-mono text-xs text-dbb-charcoal">{reading}</span>}
+      {sha && <span className="font-mono text-xs">{sha.slice(0, 12)}</span>}
+      {producedBy && <span className="font-mono text-xs">{producedBy}</span>}
     </span>
   )
 }
@@ -94,9 +123,9 @@ function InferredBadge({
 function Unavailable({ row }: { row: MetricRow }) {
   return (
     <>
-      {row.error && <span className="reason err">{row.error}</span>}
-      {row.mixed_currencies && <span className="reason">mixed currencies: {row.mixed_currencies.join(', ')}</span>}
-      {row.note && <span className="reason">{row.note}</span>}
+      {row.error && <p className="text-dbb-clay">{row.error}</p>}
+      {row.mixed_currencies && <p>mixed currencies: {row.mixed_currencies.join(', ')}</p>}
+      {row.note && <p>{row.note}</p>}
     </>
   )
 }
@@ -108,29 +137,50 @@ const PAD = 5
 function Sparkline({ points }: { points: Point[] }) {
   const values = points.map((p) => p.value)
   const known = values.filter((v): v is number => v !== null)
-  if (known.length === 0) return <span className="dim">no values to plot</span>
+  if (known.length === 0) return <Muted>no values to plot</Muted>
   const min = Math.min(...known)
   const max = Math.max(...known)
   const x = (i: number) => (points.length === 1 ? W / 2 : PAD + (i * (W - 2 * PAD)) / (points.length - 1))
   const y = (v: number) => (max === min ? H / 2 : H - PAD - ((v - min) / (max - min)) * (H - 2 * PAD))
-  const segments: string[] = []
-  let current: string[] = []
+  const segments: { x: number; y: number }[][] = []
+  let current: { x: number; y: number }[] = []
   values.forEach((v, i) => {
     if (v === null) {
-      if (current.length) segments.push(current.join(' '))
+      if (current.length) segments.push(current)
       current = []
       return
     }
-    current.push(`${x(i)},${y(v)}`)
+    current.push({ x: x(i), y: y(v) })
   })
-  if (current.length) segments.push(current.join(' '))
+  if (current.length) segments.push(current)
   return (
-    <svg className="spark" width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${points.length} points, ${num(min)} to ${num(max)}`}>
-      {segments.map((d, i) => (
-        <polyline key={i} points={d} />
-      ))}
+    <svg
+      className="shrink-0 overflow-visible"
+      width={W}
+      height={H}
+      viewBox={`0 0 ${W} ${H}`}
+      role="img"
+      aria-label={`${points.length} points, ${num(min)} to ${num(max)}`}
+    >
+      {segments.map((seg, i) => {
+        const line = seg.map((p) => `${p.x},${p.y}`).join(' ')
+        return (
+          <g key={i}>
+            <polygon points={`${line} ${seg[seg.length - 1].x},${H} ${seg[0].x},${H}`} fill="rgba(26,26,26,0.08)" />
+            <polyline points={line} fill="none" stroke="#1A1A1A" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
+          </g>
+        )
+      })}
       {values.map((v, i) => (
-        <circle key={i} className={v === null ? 'gap' : undefined} cx={x(i)} cy={v === null ? H / 2 : y(v)} r={2.5}>
+        <circle
+          key={i}
+          cx={x(i)}
+          cy={v === null ? H / 2 : y(v)}
+          r={2.5}
+          fill={v === null ? '#FFFFFF' : '#1A1A1A'}
+          stroke={v === null ? '#807F74' : 'none'}
+          strokeWidth={1.5}
+        >
           <title>{`${v === null ? 'unknown' : num(v)} · ${points[i].recorded_at}`}</title>
         </circle>
       ))}
@@ -140,41 +190,46 @@ function Sparkline({ points }: { points: Point[] }) {
 
 function RunSection({ run, index }: { run: Run; index: number }) {
   return (
-    <>
-      <h3>
-        run {index + 1} <span className="dim">({plural(run.points.length, 'point')})</span>{' '}
+    <section>
+      <h4 className="text-xs uppercase tracking-wide text-dbb-muted">
+        Run {index + 1} · {plural(run.points.length, 'point')} ·{' '}
         {run.inferred ? (
-          <InferredBadge sha={run.vocabulary_sha} producedBy={run.produced_by} />
+          <>
+            inferred{run.vocabulary_sha && <span className="ml-1 font-mono normal-case">{run.vocabulary_sha.slice(0, 12)}</span>}
+            {run.produced_by && <span className="ml-1 font-mono normal-case">{run.produced_by}</span>}
+          </>
         ) : (
-          <span className="pill">measured</span>
+          'measured'
         )}
-      </h3>
-      <div className="run">
+      </h4>
+      <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-start">
         <Sparkline points={run.points} />
-        <table>
-          <thead>
-            <tr>
-              <th className="num">Value</th>
-              <th className="num">Entities</th>
-              <th>Recorded</th>
-            </tr>
-          </thead>
-          <tbody>
-            {run.points.map((p) => (
-              <tr key={p.recorded_at}>
-                <td className="num">
-                  <Value value={p.value} />
-                </td>
-                <td className="num">{num(p.entities)}</td>
-                <td>
-                  <code>{p.recorded_at}</code> <span className="dim">{relTime(p.recorded_at)}</span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="min-w-0 flex-1">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-right">Value</TableHead>
+                <TableHead className="text-right">Entities</TableHead>
+                <TableHead>Recorded</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {run.points.map((p) => (
+                <TableRow key={p.recorded_at}>
+                  <TableCell className="text-right tabular-nums text-dbb-charcoal">
+                    <Value value={p.value} />
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">{num(p.entities)}</TableCell>
+                  <TableCell>
+                    <span className="font-mono text-xs">{p.recorded_at}</span> {relTime(p.recorded_at)}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
-    </>
+    </section>
   )
 }
 
@@ -231,87 +286,101 @@ export function Metrics() {
   const open = series && series.metric === selected ? series : null
 
   return (
-    <>
-      <Panel
+    <div className="space-y-6">
+      <SectionCard
         title={`Metrics${metrics ? ` (${rows.length})` : ''}`}
-        actions={
-          <>
-            {written !== null && <span className="dim">{plural(written, 'snapshot')} written</span>}
-            <button className="btn" disabled={snapping || !metrics} onClick={snapshot}>
+        headerRight={
+          <div className="flex items-center gap-3">
+            {written !== null && <span className="text-sm text-dbb-muted">{plural(written, 'snapshot')} written</span>}
+            <Button size="sm" disabled={snapping || !metrics} onClick={snapshot}>
               {snapping ? 'snapshotting…' : 'Snapshot now'}
-            </button>
-          </>
+            </Button>
+          </div>
         }
       >
-        <div className="panel-body">
-          <Status error={metricsError} />
-          <Status error={snapError} />
-          {metrics && <p className="dim">click a metric to open its series</p>}
-        </div>
+        <ErrorLine error={metricsError} />
+        <ErrorLine error={snapError} />
         {!metrics && !metricsError ? (
-          <Empty>loading…</Empty>
+          <Muted>loading…</Muted>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Metric</th>
-                <th className="num">Value</th>
-                <th className="num">Entities</th>
-                <th>Provenance</th>
-                <th>Unavailable</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map(([name, m]) => (
-                <tr key={name} className="metric-row" aria-selected={name === selected} onClick={() => setSelected(name)}>
-                  <td>
-                    <strong>{m.label}</strong> <code className="dim">{name}</code>
-                    {m.entity && <span className="dim"> · {m.entity}</span>}
-                  </td>
-                  <td className="num">
-                    <Value value={m.value} />
-                  </td>
-                  <td className="num">{m.entities === undefined ? '—' : num(m.entities)}</td>
-                  <td>
-                    {m.inferred ? (
-                      <InferredBadge reading={m.reading} sha={m.vocabulary_sha} producedBy={m.produced_by?.join(', ') || null} />
-                    ) : (
-                      <span className="pill">measured</span>
-                    )}
-                  </td>
-                  <td>
-                    <Unavailable row={m} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <>
+            <p className="mb-3 text-sm text-dbb-muted">click a metric to open its series</p>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Metric</TableHead>
+                  <TableHead className="text-right">Value</TableHead>
+                  <TableHead className="text-right">Entities</TableHead>
+                  <TableHead>Provenance</TableHead>
+                  <TableHead>Unavailable</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rows.map(([name, m]) => (
+                  <TableRow
+                    key={name}
+                    className="cursor-pointer"
+                    data-state={name === selected ? 'selected' : undefined}
+                    aria-selected={name === selected}
+                    onClick={() => setSelected(name)}
+                  >
+                    <TableCell>
+                      <span className="font-medium text-dbb-charcoal">{m.label}</span> <span className="font-mono text-xs">{name}</span>
+                      {m.entity && ` · ${m.entity}`}
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums text-dbb-charcoal">
+                      <Value value={m.value} />
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums">{m.entities === undefined ? '—' : num(m.entities)}</TableCell>
+                    <TableCell>
+                      {m.inferred ? (
+                        <Inferred reading={m.reading} sha={m.vocabulary_sha} producedBy={m.produced_by?.join(', ') || null} />
+                      ) : (
+                        <Pill tone="neutral">measured</Pill>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Unavailable row={m} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </>
         )}
-      </Panel>
+      </SectionCard>
 
       {selected && (
-        <Panel
+        <SectionCard
           title={`Series — ${row?.label ?? selected}`}
-          actions={
-            <button className="btn" onClick={() => loadSeries(selected)}>
+          headerRight={
+            <Button variant="outline" size="sm" onClick={() => loadSeries(selected)}>
               Refresh
-            </button>
+            </Button>
           }
         >
-          <div className="panel-body">
-            <Status error={seriesError} />
-            {!open && !seriesError && <Empty>loading…</Empty>}
-            {open && (
-              <p>
-                <strong>{verdict(open)}</strong>
-                {open.inferred && <span className="dim"> · inferred series</span>}
-              </p>
-            )}
-            {open && open.runs.map((run, i) => <RunSection key={i} run={run} index={i} />)}
-            {row && <Json value={row} label="receipts" />}
-          </div>
-        </Panel>
+          <ErrorLine error={seriesError} />
+          {!open && !seriesError && <Muted>loading…</Muted>}
+          {open && (
+            <p className="text-sm font-medium text-dbb-charcoal">
+              {verdict(open)}
+              {open.inferred && <span className="font-normal text-dbb-muted"> · inferred series</span>}
+            </p>
+          )}
+          <Tabs defaultValue="points">
+            <TabsList className="mt-4">
+              <TabsTrigger value="points">Points</TabsTrigger>
+              <TabsTrigger value="receipts">Receipts</TabsTrigger>
+            </TabsList>
+            <TabsContent value="points" className="space-y-6">
+              {open && open.runs.map((run, i) => <RunSection key={i} run={run} index={i} />)}
+            </TabsContent>
+            <TabsContent value="receipts">
+              {row && <pre className="overflow-auto rounded-lg bg-dbb-surface p-3 font-mono text-xs">{JSON.stringify(row, null, 2)}</pre>}
+            </TabsContent>
+          </Tabs>
+        </SectionCard>
       )}
-    </>
+    </div>
   )
 }

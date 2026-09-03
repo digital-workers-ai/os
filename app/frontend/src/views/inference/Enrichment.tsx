@@ -1,9 +1,12 @@
 import { useState } from 'react'
 import { asApiError, get, post, type ApiError } from '../../api'
-import { Json } from '../../components/Json'
-import { Empty, Panel, num, relTime } from '../../components/Panel'
-import { Status } from '../../components/Status'
-import { Enabled, LayerOff, short, useLoad } from './shared'
+import { SectionCard } from '@/components/SectionCard'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ALL, Chip, Empty, Enabled, Fail, LayerOff, Mono, Pill, num, relTime, short, useLoad } from './shared'
 
 interface Gloss {
   label: string
@@ -118,145 +121,179 @@ interface EntityReadings {
 
 const PAGE = 50
 
+const numCol = 'text-right tabular-nums'
+
+const keyCol = 'font-medium text-dbb-charcoal'
+
+const keep = 'data-[state=inactive]:hidden'
+
 function Verified({ ok }: { ok: boolean }) {
-  return <span className={'pill ' + (ok ? 'ok' : 'err')}>{ok ? 'verified' : 'unverified'}</span>
+  return <Pill tone={ok ? 'up' : 'err'}>{ok ? 'verified' : 'unverified'}</Pill>
+}
+
+function Quote({ fact }: { fact: { quote: string | null; quote_verified: boolean } }) {
+  return (
+    <span className="inline-flex flex-wrap items-center gap-1.5">
+      <Verified ok={fact.quote_verified} />
+      {fact.quote && <span>{fact.quote}</span>}
+    </span>
+  )
 }
 
 function CoverageTable({ rows }: { rows: Coverage[] }) {
   return (
-    <table>
-      <thead>
-        <tr>
-          <th>Reading</th>
-          <th>Vocabulary</th>
-          <th className="num">Eligible</th>
-          <th className="num">Read under current vocabulary</th>
-          <th className="num">Read under a retired vocabulary</th>
-          <th className="num">Never read</th>
-          <th>Last run</th>
-        </tr>
-      </thead>
-      <tbody>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Reading</TableHead>
+          <TableHead>Vocabulary</TableHead>
+          <TableHead className={numCol}>Eligible</TableHead>
+          <TableHead className={numCol}>Read under current vocabulary</TableHead>
+          <TableHead className={numCol}>Read under a retired vocabulary</TableHead>
+          <TableHead className={numCol}>Never read</TableHead>
+          <TableHead>Last run</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
         {rows.map((r) => (
-          <tr key={r.reading}>
-            <td>
-              <strong>{r.reading}</strong>
-            </td>
-            <td>
-              <code>{r.vocabulary_sha}</code>
-            </td>
-            <td className="num">{num(r.eligible)}</td>
-            <td className="num">{num(r.read_under_current_vocabulary)}</td>
-            <td className="num">{num(r.read_under_a_retired_vocabulary)}</td>
-            <td className="num">{num(r.never_read)}</td>
-            <td>
+          <TableRow key={r.reading}>
+            <TableCell className={keyCol}>{r.reading}</TableCell>
+            <TableCell>
+              <Mono>{r.vocabulary_sha}</Mono>
+            </TableCell>
+            <TableCell className={numCol}>{num(r.eligible)}</TableCell>
+            <TableCell className={numCol}>{num(r.read_under_current_vocabulary)}</TableCell>
+            <TableCell className={numCol}>{num(r.read_under_a_retired_vocabulary)}</TableCell>
+            <TableCell className={numCol}>{num(r.never_read)}</TableCell>
+            <TableCell>
               {r.last_run === null ? (
-                <span className="dim">never</span>
+                '—'
               ) : (
-                <>
-                  <span title={r.last_run.at}>{relTime(r.last_run.at)}</span> · {num(r.last_run.read)} read ·{' '}
-                  {num(r.last_run.failed)} failed
-                  {r.last_run.truncated_at_cap && <span className="pill warn"> truncated at cap</span>}{' '}
-                  <span className="dim">
-                    {r.last_run.model} {r.last_run.prompt_version}
+                <span className="inline-flex flex-wrap items-center gap-1.5">
+                  <span title={r.last_run.at}>{relTime(r.last_run.at)}</span>
+                  <span>
+                    · {num(r.last_run.read)} read · {num(r.last_run.failed)} failed
                   </span>
-                </>
+                  {r.last_run.truncated_at_cap && <Pill tone="warn">truncated at cap</Pill>}
+                  <Mono>
+                    {r.last_run.model} {r.last_run.prompt_version}
+                  </Mono>
+                </span>
               )}
-            </td>
-          </tr>
+            </TableCell>
+          </TableRow>
         ))}
-      </tbody>
-    </table>
+      </TableBody>
+    </Table>
   )
 }
 
 function RunResult({ report }: { report: RunReport }) {
   return (
-    <>
-      <p>
-        {num(report.calls)} calls · {num(report.rows)} rows · {num(report.failed)} failed ·{' '}
-        {num(report.unverified_quotes)} unverified quotes · {num(report.reconciled)} reconciled ·{' '}
-        {num(report.duration_ms)} ms
-        {report.truncated_at_cap && <span className="pill warn"> truncated at cap</span>}
-      </p>
-      <table>
-        <thead>
-          <tr>
-            <th>Reading</th>
-            <th className="num">Eligible</th>
-            <th className="num">Pending</th>
-            <th className="num">Read</th>
-            <th className="num">Rows</th>
-            <th className="num">Failed</th>
-            <th className="num">Unverified</th>
-            <th className="num">Reconciled</th>
-            <th>Errors</th>
-          </tr>
-        </thead>
-        <tbody>
+    <div className="space-y-3 rounded-lg border border-dbb-warm p-3">
+      <div className="flex flex-wrap items-center gap-2 text-sm text-dbb-muted">
+        <span>
+          {num(report.calls)} calls · {num(report.rows)} rows · {num(report.failed)} failed · {num(report.unverified_quotes)} unverified
+          quotes · {num(report.reconciled)} reconciled · {num(report.duration_ms)} ms
+        </span>
+        {report.truncated_at_cap && <Pill tone="warn">truncated at cap</Pill>}
+      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Reading</TableHead>
+            <TableHead className={numCol}>Eligible</TableHead>
+            <TableHead className={numCol}>Pending</TableHead>
+            <TableHead className={numCol}>Read</TableHead>
+            <TableHead className={numCol}>Rows</TableHead>
+            <TableHead className={numCol}>Failed</TableHead>
+            <TableHead className={numCol}>Unverified</TableHead>
+            <TableHead className={numCol}>Reconciled</TableHead>
+            <TableHead>Errors</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {Object.entries(report.readings).map(([name, r]) => (
-            <tr key={name}>
-              <td>
-                <strong>{name}</strong>
-                {r.truncated_at_cap && <span className="pill warn"> truncated at cap</span>}
-              </td>
-              <td className="num">{num(r.eligible)}</td>
-              <td className="num">{num(r.pending)}</td>
-              <td className="num">{num(r.read)}</td>
-              <td className="num">{num(r.rows)}</td>
-              <td className="num">{num(r.failed)}</td>
-              <td className="num">{num(r.unverified_quotes)}</td>
-              <td className="num">{num(r.reconciled)}</td>
-              <td className="dim">{r.errors.join('; ')}</td>
-            </tr>
+            <TableRow key={name}>
+              <TableCell className={keyCol}>
+                <span className="inline-flex items-center gap-1.5">
+                  {name}
+                  {r.truncated_at_cap && <Pill tone="warn">truncated at cap</Pill>}
+                </span>
+              </TableCell>
+              <TableCell className={numCol}>{num(r.eligible)}</TableCell>
+              <TableCell className={numCol}>{num(r.pending)}</TableCell>
+              <TableCell className={numCol}>{num(r.read)}</TableCell>
+              <TableCell className={numCol}>{num(r.rows)}</TableCell>
+              <TableCell className={numCol}>{num(r.failed)}</TableCell>
+              <TableCell className={numCol}>{num(r.unverified_quotes)}</TableCell>
+              <TableCell className={numCol}>{num(r.reconciled)}</TableCell>
+              <TableCell>{r.errors.length ? r.errors.join('; ') : '—'}</TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
-      <Json value={report} label="raw run report" />
-    </>
+        </TableBody>
+      </Table>
+    </div>
   )
 }
 
-function VocabularyPanel({ vocabulary }: { vocabulary: Vocabulary }) {
-  const readings = Object.entries(vocabulary.readings)
+function VocabularyTab({ vocabulary }: { vocabulary: Vocabulary }) {
   return (
-    <Panel title={`Vocabulary (${readings.length})`}>
-      {readings.map(([name, r]) => (
-        <details key={name} className="reading">
-          <summary>
-            <strong>{name}</strong> <span className="dim">reads</span> <code>{r.entity}.{r.input}</code>{' '}
-            <span className="dim">sha</span> <code>{short(r.sha)}</code> <span className="dim">· {r.fields.length} fields</span>
-          </summary>
-          <div className="panel-body">
-            <p>{r.description}</p>
-            {r.fields.map((f) => (
-              <div key={f.name} className="card">
-                <h3>
-                  {f.name} <span className="pill">{f.type}</span>
-                </h3>
-                <p className="dim">{f.description}</p>
-                <table className="glosses">
-                  <tbody>
-                    {f.labels.map((g) => (
-                      <tr key={g.label}>
-                        <td>
-                          <code>{g.label}</code>
-                        </td>
-                        <td>{g.means}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ))}
+    <div className="space-y-6">
+      {Object.entries(vocabulary.readings).map(([name, r]) => (
+        <div key={name} className="space-y-2">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-dbb-muted">
+            <span className="font-medium text-dbb-charcoal">{name}</span>
+            <span>
+              reads{' '}
+              <Mono>
+                {r.entity}.{r.input}
+              </Mono>
+            </span>
+            <span>
+              sha <Mono title={r.sha}>{short(r.sha)}</Mono>
+            </span>
+            <span>· {r.fields.length} fields</span>
           </div>
-        </details>
+          <p className="text-sm text-dbb-muted">{r.description}</p>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Field</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead>Labels</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {r.fields.map((f) => (
+                <TableRow key={f.name}>
+                  <TableCell className="align-top font-mono text-xs text-dbb-charcoal">{f.name}</TableCell>
+                  <TableCell className="align-top">
+                    <Pill>{f.type}</Pill>
+                  </TableCell>
+                  <TableCell className="max-w-md align-top">{f.description}</TableCell>
+                  <TableCell className="align-top">
+                    <dl className="space-y-1">
+                      {f.labels.map((g) => (
+                        <div key={g.label} className="flex gap-3">
+                          <dt className="w-44 shrink-0 font-mono text-xs text-dbb-charcoal">{g.label}</dt>
+                          <dd>{g.means}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       ))}
-    </Panel>
+    </div>
   )
 }
 
-function Facts({ vocabulary, onPick }: { vocabulary: Vocabulary | null; onPick: (id: string) => void }) {
+function FactsTab({ vocabulary, onPick }: { vocabulary: Vocabulary | null; onPick: (id: string) => void }) {
   const [attr, setAttr] = useState('')
   const [value, setValue] = useState('')
   const [unverified, setUnverified] = useState(false)
@@ -276,128 +313,136 @@ function Facts({ vocabulary, onPick }: { vocabulary: Vocabulary | null; onPick: 
   const byValue = Object.entries(data?.by_value ?? {})
 
   return (
-    <Panel
-      title={`Enriched facts${data ? ` (${num(data.total)})` : ''}`}
-      actions={
-        <div className="form">
-          <select
-            value={attr}
-            onChange={(e) => {
-              setAttr(e.target.value)
-              setValue('')
-              setOffset(0)
-            }}
-          >
-            <option value="">any attr</option>
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <Select
+          value={attr || ALL}
+          onValueChange={(v) => {
+            setAttr(v === ALL ? '' : v)
+            setValue('')
+            setOffset(0)
+          }}
+        >
+          <SelectTrigger className="h-8 w-44">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>any attr</SelectItem>
             {attrs.map((a) => (
-              <option key={a} value={a}>
+              <SelectItem key={a} value={a}>
                 {a}
-              </option>
+              </SelectItem>
             ))}
-          </select>
-          <select
-            value={value}
+          </SelectContent>
+        </Select>
+        <Select
+          value={value || ALL}
+          onValueChange={(v) => {
+            setValue(v === ALL ? '' : v)
+            setOffset(0)
+          }}
+        >
+          <SelectTrigger className="h-8 w-44">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>any value</SelectItem>
+            {labels.map((l) => (
+              <SelectItem key={l} value={l}>
+                {l}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <label className="inline-flex items-center gap-1.5 text-sm text-dbb-muted">
+          <input
+            type="checkbox"
+            className="accent-dbb-charcoal"
+            checked={unverified}
             onChange={(e) => {
-              setValue(e.target.value)
+              setUnverified(e.target.checked)
               setOffset(0)
             }}
-          >
-            <option value="">any value</option>
-            {labels.map((l) => (
-              <option key={l} value={l}>
-                {l}
-              </option>
-            ))}
-          </select>
-          <label>
-            <input
-              type="checkbox"
-              checked={unverified}
-              onChange={(e) => {
-                setUnverified(e.target.checked)
-                setOffset(0)
-              }}
-            />
-            unverified quotes only
-          </label>
-          <button className="btn" disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - PAGE))}>
-            prev
-          </button>
-          <button className="btn" disabled={!data || offset + PAGE >= data.total} onClick={() => setOffset(offset + PAGE)}>
-            next
-          </button>
-        </div>
-      }
-    >
-      <div className="panel-body">
-        <Status error={facts.error} />
-        {data && (
-          <>
-            <p>
-              <span className="pill warn">inferred</span> {data.counts}
-            </p>
-            <p>
-              {num(data.total)} facts · {num(data.unverified_quotes)} unverified quotes · showing {num(data.offset)}–
-              {num(Math.min(data.offset + data.facts.length, data.total))}
-            </p>
-            {byValue.length > 0 && (
-              <div className="chips">
-                {byValue.map(([k, v]) => (
-                  <span key={k} className="chip">
-                    {k} <strong>{num(v)}</strong>
-                  </span>
-                ))}
-              </div>
-            )}
-          </>
-        )}
+          />
+          unverified quotes only
+        </label>
       </div>
+      <Fail error={facts.error} />
+      {data && (
+        <>
+          <div className="flex flex-wrap items-center gap-2 text-sm text-dbb-muted">
+            <Pill tone="warn">inferred</Pill>
+            <span>{data.counts}</span>
+          </div>
+          <p className="text-sm text-dbb-muted">
+            {num(data.total)} facts · {num(data.unverified_quotes)} unverified quotes · showing {num(data.offset)}–
+            {num(Math.min(data.offset + data.facts.length, data.total))}
+          </p>
+          {byValue.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {byValue.map(([k, v]) => (
+                <Chip key={k}>
+                  {k} <strong>{num(v)}</strong>
+                </Chip>
+              ))}
+            </div>
+          )}
+        </>
+      )}
       {facts.loading && <Empty>loading…</Empty>}
       {data && data.facts.length === 0 && <Empty>no enriched facts match</Empty>}
       {data && data.facts.length > 0 && (
-        <table>
-          <thead>
-            <tr>
-              <th>Entity</th>
-              <th>Reading</th>
-              <th>Attr</th>
-              <th>Value</th>
-              <th>Quote</th>
-              <th>Model</th>
-              <th>Vocabulary</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Entity</TableHead>
+              <TableHead>Reading</TableHead>
+              <TableHead>Attr</TableHead>
+              <TableHead>Value</TableHead>
+              <TableHead>Quote</TableHead>
+              <TableHead>Model</TableHead>
+              <TableHead>Vocabulary</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {data.facts.map((f, i) => (
-              <tr key={i}>
-                <td>
-                  <button className="btn" onClick={() => onPick(f.canonical_id)}>
-                    <code>{f.canonical_id.slice(0, 8)}</code>
-                  </button>{' '}
-                  <span className="dim">{f.entity_type}</span>
-                </td>
-                <td>{f.reading}</td>
-                <td>
-                  <code>{f.attr}</code>
-                </td>
-                <td>
-                  <code>{f.value}</code>
-                </td>
-                <td>
-                  <Verified ok={f.quote_verified} /> {f.quote ?? ''}
-                </td>
-                <td className="dim">
+              <TableRow key={i}>
+                <TableCell>
+                  <Button variant="link" size="sm" className="h-auto p-0 font-mono text-xs" onClick={() => onPick(f.canonical_id)}>
+                    {f.canonical_id.slice(0, 8)}
+                  </Button>{' '}
+                  {f.entity_type}
+                </TableCell>
+                <TableCell className={keyCol}>{f.reading}</TableCell>
+                <TableCell>
+                  <Mono>{f.attr}</Mono>
+                </TableCell>
+                <TableCell>
+                  <Mono>{f.value}</Mono>
+                </TableCell>
+                <TableCell>
+                  <Quote fact={f} />
+                </TableCell>
+                <TableCell>
                   {f.model} {f.prompt_version}
-                </td>
-                <td>
-                  <code>{f.vocabulary_sha}</code>
-                </td>
-              </tr>
+                </TableCell>
+                <TableCell>
+                  <Mono>{f.vocabulary_sha}</Mono>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       )}
-    </Panel>
+      <div className="flex items-center justify-end gap-2">
+        <Button variant="outline" size="sm" disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - PAGE))}>
+          prev
+        </Button>
+        <Button variant="outline" size="sm" disabled={!data || offset + PAGE >= data.total} onClick={() => setOffset(offset + PAGE)}>
+          next
+        </Button>
+      </div>
+    </div>
   )
 }
 
@@ -405,60 +450,61 @@ function EntityFacts({ id }: { id: string }) {
   const entity = useLoad(() => get<EntityReadings>(`/api/enrichment/${encodeURIComponent(id)}`), [id])
   const rows = entity.data?.facts ?? []
   return (
-    <>
-      <div className="panel-body">
-        <Status error={entity.error} />
-        {entity.data && (
-          <p>
-            <span className="pill warn">inferred</span> readings for <code>{entity.data.canonical_id}</code>
-          </p>
-        )}
-      </div>
+    <div className="space-y-3">
+      <Fail error={entity.error} />
+      {entity.data && (
+        <div className="flex flex-wrap items-center gap-2 text-sm text-dbb-muted">
+          <Pill tone="warn">inferred</Pill>
+          <span>
+            readings for <Mono>{entity.data.canonical_id}</Mono>
+          </span>
+        </div>
+      )}
       {entity.loading && <Empty>loading…</Empty>}
       {entity.data && rows.length === 0 && <Empty>no readings stored for this entity</Empty>}
       {rows.length > 0 && (
-        <table>
-          <thead>
-            <tr>
-              <th>Reading</th>
-              <th>Attr</th>
-              <th>Value</th>
-              <th>Quote</th>
-              <th>Model</th>
-              <th>Vocabulary</th>
-              <th>Input</th>
-              <th>Read</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Reading</TableHead>
+              <TableHead>Attr</TableHead>
+              <TableHead>Value</TableHead>
+              <TableHead>Quote</TableHead>
+              <TableHead>Model</TableHead>
+              <TableHead>Vocabulary</TableHead>
+              <TableHead>Input</TableHead>
+              <TableHead>Read</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {rows.map((f, i) => (
-              <tr key={i}>
-                <td>{f.reading}</td>
-                <td>
-                  <code>{f.attr}</code>
-                </td>
-                <td>
-                  <code>{f.value}</code>
-                </td>
-                <td>
-                  <Verified ok={f.quote_verified} /> {f.quote ?? ''}
-                </td>
-                <td className="dim">
+              <TableRow key={i}>
+                <TableCell className={keyCol}>{f.reading}</TableCell>
+                <TableCell>
+                  <Mono>{f.attr}</Mono>
+                </TableCell>
+                <TableCell>
+                  <Mono>{f.value}</Mono>
+                </TableCell>
+                <TableCell>
+                  <Quote fact={f} />
+                </TableCell>
+                <TableCell>
                   {f.model} {f.prompt_version}
-                </td>
-                <td>
-                  <code>{f.vocabulary_sha}</code>
-                </td>
-                <td>
-                  <code>{f.input_sha}</code>
-                </td>
-                <td title={f.created_at}>{relTime(f.created_at)}</td>
-              </tr>
+                </TableCell>
+                <TableCell>
+                  <Mono>{f.vocabulary_sha}</Mono>
+                </TableCell>
+                <TableCell>
+                  <Mono>{f.input_sha}</Mono>
+                </TableCell>
+                <TableCell title={f.created_at}>{relTime(f.created_at)}</TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       )}
-    </>
+    </div>
   )
 }
 
@@ -473,6 +519,7 @@ export function Enrichment() {
   const [runError, setRunError] = useState<ApiError | null>(null)
   const [entityInput, setEntityInput] = useState('')
   const [entityId, setEntityId] = useState('')
+  const [tab, setTab] = useState('vocabulary')
 
   const run = async () => {
     setRunning(true)
@@ -495,97 +542,113 @@ export function Enrichment() {
   const pick = (id: string) => {
     setEntityInput(id)
     setEntityId(id)
+    setTab('entity')
   }
 
   const readings = Object.keys(vocab.data?.readings ?? {})
 
   return (
-    <>
-      <Panel
-        title="Enrichment"
-        actions={
-          <form
-            className="form"
-            onSubmit={(e) => {
-              e.preventDefault()
-              run()
-            }}
-          >
-            <select value={reading} onChange={(e) => setReading(e.target.value)}>
-              <option value="">all readings</option>
+    <SectionCard
+      title="Enrichment"
+      headerRight={
+        <form
+          className="flex flex-wrap items-center gap-2"
+          onSubmit={(e) => {
+            e.preventDefault()
+            run()
+          }}
+        >
+          <Select value={reading || ALL} onValueChange={(v) => setReading(v === ALL ? '' : v)}>
+            <SelectTrigger className="h-8 w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>all readings</SelectItem>
               {readings.map((r) => (
-                <option key={r} value={r}>
+                <SelectItem key={r} value={r}>
                   {r}
-                </option>
+                </SelectItem>
               ))}
-            </select>
-            <label>
-              <input type="checkbox" checked={force} onChange={(e) => setForce(e.target.checked)} />
-              force
-            </label>
-            <input
-              type="number"
-              min={1}
-              max={1000}
-              placeholder="limit"
-              value={limit}
-              onChange={(e) => setLimit(e.target.value)}
-            />
-            <button className="btn" type="submit" disabled={running}>
-              {running ? 'running…' : 'Run'}
-            </button>
-          </form>
-        }
-      >
-        <div className="panel-body">
-          <Status error={vocab.error} />
-          {vocab.data && (
-            <p>
-              <Enabled on={vocab.data.enabled} /> model <code>{vocab.data.model}</code>
-              {!vocab.data.enabled && <span className="dim"> · the one layer that calls a model; nothing is read until it is switched on</span>}
-            </p>
-          )}
-          <LayerOff error={runError} />
-          {report && <RunResult report={report} />}
-          <h3>Coverage</h3>
-          <p className="dim">
-            Four separate claims per reading, not one number: eligible entities carry input text; read under the current
-            vocabulary; read under a retired vocabulary; never read at all.
+            </SelectContent>
+          </Select>
+          <label className="inline-flex items-center gap-1.5 text-sm text-dbb-muted">
+            <input type="checkbox" className="accent-dbb-charcoal" checked={force} onChange={(e) => setForce(e.target.checked)} />
+            force
+          </label>
+          <Input
+            type="number"
+            min={1}
+            max={1000}
+            placeholder="limit"
+            className="h-8 w-20"
+            value={limit}
+            onChange={(e) => setLimit(e.target.value)}
+          />
+          <Button size="sm" type="submit" disabled={running}>
+            {running ? 'running…' : 'Run'}
+          </Button>
+        </form>
+      }
+    >
+      <div className="space-y-4">
+        <Fail error={vocab.error} />
+        {vocab.data && (
+          <div className="flex flex-wrap items-center gap-2 text-sm text-dbb-muted">
+            <Enabled on={vocab.data.enabled} />
+            <span>
+              model <Mono>{vocab.data.model}</Mono>
+            </span>
+            {!vocab.data.enabled && <span>· the one layer that calls a model; nothing is read until it is switched on</span>}
+          </div>
+        )}
+        <LayerOff error={runError} />
+        {report && <RunResult report={report} />}
+        <div className="space-y-1">
+          <h4 className="text-sm font-medium text-dbb-charcoal">Coverage</h4>
+          <p className="text-sm text-dbb-muted">
+            Four separate claims per reading, not one number: eligible entities carry input text; read under the current vocabulary;
+            read under a retired vocabulary; never read at all.
           </p>
-          <Status error={coverage.error} />
         </div>
+        <Fail error={coverage.error} />
         {coverage.loading && <Empty>loading…</Empty>}
         {coverage.data && <CoverageTable rows={coverage.data.readings} />}
-      </Panel>
-
-      {vocab.data && <VocabularyPanel vocabulary={vocab.data} />}
-
-      <Facts vocabulary={vocab.data} onPick={pick} />
-
-      <Panel
-        title="Readings for one entity"
-        actions={
-          <form
-            className="form"
-            onSubmit={(e) => {
-              e.preventDefault()
-              setEntityId(entityInput.trim())
-            }}
-          >
-            <input
-              className="wide"
-              placeholder="canonical id"
-              value={entityInput}
-              onChange={(e) => setEntityInput(e.target.value)}
-            />
-            <button className="btn" type="submit" disabled={!entityInput.trim()}>
-              Load
-            </button>
-          </form>
-        }
-      >
-        {entityId ? <EntityFacts id={entityId} /> : <Empty>paste a canonical id, or pick one from the facts above</Empty>}
-      </Panel>
-    </>
+        <Tabs value={tab} onValueChange={setTab}>
+          <TabsList>
+            <TabsTrigger value="vocabulary">Vocabulary</TabsTrigger>
+            <TabsTrigger value="facts">Facts</TabsTrigger>
+            <TabsTrigger value="entity">One entity</TabsTrigger>
+          </TabsList>
+          <TabsContent value="vocabulary" forceMount className={keep}>
+            {vocab.data ? <VocabularyTab vocabulary={vocab.data} /> : <Empty>loading…</Empty>}
+          </TabsContent>
+          <TabsContent value="facts" forceMount className={keep}>
+            <FactsTab vocabulary={vocab.data} onPick={pick} />
+          </TabsContent>
+          <TabsContent value="entity" forceMount className={keep}>
+            <div className="space-y-3">
+              <form
+                className="flex items-center gap-2"
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  setEntityId(entityInput.trim())
+                }}
+              >
+                <Input
+                  placeholder="canonical id"
+                  className="h-8 max-w-md font-mono text-xs"
+                  value={entityInput}
+                  onChange={(e) => setEntityInput(e.target.value)}
+                />
+                <Button size="sm" type="submit" disabled={!entityInput.trim()}>
+                  Load
+                </Button>
+              </form>
+              {entityId ? <EntityFacts id={entityId} /> : <Empty>paste a canonical id, or pick one from the facts tab</Empty>}
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </SectionCard>
   )
 }

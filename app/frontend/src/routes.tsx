@@ -28,7 +28,6 @@ export const ROUTES: RouteDef[] = [
     title: 'Insights',
     subtitle: 'goals and findings over the canonical estate',
     view: Insights,
-    legacy: true,
   },
   {
     to: '/metrics',
@@ -37,7 +36,6 @@ export const ROUTES: RouteDef[] = [
     title: 'Metrics',
     subtitle: 'metric series and snapshots computed from the estate',
     view: Metrics,
-    legacy: true,
   },
   {
     to: '/entities',
@@ -46,7 +44,6 @@ export const ROUTES: RouteDef[] = [
     title: 'Entities',
     subtitle: 'canonical entities and the raw records behind them',
     view: Entities,
-    legacy: true,
   },
   {
     to: '/inference',
@@ -55,7 +52,6 @@ export const ROUTES: RouteDef[] = [
     title: 'Inference',
     subtitle: 'ask, coaching, and enrichment over the estate',
     view: Inference,
-    legacy: true,
   },
   {
     to: '/knowledge',
@@ -64,7 +60,6 @@ export const ROUTES: RouteDef[] = [
     title: 'Knowledge',
     subtitle: 'the committed ontology, mappings, transforms, metrics, and vocabulary',
     view: Knowledge,
-    legacy: true,
   },
   {
     to: '/estate',
@@ -73,7 +68,6 @@ export const ROUTES: RouteDef[] = [
     title: 'Estate',
     subtitle: 'sources, sync activity, rebuild, and the engine report',
     view: Estate,
-    legacy: true,
   },
   {
     to: '/visualize',

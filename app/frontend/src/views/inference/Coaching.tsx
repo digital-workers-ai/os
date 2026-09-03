@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { asApiError, get, post, type ApiError } from '../../api'
-import { Empty, Panel, num, relTime } from '../../components/Panel'
-import { Status } from '../../components/Status'
-import { Enabled, LayerOff, useLoad } from './shared'
+import { SectionCard } from '@/components/SectionCard'
+import { Button } from '@/components/ui/button'
+import { Chip, Empty, Enabled, Fail, LayerOff, Mono, Pill, num, relTime, useLoad } from './shared'
 
 interface CoachingIndex {
   enabled: boolean
@@ -64,28 +64,28 @@ const fromStored = (b: StoredBriefing): Briefing => ({
 
 function BriefingView({ briefing, fresh }: { briefing: Briefing; fresh: boolean }) {
   return (
-    <>
-      <div className="chips">
-        {fresh && <span className="pill ok">just generated</span>}
-        <span className="chip">
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-1.5">
+        {fresh && <Pill tone="up">just generated</Pill>}
+        <Chip>
           model <strong>{briefing.model}</strong>
-        </span>
-        <span className="chip">
+        </Chip>
+        <Chip>
           prompt <strong>{briefing.prompt_version}</strong>
-        </span>
-        <span className="chip">
+        </Chip>
+        <Chip>
           input <strong>{briefing.input_sha}</strong>
-        </span>
-        <span className="chip">
+        </Chip>
+        <Chip>
           read <strong>{num(briefing.read.metrics)}</strong> metrics · <strong>{num(briefing.read.goals)}</strong> goals ·{' '}
           <strong>{num(briefing.read.findings)}</strong> findings
-        </span>
-        <span className="chip" title={briefing.generated_at}>
+        </Chip>
+        <Chip title={briefing.generated_at}>
           generated <strong>{relTime(briefing.generated_at)}</strong>
-        </span>
+        </Chip>
       </div>
-      <pre className="prose">{briefing.briefing}</pre>
-    </>
+      <p className="text-sm leading-relaxed whitespace-pre-wrap text-dbb-charcoal">{briefing.briefing}</p>
+    </div>
   )
 }
 
@@ -118,19 +118,21 @@ function Role({ role }: { role: string }) {
   const briefing = generated ?? (stored.data ? fromStored(stored.data) : null)
 
   return (
-    <div className="card">
-      <div className="card-head">
-        <h3>{role}</h3>
-        <div className="spacer" />
-        <button className="btn" disabled={generating} onClick={generate}>
+    <SectionCard
+      title={role}
+      headerRight={
+        <Button size="sm" disabled={generating} onClick={generate}>
           {generating ? 'generating…' : 'Generate'}
-        </button>
+        </Button>
+      }
+    >
+      <div className="space-y-3">
+        <LayerOff error={error} />
+        {stored.loading && <Empty>loading…</Empty>}
+        {!briefing && stored.error && (stored.error.status === 404 ? <Empty>{stored.error.detail}</Empty> : <Fail error={stored.error} />)}
+        {briefing && <BriefingView briefing={briefing} fresh={generated !== null} />}
       </div>
-      <LayerOff error={error} />
-      {stored.loading && <Empty>loading…</Empty>}
-      {!briefing && stored.error && (stored.error.status === 404 ? <Empty>{stored.error.detail}</Empty> : <Status error={stored.error} />)}
-      {briefing && <BriefingView briefing={briefing} fresh={generated !== null} />}
-    </div>
+    </SectionCard>
   )
 }
 
@@ -138,23 +140,32 @@ export function Coaching() {
   const index = useLoad(() => get<CoachingIndex>('/api/coaching'), [])
   const data = index.data
   return (
-    <Panel title={`Coaching${data ? ` (${data.roles.length} roles)` : ''}`}>
-      <div className="panel-body">
-        <Status error={index.error} />
+    <SectionCard title="Coaching">
+      <div className="space-y-4">
+        <Fail error={index.error} />
         {index.loading && <Empty>loading…</Empty>}
         {data && (
           <>
-            <p>
-              <Enabled on={data.enabled} /> model <code>{data.model}</code> · prompt <code>{data.prompt_version}</code> ·
-              prompts sha <code>{data.prompts_sha}</code>
-            </p>
-            <p>
-              {data.inferred && <span className="pill warn">inferred</span>} {data.note}
-            </p>
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-dbb-muted">
+              <Enabled on={data.enabled} />
+              <span>
+                model <Mono>{data.model}</Mono>
+              </span>
+              <span>
+                · prompt <Mono>{data.prompt_version}</Mono>
+              </span>
+              <span>
+                · prompts sha <Mono>{data.prompts_sha}</Mono>
+              </span>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 text-sm text-dbb-muted">
+              {data.inferred && <Pill tone="warn">inferred</Pill>}
+              <span>{data.note}</span>
+            </div>
             {data.roles.length === 0 ? (
               <Empty>no role prompts found</Empty>
             ) : (
-              <div className="grid">
+              <div className="flex flex-col gap-4 md:grid md:grid-cols-2">
                 {data.roles.map((role) => (
                   <Role key={role} role={role} />
                 ))}
@@ -163,6 +174,6 @@ export function Coaching() {
           </>
         )}
       </div>
-    </Panel>
+    </SectionCard>
   )
 }

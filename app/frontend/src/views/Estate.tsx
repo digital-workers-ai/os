@@ -1,5 +1,4 @@
-import './Estate.css'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import {
   api,
   asApiError,
@@ -9,39 +8,57 @@ import {
   type ReportResponse,
   type SourcesResponse,
   type SyncResponse,
-} from '../api'
-import { Json } from '../components/Json'
-import { Empty, Panel, num, relTime } from '../components/Panel'
-import { Status } from '../components/Status'
-import { Activity } from './estate/Activity'
+} from '@/api'
+import { SectionCard } from '@/components/SectionCard'
+import { Button } from '@/components/ui/button'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { cn } from '@/lib/utils'
+import { Activity, Empty, ErrorBanner, KEY, LINK, MONO, NUM, PRE, Pill, num, relTime, type Tone } from './estate/Activity'
 
-const validationClass = (v: string) =>
-  v === 'provider-validated' ? 'ok' : v === 'mock-validated' ? 'warn' : ''
+const validationTone = (v: string): Tone =>
+  v === 'provider-validated' ? 'ok' : v === 'mock-validated' ? 'warn' : 'neutral'
+
+function Group({
+  title,
+  count,
+  className,
+  children,
+}: {
+  title: string
+  count: number
+  className?: string
+  children: ReactNode
+}) {
+  return (
+    <SectionCard
+      className={className}
+      title={
+        <>
+          {title} <span className="ml-1 text-sm font-normal text-dbb-muted">{num(count)}</span>
+        </>
+      }
+    >
+      {count === 0 ? <p className="text-sm text-dbb-muted">none</p> : <div className="max-h-80 overflow-y-auto">{children}</div>}
+    </SectionCard>
+  )
+}
 
 function Counts({ title, rows }: { title: string; rows: Record<string, number> }) {
   const entries = Object.entries(rows || {})
   return (
-    <div className="card">
-      <h3>
-        {title} <span className="dim">({entries.length})</span>
-      </h3>
-      {entries.length === 0 ? (
-        <div className="dim">0</div>
-      ) : (
-        <table>
-          <tbody>
-            {entries.map(([k, v]) => (
-              <tr key={k}>
-                <td>
-                  <code>{k}</code>
-                </td>
-                <td className="num">{num(v)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </div>
+    <Group title={title} count={entries.length}>
+      <Table>
+        <TableBody>
+          {entries.map(([k, v]) => (
+            <TableRow key={k}>
+              <TableCell className={cn(KEY, MONO, 'break-all')}>{k}</TableCell>
+              <TableCell className={NUM}>{num(v)}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </Group>
   )
 }
 
@@ -64,121 +81,85 @@ function Report({ report }: { report: EngineReport }) {
   const other = Object.entries(report).filter(([k]) => !SECTIONED.includes(k as keyof EngineReport))
   return (
     <>
-      <div className="panel-body">
-        <h3>Totals</h3>
-        <div className="chips">
-          {Object.entries(report.totals).map(([k, v]) => (
-            <span key={k} className="chip">
-              {k} <strong>{num(v)}</strong>
-            </span>
-          ))}
-        </div>
-
-        <h3>Refusals by reason</h3>
-        <div className="grid">
-          <Counts title="skips" rows={report.skips} />
-          <Counts title="records_skipped" rows={report.records_skipped} />
-          <Counts title="identity_less" rows={report.identity_less} />
-          <Counts title="dangling_refs" rows={report.dangling_refs} />
-          <div className="card">
-            <h3>
-              quarantines <span className="dim">({report.quarantines.length})</span>
-            </h3>
-            {report.quarantines.length === 0 ? (
-              <div className="dim">0</div>
-            ) : (
-              <ul className="list">
-                {report.quarantines.map((q, i) => (
-                  <li key={i}>
-                    <strong>{q.rel}</strong> <code>{q.record}</code> — {q.detail}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-          <div className="card">
-            <h3>
-              oversized <span className="dim">({report.oversized.length})</span>
-            </h3>
-            {report.oversized.length === 0 ? (
-              <div className="dim">0</div>
-            ) : (
-              <ul className="list">
-                {report.oversized.map((o, i) => (
-                  <li key={i}>
-                    <span className="pill warn">{o.kind}</span> <code>{JSON.stringify(o)}</code>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </div>
-
-        <h3>Cleared</h3>
-        <div className="grid">
-          <Counts title="clears" rows={report.clears} />
-          <Counts title="disagreements" rows={report.disagreements} />
-        </div>
-
-        <h3>
-          Dead paths <span className="dim">({report.dead_paths.length})</span>
-        </h3>
-        {report.dead_paths.length === 0 ? (
-          <div className="dim">0</div>
-        ) : (
-          <ul className="list">
-            {report.dead_paths.map((p) => (
-              <li key={p}>
-                <code>{p}</code>
+      <div className="flex flex-col gap-4 md:grid md:grid-cols-2 xl:grid-cols-3">
+        <Counts title="totals" rows={report.totals} />
+        <Counts title="counts" rows={report.counts} />
+        <Counts title="skips" rows={report.skips} />
+        <Counts title="records_skipped" rows={report.records_skipped} />
+        <Counts title="identity_less" rows={report.identity_less} />
+        <Counts title="dangling_refs" rows={report.dangling_refs} />
+        <Counts title="clears" rows={report.clears} />
+        <Counts title="disagreements" rows={report.disagreements} />
+        <Group title="quarantines" count={report.quarantines.length}>
+          <Table>
+            <TableBody>
+              {report.quarantines.map((q, i) => (
+                <TableRow key={i}>
+                  <TableCell className={KEY}>{q.rel}</TableCell>
+                  <TableCell className={MONO}>{q.record}</TableCell>
+                  <TableCell>{q.detail}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Group>
+        <Group title="oversized" count={report.oversized.length}>
+          <ul className="space-y-1 text-sm">
+            {report.oversized.map((o, i) => (
+              <li key={i}>
+                <Pill tone="warn">{o.kind}</Pill> <span className={MONO}>{JSON.stringify(o)}</span>
               </li>
             ))}
           </ul>
-        )}
-
-        <h3>
-          Match rates <span className="dim">({Object.keys(report.match_rates).length})</span>
-        </h3>
+        </Group>
+        <Group title="dead_paths" count={report.dead_paths.length}>
+          <ul className="space-y-1">
+            {report.dead_paths.map((p) => (
+              <li key={p} className={MONO}>
+                {p}
+              </li>
+            ))}
+          </ul>
+        </Group>
+        <Group title="match_rates" count={Object.keys(report.match_rates).length} className="md:col-span-2 xl:col-span-3">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Relationship</TableHead>
+                <TableHead className={NUM}>Candidates</TableHead>
+                <TableHead className={NUM}>Matched</TableHead>
+                <TableHead className={NUM}>Edges</TableHead>
+                <TableHead className={NUM}>Rate</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {Object.entries(report.match_rates).map(([rel, r]) => (
+                <TableRow key={rel}>
+                  <TableCell className={KEY}>{rel}</TableCell>
+                  <TableCell className={NUM}>{num(r.candidates)}</TableCell>
+                  <TableCell className={NUM}>{num(r.matched)}</TableCell>
+                  <TableCell className={NUM}>{num(r.edges)}</TableCell>
+                  <TableCell className={NUM}>{r.match_rate === null ? '—' : r.match_rate}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Group>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Relationship</th>
-            <th className="num">Candidates</th>
-            <th className="num">Matched</th>
-            <th className="num">Edges</th>
-            <th className="num">Rate</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Object.entries(report.match_rates).map(([rel, r]) => (
-            <tr key={rel}>
-              <td>{rel}</td>
-              <td className="num">{num(r.candidates)}</td>
-              <td className="num">{num(r.matched)}</td>
-              <td className="num">{num(r.edges)}</td>
-              <td className="num">{r.match_rate === null ? '—' : r.match_rate}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="panel-body">
-        <h3>
-          Counts <span className="dim">({Object.keys(report.counts).length})</span>
-        </h3>
-        <Json value={report.counts} label="counts" />
-        {other.length > 0 && (
-          <>
-            <h3>Other keys</h3>
-            <Json value={Object.fromEntries(other)} label={other.map(([k]) => k).join(', ')} open />
-          </>
-        )}
-        <Json value={report} label="raw report" />
-      </div>
+      {other.length > 0 && (
+        <SectionCard title="Other keys">
+          <pre className={PRE}>{JSON.stringify(Object.fromEntries(other), null, 2)}</pre>
+        </SectionCard>
+      )}
+      <SectionCard title="Raw report">
+        <pre className={PRE}>{JSON.stringify(report, null, 2)}</pre>
+      </SectionCard>
     </>
   )
 }
 
 export function Estate() {
+  const [tab, setTab] = useState('sources')
   const [sources, setSources] = useState<SourcesResponse | null>(null)
   const [sourcesError, setSourcesError] = useState<ApiError | null>(null)
   const [syncing, setSyncing] = useState<string | null>(null)
@@ -242,192 +223,207 @@ export function Estate() {
     }
   }
 
+  const showActivity = (source: string) => {
+    setActivitySource(source)
+    setTab('activity')
+  }
+
   const rows = sources?.sources ?? []
 
   return (
-    <>
-      <Panel
-        title={`Sources${sources ? ` (${rows.length})` : ''}`}
-        actions={
-          <button className="btn" disabled={syncing !== null || !sources} onClick={() => runSync()}>
-            {syncing === 'all' ? 'syncing…' : 'Sync all'}
-          </button>
-        }
-      >
-        <div className="panel-body">
-          <Status error={sourcesError} />
-          {sources && <p>{sources.validation_coverage.detail}</p>}
-        </div>
-        {!sources && !sourcesError ? (
-          <Empty>loading…</Empty>
-        ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Source</th>
-                <th>Validation</th>
-                <th>Entities</th>
-                <th>Last sync</th>
-                <th className="num">Attempts</th>
-                <th>Rows</th>
-                <th>Enabled</th>
-                <th>Detail</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => {
-                const last = sync?.results.find((s) => s.source === r.source)
-                return (
-                  <tr key={r.source}>
-                    <td>
-                      <strong>
-                        <button className="link-btn" title="show activity" onClick={() => setActivitySource(r.source)}>
+    <Tabs value={tab} onValueChange={setTab}>
+      <TabsList>
+        <TabsTrigger value="sources">Sources</TabsTrigger>
+        <TabsTrigger value="activity">Activity</TabsTrigger>
+        <TabsTrigger value="report">Report</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="sources" className="flex flex-col gap-6">
+        <SectionCard
+          title={`Sources${sources ? ` (${rows.length})` : ''}`}
+          headerRight={
+            <div className="flex gap-2">
+              <Button size="sm" disabled={syncing !== null || !sources} onClick={() => runSync()}>
+                {syncing === 'all' ? 'syncing…' : 'Sync all'}
+              </Button>
+              <Button size="sm" variant="outline" disabled={rebuilding} onClick={runRebuild}>
+                {rebuilding ? 'rebuilding…' : 'Rebuild'}
+              </Button>
+            </div>
+          }
+        >
+          <ErrorBanner error={sourcesError} />
+          {sources && <p className="mb-4 text-sm text-dbb-muted">{sources.validation_coverage.detail}</p>}
+          {!sources && !sourcesError ? (
+            <Empty>loading…</Empty>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Source</TableHead>
+                  <TableHead>Validation</TableHead>
+                  <TableHead>Entities</TableHead>
+                  <TableHead>Last sync</TableHead>
+                  <TableHead className={NUM}>Attempts</TableHead>
+                  <TableHead>Rows</TableHead>
+                  <TableHead>Enabled</TableHead>
+                  <TableHead>Detail</TableHead>
+                  <TableHead />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rows.map((r) => {
+                  const last = sync?.results.find((s) => s.source === r.source)
+                  const lastOk = r.last_success === r.last_attempt
+                  return (
+                    <TableRow key={r.source}>
+                      <TableCell className="whitespace-nowrap">
+                        <button type="button" className={cn(KEY, LINK)} title="show activity" onClick={() => showActivity(r.source)}>
                           {r.label}
-                        </button>
-                      </strong>{' '}
-                      <code className="dim">{r.source}</code>
-                    </td>
-                    <td>
-                      <span className={'pill ' + validationClass(r.validation)}>{r.validation}</span>
-                    </td>
-                    <td>{r.entities.join(', ') || '—'}</td>
-                    <td>
-                      {r.last_attempt === null ? (
-                        <span className="dim">never</span>
-                      ) : (
-                        <>
-                          <span className={'pill ' + (r.last_success === r.last_attempt ? 'ok' : 'err')}>
-                            {r.last_success === r.last_attempt ? 'ok' : 'failed'}
-                          </span>{' '}
-                          {relTime(r.last_attempt)}
-                        </>
-                      )}
-                    </td>
-                    <td className="num">{num(r.attempts)}</td>
-                    <td>
-                      {last ? (
-                        <>
-                          {num(last.rows_written)} written / {num(last.rows_fetched)} fetched
-                          {last.rows_refused ? <span className="pill err"> {last.rows_refused} refused</span> : null}
-                          {last.rows_colliding ? <span className="pill warn"> {last.rows_colliding} colliding</span> : null}
-                        </>
-                      ) : (
-                        <span className="dim">new data {relTime(r.last_new_data)}</span>
-                      )}
-                    </td>
-                    <td>{r.enabled_by_default ? 'on' : 'off'}</td>
-                    <td className="dim">{r.detail || ''}</td>
-                    <td>
-                      <button
-                        className="btn"
-                        disabled={syncing !== null}
-                        onClick={() => runSync([r.source])}
-                      >
-                        {syncing === r.source ? 'syncing…' : 'Sync'}
-                      </button>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        )}
-      </Panel>
+                        </button>{' '}
+                        <span className={MONO}>{r.source}</span>
+                      </TableCell>
+                      <TableCell>
+                        <Pill tone={validationTone(r.validation)}>{r.validation}</Pill>
+                      </TableCell>
+                      <TableCell>{r.entities.join(', ') || '—'}</TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        {r.last_attempt === null ? (
+                          'never'
+                        ) : (
+                          <>
+                            <Pill tone={lastOk ? 'ok' : 'failed'}>{lastOk ? 'ok' : 'failed'}</Pill> {relTime(r.last_attempt)}
+                          </>
+                        )}
+                      </TableCell>
+                      <TableCell className={NUM}>{num(r.attempts)}</TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        {last ? (
+                          <>
+                            {num(last.rows_written)} written / {num(last.rows_fetched)} fetched
+                            {last.rows_refused ? (
+                              <>
+                                {' '}
+                                <Pill tone="failed">{num(last.rows_refused)} refused</Pill>
+                              </>
+                            ) : null}
+                            {last.rows_colliding ? (
+                              <>
+                                {' '}
+                                <Pill tone="warn">{num(last.rows_colliding)} colliding</Pill>
+                              </>
+                            ) : null}
+                          </>
+                        ) : (
+                          `new data ${relTime(r.last_new_data)}`
+                        )}
+                      </TableCell>
+                      <TableCell>{r.enabled_by_default ? 'on' : 'off'}</TableCell>
+                      <TableCell>{r.detail || ''}</TableCell>
+                      <TableCell className="pr-0 text-right">
+                        <Button size="sm" variant="outline" disabled={syncing !== null} onClick={() => runSync([r.source])}>
+                          {syncing === r.source ? 'syncing…' : 'Sync'}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          )}
+        </SectionCard>
 
-      <Activity sources={rows} source={activitySource} onSource={setActivitySource} tick={synced} />
-
-      {(sync || syncError) && (
-        <Panel title="Last sync">
-          <div className="panel-body">
-            <Status error={syncError} />
+        {(sync || syncError) && (
+          <SectionCard title="Last sync">
+            <ErrorBanner error={syncError} />
             {sync && (
-              <p>
-                {sync.ok} ok, {sync.failed} failed, {num(sync.rows_written)} rows written.
+              <>
+                <p className="mb-3 text-sm text-dbb-muted">
+                  {sync.ok} ok, {sync.failed} failed, {num(sync.rows_written)} rows written.
+                </p>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Source</TableHead>
+                      <TableHead>Ok</TableHead>
+                      <TableHead className={NUM}>Fetched</TableHead>
+                      <TableHead className={NUM}>Written</TableHead>
+                      <TableHead className={NUM}>Refused</TableHead>
+                      <TableHead className={NUM}>Colliding</TableHead>
+                      <TableHead className={NUM}>Pages</TableHead>
+                      <TableHead>Truncated</TableHead>
+                      <TableHead>Detail</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sync.results.map((r) => (
+                      <TableRow key={r.source}>
+                        <TableCell className={cn(KEY, MONO)}>{r.source}</TableCell>
+                        <TableCell>
+                          <Pill tone={r.ok ? 'ok' : 'failed'}>{r.ok ? 'ok' : 'failed'}</Pill>
+                        </TableCell>
+                        <TableCell className={NUM}>{num(r.rows_fetched)}</TableCell>
+                        <TableCell className={NUM}>{num(r.rows_written)}</TableCell>
+                        <TableCell className={NUM}>{num(r.rows_refused)}</TableCell>
+                        <TableCell className={NUM}>{num(r.rows_colliding)}</TableCell>
+                        <TableCell className={NUM}>{num(r.pages_read)}</TableCell>
+                        <TableCell>{r.truncated ? 'yes' : 'no'}</TableCell>
+                        <TableCell>{r.detail || ''}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </>
+            )}
+          </SectionCard>
+        )}
+
+        {(rebuild || rebuildError) && (
+          <SectionCard title="Rebuild">
+            {rebuildError?.status === 409 ? (
+              <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                <span className={MONO}>409</span> rebuild in progress — {rebuildError.detail}
+              </div>
+            ) : (
+              <ErrorBanner error={rebuildError} />
+            )}
+            {rebuild && (
+              <p className="text-sm text-dbb-muted">
+                <Pill tone={rebuild.ok ? 'ok' : 'failed'}>{rebuild.ok ? 'ok' : 'failed'}</Pill> · {num(rebuild.entities)} entities ·{' '}
+                {num(rebuild.canonical)} canonical · {num(rebuild.links)} links · {num(rebuild.facts)} facts ·{' '}
+                {num(rebuild.raw_events_read)} raw events read · {num(rebuild.duration_ms)} ms
               </p>
             )}
-          </div>
-          {sync && (
-            <table>
-              <thead>
-                <tr>
-                  <th>Source</th>
-                  <th>Ok</th>
-                  <th className="num">Fetched</th>
-                  <th className="num">Written</th>
-                  <th className="num">Refused</th>
-                  <th className="num">Colliding</th>
-                  <th className="num">Pages</th>
-                  <th>Truncated</th>
-                  <th>Detail</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sync.results.map((r) => (
-                  <tr key={r.source}>
-                    <td>
-                      <code>{r.source}</code>
-                    </td>
-                    <td>
-                      <span className={'pill ' + (r.ok ? 'ok' : 'err')}>{r.ok ? 'ok' : 'failed'}</span>
-                    </td>
-                    <td className="num">{num(r.rows_fetched)}</td>
-                    <td className="num">{num(r.rows_written)}</td>
-                    <td className="num">{num(r.rows_refused)}</td>
-                    <td className="num">{num(r.rows_colliding)}</td>
-                    <td className="num">{num(r.pages_read)}</td>
-                    <td>{r.truncated ? 'yes' : 'no'}</td>
-                    <td className="dim">{r.detail || ''}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </Panel>
-      )}
+          </SectionCard>
+        )}
+      </TabsContent>
 
-      <Panel
-        title="Rebuild"
-        actions={
-          <button className="btn" disabled={rebuilding} onClick={runRebuild}>
-            {rebuilding ? 'rebuilding…' : 'Rebuild'}
-          </button>
-        }
-      >
-        <div className="panel-body">
-          {rebuildError?.status === 409 ? (
-            <div className="status">
-              <code>409</code> rebuild in progress — {rebuildError.detail}
-            </div>
-          ) : (
-            <Status error={rebuildError} />
-          )}
-          {rebuild ? (
-            <p>
-              {rebuild.ok ? 'ok' : 'failed'} · {num(rebuild.entities)} entities · {num(rebuild.canonical)} canonical ·{' '}
-              {num(rebuild.links)} links · {num(rebuild.facts)} facts · {num(rebuild.raw_events_read)} raw events read ·{' '}
-              {num(rebuild.duration_ms)} ms
-            </p>
-          ) : (
-            !rebuildError && <p className="dim">no rebuild run from this page yet</p>
-          )}
-        </div>
-      </Panel>
+      <TabsContent value="activity">
+        <Activity sources={rows} source={activitySource} onSource={setActivitySource} tick={synced} />
+      </TabsContent>
 
-      <Panel title="Report" actions={<button className="btn" onClick={loadReport}>Refresh</button>}>
-        <div className="panel-body">
-          <Status error={reportError} />
+      <TabsContent value="report" className="flex flex-col gap-6">
+        <SectionCard
+          title="Report"
+          headerRight={
+            <Button size="sm" variant="outline" onClick={loadReport}>
+              Refresh
+            </Button>
+          }
+        >
+          <ErrorBanner error={reportError} />
           {!report && !reportError && <Empty>loading…</Empty>}
           {report && !report.ran && <Empty>{report.detail}</Empty>}
-          {report && report.ran && (
-            <p>
-              {report.ok ? 'ok' : 'failed'} · ran {relTime(report.created_at)} · {num(report.duration_ms)} ms ·{' '}
-              {num(report.raw_events_read)} raw events read · {num(report.entities)} entities · {num(report.facts)} facts
+          {report?.ran && (
+            <p className="text-sm text-dbb-muted">
+              <Pill tone={report.ok ? 'ok' : 'failed'}>{report.ok ? 'ok' : 'failed'}</Pill> · ran {relTime(report.created_at)} ·{' '}
+              {num(report.duration_ms)} ms · {num(report.raw_events_read)} raw events read · {num(report.entities)} entities ·{' '}
+              {num(report.facts)} facts
             </p>
           )}
-        </div>
-        {report && report.ran && <Report report={report.report} />}
-      </Panel>
-    </>
+        </SectionCard>
+        {report?.ran && <Report report={report.report} />}
+      </TabsContent>
+    </Tabs>
   )
 }

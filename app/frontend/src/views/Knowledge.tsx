@@ -1,9 +1,10 @@
-import { useEffect, useState, type ReactNode } from 'react'
-import { asApiError, get, type ApiError } from '../api'
-import { Json } from '../components/Json'
-import { Empty, num } from '../components/Panel'
-import { Status } from '../components/Status'
-import './Knowledge.css'
+import { useState, type ReactNode } from 'react'
+import { get } from '../api'
+import { SectionCard } from '@/components/SectionCard'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ALL, Chip, Empty, Enabled, Fail, Mono, Pill, num, short, useLoad } from './inference/shared'
 
 interface EntitySpec {
   identity: string[]
@@ -108,59 +109,42 @@ interface Vocabulary {
   readings: Record<string, Reading>
 }
 
-function useGet<T>(path: string) {
-  const [got, setGot] = useState<{ path: string; data: T | null; error: ApiError | null } | null>(null)
-  useEffect(() => {
-    let live = true
-    get<T>(path)
-      .then((data) => live && setGot({ path, data, error: null }))
-      .catch((e) => live && setGot({ path, data: null, error: asApiError(e) }))
-    return () => {
-      live = false
-    }
-  }, [path])
-  const fresh = got?.path === path ? got : null
-  return { data: fresh?.data ?? null, error: fresh?.error ?? null, loading: !fresh }
+const keyCol = 'font-medium text-dbb-charcoal'
+
+function Heading({ children, count }: { children: ReactNode; count: number }) {
+  return (
+    <h4 className="text-sm font-medium text-dbb-charcoal">
+      {children} <span className="font-normal text-dbb-muted">({num(count)})</span>
+    </h4>
+  )
 }
 
-function Section({
-  title,
+function Loaded<T>({
+  got,
   count,
-  error,
-  loading,
   children,
 }: {
-  title: string
-  count?: string
-  error: ApiError | null
-  loading: boolean
-  children: ReactNode
+  got: ReturnType<typeof useLoad<T>>
+  count: (d: T) => string
+  children: (d: T) => ReactNode
 }) {
+  if (got.error) return <Fail error={got.error} />
+  if (!got.data) return <Empty>loading…</Empty>
   return (
-    <details className="panel section" open>
-      <summary className="panel-head">
-        <h2>{title}</h2>
-        {count && <span className="dim">{count}</span>}
-        <div className="spacer" />
-        {error && <span className="pill err">not served</span>}
-      </summary>
-      {error && (
-        <div className="panel-body">
-          <Status error={error} />
-        </div>
-      )}
-      {loading && !error && <Empty>loading…</Empty>}
-      {!loading && !error && children}
-    </details>
+    <div className="space-y-4">
+      <p className="text-sm text-dbb-muted">{count(got.data)}</p>
+      {children(got.data)}
+    </div>
   )
 }
 
 function Grounding({ value }: { value: string }) {
   const [kind, attr] = value.split(':', 2)
   return (
-    <>
-      <span className="pill">{kind}</span> <code>{attr ?? ''}</code>
-    </>
+    <span className="inline-flex items-center gap-1.5">
+      <Pill>{kind}</Pill>
+      <Mono>{attr ?? ''}</Mono>
+    </span>
   )
 }
 
@@ -181,293 +165,295 @@ const expressionText = (m: MetricDef) =>
         .join(` ${m.op ?? '?'} `)
     : (m.expression ?? '')
 
-function OntologyView({ o }: { o: Ontology }) {
+function OntologyTab({ o }: { o: Ontology }) {
   const entities = Object.entries(o.entities)
   return (
-    <>
-      <div className="panel-body">
-        <h3>
-          Source priority <span className="dim">({o.source_priority.length})</span>
-        </h3>
-        <div className="chips">
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <Heading count={o.source_priority.length}>Source priority</Heading>
+        <div className="flex flex-wrap gap-1.5">
           {o.source_priority.map((s, i) => (
-            <span key={s} className="chip">
-              <span className="dim">{i + 1}</span> {s}
-            </span>
+            <Chip key={s}>
+              {i + 1} <strong>{s}</strong>
+            </Chip>
           ))}
         </div>
-        <h3>
-          Entities <span className="dim">({entities.length})</span>
-        </h3>
-        <div className="grid">
+      </div>
+      <div className="space-y-2">
+        <Heading count={entities.length}>Entities</Heading>
+        <div className="flex flex-col gap-4 md:grid md:grid-cols-2 xl:grid-cols-3">
           {entities.map(([name, spec]) => (
-            <div key={name} className="card">
-              <h3>
-                {name} <span className="dim">({Object.keys(spec.attrs).length})</span>
-              </h3>
-              <table>
-                <tbody>
+            <div key={name} className="rounded-lg border border-dbb-warm p-3">
+              <Heading count={Object.keys(spec.attrs).length}>{name}</Heading>
+              <Table>
+                <TableBody>
                   {Object.entries(spec.attrs).map(([attr, type]) => (
-                    <tr key={attr}>
-                      <td>
-                        <code>{attr}</code>
-                        {spec.identity.includes(attr) && (
-                          <>
-                            {' '}
-                            <span className="pill ok">identity</span>
-                          </>
-                        )}
-                      </td>
-                      <td className="dim">{type}</td>
-                    </tr>
+                    <TableRow key={attr}>
+                      <TableCell className="py-1 font-mono text-xs text-dbb-charcoal">
+                        <span className="inline-flex items-center gap-1.5">
+                          {attr}
+                          {spec.identity.includes(attr) && <Pill tone="up">identity</Pill>}
+                        </span>
+                      </TableCell>
+                      <TableCell className="py-1">{type}</TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
-              {spec.identity.length === 0 && <div className="dim">no identity attrs</div>}
+                </TableBody>
+              </Table>
+              {spec.identity.length === 0 && <p className="mt-2 text-sm text-dbb-muted">no identity attrs</p>}
             </div>
           ))}
         </div>
-        <h3>
-          Relationships <span className="dim">({o.relationships.length})</span>
-        </h3>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Relationship</th>
-            <th>From</th>
-            <th>To</th>
-            <th>Cardinality</th>
-            <th>Grounding</th>
-          </tr>
-        </thead>
-        <tbody>
-          {o.relationships.map((r) => (
-            <tr key={`${r.rel}|${r.from}|${r.to}`}>
-              <td>
-                <code>{r.rel}</code>
-              </td>
-              <td>{r.from}</td>
-              <td>{r.to}</td>
-              <td className="dim">{r.cardinality}</td>
-              <td>
-                <Grounding value={r.grounding} />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </>
+      <div className="space-y-2">
+        <Heading count={o.relationships.length}>Relationships</Heading>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Relationship</TableHead>
+              <TableHead>From</TableHead>
+              <TableHead>To</TableHead>
+              <TableHead>Cardinality</TableHead>
+              <TableHead>Grounding</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {o.relationships.map((r) => (
+              <TableRow key={`${r.rel}|${r.from}|${r.to}`}>
+                <TableCell className={keyCol}>
+                  <Mono>{r.rel}</Mono>
+                </TableCell>
+                <TableCell>{r.from}</TableCell>
+                <TableCell>{r.to}</TableCell>
+                <TableCell>{r.cardinality}</TableCell>
+                <TableCell>
+                  <Grounding value={r.grounding} />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
   )
 }
 
-function MappingsView({ m }: { m: Mappings }) {
+function MappingsTab({ m }: { m: Mappings }) {
   const [source, setSource] = useState('')
   const sources = [...new Set(m.lines.map((l) => l.source))].sort()
   const lines = source ? m.lines.filter((l) => l.source === source) : m.lines
   const hooked = lines.filter((l) => l.from_hook).length
   return (
-    <>
-      <div className="panel-body">
-        <div className="filters">
-          <select value={source} onChange={(e) => setSource(e.target.value)}>
-            <option value="">all sources ({sources.length})</option>
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-3 text-sm text-dbb-muted">
+        <Select value={source || ALL} onValueChange={(v) => setSource(v === ALL ? '' : v)}>
+          <SelectTrigger className="h-8 w-48">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>all sources ({sources.length})</SelectItem>
             {sources.map((s) => (
-              <option key={s} value={s}>
+              <SelectItem key={s} value={s}>
                 {s}
-              </option>
+              </SelectItem>
             ))}
-          </select>
-          <span>
-            {num(lines.length)} lines · {num(hooked)} hook-produced fields
-          </span>
-        </div>
-        <p className="dim">
-          hook sources ({m.hook_sources.length}): {m.hook_sources.join(', ')}
-        </p>
+          </SelectContent>
+        </Select>
+        <span>
+          {num(lines.length)} lines · {num(hooked)} hook-produced fields
+        </span>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Source</th>
-            <th>Object type</th>
-            <th>Path</th>
-            <th>Entity.label</th>
-            <th>Transform</th>
-            <th>Origin</th>
-          </tr>
-        </thead>
-        <tbody>
+      <p className="text-sm text-dbb-muted">
+        hook sources ({m.hook_sources.length}): {m.hook_sources.join(', ')}
+      </p>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Source</TableHead>
+            <TableHead>Object type</TableHead>
+            <TableHead>Path</TableHead>
+            <TableHead>Entity.label</TableHead>
+            <TableHead>Transform</TableHead>
+            <TableHead>Origin</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {lines.map((l) => (
-            <tr key={`${l.source}|${l.object_type}|${l.path}|${l.entity}|${l.label}`}>
-              <td>
-                <code>{l.source}</code>
-              </td>
-              <td>
-                <code>{l.object_type}</code>
-              </td>
-              <td>
-                <code>{l.path}</code>
-              </td>
-              <td>
-                {l.entity}.<strong>{l.label}</strong>
-              </td>
-              <td>{l.transform ? <code>{l.transform}</code> : <span className="dim">—</span>}</td>
-              <td>{l.from_hook ? <span className="pill warn">hook</span> : <span className="dim">payload</span>}</td>
-            </tr>
+            <TableRow key={`${l.source}|${l.object_type}|${l.path}|${l.entity}|${l.label}`}>
+              <TableCell className={keyCol}>{l.source}</TableCell>
+              <TableCell>
+                <Mono>{l.object_type}</Mono>
+              </TableCell>
+              <TableCell>
+                <Mono>{l.path}</Mono>
+              </TableCell>
+              <TableCell>
+                {l.entity}.<span className={keyCol}>{l.label}</span>
+              </TableCell>
+              <TableCell>{l.transform ? <Mono>{l.transform}</Mono> : '—'}</TableCell>
+              <TableCell>{l.from_hook ? <Pill tone="warn">hook</Pill> : <Pill>payload</Pill>}</TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
-    </>
+        </TableBody>
+      </Table>
+    </div>
   )
 }
 
-function TransformsView({ t }: { t: Transforms }) {
+function TransformsTab({ t }: { t: Transforms }) {
   const labels = Object.entries(t.labels).sort(([a], [b]) => a.localeCompare(b))
   const users = (fn: string) => labels.filter(([, f]) => f === fn).length
   return (
-    <>
-      <div className="panel-body">
-        <h3>
-          Registry <span className="dim">({Object.keys(t.registry).length})</span>
-        </h3>
-        <div className="chips">
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <Heading count={Object.keys(t.registry).length}>Registry</Heading>
+        <div className="flex flex-wrap gap-1.5">
           {Object.entries(t.registry).map(([fn, r]) => (
-            <span key={fn} className="chip">
-              {fn} → <strong>{r.produces}</strong> <span className="dim">×{users(fn)}</span>
-            </span>
+            <Chip key={fn}>
+              {fn} → <strong>{r.produces}</strong> ×{users(fn)}
+            </Chip>
           ))}
         </div>
-        <h3>
-          Labels <span className="dim">({labels.length})</span>
-        </h3>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Label</th>
-            <th>Function</th>
-            <th>Produces</th>
-          </tr>
-        </thead>
-        <tbody>
-          {labels.map(([label, fn]) => (
-            <tr key={label}>
-              <td>
-                <code>{label}</code>
-              </td>
-              <td>
-                <code>{fn}</code>
-              </td>
-              <td>{t.registry[fn]?.produces ?? <span className="pill err">unregistered</span>}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </>
+      <div className="space-y-2">
+        <Heading count={labels.length}>Labels</Heading>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Label</TableHead>
+              <TableHead>Function</TableHead>
+              <TableHead>Produces</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {labels.map(([label, fn]) => (
+              <TableRow key={label}>
+                <TableCell className={keyCol}>
+                  <Mono>{label}</Mono>
+                </TableCell>
+                <TableCell>
+                  <Mono>{fn}</Mono>
+                </TableCell>
+                <TableCell>{t.registry[fn]?.produces ?? <Pill tone="err">unregistered</Pill>}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
   )
 }
 
-function MetricsView({ m }: { m: MetricDefinitions }) {
+function MetricsTab({ m }: { m: MetricDefinitions }) {
   return (
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Entity</th>
-          <th>Expression</th>
-          <th>Filter</th>
-          <th>Kind</th>
-          <th>Raw fields</th>
-        </tr>
-      </thead>
-      <tbody>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Name</TableHead>
+          <TableHead>Entity</TableHead>
+          <TableHead>Expression</TableHead>
+          <TableHead>Filter</TableHead>
+          <TableHead>Kind</TableHead>
+          <TableHead>Raw fields</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
         {Object.entries(m.definitions).map(([name, d]) => {
           const p = m.provenance[name]
           return (
-            <tr key={name}>
-              <td>
-                <strong>{d.label}</strong> <code className="dim">{name}</code>
-              </td>
-              <td>{d.entity}</td>
-              <td>
-                <code>{expressionText(d)}</code>
-              </td>
-              <td>{filterText(d.filter) ? <code>{filterText(d.filter)}</code> : <span className="dim">—</span>}</td>
-              <td>
+            <TableRow key={name}>
+              <TableCell className="align-top">
+                <span className={keyCol}>{d.label}</span> <Mono>{name}</Mono>
+              </TableCell>
+              <TableCell className="align-top">{d.entity}</TableCell>
+              <TableCell className="align-top">
+                <Mono>{expressionText(d)}</Mono>
+              </TableCell>
+              <TableCell className="align-top">{filterText(d.filter) ? <Mono>{filterText(d.filter)}</Mono> : '—'}</TableCell>
+              <TableCell className="align-top">
                 {d.inferred ? (
-                  <>
-                    <span className="pill warn">inferred</span>{' '}
-                    <span className="dim">
-                      reading <code>{d.reading}</code>
-                      {p?.inferred_from && (
-                        <>
-                          {' '}
-                          reads <code>{p.inferred_from.reads}</code> · {p.inferred_from.vocabulary}{' '}
-                          <code>{p.inferred_from.vocabulary_sha}</code>
-                        </>
-                      )}
+                  <span className="inline-flex flex-wrap items-center gap-1.5">
+                    <Pill tone="warn">inferred</Pill>
+                    <span>
+                      reading <Mono>{d.reading}</Mono>
                     </span>
-                  </>
+                    {p?.inferred_from && (
+                      <span>
+                        reads <Mono>{p.inferred_from.reads}</Mono> · {p.inferred_from.vocabulary} <Mono>{p.inferred_from.vocabulary_sha}</Mono>
+                      </span>
+                    )}
+                  </span>
                 ) : (
-                  <span className="pill ok">observed</span>
+                  <Pill tone="up">observed</Pill>
                 )}
-              </td>
-              <td>
+              </TableCell>
+              <TableCell className="align-top">
                 {p && p.raw_fields.length > 0 ? (
-                  <ul className="list plain">
+                  <ul className="space-y-0.5">
                     {p.raw_fields.map((f) => (
                       <li key={f}>
-                        <code>{f}</code>
+                        <Mono>{f}</Mono>
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <span className="dim">none</span>
+                  '—'
                 )}
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           )
         })}
-      </tbody>
-    </table>
+      </TableBody>
+    </Table>
   )
 }
 
-function VocabularyView({ v }: { v: Vocabulary }) {
+function EnrichmentTab({ v }: { v: Vocabulary }) {
   const readings = Object.entries(v.readings)
   return (
-    <div className="panel-body">
-      <p>
-        <span className={'pill ' + (v.enabled ? 'ok' : 'warn')}>{v.enabled ? 'enabled' : 'disabled'}</span> model{' '}
-        <code>{v.model}</code> · {readings.length} {readings.length === 1 ? 'reading' : 'readings'}
-      </p>
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-2 text-sm text-dbb-muted">
+        <Enabled on={v.enabled} />
+        <span>
+          model <Mono>{v.model}</Mono>
+        </span>
+        <span>
+          · {readings.length} {readings.length === 1 ? 'reading' : 'readings'}
+        </span>
+      </div>
       {readings.map(([name, r]) => (
-        <div key={name} className="card reading">
-          <h3>
-            {name} <span className="dim">reads</span> {r.entity}.{r.input} <span className="dim">sha</span>{' '}
-            <code title={r.sha}>{r.sha.slice(0, 12)}</code>
-          </h3>
-          <p className="gloss">{r.description}</p>
+        <div key={name} className="space-y-3 rounded-lg border border-dbb-warm p-3">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-dbb-muted">
+            <span className={keyCol}>{name}</span>
+            <span>
+              reads{' '}
+              <Mono>
+                {r.entity}.{r.input}
+              </Mono>
+            </span>
+            <span>
+              sha <Mono title={r.sha}>{short(r.sha)}</Mono>
+            </span>
+          </div>
+          <p className="max-w-prose text-sm text-dbb-muted">{r.description}</p>
           {r.fields.map((f) => (
-            <div key={f.name} className="field">
-              <h3>
-                <code>{f.name}</code> <span className="pill">{f.type}</span>{' '}
-                <span className="dim">({f.labels.length} labels)</span>
-              </h3>
-              <p className="gloss">{f.description}</p>
-              <table>
-                <tbody>
+            <div key={f.name} className="space-y-1 border-t border-dbb-warm/30 pt-3">
+              <div className="flex flex-wrap items-center gap-2 text-sm text-dbb-muted">
+                <span className="font-mono text-xs text-dbb-charcoal">{f.name}</span>
+                <Pill>{f.type}</Pill>
+                <span>({f.labels.length} labels)</span>
+              </div>
+              <p className="max-w-prose text-sm text-dbb-muted">{f.description}</p>
+              <Table>
+                <TableBody>
                   {f.labels.map((l) => (
-                    <tr key={l.label}>
-                      <td className="label">
-                        <code>{l.label}</code>
-                      </td>
-                      <td className="gloss">{l.means}</td>
-                    </tr>
+                    <TableRow key={l.label}>
+                      <TableCell className="w-px whitespace-nowrap py-1 font-mono text-xs text-dbb-charcoal">{l.label}</TableCell>
+                      <TableCell className="py-1">{l.means}</TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           ))}
         </div>
@@ -477,110 +463,89 @@ function VocabularyView({ v }: { v: Vocabulary }) {
 }
 
 export function Knowledge() {
-  const ontology = useGet<Ontology>('/api/knowledge/ontology')
-  const mappings = useGet<Mappings>('/api/knowledge/mappings')
-  const transforms = useGet<Transforms>('/api/knowledge/transforms')
-  const metrics = useGet<MetricDefinitions>('/api/knowledge/metrics')
-  const vocabulary = useGet<Vocabulary>('/api/enrichment/vocabulary')
+  const ontology = useLoad(() => get<Ontology>('/api/knowledge/ontology'), [])
+  const mappings = useLoad(() => get<Mappings>('/api/knowledge/mappings'), [])
+  const transforms = useLoad(() => get<Transforms>('/api/knowledge/transforms'), [])
+  const metrics = useLoad(() => get<MetricDefinitions>('/api/knowledge/metrics'), [])
+  const vocabulary = useLoad(() => get<Vocabulary>('/api/enrichment/vocabulary'), [])
 
   const files = [
-    { name: 'ontology', ok: !!ontology.data },
-    { name: 'mappings', ok: !!mappings.data },
-    { name: 'transforms', ok: !!transforms.data },
-    { name: 'metrics', ok: !!metrics.data },
-    { name: 'enrichment', ok: !!vocabulary.data },
+    { name: 'ontology', ...ontology },
+    { name: 'mappings', ...mappings },
+    { name: 'transforms', ...transforms },
+    { name: 'metrics', ...metrics },
+    { name: 'enrichment', ...vocabulary },
   ]
-  const served = files.filter((f) => f.ok).length
+  const served = files.filter((f) => f.data).length
 
   return (
-    <>
-      <div className="panel">
-        <div className="panel-body served">
-          <strong>
-            {served} of {files.length} knowledge files served
-          </strong>
-          <div className="chips">
-            {files.map((f) => (
-              <span key={f.name} className={'chip ' + (f.ok ? '' : 'missing')}>
-                {f.name}
-              </span>
-            ))}
-          </div>
-          <span className="dim">read-only view of the declarations as the backend serves them</span>
+    <SectionCard
+      title={`${served} of ${files.length} knowledge files served`}
+      headerRight={
+        <div className="flex flex-wrap gap-1.5">
+          {files.map((f) => (
+            <Pill key={f.name} tone={f.error ? 'err' : 'neutral'}>
+              {f.name}
+            </Pill>
+          ))}
         </div>
-      </div>
-
-      <Section
-        title="Ontology"
-        count={
-          ontology.data
-            ? `${Object.keys(ontology.data.entities).length} entities · ${ontology.data.relationships.length} relationships · ${ontology.data.source_priority.length} sources`
-            : undefined
-        }
-        error={ontology.error}
-        loading={ontology.loading}
-      >
-        {ontology.data && <OntologyView o={ontology.data} />}
-      </Section>
-
-      <Section
-        title="Mappings"
-        count={
-          mappings.data
-            ? `${num(mappings.data.lines.length)} lines · ${num(mappings.data.lines.filter((l) => l.from_hook).length)} hook-produced`
-            : undefined
-        }
-        error={mappings.error}
-        loading={mappings.loading}
-      >
-        {mappings.data && <MappingsView m={mappings.data} />}
-      </Section>
-
-      <Section
-        title="Transforms"
-        count={
-          transforms.data
-            ? `${Object.keys(transforms.data.registry).length} functions · ${Object.keys(transforms.data.labels).length} labels`
-            : undefined
-        }
-        error={transforms.error}
-        loading={transforms.loading}
-      >
-        {transforms.data && <TransformsView t={transforms.data} />}
-      </Section>
-
-      <Section
-        title="Metrics"
-        count={
-          metrics.data
-            ? `${Object.keys(metrics.data.definitions).length} definitions · ${Object.values(metrics.data.definitions).filter((d) => d.inferred).length} inferred`
-            : undefined
-        }
-        error={metrics.error}
-        loading={metrics.loading}
-      >
-        {metrics.data && <MetricsView m={metrics.data} />}
-      </Section>
-
-      <Section
-        title="Enrichment vocabulary"
-        count={
-          vocabulary.data
-            ? `${Object.keys(vocabulary.data.readings).length} readings · ${Object.values(vocabulary.data.readings).reduce((n, r) => n + r.fields.length, 0)} fields`
-            : undefined
-        }
-        error={vocabulary.error}
-        loading={vocabulary.loading}
-      >
-        {vocabulary.data && (
-          <>
-            <VocabularyView v={vocabulary.data} />
-            <div className="panel-body">
-              <Json value={vocabulary.data} label="vocabulary as served" />
-            </div>
-          </>
-        )}
-      </Section>
-    </>
+      }
+    >
+      <Tabs defaultValue="ontology">
+        <TabsList>
+          <TabsTrigger value="ontology">Ontology</TabsTrigger>
+          <TabsTrigger value="mappings">Mappings</TabsTrigger>
+          <TabsTrigger value="transforms">Transforms</TabsTrigger>
+          <TabsTrigger value="metrics">Metrics</TabsTrigger>
+          <TabsTrigger value="enrichment">Enrichment</TabsTrigger>
+        </TabsList>
+        <TabsContent value="ontology">
+          <Loaded
+            got={ontology}
+            count={(o) =>
+              `${Object.keys(o.entities).length} entities · ${o.relationships.length} relationships · ${o.source_priority.length} sources`
+            }
+          >
+            {(o) => <OntologyTab o={o} />}
+          </Loaded>
+        </TabsContent>
+        <TabsContent value="mappings">
+          <Loaded
+            got={mappings}
+            count={(m) => `${num(m.lines.length)} lines · ${num(m.lines.filter((l) => l.from_hook).length)} hook-produced`}
+          >
+            {(m) => <MappingsTab m={m} />}
+          </Loaded>
+        </TabsContent>
+        <TabsContent value="transforms">
+          <Loaded
+            got={transforms}
+            count={(t) => `${Object.keys(t.registry).length} functions · ${Object.keys(t.labels).length} labels`}
+          >
+            {(t) => <TransformsTab t={t} />}
+          </Loaded>
+        </TabsContent>
+        <TabsContent value="metrics">
+          <Loaded
+            got={metrics}
+            count={(m) =>
+              `${Object.keys(m.definitions).length} definitions · ${Object.values(m.definitions).filter((d) => d.inferred).length} inferred`
+            }
+          >
+            {(m) => <MetricsTab m={m} />}
+          </Loaded>
+        </TabsContent>
+        <TabsContent value="enrichment">
+          <Loaded
+            got={vocabulary}
+            count={(v) =>
+              `${Object.keys(v.readings).length} readings · ${Object.values(v.readings).reduce((n, r) => n + r.fields.length, 0)} fields`
+            }
+          >
+            {(v) => <EnrichmentTab v={v} />}
+          </Loaded>
+        </TabsContent>
+      </Tabs>
+    </SectionCard>
   )
 }
