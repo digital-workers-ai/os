@@ -147,7 +147,7 @@ function RunSection({ run }: { run: Run }) {
               <TableRow>
                 <TableHead className="w-28 text-right">Value</TableHead>
                 <TableHead className="w-24 text-right">Entities</TableHead>
-                <TableHead>Recorded</TableHead>
+                <TableHead className="w-32">Recorded</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
