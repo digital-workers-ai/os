@@ -78,9 +78,9 @@ function Value({ value }: { value: number | null | undefined }) {
   return value === null || value === undefined ? <Pill tone="unknown">unknown</Pill> : <>{num(value)}</>
 }
 
-const W = 240
-const H = 40
-const PAD = 5
+const W = 720
+const H = 140
+const PAD = 8
 
 function Sparkline({ points }: { points: Point[] }) {
   const values = points.map((p) => p.value)
@@ -103,10 +103,9 @@ function Sparkline({ points }: { points: Point[] }) {
   if (current.length) segments.push(current)
   return (
     <svg
-      className="shrink-0 overflow-visible"
-      width={W}
-      height={H}
+      className="h-32 w-full sm:h-40"
       viewBox={`0 0 ${W} ${H}`}
+      preserveAspectRatio="none"
       role="img"
       aria-label={`${points.length} points, ${num(min)} to ${num(max)}`}
     >
@@ -115,7 +114,7 @@ function Sparkline({ points }: { points: Point[] }) {
         return (
           <g key={i}>
             <polygon points={`${line} ${seg[seg.length - 1].x},${H} ${seg[0].x},${H}`} fill="rgba(26,26,26,0.08)" />
-            <polyline points={line} fill="none" stroke="#1A1A1A" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
+            <polyline points={line} fill="none" stroke="#1A1A1A" strokeWidth={3} strokeLinejoin="round" strokeLinecap="round" />
           </g>
         )
       })}
@@ -124,7 +123,7 @@ function Sparkline({ points }: { points: Point[] }) {
           key={i}
           cx={x(i)}
           cy={v === null ? H / 2 : y(v)}
-          r={2.5}
+          r={5}
           fill={v === null ? '#FFFFFF' : '#1A1A1A'}
           stroke={v === null ? '#807F74' : 'none'}
           strokeWidth={1.5}
@@ -154,9 +153,9 @@ function RunSection({ run, index }: { run: Run; index: number }) {
         </>
       }
     >
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+      <div className="flex flex-col gap-4">
         <Sparkline points={run.points} />
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0">
           <Table>
             <TableHeader>
               <TableRow>
