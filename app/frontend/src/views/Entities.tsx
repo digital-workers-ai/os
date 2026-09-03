@@ -152,7 +152,7 @@ function useGet<T>(path: string | null) {
     }
   }, [path])
   const fresh = path && got?.path === path ? got : null
-  return { data: fresh?.data ?? null, error: fresh?.error ?? null, loading: !!path && !fresh }
+  return { data: path ? (fresh?.data ?? got?.data ?? null) : null, error: fresh?.error ?? null, loading: !!path && !fresh }
 }
 
 function Id({ id, full = false }: { id: string; full?: boolean }) {
@@ -315,7 +315,7 @@ function Detail({
   return (
     <SectionCard title={d ? `${d.entity_type} · ${d.anchor}` : 'Entity'} className="min-w-0">
       <ErrorBanner error={detail.error} className="mb-3" />
-      {detail.loading && <Loading />}
+      {detail.loading && !detail.data && <Loading />}
       {retired && (
         <p className="text-sm text-dbb-muted">
           <Pill tone="warn">retired</Pill> {retired.detail}
@@ -493,7 +493,7 @@ function Canonical() {
 
   return (
     <div className={SPLIT}>
-      <SectionCard title={`Canonical entities${list.data ? ` (${num(list.data.total)})` : ''}`} description="click an entity to open it">
+      <SectionCard title="Canonical entities" description="click an entity to open it">
         <ErrorBanner error={list.error} className="mb-3" />
         <div className="mb-4 flex flex-wrap gap-2">
           <FilterChip on={type === ''} onClick={() => pick('')}>
@@ -507,7 +507,7 @@ function Canonical() {
             </FilterChip>
           ))}
         </div>
-        {list.loading ? (
+        {list.loading && !list.data ? (
           <Loading />
         ) : rows.length === 0 ? (
           <Empty>no entities</Empty>
@@ -649,7 +649,7 @@ function RawSide() {
             }}
           />
         </div>
-        {records.loading ? (
+        {records.loading && !records.data ? (
           <Loading />
         ) : rows.length === 0 ? (
           <Empty>no records</Empty>
@@ -729,7 +729,7 @@ function RawSide() {
             }}
           />
         </div>
-        {raw.loading ? (
+        {raw.loading && !raw.data ? (
           <Loading />
         ) : events.length === 0 ? (
           <Empty>no raw events</Empty>
