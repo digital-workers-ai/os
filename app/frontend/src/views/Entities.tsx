@@ -476,23 +476,14 @@ function Detail({
 
 function Canonical() {
   const [type, setType] = useState('')
-  const [offset, setOffset] = useState(0)
-  const [size, setSize] = useState(PAGE)
   const [selected, setSelected] = useState<string | null>(null)
   const [trace, setTrace] = useState<Trace | null>(null)
-  const list = useGet<EntitiesResponse>(`/api/entities?${query({ entity_type: type, limit: size, offset })}`)
+  const list = useGet<EntitiesResponse>(`/api/entities?${query({ entity_type: type, limit: SCAN })}`)
 
-  const pick = (t: string) => {
-    setType(t)
-    setOffset(0)
-  }
+  const pick = (t: string) => setType(t)
   const open = (id: string) => {
     setSelected(id)
     setTrace(null)
-  }
-  const changeSize = (n: number) => {
-    setSize(n)
-    setOffset(0)
   }
 
   const byType = Object.entries(list.data?.by_type ?? {})
@@ -560,16 +551,10 @@ function Canonical() {
               </TableBody>
             </Table>
           )}
-          {list.data && (
-            <Pager
-              offset={offset}
-              count={rows.length}
-              total={list.data.total}
-              onPage={setOffset}
-              size={size}
-              allSize={Math.min(list.data.total, 500)}
-              onSize={changeSize}
-            />
+          {list.data && list.data.total > rows.length && (
+            <p className="mt-3 text-sm text-dbb-muted">
+              showing the first {num(rows.length)} of {num(list.data.total)}
+            </p>
           )}
         </SectionCard>
         {selected ? (
