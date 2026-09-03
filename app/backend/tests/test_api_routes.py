@@ -9,7 +9,7 @@ from sqlalchemy import func, select, update
 
 from app.api import conversation_api, entities_api, metrics_api, sources_api
 from app.db import get_session
-from app.engine import mappings, metrics, ontology, run
+from app.engine import goals, mappings, metrics, ontology, rules, run
 from app.engine.transforms import TRANSFORM_TYPES, TRANSFORMS
 from app.main import app
 from app.models import (
@@ -1255,6 +1255,42 @@ class TestKnowledge:
             "stripe.subscriptions._amount_monthly",
             "stripe.subscriptions.status",
         ]
+
+    async def test_rule_definitions_match_the_insights_endpoint(self, api):
+        response = await api.get("/api/knowledge/rules")
+        assert response.status_code == 200, response.text
+        body = response.json()
+        reference = (await api.get("/api/insights/rules/definitions")).json()
+        assert body == reference
+        assert set(body["rules"]) == set(rules.definitions())
+        stalled = body["rules"]["stalled_deal"]
+        assert stalled["entity"] == "deal"
+        assert stalled["severity"] == "high"
+        assert stalled["all"] == [
+            {"attr": "status", "not_equals": "closed_won"},
+            {"attr": "status", "not_equals": "closed_lost"},
+            {"attr": "closed_at", "older_than_days": 14},
+        ]
+        assert stalled["any"] == []
+
+    async def test_goal_declarations_are_served_without_evaluation(self, api):
+        response = await api.get("/api/knowledge/goals")
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert set(body["goals"]) == set(goals.definitions())
+        grow_mrr = body["goals"]["grow_mrr"]
+        assert grow_mrr == {
+            "metric": "mrr",
+            "target": 30000,
+            "strategy": "at_least",
+            "params": {},
+        }
+        band = body["goals"]["hold_average_deal_size"]
+        assert band["params"] == {"band_low": 0.8, "band_high": 1.25}
+        for goal in body["goals"].values():
+            assert "current" not in goal
+            assert "met" not in goal
+            assert "verdict" not in goal
 
     async def test_there_is_no_checks_endpoint(self, api):
         assert (await api.get("/api/knowledge/checks")).status_code == 404
