@@ -241,11 +241,14 @@ export function Metrics() {
           <Empty>loading…</Empty>
         ) : (
           <>
-            <Table>
+            <Table className="table-fixed">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Metric</TableHead>
-                  <TableHead className="w-20 text-right">Value</TableHead>
+                  <TableHead className="w-64">Metric</TableHead>
+                  <TableHead className="w-32">Entity</TableHead>
+                  <TableHead className="w-24 text-right">Value</TableHead>
+                  <TableHead className="w-28 text-right">Entities</TableHead>
+                  <TableHead className="w-28">Inferred from</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -268,14 +271,14 @@ export function Metrics() {
                           )}
                           <span className="font-medium text-dbb-charcoal">{m.label}</span>
                         </span>
-                        <Mono className="block">
-                          {name}
-                          {m.entity ? ` · ${m.entity}` : ''}
-                        </Mono>
+                        <Mono className="block">{name}</Mono>
                       </TableCell>
+                      <TableCell>{m.entity && <Mono>{m.entity}</Mono>}</TableCell>
                       <TableCell className="text-right tabular-nums text-dbb-charcoal">
                         <Value value={m.value} />
                       </TableCell>
+                      <TableCell className="text-right tabular-nums">{m.entities === undefined ? '—' : num(m.entities)}</TableCell>
+                      <TableCell>{m.inferred && m.reading && <Mono>{m.reading}</Mono>}</TableCell>
                     </TableRow>
                   )
                 })}
