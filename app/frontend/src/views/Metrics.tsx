@@ -243,8 +243,8 @@ export function Metrics() {
           <Empty>loading…</Empty>
         ) : (
           <>
-            <Table className="table-fixed">
-              <TableHeader>
+            <Table className="table-fixed" wrapperClassName="overflow-x-visible">
+              <TableHeader className="[&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-card [&_th]:shadow-[inset_0_-1px_0_theme(colors.dbb.warm)]">
                 <TableRow>
                   <TableHead className="w-64">Metric</TableHead>
                   <TableHead className="w-32">Entity</TableHead>
