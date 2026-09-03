@@ -7,7 +7,6 @@ import { ErrorBanner } from '@/components/ui/banner'
 import { Button } from '@/components/ui/button'
 import { Empty } from '@/components/ui/empty'
 import { Mono } from '@/components/ui/mono'
-import { PAGE, Pager } from '@/components/ui/pager'
 import { Pill } from '@/components/ui/pill'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { num, plural, relTime, short } from '@/lib/format'
@@ -67,6 +66,8 @@ interface Series {
 interface SnapshotResponse {
   written: number
 }
+
+const SPLIT = 'grid gap-6 lg:grid-cols-[1fr_1.2fr]'
 
 const verdict = (s: Series) =>
   s.runs.length === 0
@@ -203,7 +204,6 @@ export function Metrics() {
   const [snapping, setSnapping] = useState(false)
   const [written, setWritten] = useState<number | null>(null)
   const [snapError, setSnapError] = useState<ApiError | null>(null)
-  const [offset, setOffset] = useState(0)
 
   const loadMetrics = () =>
     get<MetricsResponse>('/api/metrics')
@@ -229,8 +229,6 @@ export function Metrics() {
     if (selected) loadSeries(selected)
   }, [selected])
 
-  useEffect(() => setOffset(0), [metrics])
-
   const snapshot = async () => {
     setSnapping(true)
     setSnapError(null)
@@ -246,12 +244,11 @@ export function Metrics() {
   }
 
   const rows = Object.entries(metrics?.metrics ?? {})
-  const page = rows.slice(offset, offset + PAGE)
   const row = selected ? metrics?.metrics[selected] : undefined
   const open = series && series.metric === selected ? series : null
 
   return (
-    <div className="space-y-6">
+    <div className={SPLIT}>
       <SectionCard
         title={`Metrics${metrics ? ` (${rows.length})` : ''}`}
         description="click a metric to open its series"
@@ -270,18 +267,18 @@ export function Metrics() {
           <Empty>loading…</Empty>
         ) : (
           <>
-            <Table>
+            <Table className="table-fixed">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Metric</TableHead>
-                  <TableHead className="text-right">Value</TableHead>
-                  <TableHead className="text-right">Entities</TableHead>
-                  <TableHead>Provenance</TableHead>
-                  <TableHead>Unavailable</TableHead>
+                  <TableHead className="w-56">Metric</TableHead>
+                  <TableHead className="w-24 text-right">Value</TableHead>
+                  <TableHead className="w-28 text-right">Entities</TableHead>
+                  <TableHead className="w-56">Provenance</TableHead>
+                  <TableHead className="w-56">Unavailable</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {page.map(([name, m]) => (
+                {rows.map(([name, m]) => (
                   <TableRow
                     key={name}
                     className="cursor-pointer"
@@ -311,14 +308,14 @@ export function Metrics() {
                 ))}
               </TableBody>
             </Table>
-            {rows.length > 0 && <Pager offset={offset} count={page.length} total={rows.length} onPage={setOffset} />}
           </>
         )}
       </SectionCard>
 
-      {selected && (
+      {selected ? (
         <SectionCard
           title={`Series — ${row?.label ?? selected}`}
+          className="min-w-0"
           description={
             open && (
               <>
@@ -341,6 +338,10 @@ export function Metrics() {
               <pre className="overflow-auto rounded-lg bg-dbb-surface p-3 font-mono text-xs">{JSON.stringify(row, null, 2)}</pre>
             </Section>
           )}
+        </SectionCard>
+      ) : (
+        <SectionCard title="Series" className="min-w-0">
+          <Empty>select a metric</Empty>
         </SectionCard>
       )}
     </div>
