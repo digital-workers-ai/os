@@ -4,6 +4,7 @@ import { Inferred } from '@/components/Inferred'
 import { SectionCard } from '@/components/SectionCard'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Empty } from '@/components/ui/empty'
+import { Loading } from '@/components/ui/loading'
 import { Mono } from '@/components/ui/mono'
 import { PAGE, Pager } from '@/components/ui/pager'
 import { Chip, Pill, type Tone } from '@/components/ui/pill'
@@ -222,7 +223,7 @@ export function Insights() {
         }
       >
         <ErrorBanner error={goalsError} className="mb-3" />
-        {!goals && !goalsError && <Empty>loading…</Empty>}
+        {!goals && !goalsError && <Loading />}
         {goals && goals.goals.length === 0 && <Empty>no goals defined</Empty>}
         {goals && goals.goals.length > 0 && <GoalsTable goals={goals.goals} />}
       </SectionCard>
@@ -252,7 +253,7 @@ export function Insights() {
             ))}
           </div>
         )}
-        {!rules && !rulesError && <Empty>loading…</Empty>}
+        {!rules && !rulesError && <Loading />}
         {rules && findings.length === 0 && <Empty>no findings</Empty>}
         {findings.length > 0 && (
           <>

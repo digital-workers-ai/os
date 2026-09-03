@@ -14,6 +14,7 @@ import { Section } from '@/components/SectionHeading'
 import { Banner, ErrorBanner } from '@/components/ui/banner'
 import { Button } from '@/components/ui/button'
 import { Empty } from '@/components/ui/empty'
+import { Loading } from '@/components/ui/loading'
 import { Mono } from '@/components/ui/mono'
 import { PAGE, Pager } from '@/components/ui/pager'
 import { Pill, type Tone } from '@/components/ui/pill'
@@ -273,7 +274,7 @@ export function Estate() {
         >
           <ErrorBanner error={sourcesError} className="mb-3" />
           {!sources && !sourcesError ? (
-            <Empty>loading…</Empty>
+            <Loading />
           ) : (
             <Table className="table-fixed">
               <TableHeader>
@@ -442,7 +443,7 @@ export function Estate() {
           }
         >
           <ErrorBanner error={reportError} className="mb-3" />
-          {!report && !reportError && <Empty>loading…</Empty>}
+          {!report && !reportError && <Loading />}
           {report && !report.ran && <Empty>{report.detail}</Empty>}
           {report?.ran && <Report report={report.report} />}
         </SectionCard>

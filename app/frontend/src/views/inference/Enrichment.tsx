@@ -5,6 +5,7 @@ import { Section } from '@/components/SectionHeading'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Button } from '@/components/ui/button'
 import { Empty } from '@/components/ui/empty'
+import { Loading } from '@/components/ui/loading'
 import { Input } from '@/components/ui/input'
 import { Mono } from '@/components/ui/mono'
 import { PAGE, Pager } from '@/components/ui/pager'
@@ -316,7 +317,7 @@ function Facts({ vocabulary, onPick }: { vocabulary: Vocabulary | null; onPick: 
           ))}
         </p>
       )}
-      {facts.loading && <Empty>loading…</Empty>}
+      {facts.loading && <Loading />}
       {data && data.facts.length === 0 && <Empty>no enriched facts match</Empty>}
       {data && data.facts.length > 0 && (
         <Table className="table-fixed">
@@ -390,7 +391,7 @@ function EntityFacts({ id }: { id: string }) {
           </span>
         </p>
       )}
-      {entity.loading && <Empty>loading…</Empty>}
+      {entity.loading && <Loading />}
       {entity.data && rows.length === 0 && <Empty>no readings stored for this entity</Empty>}
       {rows.length > 0 && (
         <Table>
@@ -545,13 +546,13 @@ export function Enrichment() {
             read under a retired vocabulary; never read at all.
           </p>
           <ErrorBanner error={coverage.error} className="mb-3" />
-          {coverage.loading && <Empty>loading…</Empty>}
+          {coverage.loading && <Loading />}
           {coverage.data && <CoverageTable rows={coverage.data.readings} />}
         </Section>
       </SectionCard>
 
       <SectionCard title="Vocabulary" description={vocab.data && plural(readings.length, 'reading')}>
-        {vocab.data ? <Readings vocabulary={vocab.data} /> : <Empty>loading…</Empty>}
+        {vocab.data ? <Readings vocabulary={vocab.data} /> : <Loading />}
       </SectionCard>
 
       <Facts vocabulary={vocab.data} onPick={pick} />

@@ -5,6 +5,7 @@ import { Section } from '@/components/SectionHeading'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Button } from '@/components/ui/button'
 import { Empty } from '@/components/ui/empty'
+import { Loading } from '@/components/ui/loading'
 import { Input } from '@/components/ui/input'
 import { Mono } from '@/components/ui/mono'
 import { Chip, Pill } from '@/components/ui/pill'
@@ -114,7 +115,7 @@ function Conversation({ id, onAsked }: { id: string; onAsked: () => void }) {
   return (
     <div className="space-y-4">
       <ErrorBanner error={transcript.error} />
-      {transcript.loading && <Empty>loading…</Empty>}
+      {transcript.loading && <Loading />}
       {transcript.data && turns.length === 0 && <Empty>no turns yet</Empty>}
       {turns.length > 0 && (
         <ol className="divide-y divide-dbb-warm/50">
@@ -182,7 +183,7 @@ export function Ask() {
         <div className="space-y-2">
           <ErrorBanner error={threads.error} />
           <LayerOff error={createError} />
-          {threads.loading && <Empty>loading…</Empty>}
+          {threads.loading && <Loading />}
           {threads.data && rows.length === 0 && <Empty>no threads yet</Empty>}
           <div className="flex flex-col gap-1">
             {rows.map((t) => (

@@ -3,7 +3,7 @@ import { get } from '@/api'
 import { SectionCard } from '@/components/SectionCard'
 import { Section } from '@/components/SectionHeading'
 import { ErrorBanner } from '@/components/ui/banner'
-import { Empty } from '@/components/ui/empty'
+import { Loading } from '@/components/ui/loading'
 import { Mono } from '@/components/ui/mono'
 import { PAGE, Pager } from '@/components/ui/pager'
 import { Chip, Pill, type Tone } from '@/components/ui/pill'
@@ -140,7 +140,7 @@ function Loaded<T>({
   children: (d: T) => ReactNode
 }) {
   if (got.error) return <ErrorBanner error={got.error} />
-  if (!got.data) return <Empty>loading…</Empty>
+  if (!got.data) return <Loading />
   return (
     <>
       <p className="text-sm text-dbb-muted">{count(got.data)}</p>

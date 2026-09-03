@@ -3,6 +3,7 @@ import { api, asApiError, type ApiError, type SourceRow, type SyncRunsResponse }
 import { SectionCard } from '@/components/SectionCard'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Empty } from '@/components/ui/empty'
+import { Loading } from '@/components/ui/loading'
 import { Mono } from '@/components/ui/mono'
 import { PAGE, Pager } from '@/components/ui/pager'
 import { Pill } from '@/components/ui/pill'
@@ -97,7 +98,7 @@ export function Activity({
     >
       <ErrorBanner error={error} className="mb-3" />
       {!page && !error ? (
-        <Empty>loading…</Empty>
+        <Loading />
       ) : runs.length === 0 ? (
         <Empty>no sync runs yet</Empty>
       ) : (

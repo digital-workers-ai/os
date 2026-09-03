@@ -4,6 +4,7 @@ import { SectionCard } from '@/components/SectionCard'
 import { Section } from '@/components/SectionHeading'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Empty } from '@/components/ui/empty'
+import { Loading } from '@/components/ui/loading'
 import { Input } from '@/components/ui/input'
 import { Mono } from '@/components/ui/mono'
 import { PAGE, Pager } from '@/components/ui/pager'
@@ -314,7 +315,7 @@ function Detail({
   return (
     <SectionCard title={d ? `${d.entity_type} · ${d.anchor}` : 'Entity'} className="min-w-0">
       <ErrorBanner error={detail.error} className="mb-3" />
-      {detail.loading && <Empty>loading…</Empty>}
+      {detail.loading && <Loading />}
       {retired && (
         <p className="text-sm text-dbb-muted">
           <Pill tone="warn">retired</Pill> {retired.detail}
@@ -507,7 +508,7 @@ function Canonical() {
           ))}
         </div>
         {list.loading ? (
-          <Empty>loading…</Empty>
+          <Loading />
         ) : rows.length === 0 ? (
           <Empty>no entities</Empty>
         ) : (
@@ -649,7 +650,7 @@ function RawSide() {
           />
         </div>
         {records.loading ? (
-          <Empty>loading…</Empty>
+          <Loading />
         ) : rows.length === 0 ? (
           <Empty>no records</Empty>
         ) : (
@@ -729,7 +730,7 @@ function RawSide() {
           />
         </div>
         {raw.loading ? (
-          <Empty>loading…</Empty>
+          <Loading />
         ) : events.length === 0 ? (
           <Empty>no raw events</Empty>
         ) : (

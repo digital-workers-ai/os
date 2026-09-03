@@ -3,7 +3,7 @@ import { useQuery, type UseQueryResult } from '@tanstack/react-query'
 import { asApiError, get } from '@/api'
 import { SectionCard } from '@/components/SectionCard'
 import { ErrorBanner } from '@/components/ui/banner'
-import { Empty } from '@/components/ui/empty'
+import { Loading } from '@/components/ui/loading'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   GraphControls,
@@ -20,7 +20,7 @@ type Tab = 'graph' | 'ontology'
 function Loaded<T>({ query, children }: { query: UseQueryResult<T>; children: (data: T) => ReactNode }) {
   if (query.data) return <>{children(query.data)}</>
   if (query.error) return <ErrorBanner error={asApiError(query.error)} />
-  return <Empty>loading…</Empty>
+  return <Loading />
 }
 
 export function Visualize() {

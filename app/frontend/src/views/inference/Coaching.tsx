@@ -5,6 +5,7 @@ import { Section } from '@/components/SectionHeading'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Button } from '@/components/ui/button'
 import { Empty } from '@/components/ui/empty'
+import { Loading } from '@/components/ui/loading'
 import { Mono } from '@/components/ui/mono'
 import { Chip, Pill } from '@/components/ui/pill'
 import { num, relTime } from '@/lib/format'
@@ -134,7 +135,7 @@ function Role({ role }: { role: string }) {
     >
       <div className="space-y-3">
         <LayerOff error={error} />
-        {stored.loading && <p className="text-sm text-dbb-muted">loading…</p>}
+        {stored.loading && <Loading />}
         {!briefing &&
           stored.error &&
           (stored.error.status === 404 ? <p className="text-sm text-dbb-muted">{stored.error.detail}</p> : <ErrorBanner error={stored.error} />)}
@@ -170,7 +171,7 @@ export function Coaching() {
       }
     >
       <ErrorBanner error={index.error} className="mb-3" />
-      {index.loading && <Empty>loading…</Empty>}
+      {index.loading && <Loading />}
       {data && data.roles.length === 0 && <Empty>no role prompts found</Empty>}
       {data?.roles.map((role) => (
         <Role key={role} role={role} />
