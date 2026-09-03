@@ -268,6 +268,9 @@ export function Metrics() {
           {open && open.runs.map((run, i) => <RunSection key={i} run={run} />)}
           {row && (
             <Section title="Receipts">
+              <p className="mb-3 text-sm text-dbb-muted">
+                How this number was produced: what was counted, which fields were read, and whether it was inferred.
+              </p>
               <pre className="overflow-auto rounded-lg bg-dbb-surface p-3 font-mono text-xs">{JSON.stringify(row, null, 2)}</pre>
             </Section>
           )}
