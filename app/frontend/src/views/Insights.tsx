@@ -89,9 +89,9 @@ const describe = (c: Condition) =>
 const formatValue = (v: unknown) =>
   Array.isArray(v) ? v.map((n) => (typeof n === 'number' ? num(n) : String(n))).join(' – ') : typeof v === 'number' ? num(v) : String(v)
 
-function Chips({ entries }: { entries: [string, unknown][] }) {
+function Chips({ entries, stack = false }: { entries: [string, unknown][]; stack?: boolean }) {
   return (
-    <span className="inline-flex flex-wrap gap-1">
+    <span className={stack ? 'flex flex-col items-start gap-1' : 'inline-flex flex-wrap gap-1'}>
       {entries.map(([k, v]) => (
         <Chip key={k}>
           {k}=<strong>{formatValue(v)}</strong>
@@ -155,7 +155,7 @@ function GoalsTable({ goals }: { goals: Goal[] }) {
               </TableCell>
               <TableCell>
                 <span className="inline-flex flex-wrap items-center gap-1.5">
-                  {detail.length > 0 && <Chips entries={detail} />}
+                  {detail.length > 0 && <Chips entries={detail} stack />}
                   {g.unknown && <span className="text-xs">{g.unknown}</span>}
                   {g.error && <span className="text-xs text-dbb-clay">{g.error}</span>}
                   {g.inferred && <Inferred reading={g.reading} sha={g.vocabulary_sha} producedBy={g.produced_by?.join(', ')} />}
