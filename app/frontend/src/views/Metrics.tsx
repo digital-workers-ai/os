@@ -214,7 +214,7 @@ export function Metrics() {
                   <TableHead className="w-32">Entity</TableHead>
                   <TableHead className="w-24 text-right">Value</TableHead>
                   <TableHead className="w-28 text-right">Entities</TableHead>
-                  <TableHead className="w-28">Inferred from</TableHead>
+                  <TableHead className="w-28 text-center">Inferred from</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -244,7 +244,7 @@ export function Metrics() {
                         <Value value={m.value} />
                       </TableCell>
                       <TableCell className="text-right tabular-nums">{m.entities === undefined ? '—' : num(m.entities)}</TableCell>
-                      <TableCell>{m.inferred && m.reading ? <Mono>{m.reading}</Mono> : '—'}</TableCell>
+                      <TableCell className="text-center">{m.inferred && m.reading ? <Mono>{m.reading}</Mono> : '—'}</TableCell>
                     </TableRow>
                   )
                 })}
