@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { asApiError, get, post, type ApiError } from '@/api'
-import { Inferred } from '@/components/Inferred'
 import { SectionCard } from '@/components/SectionCard'
 import { Section } from '@/components/SectionHeading'
 import { ErrorBanner } from '@/components/ui/banner'
@@ -295,9 +294,7 @@ export function Metrics() {
                       <Value value={m.value} />
                     </TableCell>
                     <TableCell className="text-right tabular-nums">{m.entities === undefined ? '—' : num(m.entities)}</TableCell>
-                    <TableCell>
-                      {m.inferred && <Inferred reading={m.reading} sha={m.vocabulary_sha} producedBy={m.produced_by?.join(', ') || null} />}
-                    </TableCell>
+                    <TableCell>{m.inferred && m.reading && <Mono>{m.reading}</Mono>}</TableCell>
                     <TableCell>
                       <Unavailable row={m} />
                     </TableCell>
