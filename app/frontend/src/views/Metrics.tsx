@@ -67,7 +67,8 @@ interface SnapshotResponse {
 }
 
 const SPLIT = 'grid items-start gap-6 lg:grid-cols-[0.65fr_0.35fr]'
-const FILL = 'lg:max-h-[calc(100vh-11.25rem-1px)] lg:overflow-y-auto'
+const FILL = 'lg:flex lg:flex-col lg:max-h-[calc(100vh-11.25rem-1px)]'
+const BODY = 'lg:min-h-0 lg:overflow-y-auto'
 
 const recordedAt = (iso: string) => {
   const secs = (Date.now() - new Date(iso).getTime()) / 1000
@@ -226,6 +227,7 @@ export function Metrics() {
         title={`Metrics${metrics ? ` (${rows.length})` : ''}`}
         description="click a metric to open its series"
         className={FILL}
+        bodyClassName={BODY}
         headerRight={
           <div className="flex items-center gap-3">
             {written !== null && <span className="text-sm text-dbb-muted">{plural(written, 'snapshot')} written</span>}
@@ -289,7 +291,7 @@ export function Metrics() {
       </SectionCard>
 
       {selected ? (
-        <SectionCard title={`Series — ${row?.label ?? selected}`} className={`min-w-0 ${FILL}`}>
+        <SectionCard title={`Series — ${row?.label ?? selected}`} className={`min-w-0 ${FILL}`} bodyClassName={BODY}>
           <ErrorBanner error={seriesError} className="mb-3" />
           {row?.error && (
             <Banner tone="err" className="mb-3">
@@ -307,7 +309,7 @@ export function Metrics() {
           )}
         </SectionCard>
       ) : (
-        <SectionCard title="Series" className={`min-w-0 ${FILL}`}>
+        <SectionCard title="Series" className={`min-w-0 ${FILL}`} bodyClassName={BODY}>
           <Empty>select a metric</Empty>
         </SectionCard>
       )}

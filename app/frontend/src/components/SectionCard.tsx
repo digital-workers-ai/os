@@ -6,18 +6,20 @@ export function SectionCard({
   description,
   headerRight,
   className,
+  bodyClassName,
   children,
 }: {
   title?: ReactNode
   description?: ReactNode
   headerRight?: ReactNode
   className?: string
+  bodyClassName?: string
   children: ReactNode
 }) {
   return (
     <Card className={className}>
       {(title || description || headerRight) && (
-        <CardHeader>
+        <CardHeader className="shrink-0">
           <div className="min-w-0">
             {title && <CardTitle>{title}</CardTitle>}
             {description && <CardDescription className="mt-0.5">{description}</CardDescription>}
@@ -25,7 +27,7 @@ export function SectionCard({
           {headerRight && <div className="shrink-0">{headerRight}</div>}
         </CardHeader>
       )}
-      <CardContent>{children}</CardContent>
+      <CardContent className={bodyClassName}>{children}</CardContent>
     </Card>
   )
 }
