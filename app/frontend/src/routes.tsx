@@ -4,7 +4,7 @@ import { Insights } from './views/Insights'
 import { Metrics } from './views/Metrics'
 import { Entities } from './views/Entities'
 import { Inference } from './views/Inference'
-import { Knowledge } from './views/Knowledge'
+import { Engine } from './views/Engine'
 import { Estate } from './views/Estate'
 import { Visualize } from './views/Visualize'
 
@@ -48,11 +48,11 @@ export const ROUTES: RouteDef[] = [
     view: Inference,
   },
   {
-    to: '/knowledge',
-    label: 'Knowledge',
+    to: '/engine',
+    label: 'Engine',
     icon: BookOpen,
-    title: 'Knowledge',
-    view: Knowledge,
+    title: 'Engine',
+    view: Engine,
   },
   {
     to: '/estate',

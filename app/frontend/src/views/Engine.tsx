@@ -622,7 +622,7 @@ function EnrichmentTab({ v }: { v: Vocabulary }) {
   )
 }
 
-export function Knowledge() {
+export function Engine() {
   const ontology = useLoad(() => get<Ontology>('/api/knowledge/ontology'), [])
   const mappings = useLoad(() => get<Mappings>('/api/knowledge/mappings'), [])
   const transforms = useLoad(() => get<Transforms>('/api/knowledge/transforms'), [])
