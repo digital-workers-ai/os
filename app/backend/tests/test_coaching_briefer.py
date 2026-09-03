@@ -141,7 +141,7 @@ class TestMetricLines:
         line = briefer._metric_line(
             "new_mrr", {"label": "New MRR", "value": 0, "entities": 0}
         )
-        assert "measures nothing rather than measuring zero" in line
+        assert "no entities matched — no data" in line
 
     def test_an_inferred_metric_is_labelled_an_estimate(self):
         line = briefer._metric_line(
