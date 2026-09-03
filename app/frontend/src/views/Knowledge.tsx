@@ -1,10 +1,11 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { get } from '@/api'
 import { SectionCard } from '@/components/SectionCard'
 import { Section } from '@/components/SectionHeading'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Empty } from '@/components/ui/empty'
 import { Mono } from '@/components/ui/mono'
+import { PAGE, Pager } from '@/components/ui/pager'
 import { Chip, Pill, type Tone } from '@/components/ui/pill'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -267,15 +268,24 @@ function OntologyTab({ o }: { o: Ontology }) {
 
 function MappingsTab({ m }: { m: Mappings }) {
   const [source, setSource] = useState('')
+  const [offset, setOffset] = useState(0)
   const sources = [...new Set(m.lines.map((l) => l.source))].sort()
   const lines = source ? m.lines.filter((l) => l.source === source) : m.lines
   const hooked = lines.filter((l) => l.from_hook).length
+  const page = lines.slice(offset, offset + PAGE)
+  useEffect(() => setOffset(0), [m.lines])
   return (
     <>
       <Section
         title={counted('Lines', lines.length)}
         right={
-          <Select value={source || ALL} onValueChange={(v) => setSource(v === ALL ? '' : v)}>
+          <Select
+            value={source || ALL}
+            onValueChange={(v) => {
+              setSource(v === ALL ? '' : v)
+              setOffset(0)
+            }}
+          >
             <SelectTrigger className="h-8 w-48">
               <SelectValue />
             </SelectTrigger>
@@ -303,7 +313,7 @@ function MappingsTab({ m }: { m: Mappings }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {lines.map((l) => (
+            {page.map((l) => (
               <TableRow key={`${l.source}|${l.object_type}|${l.path}|${l.entity}|${l.label}`}>
                 <TableCell className={keyCol}>{l.source}</TableCell>
                 <TableCell>
@@ -321,6 +331,7 @@ function MappingsTab({ m }: { m: Mappings }) {
             ))}
           </TableBody>
         </Table>
+        <Pager offset={offset} count={page.length} total={lines.length} onPage={setOffset} />
       </Section>
       <Section title={counted('Hook sources', m.hook_sources.length)}>
         {m.hook_sources.length === 0 ? (
@@ -340,8 +351,11 @@ function MappingsTab({ m }: { m: Mappings }) {
 }
 
 function TransformsTab({ t }: { t: Transforms }) {
+  const [offset, setOffset] = useState(0)
   const labels = Object.entries(t.labels).sort(([a], [b]) => a.localeCompare(b))
   const users = (fn: string) => labels.filter(([, f]) => f === fn).length
+  const page = labels.slice(offset, offset + PAGE)
+  useEffect(() => setOffset(0), [t.labels])
   return (
     <>
       <Section title={counted('Registry', Object.keys(t.registry).length)}>
@@ -363,7 +377,7 @@ function TransformsTab({ t }: { t: Transforms }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {labels.map(([label, fn]) => (
+            {page.map(([label, fn]) => (
               <TableRow key={label}>
                 <TableCell className={keyCol}>
                   <Mono>{label}</Mono>
@@ -376,13 +390,17 @@ function TransformsTab({ t }: { t: Transforms }) {
             ))}
           </TableBody>
         </Table>
+        <Pager offset={offset} count={page.length} total={labels.length} onPage={setOffset} />
       </Section>
     </>
   )
 }
 
 function MetricsTab({ m }: { m: MetricDefinitions }) {
+  const [offset, setOffset] = useState(0)
   const definitions = Object.entries(m.definitions)
+  const page = definitions.slice(offset, offset + PAGE)
+  useEffect(() => setOffset(0), [m.definitions])
   return (
     <Section title={counted('Definitions', definitions.length)}>
       <Table>
@@ -397,7 +415,7 @@ function MetricsTab({ m }: { m: MetricDefinitions }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {definitions.map(([name, d]) => {
+          {page.map(([name, d]) => {
             const p = m.provenance[name]
             return (
               <TableRow key={name}>
@@ -442,12 +460,16 @@ function MetricsTab({ m }: { m: MetricDefinitions }) {
           })}
         </TableBody>
       </Table>
+      <Pager offset={offset} count={page.length} total={definitions.length} onPage={setOffset} />
     </Section>
   )
 }
 
 function RulesTab({ r }: { r: Rules }) {
+  const [offset, setOffset] = useState(0)
   const rules = Object.entries(r.rules)
+  const page = rules.slice(offset, offset + PAGE)
+  useEffect(() => setOffset(0), [r.rules])
   return (
     <Section title={counted('Rules', rules.length)}>
       <Table>
@@ -460,7 +482,7 @@ function RulesTab({ r }: { r: Rules }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {rules.map(([name, rule]) => (
+          {page.map(([name, rule]) => (
             <TableRow key={name}>
               <TableCell className="align-top">
                 <span className={cn(keyCol, 'block')}>{rule.label}</span>
@@ -488,12 +510,16 @@ function RulesTab({ r }: { r: Rules }) {
           ))}
         </TableBody>
       </Table>
+      <Pager offset={offset} count={page.length} total={rules.length} onPage={setOffset} />
     </Section>
   )
 }
 
 function GoalsTab({ g }: { g: Goals }) {
+  const [offset, setOffset] = useState(0)
   const goals = Object.entries(g.goals)
+  const page = goals.slice(offset, offset + PAGE)
+  useEffect(() => setOffset(0), [g.goals])
   return (
     <Section title={counted('Goals', goals.length)}>
       <Table>
@@ -507,7 +533,7 @@ function GoalsTab({ g }: { g: Goals }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {goals.map(([name, goal]) => {
+          {page.map(([name, goal]) => {
             const params = Object.entries(goal.params)
             return (
               <TableRow key={name}>
@@ -537,6 +563,7 @@ function GoalsTab({ g }: { g: Goals }) {
           })}
         </TableBody>
       </Table>
+      <Pager offset={offset} count={page.length} total={goals.length} onPage={setOffset} />
     </Section>
   )
 }

@@ -7,6 +7,7 @@ import { ErrorBanner } from '@/components/ui/banner'
 import { Button } from '@/components/ui/button'
 import { Empty } from '@/components/ui/empty'
 import { Mono } from '@/components/ui/mono'
+import { PAGE, Pager } from '@/components/ui/pager'
 import { Pill } from '@/components/ui/pill'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { num, plural, relTime, short } from '@/lib/format'
@@ -202,6 +203,7 @@ export function Metrics() {
   const [snapping, setSnapping] = useState(false)
   const [written, setWritten] = useState<number | null>(null)
   const [snapError, setSnapError] = useState<ApiError | null>(null)
+  const [offset, setOffset] = useState(0)
 
   const loadMetrics = () =>
     get<MetricsResponse>('/api/metrics')
@@ -227,6 +229,8 @@ export function Metrics() {
     if (selected) loadSeries(selected)
   }, [selected])
 
+  useEffect(() => setOffset(0), [metrics])
+
   const snapshot = async () => {
     setSnapping(true)
     setSnapError(null)
@@ -242,6 +246,7 @@ export function Metrics() {
   }
 
   const rows = Object.entries(metrics?.metrics ?? {})
+  const page = rows.slice(offset, offset + PAGE)
   const row = selected ? metrics?.metrics[selected] : undefined
   const open = series && series.metric === selected ? series : null
 
@@ -276,7 +281,7 @@ export function Metrics() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {rows.map(([name, m]) => (
+                {page.map(([name, m]) => (
                   <TableRow
                     key={name}
                     className="cursor-pointer"
@@ -306,6 +311,7 @@ export function Metrics() {
                 ))}
               </TableBody>
             </Table>
+            {rows.length > 0 && <Pager offset={offset} count={page.length} total={rows.length} onPage={setOffset} />}
           </>
         )}
       </SectionCard>

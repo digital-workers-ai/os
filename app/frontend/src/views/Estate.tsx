@@ -15,6 +15,7 @@ import { Banner, ErrorBanner } from '@/components/ui/banner'
 import { Button } from '@/components/ui/button'
 import { Empty } from '@/components/ui/empty'
 import { Mono } from '@/components/ui/mono'
+import { PAGE, Pager } from '@/components/ui/pager'
 import { Pill, type Tone } from '@/components/ui/pill'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -177,6 +178,7 @@ export function Estate() {
   const [rebuildError, setRebuildError] = useState<ApiError | null>(null)
   const [report, setReport] = useState<ReportResponse | null>(null)
   const [reportError, setReportError] = useState<ApiError | null>(null)
+  const [offset, setOffset] = useState(0)
 
   const loadSources = () =>
     api
@@ -200,6 +202,8 @@ export function Estate() {
     loadSources()
     loadReport()
   }, [])
+
+  useEffect(() => setOffset(0), [sources])
 
   const runSync = async (only?: string[]) => {
     setSyncing(only ? only.join(',') : 'all')
@@ -234,6 +238,7 @@ export function Estate() {
   }
 
   const rows = sources?.sources ?? []
+  const page = rows.slice(offset, offset + PAGE)
 
   return (
     <Tabs value={tab} onValueChange={setTab}>
@@ -277,7 +282,7 @@ export function Estate() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {rows.map((r) => {
+                {page.map((r) => {
                   const last = sync?.results.find((s) => s.source === r.source)
                   const lastOk = r.last_success === r.last_attempt
                   return (
@@ -336,6 +341,7 @@ export function Estate() {
               </TableBody>
             </Table>
           )}
+          {rows.length > 0 && <Pager offset={offset} count={page.length} total={rows.length} onPage={setOffset} />}
 
           {(sync || syncError) && (
             <Section title="Last sync">
