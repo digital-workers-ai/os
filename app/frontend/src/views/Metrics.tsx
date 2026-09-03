@@ -66,8 +66,8 @@ interface SnapshotResponse {
   written: number
 }
 
-const SPLIT = 'grid items-start gap-6 lg:grid-cols-[0.45fr_1.55fr]'
-const STICKY = 'min-w-0 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto'
+const SPLIT = 'grid items-start gap-6 lg:grid-cols-[1fr_1.2fr]'
+const STICKY = 'lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto'
 
 const recordedAt = (iso: string) => {
   const secs = (Date.now() - new Date(iso).getTime()) / 1000
@@ -289,7 +289,7 @@ export function Metrics() {
       </SectionCard>
 
       {selected ? (
-        <SectionCard title={`Series — ${row?.label ?? selected}`} className={STICKY}>
+        <SectionCard title={`Series — ${row?.label ?? selected}`} className={`min-w-0 ${STICKY}`}>
           <ErrorBanner error={seriesError} className="mb-3" />
           {row?.error && (
             <Banner tone="err" className="mb-3">
@@ -307,7 +307,7 @@ export function Metrics() {
           )}
         </SectionCard>
       ) : (
-        <SectionCard title="Series" className={STICKY}>
+        <SectionCard title="Series" className={`min-w-0 ${STICKY}`}>
           <Empty>select a metric</Empty>
         </SectionCard>
       )}
