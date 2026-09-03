@@ -10,7 +10,7 @@ import { Loading } from '@/components/ui/loading'
 import { Input } from '@/components/ui/input'
 import { Mono } from '@/components/ui/mono'
 import { PAGE, Pager } from '@/components/ui/pager'
-import { FilterChip, Pill } from '@/components/ui/pill'
+import { Pill } from '@/components/ui/pill'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -135,15 +135,11 @@ const PRE = 'mt-4 max-h-[480px] overflow-auto rounded-lg bg-dbb-surface p-3 font
 const WRAP = 'break-words'
 const SPLIT = 'grid gap-6 lg:grid-cols-[1fr_1.2fr]'
 const PAGE_FILL = 'lg:flex lg:flex-col lg:h-[calc(100vh-11.25rem-1px)]'
-const SPLIT_FILL = 'grid items-start gap-6 lg:grid-cols-[1.02fr_1.18fr] lg:grid-rows-[minmax(0,1fr)] lg:flex-1 lg:min-h-0'
+const SPLIT_FILL = 'grid items-start gap-6 lg:grid-cols-[1.02fr_1.18fr] lg:grid-rows-[minmax(0,1fr)] lg:h-full'
 const FILL = 'min-w-0 lg:flex lg:flex-col lg:max-h-full'
 const BODY = 'lg:min-h-0 lg:overflow-y-auto lg:-mx-6 lg:px-6 lg:-mb-6 lg:pb-6 lg:rounded-b-xl'
 const STICKY_HEAD = '[&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-card [&_th]:shadow-[inset_0_-1px_0_theme(colors.dbb.warm)]'
 const TOGGLE = 'h-6 rounded-md px-2.5 py-0 text-xs after:hidden data-[state=active]:bg-white data-[state=active]:shadow-sm'
-
-function Count({ n }: { n: number }) {
-  return <span className="ml-1.5 tabular-nums opacity-60">{num(n)}</span>
-}
 
 const counted = (label: string, n: number) => `${label} · ${num(n)}`
 
@@ -490,76 +486,80 @@ function Canonical() {
   const rows = list.data?.entities ?? []
 
   return (
-    <div className="flex flex-col gap-6 lg:h-full">
-      <SectionCard title="Canonical entities" description="click an entity to open it" className="shrink-0">
+    <div className={SPLIT_FILL}>
+      <SectionCard
+        title="Canonical entities"
+        description="click an entity to open it"
+        headerRight={
+          <Select value={type || ALL} onValueChange={(v) => pick(v === ALL ? '' : v)}>
+            <SelectTrigger className="h-8 w-44">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>all types ({num(all)})</SelectItem>
+              {byType.map(([t, n]) => (
+                <SelectItem key={t} value={t}>
+                  {t} ({num(n)})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        }
+        className={FILL}
+        bodyClassName={BODY}
+      >
         <ErrorBanner error={list.error} className="mb-3" />
-        <div className="flex flex-wrap gap-2">
-          <FilterChip on={type === ''} onClick={() => pick('')}>
-            all
-            <Count n={all} />
-          </FilterChip>
-          {byType.map(([t, n]) => (
-            <FilterChip key={t} on={type === t} onClick={() => pick(t)}>
-              {t}
-              <Count n={n} />
-            </FilterChip>
-          ))}
-        </div>
-      </SectionCard>
-      <div className={SPLIT_FILL}>
-        <SectionCard className={FILL} bodyClassName={BODY}>
-          {list.loading && !list.data ? (
-            <Loading />
-          ) : rows.length === 0 ? (
-            <Empty>no entities</Empty>
-          ) : (
-            <Table className="table-fixed" wrapperClassName="overflow-x-visible">
-              <TableHeader className={STICKY_HEAD}>
-                <TableRow>
-                  <TableHead className="w-28">Type</TableHead>
-                  <TableHead className="w-64">Anchor</TableHead>
-                  <TableHead className={cn(NUM, 'w-24')}>Members</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rows.map((r) => {
-                  const name = r.facts.name ?? r.facts.subject ?? r.facts.event_name
-                  return (
-                    <TableRow
-                      key={r.canonical_id}
-                      className={ROW}
-                      data-state={r.canonical_id === selected ? 'selected' : undefined}
-                      aria-selected={r.canonical_id === selected}
-                      onClick={() => open(r.canonical_id)}
-                    >
-                      <TableCell>
-                        <Pill>{r.entity_type}</Pill>
-                      </TableCell>
-                      <TableCell className={KEY}>
-                        {show(name ?? r.anchor)}
-                        {name ? <span className={cn(MONO, 'block font-normal text-dbb-muted')}>{r.anchor}</span> : null}
-                      </TableCell>
-                      <TableCell className={NUM}>{num(r.members)}</TableCell>
-                    </TableRow>
-                  )
-                })}
-              </TableBody>
-            </Table>
-          )}
-          {list.data && list.data.total > rows.length && (
-            <p className="mt-3 text-sm text-dbb-muted">
-              showing the first {num(rows.length)} of {num(list.data.total)}
-            </p>
-          )}
-        </SectionCard>
-        {selected ? (
-          <Detail id={selected} trace={trace} onOpen={open} onTrace={setTrace} />
+        {list.loading && !list.data ? (
+          <Loading />
+        ) : rows.length === 0 ? (
+          <Empty>no entities</Empty>
         ) : (
-          <SectionCard className={FILL} bodyClassName={BODY}>
-            <Empty>select an entity</Empty>
-          </SectionCard>
+          <Table className="table-fixed" wrapperClassName="overflow-x-visible">
+            <TableHeader className={STICKY_HEAD}>
+              <TableRow>
+                <TableHead className="w-28">Type</TableHead>
+                <TableHead className="w-64">Anchor</TableHead>
+                <TableHead className={cn(NUM, 'w-24')}>Members</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((r) => {
+                const name = r.facts.name ?? r.facts.subject ?? r.facts.event_name
+                return (
+                  <TableRow
+                    key={r.canonical_id}
+                    className={ROW}
+                    data-state={r.canonical_id === selected ? 'selected' : undefined}
+                    aria-selected={r.canonical_id === selected}
+                    onClick={() => open(r.canonical_id)}
+                  >
+                    <TableCell>
+                      <Pill>{r.entity_type}</Pill>
+                    </TableCell>
+                    <TableCell className={KEY}>
+                      {show(name ?? r.anchor)}
+                      {name ? <span className={cn(MONO, 'block font-normal text-dbb-muted')}>{r.anchor}</span> : null}
+                    </TableCell>
+                    <TableCell className={NUM}>{num(r.members)}</TableCell>
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
         )}
-      </div>
+        {list.data && list.data.total > rows.length && (
+          <p className="mt-3 text-sm text-dbb-muted">
+            showing the first {num(rows.length)} of {num(list.data.total)}
+          </p>
+        )}
+      </SectionCard>
+      {selected ? (
+        <Detail id={selected} trace={trace} onOpen={open} onTrace={setTrace} />
+      ) : (
+        <SectionCard className={FILL} bodyClassName={BODY}>
+          <Empty>select an entity</Empty>
+        </SectionCard>
+      )}
     </div>
   )
 }
