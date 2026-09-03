@@ -259,11 +259,11 @@ export function Metrics() {
             <Table className="table-fixed">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-56">Metric</TableHead>
+                  <TableHead className="w-64">Metric</TableHead>
                   <TableHead className="w-32">Entity</TableHead>
                   <TableHead className="w-24 text-right">Value</TableHead>
                   <TableHead className="w-28 text-right">Entities</TableHead>
-                  <TableHead className="w-56">Inferred from</TableHead>
+                  <TableHead className="w-28">Inferred from</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
