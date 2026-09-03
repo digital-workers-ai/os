@@ -66,7 +66,7 @@ interface SnapshotResponse {
   written: number
 }
 
-const SPLIT = 'grid gap-6 lg:grid-cols-[0.6fr_1.4fr]'
+const SPLIT = 'grid gap-6 lg:grid-cols-[0.45fr_1.55fr]'
 
 const verdict = (s: Series) =>
   s.runs.length === 0
@@ -279,12 +279,12 @@ export function Metrics() {
                     >
                       <TableCell>
                         <span className="flex items-center gap-1.5">
-                          <span className="font-medium text-dbb-charcoal">{m.label}</span>
                           {warns && (
                             <button type="button" aria-label="show warning" className="leading-none" onClick={() => setSelected(name)}>
                               ⚠️
                             </button>
                           )}
+                          <span className="font-medium text-dbb-charcoal">{m.label}</span>
                         </span>
                         <Mono className="block">{name}</Mono>
                       </TableCell>
