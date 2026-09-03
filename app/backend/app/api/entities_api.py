@@ -19,6 +19,12 @@ from app.models import (
     FactCurrent,
 )
 
+LABEL_ATTRS = ("name", "title", "subject", "email", "domain", "external_ref")
+
+
+def _label(anchor: str, facts: dict) -> str:
+    return next((facts[attr] for attr in LABEL_ATTRS if attr in facts), anchor)
+
 
 @router.post("/rebuild")
 async def rebuild():
@@ -135,6 +141,7 @@ async def list_entities(
                 "canonical_id": str(r.canonical_id),
                 "entity_type": r.entity_type,
                 "anchor": r.anchor_key,
+                "label": _label(r.anchor_key, facts.get(r.canonical_id, {})),
                 "members": r.member_count,
                 "facts": facts.get(r.canonical_id, {}),
             }
@@ -228,6 +235,7 @@ async def get_entity(canonical_id: str, session=Depends(get_session)):
         "canonical_id": str(row.canonical_id),
         "entity_type": row.entity_type,
         "anchor": row.anchor_key,
+        "label": _label(row.anchor_key, {f.attr: f.value for f, _ in facts}),
         "resolved_from_alias": str(resolved_from) if resolved_from else None,
         "aliases": [str(a) for a in aliases],
         "facts": [
@@ -305,6 +313,16 @@ async def graph(
         .scalars()
         .all()
     )
+    facts: dict = {}
+    for canonical_id, attr, value in (
+        await session.execute(
+            select(FactCurrent.canonical_id, FactCurrent.attr, FactCurrent.value).where(
+                FactCurrent.canonical_id.in_(wanted),
+                FactCurrent.attr.in_(LABEL_ATTRS),
+            )
+        )
+    ).all():
+        facts.setdefault(canonical_id, {})[attr] = value
     by_type = Counter(n.entity_type for n in nodes)
     return {
         "nodes": [
@@ -312,6 +330,7 @@ async def graph(
                 "canonical_id": str(n.canonical_id),
                 "entity_type": n.entity_type,
                 "anchor": n.anchor_key,
+                "label": _label(n.anchor_key, facts.get(n.canonical_id, {})),
                 "members": n.member_count,
             }
             for n in sorted(nodes, key=lambda n: (n.entity_type, n.anchor_key))
