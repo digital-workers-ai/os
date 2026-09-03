@@ -274,17 +274,7 @@ export function Insights() {
         {goals && goals.goals.length > 0 && <GoalsTable goals={goals.goals} />}
       </SectionCard>
 
-      <SectionCard
-        title="Findings"
-        description={
-          rules && (
-            <>
-              {plural(rules.rules, 'rule')} over {num(rules.report.evaluated)} entities · as of{' '}
-              <span title={rules.as_of}>{when(rules.as_of)}</span>
-            </>
-          )
-        }
-      >
+      <SectionCard title="Findings">
         <ErrorBanner error={rulesError} className="mb-3" />
         {rules && (
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
