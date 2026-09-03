@@ -31,6 +31,7 @@ if not _serving():
 pytestmark = pytest.mark.e2e
 
 schema = schemathesis.openapi.from_url(f"{BASE_URL}/openapi.json")
+schema.config.generation.update(allow_extra_parameters=False)
 
 
 def test_every_write_operation_is_excluded():
