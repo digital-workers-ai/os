@@ -197,8 +197,7 @@ export function Metrics() {
   }, [selected])
 
   const rows = Object.entries(metrics?.metrics ?? {})
-  const row = selected ? metrics?.metrics[selected] : undefined
-  const open = series && series.metric === selected ? series : null
+  const seriesRow = series ? metrics?.metrics[series.metric] : undefined
 
   return (
     <div className={SPLIT}>
@@ -255,31 +254,26 @@ export function Metrics() {
         )}
       </SectionCard>
 
-      {selected ? (
-        <SectionCard title={row?.label ?? selected} className={`min-w-0 ${FILL}`} bodyClassName={BODY}>
-          {!open && !seriesError ? (
-            <Loading />
-          ) : (
-            <>
-              <ErrorBanner error={seriesError} className="mb-3" />
-              {row?.error && (
-                <Banner tone="err" className="mb-3">
-                  {row.error}
-                </Banner>
-              )}
-              {!row?.error && row?.mixed_currencies && <Banner className="mb-3">mixed currencies: {row.mixed_currencies.join(', ')}</Banner>}
-              {!row?.error && row?.note && <Banner className="mb-3">{row.note}</Banner>}
-              {open && open.runs.map((run, i) => <RunSection key={i} run={run} />)}
-              {row && (
-                <Section title="Receipts">
-                  <p className="mb-3 text-sm text-dbb-muted">
-                    How this number was produced: what was counted, which fields were read, and whether it was inferred.
-                  </p>
-                  <pre className="overflow-auto rounded-lg bg-dbb-surface p-3 font-mono text-xs">{JSON.stringify(row, null, 2)}</pre>
-                </Section>
-              )}
-            </>
+      {seriesError && selected ? (
+        <SectionCard title={metrics?.metrics[selected]?.label ?? selected} className={`min-w-0 ${FILL}`} bodyClassName={BODY}>
+          <ErrorBanner error={seriesError} />
+        </SectionCard>
+      ) : series && seriesRow ? (
+        <SectionCard title={seriesRow.label} className={`min-w-0 ${FILL}`} bodyClassName={BODY}>
+          {seriesRow.error && (
+            <Banner tone="err" className="mb-3">
+              {seriesRow.error}
+            </Banner>
           )}
+          {!seriesRow.error && seriesRow.mixed_currencies && <Banner className="mb-3">mixed currencies: {seriesRow.mixed_currencies.join(', ')}</Banner>}
+          {!seriesRow.error && seriesRow.note && <Banner className="mb-3">{seriesRow.note}</Banner>}
+          {series.runs.map((run, i) => <RunSection key={i} run={run} />)}
+          <Section title="Receipts">
+            <p className="mb-3 text-sm text-dbb-muted">
+              How this number was produced: what was counted, which fields were read, and whether it was inferred.
+            </p>
+            <pre className="overflow-auto rounded-lg bg-dbb-surface p-3 font-mono text-xs">{JSON.stringify(seriesRow, null, 2)}</pre>
+          </Section>
         </SectionCard>
       ) : (
         <SectionCard title="Series" className={`min-w-0 ${FILL}`} bodyClassName={BODY}>
