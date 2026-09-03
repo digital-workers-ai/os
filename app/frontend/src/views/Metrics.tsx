@@ -66,7 +66,8 @@ interface SnapshotResponse {
   written: number
 }
 
-const SPLIT = 'grid gap-6 lg:grid-cols-[0.45fr_1.55fr]'
+const SPLIT = 'grid items-start gap-6 lg:grid-cols-[0.45fr_1.55fr]'
+const STICKY = 'min-w-0 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto'
 
 const verdict = (s: Series) =>
   s.runs.length === 0
@@ -306,7 +307,7 @@ export function Metrics() {
       {selected ? (
         <SectionCard
           title={`Series — ${row?.label ?? selected}`}
-          className="min-w-0"
+          className={STICKY}
           description={
             open && (
               <>
@@ -338,7 +339,7 @@ export function Metrics() {
           )}
         </SectionCard>
       ) : (
-        <SectionCard title="Series" className="min-w-0">
+        <SectionCard title="Series" className={STICKY}>
           <Empty>select a metric</Empty>
         </SectionCard>
       )}
