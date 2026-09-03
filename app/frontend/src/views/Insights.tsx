@@ -7,7 +7,6 @@ import { Empty } from '@/components/ui/empty'
 import { Mono } from '@/components/ui/mono'
 import { Chip, Pill, type Tone } from '@/components/ui/pill'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { num, plural, when } from '@/lib/format'
 
 interface Finding {
@@ -27,20 +26,6 @@ interface RulesResponse {
   findings: Finding[]
   by_severity: Record<string, number>
   report: { evaluated: number; unreadable: Record<string, number> }
-}
-
-type Condition = { attr: string } & Record<string, unknown>
-
-interface RuleDefinition {
-  label: string
-  entity: string
-  severity: string
-  all: Condition[]
-  any: Condition[]
-}
-
-interface DefinitionsResponse {
-  rules: Record<string, RuleDefinition>
 }
 
 interface Goal {
@@ -80,11 +65,6 @@ const bySeverity = (a: Finding, b: Finding) =>
 const severityTone = (s: string): Tone => (s === 'high' ? 'err' : s === 'medium' ? 'warn' : 'neutral')
 const verdictOf = (met: boolean | null) => (met === null ? 'unknown' : met ? 'met' : 'missed')
 const verdictTone = (met: boolean | null): Tone => (met === null ? 'unknown' : met ? 'ok' : 'err')
-
-const describe = (c: Condition) =>
-  Object.entries(c)
-    .filter(([k]) => k !== 'attr')
-    .map(([op, v]) => `${c.attr} ${op} ${JSON.stringify(v)}`)
 
 const formatValue = (v: unknown) =>
   Array.isArray(v) ? v.map((n) => (typeof n === 'number' ? num(n) : String(n))).join(' – ') : typeof v === 'number' ? num(v) : String(v)
@@ -169,54 +149,9 @@ function GoalsTable({ goals }: { goals: Goal[] }) {
   )
 }
 
-function Definitions({ defs }: { defs: DefinitionsResponse }) {
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Rule ({num(Object.keys(defs.rules).length)})</TableHead>
-          <TableHead>Entity</TableHead>
-          <TableHead>Severity</TableHead>
-          <TableHead>Conditions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {Object.entries(defs.rules).map(([name, r]) => (
-          <TableRow key={name}>
-            <TableCell>
-              <span className="block font-medium text-dbb-charcoal">{r.label}</span>
-              <Mono className="block">{name}</Mono>
-            </TableCell>
-            <TableCell>{r.entity}</TableCell>
-            <TableCell>
-              <Pill tone={severityTone(r.severity)}>{r.severity}</Pill>
-            </TableCell>
-            <TableCell>
-              <span className="inline-flex flex-wrap gap-1">
-                {r.all.flatMap(describe).map((text) => (
-                  <Chip key={'all ' + text}>
-                    all: <strong>{text}</strong>
-                  </Chip>
-                ))}
-                {r.any.flatMap(describe).map((text) => (
-                  <Chip key={'any ' + text}>
-                    any: <strong>{text}</strong>
-                  </Chip>
-                ))}
-              </span>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  )
-}
-
 export function Insights() {
   const [rules, setRules] = useState<RulesResponse | null>(null)
   const [rulesError, setRulesError] = useState<ApiError | null>(null)
-  const [defs, setDefs] = useState<DefinitionsResponse | null>(null)
-  const [defsError, setDefsError] = useState<ApiError | null>(null)
   const [goals, setGoals] = useState<GoalsResponse | null>(null)
   const [goalsError, setGoalsError] = useState<ApiError | null>(null)
 
@@ -228,14 +163,6 @@ export function Insights() {
       })
       .catch((e) => setRulesError(asApiError(e)))
 
-  const loadDefs = () =>
-    get<DefinitionsResponse>('/api/insights/rules/definitions')
-      .then((r) => {
-        setDefs(r)
-        setDefsError(null)
-      })
-      .catch((e) => setDefsError(asApiError(e)))
-
   const loadGoals = () =>
     get<GoalsResponse>('/api/insights/goals')
       .then((r) => {
@@ -246,7 +173,6 @@ export function Insights() {
 
   useEffect(() => {
     loadRules()
-    loadDefs()
     loadGoals()
   }, [])
 
@@ -274,10 +200,10 @@ export function Insights() {
         {goals && goals.goals.length > 0 && <GoalsTable goals={goals.goals} />}
       </SectionCard>
 
-      <SectionCard title="Findings">
-        <ErrorBanner error={rulesError} className="mb-3" />
-        {rules && (
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+      <SectionCard
+        title="Findings"
+        headerRight={
+          rules && (
             <div className="flex flex-wrap gap-1.5">
               {Object.entries(rules.by_severity).map(([s, n]) => (
                 <Pill key={s} tone={severityTone(s)}>
@@ -285,64 +211,53 @@ export function Insights() {
                 </Pill>
               ))}
             </div>
-            {unreadable.length > 0 && (
-              <div className="flex flex-wrap items-center gap-1.5">
-                <span className="text-sm text-dbb-muted">{num(unreadableTotal)} values unreadable</span>
-                {unreadable.map(([key, n]) => (
-                  <Chip key={key} className="border-amber-200 bg-amber-50 text-amber-800">
-                    {num(n)} × {key}
-                  </Chip>
-                ))}
-              </div>
-            )}
+          )
+        }
+      >
+        <ErrorBanner error={rulesError} className="mb-3" />
+        {rules && unreadable.length > 0 && (
+          <div className="mb-3 flex flex-wrap items-center gap-1.5">
+            <span className="text-sm text-dbb-muted">{num(unreadableTotal)} values unreadable</span>
+            {unreadable.map(([key, n]) => (
+              <Chip key={key} className="border-amber-200 bg-amber-50 text-amber-800">
+                {num(n)} × {key}
+              </Chip>
+            ))}
           </div>
         )}
-        <Tabs defaultValue="findings">
-          <TabsList className="mt-4">
-            <TabsTrigger value="findings">Findings</TabsTrigger>
-            <TabsTrigger value="definitions">Rule definitions</TabsTrigger>
-          </TabsList>
-          <TabsContent value="findings">
-            {!rules && !rulesError && <Empty>loading…</Empty>}
-            {rules && findings.length === 0 && <Empty>no findings</Empty>}
-            {findings.length > 0 && (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Severity ({num(findings.length)})</TableHead>
-                    <TableHead>Rule</TableHead>
-                    <TableHead>Entity</TableHead>
-                    <TableHead>Company</TableHead>
-                    <TableHead>Evidence</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {findings.map((f) => (
-                    <TableRow key={f.rule + f.canonical_id}>
-                      <TableCell>
-                        <Pill tone={severityTone(f.severity)}>{f.severity}</Pill>
-                      </TableCell>
-                      <TableCell>
-                        <span className="block font-medium text-dbb-charcoal">{f.label}</span>
-                        <Mono className="block">{f.rule}</Mono>
-                      </TableCell>
-                      <TableCell>{f.entity_type}</TableCell>
-                      <TableCell>{f.company ?? '—'}</TableCell>
-                      <TableCell>
-                        <Chips entries={Object.entries(f.evidence)} stack />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </TabsContent>
-          <TabsContent value="definitions">
-            <ErrorBanner error={defsError} className="mb-3" />
-            {!defs && !defsError && <Empty>loading…</Empty>}
-            {defs && <Definitions defs={defs} />}
-          </TabsContent>
-        </Tabs>
+        {!rules && !rulesError && <Empty>loading…</Empty>}
+        {rules && findings.length === 0 && <Empty>no findings</Empty>}
+        {findings.length > 0 && (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Severity ({num(findings.length)})</TableHead>
+                <TableHead>Rule</TableHead>
+                <TableHead>Entity</TableHead>
+                <TableHead>Company</TableHead>
+                <TableHead>Evidence</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {findings.map((f) => (
+                <TableRow key={f.rule + f.canonical_id}>
+                  <TableCell>
+                    <Pill tone={severityTone(f.severity)}>{f.severity}</Pill>
+                  </TableCell>
+                  <TableCell>
+                    <span className="block font-medium text-dbb-charcoal">{f.label}</span>
+                    <Mono className="block">{f.rule}</Mono>
+                  </TableCell>
+                  <TableCell>{f.entity_type}</TableCell>
+                  <TableCell>{f.company ?? '—'}</TableCell>
+                  <TableCell>
+                    <Chips entries={Object.entries(f.evidence)} stack />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </SectionCard>
     </div>
   )

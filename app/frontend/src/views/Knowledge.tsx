@@ -5,7 +5,7 @@ import { Section } from '@/components/SectionHeading'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Empty } from '@/components/ui/empty'
 import { Mono } from '@/components/ui/mono'
-import { Chip, Pill } from '@/components/ui/pill'
+import { Chip, Pill, type Tone } from '@/components/ui/pill'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -91,9 +91,43 @@ interface MetricDefinitions {
   provenance: Record<string, Provenance>
 }
 
+type Condition = { attr: string } & Record<string, unknown>
+
+interface RuleDefinition {
+  label: string
+  entity: string
+  severity: string
+  all: Condition[]
+  any: Condition[]
+}
+
+interface Rules {
+  rules: Record<string, RuleDefinition>
+}
+
+interface GoalDeclaration {
+  metric: string
+  target: number
+  strategy: string
+  params: Record<string, unknown>
+}
+
+interface Goals {
+  goals: Record<string, GoalDeclaration>
+}
+
 const keyCol = 'font-medium text-dbb-charcoal'
 
 const counted = (label: string, n: number) => `${label} · ${num(n)}`
+
+const severityTone = (s: string): Tone => (s === 'high' ? 'err' : s === 'medium' ? 'warn' : 'neutral')
+
+const describe = (c: Condition) =>
+  Object.entries(c)
+    .filter(([k]) => k !== 'attr')
+    .map(([op, v]) => `${c.attr} ${op} ${JSON.stringify(v)}`)
+
+const paramValue = (v: unknown) => (typeof v === 'number' ? num(v) : String(v))
 
 function Loaded<T>({
   got,
@@ -412,6 +446,101 @@ function MetricsTab({ m }: { m: MetricDefinitions }) {
   )
 }
 
+function RulesTab({ r }: { r: Rules }) {
+  const rules = Object.entries(r.rules)
+  return (
+    <Section title={counted('Rules', rules.length)}>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Rule</TableHead>
+            <TableHead>Entity</TableHead>
+            <TableHead>Severity</TableHead>
+            <TableHead>Conditions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rules.map(([name, rule]) => (
+            <TableRow key={name}>
+              <TableCell className="align-top">
+                <span className={cn(keyCol, 'block')}>{rule.label}</span>
+                <Mono className="block">{name}</Mono>
+              </TableCell>
+              <TableCell className="align-top">{rule.entity}</TableCell>
+              <TableCell className="align-top">
+                <Pill tone={severityTone(rule.severity)}>{rule.severity}</Pill>
+              </TableCell>
+              <TableCell className="align-top">
+                <span className="flex flex-col items-start gap-1">
+                  {rule.all.flatMap(describe).map((text) => (
+                    <Chip key={'all ' + text}>
+                      all: <strong>{text}</strong>
+                    </Chip>
+                  ))}
+                  {rule.any.flatMap(describe).map((text) => (
+                    <Chip key={'any ' + text}>
+                      any: <strong>{text}</strong>
+                    </Chip>
+                  ))}
+                </span>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </Section>
+  )
+}
+
+function GoalsTab({ g }: { g: Goals }) {
+  const goals = Object.entries(g.goals)
+  return (
+    <Section title={counted('Goals', goals.length)}>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Goal</TableHead>
+            <TableHead>Metric</TableHead>
+            <TableHead className="text-right">Target</TableHead>
+            <TableHead>Strategy</TableHead>
+            <TableHead>Params</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {goals.map(([name, goal]) => {
+            const params = Object.entries(goal.params)
+            return (
+              <TableRow key={name}>
+                <TableCell className="align-top">
+                  <Mono>{name}</Mono>
+                </TableCell>
+                <TableCell className="align-top">
+                  <Mono>{goal.metric}</Mono>
+                </TableCell>
+                <TableCell className="text-right align-top tabular-nums">{num(goal.target)}</TableCell>
+                <TableCell className="align-top">{goal.strategy}</TableCell>
+                <TableCell className="align-top">
+                  {params.length > 0 ? (
+                    <span className="flex flex-col items-start gap-1">
+                      {params.map(([k, v]) => (
+                        <Chip key={k}>
+                          {k}=<strong>{paramValue(v)}</strong>
+                        </Chip>
+                      ))}
+                    </span>
+                  ) : (
+                    '—'
+                  )}
+                </TableCell>
+              </TableRow>
+            )
+          })}
+        </TableBody>
+      </Table>
+    </Section>
+  )
+}
+
 function EnrichmentTab({ v }: { v: Vocabulary }) {
   return (
     <>
@@ -431,6 +560,8 @@ export function Knowledge() {
   const mappings = useLoad(() => get<Mappings>('/api/knowledge/mappings'), [])
   const transforms = useLoad(() => get<Transforms>('/api/knowledge/transforms'), [])
   const metrics = useLoad(() => get<MetricDefinitions>('/api/knowledge/metrics'), [])
+  const rules = useLoad(() => get<Rules>('/api/knowledge/rules'), [])
+  const goals = useLoad(() => get<Goals>('/api/knowledge/goals'), [])
   const vocabulary = useLoad(() => get<Vocabulary>('/api/enrichment/vocabulary'), [])
 
   const files = [
@@ -438,6 +569,8 @@ export function Knowledge() {
     { name: 'mappings', ...mappings },
     { name: 'transforms', ...transforms },
     { name: 'metrics', ...metrics },
+    { name: 'rules', ...rules },
+    { name: 'goals', ...goals },
     { name: 'enrichment', ...vocabulary },
   ]
   const served = files.filter((f) => f.data).length
@@ -461,6 +594,8 @@ export function Knowledge() {
           <TabsTrigger value="mappings">Mappings</TabsTrigger>
           <TabsTrigger value="transforms">Transforms</TabsTrigger>
           <TabsTrigger value="metrics">Metrics</TabsTrigger>
+          <TabsTrigger value="rules">Rules</TabsTrigger>
+          <TabsTrigger value="goals">Goals</TabsTrigger>
           <TabsTrigger value="enrichment">Enrichment</TabsTrigger>
         </TabsList>
         <TabsContent value="ontology">
@@ -497,6 +632,16 @@ export function Knowledge() {
             }
           >
             {(m) => <MetricsTab m={m} />}
+          </Loaded>
+        </TabsContent>
+        <TabsContent value="rules">
+          <Loaded got={rules} count={(r) => plural(Object.keys(r.rules).length, 'rule')}>
+            {(r) => <RulesTab r={r} />}
+          </Loaded>
+        </TabsContent>
+        <TabsContent value="goals">
+          <Loaded got={goals} count={(g) => plural(Object.keys(g.goals).length, 'goal')}>
+            {(g) => <GoalsTab g={g} />}
           </Loaded>
         </TabsContent>
         <TabsContent value="enrichment">
