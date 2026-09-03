@@ -69,6 +69,12 @@ interface SnapshotResponse {
 const SPLIT = 'grid items-start gap-6 lg:grid-cols-[0.45fr_1.55fr]'
 const STICKY = 'min-w-0 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto'
 
+const recordedAt = (iso: string) => {
+  const secs = (Date.now() - new Date(iso).getTime()) / 1000
+  if (Number.isNaN(secs)) return 'never'
+  return secs < 7 * 86400 ? relTime(iso) : new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
 function Value({ value }: { value: number | null | undefined }) {
   return value === null || value === undefined ? <Pill tone="unknown">unknown</Pill> : <>{num(value)}</>
 }
@@ -152,7 +158,7 @@ function RunSection({ run }: { run: Run }) {
                   </TableCell>
                   <TableCell className="text-right tabular-nums">{num(p.entities)}</TableCell>
                   <TableCell>
-                    <Mono>{p.recorded_at}</Mono> {relTime(p.recorded_at)}
+                    <Mono>{p.recorded_at}</Mono> {recordedAt(p.recorded_at)}
                   </TableCell>
                 </TableRow>
               ))}
