@@ -7,9 +7,7 @@ import { Section } from '@/components/SectionHeading'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Empty } from '@/components/ui/empty'
 import { Loading } from '@/components/ui/loading'
-import { Input } from '@/components/ui/input'
 import { Mono } from '@/components/ui/mono'
-import { PAGE, Pager } from '@/components/ui/pager'
 import { Pill } from '@/components/ui/pill'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -133,7 +131,6 @@ const LINK = 'text-dbb-charcoal underline decoration-dotted decoration-dbb-muted
 const ROW = 'cursor-pointer hover:bg-dbb-sand/50'
 const PRE = 'mt-4 max-h-[480px] overflow-auto rounded-lg bg-dbb-surface p-3 font-mono text-xs'
 const WRAP = 'break-words'
-const SPLIT = 'grid gap-6 lg:grid-cols-[1fr_1.2fr]'
 const PAGE_FILL = 'lg:flex lg:flex-col lg:h-[calc(100vh-11.25rem-1px)]'
 const SPLIT_FILL = 'grid items-start gap-6 lg:grid-cols-[1.02fr_1.18fr] lg:grid-rows-[minmax(0,1fr)] lg:h-full'
 const FILL = 'min-w-0 lg:flex lg:flex-col lg:max-h-full'
@@ -564,177 +561,78 @@ function Canonical() {
   )
 }
 
-function RawSide() {
-  const [type, setType] = useState('')
-  const [source, setSource] = useState('')
-  const [offset, setOffset] = useState(0)
-  const [size, setSize] = useState(PAGE)
-  const records = useGet<RecordsResponse>(`/api/records?${query({ entity_type: type, source, limit: size, offset })}`)
-  const changeSize = (n: number) => {
-    setSize(n)
-    setOffset(0)
+async function eventsFor(source: string, objectType: string, sourceId: string): Promise<RawEvent[]> {
+  const hits: RawEvent[] = []
+  for (let offset = 0; ; offset += SCAN) {
+    const page = await get<RawResponse>(`/api/raw?${query({ source, object_type: objectType, limit: SCAN, offset })}`)
+    hits.push(...page.events.filter((e) => e.source_id === sourceId))
+    if (page.events.length === 0 || offset + page.events.length >= page.total) return hits
   }
+}
 
-  const [rawSource, setRawSource] = useState('')
-  const [rawType, setRawType] = useState('')
-  const [rawOffset, setRawOffset] = useState(0)
-  const [rawSize, setRawSize] = useState(PAGE)
-  const [want, setWant] = useState<string | null>(null)
-  const [picked, setPicked] = useState<RawEvent | null>(null)
-  const raw = useGet<RawResponse>(
-    `/api/raw?${query({ source: rawSource, object_type: rawType, limit: rawSize, offset: rawOffset })}`,
-  )
-  const changeRawSize = (n: number) => {
-    setRawSize(n)
-    setRawOffset(0)
-  }
+function RecordDetail({ record }: { record: RecordRow }) {
+  const key = `${record.source}|${record.object_type}|${record.source_id}`
+  const [state, setState] = useState<{ key: string; events: RawEvent[]; error: ApiError | null } | null>(null)
+  const [pickedId, setPickedId] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!want || !raw.data) return
-    setPicked(raw.data.events.find((e) => e.source_id === want) ?? null)
-    setWant(null)
-  }, [want, raw.data])
+    let live = true
+    setPickedId(null)
+    eventsFor(record.source, record.object_type, record.source_id)
+      .then((events) => live && setState({ key, events, error: null }))
+      .catch((e) => live && setState({ key, events: [], error: asApiError(e) }))
+    return () => {
+      live = false
+    }
+  }, [key])
 
-  const peek = (r: RecordRow) => {
-    setRawSource(r.source)
-    setRawType(r.object_type)
-    setRawOffset(0)
-    setPicked(null)
-    setWant(r.source_id)
-  }
-
-  const types = Object.keys(records.data?.by_type ?? {})
-  const rows = records.data?.entities ?? []
-  const events = raw.data?.events ?? []
+  const current = state?.key === key ? state : null
+  const events = current?.events ?? []
+  const picked = events.find((e) => e.id === pickedId) ?? events[0] ?? null
+  const facts = Object.entries(record.facts)
 
   return (
-    <div className={SPLIT}>
-      <SectionCard title={`Records${records.data ? ` (${num(records.data.total)})` : ''}`} description="click a record to peek at its raw events">
-        <ErrorBanner error={records.error} className="mb-3" />
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          <Select
-            value={type || ALL}
-            onValueChange={(v) => {
-              setType(v === ALL ? '' : v)
-              setOffset(0)
-            }}
-          >
-            <SelectTrigger className="h-8 w-44">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>all types</SelectItem>
-              {types.map((t) => (
-                <SelectItem key={t} value={t}>
-                  {t} ({num(records.data?.by_type[t] ?? 0)})
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Input
-            className="h-8 w-40"
-            placeholder="source"
-            value={source}
-            onChange={(e) => {
-              setSource(e.target.value)
-              setOffset(0)
-            }}
-          />
-        </div>
-        {records.loading && !records.data ? (
-          <Loading />
-        ) : rows.length === 0 ? (
-          <Empty>no records</Empty>
+    <SectionCard
+      title={`${record.source} · ${record.source_id}`}
+      description={`${record.object_type} · ${record.entity_type}`}
+      className={FILL}
+      bodyClassName={BODY}
+    >
+      <ErrorBanner error={current?.error ?? null} className="mb-3" />
+      <Section title={counted('Facts', facts.length)}>
+        {facts.length === 0 ? (
+          <Empty>no facts</Empty>
         ) : (
-          <Table className="table-fixed">
+          <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-28">Source</TableHead>
-                <TableHead className="w-28">Type</TableHead>
-                <TableHead className="w-40">Source id</TableHead>
-                <TableHead className="w-32">Object type</TableHead>
-                <TableHead className="w-80">Facts</TableHead>
+                <TableHead className="w-[100px] min-w-[100px]">Attr</TableHead>
+                <TableHead>Value</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map((r, i) => (
-                <TableRow
-                  key={`${r.source}|${r.object_type}|${r.source_id}|${i}`}
-                  className={ROW}
-                  data-state={picked?.source === r.source && picked?.source_id === r.source_id ? 'selected' : undefined}
-                  aria-selected={picked?.source === r.source && picked?.source_id === r.source_id}
-                  onClick={() => peek(r)}
-                >
-                  <TableCell>
-                    <Mono>{r.source}</Mono>
+              {facts.map(([k, v]) => (
+                <TableRow key={k}>
+                  <TableCell className={cn(KEY, 'whitespace-nowrap')}>
+                    <Mono>{k}</Mono>
                   </TableCell>
-                  <TableCell>
-                    <Pill>{r.entity_type}</Pill>
-                  </TableCell>
-                  <TableCell className={KEY}>
-                    <Mono>{r.source_id}</Mono>
-                  </TableCell>
-                  <TableCell>
-                    <Mono>{r.object_type}</Mono>
-                  </TableCell>
-                  <TableCell className={WRAP}>
-                    {Object.entries(r.facts)
-                      .map(([k, v]) => `${k}=${show(v)}`)
-                      .join(' · ')}
-                  </TableCell>
+                  <TableCell className={WRAP}>{show(v)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         )}
-        {records.data && (
-          <Pager
-            offset={offset}
-            count={rows.length}
-            total={records.data.total}
-            onPage={setOffset}
-            size={size}
-            allSize={Math.min(records.data.total, 500)}
-            onSize={changeSize}
-          />
-        )}
-      </SectionCard>
-      <SectionCard title={`Raw events${raw.data ? ` (${num(raw.data.total)})` : ''}`} className="min-w-0">
-        <ErrorBanner error={raw.error} className="mb-3" />
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          <Input
-            className="h-8 w-40"
-            placeholder="source"
-            value={rawSource}
-            onChange={(e) => {
-              setRawSource(e.target.value)
-              setRawOffset(0)
-            }}
-          />
-          <Input
-            className="h-8 w-40"
-            placeholder="object_type"
-            value={rawType}
-            onChange={(e) => {
-              setRawType(e.target.value)
-              setRawOffset(0)
-            }}
-          />
-        </div>
-        {raw.loading && !raw.data ? (
-          <Loading />
-        ) : events.length === 0 ? (
-          <Empty>no raw events</Empty>
-        ) : (
+      </Section>
+      <Section title={counted('Raw events', events.length)}>
+        {!current && <Loading />}
+        {current && events.length === 0 && <Empty>no raw events</Empty>}
+        {events.length > 0 && (
           <Table className="table-fixed">
             <TableHeader>
               <TableRow>
                 <TableHead className={cn(NUM, 'w-20')}>Seq</TableHead>
-                <TableHead className="w-28">Source</TableHead>
-                <TableHead className="w-32">Object type</TableHead>
-                <TableHead className="w-40">Source id</TableHead>
                 <TableHead className="w-32">Ingested</TableHead>
-                <TableHead className="w-28">Id</TableHead>
+                <TableHead>Id</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -744,42 +642,138 @@ function RawSide() {
                   className={ROW}
                   data-state={picked?.id === e.id ? 'selected' : undefined}
                   aria-selected={picked?.id === e.id}
-                  onClick={() => setPicked(e)}
+                  onClick={() => setPickedId(e.id)}
                 >
                   <TableCell className={NUM}>{num(e.seq)}</TableCell>
-                  <TableCell>
-                    <Mono>{e.source}</Mono>
-                  </TableCell>
-                  <TableCell>
-                    <Mono>{e.object_type}</Mono>
-                  </TableCell>
-                  <TableCell className={KEY}>
-                    <Mono>{e.source_id}</Mono>
-                  </TableCell>
                   <TableCell className="whitespace-nowrap" title={e.ingested_at}>
                     {relTime(e.ingested_at)}
                   </TableCell>
                   <TableCell>
-                    <Id id={e.id} />
+                    <Id id={e.id} full />
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         )}
-        {raw.data && (
-          <Pager
-            offset={rawOffset}
-            count={events.length}
-            total={raw.data.total}
-            onPage={setRawOffset}
-            size={rawSize}
-            allSize={Math.min(raw.data.total, 500)}
-            onSize={changeRawSize}
-          />
+      </Section>
+      {picked && (
+        <Section title="Payload">
+          <pre className={cn(PRE, 'mt-0')}>{JSON.stringify(picked.raw_payload, null, 2)}</pre>
+        </Section>
+      )}
+    </SectionCard>
+  )
+}
+
+function RawSide() {
+  const [type, setType] = useState('')
+  const [source, setSource] = useState('')
+  const [sources, setSources] = useState<string[]>([])
+  const [picked, setPicked] = useState<RecordRow | null>(null)
+  const records = useGet<RecordsResponse>(`/api/records?${query({ entity_type: type, source, limit: SCAN })}`)
+  const rows = records.data?.entities ?? []
+  const byType = Object.entries(records.data?.by_type ?? {})
+
+  useEffect(() => {
+    if (!source && records.data) setSources([...new Set(records.data.entities.map((r) => r.source))].sort())
+  }, [source, records.data])
+
+  const isPicked = (r: RecordRow) =>
+    picked?.source === r.source && picked?.object_type === r.object_type && picked?.source_id === r.source_id
+
+  return (
+    <div className={SPLIT_FILL}>
+      <SectionCard
+        title="Records"
+        description="click a record to see its facts and raw events"
+        headerRight={
+          <div className="flex items-center gap-2">
+            <Select value={type || ALL} onValueChange={(v) => setType(v === ALL ? '' : v)}>
+              <SelectTrigger className="h-8 w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL}>all types</SelectItem>
+                {byType.map(([t, n]) => (
+                  <SelectItem key={t} value={t}>
+                    {t} ({num(n)})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={source || ALL} onValueChange={(v) => setSource(v === ALL ? '' : v)}>
+              <SelectTrigger className="h-8 w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL}>all sources</SelectItem>
+                {sources.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        }
+        className={FILL}
+        bodyClassName={BODY}
+      >
+        <ErrorBanner error={records.error} className="mb-3" />
+        {records.loading && !records.data ? (
+          <Loading />
+        ) : rows.length === 0 ? (
+          <Empty>no records</Empty>
+        ) : (
+          <Table className="table-fixed" wrapperClassName="overflow-x-visible">
+            <TableHeader className={STICKY_HEAD}>
+              <TableRow>
+                <TableHead className="w-28">Source</TableHead>
+                <TableHead className="w-36">Source id</TableHead>
+                <TableHead className="w-28">Object type</TableHead>
+                <TableHead className="w-24">Type</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((r, i) => (
+                <TableRow
+                  key={`${r.source}|${r.object_type}|${r.source_id}|${i}`}
+                  className={ROW}
+                  data-state={isPicked(r) ? 'selected' : undefined}
+                  aria-selected={isPicked(r)}
+                  onClick={() => setPicked(r)}
+                >
+                  <TableCell>
+                    <Mono>{r.source}</Mono>
+                  </TableCell>
+                  <TableCell className={KEY}>
+                    <Mono>{r.source_id}</Mono>
+                  </TableCell>
+                  <TableCell>
+                    <Mono>{r.object_type}</Mono>
+                  </TableCell>
+                  <TableCell>
+                    <Pill>{r.entity_type}</Pill>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         )}
-        <Section title="Payload">{picked ? <RawEventView event={picked} /> : <Empty>select a raw event</Empty>}</Section>
+        {records.data && records.data.total > rows.length && (
+          <p className="mt-3 text-sm text-dbb-muted">
+            showing the first {num(rows.length)} of {num(records.data.total)}
+          </p>
+        )}
       </SectionCard>
+      {picked ? (
+        <RecordDetail record={picked} />
+      ) : (
+        <SectionCard className={FILL} bodyClassName={BODY}>
+          <Empty>select a record</Empty>
+        </SectionCard>
+      )}
     </div>
   )
 }
@@ -806,7 +800,7 @@ export function Entities() {
       <TabsContent value="canonical" className="mt-0 lg:min-h-0 lg:flex-1">
         <Canonical />
       </TabsContent>
-      <TabsContent value="raw" className="mt-0">
+      <TabsContent value="raw" className="mt-0 lg:min-h-0 lg:flex-1">
         <RawSide />
       </TabsContent>
     </Tabs>
