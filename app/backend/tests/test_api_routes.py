@@ -516,6 +516,118 @@ class TestEntityDetail:
         assert response.json()["detail"] == "alias points at a missing entity"
 
 
+class TestGraph:
+    async def test_an_empty_estate_is_zero_nodes_and_edges(self, api):
+        body = (await api.get("/api/graph")).json()
+        assert body == {
+            "nodes": [],
+            "edges": [],
+            "counts": {"nodes": 0, "edges": 0, "by_type": {}},
+        }
+
+    async def test_a_node_carries_the_same_columns_as_the_listing(self, api, canonical):
+        acme = await canonical(
+            "company", {"name": "Acme"}, sources=["stripe", "hubspot"]
+        )
+        body = (await api.get("/api/graph")).json()
+        assert body["nodes"] == [
+            {
+                "canonical_id": str(acme),
+                "entity_type": "company",
+                "anchor": "test|company|1",
+                "members": 2,
+            }
+        ]
+
+    async def test_every_edge_is_the_one_the_detail_route_serves(
+        self, api, canonical, link
+    ):
+        acme = await canonical("company", {"name": "Acme"})
+        deal = await canonical("deal", {"amount": "100"})
+        jane = await canonical("person", {"email": "jane@acme.io"})
+        await link(deal, "belongs_to", acme, grounding="via:company_ref")
+        await link(jane, "works_at", acme, grounding="match:domain")
+        body = (await api.get("/api/graph")).json()
+        ids = {n["canonical_id"] for n in body["nodes"]}
+        assert ids == {str(acme), str(deal), str(jane)}
+        assert len(body["edges"]) == 2
+        for edge in body["edges"]:
+            assert set(edge) == {"from", "to", "rel", "grounding"}
+            assert {edge["from"], edge["to"]} <= ids
+            detail = (await api.get(f"/api/entities/{edge['from']}")).json()
+            served = {
+                "rel": edge["rel"],
+                "to": edge["to"],
+                "grounding": edge["grounding"],
+            }
+            assert served in detail["links"]["out"]
+
+    async def test_the_type_filter_narrows_nodes_and_drops_cross_type_edges(
+        self, api, canonical, link
+    ):
+        acme = await canonical("company", {"name": "Acme"})
+        globex = await canonical("company", {"name": "Globex"})
+        deal = await canonical("deal", {"amount": "100"})
+        await link(deal, "belongs_to", acme)
+        await link(globex, "parent_of", acme)
+        body = (await api.get("/api/graph?entity_type=company")).json()
+        assert {n["canonical_id"] for n in body["nodes"]} == {str(acme), str(globex)}
+        assert [(e["from"], e["rel"], e["to"]) for e in body["edges"]] == [
+            (str(globex), "parent_of", str(acme))
+        ]
+        assert body["counts"] == {"nodes": 2, "edges": 1, "by_type": {"company": 2}}
+
+    async def test_by_type_sums_to_the_node_count(self, api, canonical):
+        for entity_type in ("company", "person", "person", "deal"):
+            await canonical(entity_type, {})
+        body = (await api.get("/api/graph")).json()
+        counts = body["counts"]
+        assert counts["by_type"] == {"company": 1, "deal": 1, "person": 2}
+        assert sum(counts["by_type"].values()) == counts["nodes"] == len(body["nodes"])
+        assert counts["edges"] == len(body["edges"]) == 0
+
+    async def test_nodes_and_edges_come_back_in_a_stable_order(
+        self, api, canonical, link
+    ):
+        deal = await canonical("deal", {})
+        acme = await canonical("company", {})
+        globex = await canonical("company", {})
+        await link(deal, "owned_by", acme)
+        await link(deal, "belongs_to", acme)
+        await link(globex, "parent_of", acme)
+        body = (await api.get("/api/graph")).json()
+        nodes = [(n["entity_type"], n["anchor"]) for n in body["nodes"]]
+        assert nodes == sorted(nodes)
+        assert [n["entity_type"] for n in body["nodes"]] == [
+            "company",
+            "company",
+            "deal",
+        ]
+        edges = [(e["from"], e["to"], e["rel"]) for e in body["edges"]]
+        assert edges == sorted(edges)
+        assert [rel for src, _to, rel in edges if src == str(deal)] == [
+            "belongs_to",
+            "owned_by",
+        ]
+
+    async def test_the_cap_keeps_the_first_minted_nodes_and_only_their_edges(
+        self, api, canonical, link
+    ):
+        acme = await canonical("company", {})
+        deal = await canonical("deal", {})
+        late = await canonical("deal", {})
+        await link(deal, "belongs_to", acme)
+        await link(late, "belongs_to", acme)
+        body = (await api.get("/api/graph?limit=2")).json()
+        assert {n["canonical_id"] for n in body["nodes"]} == {str(acme), str(deal)}
+        assert [(e["from"], e["to"]) for e in body["edges"]] == [(str(deal), str(acme))]
+        assert body["counts"]["nodes"] == 2 and body["counts"]["edges"] == 1
+
+    @pytest.mark.parametrize("query", ["limit=0", "limit=20001"])
+    async def test_out_of_range_limits_are_refused_not_clamped(self, api, query):
+        assert (await api.get(f"/api/graph?{query}")).status_code == 422
+
+
 class TestMetrics:
     async def test_the_shipped_catalog_evaluates_with_lineage(self, api):
         body = (await api.get("/api/metrics")).json()["metrics"]
@@ -965,6 +1077,7 @@ class TestNullBytesInQueryParameters:
         "/api/records?entity_type=%00",
         "/api/records?source=%00",
         "/api/entities?entity_type=%00",
+        "/api/graph?entity_type=%00",
         "/api/metrics/history?metric=%00",
         "/api/enrichment?attr=%00",
         "/api/sync/runs?source=%00",
