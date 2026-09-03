@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { asApiError, get, post, type ApiError } from '@/api'
 import { SectionCard } from '@/components/SectionCard'
 import { Section } from '@/components/SectionHeading'
-import { ErrorBanner } from '@/components/ui/banner'
+import { Banner, ErrorBanner } from '@/components/ui/banner'
 import { Button } from '@/components/ui/button'
 import { Empty } from '@/components/ui/empty'
 import { Mono } from '@/components/ui/mono'
@@ -75,16 +75,6 @@ const verdict = (s: Series) =>
 
 function Value({ value }: { value: number | null | undefined }) {
   return value === null || value === undefined ? <Pill tone="unknown">unknown</Pill> : <>{num(value)}</>
-}
-
-function Unavailable({ row }: { row: MetricRow }) {
-  return (
-    <>
-      {row.error && <p className="text-dbb-clay">{row.error}</p>}
-      {row.mixed_currencies && <p>mixed currencies: {row.mixed_currencies.join(', ')}</p>}
-      {row.note && <p>{row.note}</p>}
-    </>
-  )
 }
 
 const W = 240
@@ -274,33 +264,39 @@ export function Metrics() {
                   <TableHead className="w-24 text-right">Value</TableHead>
                   <TableHead className="w-28 text-right">Entities</TableHead>
                   <TableHead className="w-56">Inferred from</TableHead>
-                  <TableHead className="w-56">Unavailable</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {rows.map(([name, m]) => (
-                  <TableRow
-                    key={name}
-                    className="cursor-pointer"
-                    data-state={name === selected ? 'selected' : undefined}
-                    aria-selected={name === selected}
-                    onClick={() => setSelected(name)}
-                  >
-                    <TableCell>
-                      <span className="block font-medium text-dbb-charcoal">{m.label}</span>
-                      <Mono className="block">{name}</Mono>
-                    </TableCell>
-                    <TableCell>{m.entity && <Mono>{m.entity}</Mono>}</TableCell>
-                    <TableCell className="text-right tabular-nums text-dbb-charcoal">
-                      <Value value={m.value} />
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums">{m.entities === undefined ? '—' : num(m.entities)}</TableCell>
-                    <TableCell>{m.inferred && m.reading && <Mono>{m.reading}</Mono>}</TableCell>
-                    <TableCell>
-                      <Unavailable row={m} />
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {rows.map(([name, m]) => {
+                  const warns = Boolean(m.error || m.mixed_currencies || m.note)
+                  return (
+                    <TableRow
+                      key={name}
+                      className="cursor-pointer"
+                      data-state={name === selected ? 'selected' : undefined}
+                      aria-selected={name === selected}
+                      onClick={() => setSelected(name)}
+                    >
+                      <TableCell>
+                        <span className="flex items-center gap-1.5">
+                          <span className="font-medium text-dbb-charcoal">{m.label}</span>
+                          {warns && (
+                            <button type="button" aria-label="show warning" className="leading-none" onClick={() => setSelected(name)}>
+                              ⚠️
+                            </button>
+                          )}
+                        </span>
+                        <Mono className="block">{name}</Mono>
+                      </TableCell>
+                      <TableCell>{m.entity && <Mono>{m.entity}</Mono>}</TableCell>
+                      <TableCell className="text-right tabular-nums text-dbb-charcoal">
+                        <Value value={m.value} />
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums">{m.entities === undefined ? '—' : num(m.entities)}</TableCell>
+                      <TableCell>{m.inferred && m.reading && <Mono>{m.reading}</Mono>}</TableCell>
+                    </TableRow>
+                  )
+                })}
               </TableBody>
             </Table>
           </>
@@ -326,6 +322,13 @@ export function Metrics() {
           }
         >
           <ErrorBanner error={seriesError} className="mb-3" />
+          {row?.error && (
+            <Banner tone="err" className="mb-3">
+              {row.error}
+            </Banner>
+          )}
+          {!row?.error && row?.mixed_currencies && <Banner className="mb-3">mixed currencies: {row.mixed_currencies.join(', ')}</Banner>}
+          {!row?.error && row?.note && <Banner className="mb-3">{row.note}</Banner>}
           {!open && !seriesError && <Empty>loading…</Empty>}
           {open && open.runs.map((run, i) => <RunSection key={i} run={run} index={i} />)}
           {row && (
