@@ -66,7 +66,7 @@ interface SnapshotResponse {
   written: number
 }
 
-const SPLIT = 'grid items-start gap-6 lg:grid-cols-[1fr_1.2fr]'
+const SPLIT = 'grid items-start gap-6 lg:grid-cols-[0.45fr_1.55fr]'
 const STICKY = 'lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto'
 
 const recordedAt = (iso: string) => {
@@ -241,14 +241,11 @@ export function Metrics() {
           <Empty>loading…</Empty>
         ) : (
           <>
-            <Table className="table-fixed">
+            <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-64">Metric</TableHead>
-                  <TableHead className="w-32">Entity</TableHead>
-                  <TableHead className="w-24 text-right">Value</TableHead>
-                  <TableHead className="w-28 text-right">Entities</TableHead>
-                  <TableHead className="w-28">Inferred from</TableHead>
+                  <TableHead>Metric</TableHead>
+                  <TableHead className="w-20 text-right">Value</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -271,14 +268,14 @@ export function Metrics() {
                           )}
                           <span className="font-medium text-dbb-charcoal">{m.label}</span>
                         </span>
-                        <Mono className="block">{name}</Mono>
+                        <Mono className="block">
+                          {name}
+                          {m.entity ? ` · ${m.entity}` : ''}
+                        </Mono>
                       </TableCell>
-                      <TableCell>{m.entity && <Mono>{m.entity}</Mono>}</TableCell>
                       <TableCell className="text-right tabular-nums text-dbb-charcoal">
                         <Value value={m.value} />
                       </TableCell>
-                      <TableCell className="text-right tabular-nums">{m.entities === undefined ? '—' : num(m.entities)}</TableCell>
-                      <TableCell>{m.inferred && m.reading && <Mono>{m.reading}</Mono>}</TableCell>
                     </TableRow>
                   )
                 })}
