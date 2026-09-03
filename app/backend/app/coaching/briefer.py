@@ -87,10 +87,7 @@ def _metric_line(name: str, row: dict) -> str:
     if row.get("value") is None:
         return f"- {label}: UNAVAILABLE — no value could be computed"
     if not row.get("entities"):
-        return (
-            f"- {label}: no entities matched, so this measures nothing "
-            "rather than measuring zero"
-        )
+        return f"- {label}: no entities matched — no data"
 
     notes = []
     if row.get("inferred"):

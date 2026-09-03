@@ -437,9 +437,7 @@ async def _measure(session, spec: dict, terms: list, op, money: set) -> dict:
             session, reading, set().union(*measured)
         )
     if entities == 0:
-        result["note"] = (
-            "no entities matched — no data, as opposed to a zero measurement"
-        )
+        result["note"] = "no entities matched — no data"
     return result
 
 
