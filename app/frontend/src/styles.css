@@ -15,24 +15,10 @@
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font: 13px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+.legacy {
+  display: flex; flex-direction: column; gap: 12px;
+  font-size: 13px; line-height: 1.45;
 }
-
-.topbar {
-  display: flex; align-items: center; gap: 16px;
-  padding: 0 16px; height: 44px;
-  border-bottom: 1px solid var(--line);
-  background: var(--panel);
-  position: sticky; top: 0; z-index: 2;
-}
-
-.brand { font-weight: 650; }
 
 .tabs { display: flex; gap: 2px; }
 
@@ -43,10 +29,6 @@ body {
 }
 .tab:hover { color: var(--text); background: var(--bg); }
 .tab[aria-current="page"] { color: var(--text); background: var(--bg); box-shadow: inset 0 0 0 1px var(--line); }
-
-.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--dim); }
-
-.content { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
 
 .panel {
   background: var(--panel);
@@ -85,18 +67,18 @@ body {
 
 .dim { color: var(--dim); }
 .empty { padding: 20px; text-align: center; color: var(--dim); }
-code, .mono { font-family: var(--mono); font-size: 12px; }
+.legacy code, .mono { font-family: var(--mono); font-size: 12px; }
 
-table { border-collapse: collapse; width: 100%; font-size: 12px; }
-th {
+.legacy table { border-collapse: collapse; width: 100%; font-size: 12px; }
+.legacy th {
   text-align: left; font-weight: 600; color: var(--muted);
   font-size: 11px; letter-spacing: 0.03em; text-transform: uppercase;
   padding: 5px 10px; border-bottom: 1px solid var(--line);
   white-space: nowrap;
 }
-td { padding: 4px 10px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
-td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
-tbody tr:hover { background: var(--bg); }
+.legacy td { padding: 4px 10px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+.legacy td.num, .legacy th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.legacy tbody tr:hover { background: var(--bg); }
 
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
 .card { border: 1px solid var(--line-soft); border-radius: 6px; padding: 8px 10px; }
@@ -105,7 +87,7 @@ tbody tr:hover { background: var(--bg); }
 .chip { font-size: 12px; border: 1px solid var(--line); border-radius: 10px; padding: 1px 9px; color: var(--muted); }
 .chip strong { color: var(--text); }
 
-.list { margin: 0; padding-left: 18px; }
+.list { list-style: disc; margin: 0; padding-left: 18px; }
 .list li { margin: 2px 0; }
 
 .json summary { cursor: pointer; color: var(--muted); font-size: 12px; }
