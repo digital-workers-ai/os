@@ -242,26 +242,34 @@ def run(
         for term in parsed["terms"]:
             if term["source"] == "enriched":
                 continue
-            if term["operand"] != "entity" and term["operand"] not in spec_entity.attrs:
+            term_entity = str(term.get("entity") or entity)
+            term_spec = onto.entities.get(term_entity)
+            if term_spec is None:
+                problems.append(
+                    f"metric {name!r}: term entity {term_entity!r} is not "
+                    "declared in the ontology"
+                )
+                continue
+            if term["operand"] != "entity" and term["operand"] not in term_spec.attrs:
                 problems.append(
                     f"metric {name!r}: aggregates {term['operand']!r}, which is "
-                    f"not an attr of {entity}"
+                    f"not an attr of {term_entity}"
                 )
             if (
                 term["agg"] in ("SUM", "AVG")
                 and term["operand"] != "entity"
-                and spec_entity.attrs.get(term["operand"]) != "number"
+                and term_spec.attrs.get(term["operand"]) != "number"
             ):
                 problems.append(
                     f"metric {name!r}: {term['agg']}({term['operand']}) over a "
-                    f"{spec_entity.attrs.get(term['operand'])} attr — "
+                    f"{term_spec.attrs.get(term['operand'])} attr — "
                     "arithmetic on a non-number is a category error"
                 )
             for attr in term["filter"] or {}:
-                if str(attr) not in spec_entity.attrs:
+                if str(attr) not in term_spec.attrs:
                     problems.append(
                         f"metric {name!r}: filters on {attr!r}, which is not an "
-                        f"attr of {entity}"
+                        f"attr of {term_entity}"
                     )
 
     lineage = metrics.provenance(defs or {}, lines)

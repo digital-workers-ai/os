@@ -47,6 +47,9 @@ def parse_terms(spec) -> tuple:
         entry = _parse_expression(spec.get("expression"))
         entry["filter"] = spec.get("filter")
         return [entry], None
+    op = spec.get("op")
+    if op != "/":
+        raise MetricSpecError(f"op {op!r} is not supported — the only ratio op is '/'")
     parsed = []
     for term in spec["terms"]:
         entry = _parse_expression(term.get("expression"))
@@ -56,7 +59,9 @@ def parse_terms(spec) -> tuple:
         if "entity" in term:
             entry["entity"] = str(term["entity"])
         parsed.append(entry)
-    return parsed, spec.get("op")
+    if len(parsed) != 2:
+        raise MetricSpecError(f"`terms:` takes exactly two terms — got {len(parsed)}")
+    return parsed, op
 
 
 def _validate_filter(filt) -> None:
@@ -122,11 +127,31 @@ def parse_spec(spec) -> dict:
     for term in terms:
         _validate_filter(term["filter"])
         term["source"] = str(term.get("source") or spec.get("source") or "canonical")
+        if term["source"] not in ("canonical", "enriched"):
+            raise MetricSpecError(
+                f"source {term['source']!r} must be `canonical` or `enriched`"
+            )
         if term["agg"] == "COUNT_DISTINCT" and term["source"] != "enriched":
             raise MetricSpecError(
                 "COUNT_DISTINCT is only defined over enriched readings — a "
                 "canonical attr holds one current value per entity, so COUNT "
                 "already counts distinct entities"
+            )
+    if op:
+        signatures = [
+            (
+                term.get("entity") or spec["entity"],
+                term["agg"],
+                term["operand"],
+                term["filter"],
+                term["source"],
+            )
+            for term in terms
+        ]
+        if signatures[0] == signatures[1]:
+            raise MetricSpecError(
+                "degenerate ratio — both terms measure the same thing, so the "
+                "value can only ever be 1"
             )
 
     if any(term["source"] == "enriched" for term in terms):

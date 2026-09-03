@@ -185,6 +185,42 @@ class TestEachCheckFires:
         )
         assert any("filters on 'industry'" in p for p in files.problems())
 
+    def test_a_degenerate_self_ratio(self, files):
+        files.edit(
+            "metrics.yaml",
+            lambda d: d.update(
+                {
+                    "bogus": {
+                        "entity": "subscription",
+                        "op": "/",
+                        "terms": [
+                            {"expression": "COUNT(entity)"},
+                            {"expression": "COUNT(entity)"},
+                        ],
+                    }
+                }
+            ),
+        )
+        assert any("degenerate" in p for p in files.problems())
+
+    def test_a_term_whose_entity_is_not_declared(self, files):
+        files.edit(
+            "metrics.yaml",
+            lambda d: d.update(
+                {
+                    "bogus": {
+                        "entity": "event",
+                        "op": "/",
+                        "terms": [
+                            {"entity": "event", "expression": "COUNT(entity)"},
+                            {"entity": "unicorn", "expression": "COUNT(entity)"},
+                        ],
+                    }
+                }
+            ),
+        )
+        assert any("'unicorn'" in p and "not declared" in p for p in files.problems())
+
     def test_a_hook_field_from_a_source_with_no_hook(self, files):
         files.edit(
             "mappings.yaml",

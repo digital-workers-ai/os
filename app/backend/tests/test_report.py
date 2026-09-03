@@ -15,7 +15,6 @@ class TestClean:
     def test_observations_that_are_not_refusals_leave_it_clean(self):
         report = SyncReport()
         report.clear("amount", "hubspot")
-        report.tombstone("hubspot", "companies")
         report.dangling("company_contact")
         report.no_identity("company", "hubspot")
         report.disagree("company", "name", 2)
@@ -53,11 +52,6 @@ class TestRecording:
         report = SyncReport()
         report.record_skip("hubspot", "companies", "no_id")
         assert report.as_dict()["records_skipped"] == {"hubspot/companies/no_id": 1}
-
-    def test_a_tombstone_is_keyed_source_object_type(self):
-        report = SyncReport()
-        report.tombstone("hubspot", "companies")
-        assert report.as_dict()["tombstones"] == {"hubspot/companies": 1}
 
     def test_a_dangling_ref_is_keyed_by_rel(self):
         report = SyncReport()
@@ -134,14 +128,13 @@ class TestDeadPaths:
 
 
 class TestTotals:
-    def test_totals_has_ten_integer_keys_without_counts_or_rates(self):
+    def test_totals_has_nine_integer_keys_without_counts_or_rates(self):
         report = SyncReport()
         totals = report.totals()
         assert set(totals) == {
             "skips",
             "clears",
             "dead_paths",
-            "tombstones",
             "quarantines",
             "dangling_refs",
             "identity_less",
@@ -164,7 +157,7 @@ class TestTotals:
 
 
 class TestAsDict:
-    def test_it_has_thirteen_keys(self):
+    def test_it_has_twelve_keys(self):
         assert set(SyncReport().as_dict()) == {
             "totals",
             "counts",
@@ -172,7 +165,6 @@ class TestAsDict:
             "records_skipped",
             "clears",
             "dead_paths",
-            "tombstones",
             "quarantines",
             "dangling_refs",
             "identity_less",

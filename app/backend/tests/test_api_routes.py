@@ -9,9 +9,11 @@ from sqlalchemy import func, select
 
 from app.api import entities_api, metrics_api, sources_api
 from app.db import get_session
-from app.engine import run
+from app.engine import mappings, metrics, ontology, run
+from app.engine.transforms import TRANSFORM_TYPES, TRANSFORMS
 from app.main import app
 from app.models import CanonicalAlias, EngineRun, Entity, EntityFact, RawEvent
+from app.sources import hooks
 
 SELF_TRANSACTING = (sources_api, entities_api, metrics_api)
 
@@ -896,3 +898,62 @@ class TestDocumentedResponses:
         ):
             documented = spec["paths"][path]["get"]["responses"]
             assert "404" in documented, f"{path} can 404 and does not say so"
+
+
+class TestKnowledge:
+    async def test_the_ontology_is_served_as_loaded(self, api):
+        response = await api.get("/api/knowledge/ontology")
+        assert response.status_code == 200, response.text
+        body = response.json()
+        onto = ontology.load()
+        assert body["source_priority"] == list(onto.source_priority)
+        assert set(body["entities"]) == set(onto.entities)
+        assert body["entities"]["person"]["identity"] == ["email", "external_ref"]
+        assert body["entities"]["company"]["attrs"] == onto.entities["company"].attrs
+        served = next(r for r in body["relationships"] if r["rel"] == "performed_by")
+        assert served == {
+            "rel": "performed_by",
+            "from": "event",
+            "to": "person",
+            "cardinality": "many_to_one",
+            "grounding": "match:email",
+        }
+
+    async def test_every_mapping_line_is_served_with_its_transform(self, api):
+        response = await api.get("/api/knowledge/mappings")
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert len(body["lines"]) == len(mappings.load())
+        mrr = next(line for line in body["lines"] if line["label"] == "mrr")
+        assert mrr["entity"] == "subscription"
+        assert mrr["source"] == "stripe"
+        assert mrr["object_type"] == "subscriptions"
+        assert mrr["path"] == "_amount_monthly"
+        assert mrr["transform"] == "normalize_money"
+        assert mrr["from_hook"] is True
+        assert body["hook_sources"] == sorted(hooks.hooks())
+        assert "stripe" in body["hook_sources"]
+
+    async def test_the_transform_registry_is_served_with_its_produced_types(self, api):
+        response = await api.get("/api/knowledge/transforms")
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert body["labels"]
+        assert body["labels"]["mrr"] == "normalize_money"
+        assert set(body["registry"]) == set(TRANSFORMS)
+        for name, entry in body["registry"].items():
+            assert entry["produces"] == TRANSFORM_TYPES[name]
+
+    async def test_metric_definitions_are_served_with_provenance(self, api):
+        response = await api.get("/api/knowledge/metrics")
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert set(body["definitions"]) == set(metrics.load_definitions())
+        assert set(body["provenance"]) == set(body["definitions"])
+        assert body["provenance"]["mrr"]["raw_fields"] == [
+            "stripe.subscriptions._amount_monthly",
+            "stripe.subscriptions.status",
+        ]
+
+    async def test_there_is_no_checks_endpoint(self, api):
+        assert (await api.get("/api/knowledge/checks")).status_code == 404

@@ -39,6 +39,6 @@ Every PR fulfills a feature: something runnable, stated as a demo criterion the 
 
 ## Parity
 
-- [ ] 24. chore: parity audit — port every remaining v11 test, diff `def test_` inventory per module, close gaps or record deliberate divergences.
+- [x] 24. chore: parity audit — port every remaining v11 test, diff `def test_` inventory per module, close gaps or record deliberate divergences. Verdict: all 552 v11-only test names accounted for (divergences verified absent, renames/merges mapped, 8 genuine gaps closed: ratio-grammar + term-layer validation, property suites, resolver tiebreaks, dirty-estate + partial-sync e2e, retention pin, knowledge API — /checks route deliberately cut). Orphan tombstone report slot deleted. Recorded open: Calendly host-email wart (knowledge-semantics decision, escalated); env credential overrides + redact() (v12 cannot point at a real provider — lands with that consumer); E3 moot-by-absence; J13 pinned as designed; catalog growth past ~40 metrics re-opens H2 and must land with the narrowable tool's cap in mind.
 
 Slice contents above are starting points, not contracts: the study step decides each slice's exact scope by what the demo needs, and later slices absorb what earlier ones deferred.

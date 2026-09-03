@@ -7,7 +7,6 @@ class SyncReport:
         self.clears: Counter = Counter()
         self.path_hits: Counter = Counter()
         self.declared_paths: set = set()
-        self.tombstones: Counter = Counter()
         self.quarantines: list = []
         self.dangling_refs: Counter = Counter()
         self.identity_less: Counter = Counter()
@@ -31,9 +30,6 @@ class SyncReport:
 
     def record_skip(self, source: str, object_type: str, reason: str) -> None:
         self.records_skipped[f"{source}/{object_type}/{reason}"] += 1
-
-    def tombstone(self, source: str, object_type: str) -> None:
-        self.tombstones[f"{source}/{object_type}"] += 1
 
     def quarantine(self, rel: str, subject: str, detail: str) -> None:
         self.quarantines.append({"rel": rel, "record": subject, "detail": detail})
@@ -69,7 +65,6 @@ class SyncReport:
             "skips": sum(self.skips.values()),
             "clears": sum(self.clears.values()),
             "dead_paths": len(self.dead_paths()),
-            "tombstones": sum(self.tombstones.values()),
             "quarantines": len(self.quarantines),
             "dangling_refs": sum(self.dangling_refs.values()),
             "identity_less": sum(self.identity_less.values()),
@@ -99,7 +94,6 @@ class SyncReport:
             "records_skipped": dict(sorted(self.records_skipped.items())),
             "clears": dict(sorted(self.clears.items())),
             "dead_paths": self.dead_paths(),
-            "tombstones": dict(sorted(self.tombstones.items())),
             "quarantines": self.quarantines[:200],
             "dangling_refs": dict(sorted(self.dangling_refs.items())),
             "identity_less": dict(sorted(self.identity_less.items())),
