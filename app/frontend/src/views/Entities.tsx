@@ -688,7 +688,7 @@ function RawSide() {
         title="Records"
         description="click a record to see its facts and raw events"
         headerRight={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col items-end gap-2">
             <Select value={type || ALL} onValueChange={(v) => setType(v === ALL ? '' : v)}>
               <SelectTrigger className="h-8 w-40">
                 <SelectValue />
