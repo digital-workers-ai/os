@@ -82,7 +82,6 @@ const PAD = 8
 function Sparkline({ points }: { points: Point[] }) {
   const values = points.map((p) => p.value)
   const known = values.filter((v): v is number => v !== null)
-  if (known.length === 0) return <p className="text-sm text-dbb-muted">no values to plot</p>
   const min = Math.min(...known)
   const max = Math.max(...known)
   const x = (i: number) => (points.length === 1 ? W / 2 : PAD + (i * (W - 2 * PAD)) / (points.length - 1))
@@ -133,6 +132,7 @@ function Sparkline({ points }: { points: Point[] }) {
 }
 
 function RunSection({ run }: { run: Run }) {
+  if (!run.points.some((p) => p.value !== null)) return null
   return (
     <div className="mt-6 first:mt-0">
       <div className="flex flex-col gap-4">
