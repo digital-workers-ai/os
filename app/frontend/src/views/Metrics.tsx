@@ -270,6 +270,7 @@ export function Metrics() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-56">Metric</TableHead>
+                  <TableHead className="w-32">Entity</TableHead>
                   <TableHead className="w-24 text-right">Value</TableHead>
                   <TableHead className="w-28 text-right">Entities</TableHead>
                   <TableHead className="w-56">Inferred</TableHead>
@@ -288,8 +289,8 @@ export function Metrics() {
                     <TableCell>
                       <span className="block font-medium text-dbb-charcoal">{m.label}</span>
                       <Mono className="block">{name}</Mono>
-                      {m.entity && <Mono className="block">{m.entity}</Mono>}
                     </TableCell>
+                    <TableCell>{m.entity && <Mono>{m.entity}</Mono>}</TableCell>
                     <TableCell className="text-right tabular-nums text-dbb-charcoal">
                       <Value value={m.value} />
                     </TableCell>
