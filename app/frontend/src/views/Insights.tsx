@@ -4,7 +4,6 @@ import { Inferred } from '@/components/Inferred'
 import { SectionCard } from '@/components/SectionCard'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { Empty } from '@/components/ui/empty'
 import { Mono } from '@/components/ui/mono'
 import { Chip, Pill, type Tone } from '@/components/ui/pill'
@@ -103,47 +102,70 @@ function Chips({ entries }: { entries: [string, unknown][] }) {
   )
 }
 
-function GoalCard({ g }: { g: Goal }) {
+const goalDetail = (g: Goal): [string, unknown][] => {
   const detail: [string, unknown][] = []
   if (g.band) detail.push(['band', g.band])
   if (g.outside_band_by !== undefined) detail.push(['outside_band_by', g.outside_band_by])
   if (g.trend) detail.push(['trend', g.trend])
+  return detail
+}
+
+function GoalsTable({ goals }: { goals: Goal[] }) {
   return (
-    <Card className="flex flex-col gap-3 sm:p-4">
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <div className="text-sm font-semibold leading-snug text-dbb-charcoal">{g.label}</div>
-          <Mono className="mt-0.5 block text-[11px] text-dbb-muted">{g.goal}</Mono>
-        </div>
-        <Pill tone={verdictTone(g.met)}>{verdictOf(g.met)}</Pill>
-      </div>
-      <div>
-        <div className="flex items-baseline gap-1.5">
-          {g.current === null || g.current === undefined ? (
-            <Pill tone="unknown">unknown</Pill>
-          ) : (
-            <span className="text-2xl font-semibold tabular-nums text-dbb-charcoal">{num(g.current)}</span>
-          )}
-          <span className="text-sm text-dbb-muted">/ {g.target === undefined ? '—' : num(g.target)}</span>
-        </div>
-        <div className="mt-0.5 text-xs text-dbb-muted">
-          {g.metric ? <span className="font-mono">{g.metric}</span> : '—'}
-          {g.strategy && ` · ${g.strategy}`}
-        </div>
-      </div>
-      {typeof g.progress === 'number' && (
-        <div className="flex items-center gap-2">
-          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-dbb-sand">
-            <div className="h-full rounded-full bg-dbb-charcoal" style={{ width: `${Math.max(0, Math.min(100, g.progress))}%` }} />
-          </div>
-          <span className="text-xs tabular-nums text-dbb-muted">{num(g.progress)}%</span>
-        </div>
-      )}
-      {detail.length > 0 && <Chips entries={detail} />}
-      {g.unknown && <p className="text-xs text-dbb-muted">{g.unknown}</p>}
-      {g.error && <p className="text-xs text-dbb-clay">{g.error}</p>}
-      {g.inferred && <Inferred reading={g.reading} sha={g.vocabulary_sha} producedBy={g.produced_by?.join(', ')} />}
-    </Card>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Goal</TableHead>
+          <TableHead>Metric</TableHead>
+          <TableHead className="text-right">Target</TableHead>
+          <TableHead className="text-right">Current</TableHead>
+          <TableHead>Verdict</TableHead>
+          <TableHead>Progress</TableHead>
+          <TableHead>Detail</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {goals.map((g) => {
+          const detail = goalDetail(g)
+          return (
+            <TableRow key={g.goal}>
+              <TableCell>
+                <span className="font-medium text-dbb-charcoal">{g.label}</span> <Mono>{g.goal}</Mono>
+              </TableCell>
+              <TableCell>
+                {g.metric ? <Mono>{g.metric}</Mono> : '—'}
+                {g.strategy && ` · ${g.strategy}`}
+              </TableCell>
+              <TableCell className="text-right tabular-nums">{g.target === undefined ? '—' : num(g.target)}</TableCell>
+              <TableCell className="text-right tabular-nums">
+                {g.current === null || g.current === undefined ? <Pill tone="unknown">unknown</Pill> : num(g.current)}
+              </TableCell>
+              <TableCell>
+                <Pill tone={verdictTone(g.met)}>{verdictOf(g.met)}</Pill>
+              </TableCell>
+              <TableCell>
+                {typeof g.progress === 'number' && (
+                  <span className="inline-flex items-center gap-2">
+                    <span className="block h-1.5 w-24 rounded-full bg-dbb-sand">
+                      <span className="block h-full rounded-full bg-dbb-charcoal" style={{ width: `${Math.max(0, Math.min(100, g.progress))}%` }} />
+                    </span>
+                    <span className="text-xs tabular-nums">{num(g.progress)}%</span>
+                  </span>
+                )}
+              </TableCell>
+              <TableCell>
+                <span className="inline-flex flex-wrap items-center gap-1.5">
+                  {detail.length > 0 && <Chips entries={detail} />}
+                  {g.unknown && <span className="text-xs">{g.unknown}</span>}
+                  {g.error && <span className="text-xs text-dbb-clay">{g.error}</span>}
+                  {g.inferred && <Inferred reading={g.reading} sha={g.vocabulary_sha} producedBy={g.produced_by?.join(', ')} />}
+                </span>
+              </TableCell>
+            </TableRow>
+          )
+        })}
+      </TableBody>
+    </Table>
   )
 }
 
@@ -233,31 +255,28 @@ export function Insights() {
 
   return (
     <div className="space-y-6">
-      <section>
-        <div className="mb-3 flex flex-wrap items-center gap-3">
-          <h2 className="text-base font-semibold text-dbb-charcoal">Goals{goals ? ` (${goals.goals.length})` : ''}</h2>
-          {goals && (
-            <div className="flex flex-wrap gap-1.5">
-              <Pill tone="ok">{num(goals.met)} met</Pill>
-              <Pill tone="err">{num(goals.missed)} missed</Pill>
-              <Pill tone="unknown">{num(goals.unknown)} unknown</Pill>
-            </div>
-          )}
-          <Button variant="outline" size="sm" className="ml-auto" onClick={loadGoals}>
-            Refresh
-          </Button>
-        </div>
+      <SectionCard
+        title={`Goals${goals ? ` (${goals.goals.length})` : ''}`}
+        headerRight={
+          <div className="flex flex-wrap items-center gap-3">
+            {goals && (
+              <div className="flex flex-wrap gap-1.5">
+                <Pill tone="ok">{num(goals.met)} met</Pill>
+                <Pill tone="err">{num(goals.missed)} missed</Pill>
+                <Pill tone="unknown">{num(goals.unknown)} unknown</Pill>
+              </div>
+            )}
+            <Button variant="outline" size="sm" onClick={loadGoals}>
+              Refresh
+            </Button>
+          </div>
+        }
+      >
         <ErrorBanner error={goalsError} className="mb-3" />
         {!goals && !goalsError && <Empty>loading…</Empty>}
         {goals && goals.goals.length === 0 && <Empty>no goals defined</Empty>}
-        {goals && goals.goals.length > 0 && (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {goals.goals.map((g) => (
-              <GoalCard key={g.goal} g={g} />
-            ))}
-          </div>
-        )}
-      </section>
+        {goals && goals.goals.length > 0 && <GoalsTable goals={goals.goals} />}
+      </SectionCard>
 
       <SectionCard
         title={`Findings${rules ? ` (${findings.length})` : ''}`}
