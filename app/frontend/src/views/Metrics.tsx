@@ -66,7 +66,7 @@ interface SnapshotResponse {
   written: number
 }
 
-const SPLIT = 'grid items-start gap-6 lg:grid-cols-[0.45fr_1.55fr]'
+const SPLIT = 'grid items-start gap-6 lg:grid-cols-[0.65fr_0.35fr]'
 const STICKY = 'lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto'
 
 const recordedAt = (iso: string) => {
