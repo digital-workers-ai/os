@@ -1,9 +1,12 @@
-from fastapi import Body, Depends, HTTPException
+from fastapi import Body, Depends, HTTPException, Query
+from sqlalchemy import func, select
 
 from app import sync
 from app.api.routers import sources as router
+from app.caches import MAX_OFFSET
 from app.db import async_session, get_session
 from app.engine import checks
+from app.models import SyncRun
 from app.sources import catalog, registry
 
 
@@ -67,3 +70,35 @@ async def run_sync(body: dict = Body(default={})):
     if unknown:
         raise HTTPException(404, f"unknown source(s): {unknown}")
     return await sync.run_all(async_session, sources)
+
+
+@router.get("/sync/runs")
+async def list_sync_runs(
+    source: str | None = None,
+    limit: int = Query(50, ge=1, le=500),
+    offset: int = Query(0, ge=0, le=MAX_OFFSET),
+    session=Depends(get_session),
+):
+    query = select(SyncRun).order_by(SyncRun.started_at.desc(), SyncRun.id)
+    count_query = select(func.count()).select_from(SyncRun)
+    if source:
+        query = query.where(SyncRun.source == source)
+        count_query = count_query.where(SyncRun.source == source)
+    total = (await session.execute(count_query)).scalar_one()
+    rows = (await session.execute(query.limit(limit).offset(offset))).scalars().all()
+    return {
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+        "runs": [
+            {
+                "id": str(r.id),
+                "source": r.source,
+                "ok": r.ok,
+                "rows_written": r.rows_written,
+                "detail": r.detail,
+                "started_at": r.started_at.isoformat(),
+            }
+            for r in rows
+        ],
+    }
