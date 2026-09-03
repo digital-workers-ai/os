@@ -4,6 +4,7 @@ import { SectionCard } from '@/components/SectionCard'
 import { Section } from '@/components/SectionHeading'
 import { Banner, ErrorBanner } from '@/components/ui/banner'
 import { Empty } from '@/components/ui/empty'
+import { Loading } from '@/components/ui/loading'
 import { Mono } from '@/components/ui/mono'
 import { Pill } from '@/components/ui/pill'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -63,7 +64,7 @@ interface Series {
 
 const SPLIT = 'grid items-start gap-6 lg:grid-cols-[0.65fr_0.35fr]'
 const FILL = 'lg:flex lg:flex-col lg:max-h-[calc(100vh-12.75rem-1px)]'
-const BODY = 'lg:min-h-0 lg:overflow-y-auto'
+const BODY = 'lg:min-h-0 lg:overflow-y-auto lg:-mx-6 lg:px-6 lg:-mb-6 lg:pb-6 lg:rounded-b-xl'
 
 const recordedAt = (iso: string) => {
   const secs = (Date.now() - new Date(iso).getTime()) / 1000
@@ -204,7 +205,7 @@ export function Metrics() {
       <SectionCard className={FILL} bodyClassName={BODY}>
         <ErrorBanner error={metricsError} className="mb-3" />
         {!metrics && !metricsError ? (
-          <Empty>loading…</Empty>
+          <Loading />
         ) : (
           <>
             <Table className="table-fixed" wrapperClassName="overflow-x-visible">
@@ -256,23 +257,28 @@ export function Metrics() {
 
       {selected ? (
         <SectionCard title={row?.label ?? selected} className={`min-w-0 ${FILL}`} bodyClassName={BODY}>
-          <ErrorBanner error={seriesError} className="mb-3" />
-          {row?.error && (
-            <Banner tone="err" className="mb-3">
-              {row.error}
-            </Banner>
-          )}
-          {!row?.error && row?.mixed_currencies && <Banner className="mb-3">mixed currencies: {row.mixed_currencies.join(', ')}</Banner>}
-          {!row?.error && row?.note && <Banner className="mb-3">{row.note}</Banner>}
-          {!open && !seriesError && <Empty>loading…</Empty>}
-          {open && open.runs.map((run, i) => <RunSection key={i} run={run} />)}
-          {row && (
-            <Section title="Receipts">
-              <p className="mb-3 text-sm text-dbb-muted">
-                How this number was produced: what was counted, which fields were read, and whether it was inferred.
-              </p>
-              <pre className="overflow-auto rounded-lg bg-dbb-surface p-3 font-mono text-xs">{JSON.stringify(row, null, 2)}</pre>
-            </Section>
+          {!open && !seriesError ? (
+            <Loading />
+          ) : (
+            <>
+              <ErrorBanner error={seriesError} className="mb-3" />
+              {row?.error && (
+                <Banner tone="err" className="mb-3">
+                  {row.error}
+                </Banner>
+              )}
+              {!row?.error && row?.mixed_currencies && <Banner className="mb-3">mixed currencies: {row.mixed_currencies.join(', ')}</Banner>}
+              {!row?.error && row?.note && <Banner className="mb-3">{row.note}</Banner>}
+              {open && open.runs.map((run, i) => <RunSection key={i} run={run} />)}
+              {row && (
+                <Section title="Receipts">
+                  <p className="mb-3 text-sm text-dbb-muted">
+                    How this number was produced: what was counted, which fields were read, and whether it was inferred.
+                  </p>
+                  <pre className="overflow-auto rounded-lg bg-dbb-surface p-3 font-mono text-xs">{JSON.stringify(row, null, 2)}</pre>
+                </Section>
+              )}
+            </>
           )}
         </SectionCard>
       ) : (
