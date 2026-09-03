@@ -8,7 +8,7 @@ import { Empty } from '@/components/ui/empty'
 import { Mono } from '@/components/ui/mono'
 import { Pill } from '@/components/ui/pill'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { num, plural, relTime, short } from '@/lib/format'
+import { num, plural, relTime } from '@/lib/format'
 
 interface InferredFrom {
   reading: string
@@ -68,11 +68,6 @@ interface SnapshotResponse {
 
 const SPLIT = 'grid items-start gap-6 lg:grid-cols-[0.45fr_1.55fr]'
 const STICKY = 'min-w-0 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto'
-
-const verdict = (s: Series) =>
-  s.runs.length === 0
-    ? 'no snapshots yet'
-    : `${plural(s.runs.length, 'run')} — ${s.comparable ? 'comparable' : 'not comparable'}, ${plural(s.breaks, 'break')}`
 
 function Value({ value }: { value: number | null | undefined }) {
   return value === null || value === undefined ? <Pill tone="unknown">unknown</Pill> : <>{num(value)}</>
@@ -135,24 +130,9 @@ function Sparkline({ points }: { points: Point[] }) {
   )
 }
 
-function RunSection({ run, index }: { run: Run; index: number }) {
+function RunSection({ run }: { run: Run }) {
   return (
-    <Section
-      title={
-        <>
-          Run {index + 1} · {plural(run.points.length, 'point')} ·{' '}
-          {run.inferred ? (
-            <>
-              inferred
-              {run.vocabulary_sha && <Mono className="ml-1 normal-case">{short(run.vocabulary_sha, 12)}</Mono>}
-              {run.produced_by && <Mono className="ml-1 normal-case">{run.produced_by}</Mono>}
-            </>
-          ) : (
-            'measured'
-          )}
-        </>
-      }
-    >
+    <div className="mt-6 first:mt-0">
       <div className="flex flex-col gap-4">
         <Sparkline points={run.points} />
         <div className="min-w-0">
@@ -180,7 +160,7 @@ function RunSection({ run, index }: { run: Run; index: number }) {
           </Table>
         </div>
       </div>
-    </Section>
+    </div>
   )
 }
 
@@ -307,14 +287,6 @@ export function Metrics() {
         <SectionCard
           title={`Series — ${row?.label ?? selected}`}
           className={STICKY}
-          description={
-            open && (
-              <>
-                {verdict(open)}
-                {open.inferred && ' · inferred series'}
-              </>
-            )
-          }
           headerRight={
             <Button variant="outline" size="sm" onClick={() => loadSeries(selected)}>
               Refresh
@@ -330,7 +302,7 @@ export function Metrics() {
           {!row?.error && row?.mixed_currencies && <Banner className="mb-3">mixed currencies: {row.mixed_currencies.join(', ')}</Banner>}
           {!row?.error && row?.note && <Banner className="mb-3">{row.note}</Banner>}
           {!open && !seriesError && <Empty>loading…</Empty>}
-          {open && open.runs.map((run, i) => <RunSection key={i} run={run} index={i} />)}
+          {open && open.runs.map((run, i) => <RunSection key={i} run={run} />)}
           {row && (
             <Section title="Receipts">
               <pre className="overflow-auto rounded-lg bg-dbb-surface p-3 font-mono text-xs">{JSON.stringify(row, null, 2)}</pre>
