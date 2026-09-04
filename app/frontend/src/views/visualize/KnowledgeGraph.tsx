@@ -384,7 +384,11 @@ export function Canvas({
   }
 
   return (
-    <div ref={rootRef} className="relative h-96 overflow-hidden rounded-lg border border-dbb-warm bg-white lg:h-auto lg:min-h-0 lg:flex-1">
+    <div
+      ref={rootRef}
+      className="relative h-96 overflow-hidden rounded-lg border border-dbb-warm bg-white lg:h-auto lg:min-h-0 lg:flex-1"
+      data-testid="visualize-canvas"
+    >
       <svg
         ref={svgRef}
         className="absolute inset-0 h-full w-full cursor-grab select-none active:cursor-grabbing"

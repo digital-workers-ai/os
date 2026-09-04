@@ -103,6 +103,7 @@ function Sparkline({ points }: { points: Point[] }) {
     <svg
       className="h-32 w-full sm:h-40"
       viewBox={`0 0 ${W} ${H}`}
+      data-testid="series-chart"
       preserveAspectRatio="none"
       role="img"
       aria-label={`${points.length} points, ${num(min)} to ${num(max)}`}
@@ -140,7 +141,7 @@ function RunSection({ run }: { run: Run }) {
       <div className="flex flex-col gap-4">
         <Sparkline points={run.points} />
         <div className="min-w-0">
-          <Table className="table-fixed">
+          <Table className="table-fixed" data-testid="series-table">
             <TableHeader>
               <TableRow>
                 <TableHead className="w-28 text-right">Value</TableHead>
@@ -202,13 +203,13 @@ export function Metrics() {
 
   return (
     <div className={SPLIT}>
-      <SectionCard className={FILL} bodyClassName={BODY}>
+      <SectionCard className={FILL} bodyClassName={BODY} testId="metrics">
         <ErrorBanner error={metricsError} className="mb-3" />
         {!metrics && !metricsError ? (
           <Loading />
         ) : (
           <>
-            <Table className="table-fixed" wrapperClassName="overflow-x-visible">
+            <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="metrics-table">
               <TableHeader className="[&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-card [&_th]:shadow-[inset_0_-1px_0_theme(colors.dbb.warm)]">
                 <TableRow>
                   <TableHead className="w-64">Metric ({num(rows.length)})</TableHead>
@@ -225,6 +226,8 @@ export function Metrics() {
                     <TableRow
                       key={name}
                       className="cursor-pointer"
+                      data-testid="metrics-row"
+                      data-name={name}
                       data-state={name === selected ? 'selected' : undefined}
                       aria-selected={name === selected}
                       onClick={() => setSelected(name)}
@@ -232,7 +235,13 @@ export function Metrics() {
                       <TableCell>
                         <span className="flex items-center gap-1.5">
                           {warns && (
-                            <button type="button" aria-label="show warning" className="leading-none" onClick={() => setSelected(name)}>
+                            <button
+                              type="button"
+                              aria-label="show warning"
+                              className="leading-none"
+                              data-testid="metrics-warning"
+                              onClick={() => setSelected(name)}
+                            >
                               ⚠️
                             </button>
                           )}
@@ -256,20 +265,26 @@ export function Metrics() {
       </SectionCard>
 
       {seriesError && selected ? (
-        <SectionCard title={metrics?.metrics[selected]?.label ?? selected} className={`min-w-0 ${CAP}`} bodyClassName={BODY}>
+        <SectionCard title={metrics?.metrics[selected]?.label ?? selected} className={`min-w-0 ${CAP}`} bodyClassName={BODY} testId="series">
           <ErrorBanner error={seriesError} />
         </SectionCard>
       ) : series && seriesRow ? (
-        <SectionCard title={seriesRow.label} className={`min-w-0 ${CAP}`} bodyClassName={BODY}>
+        <SectionCard title={seriesRow.label} className={`min-w-0 ${CAP}`} bodyClassName={BODY} testId="series">
           {seriesRow.error && (
-            <Banner tone="err" className="mb-3">
+            <Banner tone="err" className="mb-3" testId="series-error">
               {seriesRow.error}
             </Banner>
           )}
-          {!seriesRow.error && seriesRow.mixed_currencies && <Banner className="mb-3">mixed currencies: {seriesRow.mixed_currencies.join(', ')}</Banner>}
-          {!seriesRow.error && seriesRow.note && <Banner className="mb-3">{seriesRow.note}</Banner>}
+          {!seriesRow.error && seriesRow.mixed_currencies && (
+            <Banner className="mb-3" testId="series-mixed">mixed currencies: {seriesRow.mixed_currencies.join(', ')}</Banner>
+          )}
+          {!seriesRow.error && seriesRow.note && (
+            <Banner className="mb-3" testId="series-note">
+              {seriesRow.note}
+            </Banner>
+          )}
           {series.runs.map((run, i) => <RunSection key={i} run={run} />)}
-          <Section title="Receipts">
+          <Section title="Receipts" testId="series-receipts">
             <p className="mb-3 text-sm text-dbb-muted">
               How this number was produced: what was counted, which fields were read, and whether it was inferred.
             </p>
@@ -277,7 +292,7 @@ export function Metrics() {
           </Section>
         </SectionCard>
       ) : (
-        <SectionCard className={`min-w-0 ${CAP}`} bodyClassName={BODY}>
+        <SectionCard className={`min-w-0 ${CAP}`} bodyClassName={BODY} testId="series">
           <Empty>select a metric</Empty>
         </SectionCard>
       )}

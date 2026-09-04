@@ -4,7 +4,7 @@
 
 - `./test.sh unit` — lint (ruff check + format --check), then pytest with 100% line+branch coverage enforced; runs inside the backend container
 - `./format.sh` — apply ruff autofixes and formatting
-- `docker compose -f app/docker-compose.yml up -d --wait postgres backend` — start the stack (project `os_v0`, postgres :5442, backend :8092)
+- `docker compose -f app/docker-compose.yml up -d --wait postgres backend` — start the stack (project `os`, postgres :5442, backend :8092)
 
 ## Comments
 

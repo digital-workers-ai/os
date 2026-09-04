@@ -105,7 +105,7 @@ function GoalsTable({ goals }: { goals: Goal[] }) {
   const page = goals.slice(offset, offset + size)
   return (
     <>
-      <Table>
+      <Table data-testid="goals-table">
         <TableHeader>
           <TableRow>
             <TableHead>Goal ({num(goals.length)})</TableHead>
@@ -212,9 +212,10 @@ export function Insights() {
     <div className="space-y-6">
       <SectionCard
         title="Goals"
+        testId="goals"
         headerRight={
           goals && (
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-1.5" data-testid="goals-pills">
               <Pill tone="ok">{num(goals.met)} met</Pill>
               <Pill tone="err">{num(goals.missed)} missed</Pill>
               <Pill tone="unknown">{num(goals.unknown)} unknown</Pill>
@@ -230,9 +231,10 @@ export function Insights() {
 
       <SectionCard
         title="Findings"
+        testId="findings"
         headerRight={
           rules && (
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-1.5" data-testid="findings-pills">
               {Object.entries(rules.by_severity).map(([s, n]) => (
                 <Pill key={s} tone={severityTone(s)}>
                   {num(n)} {s}
@@ -244,7 +246,7 @@ export function Insights() {
       >
         <ErrorBanner error={rulesError} className="mb-3" />
         {rules && unreadable.length > 0 && (
-          <div className="mb-3 flex flex-wrap items-center gap-1.5">
+          <div className="mb-3 flex flex-wrap items-center gap-1.5" data-testid="findings-unreadable">
             <span className="text-sm text-dbb-muted">{num(unreadableTotal)} values unreadable</span>
             {unreadable.map(([key, n]) => (
               <Chip key={key} className="border-amber-200 bg-amber-50 text-amber-800">
@@ -257,7 +259,7 @@ export function Insights() {
         {rules && findings.length === 0 && <Empty>no findings</Empty>}
         {findings.length > 0 && (
           <>
-            <Table className="table-fixed">
+            <Table className="table-fixed" data-testid="findings-table">
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-20">Severity ({num(findings.length)})</TableHead>

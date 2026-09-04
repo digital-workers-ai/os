@@ -8,18 +8,32 @@ const TONES = {
   err: 'border-dbb-clay/30 bg-dbb-clay/5 text-dbb-clay',
 }
 
-export function Banner({ tone = 'warn', className, children }: { tone?: keyof typeof TONES; className?: string; children: ReactNode }) {
+export function Banner({
+  tone = 'warn',
+  className,
+  testId = 'banner',
+  children,
+}: {
+  tone?: keyof typeof TONES
+  className?: string
+  testId?: string
+  children: ReactNode
+}) {
   return (
-    <div role={tone === 'err' ? 'alert' : 'status'} className={cn('rounded-lg border px-3 py-2 text-sm', TONES[tone], className)}>
+    <div
+      role={tone === 'err' ? 'alert' : 'status'}
+      className={cn('rounded-lg border px-3 py-2 text-sm', TONES[tone], className)}
+      data-testid={testId}
+    >
       {children}
     </div>
   )
 }
 
-export function ErrorBanner({ error, className }: { error: ApiError | null; className?: string }) {
+export function ErrorBanner({ error, className, testId = 'error-banner' }: { error: ApiError | null; className?: string; testId?: string }) {
   if (!error) return null
   return (
-    <Banner tone="err" className={className}>
+    <Banner tone="err" className={className} testId={testId}>
       <Mono>{error.status || 'network'}</Mono> {error.detail}
     </Banner>
   )

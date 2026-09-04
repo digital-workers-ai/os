@@ -48,6 +48,7 @@ export function Layout() {
       {!reached('header') && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"
+          data-testid="intro"
           style={{
             backgroundColor: WHITE,
             opacity: reached('fadeout') ? 0 : 1,
@@ -70,9 +71,12 @@ export function Layout() {
       <main
         className="max-w-7xl mx-auto px-4 md:px-6 py-5 md:py-8"
         style={{ transition: EASE, opacity: reached('all') ? 1 : 0, filter: gray ? 'grayscale(1)' : 'grayscale(0)' }}
+        data-testid="page-main"
       >
-        <div className="mb-6 md:mb-8 flex items-center gap-3">
-          <h1 className="min-w-0 text-lg sm:text-xl font-medium text-dbb-charcoal truncate">{pageTitle}</h1>
+        <div className="mb-6 md:mb-8 h-7 flex items-center gap-3" data-testid="page-heading-row">
+          <h1 className="min-w-0 text-lg sm:text-xl font-medium text-dbb-charcoal truncate" data-testid="page-heading">
+            {pageTitle}
+          </h1>
           {badge}
         </div>
         <SetPageTitleContext.Provider value={setPageTitle}>

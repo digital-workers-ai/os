@@ -7,5 +7,5 @@ export function Loading() {
     const timer = setTimeout(() => setShown(true), 250)
     return () => clearTimeout(timer)
   }, [])
-  return shown ? <Empty>loading…</Empty> : null
+  return shown ? <Empty testId="loading">loading…</Empty> : null
 }

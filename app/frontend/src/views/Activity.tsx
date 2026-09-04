@@ -94,19 +94,32 @@ export function Activity() {
     <SectionCard
       title={
         <div className="flex items-center gap-2">
-          <Filter value={type} onChange={filter(setType)} all={`all types (${num(all.length)})`} options={countBy(all, 'entity_type')} />
-          <Filter value={source} onChange={filter(setSource)} all={`all sources (${num(all.length)})`} options={countBy(all, 'source')} />
+          <Filter
+            value={type}
+            onChange={filter(setType)}
+            all={`all types (${num(all.length)})`}
+            options={countBy(all, 'entity_type')}
+            testId="activity-type-filter"
+          />
+          <Filter
+            value={source}
+            onChange={filter(setSource)}
+            all={`all sources (${num(all.length)})`}
+            options={countBy(all, 'source')}
+            testId="activity-source-filter"
+          />
         </div>
       }
       className={FILL}
       bodyClassName={BODY}
       bodyRef={bodyRef}
+      testId="activity"
     >
       <ErrorBanner error={error} className="mb-3" />
       {!data && !error && <Loading />}
       {data && rows.length === 0 && <Empty>no activity yet</Empty>}
       {rows.length > 0 && (
-        <Table className="table-fixed" wrapperClassName="overflow-x-visible">
+        <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="activity-table">
           <TableHeader className={STICKY_HEAD}>
             <TableRow>
               <TableHead className="w-64">Entity ({num(rows.length)})</TableHead>

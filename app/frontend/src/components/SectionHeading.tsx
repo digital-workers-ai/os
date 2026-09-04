@@ -14,15 +14,17 @@ export function Section({
   title,
   right,
   className,
+  testId,
   children,
 }: {
   title: ReactNode
   right?: ReactNode
   className?: string
+  testId?: string
   children: ReactNode
 }) {
   return (
-    <section className={cn('mt-6 first:mt-0', className)}>
+    <section className={cn('mt-6 first:mt-0', className)} data-testid={testId}>
       <SectionHeading right={right}>{title}</SectionHeading>
       {children}
     </section>

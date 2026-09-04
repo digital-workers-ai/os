@@ -29,10 +29,10 @@ export interface Vocabulary {
   readings: Record<string, Reading>
 }
 
-export function Readings({ vocabulary, sticky = false }: { vocabulary: Vocabulary; sticky?: boolean }) {
+export function Readings({ vocabulary, sticky = false, testId }: { vocabulary: Vocabulary; sticky?: boolean; testId?: string }) {
   const readings = Object.entries(vocabulary.readings)
   return (
-    <Table className="table-fixed" wrapperClassName={sticky ? 'overflow-x-visible' : undefined}>
+    <Table className="table-fixed" wrapperClassName={sticky ? 'overflow-x-visible' : undefined} data-testid={testId}>
       <TableHeader className={sticky ? STICKY_HEAD : undefined}>
         <TableRow>
           <TableHead className="w-64">Reading ({num(readings.length)})</TableHead>

@@ -12,9 +12,9 @@ const navItem = (isActive: boolean) =>
 export function TopNav({ gray = false, style }: { gray?: boolean; style?: CSSProperties }) {
   const menu = { filter: gray ? 'grayscale(1)' : 'grayscale(0)', transition: 'filter 1000ms ease' }
   return (
-    <header className="sticky top-0 z-40 bg-dbb-surface border-b border-dbb-warm" style={style}>
+    <header className="sticky top-0 z-40 bg-dbb-surface border-b border-dbb-warm" style={style} data-testid="top-nav">
       <div className="max-w-7xl mx-auto px-4 md:px-6 flex flex-wrap items-center gap-x-5">
-        <Link to="/" className="flex items-center gap-1 h-14 shrink-0">
+        <Link to="/" className="flex items-center gap-1 h-14 shrink-0" data-testid="brand">
           <DigitalWorkersMark size="md" phase="done" />
           <span className="text-[15px] font-medium text-dbb-charcoal leading-none">{PRODUCT}</span>
         </Link>
@@ -23,7 +23,13 @@ export function TopNav({ gray = false, style }: { gray?: boolean; style?: CSSPro
           style={menu}
         >
           {ROUTES.map(({ to, label, icon: Icon, end }) => (
-            <NavLink key={to} to={to} end={end} className={({ isActive }) => navItem(isActive)}>
+            <NavLink
+              key={to}
+              to={to}
+              end={end}
+              className={({ isActive }) => navItem(isActive)}
+              data-testid={`nav-${to === '/' ? 'home' : to.slice(1)}`}
+            >
               <Icon size={16} />
               {label}
             </NavLink>

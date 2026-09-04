@@ -1,0 +1,20 @@
+services:
+  postgres:
+    ports: !reset []
+
+  mock:
+    ports: !reset []
+
+  backend:
+    ports: !reset []
+    environment:
+      ENRICHMENT_ENABLED: "false"
+      COACHING_ENABLED: "false"
+
+  frontend:
+    ports: !reset []
+
+volumes:
+  frontend_node_modules:
+    external: true
+    name: os_frontend_node_modules

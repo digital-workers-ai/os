@@ -55,7 +55,7 @@ const day = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 
 
 function Journal({ entries, fresh, to }: { entries: Briefing[]; fresh: boolean; to: string[] }) {
   return (
-    <Table className="table-fixed" wrapperClassName="overflow-x-visible">
+    <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="coaching-journal">
       <TableHeader className={STICKY_HEAD}>
         <TableRow>
           <TableHead className="w-36">Generated ({num(entries.length)})</TableHead>
@@ -66,14 +66,14 @@ function Journal({ entries, fresh, to }: { entries: Briefing[]; fresh: boolean; 
       </TableHeader>
       <TableBody>
         {entries.map((b, i) => (
-          <TableRow key={`${b.generated_at}|${i}`}>
+          <TableRow key={`${b.generated_at}|${i}`} data-testid="coaching-row">
             <TableCell className="align-top">
               <span className="block font-medium text-dbb-charcoal" title={b.generated_at}>
                 {relTime(b.generated_at)}
               </span>
               <span className="block">{day(b.generated_at)}</span>
               {fresh && i === 0 && (
-                <Pill tone="ok" className="mt-1">
+                <Pill tone="ok" className="mt-1" data-testid="coaching-fresh">
                   just generated
                 </Pill>
               )}
@@ -87,7 +87,9 @@ function Journal({ entries, fresh, to }: { entries: Briefing[]; fresh: boolean; 
               ) : (
                 <span className="flex flex-col items-start gap-1">
                   {to.map((e) => (
-                    <Chip key={e}>{e}</Chip>
+                    <Chip key={e} data-testid="coaching-to">
+                      {e}
+                    </Chip>
                   ))}
                 </span>
               )}
@@ -152,6 +154,7 @@ function RoleCard({
       title={title}
       className={FULL}
       bodyClassName={BODY}
+      testId="coaching"
       description={
         generateError || history.error ? (
           <div className="mt-2 -mb-1 flex flex-col gap-3 [&>*]:mb-0">
@@ -161,7 +164,7 @@ function RoleCard({
         ) : null
       }
       headerRight={
-        <Button size="sm" disabled={generating} onClick={generate}>
+        <Button size="sm" disabled={generating} onClick={generate} data-testid="coaching-generate">
           {generating ? 'generating…' : 'Generate'}
         </Button>
       }
@@ -195,7 +198,7 @@ export function Coaching({ onEnabled }: { onEnabled: (on: boolean) => void }) {
 
   if (selected === null) {
     return (
-      <SectionCard className={FULL} bodyClassName={BODY}>
+      <SectionCard className={FULL} bodyClassName={BODY} testId="coaching">
         <ErrorBanner error={index.error} className="mb-3" />
         {index.data && roles.length === 0 ? <Empty>no role prompts found</Empty> : !index.error && <Loading />}
       </SectionCard>
@@ -212,7 +215,7 @@ export function Coaching({ onEnabled }: { onEnabled: (on: boolean) => void }) {
       title={
         <span className="inline-flex gap-1">
           {roles.map((role) => (
-            <FilterChip key={role} on={role === selected} onClick={() => setSelected(role)}>
+            <FilterChip key={role} on={role === selected} onClick={() => setSelected(role)} data-testid={`coaching-role-${role}`}>
               {role.toUpperCase()}
             </FilterChip>
           ))}

@@ -76,7 +76,7 @@ function Graph({ data }: { data: GraphResponse }) {
         title={
           <div className="flex gap-1.5">
             {HUBS.map(([t]) => (
-              <FilterChip key={t} on={t === type} onClick={() => pickType(t)}>
+              <FilterChip key={t} on={t === type} onClick={() => pickType(t)} data-testid={`visualize-toggle-${t}`}>
                 {t} {num(lists.get(t)!.length)}
               </FilterChip>
             ))}
@@ -84,8 +84,9 @@ function Graph({ data }: { data: GraphResponse }) {
         }
         className={FILL}
         bodyClassName={BODY}
+        testId="visualize"
       >
-        <Table className="table-fixed" wrapperClassName="overflow-x-visible">
+        <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="visualize-table">
           <TableHeader className={STICKY_HEAD}>
             <TableRow>
               <TableHead>
@@ -103,6 +104,7 @@ function Graph({ data }: { data: GraphResponse }) {
                   key={id}
                   ref={on ? rowRef : undefined}
                   className={ROW}
+                  data-testid="visualize-row"
                   data-state={on ? 'selected' : undefined}
                   aria-selected={on}
                   onClick={() => pick(id)}
@@ -120,14 +122,14 @@ function Graph({ data }: { data: GraphResponse }) {
       </SectionCard>
       <SectionCard className={FILL} bodyClassName={CANVAS}>
         <Canvas scope={scope} clusters={shown} focused={!!focusSun} selected={selected} onSelect={select} />
-        <div className="mt-3 flex shrink-0 flex-wrap gap-1.5">
+        <div className="mt-3 flex shrink-0 flex-wrap gap-1.5" data-testid="visualize-legend">
           {legend.map(([t, n]) => (
             <TypeChip key={t} type={t} color={typeColor(t, scope.types)}>
               {num(n)}
             </TypeChip>
           ))}
         </div>
-        <div className="mt-2 flex h-7 shrink-0 items-center gap-1.5 overflow-x-auto text-xs">
+        <div className="mt-2 flex h-7 shrink-0 items-center gap-1.5 overflow-x-auto text-xs" data-testid="visualize-selected">
           {node && (
             <>
               <span className={cn(KEY, 'whitespace-nowrap')}>{displayLabel(node)}</span>

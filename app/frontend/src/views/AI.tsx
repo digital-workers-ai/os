@@ -11,10 +11,10 @@ type Flag = boolean | null
 
 const keep = 'lg:min-h-0 lg:flex-1 data-[state=inactive]:hidden'
 
-function Gate({ flag, children }: { flag: Flag; children: ReactNode }) {
+function Gate({ flag, testId, children }: { flag: Flag; testId: string; children: ReactNode }) {
   const off = flag === false
   return (
-    <div className={off ? 'lg:h-full cursor-not-allowed' : 'lg:h-full'}>
+    <div className={off ? 'lg:h-full cursor-not-allowed' : 'lg:h-full'} data-testid={testId}>
       <div className={off ? 'lg:h-full opacity-50 pointer-events-none select-none' : 'lg:h-full'}>{children}</div>
     </div>
   )
@@ -27,22 +27,30 @@ export function AI() {
   const onCoaching = useCallback((on: boolean) => setFlags((f) => ({ ...f, coaching: on })), [])
   const flag = flags[tab]
   usePageBadge(
-    flag === false ? <Banner className="inline-flex items-center px-3 py-1">disabled · switched off in settings</Banner> : null,
+    flag === false ? (
+      <Banner className="inline-flex items-center px-3 py-0.5" testId="page-badge">
+        disabled · switched off in settings
+      </Banner>
+    ) : null,
   )
 
   return (
     <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className={PAGE_FILL}>
       <TabsList className="shrink-0">
-        <TabsTrigger value="enrichment">Enrichment</TabsTrigger>
-        <TabsTrigger value="coaching">Coaching</TabsTrigger>
+        <TabsTrigger value="enrichment" data-testid="tab-enrichment">
+          Enrichment
+        </TabsTrigger>
+        <TabsTrigger value="coaching" data-testid="tab-coaching">
+          Coaching
+        </TabsTrigger>
       </TabsList>
-      <TabsContent value="enrichment" forceMount className={keep}>
-        <Gate flag={flags.enrichment}>
+      <TabsContent value="enrichment" forceMount className={keep} data-testid="tabpanel-enrichment">
+        <Gate flag={flags.enrichment} testId="ai-gate-enrichment">
           <Enrichment onEnabled={onEnrichment} />
         </Gate>
       </TabsContent>
-      <TabsContent value="coaching" forceMount className={keep}>
-        <Gate flag={flags.coaching}>
+      <TabsContent value="coaching" forceMount className={keep} data-testid="tabpanel-coaching">
+        <Gate flag={flags.coaching} testId="ai-gate-coaching">
           <Coaching onEnabled={onCoaching} />
         </Gate>
       </TabsContent>
