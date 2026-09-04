@@ -34,7 +34,7 @@ const NUM = 'text-right tabular-nums'
 const KEY = 'font-medium text-dbb-charcoal'
 const TOP = 'align-top'
 const TAB = 'lg:min-h-0 lg:flex-1'
-const SPLIT = 'grid gap-6 lg:h-full lg:grid-rows-[minmax(0,2fr)_minmax(0,3fr)]'
+const SPLIT = 'grid items-start gap-6 lg:h-full lg:grid-cols-[0.45fr_0.55fr] lg:grid-rows-[minmax(0,1fr)]'
 const NOTICES = 'mt-2 -mb-1 flex flex-col gap-3 [&>*]:mb-0'
 
 const enabledKey = (r: SourceRow) => (r.enabled ? 'enabled' : 'disabled')
@@ -231,12 +231,9 @@ function Rebuilds({ rebuilds }: { rebuilds: number }) {
           <Table className="table-fixed" wrapperClassName="overflow-x-visible">
             <TableHeader className={STICKY_HEAD}>
               <TableRow>
-                <TableHead className="w-40">Rebuild ({num(list.length)})</TableHead>
-                <TableHead className="w-24">Status</TableHead>
-                <TableHead className={cn('w-28', NUM)}>Duration</TableHead>
-                <TableHead className={cn('w-24', NUM)}>Events</TableHead>
-                <TableHead className={cn('w-24', NUM)}>Entities</TableHead>
-                <TableHead className={cn('w-24', NUM)}>Facts</TableHead>
+                <TableHead className="w-32">Rebuild ({num(list.length)})</TableHead>
+                <TableHead className="w-20">Status</TableHead>
+                <TableHead className={cn('w-24', NUM)}>Duration</TableHead>
                 <TableHead>Issues</TableHead>
               </TableRow>
             </TableHeader>
@@ -261,9 +258,6 @@ function Rebuilds({ rebuilds }: { rebuilds: number }) {
                       <Pill tone={run.ok ? 'ok' : 'err'}>{run.ok ? 'ok' : 'failed'}</Pill>
                     </TableCell>
                     <TableCell className={cn(NUM, TOP)}>{num(run.duration_ms)} ms</TableCell>
-                    <TableCell className={cn(NUM, TOP)}>{num(run.raw_events_read)}</TableCell>
-                    <TableCell className={cn(NUM, TOP)}>{num(run.entities)}</TableCell>
-                    <TableCell className={cn(NUM, TOP)}>{num(run.facts)}</TableCell>
                     <TableCell className={TOP}>
                       {!run.ok ? (
                         <span className="text-xs text-dbb-clay">{run.error}</span>
@@ -286,7 +280,7 @@ function Rebuilds({ rebuilds }: { rebuilds: number }) {
           </Table>
         )}
       </SectionCard>
-      <div className="space-y-6 lg:min-h-0 lg:overflow-y-auto">
+      <div className="min-w-0 space-y-6 lg:min-h-0 lg:max-h-full lg:overflow-y-auto">
         <ErrorBanner error={report.error} />
         {report.loading && !report.data && <Loading />}
         {report.data?.ran && <Report report={report.data} />}
