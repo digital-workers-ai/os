@@ -10,8 +10,8 @@ const WHITE = '#FFFFFF'
 const GRAY = '#F8F8F8'
 const EASE = 'opacity 500ms ease, background-color 1000ms ease, filter 1000ms ease'
 const STEPS: [Reveal, number][] = [
-  ['all', 4000],
-  ['color', 4700],
+  ['all', 3250],
+  ['color', 3950],
 ]
 
 function useReveal(): Reveal {

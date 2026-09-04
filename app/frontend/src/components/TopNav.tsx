@@ -1,5 +1,5 @@
 import { useEffect, useState, type CSSProperties } from 'react'
-import { NavLink } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { api, asApiError } from '@/api'
 import { PRODUCT } from '@/brand'
@@ -11,7 +11,7 @@ const INTRO: [IntroPhase, number][] = [
   ['fade', 900],
   ['collapse', 1300],
   ['done', 1900],
-  ['menu', 3400],
+  ['menu', 2650],
 ]
 
 function useIntro(): IntroPhase {
@@ -55,12 +55,12 @@ export function TopNav({ gray = false, style }: { gray?: boolean; style?: CSSPro
   return (
     <header className="sticky top-0 z-40 bg-dbb-surface border-b border-dbb-warm" style={style}>
       <div className="max-w-7xl mx-auto px-4 md:px-6 flex flex-wrap items-center gap-x-5">
-        <div className="flex items-center gap-1 h-14 shrink-0">
+        <Link to="/" className="flex items-center gap-1 h-14 shrink-0">
           <DigitalWorkersMark size="md" phase={phase} />
           <div className="flex items-center gap-3 transition-opacity duration-300" style={product}>
             <span className="text-[15px] font-medium text-dbb-charcoal leading-none">{PRODUCT}</span>
           </div>
-        </div>
+        </Link>
         <nav
           className="order-last w-full md:order-none md:w-auto md:min-w-0 flex items-center gap-1 overflow-x-auto whitespace-nowrap pt-1 pb-2 md:py-1"
           style={menu}
