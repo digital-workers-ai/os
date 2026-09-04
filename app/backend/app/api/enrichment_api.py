@@ -68,16 +68,15 @@ async def list_enriched(
     offset: int = Query(0, ge=0, le=MAX_OFFSET),
     session=Depends(get_session),
 ):
-    query = select(EnrichedFact)
-    count = select(func.count()).select_from(EnrichedFact)
-    clauses = (
+    narrowing = (
         ([EnrichedFact.attr == attr] if attr else [])
         + ([EnrichedFact.value == value] if value else [])
         + ([EnrichedFact.entity_type == entity_type] if entity_type else [])
-        + ([EnrichedFact.quote_verified.is_(False)] if unverified_only else [])
     )
-    for clause in clauses:
-        query, count = query.where(clause), count.where(clause)
+    unverified_clause = EnrichedFact.quote_verified.is_(False)
+    page = [*narrowing, unverified_clause] if unverified_only else narrowing
+    query = select(EnrichedFact).where(*page)
+    count = select(func.count()).select_from(EnrichedFact).where(*page)
 
     total = (await session.execute(count)).scalar_one()
     rows = (
@@ -145,7 +144,7 @@ async def list_enriched(
         await session.execute(
             select(func.count())
             .select_from(EnrichedFact)
-            .where(EnrichedFact.quote_verified.is_(False))
+            .where(*narrowing, unverified_clause)
         )
     ).scalar_one()
 
