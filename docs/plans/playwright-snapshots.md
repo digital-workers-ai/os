@@ -6,29 +6,29 @@ Every page of the console gets a visual baseline, captured by Playwright in the 
 ## Changes
 
 ### Infrastructure
-- [ ] Add `@playwright/test` and `snap` / `snap:update` scripts — `app/frontend/package.json`
-- [ ] Playwright config: `e2e/` dir, 1280×800, reduced motion, fixed clock, no platform suffix in baseline names — `app/frontend/playwright.config.ts`
-- [ ] Fixtures: extended `test`, `settle`, `snap`, `openSelect`, `mockJson`, `NOW` — `app/frontend/e2e/fixtures.ts`
-- [ ] Self-host Space Grotesk and Science Gothic, drop the Google Fonts link — `app/frontend/public/fonts/`, `app/frontend/src/styles.css`, `app/frontend/index.html`
-- [ ] `playwright` compose service on `mcr.microsoft.com/playwright`, profile `snap` — `app/docker-compose.yml`
-- [ ] `test.sh snap` and `test.sh snap-update`: sync, rebuild twice, seed, run — `test.sh`
-- [ ] CI job `snapshots` with diff artifacts on failure — `.github/workflows/ci.yml`
-- [ ] Ignore `e2e/results` and `e2e/report` — `.gitignore`
+- [x] Add `@playwright/test` and `snap` / `snap:update` scripts — `app/frontend/package.json`
+- [x] Playwright config: `e2e/` dir, 1280×800, reduced motion, fixed clock, no platform suffix in baseline names — `app/frontend/playwright.config.ts`
+- [x] Fixtures: extended `test`, `settle`, `snap`, `openSelect`, `mockJson`, `NOW` — `app/frontend/e2e/fixtures.ts`
+- [x] Self-host Space Grotesk and Science Gothic, drop the Google Fonts link — `app/frontend/public/fonts/`, `app/frontend/src/styles.css`, `app/frontend/index.html`
+- [x] `playwright` compose service on `mcr.microsoft.com/playwright`, profile `snap` — `app/docker-compose.yml`
+- [x] `test.sh snap` and `test.sh snap-update`: sync, rebuild twice, seed, run — `test.sh`
+- [x] CI job `snapshots` with diff artifacts on failure — `.github/workflows/ci.yml`
+- [x] Ignore `e2e/results` and `e2e/report` — `.gitignore`
 
 ### Seed
-- [ ] Deterministic demo data anchored at `2026-09-04T12:00:00Z`: facts, runs, briefings — `app/backend/tools/seed_demo.py`
-- [ ] Shift sync, rebuild, observation and ingestion timestamps to fixed offsets from the anchor, order preserved — same file
+- [x] Deterministic demo data anchored at `2026-09-04T12:00:00Z`: facts, runs, briefings — `app/backend/tools/seed_demo.py`
+- [x] Shift sync, rebuild, observation and ingestion timestamps to fixed offsets from the anchor, order preserved — same file
 
 ### Specs (one file per page)
-- [ ] Global chrome and intro — `app/frontend/e2e/chrome.spec.ts`
-- [ ] Home — `app/frontend/e2e/home.spec.ts`
-- [ ] Activity — `app/frontend/e2e/activity.spec.ts`
-- [ ] Metrics — `app/frontend/e2e/metrics.spec.ts`
-- [ ] Entities: Canonical, Raw entities, Visualize — `app/frontend/e2e/entities.spec.ts`
-- [ ] AI: gated and live, Enrichment, Coaching — `app/frontend/e2e/ai.spec.ts`
-- [ ] Definitions: seven tabs — `app/frontend/e2e/definitions.spec.ts`
-- [ ] Config: Sources, Rebuild — `app/frontend/e2e/config.spec.ts`
-- [ ] Baselines — `app/frontend/e2e/__screenshots__/`
+- [x] Global chrome and intro — `app/frontend/e2e/chrome.spec.ts`
+- [x] Home — `app/frontend/e2e/home.spec.ts`
+- [x] Activity — `app/frontend/e2e/activity.spec.ts`
+- [x] Metrics — `app/frontend/e2e/metrics.spec.ts`
+- [x] Entities: Canonical, Raw entities, Visualize — `app/frontend/e2e/entities.spec.ts`
+- [x] AI: gated and live, Enrichment, Coaching — `app/frontend/e2e/ai.spec.ts`
+- [x] Definitions: seven tabs — `app/frontend/e2e/definitions.spec.ts`
+- [x] Config: Sources, Rebuild — `app/frontend/e2e/config.spec.ts`
+- [x] Baselines — `app/frontend/e2e/__screenshots__/`
 
 ## Notes
 - The AI page's disabled state is the shipped default; the live state is captured by mocking the two index endpoints' `enabled` flag.
