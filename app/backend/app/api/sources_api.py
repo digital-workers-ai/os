@@ -1,4 +1,5 @@
 from fastapi import Body, Depends, HTTPException, Query
+from pydantic import BaseModel, StrictBool
 from sqlalchemy import func, select
 
 from app import sync
@@ -13,6 +14,7 @@ from app.sources import catalog, registry
 @router.get("/sources")
 async def list_sources(session=Depends(get_session)):
     status_rows = {r["source"]: r for r in await sync.status(session)}
+    disabled = await sync.disabled_sources(session)
     validation = checks.source_status()
     rows = []
     for entry in catalog.catalog():
@@ -24,14 +26,28 @@ async def list_sources(session=Depends(get_session)):
                 **status_rows.get(source, {}),
                 "validation": derived["status"],
                 "entities": derived["entities"],
-                "enabled_by_default": derived["status"] == "provider-validated",
+                "enabled": source not in disabled,
             }
         )
-    return {
-        "sources": rows,
-        "enabled_by_default": checks.enabled_sources(),
-        "validation_coverage": _coverage(rows),
-    }
+    return {"sources": rows, "validation_coverage": _coverage(rows)}
+
+
+class EnabledBody(BaseModel):
+    enabled: StrictBool
+
+
+@router.put(
+    "/sources/{source}/enabled",
+    responses={404: {"description": "no such source"}},
+)
+async def set_source_enabled(
+    source: str, body: EnabledBody, session=Depends(get_session)
+):
+    if source not in registry.discover():
+        raise HTTPException(404, "no such source")
+    result = await sync.set_enabled(session, source, body.enabled)
+    await session.commit()
+    return result
 
 
 def _coverage(rows: list) -> dict:
@@ -69,7 +85,10 @@ async def run_sync(body: dict = Body(default={})):
     unknown = sorted(set(sources) - set(registry.discover()))
     if unknown:
         raise HTTPException(404, f"unknown source(s): {unknown}")
-    return await sync.run_all(async_session, sources)
+    try:
+        return await sync.run_all(async_session, sources)
+    except sync.SourceDisabled as exc:
+        raise HTTPException(409, str(exc)) from exc
 
 
 @router.get("/sync/runs")

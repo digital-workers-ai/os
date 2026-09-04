@@ -4,12 +4,39 @@ from datetime import UTC, datetime, timedelta
 from sqlalchemy import delete, func, select
 
 from app.config import settings
-from app.models import SyncRun
+from app.models import SourceSetting, SyncRun
 from app.sources import registry
 from app.sources.client import collect_stats
 from app.store import payload_sha, save_raw
 
 logger = logging.getLogger(__name__)
+
+
+class SourceDisabled(Exception):
+    def __init__(self, source: str):
+        super().__init__(f"source '{source}' is disabled")
+
+
+async def disabled_sources(session) -> set[str]:
+    rows = await session.execute(
+        select(SourceSetting.source).where(SourceSetting.enabled.is_(False))
+    )
+    return set(rows.scalars().all())
+
+
+async def set_enabled(session, source: str, enabled: bool) -> dict:
+    setting = await session.get(SourceSetting, source)
+    if setting is None:
+        setting = SourceSetting(source=source)
+        session.add(setting)
+    setting.enabled = enabled
+    setting.updated_at = datetime.now(UTC)
+    await session.flush()
+    return {
+        "source": source,
+        "enabled": enabled,
+        "updated_at": setting.updated_at.isoformat(),
+    }
 
 
 async def run_connector(source: str, sessionmaker) -> dict:
@@ -111,7 +138,15 @@ async def run_connector(source: str, sessionmaker) -> dict:
 
 
 async def run_all(sessionmaker, sources: list[str] | None = None) -> dict:
-    targets = sorted(sources) if sources else sorted(registry.discover())
+    async with sessionmaker() as session:
+        disabled = await disabled_sources(session)
+    if sources:
+        refused = sorted(disabled & set(sources))
+        if refused:
+            raise SourceDisabled(refused[0])
+        targets = sorted(sources)
+    else:
+        targets = sorted(set(registry.discover()) - disabled)
     results = [await run_connector(source, sessionmaker) for source in targets]
     ok = sum(1 for r in results if r["ok"])
     return {

@@ -140,13 +140,6 @@ class TestTheLabelIsLoadBearing:
             "fixtures/real/ dir that holds no replayable capture"
         )
 
-    def test_a_source_is_only_enabled_if_a_provider_payload_replays(self):
-        replayable = {d.name for d in REAL_DIRS}
-        for source in checks.enabled_sources():
-            assert source in replayable, (
-                f"{source} is enabled with no replayable real fixtures"
-            )
-
     def test_the_real_fixture_gap_is_counted_rather_than_implied(self):
         real = {d.name for d in REAL_DIRS}
         mapped = {ln.source for ln in mappings.load()}
