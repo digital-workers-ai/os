@@ -1,8 +1,11 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 
-export type IntroPhase = 'full' | 'fade' | 'collapse' | 'done' | 'menu'
+export type IntroPhase = 'full' | 'fade' | 'collapse' | 'done'
+type MarkSize = 'sm' | 'md' | 'lg'
 
 const QUAD = 'cubic-bezier(0.455, 0.03, 0.515, 0.955)'
+const TEXT: Record<MarkSize, string> = { sm: 'text-[12px]', md: 'text-[15px]', lg: 'text-[28px]' }
+const DOT: Record<MarkSize, string> = { sm: 'w-1.5 h-1.5', md: 'w-[7px] h-[7px]', lg: 'w-3 h-3' }
 
 export function DigitalWorkersMark({
   className = '',
@@ -10,11 +13,9 @@ export function DigitalWorkersMark({
   phase = 'full',
 }: {
   className?: string
-  size?: 'sm' | 'md'
+  size?: MarkSize
   phase?: IntroPhase
 }) {
-  const text = size === 'md' ? 'text-[15px]' : 'text-[12px]'
-  const dot = size === 'md' ? 'w-[7px] h-[7px]' : 'w-1.5 h-1.5'
   const fillers = useRef<(HTMLSpanElement | null)[]>([])
   const [widths, setWidths] = useState<number[] | null>(null)
   useLayoutEffect(() => {
@@ -39,10 +40,10 @@ export function DigitalWorkersMark({
   )
   return (
     <span className={`inline-flex items-center gap-1 shrink-0 ${className}`}>
-      <span className={`font-logo ${text} font-medium text-dbb-charcoal whitespace-nowrap leading-none`} style={{ letterSpacing: '0.016em' }}>
+      <span className={`font-logo ${TEXT[size]} font-medium text-dbb-charcoal whitespace-nowrap leading-none`} style={{ letterSpacing: '0.016em' }}>
         D{filler(0, 'igital ')}W{filler(1, 'orkers')}
       </span>
-      <span className={`${dot} rounded-full bg-dbb-forest shrink-0`} aria-hidden />
+      <span className={`${DOT[size]} rounded-full bg-dbb-forest shrink-0`} aria-hidden />
     </span>
   )
 }
