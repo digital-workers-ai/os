@@ -342,11 +342,11 @@ function Detail({
               )}
             </div>
           )}
-          <Section title={counted('Records', d.members.length)}>
+          <div className="mt-6 first:mt-0">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Source</TableHead>
+                  <TableHead>Source ({num(d.members.length)})</TableHead>
                   <TableHead>Source id</TableHead>
                   <TableHead>Object type</TableHead>
                   <TableHead>Evidence</TableHead>
@@ -369,15 +369,15 @@ function Detail({
                 ))}
               </TableBody>
             </Table>
-          </Section>
-          <Section title={counted('Facts', d.facts.length)}>
+          </div>
+          <div className="mt-6 first:mt-0">
             {d.facts.length === 0 ? (
               <Empty>no facts</Empty>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[100px] min-w-[100px]">Attribute</TableHead>
+                    <TableHead className="w-[100px] min-w-[100px]">Fact ({num(d.facts.length)})</TableHead>
                     <TableHead>Value</TableHead>
                     <TableHead>Winning source</TableHead>
                     <TableHead>Observed</TableHead>
@@ -423,15 +423,15 @@ function Detail({
                 </TableBody>
               </Table>
             )}
-          </Section>
-          <Section title={counted('Links', links.length)}>
+          </div>
+          <div className="mt-6 first:mt-0">
             {links.length === 0 ? (
               <Empty>no links</Empty>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Direction</TableHead>
+                    <TableHead>Link ({num(links.length)})</TableHead>
                     <TableHead>Relationship</TableHead>
                     <TableHead>Target</TableHead>
                     <TableHead>Grounding</TableHead>
@@ -459,7 +459,7 @@ function Detail({
                 </TableBody>
               </Table>
             )}
-          </Section>
+          </div>
           {trace && <RawTrace trace={trace} />}
         </>
       )}
