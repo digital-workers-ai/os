@@ -53,7 +53,7 @@ function SyncBanner({ sync }: { sync: SyncResponse }) {
   const total = (k: 'rows_fetched' | 'rows_written' | 'rows_refused' | 'rows_colliding') =>
     num(sync.results.reduce((n, r) => n + r[k], 0))
   return (
-    <Banner tone={sync.failed > 0 ? 'err' : 'warn'}>
+    <Banner tone={sync.failed > 0 ? 'err' : 'warn'} testId="sync-banner">
       synced {plural(sync.results.length, 'source')} · {total('rows_fetched')} fetched · {total('rows_written')} written ·{' '}
       {total('rows_refused')} refused · {total('rows_colliding')} colliding
       {sync.results
@@ -98,8 +98,9 @@ function Report({ report }: { report: Ran }) {
   return (
     <>
       <SectionCard
+        testId="rebuild-totals"
         title={
-          <div className="flex flex-wrap items-center gap-1.5 font-normal">
+          <div className="flex flex-wrap items-center gap-1.5 font-normal" data-testid="rebuild-status">
             <Pill tone={report.ok ? 'ok' : 'err'}>{report.ok ? 'ok' : 'failed'}</Pill>
             <Chip title={report.created_at}>
               ran <strong>{relTime(report.created_at)}</strong>
@@ -122,7 +123,7 @@ function Report({ report }: { report: Ran }) {
         <CountTable label="Total" rows={r.totals} />
       </SectionCard>
       {r.quarantines.length > 0 && (
-        <SectionCard>
+        <SectionCard testId="rebuild-quarantines">
           <Table>
             <TableHeader>
               <TableRow>
@@ -144,7 +145,7 @@ function Report({ report }: { report: Ran }) {
         </SectionCard>
       )}
       {r.oversized.length > 0 && (
-        <SectionCard>
+        <SectionCard testId="rebuild-oversized">
           <Table>
             <TableHeader>
               <TableRow>
@@ -168,7 +169,7 @@ function Report({ report }: { report: Ran }) {
         </SectionCard>
       )}
       {r.dead_paths.length > 0 && (
-        <SectionCard>
+        <SectionCard testId="rebuild-dead-paths">
           <Table>
             <TableHeader>
               <TableRow>
@@ -186,12 +187,12 @@ function Report({ report }: { report: Ran }) {
         </SectionCard>
       )}
       {Object.keys(r.disagreements).length > 0 && (
-        <SectionCard>
+        <SectionCard testId="rebuild-disagreements">
           <CountTable label="Disagreement" rows={r.disagreements} />
         </SectionCard>
       )}
       {rates.length > 0 && (
-        <SectionCard>
+        <SectionCard testId="rebuild-match-rates">
           <Table>
             <TableHeader>
               <TableRow>
@@ -216,7 +217,7 @@ function Report({ report }: { report: Ran }) {
           </Table>
         </SectionCard>
       )}
-      <SectionCard title="Receipts">
+      <SectionCard title="Receipts" testId="rebuild-receipts">
         <p className="mb-3 text-sm text-dbb-muted">The full report of this rebuild, exactly as the engine produced it.</p>
         <pre className="overflow-auto rounded-lg bg-dbb-surface p-3 font-mono text-xs">{JSON.stringify(r, null, 2)}</pre>
       </SectionCard>
@@ -236,12 +237,12 @@ function Rebuilds({ rebuilds }: { rebuilds: number }) {
 
   return (
     <div className={SPLIT}>
-      <SectionCard className={FULL} bodyClassName={BODY}>
+      <SectionCard className={FULL} bodyClassName={BODY} testId="rebuild-runs">
         <ErrorBanner error={runs.error} className="mb-3" />
         {runs.loading && <Loading />}
         {runs.data && list.length === 0 && <Empty>no rebuild has run yet</Empty>}
         {list.length > 0 && (
-          <Table className="table-fixed" wrapperClassName="overflow-x-visible">
+          <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="rebuild-runs-table">
             <TableHeader className={STICKY_HEAD}>
               <TableRow>
                 <TableHead className="w-32">Rebuild ({num(list.length)})</TableHead>
@@ -257,6 +258,8 @@ function Rebuilds({ rebuilds }: { rebuilds: number }) {
                   <TableRow
                     key={run.seq}
                     className="cursor-pointer"
+                    data-testid="rebuild-run"
+                    data-seq={run.seq}
                     data-state={run.seq === seq ? 'selected' : undefined}
                     aria-selected={run.seq === seq}
                     onClick={() => setSeq(run.seq)}
@@ -293,7 +296,7 @@ function Rebuilds({ rebuilds }: { rebuilds: number }) {
           </Table>
         )}
       </SectionCard>
-      <div className="min-w-0 space-y-6 lg:min-h-0 lg:max-h-full lg:overflow-y-auto">
+      <div className="min-w-0 space-y-6 lg:min-h-0 lg:max-h-full lg:overflow-y-auto" data-testid="rebuild-receipt">
         <ErrorBanner error={report.error} />
         {report.loading && !report.data && <Loading />}
         {report.data?.ran && <Report report={report.data} />}
@@ -377,31 +380,42 @@ export function Config() {
   return (
     <Tabs defaultValue="sources" className={PAGE_FILL}>
       <TabsList className="shrink-0">
-        <TabsTrigger value="sources">Sources</TabsTrigger>
-        <TabsTrigger value="rebuild">Rebuild</TabsTrigger>
+        <TabsTrigger value="sources" data-testid="tab-sources">
+          Sources
+        </TabsTrigger>
+        <TabsTrigger value="rebuild" data-testid="tab-rebuild">
+          Rebuild
+        </TabsTrigger>
       </TabsList>
 
-      <TabsContent value="sources" className={TAB}>
+      <TabsContent value="sources" className={TAB} data-testid="tabpanel-sources">
         <SectionCard
+          testId="sources"
           title={
             <div className="flex items-center gap-2">
-              <Filter value={enabled} onChange={setEnabled} all={`all sources (${num(all.length)})`} options={enabledOptions(all)} />
+              <Filter
+                value={enabled}
+                onChange={setEnabled}
+                all={`all sources (${num(all.length)})`}
+                options={enabledOptions(all)}
+                testId="sources-enabled-filter"
+              />
             </div>
           }
           description={
             sync || syncError || rebuild || rebuildError ? (
               <div className={NOTICES}>
-                <ErrorBanner error={syncError} />
+                <ErrorBanner error={syncError} testId="sync-error" />
                 {sync && <SyncBanner sync={sync} />}
                 {rebuildError?.status === 409 ? (
-                  <Banner>
+                  <Banner testId="rebuild-error">
                     <Mono>409</Mono> rebuild in progress — {rebuildError.detail}
                   </Banner>
                 ) : (
-                  <ErrorBanner error={rebuildError} />
+                  <ErrorBanner error={rebuildError} testId="rebuild-error" />
                 )}
                 {rebuild && (
-                  <Banner tone={rebuild.ok ? 'warn' : 'err'}>
+                  <Banner tone={rebuild.ok ? 'warn' : 'err'} testId="rebuild-banner">
                     {rebuild.ok ? 'rebuilt' : 'rebuild failed'} · {num(rebuild.duration_ms)} ms · {num(rebuild.raw_events_read)} raw events ·{' '}
                     {num(rebuild.entities)} entities · {num(rebuild.facts)} facts
                   </Banner>
@@ -411,10 +425,10 @@ export function Config() {
           }
           headerRight={
             <div className="flex gap-2">
-              <Button size="sm" disabled={syncing !== null || !sources} onClick={() => runSync()}>
+              <Button size="sm" disabled={syncing !== null || !sources} onClick={() => runSync()} data-testid="sync-all">
                 {syncing === 'all' ? 'syncing…' : 'Sync all'}
               </Button>
-              <Button size="sm" variant="outline" disabled={rebuilding} onClick={runRebuild}>
+              <Button size="sm" variant="outline" disabled={rebuilding} onClick={runRebuild} data-testid="rebuild">
                 {rebuilding ? 'rebuilding…' : 'Rebuild'}
               </Button>
             </div>
@@ -426,7 +440,7 @@ export function Config() {
           {!sources && !sourcesError && <Loading />}
           {sources && rows.length === 0 && <Empty>no sources</Empty>}
           {rows.length > 0 && (
-            <Table className="table-fixed" wrapperClassName="overflow-x-visible">
+            <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="sources-table">
               <TableHeader className={STICKY_HEAD}>
                 <TableRow>
                   <TableHead className="w-56">Source ({num(rows.length)})</TableHead>
@@ -442,7 +456,7 @@ export function Config() {
                   const last = sync?.results.find((s) => s.source === r.source)
                   const lastOk = r.last_success === r.last_attempt
                   return (
-                    <TableRow key={r.source}>
+                    <TableRow key={r.source} data-testid="sources-row" data-source={r.source}>
                       <TableCell className={TOP}>
                         <span className={cn(KEY, 'block')}>{r.label}</span>
                         <Mono>{r.source}</Mono>
@@ -491,13 +505,23 @@ export function Config() {
                       </TableCell>
                       <TableCell className={TOP}>
                         <span className={cn(pending.has(r.source) && 'pointer-events-none opacity-50')}>
-                          <FilterChip on={r.enabled} onClick={() => (pending.has(r.source) ? undefined : toggleEnabled(r))}>
+                          <FilterChip
+                            on={r.enabled}
+                            onClick={() => (pending.has(r.source) ? undefined : toggleEnabled(r))}
+                            data-testid={`source-enabled-${r.source}`}
+                          >
                             {r.enabled ? 'on' : 'off'}
                           </FilterChip>
                         </span>
                       </TableCell>
                       <TableCell className={cn('pr-0 text-right', TOP)}>
-                        <Button size="sm" variant="outline" disabled={syncing !== null || !r.enabled} onClick={() => runSync([r.source])}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={syncing !== null || !r.enabled}
+                          onClick={() => runSync([r.source])}
+                          data-testid={`source-sync-${r.source}`}
+                        >
                           {syncing === r.source ? 'syncing…' : 'Sync'}
                         </Button>
                       </TableCell>
@@ -510,7 +534,7 @@ export function Config() {
         </SectionCard>
       </TabsContent>
 
-      <TabsContent value="rebuild" className={TAB}>
+      <TabsContent value="rebuild" className={TAB} data-testid="tabpanel-rebuild">
         <Rebuilds rebuilds={rebuilds} />
       </TabsContent>
     </Tabs>

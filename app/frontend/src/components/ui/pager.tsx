@@ -27,19 +27,42 @@ export function Pager({
 }) {
   if (total <= pageSize) return null
   return (
-    <div className={cn('mt-3 flex items-center justify-between gap-1 border-t border-dbb-warm/50 pt-2 text-sm text-dbb-muted', className)}>
+    <div
+      className={cn('mt-3 flex items-center justify-between gap-1 border-t border-dbb-warm/50 pt-2 text-sm text-dbb-muted', className)}
+      data-testid="pager"
+    >
       <div className="flex items-center gap-1">
-        <Button variant="ghost" size="sm" className="h-7 px-2" disabled={offset === 0} onClick={() => onPage(Math.max(0, offset - pageSize))}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 px-2"
+          disabled={offset === 0}
+          onClick={() => onPage(Math.max(0, offset - pageSize))}
+          data-testid="pager-prev"
+        >
           ← Prev
         </Button>
-        <span className="px-1 tabular-nums">
+        <span className="px-1 tabular-nums" data-testid="pager-range">
           {total === 0 ? '0' : `${num(offset + 1)}–${num(offset + count)}`} / {num(total)}
         </span>
-        <Button variant="ghost" size="sm" className="h-7 px-2" disabled={offset + count >= total} onClick={() => onPage(offset + pageSize)}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 px-2"
+          disabled={offset + count >= total}
+          onClick={() => onPage(offset + pageSize)}
+          data-testid="pager-next"
+        >
           Next →
         </Button>
       </div>
-      <Button variant="ghost" size="sm" className="h-7 px-2" onClick={() => onSize(size >= allSize ? pageSize : allSize)}>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-7 px-2"
+        onClick={() => onSize(size >= allSize ? pageSize : allSize)}
+        data-testid="pager-all"
+      >
         {size < allSize ? 'Show all' : 'Paginate'}
       </Button>
     </div>

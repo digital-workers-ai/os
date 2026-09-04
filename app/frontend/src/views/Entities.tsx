@@ -309,7 +309,7 @@ function Detail({
     : []
 
   return (
-    <SectionCard title={d ? labelText(d.label, d.anchor) : 'Entity'} className={FILL} bodyClassName={BODY}>
+    <SectionCard title={d ? labelText(d.label, d.anchor) : 'Entity'} className={FILL} bodyClassName={BODY} testId="entity-detail">
       <ErrorBanner error={detail.error} className="mb-3" />
       {detail.loading && !detail.data && <Loading />}
       {retired && (
@@ -337,7 +337,7 @@ function Detail({
             </div>
           )}
           <div className="mt-6 first:mt-0">
-            <Table>
+            <Table data-testid="detail-sources">
               <TableHeader>
                 <TableRow>
                   <TableHead>Source ({num(d.members.length)})</TableHead>
@@ -370,7 +370,7 @@ function Detail({
             {d.facts.length === 0 ? (
               <Empty>no facts</Empty>
             ) : (
-              <Table>
+              <Table data-testid="detail-facts">
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[100px] min-w-[100px]">Fact ({num(d.facts.length)})</TableHead>
@@ -424,7 +424,7 @@ function Detail({
             {links.length === 0 ? (
               <Empty>no links</Empty>
             ) : (
-              <Table>
+              <Table data-testid="detail-links">
                 <TableHeader>
                   <TableRow>
                     <TableHead>Link ({num(links.length)})</TableHead>
@@ -483,15 +483,18 @@ function Canonical() {
     <div className={SPLIT_FILL}>
       <SectionCard
         title="Canonical entities"
+        testId="entities"
         headerRight={
           <Select value={type || ALL} onValueChange={(v) => pick(v === ALL ? '' : v)}>
-            <SelectTrigger className="h-6 w-44">
+            <SelectTrigger className="h-6 w-44" data-testid="entities-type-filter">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={ALL}>all types ({num(all)})</SelectItem>
+              <SelectItem value={ALL} data-testid="entities-type-option" data-value={ALL}>
+                all types ({num(all)})
+              </SelectItem>
               {byType.map(([t, n]) => (
-                <SelectItem key={t} value={t}>
+                <SelectItem key={t} value={t} data-testid="entities-type-option" data-value={t}>
                   {t} ({num(n)})
                 </SelectItem>
               ))}
@@ -507,7 +510,7 @@ function Canonical() {
         ) : rows.length === 0 ? (
           <Empty>no entities</Empty>
         ) : (
-          <Table className="table-fixed" wrapperClassName="overflow-x-visible">
+          <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="entities-table">
             <TableHeader className={STICKY_HEAD}>
               <TableRow>
                 <TableHead className="w-28">Entity ({num(list.data?.total ?? rows.length)})</TableHead>
@@ -521,6 +524,8 @@ function Canonical() {
                   <TableRow
                     key={r.canonical_id}
                     className={ROW}
+                    data-testid="entities-row"
+                    data-id={r.canonical_id}
                     data-state={r.canonical_id === selected ? 'selected' : undefined}
                     aria-selected={r.canonical_id === selected}
                     onClick={() => open(r.canonical_id)}
@@ -548,7 +553,7 @@ function Canonical() {
       {selected ? (
         <Detail id={selected} trace={trace} onOpen={open} onTrace={setTrace} />
       ) : (
-        <SectionCard className={FILL} bodyClassName={BODY}>
+        <SectionCard className={FILL} bodyClassName={BODY} testId="entity-detail">
           <Empty>select an entity</Empty>
         </SectionCard>
       )}
@@ -587,13 +592,13 @@ function RecordDetail({ record }: { record: RecordRow }) {
   const facts = Object.entries(record.facts)
 
   return (
-    <SectionCard title={record.source_id} className={FILL} bodyClassName={BODY}>
+    <SectionCard title={record.source_id} className={FILL} bodyClassName={BODY} testId="record-detail">
       <ErrorBanner error={current?.error ?? null} className="mb-3" />
       <div className="mt-6 first:mt-0">
         {facts.length === 0 ? (
           <Empty>no facts</Empty>
         ) : (
-          <Table>
+          <Table data-testid="record-facts">
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[100px] min-w-[100px]">Fact ({num(facts.length)})</TableHead>
@@ -617,7 +622,7 @@ function RecordDetail({ record }: { record: RecordRow }) {
         {!current && <Loading />}
         {current && events.length === 0 && <Empty>no raw events</Empty>}
         {events.length > 0 && (
-          <Table className="table-fixed">
+          <Table className="table-fixed" data-testid="record-events">
             <TableHeader>
               <TableRow>
                 <TableHead>Raw event ({num(events.length)})</TableHead>
@@ -648,7 +653,9 @@ function RecordDetail({ record }: { record: RecordRow }) {
       {picked && (
         <Section title="Payload">
           <p className="mb-3 text-sm text-dbb-muted">The event exactly as the source delivered it, before any mapping, transform, or merge.</p>
-          <pre className={cn(PRE, 'mt-0')}>{JSON.stringify(picked.raw_payload, null, 2)}</pre>
+          <pre className={cn(PRE, 'mt-0')} data-testid="record-payload">
+            {JSON.stringify(picked.raw_payload, null, 2)}
+          </pre>
         </Section>
       )}
     </SectionCard>
@@ -675,29 +682,34 @@ function RawSide() {
     <div className={SPLIT_FILL}>
       <SectionCard
         title="Records"
+        testId="records"
         headerRight={
           <div className="flex items-center gap-2">
             <Select value={type || ALL} onValueChange={(v) => setType(v === ALL ? '' : v)}>
-              <SelectTrigger className="h-6 w-40">
+              <SelectTrigger className="h-6 w-40" data-testid="records-type-filter">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={ALL}>all types</SelectItem>
+                <SelectItem value={ALL} data-testid="records-type-option" data-value={ALL}>
+                  all types
+                </SelectItem>
                 {byType.map(([t, n]) => (
-                  <SelectItem key={t} value={t}>
+                  <SelectItem key={t} value={t} data-testid="records-type-option" data-value={t}>
                     {t} ({num(n)})
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <Select value={source || ALL} onValueChange={(v) => setSource(v === ALL ? '' : v)}>
-              <SelectTrigger className="h-6 w-40">
+              <SelectTrigger className="h-6 w-40" data-testid="records-source-filter">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={ALL}>all sources</SelectItem>
+                <SelectItem value={ALL} data-testid="records-source-option" data-value={ALL}>
+                  all sources
+                </SelectItem>
                 {sources.map((s) => (
-                  <SelectItem key={s} value={s}>
+                  <SelectItem key={s} value={s} data-testid="records-source-option" data-value={s}>
                     {s}
                   </SelectItem>
                 ))}
@@ -714,7 +726,7 @@ function RawSide() {
         ) : rows.length === 0 ? (
           <Empty>no records</Empty>
         ) : (
-          <Table className="table-fixed" wrapperClassName="overflow-x-visible">
+          <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="records-table">
             <TableHeader className={STICKY_HEAD}>
               <TableRow>
                 <TableHead className="w-28">Source ({num(records.data?.total ?? rows.length)})</TableHead>
@@ -728,6 +740,7 @@ function RawSide() {
                 <TableRow
                   key={`${r.source}|${r.object_type}|${r.source_id}|${i}`}
                   className={ROW}
+                  data-testid="records-row"
                   data-state={isPicked(r) ? 'selected' : undefined}
                   aria-selected={isPicked(r)}
                   onClick={() => setPicked(r)}
@@ -758,7 +771,7 @@ function RawSide() {
       {picked ? (
         <RecordDetail record={picked} />
       ) : (
-        <SectionCard className={FILL} bodyClassName={BODY}>
+        <SectionCard className={FILL} bodyClassName={BODY} testId="record-detail">
           <Empty>select a record</Empty>
         </SectionCard>
       )}
@@ -770,17 +783,23 @@ export function Entities() {
   return (
     <Tabs defaultValue="canonical" className={PAGE_FILL}>
       <TabsList className="shrink-0">
-        <TabsTrigger value="canonical">Canonical</TabsTrigger>
-        <TabsTrigger value="raw">Raw entities</TabsTrigger>
-        <TabsTrigger value="visualize">Visualize</TabsTrigger>
+        <TabsTrigger value="canonical" data-testid="tab-canonical">
+          Canonical
+        </TabsTrigger>
+        <TabsTrigger value="raw" data-testid="tab-raw">
+          Raw entities
+        </TabsTrigger>
+        <TabsTrigger value="visualize" data-testid="tab-visualize">
+          Visualize
+        </TabsTrigger>
       </TabsList>
-      <TabsContent value="canonical" className="lg:min-h-0 lg:flex-1">
+      <TabsContent value="canonical" className="lg:min-h-0 lg:flex-1" data-testid="tabpanel-canonical">
         <Canonical />
       </TabsContent>
-      <TabsContent value="raw" className="lg:min-h-0 lg:flex-1">
+      <TabsContent value="raw" className="lg:min-h-0 lg:flex-1" data-testid="tabpanel-raw">
         <RawSide />
       </TabsContent>
-      <TabsContent value="visualize" className="lg:min-h-0 lg:flex-1">
+      <TabsContent value="visualize" className="lg:min-h-0 lg:flex-1" data-testid="tabpanel-visualize">
         <VisualizeTab />
       </TabsContent>
     </Tabs>

@@ -181,6 +181,7 @@ function OntologyTab({ o }: { o: Ontology }) {
     <div className="space-y-6">
       <SectionCard
         title="Source priority"
+        testId="source-priority"
         description="When sources disagree on an attribute, the most recently observed value wins. If they were observed at the same time, the source with the lower number wins: 1 beats 2."
       >
         <div className="flex flex-wrap gap-1.5">
@@ -191,8 +192,8 @@ function OntologyTab({ o }: { o: Ontology }) {
           ))}
         </div>
       </SectionCard>
-      <SectionCard>
-        <Table>
+      <SectionCard testId="definitions-ontology">
+        <Table data-testid="definitions-ontology-table">
           <TableHeader>
             <TableRow>
               <TableHead>Entity ({num(entities.length)})</TableHead>
@@ -236,8 +237,8 @@ function OntologyTab({ o }: { o: Ontology }) {
           </TableBody>
         </Table>
       </SectionCard>
-      <SectionCard>
-        <Table>
+      <SectionCard testId="definitions-relationships">
+        <Table data-testid="definitions-relationships-table">
           <TableHeader>
             <TableRow>
               <TableHead>Relationship ({num(o.relationships.length)})</TableHead>
@@ -282,13 +283,15 @@ function MappingsTab({ m }: { m: Mappings }) {
       <SectionCard
         title={
           <Select value={source || ALL} onValueChange={(v) => setSource(v === ALL ? '' : v)}>
-            <SelectTrigger className="h-6 w-48 font-normal">
+            <SelectTrigger className="h-6 w-48 font-normal" data-testid="mappings-source-filter">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={ALL}>all sources ({num(m.lines.length)})</SelectItem>
+              <SelectItem value={ALL} data-testid="mappings-source-option" data-value={ALL}>
+                all sources ({num(m.lines.length)})
+              </SelectItem>
               {sources.map((s) => (
-                <SelectItem key={s} value={s}>
+                <SelectItem key={s} value={s} data-testid="mappings-source-option" data-value={s}>
                   {s} ({num(bySource.get(s) ?? 0)})
                 </SelectItem>
               ))}
@@ -297,8 +300,9 @@ function MappingsTab({ m }: { m: Mappings }) {
         }
         className={FILL}
         bodyClassName={BODY}
+        testId="definitions-mappings"
       >
-        <Table className="table-fixed" wrapperClassName="overflow-x-visible">
+        <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="definitions-mappings-table">
           <TableHeader className={STICKY_HEAD}>
             <TableRow>
               <TableHead className="w-28">Source ({num(lines.length)})</TableHead>
@@ -348,8 +352,8 @@ function TransformsTab({ t }: { t: Transforms }) {
   }, [t.labels])
   return (
     <div className="space-y-6">
-      <SectionCard>
-        <Table className="table-fixed">
+      <SectionCard testId="definitions-transforms">
+        <Table className="table-fixed" data-testid="definitions-transforms-table">
           <TableHeader>
             <TableRow>
               <TableHead className="w-56">Label ({num(labels.length)})</TableHead>
@@ -382,8 +386,8 @@ function TransformsTab({ t }: { t: Transforms }) {
           pageSize={PAGE * 2}
         />
       </SectionCard>
-      <SectionCard>
-        <Table className="table-fixed">
+      <SectionCard testId="definitions-transforms-functions">
+        <Table className="table-fixed" data-testid="definitions-transforms-functions-table">
           <TableHeader>
             <TableRow>
               <TableHead className="w-56">Function ({num(registry.length)})</TableHead>
@@ -409,8 +413,8 @@ function TransformsTab({ t }: { t: Transforms }) {
 function MetricsTab({ m }: { m: MetricDefinitions }) {
   const definitions = Object.entries(m.definitions)
   return (
-    <SectionCard className={FILL} bodyClassName={BODY}>
-      <Table className="table-fixed" wrapperClassName="overflow-x-visible">
+    <SectionCard className={FILL} bodyClassName={BODY} testId="definitions-metrics">
+      <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="definitions-metrics-table">
         <TableHeader className={STICKY_HEAD}>
           <TableRow>
             <TableHead className="w-56">Metric ({num(definitions.length)})</TableHead>
@@ -477,8 +481,8 @@ function MetricsTab({ m }: { m: MetricDefinitions }) {
 function RulesTab({ r }: { r: Rules }) {
   const rules = Object.entries(r.rules)
   return (
-    <SectionCard className={FILL} bodyClassName={BODY}>
-      <Table className="table-fixed" wrapperClassName="overflow-x-visible">
+    <SectionCard className={FILL} bodyClassName={BODY} testId="definitions-rules">
+      <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="definitions-rules-table">
         <TableHeader className={STICKY_HEAD}>
           <TableRow>
             <TableHead className="w-96">Rule ({num(rules.length)})</TableHead>
@@ -525,8 +529,8 @@ function RulesTab({ r }: { r: Rules }) {
 function GoalsTab({ g }: { g: Goals }) {
   const goals = Object.entries(g.goals)
   return (
-    <SectionCard className={FILL} bodyClassName={BODY}>
-      <Table className="table-fixed" wrapperClassName="overflow-x-visible">
+    <SectionCard className={FILL} bodyClassName={BODY} testId="definitions-goals">
+      <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="definitions-goals-table">
         <TableHeader className={STICKY_HEAD}>
           <TableRow>
             <TableHead className="w-40">Goal ({num(goals.length)})</TableHead>
@@ -573,8 +577,8 @@ function GoalsTab({ g }: { g: Goals }) {
 
 function EnrichmentTab({ v }: { v: Vocabulary }) {
   return (
-    <SectionCard className={FILL} bodyClassName={BODY}>
-      <Readings vocabulary={v} sticky />
+    <SectionCard className={FILL} bodyClassName={BODY} testId="definitions-enrichment">
+      <Readings vocabulary={v} sticky testId="definitions-enrichment-table" />
     </SectionCard>
   )
 }
@@ -591,33 +595,47 @@ export function Definitions() {
   return (
     <Tabs defaultValue="ontology" className={PAGE_FILL}>
       <TabsList className="shrink-0">
-        <TabsTrigger value="ontology">Ontology</TabsTrigger>
-        <TabsTrigger value="mappings">Mappings</TabsTrigger>
-        <TabsTrigger value="transforms">Transforms</TabsTrigger>
-        <TabsTrigger value="metrics">Metrics</TabsTrigger>
-        <TabsTrigger value="rules">Rules</TabsTrigger>
-        <TabsTrigger value="goals">Goals</TabsTrigger>
-        <TabsTrigger value="enrichment">Enrichment</TabsTrigger>
+        <TabsTrigger value="ontology" data-testid="tab-ontology">
+          Ontology
+        </TabsTrigger>
+        <TabsTrigger value="mappings" data-testid="tab-mappings">
+          Mappings
+        </TabsTrigger>
+        <TabsTrigger value="transforms" data-testid="tab-transforms">
+          Transforms
+        </TabsTrigger>
+        <TabsTrigger value="metrics" data-testid="tab-metrics">
+          Metrics
+        </TabsTrigger>
+        <TabsTrigger value="rules" data-testid="tab-rules">
+          Rules
+        </TabsTrigger>
+        <TabsTrigger value="goals" data-testid="tab-goals">
+          Goals
+        </TabsTrigger>
+        <TabsTrigger value="enrichment" data-testid="tab-enrichment">
+          Enrichment
+        </TabsTrigger>
       </TabsList>
-      <TabsContent value="ontology" className={TAB_FILL}>
+      <TabsContent value="ontology" className={TAB_FILL} data-testid="tabpanel-ontology">
         <Loaded got={ontology}>{(o) => <OntologyTab o={o} />}</Loaded>
       </TabsContent>
-      <TabsContent value="mappings" className={TAB_FILL}>
+      <TabsContent value="mappings" className={TAB_FILL} data-testid="tabpanel-mappings">
         <Loaded got={mappings}>{(m) => <MappingsTab m={m} />}</Loaded>
       </TabsContent>
-      <TabsContent value="transforms" className={TAB_FILL}>
+      <TabsContent value="transforms" className={TAB_FILL} data-testid="tabpanel-transforms">
         <Loaded got={transforms}>{(t) => <TransformsTab t={t} />}</Loaded>
       </TabsContent>
-      <TabsContent value="metrics" className={TAB_FILL}>
+      <TabsContent value="metrics" className={TAB_FILL} data-testid="tabpanel-metrics">
         <Loaded got={metrics}>{(m) => <MetricsTab m={m} />}</Loaded>
       </TabsContent>
-      <TabsContent value="rules" className={TAB_FILL}>
+      <TabsContent value="rules" className={TAB_FILL} data-testid="tabpanel-rules">
         <Loaded got={rules}>{(r) => <RulesTab r={r} />}</Loaded>
       </TabsContent>
-      <TabsContent value="goals" className={TAB_FILL}>
+      <TabsContent value="goals" className={TAB_FILL} data-testid="tabpanel-goals">
         <Loaded got={goals}>{(g) => <GoalsTab g={g} />}</Loaded>
       </TabsContent>
-      <TabsContent value="enrichment" className={TAB_FILL}>
+      <TabsContent value="enrichment" className={TAB_FILL} data-testid="tabpanel-enrichment">
         <Loaded got={vocabulary}>{(v) => <EnrichmentTab v={v} />}</Loaded>
       </TabsContent>
     </Tabs>

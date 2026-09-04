@@ -39,7 +39,11 @@ const KEY = 'font-medium text-dbb-charcoal'
 const sum = (ns: number[]) => ns.reduce((a, b) => a + b, 0)
 
 function Verified({ ok }: { ok: boolean }) {
-  return <Pill tone={ok ? 'ok' : 'err'}>{ok ? 'verified' : 'unverified'}</Pill>
+  return (
+    <Pill tone={ok ? 'ok' : 'err'} data-testid="facts-verified">
+      {ok ? 'verified' : 'unverified'}
+    </Pill>
+  )
 }
 
 function Facts({ vocabulary, vocabularyError }: { vocabulary: Vocabulary | null; vocabularyError: ApiError | null }) {
@@ -111,20 +115,40 @@ function Facts({ vocabulary, vocabularyError }: { vocabulary: Vocabulary | null;
     <SectionCard
       title={
         <div className="flex items-center gap-2">
-          <Filter value={entity} onChange={pickEntity} all={`all entities (${num(total)})`} options={[...entityCounts]} />
-          <Filter value={attr} onChange={pickAttr} all={`all facts (${num(factsTotal)})`} options={[...attrCounts]} />
-          <Filter value={value} onChange={pickValue} all={`all values (${num(valuesTotal)})`} options={[...labelCounts]} />
+          <Filter
+            value={entity}
+            onChange={pickEntity}
+            all={`all entities (${num(total)})`}
+            options={[...entityCounts]}
+            testId="facts-entity-filter"
+          />
+          <Filter
+            value={attr}
+            onChange={pickAttr}
+            all={`all facts (${num(factsTotal)})`}
+            options={[...attrCounts]}
+            testId="facts-fact-filter"
+          />
+          <Filter
+            value={value}
+            onChange={pickValue}
+            all={`all values (${num(valuesTotal)})`}
+            options={[...labelCounts]}
+            testId="facts-value-filter"
+          />
           <Filter
             value={unverified ? UNVERIFIED : ''}
             onChange={pickQuotes}
             all={`all quotes (${num(factsTotal)})`}
             options={[[UNVERIFIED, data?.unverified_quotes ?? 0]]}
+            testId="facts-quote-filter"
           />
         </div>
       }
       className={FULL}
       bodyClassName={BODY}
       bodyRef={bodyRef}
+      testId="facts"
     >
       <ErrorBanner error={vocabularyError} className="mb-3" />
       <ErrorBanner error={facts.error} className="mb-3" />
@@ -132,7 +156,7 @@ function Facts({ vocabulary, vocabularyError }: { vocabulary: Vocabulary | null;
       {data && data.facts.length === 0 && <Empty>no enriched facts</Empty>}
       {data && data.facts.length > 0 && (
         <>
-          <Table className="table-fixed" wrapperClassName="overflow-x-visible">
+          <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="facts-table">
             <TableHeader className={STICKY_HEAD}>
               <TableRow>
                 <TableHead className="w-64">Name ({num(data.total)})</TableHead>
@@ -145,7 +169,7 @@ function Facts({ vocabulary, vocabularyError }: { vocabulary: Vocabulary | null;
             </TableHeader>
             <TableBody>
               {data.facts.map((f, i) => (
-                <TableRow key={i}>
+                <TableRow key={i} data-testid="facts-row">
                   <TableCell className={`align-top ${KEY}`}>{f.label}</TableCell>
                   <TableCell className="align-top">
                     <Pill>{f.entity_type}</Pill>
