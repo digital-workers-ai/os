@@ -36,13 +36,13 @@ export interface GraphScope {
   edgesOf: Map<string, GraphEdge[]>
 }
 
-const RING_STEP = 56
-const FOCUS_RING_STEP = 110
-const ARC_SPACING = 22
-const LABEL_ALL_MAX = 12
-const LABEL_CHARS = 22
-const SUN_PAD = 10
-const GUTTER = 20
+const RING_STEP = 56 // min hub-to-spoke radius, px, overview suns
+const FOCUS_RING_STEP = 110 // starting radius for the focused sun, shrinks to fit
+const ARC_SPACING = 22 // min arc between neighbouring spokes, px
+const LABEL_ALL_MAX = 12 // suns this small label every spoke
+const LABEL_CHARS = 22 // labels longer than this get an ellipsis
+const SUN_PAD = 10 // padding around a sun's bounding box, px
+const GUTTER = 20 // gap between tiled suns, px
 
 export const displayLabel = (n: GraphNode) => (n.label === n.anchor ? n.anchor.slice(n.anchor.lastIndexOf('|') + 1) : n.label)
 
