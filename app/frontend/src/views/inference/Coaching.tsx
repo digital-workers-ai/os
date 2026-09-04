@@ -146,7 +146,6 @@ export function Coaching({ onEnabled }: { onEnabled: (on: boolean) => void }) {
             <TableHeader className={STICKY_HEAD}>
               <TableRow>
                 <TableHead>Role ({num(roles.length)})</TableHead>
-                <TableHead className="w-36">Model</TableHead>
                 <TableHead className="w-24">Generated</TableHead>
               </TableRow>
             </TableHeader>
@@ -162,7 +161,6 @@ export function Coaching({ onEnabled }: { onEnabled: (on: boolean) => void }) {
                     onClick={() => select(role)}
                   >
                     <TableCell className="font-medium uppercase text-dbb-charcoal">{role}</TableCell>
-                    <TableCell>{b ? b.model : '—'}</TableCell>
                     <TableCell className="whitespace-nowrap" title={b?.generated_at}>
                       {b ? relTime(b.generated_at) : 'never'}
                     </TableCell>

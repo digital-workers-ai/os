@@ -117,7 +117,7 @@ function Facts({ vocabulary, vocabularyError }: { vocabulary: Vocabulary | null;
           <Filter
             value={unverified ? UNVERIFIED : ''}
             onChange={pickQuotes}
-            all={`all quotes (${num(total)})`}
+            all={`all quotes (${num(factsTotal)})`}
             options={[[UNVERIFIED, data?.unverified_quotes ?? 0]]}
           />
         </div>
