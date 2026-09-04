@@ -1,21 +1,18 @@
-import { useRef, useState } from 'react'
-import { asApiError, get, post, type ApiError } from '@/api'
-import { ALL, Filter } from '@/components/Filter'
+import { useEffect, useRef, useState } from 'react'
+import { get } from '@/api'
+import { Filter } from '@/components/Filter'
 import { SectionCard } from '@/components/SectionCard'
 import { Section } from '@/components/SectionHeading'
-import { Banner, ErrorBanner } from '@/components/ui/banner'
-import { Button } from '@/components/ui/button'
+import { ErrorBanner } from '@/components/ui/banner'
 import { Empty } from '@/components/ui/empty'
-import { Input } from '@/components/ui/input'
 import { Loading } from '@/components/ui/loading'
 import { Mono } from '@/components/ui/mono'
 import { Pager } from '@/components/ui/pager'
 import { Chip, Pill } from '@/components/ui/pill'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { num, relTime } from '@/lib/format'
 import { useGet } from '@/lib/useGet'
-import { BODY, Enabled, FILL, FULL, LayerOff, useLoad } from './shared'
+import { BODY, FILL, FULL, useLoad } from './shared'
 import type { Reading, Vocabulary } from './Vocabulary'
 
 interface LastRun {
@@ -32,17 +29,6 @@ interface Coverage {
   read_under_a_retired_vocabulary: number
   never_read: number
   last_run: LastRun | null
-}
-
-interface RunReport {
-  readings: Record<string, { errors: string[] }>
-  calls: number
-  rows: number
-  failed: number
-  unverified_quotes: number
-  reconciled: number
-  duration_ms: number
-  truncated_at_cap?: boolean
 }
 
 interface Fact {
@@ -94,22 +80,6 @@ function Quote({ fact }: { fact: { quote: string | null; quote_verified: boolean
       <Pill tone={fact.quote_verified ? 'ok' : 'err'}>{fact.quote_verified ? 'verified' : 'unverified'}</Pill>
       {fact.quote && <span>{fact.quote}</span>}
     </span>
-  )
-}
-
-function RunSummary({ report }: { report: RunReport }) {
-  const errors = Object.values(report.readings).flatMap((r) => r.errors)
-  return (
-    <Banner className="mb-3">
-      <span className="inline-flex flex-wrap items-center gap-1.5">
-        <span>
-          {num(report.calls)} calls · {num(report.rows)} rows · {num(report.failed)} failed · {num(report.unverified_quotes)} unverified quotes ·{' '}
-          {num(report.reconciled)} reconciled · {num(report.duration_ms)} ms
-        </span>
-        {report.truncated_at_cap && <Pill tone="warn">truncated at cap</Pill>}
-        {errors.length > 0 && <span>{errors.join('; ')}</span>}
-      </span>
-    </Banner>
   )
 }
 
@@ -170,12 +140,10 @@ function Facts({
   vocabulary,
   selected,
   onSelect,
-  runs,
 }: {
   vocabulary: Vocabulary | null
   selected: Selected | null
   onSelect: (s: Selected) => void
-  runs: number
 }) {
   const [attr, setAttr] = useState('')
   const [value, setValue] = useState('')
@@ -188,7 +156,7 @@ function Facts({
   if (attr) params.set('attr', attr)
   if (value) params.set('value', value)
   if (unverified) params.set('unverified_only', 'true')
-  const facts = useGet<FactsResponse>(`/api/enrichment?${params}`, runs)
+  const facts = useGet<FactsResponse>(`/api/enrichment?${params}`)
   const data = facts.data
 
   const goTo = (n: number) => {
@@ -355,94 +323,25 @@ function EntityDetail({ selected }: { selected: Selected }) {
   )
 }
 
-export function Enrichment() {
+export function Enrichment({ onEnabled }: { onEnabled: (on: boolean) => void }) {
   const vocab = useLoad(() => get<Vocabulary>('/api/enrichment/vocabulary'), [])
   const coverage = useLoad(() => get<{ readings: Coverage[] }>('/api/enrichment/coverage'), [])
-  const [reading, setReading] = useState('')
-  const [force, setForce] = useState(false)
-  const [limit, setLimit] = useState('')
-  const [running, setRunning] = useState(false)
-  const [report, setReport] = useState<RunReport | null>(null)
-  const [runError, setRunError] = useState<ApiError | null>(null)
-  const [runs, setRuns] = useState(0)
   const [selected, setSelected] = useState<Selected | null>(null)
 
-  const run = async () => {
-    setRunning(true)
-    setRunError(null)
-    setReport(null)
-    const params = new URLSearchParams()
-    if (reading) params.set('reading', reading)
-    if (force) params.set('force', 'true')
-    if (limit) params.set('limit', limit)
-    try {
-      setReport(await post<RunReport>(`/api/enrichment/run?${params}`))
-    } catch (e) {
-      setRunError(asApiError(e))
-    } finally {
-      setRunning(false)
-      setRuns((n) => n + 1)
-      coverage.reload()
-    }
-  }
-
-  const names = Object.keys(vocab.data?.readings ?? {})
+  useEffect(() => {
+    if (vocab.data) onEnabled(vocab.data.enabled)
+  }, [vocab.data, onEnabled])
 
   return (
     <div className="flex flex-col gap-6 lg:h-full">
-      <SectionCard
-        title="Readings"
-        className="shrink-0"
-        headerRight={
-          <form
-            className="flex flex-wrap items-center gap-2"
-            onSubmit={(e) => {
-              e.preventDefault()
-              run()
-            }}
-          >
-            {vocab.data && <Enabled on={vocab.data.enabled} />}
-            <Select value={reading || ALL} onValueChange={(v) => setReading(v === ALL ? '' : v)}>
-              <SelectTrigger className="h-8 w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={ALL}>all readings</SelectItem>
-                {names.map((r) => (
-                  <SelectItem key={r} value={r}>
-                    {r}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <label className="inline-flex items-center gap-1.5 text-sm text-dbb-muted">
-              <input type="checkbox" className="accent-dbb-charcoal" checked={force} onChange={(e) => setForce(e.target.checked)} />
-              force
-            </label>
-            <Input
-              type="number"
-              min={1}
-              max={1000}
-              placeholder="limit"
-              className="h-8 w-20"
-              value={limit}
-              onChange={(e) => setLimit(e.target.value)}
-            />
-            <Button size="sm" type="submit" disabled={running}>
-              {running ? 'running…' : 'Run'}
-            </Button>
-          </form>
-        }
-      >
+      <SectionCard title="Readings" className="shrink-0">
         <ErrorBanner error={vocab.error} className="mb-3" />
         <ErrorBanner error={coverage.error} className="mb-3" />
-        <LayerOff error={runError} />
-        {report && <RunSummary report={report} />}
         {vocab.data && coverage.data && <CoverageTable rows={coverage.data.readings} readings={vocab.data.readings} />}
         {(vocab.loading || coverage.loading) && <Loading />}
       </SectionCard>
       <div className={SPLIT}>
-        <Facts vocabulary={vocab.data} selected={selected} onSelect={setSelected} runs={runs} />
+        <Facts vocabulary={vocab.data} selected={selected} onSelect={setSelected} />
         {selected ? (
           <EntityDetail selected={selected} />
         ) : (

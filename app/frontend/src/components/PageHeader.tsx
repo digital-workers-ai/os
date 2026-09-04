@@ -1,5 +1,5 @@
-import { useContext, useEffect } from 'react'
-import { SetPageTitleContext } from '@/context/PageTitleContext'
+import { useContext, useEffect, type ReactNode } from 'react'
+import { SetPageBadgeContext, SetPageTitleContext } from '@/context/PageTitleContext'
 
 export function PageHeader({ title }: { title: string }) {
   const setPageTitle = useContext(SetPageTitleContext)
@@ -9,4 +9,13 @@ export function PageHeader({ title }: { title: string }) {
   }, [setPageTitle, title])
 
   return null
+}
+
+export function usePageBadge(badge: ReactNode) {
+  const setPageBadge = useContext(SetPageBadgeContext)
+
+  useEffect(() => {
+    setPageBadge?.(badge)
+    return () => setPageBadge?.(null)
+  }, [setPageBadge, badge])
 }

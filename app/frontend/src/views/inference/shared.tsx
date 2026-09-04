@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { asApiError, type ApiError } from '@/api'
 import { Banner, ErrorBanner } from '@/components/ui/banner'
-import { Pill } from '@/components/ui/pill'
 
 export const PAGE_FILL = 'lg:flex lg:flex-col lg:h-[calc(100vh-11.25rem-1px)]'
 export const FILL = 'min-w-0 lg:flex lg:flex-col lg:max-h-full'
@@ -33,8 +32,4 @@ export function useLoad<T>(load: () => Promise<T>, deps: unknown[]) {
 export function LayerOff({ error }: { error: ApiError | null }) {
   if (!error) return null
   return error.status === 409 ? <Banner className="mb-3">{error.detail}</Banner> : <ErrorBanner error={error} className="mb-3" />
-}
-
-export function Enabled({ on }: { on: boolean }) {
-  return <Pill tone={on ? 'ok' : 'warn'}>{on ? 'enabled' : 'disabled'}</Pill>
 }

@@ -8,7 +8,7 @@ import { Loading } from '@/components/ui/loading'
 import { Chip, Pill } from '@/components/ui/pill'
 import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { num, relTime } from '@/lib/format'
-import { BODY, Enabled, FILL, FULL, LayerOff, useLoad } from './shared'
+import { BODY, FILL, FULL, LayerOff, useLoad } from './shared'
 
 interface CoachingIndex {
   enabled: boolean
@@ -87,7 +87,7 @@ function Chips({ briefing, fresh }: { briefing: Briefing; fresh: boolean }) {
   )
 }
 
-export function Coaching() {
+export function Coaching({ onEnabled }: { onEnabled: (on: boolean) => void }) {
   const index = useLoad(() => get<CoachingIndex>('/api/coaching'), [])
   const [briefings, setBriefings] = useState<Record<string, Briefing | null>>({})
   const [loadError, setLoadError] = useState<ApiError | null>(null)
@@ -96,6 +96,10 @@ export function Coaching() {
   const [generating, setGenerating] = useState(false)
   const [generateError, setGenerateError] = useState<ApiError | null>(null)
   const roles = index.data?.roles ?? []
+
+  useEffect(() => {
+    if (index.data) onEnabled(index.data.enabled)
+  }, [index.data, onEnabled])
 
   useEffect(() => {
     if (!index.data) return
@@ -179,12 +183,9 @@ export function Coaching() {
           className={FILL}
           bodyClassName={BODY}
           headerRight={
-            <div className="flex items-center gap-2">
-              {index.data && <Enabled on={index.data.enabled} />}
-              <Button size="sm" disabled={generating} onClick={() => generate(selected)}>
-                {generating ? 'generating…' : 'Generate'}
-              </Button>
-            </div>
+            <Button size="sm" disabled={generating} onClick={() => generate(selected)}>
+              {generating ? 'generating…' : 'Generate'}
+            </Button>
           }
         >
           <LayerOff error={generateError} />

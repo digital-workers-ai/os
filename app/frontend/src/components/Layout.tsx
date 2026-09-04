@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { Outlet } from 'react-router-dom'
 import { PRODUCT } from '@/brand'
 import { TopNav } from '@/components/TopNav'
-import { SetPageTitleContext } from '@/context/PageTitleContext'
+import { SetPageBadgeContext, SetPageTitleContext } from '@/context/PageTitleContext'
 
 type Reveal = 'none' | 'header' | 'all' | 'color'
 
@@ -32,6 +32,7 @@ function useReveal(): Reveal {
 
 export function Layout() {
   const [pageTitle, setPageTitle] = useState(PRODUCT)
+  const [badge, setBadge] = useState<ReactNode>(null)
   const reveal = useReveal()
   const gray = reveal !== 'color'
   const tint = { backgroundColor: reveal === 'color' ? undefined : reveal === 'all' ? GRAY : WHITE, transition: EASE }
@@ -43,9 +44,14 @@ export function Layout() {
         className="max-w-7xl mx-auto px-4 md:px-6 py-5 md:py-8"
         style={{ transition: EASE, opacity: reveal === 'none' || reveal === 'header' ? 0 : 1, filter: gray ? 'grayscale(1)' : 'grayscale(0)' }}
       >
-        <h1 className="min-w-0 mb-6 md:mb-8 text-lg sm:text-xl font-medium text-dbb-charcoal truncate">{pageTitle}</h1>
+        <div className="mb-6 md:mb-8 flex items-center gap-3">
+          <h1 className="min-w-0 text-lg sm:text-xl font-medium text-dbb-charcoal truncate">{pageTitle}</h1>
+          {badge}
+        </div>
         <SetPageTitleContext.Provider value={setPageTitle}>
-          <Outlet />
+          <SetPageBadgeContext.Provider value={setBadge}>
+            <Outlet />
+          </SetPageBadgeContext.Provider>
         </SetPageTitleContext.Provider>
       </main>
     </div>
