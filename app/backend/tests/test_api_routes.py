@@ -1045,11 +1045,11 @@ class TestConversationLayer:
 
 
 class TestEnrichmentLayer:
-    def _fact(self, value="pricing", verified=True):
+    def _fact(self, value="pricing", verified=True, canonical_id=None):
         from app.models import EnrichedFact
 
         return EnrichedFact(
-            canonical_id=uuid.uuid4(),
+            canonical_id=canonical_id or uuid.uuid4(),
             entity_type="meeting",
             reading="sales_call",
             attr="pain_points",
@@ -1132,6 +1132,41 @@ class TestEnrichmentLayer:
         await session.flush()
         body = (await api.get("/api/enrichment")).json()
         assert body["unverified_quotes"] == 1
+
+    async def test_a_fact_on_a_named_entity_is_labeled_by_its_name(
+        self, api, session, canonical
+    ):
+        acme = await canonical("company", {"name": "Acme"})
+        session.add(self._fact(canonical_id=acme))
+        await session.flush()
+        facts = (await api.get("/api/enrichment")).json()["facts"]
+        assert facts[0]["label"] == "Acme"
+
+    async def test_a_fact_on_an_entity_with_no_labeling_fact_is_labeled_by_its_anchor(
+        self, api, session, canonical
+    ):
+        deal = await canonical("deal", {"stage": "won"})
+        session.add(self._fact(canonical_id=deal))
+        await session.flush()
+        facts = (await api.get("/api/enrichment")).json()["facts"]
+        assert facts[0]["label"] == "test|deal|1"
+
+    async def test_a_fact_on_an_entity_the_graph_does_not_know_is_labeled_by_its_id(
+        self, api, session
+    ):
+        session.add(self._fact())
+        await session.flush()
+        facts = (await api.get("/api/enrichment")).json()["facts"]
+        assert facts[0]["label"] == facts[0]["canonical_id"]
+
+    async def test_every_fact_carries_a_label(self, api, session, canonical):
+        acme = await canonical("company", {"name": "Acme"})
+        session.add(self._fact(canonical_id=acme))
+        session.add(self._fact(value="timeline"))
+        await session.flush()
+        facts = (await api.get("/api/enrichment")).json()["facts"]
+        assert len(facts) == 2
+        assert all("label" in fact for fact in facts)
 
 
 class TestNullBytesInQueryParameters:
