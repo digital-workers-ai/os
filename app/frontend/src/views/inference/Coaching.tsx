@@ -5,11 +5,10 @@ import { ErrorBanner } from '@/components/ui/banner'
 import { Button } from '@/components/ui/button'
 import { Empty } from '@/components/ui/empty'
 import { Loading } from '@/components/ui/loading'
-import { Mono } from '@/components/ui/mono'
 import { Chip, Pill } from '@/components/ui/pill'
-import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { num, relTime } from '@/lib/format'
-import { BODY, FILL, FULL, LayerOff, useLoad } from './shared'
+import { BODY, FULL, LayerOff, useLoad } from './shared'
 
 interface CoachingIndex {
   enabled: boolean
@@ -41,7 +40,7 @@ interface Briefing {
   read: ReadCounts
 }
 
-const SPLIT = 'grid items-start gap-6 lg:grid-cols-[0.35fr_0.65fr] lg:grid-rows-[minmax(0,1fr)] lg:h-full'
+const JOURNAL = `${FULL} lg:min-h-0 lg:flex-1`
 
 const fromStored = (b: StoredBriefing): Briefing => ({
   briefing: b.briefing,
@@ -135,7 +134,7 @@ function RoleCard({ role, fresh, onGenerated }: { role: string; fresh: boolean; 
   return (
     <SectionCard
       title={role.toUpperCase()}
-      className={FILL}
+      className={JOURNAL}
       bodyClassName={BODY}
       headerRight={
         <Button size="sm" disabled={generating} onClick={generate}>
@@ -191,19 +190,19 @@ export function Coaching({ onEnabled }: { onEnabled: (on: boolean) => void }) {
   }
 
   return (
-    <div className={SPLIT}>
-      <SectionCard className={FULL} bodyClassName={BODY}>
+    <div className="flex flex-col gap-6 lg:h-full">
+      <SectionCard className="shrink-0">
         <ErrorBanner error={index.error} className="mb-3" />
         <ErrorBanner error={loadError} className="mb-3" />
         {index.loading && <Loading />}
         {index.data && roles.length === 0 && <Empty>no role prompts found</Empty>}
         {roles.length > 0 && (
           <Table className="table-fixed" wrapperClassName="overflow-x-visible">
-            <TableHeader className={STICKY_HEAD}>
+            <TableHeader>
               <TableRow>
-                <TableHead className="w-40">Role ({num(roles.length)})</TableHead>
+                <TableHead className="w-48">Role ({num(roles.length)})</TableHead>
                 <TableHead>Email</TableHead>
-                <TableHead className="w-24">Generated</TableHead>
+                <TableHead className="w-32">Generated</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -220,13 +219,15 @@ export function Coaching({ onEnabled }: { onEnabled: (on: boolean) => void }) {
                   >
                     <TableCell className="font-medium uppercase text-dbb-charcoal">{role}</TableCell>
                     <TableCell>
-                      {emails.length === 0
-                        ? '—'
-                        : emails.map((email) => (
-                            <Mono key={email} className="block">
-                              {email}
-                            </Mono>
+                      {emails.length === 0 ? (
+                        '—'
+                      ) : (
+                        <span className="inline-flex flex-wrap gap-1">
+                          {emails.map((e) => (
+                            <Chip key={e}>{e}</Chip>
                           ))}
+                        </span>
+                      )}
                     </TableCell>
                     <TableCell className="whitespace-nowrap" title={b?.generated_at}>
                       {b ? relTime(b.generated_at) : 'never'}
@@ -239,7 +240,7 @@ export function Coaching({ onEnabled }: { onEnabled: (on: boolean) => void }) {
         )}
       </SectionCard>
       {selected === null ? (
-        <SectionCard className={FILL} bodyClassName={BODY}>
+        <SectionCard className={JOURNAL} bodyClassName={BODY}>
           <Empty>select a role</Empty>
         </SectionCard>
       ) : (
