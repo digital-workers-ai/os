@@ -162,23 +162,12 @@ function OntologyTab({ o }: { o: Ontology }) {
   const entities = Object.entries(o.entities)
   return (
     <>
-      <div className="mt-6 first:mt-0">
-        <Table className="table-fixed">
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-48">Source ({num(o.source_priority.length)})</TableHead>
-              <TableHead>Priority</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {o.source_priority.map((s, i) => (
-              <TableRow key={s}>
-                <TableCell className={keyCol}>{s}</TableCell>
-                <TableCell className="tabular-nums">{i + 1}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+      <div className="mt-6 flex flex-wrap gap-1.5 first:mt-0">
+        {o.source_priority.map((s, i) => (
+          <Chip key={s}>
+            {i + 1} <strong>{s}</strong>
+          </Chip>
+        ))}
       </div>
       <div className="mt-6 first:mt-0">
         <Table>
