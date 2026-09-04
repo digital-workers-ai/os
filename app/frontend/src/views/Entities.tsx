@@ -628,7 +628,6 @@ function RecordDetail({ record }: { record: RecordRow }) {
             <TableHeader>
               <TableRow>
                 <TableHead>Raw event ({num(events.length)})</TableHead>
-                <TableHead className={cn(NUM, 'w-20')}>Seq</TableHead>
                 <TableHead className="w-32">Ingested</TableHead>
               </TableRow>
             </TableHeader>
@@ -644,7 +643,6 @@ function RecordDetail({ record }: { record: RecordRow }) {
                   <TableCell>
                     <Id id={e.id} full />
                   </TableCell>
-                  <TableCell className={NUM}>{num(e.seq)}</TableCell>
                   <TableCell className="whitespace-nowrap" title={e.ingested_at}>
                     {relTime(e.ingested_at)}
                   </TableCell>
@@ -656,6 +654,10 @@ function RecordDetail({ record }: { record: RecordRow }) {
       </div>
       {picked && (
         <Section title="Payload">
+          <p className="mb-3 text-sm text-dbb-muted">
+            The event exactly as the source delivered it, before any mapping, transform, or merge. Every fact above was read from a
+            payload like this one.
+          </p>
           <pre className={cn(PRE, 'mt-0')}>{JSON.stringify(picked.raw_payload, null, 2)}</pre>
         </Section>
       )}
