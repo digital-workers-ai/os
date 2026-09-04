@@ -6,12 +6,14 @@ from pathlib import Path
 from sqlalchemy import select
 
 from app import llm
-from app.caches import KNOWLEDGE_DIR
+from app.caches import KNOWLEDGE_DIR, load_mapping
 from app.config import settings
 from app.engine import goals, metrics, rules
 from app.models import BriefingRun
 
 PROMPTS = KNOWLEDGE_DIR / "briefs"
+
+RECIPIENTS = KNOWLEDGE_DIR / "coaching.yaml"
 
 PROMPT_VERSION = "2026-08-02.1"
 
@@ -45,6 +47,14 @@ def roles() -> list[str]:
     if not PROMPTS.exists():
         return []
     return sorted(path.stem for path in PROMPTS.glob("*.md"))
+
+
+def recipients() -> dict[str, list[str]]:
+    if not RECIPIENTS.exists():
+        return {}
+    doc = load_mapping(RECIPIENTS, CoachingError)
+    entries = doc.get("roles") or {}
+    return {role: list(spec.get("to", [])) for role, spec in entries.items()}
 
 
 def prompt_path(role: str) -> Path:

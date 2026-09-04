@@ -8,12 +8,14 @@ from app.db import async_session
 
 @router.get("")
 async def index():
+    known = briefer.recipients()
     return {
         "enabled": settings.COACHING_ENABLED,
         "model": settings.COACHING_MODEL,
         "prompt_version": briefer.PROMPT_VERSION,
         "prompts_sha": briefer.prompts_sha()[:12],
         "roles": briefer.roles(),
+        "recipients": {role: known.get(role, []) for role in briefer.roles()},
         "inferred": True,
         "note": "narration over measured numbers, not a measurement",
     }

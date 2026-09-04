@@ -1,0 +1,8 @@
+roles:
+  ceo:
+    to:
+      - maria.lopez@example.com
+  head_of_sales:
+    to:
+      - jane.smith@example.com
+      - alex.chen@example.com
