@@ -5,6 +5,7 @@ import { ErrorBanner } from '@/components/ui/banner'
 import { Button } from '@/components/ui/button'
 import { Empty } from '@/components/ui/empty'
 import { Loading } from '@/components/ui/loading'
+import { Mono } from '@/components/ui/mono'
 import { Chip, Pill } from '@/components/ui/pill'
 import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { num, relTime } from '@/lib/format'
@@ -13,6 +14,7 @@ import { BODY, FILL, FULL, LayerOff, useLoad } from './shared'
 interface CoachingIndex {
   enabled: boolean
   roles: string[]
+  recipients: Record<string, string[]>
 }
 
 interface ReadCounts {
@@ -63,6 +65,8 @@ const stored = (role: string) =>
       throw error
     })
 
+const day = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+
 function Chips({ briefing, fresh }: { briefing: Briefing; fresh: boolean }) {
   return (
     <p className="mt-3 flex flex-wrap items-center gap-1.5">
@@ -87,15 +91,83 @@ function Chips({ briefing, fresh }: { briefing: Briefing; fresh: boolean }) {
   )
 }
 
+function Entry({ briefing, fresh }: { briefing: Briefing; fresh: boolean }) {
+  return (
+    <div className="py-4 first:pt-0 last:pb-0">
+      <p className="text-sm font-medium text-dbb-charcoal" title={briefing.generated_at}>
+        {relTime(briefing.generated_at)} · {day(briefing.generated_at)}
+      </p>
+      <p className="max-w-prose whitespace-pre-wrap text-sm leading-relaxed text-dbb-charcoal">{briefing.briefing}</p>
+      <Chips briefing={briefing} fresh={fresh} />
+    </div>
+  )
+}
+
+function RoleCard({ role, fresh, onGenerated }: { role: string; fresh: boolean; onGenerated: (briefing: Briefing) => void }) {
+  const history = useLoad(() => get<{ briefings: StoredBriefing[] }>(`/api/coaching/${encodeURIComponent(role)}/history`), [role])
+  const [items, setItems] = useState<Briefing[]>([])
+  const [generated, setGenerated] = useState<Briefing | null>(null)
+  const [generating, setGenerating] = useState(false)
+  const [generateError, setGenerateError] = useState<ApiError | null>(null)
+  const entries = generated ? [generated, ...items] : items
+
+  useEffect(() => {
+    if (!history.data) return
+    setItems(history.data.briefings.map(fromStored))
+    setGenerated(null)
+  }, [history.data])
+
+  const generate = async () => {
+    setGenerating(true)
+    setGenerateError(null)
+    try {
+      const b = await post<Briefing>(`/api/coaching/${encodeURIComponent(role)}`)
+      onGenerated(b)
+      setGenerated(b)
+      history.reload()
+    } catch (e) {
+      setGenerateError(asApiError(e))
+    } finally {
+      setGenerating(false)
+    }
+  }
+
+  return (
+    <SectionCard
+      title={role.toUpperCase()}
+      className={FILL}
+      bodyClassName={BODY}
+      headerRight={
+        <Button size="sm" disabled={generating} onClick={generate}>
+          {generating ? 'generating…' : 'Generate'}
+        </Button>
+      }
+    >
+      <LayerOff error={generateError} />
+      <ErrorBanner error={history.error} className="mb-3" />
+      {history.loading && entries.length === 0 ? (
+        <Loading />
+      ) : entries.length === 0 ? (
+        <Empty>no briefing yet</Empty>
+      ) : (
+        <div className="divide-y divide-dbb-warm">
+          {entries.map((b, i) => (
+            <Entry key={i} briefing={b} fresh={fresh && i === 0} />
+          ))}
+        </div>
+      )}
+    </SectionCard>
+  )
+}
+
 export function Coaching({ onEnabled }: { onEnabled: (on: boolean) => void }) {
   const index = useLoad(() => get<CoachingIndex>('/api/coaching'), [])
   const [briefings, setBriefings] = useState<Record<string, Briefing | null>>({})
   const [loadError, setLoadError] = useState<ApiError | null>(null)
   const [selected, setSelected] = useState<string | null>(null)
   const [fresh, setFresh] = useState<string | null>(null)
-  const [generating, setGenerating] = useState(false)
-  const [generateError, setGenerateError] = useState<ApiError | null>(null)
   const roles = index.data?.roles ?? []
+  const recipients = index.data?.recipients ?? {}
 
   useEffect(() => {
     if (index.data) onEnabled(index.data.enabled)
@@ -113,26 +185,10 @@ export function Coaching({ onEnabled }: { onEnabled: (on: boolean) => void }) {
     }
   }, [index.data])
 
-  const select = (role: string) => {
-    setSelected(role)
-    setGenerateError(null)
+  const generated = (role: string, briefing: Briefing) => {
+    setBriefings((all) => ({ ...all, [role]: briefing }))
+    setFresh(role)
   }
-
-  const generate = async (role: string) => {
-    setGenerating(true)
-    setGenerateError(null)
-    try {
-      const briefing = await post<Briefing>(`/api/coaching/${encodeURIComponent(role)}`)
-      setBriefings((all) => ({ ...all, [role]: briefing }))
-      setFresh(role)
-    } catch (e) {
-      setGenerateError(asApiError(e))
-    } finally {
-      setGenerating(false)
-    }
-  }
-
-  const briefing = selected ? briefings[selected] : null
 
   return (
     <div className={SPLIT}>
@@ -145,22 +201,33 @@ export function Coaching({ onEnabled }: { onEnabled: (on: boolean) => void }) {
           <Table className="table-fixed" wrapperClassName="overflow-x-visible">
             <TableHeader className={STICKY_HEAD}>
               <TableRow>
-                <TableHead>Role ({num(roles.length)})</TableHead>
+                <TableHead className="w-40">Role ({num(roles.length)})</TableHead>
+                <TableHead>Email</TableHead>
                 <TableHead className="w-24">Generated</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {roles.map((role) => {
                 const b = briefings[role]
+                const emails = recipients[role] ?? []
                 return (
                   <TableRow
                     key={role}
                     className="cursor-pointer"
                     data-state={role === selected ? 'selected' : undefined}
                     aria-selected={role === selected}
-                    onClick={() => select(role)}
+                    onClick={() => setSelected(role)}
                   >
                     <TableCell className="font-medium uppercase text-dbb-charcoal">{role}</TableCell>
+                    <TableCell>
+                      {emails.length === 0
+                        ? '—'
+                        : emails.map((email) => (
+                            <Mono key={email} className="block">
+                              {email}
+                            </Mono>
+                          ))}
+                    </TableCell>
                     <TableCell className="whitespace-nowrap" title={b?.generated_at}>
                       {b ? relTime(b.generated_at) : 'never'}
                     </TableCell>
@@ -176,26 +243,7 @@ export function Coaching({ onEnabled }: { onEnabled: (on: boolean) => void }) {
           <Empty>select a role</Empty>
         </SectionCard>
       ) : (
-        <SectionCard
-          title={selected.toUpperCase()}
-          className={FILL}
-          bodyClassName={BODY}
-          headerRight={
-            <Button size="sm" disabled={generating} onClick={() => generate(selected)}>
-              {generating ? 'generating…' : 'Generate'}
-            </Button>
-          }
-        >
-          <LayerOff error={generateError} />
-          {briefing ? (
-            <>
-              <p className="max-w-prose whitespace-pre-wrap text-sm leading-relaxed text-dbb-charcoal">{briefing.briefing}</p>
-              <Chips briefing={briefing} fresh={fresh === selected} />
-            </>
-          ) : (
-            <Empty>no briefing yet</Empty>
-          )}
-        </SectionCard>
+        <RoleCard key={selected} role={selected} fresh={fresh === selected} onGenerated={(b) => generated(selected, b)} />
       )}
     </div>
   )
