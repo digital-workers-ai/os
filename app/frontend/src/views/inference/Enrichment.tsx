@@ -38,13 +38,8 @@ const KEY = 'font-medium text-dbb-charcoal'
 
 const sum = (ns: number[]) => ns.reduce((a, b) => a + b, 0)
 
-function Quote({ fact }: { fact: { quote: string | null; quote_verified: boolean } }) {
-  return (
-    <span className="inline-flex flex-wrap items-center gap-1.5">
-      <Pill tone={fact.quote_verified ? 'ok' : 'err'}>{fact.quote_verified ? 'verified' : 'unverified'}</Pill>
-      {fact.quote && <span>{fact.quote}</span>}
-    </span>
-  )
+function Verified({ ok }: { ok: boolean }) {
+  return <Pill tone={ok ? 'ok' : 'err'}>{ok ? 'verified' : 'unverified'}</Pill>
 }
 
 function Facts({ vocabulary, vocabularyError }: { vocabulary: Vocabulary | null; vocabularyError: ApiError | null }) {
@@ -130,6 +125,7 @@ function Facts({ vocabulary, vocabularyError }: { vocabulary: Vocabulary | null;
                 <TableHead className="w-28">Type</TableHead>
                 <TableHead className="w-32">Fact</TableHead>
                 <TableHead className="w-40">Value</TableHead>
+                <TableHead className="w-28">Verified</TableHead>
                 <TableHead>Quote</TableHead>
               </TableRow>
             </TableHeader>
@@ -147,8 +143,9 @@ function Facts({ vocabulary, vocabularyError }: { vocabulary: Vocabulary | null;
                     <Chip>{f.value}</Chip>
                   </TableCell>
                   <TableCell className="align-top">
-                    <Quote fact={f} />
+                    <Verified ok={f.quote_verified} />
                   </TableCell>
+                  <TableCell className="align-top">{f.quote}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
