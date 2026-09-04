@@ -9,7 +9,7 @@ from app import caches
 from app.caches import load_mapping
 from app.models import CanonicalLink, EntityCanonical, FactCurrent
 
-DEFAULT_RULES = caches.KNOWLEDGE_DIR / "rules.yaml"
+DEFAULT_RULES = caches.DEFINITIONS_DIR / "rules.yaml"
 
 SEVERITIES = ("high", "medium", "low")
 

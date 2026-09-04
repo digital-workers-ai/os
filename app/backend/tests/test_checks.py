@@ -10,7 +10,7 @@ from app.sources.google_sheets import connector as google_sheets_connector
 from app.sources.hubspot import connector as hubspot_connector
 from app.sources.salesforce import connector as salesforce_connector
 
-KNOWLEDGE = Path(caches.KNOWLEDGE_DIR)
+DEFINITIONS = Path(caches.DEFINITIONS_DIR)
 ALL_FILES = (
     "mappings.yaml",
     "ontology.yaml",
@@ -25,7 +25,7 @@ ALL_FILES = (
 @pytest.fixture
 def files(tmp_path):
     for name in ALL_FILES:
-        shutil.copy(KNOWLEDGE / name, tmp_path / name)
+        shutil.copy(DEFINITIONS / name, tmp_path / name)
 
     class Bundle:
         root = tmp_path

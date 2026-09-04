@@ -74,7 +74,7 @@ def real_params():
             marks=pytest.mark.skip(
                 reason="NO REAL PROVIDER PAYLOADS: no source has fixtures under "
                 "fixtures/real/. Every source is mock-validated, which proves "
-                "the knowledge files agree with mocks we wrote, not with a "
+                "the definition files agree with mocks we wrote, not with a "
                 "provider. Nothing ships enabled until this is non-empty."
             ),
         )

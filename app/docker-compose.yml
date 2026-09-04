@@ -35,7 +35,7 @@ services:
         condition: service_healthy
     volumes:
       - ./backend:/app
-      - ../knowledge:/app/knowledge
+      - ../definitions:/app/definitions
       - ../mock:/adversarial/seeds:ro
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')\""]

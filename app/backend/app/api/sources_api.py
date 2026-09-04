@@ -66,7 +66,7 @@ def _coverage(rows: list) -> dict:
                 ""
                 if provider
                 else " — every number below is mock-validated only, which "
-                "proves the knowledge files agree with our own mocks, "
+                "proves the definition files agree with our own mocks, "
                 "not with any provider"
             )
         ),

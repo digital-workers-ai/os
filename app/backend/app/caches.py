@@ -5,7 +5,7 @@ import yaml
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
 
-KNOWLEDGE_DIR = BACKEND_DIR / "knowledge"
+DEFINITIONS_DIR = BACKEND_DIR / "definitions"
 
 MAX_OFFSET = 2**63 - 1
 

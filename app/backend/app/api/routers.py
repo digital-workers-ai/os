@@ -10,7 +10,7 @@ enrichment = APIRouter(prefix="/api/enrichment", tags=["enrichment"])
 insights = APIRouter(prefix="/api/insights", tags=["insights"])
 coaching = APIRouter(prefix="/api/coaching", tags=["coaching"])
 conversation = APIRouter(prefix="/api/conversation", tags=["conversation"])
-knowledge = APIRouter(prefix="/api/knowledge", tags=["knowledge"])
+definitions = APIRouter(prefix="/api/definitions", tags=["definitions"])
 activity = APIRouter(prefix="/api/activity", tags=["activity"])
 
 ROUTERS = (
@@ -22,7 +22,7 @@ ROUTERS = (
     insights,
     coaching,
     conversation,
-    knowledge,
+    definitions,
     activity,
 )
 HANDLER_MODULES = (
@@ -34,7 +34,7 @@ HANDLER_MODULES = (
     "app.api.insights_api",
     "app.api.coaching_api",
     "app.api.conversation_api",
-    "app.api.knowledge_api",
+    "app.api.definitions_api",
     "app.api.activity_api",
 )
 

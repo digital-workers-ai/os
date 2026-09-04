@@ -562,7 +562,7 @@ class TestMetricsFileThatRaisesDuringChecks:
             "rules.yaml",
             "goals.yaml",
         ):
-            shutil.copy(Path(caches.KNOWLEDGE_DIR) / name, tmp_path / name)
+            shutil.copy(Path(caches.DEFINITIONS_DIR) / name, tmp_path / name)
         (tmp_path / "metrics.yaml").write_text("- not\n- a\n- mapping\n")
 
         problems = checks.run(

@@ -51,7 +51,7 @@ def a_reading(**overrides):
 class TestTheShippedFile:
     def test_the_committed_file_is_the_default(self):
         assert vocabulary.DEFAULT_ENRICHMENT_FILES == [
-            caches.KNOWLEDGE_DIR / "enrichment.yaml"
+            caches.DEFINITIONS_DIR / "enrichment.yaml"
         ]
 
     def test_it_loads_and_declares_the_sales_call_reading(self):

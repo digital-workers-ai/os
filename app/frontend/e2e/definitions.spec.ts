@@ -110,10 +110,10 @@ test('enrichment', async ({ page }) => {
 })
 
 test('error', async ({ page }) => {
-  await mockJson(page, '**/api/knowledge/*', { detail: 'knowledge unavailable' }, 500)
+  await mockJson(page, '**/api/definitions/*', { detail: 'definitions unavailable' }, 500)
   await visit(page, '/definitions')
   const banner = page.getByTestId('error-banner')
   await expect(banner).toContainText('500')
-  await expect(banner).toContainText('knowledge unavailable')
+  await expect(banner).toContainText('definitions unavailable')
   await snap(page, 'definitions-error')
 })

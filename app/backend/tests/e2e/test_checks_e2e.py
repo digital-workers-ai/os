@@ -14,7 +14,7 @@ from app.main import app
 
 pytestmark = pytest.mark.e2e
 
-KNOWLEDGE = Path(caches.KNOWLEDGE_DIR)
+DEFINITIONS = Path(caches.DEFINITIONS_DIR)
 ALL_FILES = (
     "mappings.yaml",
     "ontology.yaml",
@@ -45,7 +45,7 @@ async def api(session, sessionmaker_for_test, monkeypatch):
 
 def _broken_estate(tmp_path):
     for name in ALL_FILES:
-        shutil.copy(KNOWLEDGE / name, tmp_path / name)
+        shutil.copy(DEFINITIONS / name, tmp_path / name)
     path = tmp_path / "metrics.yaml"
     doc = yaml.safe_load(path.read_text())
     doc["quarterly_unicorns"] = {"entity": "unicorn", "expression": "COUNT(entity)"}

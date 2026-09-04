@@ -1,5 +1,5 @@
 from app.api.insights_api import rule_definitions
-from app.api.routers import knowledge as router
+from app.api.routers import definitions as router
 from app.engine import goals, mappings, metrics, ontology, transforms
 from app.sources import hooks
 

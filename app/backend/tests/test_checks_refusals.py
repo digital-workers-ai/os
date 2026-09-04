@@ -7,7 +7,7 @@ import yaml
 from app import caches
 from app.engine import checks
 
-KNOWLEDGE = Path(caches.KNOWLEDGE_DIR)
+DEFINITIONS = Path(caches.DEFINITIONS_DIR)
 ALL_FILES = (
     "mappings.yaml",
     "ontology.yaml",
@@ -21,7 +21,7 @@ ALL_FILES = (
 @pytest.fixture
 def files(tmp_path):
     for name in ALL_FILES:
-        shutil.copy(KNOWLEDGE / name, tmp_path / name)
+        shutil.copy(DEFINITIONS / name, tmp_path / name)
 
     class Bundle:
         root = tmp_path

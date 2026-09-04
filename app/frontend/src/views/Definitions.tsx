@@ -584,12 +584,12 @@ function EnrichmentTab({ v }: { v: Vocabulary }) {
 }
 
 export function Definitions() {
-  const ontology = useLoad(() => get<Ontology>('/api/knowledge/ontology'), [])
-  const mappings = useLoad(() => get<Mappings>('/api/knowledge/mappings'), [])
-  const transforms = useLoad(() => get<Transforms>('/api/knowledge/transforms'), [])
-  const metrics = useLoad(() => get<MetricDefinitions>('/api/knowledge/metrics'), [])
-  const rules = useLoad(() => get<Rules>('/api/knowledge/rules'), [])
-  const goals = useLoad(() => get<Goals>('/api/knowledge/goals'), [])
+  const ontology = useLoad(() => get<Ontology>('/api/definitions/ontology'), [])
+  const mappings = useLoad(() => get<Mappings>('/api/definitions/mappings'), [])
+  const transforms = useLoad(() => get<Transforms>('/api/definitions/transforms'), [])
+  const metrics = useLoad(() => get<MetricDefinitions>('/api/definitions/metrics'), [])
+  const rules = useLoad(() => get<Rules>('/api/definitions/rules'), [])
+  const goals = useLoad(() => get<Goals>('/api/definitions/goals'), [])
   const vocabulary = useLoad(() => get<Vocabulary>('/api/enrichment/vocabulary'), [])
 
   return (
