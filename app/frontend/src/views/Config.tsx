@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button'
 import { Empty } from '@/components/ui/empty'
 import { Loading } from '@/components/ui/loading'
 import { Mono } from '@/components/ui/mono'
-import { Pill, type Tone } from '@/components/ui/pill'
+import { Pill } from '@/components/ui/pill'
 import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { num, plural, relTime } from '@/lib/format'
@@ -34,13 +34,7 @@ const FULL = 'min-w-0 lg:flex lg:flex-col lg:h-full'
 const BODY = 'lg:min-h-0 lg:overflow-y-auto lg:-mx-6 lg:px-6 lg:-mb-6 lg:pb-6 lg:rounded-b-xl'
 const NOTICES = 'mt-2 -mb-1 flex flex-col gap-3 [&>*]:mb-0'
 
-const validationTone = (v: string): Tone =>
-  v === 'provider-validated' ? 'ok' : v === 'mock-validated' ? 'warn' : 'neutral'
-
 const enabledKey = (r: SourceRow) => (r.enabled_by_default ? 'enabled' : 'disabled')
-
-const countBy = (rows: SourceRow[], key: (r: SourceRow) => string): [string, number][] =>
-  [...rows.reduce((m, r) => m.set(key(r), (m.get(key(r)) ?? 0) + 1), new Map<string, number>())].sort(([a], [b]) => a.localeCompare(b))
 
 const enabledOptions = (rows: SourceRow[]): [string, number][] => {
   const on = rows.filter((r) => r.enabled_by_default).length
@@ -217,7 +211,6 @@ function Report({ report, error, refresh }: { report: Ran; error: ApiError | nul
 export function Config() {
   const [sources, setSources] = useState<SourcesResponse | null>(null)
   const [sourcesError, setSourcesError] = useState<ApiError | null>(null)
-  const [validation, setValidation] = useState('')
   const [enabled, setEnabled] = useState('')
   const [syncing, setSyncing] = useState<string | null>(null)
   const [sync, setSync] = useState<SyncResponse | null>(null)
@@ -278,7 +271,7 @@ export function Config() {
   }
 
   const all = sources?.sources ?? []
-  const rows = all.filter((r) => (!validation || r.validation === validation) && (!enabled || enabledKey(r) === enabled))
+  const rows = all.filter((r) => !enabled || enabledKey(r) === enabled)
   const refresh = (
     <Button size="sm" variant="outline" onClick={loadReport}>
       Refresh
@@ -296,12 +289,6 @@ export function Config() {
         <SectionCard
           title={
             <div className="flex items-center gap-2">
-              <Filter
-                value={validation}
-                onChange={setValidation}
-                all={`all validations (${num(all.length)})`}
-                options={countBy(all, (r) => r.validation)}
-              />
               <Filter value={enabled} onChange={setEnabled} all={`all sources (${num(all.length)})`} options={enabledOptions(all)} />
             </div>
           }
@@ -347,7 +334,6 @@ export function Config() {
               <TableHeader className={STICKY_HEAD}>
                 <TableRow>
                   <TableHead className="w-56">Source ({num(rows.length)})</TableHead>
-                  <TableHead className="w-36">Validation</TableHead>
                   <TableHead className="w-56">Entities</TableHead>
                   <TableHead className="w-40">Last sync</TableHead>
                   <TableHead className="w-40">Rows</TableHead>
@@ -364,9 +350,6 @@ export function Config() {
                       <TableCell className={TOP}>
                         <span className={cn(KEY, 'block')}>{r.label}</span>
                         <Mono>{r.source}</Mono>
-                      </TableCell>
-                      <TableCell className={TOP}>
-                        <Pill tone={validationTone(r.validation)}>{r.validation}</Pill>
                       </TableCell>
                       <TableCell className={TOP}>
                         {r.entities.length === 0 ? (
