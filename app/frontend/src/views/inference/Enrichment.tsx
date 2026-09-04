@@ -222,12 +222,11 @@ function Facts({
           <Table className="table-fixed" wrapperClassName="overflow-x-visible">
             <TableHeader className={STICKY_HEAD}>
               <TableRow>
-                <TableHead className="w-56">Entity ({num(data.total)})</TableHead>
-                <TableHead className="w-28">Type</TableHead>
-                <TableHead className="w-32">Fact</TableHead>
+                <TableHead className="w-44">Entity ({num(data.total)})</TableHead>
+                <TableHead className="w-24">Type</TableHead>
+                <TableHead className="w-28">Fact</TableHead>
                 <TableHead className="w-36">Value</TableHead>
                 <TableHead>Quote</TableHead>
-                <TableHead className="w-32">Reading</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -252,7 +251,6 @@ function Facts({
                   <TableCell className="align-top">
                     <Quote fact={f} />
                   </TableCell>
-                  <TableCell className="align-top">{f.reading}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -286,9 +284,8 @@ function EntityDetail({ selected }: { selected: Selected }) {
           <Table className="table-fixed">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-28">Fact ({num(rows.length)})</TableHead>
-                <TableHead className="w-32">Value</TableHead>
-                <TableHead>Quote</TableHead>
+                <TableHead>Fact ({num(rows.length)})</TableHead>
+                <TableHead className="w-36">Value</TableHead>
                 <TableHead className="w-20">When</TableHead>
               </TableRow>
             </TableHeader>
@@ -296,13 +293,13 @@ function EntityDetail({ selected }: { selected: Selected }) {
               {rows.map((f, i) => (
                 <TableRow key={i}>
                   <TableCell className="align-top">
-                    <Mono>{f.attr}</Mono>
+                    <Mono className="block">{f.attr}</Mono>
+                    <span className="mt-1 block">
+                      <Quote fact={f} />
+                    </span>
                   </TableCell>
                   <TableCell className="align-top">
                     <Chip>{f.value}</Chip>
-                  </TableCell>
-                  <TableCell className="align-top">
-                    <Quote fact={f} />
                   </TableCell>
                   <TableCell className="whitespace-nowrap align-top" title={f.created_at}>
                     {relTime(f.created_at)}
