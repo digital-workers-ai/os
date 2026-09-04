@@ -5,6 +5,7 @@ set -euo pipefail
 cd "$(dirname "$0")/app"
 
 compose() { docker compose -f docker-compose.yml "$@"; }
+compose_snap() { docker compose -p os_v0_snap -f docker-compose.yml -f docker-compose.snap.yml "$@"; }
 
 mode="${1:-unit}"
 [ $# -gt 0 ] && shift
@@ -28,7 +29,7 @@ fi
 
 wait_for_frontend() {
   for _ in $(seq 60); do
-    if compose exec -T frontend wget -qO- http://127.0.0.1:3000 >/dev/null 2>&1; then
+    if compose_snap exec -T frontend wget -qO- http://127.0.0.1:3000 >/dev/null 2>&1; then
       return 0
     fi
     sleep 5
@@ -39,7 +40,14 @@ wait_for_frontend() {
 
 post_api() {
   for _ in $(seq 5); do
-    code=$(curl -s -o /dev/null -w '%{http_code}' -X POST "localhost:8092/api/$1")
+    code=$(compose_snap exec -T backend python -c "
+import urllib.error, urllib.request
+request = urllib.request.Request('http://localhost:8000/api/$1', method='POST')
+try:
+    print(urllib.request.urlopen(request).status)
+except urllib.error.HTTPError as e:
+    print(e.code)
+")
     echo "POST /api/$1 -> $code"
     case "$code" in
       2*) return 0 ;;
@@ -51,9 +59,10 @@ post_api() {
 }
 
 if [ -n "${snap_script:-}" ]; then
-  echo "==> starting the v0 stack (postgres, mock, backend, frontend)"
-  compose up -d --wait postgres mock backend
-  compose up -d frontend
+  echo "==> fresh snap stack (postgres, mock, backend, frontend)"
+  compose_snap down -v --remove-orphans
+  compose_snap up -d --wait postgres mock backend
+  compose_snap up -d frontend
   wait_for_frontend
   echo "==> sync + rebuild"
   post_api sync
@@ -61,12 +70,12 @@ if [ -n "${snap_script:-}" ]; then
   post_api rebuild
   if [ -f backend/tools/seed_demo.py ]; then
     echo "==> seed demo data"
-    compose exec -T backend python -m tools.seed_demo
+    compose_snap exec -T backend python -m tools.seed_demo
   else
     echo "==> backend/tools/seed_demo.py is absent — skipping the seed"
   fi
   echo "==> playwright ($snap_script)"
-  compose run --rm playwright npm run "$snap_script" -- "$@"
+  compose_snap run --rm playwright npm run "$snap_script" -- "$@"
   exit 0
 fi
 

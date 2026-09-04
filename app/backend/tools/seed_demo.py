@@ -7,6 +7,7 @@ from sqlalchemy import delete, func, select, update
 
 from app.coaching import briefer
 from app.db import async_session
+from app.engine import metrics
 from app.enrichment import vocabulary
 from app.models import (
     BriefingRun,
@@ -15,6 +16,7 @@ from app.models import (
     EnrichmentRun,
     EntityCanonical,
     FactCurrent,
+    MetricSnapshot,
     RawEvent,
     SyncRun,
 )
@@ -273,6 +275,21 @@ async def seed_briefings(s) -> int:
     return n
 
 
+async def seed_snapshots(s) -> int:
+    n = 0
+    pinned: list[datetime] = []
+    for days in (3, 2, 1):
+        n += await metrics.record_snapshots(s)
+        when = NOW - timedelta(days=days)
+        await s.execute(
+            update(MetricSnapshot)
+            .where(MetricSnapshot.recorded_at.not_in(pinned))
+            .values(recorded_at=when)
+        )
+        pinned.append(when)
+    return n
+
+
 async def pin(s, column, target: datetime) -> int:
     newest = await s.scalar(select(func.max(column)))
     if newest is None:
@@ -286,7 +303,7 @@ async def pin(s, column, target: datetime) -> int:
 async def main() -> None:
     readings = vocabulary.load()
     async with async_session() as s:
-        for table in (EnrichedFact, EnrichmentRun, BriefingRun):
+        for table in (EnrichedFact, EnrichmentRun, BriefingRun, MetricSnapshot):
             await s.execute(delete(table))
         meetings = await seed_meetings(s, readings["sales_call"].sha)
         tickets = await seed_tickets(s, readings["support_ticket"].sha)
@@ -295,11 +312,13 @@ async def main() -> None:
             column.class_.__tablename__: await pin(s, column, target)
             for column, target in PINS
         }
+        snapshots = await seed_snapshots(s)
         await s.commit()
     counts = {
         "enriched_fact": meetings + tickets,
         "enrichment_run": 2,
         "briefing_run": briefings,
+        "metric_snapshot": snapshots,
         **pinned,
     }
     print(" ".join(f"{k}={v}" for k, v in counts.items()), f"anchor={NOW.isoformat()}")

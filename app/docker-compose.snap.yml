@@ -1,0 +1,17 @@
+services:
+  postgres:
+    ports: !reset []
+
+  mock:
+    ports: !reset []
+
+  backend:
+    ports: !reset []
+
+  frontend:
+    ports: !reset []
+
+volumes:
+  frontend_node_modules:
+    external: true
+    name: os_v0_frontend_node_modules
