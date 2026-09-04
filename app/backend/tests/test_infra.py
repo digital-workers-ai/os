@@ -13,7 +13,7 @@ from tests import ground_truth
 
 def test_database_url_default_points_at_the_stack():
     default = Settings.model_fields["DATABASE_URL"].default
-    assert default == "postgresql+asyncpg://os:os@localhost:5442/os_v0"
+    assert default == "postgresql+asyncpg://os:os@localhost:5442/os"
 
 
 def test_settings_read_the_environment(monkeypatch):

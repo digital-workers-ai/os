@@ -1,4 +1,4 @@
-name: os_v0
+name: os
 
 services:
   postgres:
@@ -6,11 +6,11 @@ services:
     environment:
       POSTGRES_USER: os
       POSTGRES_PASSWORD: os
-      POSTGRES_DB: os_v0
+      POSTGRES_DB: os
     ports:
       - "5442:5432"
     volumes:
-      - pgdata_v0:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U os"]
       interval: 2s
@@ -26,7 +26,7 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: postgresql+asyncpg://os:os@postgres:5432/os_v0
+      DATABASE_URL: postgresql+asyncpg://os:os@postgres:5432/os
       MOCK_BASE_URL: http://mock:8100
     depends_on:
       postgres:
@@ -88,5 +88,5 @@ services:
     ipc: host
 
 volumes:
-  pgdata_v0:
+  pgdata:
   frontend_node_modules:
