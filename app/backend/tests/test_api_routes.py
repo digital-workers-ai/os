@@ -811,6 +811,93 @@ class TestReport:
         assert "already in progress" in response.json()["detail"]
 
 
+class TestReportRuns:
+    SEEDED = (
+        (1, True, 10, {"totals": {"skips": 0, "dead_paths": 1}}),
+        (2, False, 0, {"error": "BuildCheckError: mapping refers to nothing"}),
+        (3, True, 99, {"totals": {"skips": 2, "dead_paths": 0}}),
+    )
+    SHAPE = {
+        "seq",
+        "ok",
+        "created_at",
+        "duration_ms",
+        "raw_events_read",
+        "entities",
+        "facts",
+        "totals",
+        "error",
+    }
+
+    @pytest_asyncio.fixture
+    async def runs(self, session):
+        for seq, ok, events, report in self.SEEDED:
+            session.add(
+                EngineRun(
+                    seq=seq,
+                    ok=ok,
+                    duration_ms=seq * 5,
+                    raw_events_read=events,
+                    entities_written=seq,
+                    facts_written=seq * 2,
+                    report=report,
+                    created_at=datetime(2026, 8, seq, tzinfo=UTC),
+                )
+            )
+        await session.flush()
+
+    async def test_no_runs_is_an_empty_list(self, api):
+        assert (await api.get("/api/report/runs")).json() == {"runs": []}
+
+    async def test_runs_are_listed_newest_first_in_a_fixed_shape(self, api, runs):
+        listed = (await api.get("/api/report/runs")).json()["runs"]
+        assert [r["seq"] for r in listed] == [3, 2, 1]
+        assert all(set(r) == self.SHAPE for r in listed)
+        by_seq = {r["seq"]: r for r in listed}
+        assert by_seq[3] == {
+            "seq": 3,
+            "ok": True,
+            "created_at": "2026-08-03T00:00:00+00:00",
+            "duration_ms": 15,
+            "raw_events_read": 99,
+            "entities": 3,
+            "facts": 6,
+            "totals": {"skips": 2, "dead_paths": 0},
+            "error": None,
+        }
+        assert by_seq[1]["totals"] == {"skips": 0, "dead_paths": 1}
+        assert by_seq[1]["error"] is None
+        assert by_seq[2]["ok"] is False
+        assert by_seq[2]["error"] == "BuildCheckError: mapping refers to nothing"
+        assert by_seq[2]["totals"] == {}
+
+    async def test_limit_one_is_the_newest_only(self, api, runs):
+        listed = (await api.get("/api/report/runs?limit=1")).json()["runs"]
+        assert [r["seq"] for r in listed] == [3]
+
+    @pytest.mark.parametrize("query", ["limit=0", "limit=201"])
+    async def test_out_of_range_limits_are_refused(self, api, query):
+        assert (await api.get(f"/api/report/runs?{query}")).status_code == 422
+
+    async def test_a_run_by_seq_reads_like_the_latest_report(self, api, runs):
+        newest = (await api.get("/api/report")).json()
+        assert (await api.get("/api/report/runs/3")).json() == newest
+        older = (await api.get("/api/report/runs/1")).json()
+        assert set(older) == set(newest)
+        assert older["raw_events_read"] == 10
+        assert older["report"] == {"totals": {"skips": 0, "dead_paths": 1}}
+
+    async def test_an_unknown_seq_is_a_404(self, api, runs):
+        response = await api.get("/api/report/runs/404")
+        assert response.status_code == 404
+        assert response.json() == {"detail": "no such run"}
+
+    async def test_the_seq_segment_belongs_to_the_run_route(self, api):
+        response = await api.get("/api/report/runs/three")
+        assert response.status_code == 422
+        assert response.json()["detail"][0]["loc"] == ["path", "seq"]
+
+
 class TestInsights:
     async def test_an_empty_estate_is_zero_findings_with_a_report(self, api):
         body = (await api.get("/api/insights/rules")).json()
