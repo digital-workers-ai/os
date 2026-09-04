@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ReactNode, Ref } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 export function SectionCard({
@@ -7,6 +7,7 @@ export function SectionCard({
   headerRight,
   className,
   bodyClassName,
+  bodyRef,
   children,
 }: {
   title?: ReactNode
@@ -14,6 +15,7 @@ export function SectionCard({
   headerRight?: ReactNode
   className?: string
   bodyClassName?: string
+  bodyRef?: Ref<HTMLDivElement>
   children: ReactNode
 }) {
   return (
@@ -27,7 +29,9 @@ export function SectionCard({
           {description && <CardDescription className="mt-0.5">{description}</CardDescription>}
         </CardHeader>
       )}
-      <CardContent className={bodyClassName}>{children}</CardContent>
+      <CardContent ref={bodyRef} className={bodyClassName}>
+        {children}
+      </CardContent>
     </Card>
   )
 }

@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { asApiError, get, type ApiError } from '@/api'
 import { SectionCard } from '@/components/SectionCard'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Empty } from '@/components/ui/empty'
 import { Loading } from '@/components/ui/loading'
 import { Mono } from '@/components/ui/mono'
+import { Pager } from '@/components/ui/pager'
 import { Chip, Pill } from '@/components/ui/pill'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -34,6 +35,7 @@ interface Row {
 }
 
 const ALL = '*'
+const PAGE_SIZE = 100
 const FILL = 'lg:flex lg:flex-col lg:max-h-[calc(100vh-11.25rem-1px)]'
 const BODY = 'lg:min-h-0 lg:overflow-y-auto lg:-mx-6 lg:px-6 lg:-mb-6 lg:pb-6 lg:rounded-b-xl'
 
@@ -88,6 +90,21 @@ export function Activity() {
   const [error, setError] = useState<ApiError | null>(null)
   const [type, setType] = useState('')
   const [source, setSource] = useState('')
+  const [offset, setOffset] = useState(0)
+  const [size, setSize] = useState(PAGE_SIZE)
+  const bodyRef = useRef<HTMLDivElement>(null)
+  const goTo = (n: number) => {
+    setOffset(n)
+    bodyRef.current?.scrollTo({ top: 0 })
+  }
+  const changeSize = (n: number) => {
+    setSize(n)
+    goTo(0)
+  }
+  const filter = (set: (v: string) => void) => (v: string) => {
+    set(v)
+    goTo(0)
+  }
 
   useEffect(() => {
     get<ActivityResponse>('/api/activity?limit=500')
@@ -100,17 +117,19 @@ export function Activity() {
 
   const all = group(data?.events ?? [])
   const rows = all.filter((r) => (!type || r.entity_type === type) && (!source || r.source === source))
+  const page = rows.slice(offset, offset + size)
 
   return (
     <SectionCard
       title={
         <div className="flex items-center gap-2">
-          <Filter value={type} onChange={setType} all={`all types (${num(all.length)})`} options={countBy(all, 'entity_type')} />
-          <Filter value={source} onChange={setSource} all={`all sources (${num(all.length)})`} options={countBy(all, 'source')} />
+          <Filter value={type} onChange={filter(setType)} all={`all types (${num(all.length)})`} options={countBy(all, 'entity_type')} />
+          <Filter value={source} onChange={filter(setSource)} all={`all sources (${num(all.length)})`} options={countBy(all, 'source')} />
         </div>
       }
       className={FILL}
       bodyClassName={BODY}
+      bodyRef={bodyRef}
     >
       <ErrorBanner error={error} className="mb-3" />
       {!data && !error && <Loading />}
@@ -126,7 +145,7 @@ export function Activity() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rows.map((r, i) => (
+            {page.map((r, i) => (
               <TableRow key={`${r.canonical_id}|${r.source}|${r.observed_at}|${i}`}>
                 <TableCell>
                   <span className="block font-medium text-dbb-charcoal">{r.label}</span>
@@ -151,6 +170,18 @@ export function Activity() {
             ))}
           </TableBody>
         </Table>
+      )}
+      {rows.length > 0 && (
+        <Pager
+          offset={offset}
+          count={page.length}
+          total={rows.length}
+          onPage={goTo}
+          size={size}
+          allSize={rows.length}
+          onSize={changeSize}
+          pageSize={PAGE_SIZE}
+        />
       )}
     </SectionCard>
   )
