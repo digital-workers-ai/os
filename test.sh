@@ -12,9 +12,11 @@ mode="${1:-unit}"
 case "$mode" in
   unit) pytest_args=(tests -m "not e2e and not llm") ;;
   e2e) pytest_args=(tests -m "e2e and not llm") ;;
+  snap) snap_script=snap ;;
+  snap-update) snap_script=snap:update ;;
   *)
     echo "unknown mode: $mode" >&2
-    echo "expected: unit | e2e" >&2
+    echo "expected: unit | e2e | snap | snap-update" >&2
     exit 2
     ;;
 esac
@@ -22,6 +24,50 @@ esac
 if ! docker info >/dev/null 2>&1; then
   echo "docker is not running — start Docker Desktop and try again" >&2
   exit 1
+fi
+
+wait_for_frontend() {
+  for _ in $(seq 60); do
+    if compose exec -T frontend wget -qO- http://127.0.0.1:3000 >/dev/null 2>&1; then
+      return 0
+    fi
+    sleep 5
+  done
+  echo "frontend did not answer within 5 minutes" >&2
+  return 1
+}
+
+post_api() {
+  for _ in $(seq 5); do
+    code=$(curl -s -o /dev/null -w '%{http_code}' -X POST "localhost:8092/api/$1")
+    echo "POST /api/$1 -> $code"
+    case "$code" in
+      2*) return 0 ;;
+      409) sleep 3 ;;
+      *) return 1 ;;
+    esac
+  done
+  return 1
+}
+
+if [ -n "${snap_script:-}" ]; then
+  echo "==> starting the v0 stack (postgres, mock, backend, frontend)"
+  compose up -d --wait postgres mock backend
+  compose up -d frontend
+  wait_for_frontend
+  echo "==> sync + rebuild"
+  post_api sync
+  post_api rebuild
+  post_api rebuild
+  if [ -f backend/tools/seed_demo.py ]; then
+    echo "==> seed demo data"
+    compose exec -T backend python -m tools.seed_demo
+  else
+    echo "==> backend/tools/seed_demo.py is absent — skipping the seed"
+  fi
+  echo "==> playwright ($snap_script)"
+  compose run --rm playwright npm run "$snap_script" -- "$@"
+  exit 0
 fi
 
 if ! compose ps --status running --services 2>/dev/null | grep -qx backend; then

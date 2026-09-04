@@ -12,6 +12,7 @@ export default defineConfig({
     },
   },
   server: {
+    allowedHosts: ['frontend'],
     proxy: {
       '/api': { target: backend, changeOrigin: true, timeout: 600000 },
     },

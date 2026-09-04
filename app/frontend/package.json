@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "snap": "playwright test",
+    "snap:update": "playwright test --update-snapshots"
   },
   "dependencies": {
     "@radix-ui/react-select": "^2.3.7",
@@ -24,6 +26,7 @@
     "tailwind-merge": "^2.6.1"
   },
   "devDependencies": {
+    "@playwright/test": "1.62.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",

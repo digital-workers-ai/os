@@ -12,3 +12,16 @@ jobs:
       - uses: actions/checkout@v4
       - run: cp app/.env.example app/.env
       - run: ./test.sh unit
+  snapshots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cp app/.env.example app/.env
+      - run: ./test.sh snap
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: snapshots
+          path: |
+            app/frontend/e2e/results
+            app/frontend/e2e/report
