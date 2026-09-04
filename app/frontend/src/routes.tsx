@@ -1,10 +1,10 @@
 import type { ComponentType } from 'react'
-import { Boxes, Brain as BrainIcon, ChartColumn, ChartLine, Database, Home, Sparkles, type LucideIcon } from 'lucide-react'
+import { Boxes, ChartColumn, ChartLine, Database, Home, Map as MapIcon, Sparkles, type LucideIcon } from 'lucide-react'
 import { Insights } from './views/Insights'
 import { Metrics } from './views/Metrics'
 import { Entities } from './views/Entities'
 import { Inference } from './views/Inference'
-import { Brain } from './views/Brain'
+import { MapView } from './views/Map'
 import { Estate } from './views/Estate'
 import { Visualize } from './views/Visualize'
 
@@ -48,11 +48,11 @@ export const ROUTES: RouteDef[] = [
     view: Inference,
   },
   {
-    to: '/brain',
-    label: 'Brain',
-    icon: BrainIcon,
-    title: 'Brain',
-    view: Brain,
+    to: '/map',
+    label: 'Map',
+    icon: MapIcon,
+    title: 'Map',
+    view: MapView,
   },
   {
     to: '/estate',

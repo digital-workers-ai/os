@@ -570,7 +570,7 @@ function EnrichmentTab({ v }: { v: Vocabulary }) {
   )
 }
 
-export function Brain() {
+export function MapView() {
   const ontology = useLoad(() => get<Ontology>('/api/knowledge/ontology'), [])
   const mappings = useLoad(() => get<Mappings>('/api/knowledge/mappings'), [])
   const transforms = useLoad(() => get<Transforms>('/api/knowledge/transforms'), [])
