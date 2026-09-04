@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { get } from '@/api'
+import { ALL } from '@/components/Filter'
 import { SectionCard } from '@/components/SectionCard'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Loading } from '@/components/ui/loading'
@@ -11,7 +12,7 @@ import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, Table
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { num } from '@/lib/format'
 import { cn } from '@/lib/utils'
-import { ALL, useLoad } from './inference/shared'
+import { useLoad } from './inference/shared'
 import { Readings, type Vocabulary } from './inference/Vocabulary'
 
 interface EntitySpec {

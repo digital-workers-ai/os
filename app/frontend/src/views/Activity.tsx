@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { asApiError, get, type ApiError } from '@/api'
+import { Filter } from '@/components/Filter'
 import { SectionCard } from '@/components/SectionCard'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Empty } from '@/components/ui/empty'
@@ -7,7 +8,6 @@ import { Loading } from '@/components/ui/loading'
 import { Mono } from '@/components/ui/mono'
 import { Pager } from '@/components/ui/pager'
 import { Chip, Pill } from '@/components/ui/pill'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { num, relTime } from '@/lib/format'
 
@@ -34,7 +34,6 @@ interface Row {
   changes: [string, unknown][]
 }
 
-const ALL = '*'
 const PAGE_SIZE = 50
 const FILL = 'lg:flex lg:flex-col lg:h-[calc(100vh-11.25rem-1px)]'
 const BODY = 'lg:min-h-0 lg:overflow-y-auto lg:-mx-6 lg:px-6 lg:-mb-6 lg:pb-6 lg:rounded-b-xl'
@@ -56,34 +55,6 @@ const group = (events: Event[]) =>
 
 const countBy = (rows: Row[], key: 'entity_type' | 'source') =>
   [...rows.reduce((m, r) => m.set(r[key], (m.get(r[key]) ?? 0) + 1), new Map<string, number>())].sort(([a], [b]) => a.localeCompare(b))
-
-function Filter({
-  value,
-  onChange,
-  all,
-  options,
-}: {
-  value: string
-  onChange: (v: string) => void
-  all: string
-  options: [string, number][]
-}) {
-  return (
-    <Select value={value || ALL} onValueChange={(v) => onChange(v === ALL ? '' : v)}>
-      <SelectTrigger className="h-6 w-44 font-normal">
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value={ALL}>{all}</SelectItem>
-        {options.map(([name, n]) => (
-          <SelectItem key={name} value={name}>
-            {name} ({num(n)})
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  )
-}
 
 export function Activity() {
   const [data, setData] = useState<ActivityResponse | null>(null)

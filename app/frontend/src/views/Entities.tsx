@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { anchorText, num, relTime, short } from '@/lib/format'
+import { useGet } from '@/lib/useGet'
 import { cn } from '@/lib/utils'
 import { VisualizeTab } from './visualize/VisualizeTab'
 
@@ -139,22 +140,6 @@ const FULL = 'min-w-0 lg:flex lg:flex-col lg:h-full'
 const BODY = 'lg:min-h-0 lg:overflow-y-auto lg:-mx-6 lg:px-6 lg:-mb-6 lg:pb-6 lg:rounded-b-xl'
 
 const labelText = (label: string, anchor: string) => (label === anchor ? anchorText(anchor) : label)
-
-function useGet<T>(path: string | null) {
-  const [got, setGot] = useState<{ path: string; data: T | null; error: ApiError | null } | null>(null)
-  useEffect(() => {
-    if (!path) return
-    let live = true
-    get<T>(path)
-      .then((data) => live && setGot({ path, data, error: null }))
-      .catch((e) => live && setGot({ path, data: null, error: asApiError(e) }))
-    return () => {
-      live = false
-    }
-  }, [path])
-  const fresh = path && got?.path === path ? got : null
-  return { data: path ? (fresh?.data ?? got?.data ?? null) : null, error: fresh?.error ?? null, loading: !!path && !fresh }
-}
 
 function Id({ id, full = false }: { id: string; full?: boolean }) {
   const [copied, setCopied] = useState(false)
