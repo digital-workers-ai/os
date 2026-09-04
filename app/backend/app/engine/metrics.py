@@ -3,12 +3,12 @@ import re
 
 from sqlalchemy import func, select
 
-from app.caches import KNOWLEDGE_DIR, load_mapping
+from app.caches import DEFINITIONS_DIR, load_mapping
 from app.engine import transforms
 from app.enrichment import vocabulary
 from app.models import EnrichedFact, EntityCanonical, FactCurrent, MetricSnapshot
 
-DEFAULT_METRICS = KNOWLEDGE_DIR / "metrics.yaml"
+DEFAULT_METRICS = DEFINITIONS_DIR / "metrics.yaml"
 
 _AGG_RE = re.compile(r"^(COUNT_DISTINCT|SUM|AVG|COUNT)\((\w+)\)$")
 _ATTR_RE = re.compile(r"^\w+$")

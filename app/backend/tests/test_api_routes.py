@@ -1459,9 +1459,9 @@ class TestDocumentedResponses:
             assert "404" in documented, f"{path} can 404 and does not say so"
 
 
-class TestKnowledge:
+class TestDefinitions:
     async def test_the_ontology_is_served_as_loaded(self, api):
-        response = await api.get("/api/knowledge/ontology")
+        response = await api.get("/api/definitions/ontology")
         assert response.status_code == 200, response.text
         body = response.json()
         onto = ontology.load()
@@ -1479,7 +1479,7 @@ class TestKnowledge:
         }
 
     async def test_every_mapping_line_is_served_with_its_transform(self, api):
-        response = await api.get("/api/knowledge/mappings")
+        response = await api.get("/api/definitions/mappings")
         assert response.status_code == 200, response.text
         body = response.json()
         assert len(body["lines"]) == len(mappings.load())
@@ -1494,7 +1494,7 @@ class TestKnowledge:
         assert "stripe" in body["hook_sources"]
 
     async def test_the_transform_registry_is_served_with_its_produced_types(self, api):
-        response = await api.get("/api/knowledge/transforms")
+        response = await api.get("/api/definitions/transforms")
         assert response.status_code == 200, response.text
         body = response.json()
         assert body["labels"]
@@ -1504,7 +1504,7 @@ class TestKnowledge:
             assert entry["produces"] == TRANSFORM_TYPES[name]
 
     async def test_metric_definitions_are_served_with_provenance(self, api):
-        response = await api.get("/api/knowledge/metrics")
+        response = await api.get("/api/definitions/metrics")
         assert response.status_code == 200, response.text
         body = response.json()
         assert set(body["definitions"]) == set(metrics.load_definitions())
@@ -1515,7 +1515,7 @@ class TestKnowledge:
         ]
 
     async def test_rule_definitions_match_the_insights_endpoint(self, api):
-        response = await api.get("/api/knowledge/rules")
+        response = await api.get("/api/definitions/rules")
         assert response.status_code == 200, response.text
         body = response.json()
         reference = (await api.get("/api/insights/rules/definitions")).json()
@@ -1532,7 +1532,7 @@ class TestKnowledge:
         assert stalled["any"] == []
 
     async def test_goal_declarations_are_served_without_evaluation(self, api):
-        response = await api.get("/api/knowledge/goals")
+        response = await api.get("/api/definitions/goals")
         assert response.status_code == 200, response.text
         body = response.json()
         assert set(body["goals"]) == set(goals.definitions())
@@ -1551,4 +1551,4 @@ class TestKnowledge:
             assert "verdict" not in goal
 
     async def test_there_is_no_checks_endpoint(self, api):
-        assert (await api.get("/api/knowledge/checks")).status_code == 404
+        assert (await api.get("/api/definitions/checks")).status_code == 404

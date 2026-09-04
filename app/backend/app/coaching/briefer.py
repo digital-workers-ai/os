@@ -8,12 +8,12 @@ import yaml
 from sqlalchemy import select
 
 from app import llm
-from app.caches import KNOWLEDGE_DIR
+from app.caches import DEFINITIONS_DIR
 from app.config import settings
 from app.engine import goals, metrics, rules
 from app.models import BriefingRun
 
-PROMPTS = KNOWLEDGE_DIR / "briefs"
+PROMPTS = DEFINITIONS_DIR / "briefs"
 
 FRONT_MATTER = re.compile(r"\A---\n(.*?)^---\n", re.DOTALL | re.MULTILINE)
 

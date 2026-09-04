@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from app.caches import KNOWLEDGE_DIR, load_mapping
+from app.caches import DEFINITIONS_DIR, load_mapping
 
-DEFAULT_MAPPINGS = KNOWLEDGE_DIR / "mappings.yaml"
+DEFAULT_MAPPINGS = DEFINITIONS_DIR / "mappings.yaml"
 
 
 class MappingError(ValueError):
