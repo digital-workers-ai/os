@@ -338,7 +338,7 @@ function Detail({
               )}
             </div>
           )}
-          <Section title={counted('Members', d.members.length)}>
+          <Section title={counted('Records', d.members.length)}>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -512,7 +512,7 @@ function Canonical() {
               <TableRow>
                 <TableHead className="w-28">Entity ({num(list.data?.total ?? rows.length)})</TableHead>
                 <TableHead className="w-64">Anchor</TableHead>
-                <TableHead className={cn(NUM, 'w-24')}>Members</TableHead>
+                <TableHead className={cn(NUM, 'w-24')}>Records</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
