@@ -1,19 +1,21 @@
 import hashlib
+import re
 import time
 from datetime import UTC, datetime
 from pathlib import Path
 
+import yaml
 from sqlalchemy import select
 
 from app import llm
-from app.caches import KNOWLEDGE_DIR, load_mapping
+from app.caches import KNOWLEDGE_DIR
 from app.config import settings
 from app.engine import goals, metrics, rules
 from app.models import BriefingRun
 
 PROMPTS = KNOWLEDGE_DIR / "briefs"
 
-RECIPIENTS = KNOWLEDGE_DIR / "coaching.yaml"
+FRONT_MATTER = re.compile(r"\A---\n(.*?)^---\n", re.DOTALL | re.MULTILINE)
 
 PROMPT_VERSION = "2026-08-02.1"
 
@@ -49,30 +51,37 @@ def roles() -> list[str]:
     return sorted(path.stem for path in PROMPTS.glob("*.md"))
 
 
-def recipients() -> dict[str, list[str]]:
-    if not RECIPIENTS.exists():
-        return {}
-    doc = load_mapping(RECIPIENTS, CoachingError)
-    entries = doc.get("roles") or {}
-    return {role: list(spec.get("to", [])) for role, spec in entries.items()}
+def split_front_matter(text: str) -> tuple[dict, str]:
+    match = FRONT_MATTER.match(text)
+    if not match:
+        return {}, text
+    return yaml.safe_load(match[1]) or {}, text[match.end() :]
 
 
 def prompt_path(role: str) -> Path:
     return PROMPTS / f"{role}.md"
 
 
-def prompt_body(role: str) -> str:
+def load_prompt(role: str) -> tuple[dict, str]:
     path = prompt_path(role)
     if not path.exists():
         raise CoachingError(f"no prompt for role {role!r} — known roles: {roles()}")
-    return path.read_text()
+    return split_front_matter(path.read_text())
+
+
+def prompt_body(role: str) -> str:
+    return load_prompt(role)[1]
+
+
+def recipients() -> dict[str, list[str]]:
+    return {role: load_prompt(role)[0].get("to", []) for role in roles()}
 
 
 def prompts_sha() -> str:
     digest = hashlib.sha256()
-    for path in sorted(PROMPTS.glob("*.md")):
-        digest.update(path.name.encode())
-        digest.update(path.read_bytes())
+    for role in roles():
+        digest.update(f"{role}.md".encode())
+        digest.update(prompt_body(role).encode())
     return digest.hexdigest()
 
 
