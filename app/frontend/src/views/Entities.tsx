@@ -139,6 +139,8 @@ const STICKY_HEAD = '[&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-card [&_th
 
 const counted = (label: string, n: number) => `${label} · ${num(n)}`
 
+const labelText = (label: string, anchor: string) => (label === anchor ? anchorText(anchor) : label)
+
 function useGet<T>(path: string | null) {
   const [got, setGot] = useState<{ path: string; data: T | null; error: ApiError | null } | null>(null)
   useEffect(() => {
@@ -291,7 +293,7 @@ function Detail({
     Promise.all(
       ids.map((i) =>
         get<EntityResponse>(`/api/entities/${i}`)
-          .then((r) => [i, 'retired' in r ? 'retired' : r.label] as const)
+          .then((r) => [i, 'retired' in r ? 'retired' : labelText(r.label, r.anchor)] as const)
           .catch(() => [i, ''] as const),
       ),
     ).then((pairs) => live && setAnchors(Object.fromEntries(pairs)))
@@ -313,7 +315,7 @@ function Detail({
     : []
 
   return (
-    <SectionCard title={d ? d.label : 'Entity'} className={FILL} bodyClassName={BODY}>
+    <SectionCard title={d ? labelText(d.label, d.anchor) : 'Entity'} className={FILL} bodyClassName={BODY}>
       <ErrorBanner error={detail.error} className="mb-3" />
       {detail.loading && !detail.data && <Loading />}
       {retired && (
@@ -531,7 +533,7 @@ function Canonical() {
                       <Pill>{r.entity_type}</Pill>
                     </TableCell>
                     <TableCell className={KEY}>
-                      {r.label}
+                      {labelText(r.label, r.anchor)}
                       {r.label !== r.anchor ? <span className={cn(MONO, 'block font-normal text-dbb-muted')}>{anchorText(r.anchor)}</span> : null}
                     </TableCell>
                     <TableCell className={NUM}>{num(r.members)}</TableCell>
