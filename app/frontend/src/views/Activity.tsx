@@ -139,6 +139,7 @@ export function Activity() {
           <TableHeader className={STICKY_HEAD}>
             <TableRow>
               <TableHead className="w-64">Entity ({num(rows.length)})</TableHead>
+              <TableHead className="w-36">Type</TableHead>
               <TableHead>Changes</TableHead>
               <TableHead className="w-32">Source</TableHead>
               <TableHead className="w-32">When</TableHead>
@@ -147,8 +148,8 @@ export function Activity() {
           <TableBody>
             {page.map((r, i) => (
               <TableRow key={`${r.canonical_id}|${r.source}|${r.observed_at}|${i}`}>
+                <TableCell className="align-top font-medium text-dbb-charcoal">{r.label}</TableCell>
                 <TableCell className="align-top">
-                  <span className="block font-medium text-dbb-charcoal">{r.label}</span>
                   <Pill>{r.entity_type}</Pill>
                 </TableCell>
                 <TableCell className="align-top">
