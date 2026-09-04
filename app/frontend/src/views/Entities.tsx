@@ -12,6 +12,7 @@ import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, Table
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { anchorText, num, relTime, short } from '@/lib/format'
 import { cn } from '@/lib/utils'
+import { VisualizeTab } from './visualize/VisualizeTab'
 
 interface EntityRow {
   canonical_id: string
@@ -773,12 +774,16 @@ export function Entities() {
       <TabsList className="shrink-0">
         <TabsTrigger value="canonical">Canonical</TabsTrigger>
         <TabsTrigger value="raw">Raw side</TabsTrigger>
+        <TabsTrigger value="visualize">Visualize</TabsTrigger>
       </TabsList>
       <TabsContent value="canonical" className="lg:min-h-0 lg:flex-1">
         <Canonical />
       </TabsContent>
       <TabsContent value="raw" className="lg:min-h-0 lg:flex-1">
         <RawSide />
+      </TabsContent>
+      <TabsContent value="visualize" className="lg:min-h-0 lg:flex-1">
+        <VisualizeTab />
       </TabsContent>
     </Tabs>
   )

@@ -60,25 +60,13 @@ export function HoverTip({ hover, width }: { hover: Hover | null; width: number 
   )
 }
 
-export function TypeChip({
-  type,
-  color,
-  active = true,
-  onClick,
-  children,
-}: {
-  type: string
-  color: string
-  active?: boolean
-  onClick?: () => void
-  children?: ReactNode
-}) {
+export function TypeChip({ type, color, onClick, children }: { type: string; color: string; onClick?: () => void; children?: ReactNode }) {
   const Tag = onClick ? 'button' : 'span'
   return (
     <Tag
       type={onClick ? 'button' : undefined}
       onClick={onClick}
-      className={`inline-flex items-center gap-1.5 rounded-full border border-dbb-warm bg-white px-2.5 py-0.5 text-xs text-dbb-charcoal transition-opacity ${active ? '' : 'opacity-40'} ${onClick ? 'hover:bg-dbb-sand' : ''}`}
+      className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-dbb-warm bg-white px-2.5 py-0.5 text-xs text-dbb-charcoal ${onClick ? 'hover:bg-dbb-sand' : ''}`}
     >
       <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: color }} />
       <span className="font-mono">{type}</span>
