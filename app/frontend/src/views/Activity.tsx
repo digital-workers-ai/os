@@ -147,11 +147,11 @@ export function Activity() {
           <TableBody>
             {page.map((r, i) => (
               <TableRow key={`${r.canonical_id}|${r.source}|${r.observed_at}|${i}`}>
-                <TableCell>
+                <TableCell className="align-top">
                   <span className="block font-medium text-dbb-charcoal">{r.label}</span>
                   <Pill>{r.entity_type}</Pill>
                 </TableCell>
-                <TableCell>
+                <TableCell className="align-top">
                   <span className="flex flex-col items-start gap-1">
                     {r.changes.map(([k, v]) => (
                       <Chip key={k}>
@@ -160,10 +160,10 @@ export function Activity() {
                     ))}
                   </span>
                 </TableCell>
-                <TableCell>
+                <TableCell className="align-top">
                   <Mono>{r.source}</Mono>
                 </TableCell>
-                <TableCell className="whitespace-nowrap" title={r.observed_at}>
+                <TableCell className="whitespace-nowrap align-top" title={r.observed_at}>
                   {relTime(r.observed_at)}
                 </TableCell>
               </TableRow>
