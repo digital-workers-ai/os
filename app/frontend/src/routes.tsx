@@ -1,11 +1,11 @@
 import type { ComponentType } from 'react'
-import { Activity as ActivityIcon, Boxes, ChartColumn, Home, Map as MapIcon, Settings, Sparkles, type LucideIcon } from 'lucide-react'
+import { Activity as ActivityIcon, BookOpen, Boxes, ChartColumn, Home, Settings, Sparkles, type LucideIcon } from 'lucide-react'
 import { Insights } from './views/Insights'
 import { Activity } from './views/Activity'
 import { Metrics } from './views/Metrics'
 import { Entities } from './views/Entities'
-import { Inference } from './views/Inference'
-import { MapView } from './views/Map'
+import { AI } from './views/AI'
+import { Definitions } from './views/Definitions'
 import { Config } from './views/Config'
 
 export interface RouteDef {
@@ -48,18 +48,18 @@ export const ROUTES: RouteDef[] = [
     view: Entities,
   },
   {
-    to: '/inference',
-    label: 'Inference',
+    to: '/ai',
+    label: 'AI',
     icon: Sparkles,
-    title: 'Inference',
-    view: Inference,
+    title: 'AI',
+    view: AI,
   },
   {
-    to: '/map',
-    label: 'Map',
-    icon: MapIcon,
-    title: 'Map',
-    view: MapView,
+    to: '/definitions',
+    label: 'Definitions',
+    icon: BookOpen,
+    title: 'Definitions',
+    view: Definitions,
   },
   {
     to: '/config',

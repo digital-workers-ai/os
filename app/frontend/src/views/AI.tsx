@@ -4,7 +4,7 @@ import { Enrichment } from './inference/Enrichment'
 
 const keep = 'data-[state=inactive]:hidden'
 
-export function Inference() {
+export function AI() {
   return (
     <Tabs defaultValue="enrichment">
       <TabsList>
