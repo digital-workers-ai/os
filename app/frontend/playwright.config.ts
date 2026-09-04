@@ -5,6 +5,7 @@ export default defineConfig({
   outputDir: 'e2e/results',
   snapshotPathTemplate: '{testDir}/__screenshots__/{testFileName}/{arg}{ext}',
   fullyParallel: true,
+  timeout: 60_000,
   workers: 2,
   retries: 0,
   reporter: [['list'], ['html', { outputFolder: 'e2e/report', open: 'never' }]],

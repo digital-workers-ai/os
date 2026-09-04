@@ -71,7 +71,7 @@ export function Layout() {
         className="max-w-7xl mx-auto px-4 md:px-6 py-5 md:py-8"
         style={{ transition: EASE, opacity: reached('all') ? 1 : 0, filter: gray ? 'grayscale(1)' : 'grayscale(0)' }}
       >
-        <div className="mb-6 md:mb-8 flex items-center gap-3">
+        <div className="mb-6 md:mb-8 h-7 flex items-center gap-3">
           <h1 className="min-w-0 text-lg sm:text-xl font-medium text-dbb-charcoal truncate">{pageTitle}</h1>
           {badge}
         </div>

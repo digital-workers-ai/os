@@ -7,6 +7,9 @@ services:
 
   backend:
     ports: !reset []
+    environment:
+      ENRICHMENT_ENABLED: "false"
+      COACHING_ENABLED: "false"
 
   frontend:
     ports: !reset []

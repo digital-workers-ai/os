@@ -27,7 +27,7 @@ export function AI() {
   const onCoaching = useCallback((on: boolean) => setFlags((f) => ({ ...f, coaching: on })), [])
   const flag = flags[tab]
   usePageBadge(
-    flag === false ? <Banner className="inline-flex items-center px-3 py-1">disabled · switched off in settings</Banner> : null,
+    flag === false ? <Banner className="inline-flex items-center px-3 py-0.5">disabled · switched off in settings</Banner> : null,
   )
 
   return (
