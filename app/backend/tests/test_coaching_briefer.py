@@ -428,6 +428,18 @@ class TestGenerate:
         assert isinstance(findings, list)
 
 
+class TestRecipients:
+    def test_the_file_names_who_receives_each_role(self):
+        assert briefer.recipients() == {
+            "ceo": ["maria.lopez@example.com"],
+            "head_of_sales": ["jane.smith@example.com", "alex.chen@example.com"],
+        }
+
+    def test_no_file_is_no_recipients_rather_than_a_crash(self, monkeypatch, tmp_path):
+        monkeypatch.setattr(briefer, "RECIPIENTS", tmp_path / "absent.yaml")
+        assert briefer.recipients() == {}
+
+
 class TestLineage:
     def test_the_prompts_digest_covers_every_prompt_file(self):
         digest = briefer.prompts_sha()

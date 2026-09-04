@@ -864,6 +864,7 @@ class TestCoachingLayer:
             "prompt_version",
             "prompts_sha",
             "roles",
+            "recipients",
             "inferred",
             "note",
         }
@@ -871,6 +872,21 @@ class TestCoachingLayer:
         assert len(body["prompts_sha"]) == 12
         assert body["enabled"] is False
         assert body["inferred"] is True
+        assert body["recipients"] == {
+            "ceo": ["maria.lopez@example.com"],
+            "head_of_sales": ["jane.smith@example.com", "alex.chen@example.com"],
+        }
+
+    async def test_a_role_without_recipients_gets_an_empty_list(self, api, monkeypatch):
+        monkeypatch.setattr(
+            "app.coaching.briefer.recipients",
+            lambda: {"ceo": ["maria.lopez@example.com"]},
+        )
+        body = (await api.get("/api/coaching")).json()
+        assert body["recipients"] == {
+            "ceo": ["maria.lopez@example.com"],
+            "head_of_sales": [],
+        }
 
     async def test_a_role_with_no_stored_briefing_is_a_404(
         self, api, coaching_transacting
