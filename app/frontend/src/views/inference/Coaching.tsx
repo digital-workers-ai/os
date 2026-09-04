@@ -6,8 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Empty } from '@/components/ui/empty'
 import { Loading } from '@/components/ui/loading'
 import { Mono } from '@/components/ui/mono'
-import { Chip, Pill } from '@/components/ui/pill'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Chip, FilterChip, Pill } from '@/components/ui/pill'
 import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { num, relTime } from '@/lib/format'
 import { BODY, FULL, LayerOff, useLoad } from './shared'
@@ -184,18 +183,13 @@ export function Coaching({ onEnabled }: { onEnabled: (on: boolean) => void }) {
       onGenerated={() => setFresh(selected)}
       title={
         <div className="flex items-center gap-2">
-          <Select value={selected} onValueChange={setSelected}>
-            <SelectTrigger className="h-6 w-44 font-normal">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {roles.map((role) => (
-                <SelectItem key={role} value={role}>
-                  {role.toUpperCase()}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <span className="inline-flex gap-1">
+            {roles.map((role) => (
+              <FilterChip key={role} on={role === selected} onClick={() => setSelected(role)}>
+                {role.toUpperCase()}
+              </FilterChip>
+            ))}
+          </span>
           {emails.length > 0 && (
             <span className="inline-flex flex-wrap gap-1">
               {emails.map((e) => (
