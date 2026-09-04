@@ -287,11 +287,11 @@ function MappingsTab({ m }: { m: Mappings }) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={ALL} data-testid="mappings-source-option" data-value={ALL}>
+              <SelectItem value={ALL} data-testid="mappings-source-filter-option" data-value={ALL}>
                 all sources ({num(m.lines.length)})
               </SelectItem>
               {sources.map((s) => (
-                <SelectItem key={s} value={s} data-testid="mappings-source-option" data-value={s}>
+                <SelectItem key={s} value={s} data-testid="mappings-source-filter-option" data-value={s}>
                   {s} ({num(bySource.get(s) ?? 0)})
                 </SelectItem>
               ))}

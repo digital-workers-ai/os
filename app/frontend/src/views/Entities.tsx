@@ -490,11 +490,11 @@ function Canonical() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={ALL} data-testid="entities-type-option" data-value={ALL}>
+              <SelectItem value={ALL} data-testid="entities-type-filter-option" data-value={ALL}>
                 all types ({num(all)})
               </SelectItem>
               {byType.map(([t, n]) => (
-                <SelectItem key={t} value={t} data-testid="entities-type-option" data-value={t}>
+                <SelectItem key={t} value={t} data-testid="entities-type-filter-option" data-value={t}>
                   {t} ({num(n)})
                 </SelectItem>
               ))}
@@ -690,11 +690,11 @@ function RawSide() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={ALL} data-testid="records-type-option" data-value={ALL}>
+                <SelectItem value={ALL} data-testid="records-type-filter-option" data-value={ALL}>
                   all types
                 </SelectItem>
                 {byType.map(([t, n]) => (
-                  <SelectItem key={t} value={t} data-testid="records-type-option" data-value={t}>
+                  <SelectItem key={t} value={t} data-testid="records-type-filter-option" data-value={t}>
                     {t} ({num(n)})
                   </SelectItem>
                 ))}
@@ -705,11 +705,11 @@ function RawSide() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={ALL} data-testid="records-source-option" data-value={ALL}>
+                <SelectItem value={ALL} data-testid="records-source-filter-option" data-value={ALL}>
                   all sources
                 </SelectItem>
                 {sources.map((s) => (
-                  <SelectItem key={s} value={s} data-testid="records-source-option" data-value={s}>
+                  <SelectItem key={s} value={s} data-testid="records-source-filter-option" data-value={s}>
                     {s}
                   </SelectItem>
                 ))}

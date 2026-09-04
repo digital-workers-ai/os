@@ -1,41 +1,38 @@
-import type { Page } from '@playwright/test'
 import { expect, mockJson, NOW, snap, test, visit } from './fixtures'
 
-const card = (page: Page, title: string) => page.locator('.bg-card').filter({ has: page.getByRole('heading', { name: title, exact: true }) })
 const countPill = (name: string) => new RegExp(`^[\\d,]+ ${name}$`)
 
 test('default', async ({ page }) => {
   await visit(page, '/')
-  await expect(page.getByRole('heading', { name: 'Insights' })).toBeVisible()
-  const goals = card(page, 'Goals')
-  for (const verdict of ['met', 'missed', 'unknown']) await expect(goals.getByText(countPill(verdict))).toBeVisible()
-  const findings = card(page, 'Findings')
-  for (const severity of ['high', 'medium', 'low']) await expect(findings.getByText(countPill(severity))).toBeVisible()
+  await expect(page.getByTestId('page-heading')).toHaveText('Insights')
+  const goalsPills = page.getByTestId('goals-pills')
+  for (const verdict of ['met', 'missed', 'unknown']) await expect(goalsPills.getByText(countPill(verdict))).toBeVisible()
+  const findingsPills = page.getByTestId('findings-pills')
+  for (const severity of ['high', 'medium', 'low']) await expect(findingsPills.getByText(countPill(severity))).toBeVisible()
   await snap(page, 'home-default')
 })
 
 test('show all', async ({ page }) => {
   await visit(page, '/')
-  const goals = card(page, 'Goals')
-  const goalsShowAll = goals.getByRole('button', { name: 'Show all' })
-  if (await goalsShowAll.count()) {
-    await goalsShowAll.click()
-    await expect(goals.getByRole('button', { name: 'Paginate' })).toBeVisible()
+  const goalsAll = page.getByTestId('goals').getByTestId('pager-all')
+  if (await goalsAll.count()) {
+    await goalsAll.click()
+    await expect(goalsAll).toHaveText('Paginate')
     await snap(page, 'home-goals-all')
   }
-  const findings = card(page, 'Findings')
-  await findings.getByRole('button', { name: 'Show all' }).click()
-  await expect(findings.getByRole('button', { name: 'Paginate' })).toBeVisible()
+  const findingsAll = page.getByTestId('findings').getByTestId('pager-all')
+  await findingsAll.click()
+  await expect(findingsAll).toHaveText('Paginate')
   await snap(page, 'home-findings-all')
 })
 
 test('next page of findings', async ({ page }) => {
   await visit(page, '/')
-  const findings = card(page, 'Findings')
-  const next = findings.getByRole('button', { name: 'Next →' })
+  const findings = page.getByTestId('findings')
+  const next = findings.getByTestId('pager-next')
   test.skip(!(await next.count()) || !(await next.isEnabled()), 'findings fit on one page')
   await next.click()
-  await expect(findings.getByRole('button', { name: '← Prev' })).toBeEnabled()
+  await expect(findings.getByTestId('pager-prev')).toBeEnabled()
   await snap(page, 'home-findings-page-2')
 })
 
@@ -49,8 +46,8 @@ test('empty', async ({ page }) => {
     report: { evaluated: 0, unreadable: {} },
   })
   await visit(page, '/')
-  await expect(page.getByText('no goals defined')).toBeVisible()
-  await expect(page.getByText('no findings')).toBeVisible()
+  await expect(page.getByTestId('goals').getByTestId('empty')).toHaveText('no goals defined')
+  await expect(page.getByTestId('findings').getByTestId('empty')).toHaveText('no findings')
   await snap(page, 'home-empty')
 })
 
@@ -58,6 +55,7 @@ test('error', async ({ page }) => {
   await mockJson(page, '**/api/insights/goals', { detail: 'boom' }, 500)
   await mockJson(page, '**/api/insights/rules', { detail: 'boom' }, 500)
   await visit(page, '/')
-  await expect(page.getByRole('alert')).toHaveCount(2)
+  await expect(page.getByTestId('goals').getByTestId('error-banner')).toBeVisible()
+  await expect(page.getByTestId('findings').getByTestId('error-banner')).toBeVisible()
   await snap(page, 'home-error')
 })

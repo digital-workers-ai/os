@@ -12,7 +12,7 @@ export const test = base.extend({
 export async function settle(page: Page) {
   await page.evaluate(() => document.fonts.ready)
   await page.waitForLoadState('networkidle')
-  await expect(page.getByText('loading…')).toHaveCount(0)
+  await expect(page.getByTestId('loading')).toHaveCount(0)
 }
 
 export async function visit(page: Page, path: string) {
@@ -24,9 +24,14 @@ export async function snap(page: Page, name: string) {
   await expect(page).toHaveScreenshot(`${name}.png`)
 }
 
-export async function openSelect(page: Page, current: string) {
-  await page.locator('[role=combobox]', { hasText: current }).click()
+export async function openFilter(page: Page, testId: string) {
+  await page.getByTestId(testId).click()
   await page.locator('[role=listbox]').waitFor()
+}
+
+export async function pickOption(page: Page, testId: string, value: string) {
+  await openFilter(page, testId)
+  await page.locator(`[data-testid="${testId}-option"][data-value="${value}"]`).click()
 }
 
 export async function mockJson(page: Page, url: string, body: unknown, status = 200) {

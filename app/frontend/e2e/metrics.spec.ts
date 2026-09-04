@@ -36,15 +36,18 @@ const patchMetrics = (page: Page, patch: (metrics: Record<string, MetricRow>) =>
     await r.fulfill({ json })
   })
 
-const rows = (page: Page) => page.locator('.bg-card').first().locator('tbody tr')
-const labelOf = (row: ReturnType<typeof rows>) => row.locator('td').first().locator('span.font-medium').innerText()
-const nameOf = (row: ReturnType<typeof rows>) => row.locator('td').first().locator(':scope > :last-child').innerText()
-const detail = (page: Page, label: string) => page.locator('.bg-card').filter({ has: page.getByRole('heading', { name: label, exact: true }) })
+const rows = (page: Page) => page.getByTestId('metrics-row')
+const nameOf = async (row: ReturnType<typeof rows>) => (await row.getAttribute('data-name'))!
+const labelOf = async (page: Page, row: ReturnType<typeof rows>) => {
+  const { metrics } = await (await page.request.get('/api/metrics')).json()
+  return metrics[await nameOf(row)].label as string
+}
+const title = (page: Page) => page.getByTestId('series-title')
 
 test('nothing selected', async ({ page }) => {
   await visit(page, '/metrics')
-  await expect(page.getByRole('columnheader', { name: 'Metric (14)' })).toBeVisible()
-  await expect(page.getByText('select a metric')).toBeVisible()
+  await expect(page.getByTestId('metrics-table').getByRole('columnheader', { name: 'Metric (14)' })).toBeVisible()
+  await expect(page.getByTestId('series').getByTestId('empty')).toHaveText('select a metric')
   await snap(page, 'metrics-default')
 })
 
@@ -52,20 +55,22 @@ test('row selected', async ({ page }) => {
   await mockSeries(page)
   await visit(page, '/metrics')
   const row = rows(page).first()
-  const label = await labelOf(row)
+  const label = await labelOf(page, row)
   await row.click()
   await expect(row).toHaveAttribute('aria-selected', 'true')
-  await expect(detail(page, label).getByRole('columnheader', { name: 'Value' })).toBeVisible()
+  await expect(title(page)).toHaveText(label)
+  await expect(page.getByTestId('series-table').getByRole('columnheader', { name: 'Value' })).toBeVisible()
   await snap(page, 'metrics-selected')
 })
 
 test('warning row', async ({ page }) => {
   await mockSeries(page)
   await visit(page, '/metrics')
-  const warning = page.getByRole('button', { name: 'show warning' }).first()
+  const warning = page.getByTestId('metrics-warning').first()
   test.skip((await warning.count()) === 0, 'no warning metric in fixture')
   await warning.click()
-  await expect(page.getByRole('status').or(page.getByRole('alert')).first()).toBeVisible()
+  const banner = page.getByTestId('series-note').or(page.getByTestId('series-mixed')).or(page.getByTestId('series-error'))
+  await expect(banner.first()).toBeVisible()
   await snap(page, 'metrics-warning')
 })
 
@@ -79,7 +84,7 @@ test('no-data note', async ({ page }) => {
   )
   await visit(page, '/metrics')
   await rows(page).first().click()
-  await expect(page.getByRole('status')).toHaveText('no entities matched — no data')
+  await expect(page.getByTestId('series-note')).toHaveText('no entities matched — no data')
   await snap(page, 'metrics-no-data')
 })
 
@@ -92,10 +97,10 @@ test('mixed currencies and error banners', async ({ page }) => {
   await mockSeries(page)
   await visit(page, '/metrics')
   await rows(page).nth(0).click()
-  await expect(page.getByRole('status')).toHaveText('mixed currencies: USD, EUR')
+  await expect(page.getByTestId('series-mixed')).toHaveText('mixed currencies: USD, EUR')
   await snap(page, 'metrics-mixed-currencies')
   await rows(page).nth(1).click()
-  await expect(page.getByRole('alert')).toHaveText('boom')
+  await expect(page.getByTestId('series-error')).toHaveText('boom')
   await snap(page, 'metrics-error-metric')
 })
 
@@ -103,7 +108,7 @@ test('series error', async ({ page }) => {
   await mockJson(page, '**/api/metrics/history/*', { detail: 'boom' }, 500)
   await visit(page, '/metrics')
   await rows(page).first().click()
-  await expect(page.getByRole('alert')).toHaveText('500 boom')
+  await expect(page.getByTestId('series').getByTestId('error-banner')).toHaveText('500 boom')
   await snap(page, 'metrics-series-error')
 })
 
@@ -116,15 +121,15 @@ test('keeps the previous series while the next one loads', async ({ page }) => {
   })
   await visit(page, '/metrics')
   const [first, second] = [rows(page).nth(0), rows(page).nth(1)]
-  const [labelA, labelB] = await Promise.all([labelOf(first), labelOf(second)])
+  const [labelA, labelB] = await Promise.all([labelOf(page, first), labelOf(page, second)])
   slow = await nameOf(second)
   await first.click()
-  await expect(page.getByRole('heading', { name: labelA, exact: true })).toBeVisible()
+  await expect(title(page)).toHaveText(labelA)
   await second.click()
   await expect(second).toHaveAttribute('aria-selected', 'true')
   await page.waitForTimeout(500)
-  await expect(page.getByRole('heading', { name: labelA, exact: true })).toBeVisible()
-  await expect(page.getByRole('heading', { name: labelB, exact: true })).toHaveCount(0)
-  await expect(page.getByRole('heading', { name: labelB, exact: true })).toBeVisible()
-  await expect(page.getByRole('heading', { name: labelA, exact: true })).toHaveCount(0)
+  await expect(title(page)).toHaveText(labelA)
+  await expect(title(page)).not.toHaveText(labelB)
+  await expect(title(page)).toHaveText(labelB)
+  await expect(title(page)).not.toHaveText(labelA)
 })

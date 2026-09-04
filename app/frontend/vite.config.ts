@@ -13,6 +13,7 @@ export default defineConfig({
   },
   server: {
     allowedHosts: ['frontend'],
+    watch: { ignored: ['**/e2e/**'] },
     proxy: {
       '/api': { target: backend, changeOrigin: true, timeout: 600000 },
     },

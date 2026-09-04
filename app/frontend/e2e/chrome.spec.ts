@@ -1,4 +1,3 @@
-import type { Page } from '@playwright/test'
 import { expect, NOW, settle, snap, test, visit } from './fixtures'
 
 const ROUTES: [string, string][] = [
@@ -10,7 +9,7 @@ const ROUTES: [string, string][] = [
   ['/config', 'Config'],
 ]
 
-const overlay = (page: Page) => page.locator('div.fixed.inset-0')
+const NAV = ['home', 'activity', 'metrics', 'entities', 'ai', 'definitions', 'config']
 
 test.describe('intro', () => {
   test.use({ contextOptions: { reducedMotion: 'no-preference' } })
@@ -19,15 +18,15 @@ test.describe('intro', () => {
     await page.clock.pauseAt(NOW)
     await page.goto('/')
     await settle(page)
-    await expect(overlay(page)).toBeVisible()
+    await expect(page.getByTestId('intro')).toBeVisible()
     await page.clock.runFor(1200)
     await snap(page, 'intro-splash')
     await page.clock.runFor(2100)
-    await expect(overlay(page)).toHaveCount(0)
-    await expect(page.locator('main')).toHaveCSS('opacity', '0')
+    await expect(page.getByTestId('intro')).toHaveCount(0)
+    await expect(page.getByTestId('page-main')).toHaveCSS('opacity', '0')
     await snap(page, 'intro-header')
     await page.clock.runFor(1700)
-    await expect(page.locator('main')).toHaveCSS('opacity', '1')
+    await expect(page.getByTestId('page-main')).toHaveCSS('opacity', '1')
     await snap(page, 'intro-done')
   })
 
@@ -36,10 +35,10 @@ test.describe('intro', () => {
     await page.goto('/')
     await settle(page)
     await page.clock.runFor(5000)
-    await expect(overlay(page)).toHaveCount(0)
-    await page.getByRole('link', { name: 'Metrics' }).click()
-    await expect(page.getByRole('heading', { name: 'Metrics' })).toBeVisible()
-    await expect(overlay(page)).toHaveCount(0)
+    await expect(page.getByTestId('intro')).toHaveCount(0)
+    await page.getByTestId('nav-metrics').click()
+    await expect(page.getByTestId('page-heading')).toHaveText('Metrics')
+    await expect(page.getByTestId('intro')).toHaveCount(0)
   })
 })
 
@@ -47,12 +46,13 @@ test('nav marks the current route', async ({ page }) => {
   test.slow()
   for (const [path, label] of ROUTES) {
     await visit(page, path)
-    const active = page.locator('nav a[aria-current="page"]')
-    await expect(active).toHaveCount(1)
+    const id = `nav-${path.slice(1)}`
+    const active = page.getByTestId(id)
+    await expect(active).toHaveAttribute('aria-current', 'page')
     await expect(active).toHaveText(label)
     await expect(active).toHaveClass(/bg-white/)
-    await expect(page.locator('nav a.bg-white')).toHaveCount(1)
-    await expect(page.locator('header')).toHaveScreenshot(`nav-${path.slice(1)}.png`)
+    for (const other of NAV.filter((n) => n !== path.slice(1))) await expect(page.getByTestId(`nav-${other}`)).not.toHaveClass(/bg-white/)
+    await expect(page.getByTestId('top-nav')).toHaveScreenshot(`nav-${path.slice(1)}.png`)
   }
 })
 

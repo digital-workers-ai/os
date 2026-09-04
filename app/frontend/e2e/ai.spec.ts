@@ -1,5 +1,5 @@
 import type { Locator, Page, Route } from '@playwright/test'
-import { expect, mockJson, NOW, openSelect, settle, snap, test, visit } from './fixtures'
+import { expect, mockJson, NOW, openFilter, pickOption, settle, snap, test, visit } from './fixtures'
 
 const OFF = 'disabled · switched off in settings'
 const BRIEFING = 'A fresh briefing for the snapshot.'
@@ -18,6 +18,7 @@ const STORED = {
   read_manifest: { metrics: { mrr: 1, churn: 1, pipeline: 1, nps: 1 }, goals: { revenue: 1, retention: 1 }, findings: [1, 2, 3] },
 }
 const NO_FACTS = { total: 0, limit: 50, offset: 0, unverified_quotes: 0, by_value: {}, coverage: [], inferred: true, counts: '', facts: [] }
+const FILTERS = ['facts-entity-filter', 'facts-fact-filter', 'facts-value-filter', 'facts-quote-filter']
 
 const patch = (page: Page, url: string, on: boolean) =>
   page.route(url, async (r) => {
@@ -33,141 +34,153 @@ const layers = async (page: Page, on: boolean) => {
 const onGenerate = (page: Page, respond: (r: Route) => Promise<void>) =>
   page.route('**/api/coaching/ceo', (r) => (r.request().method() === 'POST' ? respond(r) : r.fallback()))
 
-const headingRow = (page: Page) => page.getByRole('heading', { level: 1 }).locator('..')
-const panel = (page: Page, name: string) => page.getByRole('tabpanel', { name })
-const filters = (page: Page) => page.getByRole('combobox')
-const column = (within: Locator, n: number) => within.locator(`tbody td:nth-child(${n})`)
-const pick = (page: Page, option: string) => page.getByRole('option', { name: option, exact: true }).click()
-const scrollBox = (of: Locator) => of.locator('xpath=ancestor::*[contains(@class,"overflow-y-auto")][1]')
+const badge = (page: Page) => page.getByTestId('page-heading-row').getByTestId('page-badge')
+const heads = (table: Locator) => table.getByRole('columnheader')
+const column = (rows: Locator, n: number) => rows.locator(`td:nth-child(${n})`)
+const options = (page: Page, filter: string) => page.getByTestId(`${filter}-option`)
+
+const expectFilters = async (page: Page, texts: string[]) => {
+  for (const [i, id] of FILTERS.entries()) await expect(page.getByTestId(id)).toHaveText(texts[i])
+}
+
+const expectGated = async (gate: Locator) => {
+  await expect(gate).toHaveCSS('cursor', 'not-allowed')
+  const shade = gate.locator(':scope > div')
+  await expect(shade).toHaveCSS('opacity', '0.5')
+  await expect(shade).toHaveCSS('pointer-events', 'none')
+}
 
 const openEnrichment = async (page: Page) => {
   await layers(page, true)
   await visit(page, '/ai')
-  return panel(page, 'Enrichment')
+  return page.getByTestId('facts')
 }
 
 const openCoaching = async (page: Page) => {
-  await page.getByRole('tab', { name: 'Coaching' }).click()
+  await page.getByTestId('tab-coaching').click()
   await settle(page)
-  return panel(page, 'Coaching')
+  return page.getByTestId('coaching')
 }
 
 const generate = async (page: Page) => {
-  await page.getByRole('button', { name: 'Generate' }).click()
+  await page.getByTestId('coaching-generate').click()
   await settle(page)
 }
 
-const above = async (a: Locator, b: Locator) => expect((await a.boundingBox())!.y).toBeLessThan((await b.boundingBox())!.y)
+const expectInHeader = async (page: Page, testId: string) => {
+  await expect(page.getByTestId('coaching-description').getByTestId(testId)).toHaveCount(1)
+  await expect(page.getByTestId('coaching-body').getByTestId(testId)).toHaveCount(0)
+}
 
 test('disabled', async ({ page }) => {
   await layers(page, false)
   await visit(page, '/ai')
-  await expect(headingRow(page)).toContainText(OFF)
-  const gate = panel(page, 'Enrichment').locator(':scope > div > div')
-  await expect(gate).toHaveCSS('opacity', '0.5')
-  await expect(gate).toHaveCSS('pointer-events', 'none')
+  await expect(badge(page)).toHaveText(OFF)
+  await expectGated(page.getByTestId('ai-gate-enrichment'))
   await snap(page, 'ai-disabled-enrichment')
   await openCoaching(page)
-  await expect(headingRow(page)).toContainText(OFF)
+  await expect(badge(page)).toHaveText(OFF)
+  await expectGated(page.getByTestId('ai-gate-coaching'))
   await snap(page, 'ai-disabled-coaching')
 })
 
 test('enabled', async ({ page }) => {
   const facts = await openEnrichment(page)
-  await expect(headingRow(page)).not.toContainText(OFF)
-  await expect(facts.getByRole('columnheader')).toHaveText(['Name (42)', 'Entity', 'Fact', 'Value', 'Verified', 'Quote'])
-  await expect(filters(page)).toHaveText(['all entities (42)', 'all facts (42)', 'all values (42)', 'all quotes (42)'])
+  await expect(badge(page)).toHaveCount(0)
+  await expect(heads(facts.getByTestId('facts-table'))).toHaveText(['Name (42)', 'Entity', 'Fact', 'Value', 'Verified', 'Quote'])
+  await expectFilters(page, ['all entities (42)', 'all facts (42)', 'all values (42)', 'all quotes (42)'])
   await snap(page, 'ai-enrichment-default')
 })
 
 test('entity filter', async ({ page }) => {
   const facts = await openEnrichment(page)
-  await openSelect(page, 'all entities')
-  await pick(page, 'ticket (20)')
-  await expect(facts.getByRole('columnheader').first()).toHaveText('Name (20)')
-  await expect(filters(page)).toHaveText(['ticket (20)', 'all facts (20)', 'all values (20)', 'all quotes (20)'])
-  await expect(column(facts, 2)).toHaveText(Array(20).fill('ticket'))
+  await pickOption(page, 'facts-entity-filter', 'ticket')
+  await expect(heads(facts.getByTestId('facts-table')).first()).toHaveText('Name (20)')
+  await expectFilters(page, ['ticket (20)', 'all facts (20)', 'all values (20)', 'all quotes (20)'])
+  await expect(column(facts.getByTestId('facts-row'), 2)).toHaveText(Array(20).fill('ticket'))
   await snap(page, 'ai-enrichment-ticket')
 })
 
 test('facts dropdown open on ticket', async ({ page }) => {
   await openEnrichment(page)
-  await openSelect(page, 'all entities')
-  await pick(page, 'ticket (20)')
-  await expect(filters(page).nth(1)).toHaveText('all facts (20)')
-  await openSelect(page, 'all facts')
-  await expect(page.getByRole('option')).toHaveText(['all facts (20)', 'complaint (20)'])
+  await pickOption(page, 'facts-entity-filter', 'ticket')
+  await expect(page.getByTestId('facts-fact-filter')).toHaveText('all facts (20)')
+  await openFilter(page, 'facts-fact-filter')
+  await expect(options(page, 'facts-fact-filter')).toHaveText(['all facts (20)', 'complaint (20)'])
   await snap(page, 'ai-enrichment-facts-open')
   await page.keyboard.press('Escape')
-  await expect(page.getByRole('listbox')).toHaveCount(0)
+  await expect(options(page, 'facts-fact-filter')).toHaveCount(0)
 })
 
 test('value filter', async ({ page }) => {
   const facts = await openEnrichment(page)
-  await openSelect(page, 'all facts')
-  await pick(page, 'complaint (20)')
-  await expect(filters(page).nth(2)).toHaveText('all values (20)')
-  await openSelect(page, 'all values')
-  await pick(page, 'billing (6)')
-  await expect(facts.getByRole('columnheader').first()).toHaveText('Name (6)')
-  await expect(column(facts, 4)).toHaveText(Array(6).fill('billing'))
+  await pickOption(page, 'facts-fact-filter', 'complaint')
+  await expect(page.getByTestId('facts-value-filter')).toHaveText('all values (20)')
+  await pickOption(page, 'facts-value-filter', 'billing')
+  await expect(heads(facts.getByTestId('facts-table')).first()).toHaveText('Name (6)')
+  await expect(column(facts.getByTestId('facts-row'), 4)).toHaveText(Array(6).fill('billing'))
   await snap(page, 'ai-enrichment-value')
 })
 
 test('unverified only', async ({ page }) => {
   const facts = await openEnrichment(page)
-  await openSelect(page, 'all quotes')
-  await pick(page, 'unverified (5)')
-  await expect(facts.getByRole('columnheader').first()).toHaveText('Name (5)')
-  await expect(column(facts, 5)).toHaveText(Array(5).fill('unverified'))
+  await pickOption(page, 'facts-quote-filter', 'unverified')
+  await expect(heads(facts.getByTestId('facts-table')).first()).toHaveText('Name (5)')
+  await expect(facts.getByTestId('facts-verified')).toHaveText(Array(5).fill('unverified'))
   await snap(page, 'ai-enrichment-unverified')
 })
 
 test('empty facts', async ({ page }) => {
   await mockJson(page, '**/api/enrichment?*', NO_FACTS)
-  await openEnrichment(page)
-  await expect(page.getByText('no enriched facts')).toBeVisible()
-  await expect(filters(page).first()).toHaveText('all entities (0)')
+  const facts = await openEnrichment(page)
+  await expect(facts.getByTestId('empty')).toHaveText('no enriched facts')
+  await expect(page.getByTestId('facts-entity-filter')).toHaveText('all entities (0)')
   await snap(page, 'ai-enrichment-empty')
 })
 
 test('scrolled', async ({ page }) => {
   const facts = await openEnrichment(page)
-  const head = facts.getByRole('columnheader').first()
-  const box = scrollBox(head)
-  await box.evaluate((el) => (el.scrollTop = 400))
-  await expect(box).toHaveJSProperty('scrollTop', 400)
+  const head = heads(facts.getByTestId('facts-table')).first()
+  const body = facts.getByTestId('facts-body')
+  await expect(head).toBeVisible()
+  await body.evaluate((el) => (el.scrollTop = 400))
+  await expect(body).toHaveJSProperty('scrollTop', 400)
   await expect(head).toBeInViewport()
-  await expect(facts.locator('tbody tr').first()).not.toBeInViewport()
+  await expect(facts.getByTestId('facts-row').first()).not.toBeInViewport()
   await snap(page, 'ai-enrichment-scrolled')
 })
 
 test('coaching ceo', async ({ page }) => {
   await openEnrichment(page)
   const journal = await openCoaching(page)
-  await expect(journal.getByRole('button', { name: 'CEO', exact: true, pressed: true })).toBeVisible()
-  await expect(journal.getByRole('button', { name: 'HEAD_OF_SALES', pressed: false })).toBeVisible()
-  await expect(journal.getByRole('columnheader')).toHaveText(['Generated (6)', 'Briefing', 'To', 'Read'])
-  await expect(column(journal, 3)).toHaveText(Array(6).fill('maria.lopez@example.com'))
+  const ceo = journal.getByTestId('coaching-role-ceo')
+  const sales = journal.getByTestId('coaching-role-head_of_sales')
+  await expect(ceo).toHaveText('CEO')
+  await expect(ceo).toHaveAttribute('aria-pressed', 'true')
+  await expect(sales).toHaveText('HEAD_OF_SALES')
+  await expect(sales).toHaveAttribute('aria-pressed', 'false')
+  await expect(heads(journal.getByTestId('coaching-journal'))).toHaveText(['Generated (6)', 'Briefing', 'To', 'Read'])
+  await expect(journal.getByTestId('coaching-to')).toHaveText(Array(6).fill('maria.lopez@example.com'))
   await snap(page, 'ai-coaching-ceo')
 })
 
 test('coaching head of sales', async ({ page }) => {
   await openEnrichment(page)
   const journal = await openCoaching(page)
-  await journal.getByRole('button', { name: 'HEAD_OF_SALES' }).click()
+  const sales = journal.getByTestId('coaching-role-head_of_sales')
+  await sales.click()
   await settle(page)
-  await expect(journal.getByRole('button', { name: 'HEAD_OF_SALES', pressed: true })).toBeVisible()
-  await expect(journal.getByRole('columnheader').first()).toHaveText('Generated (6)')
-  await expect(column(journal, 3).first().locator('span > span')).toHaveText(['jane.smith@example.com', 'alex.chen@example.com'])
+  await expect(sales).toHaveAttribute('aria-pressed', 'true')
+  await expect(heads(journal.getByTestId('coaching-journal')).first()).toHaveText('Generated (6)')
+  await expect(journal.getByTestId('coaching-row').first().getByTestId('coaching-to')).toHaveText(['jane.smith@example.com', 'alex.chen@example.com'])
   await snap(page, 'ai-coaching-head-of-sales')
 })
 
 test('no briefing yet', async ({ page }) => {
   await mockJson(page, '**/api/coaching/ceo/history*', { role: 'ceo', briefings: [], inferred: true })
   await openEnrichment(page)
-  await openCoaching(page)
-  await expect(page.getByText('no briefing yet')).toBeVisible()
+  const journal = await openCoaching(page)
+  await expect(journal.getByTestId('empty')).toHaveText('no briefing yet')
   await snap(page, 'ai-coaching-empty')
 })
 
@@ -184,10 +197,10 @@ test('just generated', async ({ page }) => {
   await openEnrichment(page)
   const journal = await openCoaching(page)
   await generate(page)
-  const first = journal.locator('tbody tr').first()
-  await expect(first).toContainText('just generated')
+  const first = journal.getByTestId('coaching-row').first()
+  await expect(first.getByTestId('coaching-fresh')).toHaveText('just generated')
   await expect(first).toContainText(BRIEFING)
-  await expect(journal.getByRole('columnheader').first()).toHaveText('Generated (7)')
+  await expect(heads(journal.getByTestId('coaching-journal')).first()).toHaveText('Generated (7)')
   await snap(page, 'ai-coaching-generated')
 })
 
@@ -196,17 +209,16 @@ test('generate error', async ({ page }) => {
   await openEnrichment(page)
   const journal = await openCoaching(page)
   await generate(page)
-  const off = page.getByRole('status').filter({ hasText: 'COACHING_ENABLED is off' })
-  await expect(off).toBeVisible()
-  await expect(scrollBox(off)).toHaveCount(0)
-  await above(off, journal.locator('table'))
+  const off = journal.getByTestId('banner')
+  await expect(off).toHaveText('COACHING_ENABLED is off')
+  await expectInHeader(page, 'banner')
   await snap(page, 'ai-coaching-generate-error')
 
   await onGenerate(page, (r) => r.fulfill({ status: 500, json: { detail: 'model call failed' } }))
   await generate(page)
-  const failed = page.getByRole('alert')
+  const failed = journal.getByTestId('error-banner')
   await expect(failed).toHaveText('500 model call failed')
   await expect(off).toHaveCount(0)
-  await above(failed, journal.locator('table'))
+  await expectInHeader(page, 'error-banner')
   await snap(page, 'ai-coaching-generate-failed')
 })
