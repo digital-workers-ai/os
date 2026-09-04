@@ -10,7 +10,7 @@ import { Pill } from '@/components/ui/pill'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { num, relTime, short } from '@/lib/format'
+import { anchorText, num, relTime, short } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 interface EntityRow {
@@ -289,7 +289,7 @@ function Detail({
     Promise.all(
       ids.map((i) =>
         get<EntityResponse>(`/api/entities/${i}`)
-          .then((r) => [i, 'retired' in r ? 'retired' : r.anchor] as const)
+          .then((r) => [i, 'retired' in r ? 'retired' : anchorText(r.anchor)] as const)
           .catch(() => [i, ''] as const),
       ),
     ).then((pairs) => live && setAnchors(Object.fromEntries(pairs)))
@@ -311,7 +311,7 @@ function Detail({
     : []
 
   return (
-    <SectionCard title={d ? `${d.entity_type} · ${d.anchor}` : 'Entity'} className={FILL} bodyClassName={BODY}>
+    <SectionCard title={d ? `${d.entity_type} · ${anchorText(d.anchor)}` : 'Entity'} className={FILL} bodyClassName={BODY}>
       <ErrorBanner error={detail.error} className="mb-3" />
       {detail.loading && !detail.data && <Loading />}
       {retired && (
@@ -530,8 +530,8 @@ function Canonical() {
                       <Pill>{r.entity_type}</Pill>
                     </TableCell>
                     <TableCell className={KEY}>
-                      {show(name ?? r.anchor)}
-                      {name ? <span className={cn(MONO, 'block font-normal text-dbb-muted')}>{r.anchor}</span> : null}
+                      {show(name ?? anchorText(r.anchor))}
+                      {name ? <span className={cn(MONO, 'block font-normal text-dbb-muted')}>{anchorText(r.anchor)}</span> : null}
                     </TableCell>
                     <TableCell className={NUM}>{num(r.members)}</TableCell>
                   </TableRow>

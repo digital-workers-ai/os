@@ -4,6 +4,8 @@ export const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' :
 
 export const short = (s: string, n = 8) => (s.length > n ? `${s.slice(0, n)}…` : s)
 
+export const anchorText = (anchor: string) => anchor.split('|').join('@')
+
 export function relTime(iso: string | null): string {
   if (!iso) return 'never'
   const then = new Date(iso).getTime()

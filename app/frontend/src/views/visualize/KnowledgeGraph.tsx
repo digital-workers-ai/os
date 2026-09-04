@@ -11,7 +11,7 @@ import { Check, Copy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Empty } from '@/components/ui/empty'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { plural } from '@/lib/format'
+import { anchorText, plural } from '@/lib/format'
 import { HoverTip, TypeChip, typeColor, useHover } from './shared'
 
 export interface GraphNode {
@@ -483,7 +483,7 @@ function NodePanel({
           {node.members} members · degree {degree}
         </span>
       </div>
-      <div className="break-all font-mono text-[11px] text-dbb-muted">{node.anchor}</div>
+      <div className="break-all font-mono text-[11px] text-dbb-muted">{anchorText(node.anchor)}</div>
       <CopyId id={node.canonical_id} />
       <div className="text-xs font-medium text-dbb-charcoal">Edges · {edges.length}</div>
       {edges.length === 0 ? (
