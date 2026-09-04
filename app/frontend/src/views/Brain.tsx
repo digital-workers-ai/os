@@ -11,7 +11,7 @@ import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, Table
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { num } from '@/lib/format'
 import { cn } from '@/lib/utils'
-import { ALL, Enabled, useLoad } from './inference/shared'
+import { ALL, useLoad } from './inference/shared'
 import { Readings, type Vocabulary } from './inference/Vocabulary'
 
 interface EntitySpec {
@@ -178,7 +178,10 @@ function OntologyTab({ o }: { o: Ontology }) {
   const entities = Object.entries(o.entities)
   return (
     <div className="space-y-6">
-      <SectionCard title="Source priority">
+      <SectionCard
+        title="Source priority"
+        description="When sources disagree on an attribute, the most recently observed value wins. If they were observed at the same time, the source higher on this list wins."
+      >
         <div className="flex flex-wrap gap-1.5">
           {o.source_priority.map((s, i) => (
             <Chip key={s}>
@@ -560,12 +563,6 @@ function GoalsTab({ g }: { g: Goals }) {
 function EnrichmentTab({ v }: { v: Vocabulary }) {
   return (
     <SectionCard className={FILL} bodyClassName={BODY}>
-      <p className="mb-3 flex flex-wrap items-center gap-2 text-sm text-dbb-muted">
-        <Enabled on={v.enabled} />
-        <span>
-          model <Mono>{v.model}</Mono>
-        </span>
-      </p>
       <Readings vocabulary={v} sticky />
     </SectionCard>
   )
