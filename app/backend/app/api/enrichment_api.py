@@ -62,6 +62,7 @@ async def run(
 async def list_enriched(
     attr: str | None = None,
     value: str | None = None,
+    entity_type: str | None = None,
     unverified_only: bool = False,
     limit: int = Query(50, ge=1, le=500),
     offset: int = Query(0, ge=0, le=MAX_OFFSET),
@@ -72,6 +73,7 @@ async def list_enriched(
     clauses = (
         ([EnrichedFact.attr == attr] if attr else [])
         + ([EnrichedFact.value == value] if value else [])
+        + ([EnrichedFact.entity_type == entity_type] if entity_type else [])
         + ([EnrichedFact.quote_verified.is_(False)] if unverified_only else [])
     )
     for clause in clauses:
