@@ -53,15 +53,15 @@ const fromStored = (b: StoredBriefing): Briefing => ({
 
 const day = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 
-function Journal({ entries, fresh }: { entries: Briefing[]; fresh: boolean }) {
+function Journal({ entries, fresh, to }: { entries: Briefing[]; fresh: boolean; to: string[] }) {
   return (
     <Table className="table-fixed" wrapperClassName="overflow-x-visible">
       <TableHeader className={STICKY_HEAD}>
         <TableRow>
           <TableHead className="w-36">Generated ({num(entries.length)})</TableHead>
           <TableHead>Briefing</TableHead>
-          <TableHead className="w-44">Read</TableHead>
-          <TableHead className="w-40">Model</TableHead>
+          <TableHead className="w-56">To</TableHead>
+          <TableHead className="w-48">Read</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -82,12 +82,21 @@ function Journal({ entries, fresh }: { entries: Briefing[]; fresh: boolean }) {
               <p className="max-w-prose whitespace-pre-wrap text-sm leading-relaxed text-dbb-charcoal">{b.briefing}</p>
             </TableCell>
             <TableCell className="align-top">
+              {to.length === 0 ? (
+                '—'
+              ) : (
+                <span className="flex flex-col items-start gap-1">
+                  {to.map((e) => (
+                    <Chip key={e}>{e}</Chip>
+                  ))}
+                </span>
+              )}
+            </TableCell>
+            <TableCell className="align-top">
               <span className="block">{num(b.read.metrics)} metrics</span>
               <span className="block">{num(b.read.goals)} goals</span>
               <span className="block">{num(b.read.findings)} findings</span>
-            </TableCell>
-            <TableCell className="align-top">
-              <Mono className="block">{b.model}</Mono>
+              <Mono className="mt-2 block">{b.model}</Mono>
               <Mono className="block">{b.prompt_version}</Mono>
             </TableCell>
           </TableRow>
@@ -97,7 +106,19 @@ function Journal({ entries, fresh }: { entries: Briefing[]; fresh: boolean }) {
   )
 }
 
-function RoleCard({ role, title, fresh, onGenerated }: { role: string; title: ReactNode; fresh: boolean; onGenerated: () => void }) {
+function RoleCard({
+  role,
+  title,
+  to,
+  fresh,
+  onGenerated,
+}: {
+  role: string
+  title: ReactNode
+  to: string[]
+  fresh: boolean
+  onGenerated: () => void
+}) {
   const history = useLoad(() => get<{ briefings: StoredBriefing[] }>(`/api/coaching/${encodeURIComponent(role)}/history`), [role])
   const [items, setItems] = useState<Briefing[]>([])
   const [generated, setGenerated] = useState<Briefing | null>(null)
@@ -144,7 +165,7 @@ function RoleCard({ role, title, fresh, onGenerated }: { role: string; title: Re
       ) : entries.length === 0 ? (
         <Empty>no briefing yet</Empty>
       ) : (
-        <Journal entries={entries} fresh={fresh} />
+        <Journal entries={entries} fresh={fresh} to={to} />
       )}
     </SectionCard>
   )
@@ -179,25 +200,17 @@ export function Coaching({ onEnabled }: { onEnabled: (on: boolean) => void }) {
     <RoleCard
       key={selected}
       role={selected}
+      to={emails}
       fresh={fresh === selected}
       onGenerated={() => setFresh(selected)}
       title={
-        <div className="flex items-center gap-2">
-          <span className="inline-flex gap-1">
-            {roles.map((role) => (
-              <FilterChip key={role} on={role === selected} onClick={() => setSelected(role)}>
-                {role.toUpperCase()}
-              </FilterChip>
-            ))}
-          </span>
-          {emails.length > 0 && (
-            <span className="inline-flex flex-wrap gap-1">
-              {emails.map((e) => (
-                <Chip key={e}>{e}</Chip>
-              ))}
-            </span>
-          )}
-        </div>
+        <span className="inline-flex gap-1">
+          {roles.map((role) => (
+            <FilterChip key={role} on={role === selected} onClick={() => setSelected(role)}>
+              {role.toUpperCase()}
+            </FilterChip>
+          ))}
+        </span>
       }
     />
   )
