@@ -654,10 +654,7 @@ function RecordDetail({ record }: { record: RecordRow }) {
       </div>
       {picked && (
         <Section title="Payload">
-          <p className="mb-3 text-sm text-dbb-muted">
-            The event exactly as the source delivered it, before any mapping, transform, or merge. Every fact above was read from a
-            payload like this one.
-          </p>
+          <p className="mb-3 text-sm text-dbb-muted">The event exactly as the source delivered it, before any mapping, transform, or merge.</p>
           <pre className={cn(PRE, 'mt-0')}>{JSON.stringify(picked.raw_payload, null, 2)}</pre>
         </Section>
       )}
