@@ -313,7 +313,7 @@ function MappingsTab({ m }: { m: Mappings }) {
           <TableHeader>
             <TableRow>
               <TableHead className="w-28">Source</TableHead>
-              <TableHead className="w-32">Object type</TableHead>
+              <TableHead className="w-32">Source type</TableHead>
               <TableHead className="w-64">Path</TableHead>
               <TableHead className="w-48">Entity.label</TableHead>
               <TableHead className="w-32">Transform</TableHead>

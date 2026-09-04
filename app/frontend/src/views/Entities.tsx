@@ -211,7 +211,7 @@ function RawEventView({ event }: { event: RawEvent }) {
             <TableHead>Id</TableHead>
             <TableHead className={NUM}>Seq</TableHead>
             <TableHead>Source</TableHead>
-            <TableHead>Object type</TableHead>
+            <TableHead>Source type</TableHead>
             <TableHead>Source id</TableHead>
             <TableHead>Ingested</TableHead>
           </TableRow>
@@ -346,7 +346,7 @@ function Detail({
                 <TableRow>
                   <TableHead>Source ({num(d.members.length)})</TableHead>
                   <TableHead>Source id</TableHead>
-                  <TableHead>Object type</TableHead>
+                  <TableHead>Source type</TableHead>
                   <TableHead>Evidence</TableHead>
                 </TableRow>
               </TableHeader>
@@ -721,7 +721,7 @@ function RawSide() {
               <TableRow>
                 <TableHead className="w-28">Source ({num(records.data?.total ?? rows.length)})</TableHead>
                 <TableHead className="w-36">Source id</TableHead>
-                <TableHead className="w-28">Object type</TableHead>
+                <TableHead className="w-28">Source type</TableHead>
                 <TableHead className="w-24">Type</TableHead>
               </TableRow>
             </TableHeader>
