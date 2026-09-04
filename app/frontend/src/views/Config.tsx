@@ -99,11 +99,24 @@ function Report({ report }: { report: Ran }) {
     <>
       <SectionCard
         title={
-          <>
-            <Pill tone={report.ok ? 'ok' : 'err'}>{report.ok ? 'ok' : 'failed'}</Pill> · ran {relTime(report.created_at)} ·{' '}
-            {num(report.duration_ms)} ms · {num(report.raw_events_read)} raw events read · {num(report.entities)} entities ·{' '}
-            {num(report.facts)} facts
-          </>
+          <div className="flex flex-wrap items-center gap-1.5 font-normal">
+            <Pill tone={report.ok ? 'ok' : 'err'}>{report.ok ? 'ok' : 'failed'}</Pill>
+            <Chip title={report.created_at}>
+              ran <strong>{relTime(report.created_at)}</strong>
+            </Chip>
+            <Chip>
+              duration <strong>{num(report.duration_ms)} ms</strong>
+            </Chip>
+            <Chip>
+              raw events <strong>{num(report.raw_events_read)}</strong>
+            </Chip>
+            <Chip>
+              entities <strong>{num(report.entities)}</strong>
+            </Chip>
+            <Chip>
+              facts <strong>{num(report.facts)}</strong>
+            </Chip>
+          </div>
         }
       >
         <CountTable label="Total" rows={r.totals} />
