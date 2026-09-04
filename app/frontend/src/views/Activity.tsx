@@ -35,7 +35,7 @@ interface Row {
 }
 
 const ALL = '*'
-const PAGE_SIZE = 100
+const PAGE_SIZE = 50
 const FILL = 'lg:flex lg:flex-col lg:max-h-[calc(100vh-11.25rem-1px)]'
 const BODY = 'lg:min-h-0 lg:overflow-y-auto lg:-mx-6 lg:px-6 lg:-mb-6 lg:pb-6 lg:rounded-b-xl'
 
