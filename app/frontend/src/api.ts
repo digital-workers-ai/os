@@ -47,6 +47,12 @@ export const post = <T>(path: string, body?: unknown) =>
     body: body === undefined ? undefined : JSON.stringify(body),
   })
 
+export const put = <T>(path: string, body?: unknown) =>
+  request<T>(path, {
+    method: 'PUT',
+    body: body === undefined ? undefined : JSON.stringify(body),
+  })
+
 export interface Health {
   status: string
 }
@@ -63,7 +69,7 @@ export interface SourceRow {
   detail: string | null
   validation: string
   entities: string[]
-  enabled_by_default: boolean
+  enabled: boolean
 }
 
 export interface ValidationCoverage {
@@ -75,7 +81,6 @@ export interface ValidationCoverage {
 
 export interface SourcesResponse {
   sources: SourceRow[]
-  enabled_by_default: string[]
   validation_coverage: ValidationCoverage
 }
 

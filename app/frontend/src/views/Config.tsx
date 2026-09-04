@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import {
   api,
   asApiError,
+  put,
   type ApiError,
   type RebuildResponse,
   type ReportResponse,
@@ -16,7 +17,7 @@ import { Button } from '@/components/ui/button'
 import { Empty } from '@/components/ui/empty'
 import { Loading } from '@/components/ui/loading'
 import { Mono } from '@/components/ui/mono'
-import { Pill } from '@/components/ui/pill'
+import { FilterChip, Pill } from '@/components/ui/pill'
 import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { num, plural, relTime } from '@/lib/format'
@@ -34,10 +35,10 @@ const FULL = 'min-w-0 lg:flex lg:flex-col lg:h-full'
 const BODY = 'lg:min-h-0 lg:overflow-y-auto lg:-mx-6 lg:px-6 lg:-mb-6 lg:pb-6 lg:rounded-b-xl'
 const NOTICES = 'mt-2 -mb-1 flex flex-col gap-3 [&>*]:mb-0'
 
-const enabledKey = (r: SourceRow) => (r.enabled_by_default ? 'enabled' : 'disabled')
+const enabledKey = (r: SourceRow) => (r.enabled ? 'enabled' : 'disabled')
 
 const enabledOptions = (rows: SourceRow[]): [string, number][] => {
-  const on = rows.filter((r) => r.enabled_by_default).length
+  const on = rows.filter((r) => r.enabled).length
   return [
     ['enabled', on],
     ['disabled', rows.length - on],
@@ -215,6 +216,7 @@ export function Config() {
   const [syncing, setSyncing] = useState<string | null>(null)
   const [sync, setSync] = useState<SyncResponse | null>(null)
   const [syncError, setSyncError] = useState<ApiError | null>(null)
+  const [pending, setPending] = useState(() => new Set<string>())
   const [rebuilding, setRebuilding] = useState(false)
   const [rebuild, setRebuild] = useState<RebuildResponse | null>(null)
   const [rebuildError, setRebuildError] = useState<ApiError | null>(null)
@@ -253,6 +255,23 @@ export function Config() {
       setSyncError(asApiError(e))
     } finally {
       setSyncing(null)
+      loadSources()
+    }
+  }
+
+  const toggleEnabled = async (r: SourceRow) => {
+    setPending((p) => new Set(p).add(r.source))
+    setSyncError(null)
+    try {
+      await put(`/api/sources/${encodeURIComponent(r.source)}/enabled`, { enabled: !r.enabled })
+    } catch (e) {
+      setSyncError(asApiError(e))
+    } finally {
+      setPending((p) => {
+        const next = new Set(p)
+        next.delete(r.source)
+        return next
+      })
       loadSources()
     }
   }
@@ -393,9 +412,15 @@ export function Config() {
                           `new data ${relTime(r.last_new_data)}`
                         )}
                       </TableCell>
-                      <TableCell className={TOP}>{r.enabled_by_default ? <Pill tone="ok">on</Pill> : <Pill>off</Pill>}</TableCell>
+                      <TableCell className={TOP}>
+                        <span className={cn(pending.has(r.source) && 'pointer-events-none opacity-50')}>
+                          <FilterChip on={r.enabled} onClick={() => (pending.has(r.source) ? undefined : toggleEnabled(r))}>
+                            {r.enabled ? 'on' : 'off'}
+                          </FilterChip>
+                        </span>
+                      </TableCell>
                       <TableCell className={cn('pr-0 text-right', TOP)}>
-                        <Button size="sm" variant="outline" disabled={syncing !== null} onClick={() => runSync([r.source])}>
+                        <Button size="sm" variant="outline" disabled={syncing !== null || !r.enabled} onClick={() => runSync([r.source])}>
                           {syncing === r.source ? 'syncing…' : 'Sync'}
                         </Button>
                       </TableCell>
