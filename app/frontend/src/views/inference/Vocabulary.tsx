@@ -1,6 +1,6 @@
 import { Mono } from '@/components/ui/mono'
 import { Pill } from '@/components/ui/pill'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { num, short } from '@/lib/format'
 
 export interface Gloss {
@@ -29,11 +29,11 @@ export interface Vocabulary {
   readings: Record<string, Reading>
 }
 
-export function Readings({ vocabulary }: { vocabulary: Vocabulary }) {
+export function Readings({ vocabulary, sticky = false }: { vocabulary: Vocabulary; sticky?: boolean }) {
   const readings = Object.entries(vocabulary.readings)
   return (
-    <Table className="table-fixed">
-      <TableHeader>
+    <Table className="table-fixed" wrapperClassName={sticky ? 'overflow-x-visible' : undefined}>
+      <TableHeader className={sticky ? STICKY_HEAD : undefined}>
         <TableRow>
           <TableHead className="w-64">Reading ({num(readings.length)})</TableHead>
           <TableHead className="w-32">Vocabulary</TableHead>

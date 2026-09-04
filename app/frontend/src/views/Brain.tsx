@@ -7,7 +7,7 @@ import { Mono } from '@/components/ui/mono'
 import { PAGE, Pager } from '@/components/ui/pager'
 import { Chip, Pill, type Tone } from '@/components/ui/pill'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { num } from '@/lib/format'
 import { cn } from '@/lib/utils'
@@ -118,9 +118,9 @@ interface Goals {
 
 const keyCol = 'font-medium text-dbb-charcoal'
 const PAGE_FILL = 'lg:flex lg:flex-col lg:h-[calc(100vh-11.25rem-1px)]'
+const TAB_FILL = 'lg:min-h-0 lg:flex-1 lg:overflow-y-auto'
 const FILL = 'min-w-0 lg:flex lg:h-full lg:flex-col lg:min-h-0'
 const BODY = 'lg:min-h-0 lg:overflow-y-auto lg:-mx-6 lg:px-6 lg:-mb-6 lg:pb-6 lg:rounded-b-xl'
-const STICKY_HEAD = '[&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-card [&_th]:shadow-[inset_0_-1px_0_theme(colors.dbb.warm)]'
 
 const severityTone = (s: string): Tone => (s === 'high' ? 'err' : s === 'medium' ? 'warn' : 'neutral')
 
@@ -559,14 +559,14 @@ function GoalsTab({ g }: { g: Goals }) {
 
 function EnrichmentTab({ v }: { v: Vocabulary }) {
   return (
-    <SectionCard>
+    <SectionCard className={FILL} bodyClassName={BODY}>
       <p className="mb-3 flex flex-wrap items-center gap-2 text-sm text-dbb-muted">
         <Enabled on={v.enabled} />
         <span>
           model <Mono>{v.model}</Mono>
         </span>
       </p>
-      <Readings vocabulary={v} />
+      <Readings vocabulary={v} sticky />
     </SectionCard>
   )
 }
@@ -591,25 +591,25 @@ export function Brain() {
         <TabsTrigger value="goals">Goals</TabsTrigger>
         <TabsTrigger value="enrichment">Enrichment</TabsTrigger>
       </TabsList>
-      <TabsContent value="ontology">
+      <TabsContent value="ontology" className={TAB_FILL}>
         <Loaded got={ontology}>{(o) => <OntologyTab o={o} />}</Loaded>
       </TabsContent>
-      <TabsContent value="mappings" className="lg:min-h-0 lg:flex-1">
+      <TabsContent value="mappings" className={TAB_FILL}>
         <Loaded got={mappings}>{(m) => <MappingsTab m={m} />}</Loaded>
       </TabsContent>
-      <TabsContent value="transforms">
+      <TabsContent value="transforms" className={TAB_FILL}>
         <Loaded got={transforms}>{(t) => <TransformsTab t={t} />}</Loaded>
       </TabsContent>
-      <TabsContent value="metrics" className="lg:min-h-0 lg:flex-1">
+      <TabsContent value="metrics" className={TAB_FILL}>
         <Loaded got={metrics}>{(m) => <MetricsTab m={m} />}</Loaded>
       </TabsContent>
-      <TabsContent value="rules" className="lg:min-h-0 lg:flex-1">
+      <TabsContent value="rules" className={TAB_FILL}>
         <Loaded got={rules}>{(r) => <RulesTab r={r} />}</Loaded>
       </TabsContent>
-      <TabsContent value="goals" className="lg:min-h-0 lg:flex-1">
+      <TabsContent value="goals" className={TAB_FILL}>
         <Loaded got={goals}>{(g) => <GoalsTab g={g} />}</Loaded>
       </TabsContent>
-      <TabsContent value="enrichment">
+      <TabsContent value="enrichment" className={TAB_FILL}>
         <Loaded got={vocabulary}>{(v) => <EnrichmentTab v={v} />}</Loaded>
       </TabsContent>
     </Tabs>
