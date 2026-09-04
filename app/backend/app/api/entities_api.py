@@ -355,6 +355,19 @@ async def graph(
     }
 
 
+def _run_report(row: EngineRun) -> dict:
+    return {
+        "ran": True,
+        "ok": row.ok,
+        "duration_ms": row.duration_ms,
+        "raw_events_read": row.raw_events_read,
+        "entities": row.entities_written,
+        "facts": row.facts_written,
+        "created_at": row.created_at.isoformat(),
+        "report": row.report,
+    }
+
+
 @router.get("/report")
 async def latest_report(session=Depends(get_session)):
     newest = (
@@ -362,13 +375,46 @@ async def latest_report(session=Depends(get_session)):
     ).scalar_one_or_none()
     if newest is None:
         return {"ran": False, "detail": "no rebuild has run yet"}
+    return _run_report(newest)
+
+
+@router.get("/report/runs")
+async def list_runs(
+    limit: int = Query(50, ge=1, le=200),
+    session=Depends(get_session),
+):
+    rows = (
+        (
+            await session.execute(
+                select(EngineRun).order_by(EngineRun.seq.desc()).limit(limit)
+            )
+        )
+        .scalars()
+        .all()
+    )
     return {
-        "ran": True,
-        "ok": newest.ok,
-        "duration_ms": newest.duration_ms,
-        "raw_events_read": newest.raw_events_read,
-        "entities": newest.entities_written,
-        "facts": newest.facts_written,
-        "created_at": newest.created_at.isoformat(),
-        "report": newest.report,
+        "runs": [
+            {
+                "seq": r.seq,
+                "ok": r.ok,
+                "created_at": r.created_at.isoformat(),
+                "duration_ms": r.duration_ms,
+                "raw_events_read": r.raw_events_read,
+                "entities": r.entities_written,
+                "facts": r.facts_written,
+                "totals": r.report.get("totals", {}),
+                "error": r.report.get("error"),
+            }
+            for r in rows
+        ]
     }
+
+
+@router.get("/report/runs/{seq}", responses={404: {"description": "no such run"}})
+async def get_run(seq: int, session=Depends(get_session)):
+    row = (
+        await session.execute(select(EngineRun).where(EngineRun.seq == seq))
+    ).scalar_one_or_none()
+    if row is None:
+        raise HTTPException(404, "no such run")
+    return _run_report(row)
