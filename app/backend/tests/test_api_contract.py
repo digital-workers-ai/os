@@ -9,6 +9,7 @@ BASE_URL = os.environ.get("OS_SELF_URL", "http://localhost:8000")
 
 EXCLUDED = {
     ("POST", "/api/sync"),
+    ("PUT", "/api/sources/{source}/enabled"),
     ("POST", "/api/rebuild"),
     ("POST", "/api/metrics/snapshots"),
     ("POST", "/api/enrichment/run"),

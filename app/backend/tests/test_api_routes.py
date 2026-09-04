@@ -148,17 +148,13 @@ class TestSources:
     async def test_every_row_carries_its_validation_label(self, api):
         body = (await api.get("/api/sources")).json()
         for row in body["sources"]:
-            assert {"validation", "entities", "enabled_by_default"} <= set(row)
+            assert {"validation", "entities", "enabled"} <= set(row)
             assert isinstance(row["entities"], list)
 
-    async def test_nothing_unvalidated_is_enabled_by_default(self, api):
+    async def test_every_source_is_enabled_until_switched_off(self, api):
         body = (await api.get("/api/sources")).json()
-        for row in body["sources"]:
-            if row["validation"] != "provider-validated":
-                assert row["enabled_by_default"] is False
-        assert body["enabled_by_default"] == [
-            r["source"] for r in body["sources"] if r["enabled_by_default"]
-        ]
+        assert all(row["enabled"] is True for row in body["sources"])
+        assert "enabled_by_default" not in body
 
     async def test_the_validation_coverage_summary_counts_every_source(self, api):
         body = (await api.get("/api/sources")).json()
@@ -177,6 +173,45 @@ class TestSources:
         assert row["last_attempt"] is None
         assert row["last_success"] is None
         assert row["last_new_data"] is None
+
+
+class TestTheSourceSwitch:
+    async def test_switching_a_source_off_and_on_shows_in_the_list(self, api):
+        off = await api.put("/api/sources/hubspot/enabled", json={"enabled": False})
+        assert off.status_code == 200, off.text
+        assert off.json()["source"] == "hubspot"
+        assert off.json()["enabled"] is False
+        rows = (await api.get("/api/sources")).json()["sources"]
+        assert [r["source"] for r in rows if not r["enabled"]] == ["hubspot"]
+        assert all(r["enabled"] for r in rows if r["source"] != "hubspot")
+        on = await api.put("/api/sources/hubspot/enabled", json={"enabled": True})
+        assert on.status_code == 200, on.text
+        assert on.json()["enabled"] is True
+        rows = (await api.get("/api/sources")).json()["sources"]
+        assert all(r["enabled"] for r in rows)
+
+    async def test_an_unknown_source_has_no_switch(self, api):
+        response = await api.put("/api/sources/nope/enabled", json={"enabled": False})
+        assert response.status_code == 404
+        assert response.json()["detail"] == "no such source"
+
+    async def test_the_switch_takes_only_a_boolean(self, api):
+        response = await api.put("/api/sources/hubspot/enabled", json={"enabled": "no"})
+        assert response.status_code == 422
+
+    async def test_naming_a_disabled_source_for_sync_is_refused(self, api, monkeypatch):
+        synced = []
+
+        async def fake_run_connector(source, sessionmaker):
+            synced.append(source)
+            return {"source": source, "ok": True, "rows_written": 0}
+
+        monkeypatch.setattr(sources_api.sync, "run_connector", fake_run_connector)
+        await api.put("/api/sources/hubspot/enabled", json={"enabled": False})
+        response = await api.post("/api/sync", json={"sources": ["hubspot"]})
+        assert response.status_code == 409
+        assert "disabled" in response.json()["detail"]
+        assert synced == []
 
 
 class TestTheSyncEndpointHandlesItsOwnAdvertisedInputs:
