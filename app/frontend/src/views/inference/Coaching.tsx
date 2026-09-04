@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { asApiError, get, post, type ApiError } from '@/api'
 import { SectionCard } from '@/components/SectionCard'
 import { ErrorBanner } from '@/components/ui/banner'
@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Empty } from '@/components/ui/empty'
 import { Loading } from '@/components/ui/loading'
 import { Chip, Pill } from '@/components/ui/pill'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { num, relTime } from '@/lib/format'
 import { BODY, FULL, LayerOff, useLoad } from './shared'
 
@@ -40,8 +40,6 @@ interface Briefing {
   read: ReadCounts
 }
 
-const JOURNAL = `${FULL} lg:min-h-0 lg:flex-1`
-
 const fromStored = (b: StoredBriefing): Briefing => ({
   briefing: b.briefing,
   model: b.model,
@@ -54,15 +52,6 @@ const fromStored = (b: StoredBriefing): Briefing => ({
     findings: b.read_manifest.findings.length,
   },
 })
-
-const stored = (role: string) =>
-  get<StoredBriefing>(`/api/coaching/${encodeURIComponent(role)}`)
-    .then(fromStored)
-    .catch((e) => {
-      const error = asApiError(e)
-      if (error.status === 404) return null
-      throw error
-    })
 
 const day = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 
@@ -83,9 +72,6 @@ function Chips({ briefing, fresh }: { briefing: Briefing; fresh: boolean }) {
         read <strong>{num(briefing.read.metrics)}</strong> metrics · <strong>{num(briefing.read.goals)}</strong> goals ·{' '}
         <strong>{num(briefing.read.findings)}</strong> findings
       </Chip>
-      <Chip title={briefing.generated_at}>
-        generated <strong>{relTime(briefing.generated_at)}</strong>
-      </Chip>
     </p>
   )
 }
@@ -102,7 +88,7 @@ function Entry({ briefing, fresh }: { briefing: Briefing; fresh: boolean }) {
   )
 }
 
-function RoleCard({ role, fresh, onGenerated }: { role: string; fresh: boolean; onGenerated: (briefing: Briefing) => void }) {
+function RoleCard({ role, title, fresh, onGenerated }: { role: string; title: ReactNode; fresh: boolean; onGenerated: () => void }) {
   const history = useLoad(() => get<{ briefings: StoredBriefing[] }>(`/api/coaching/${encodeURIComponent(role)}/history`), [role])
   const [items, setItems] = useState<Briefing[]>([])
   const [generated, setGenerated] = useState<Briefing | null>(null)
@@ -121,7 +107,7 @@ function RoleCard({ role, fresh, onGenerated }: { role: string; fresh: boolean; 
     setGenerateError(null)
     try {
       const b = await post<Briefing>(`/api/coaching/${encodeURIComponent(role)}`)
-      onGenerated(b)
+      onGenerated()
       setGenerated(b)
       history.reload()
     } catch (e) {
@@ -133,8 +119,8 @@ function RoleCard({ role, fresh, onGenerated }: { role: string; fresh: boolean; 
 
   return (
     <SectionCard
-      title={role.toUpperCase()}
-      className={JOURNAL}
+      title={title}
+      className={FULL}
       bodyClassName={BODY}
       headerRight={
         <Button size="sm" disabled={generating} onClick={generate}>
@@ -161,91 +147,58 @@ function RoleCard({ role, fresh, onGenerated }: { role: string; fresh: boolean; 
 
 export function Coaching({ onEnabled }: { onEnabled: (on: boolean) => void }) {
   const index = useLoad(() => get<CoachingIndex>('/api/coaching'), [])
-  const [briefings, setBriefings] = useState<Record<string, Briefing | null>>({})
-  const [loadError, setLoadError] = useState<ApiError | null>(null)
   const [selected, setSelected] = useState<string | null>(null)
   const [fresh, setFresh] = useState<string | null>(null)
   const roles = index.data?.roles ?? []
-  const recipients = index.data?.recipients ?? {}
+  const emails = selected ? (index.data?.recipients[selected] ?? []) : []
 
   useEffect(() => {
     if (index.data) onEnabled(index.data.enabled)
   }, [index.data, onEnabled])
 
   useEffect(() => {
-    if (!index.data) return
-    let live = true
-    const names = index.data.roles
-    Promise.all(names.map(stored))
-      .then((loaded) => live && setBriefings(Object.fromEntries(names.map((role, i) => [role, loaded[i]]))))
-      .catch((e) => live && setLoadError(asApiError(e)))
-    return () => {
-      live = false
-    }
-  }, [index.data])
+    const first = index.data?.roles[0]
+    if (first && selected === null) setSelected(first)
+  }, [index.data, selected])
 
-  const generated = (role: string, briefing: Briefing) => {
-    setBriefings((all) => ({ ...all, [role]: briefing }))
-    setFresh(role)
+  if (selected === null) {
+    return (
+      <SectionCard className={FULL} bodyClassName={BODY}>
+        <ErrorBanner error={index.error} className="mb-3" />
+        {index.data && roles.length === 0 ? <Empty>no role prompts found</Empty> : !index.error && <Loading />}
+      </SectionCard>
+    )
   }
 
   return (
-    <div className="flex flex-col gap-6 lg:h-full">
-      <SectionCard className="shrink-0">
-        <ErrorBanner error={index.error} className="mb-3" />
-        <ErrorBanner error={loadError} className="mb-3" />
-        {index.loading && <Loading />}
-        {index.data && roles.length === 0 && <Empty>no role prompts found</Empty>}
-        {roles.length > 0 && (
-          <Table className="table-fixed" wrapperClassName="overflow-x-visible">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-48">Role ({num(roles.length)})</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead className="w-32">Generated</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {roles.map((role) => {
-                const b = briefings[role]
-                const emails = recipients[role] ?? []
-                return (
-                  <TableRow
-                    key={role}
-                    className="cursor-pointer"
-                    data-state={role === selected ? 'selected' : undefined}
-                    aria-selected={role === selected}
-                    onClick={() => setSelected(role)}
-                  >
-                    <TableCell className="font-medium uppercase text-dbb-charcoal">{role}</TableCell>
-                    <TableCell>
-                      {emails.length === 0 ? (
-                        '—'
-                      ) : (
-                        <span className="inline-flex flex-wrap gap-1">
-                          {emails.map((e) => (
-                            <Chip key={e}>{e}</Chip>
-                          ))}
-                        </span>
-                      )}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap" title={b?.generated_at}>
-                      {b ? relTime(b.generated_at) : 'never'}
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
-        )}
-      </SectionCard>
-      {selected === null ? (
-        <SectionCard className={JOURNAL} bodyClassName={BODY}>
-          <Empty>select a role</Empty>
-        </SectionCard>
-      ) : (
-        <RoleCard key={selected} role={selected} fresh={fresh === selected} onGenerated={(b) => generated(selected, b)} />
-      )}
-    </div>
+    <RoleCard
+      key={selected}
+      role={selected}
+      fresh={fresh === selected}
+      onGenerated={() => setFresh(selected)}
+      title={
+        <div className="flex items-center gap-2">
+          <Select value={selected} onValueChange={setSelected}>
+            <SelectTrigger className="h-6 w-44 font-normal">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {roles.map((role) => (
+                <SelectItem key={role} value={role}>
+                  {role.toUpperCase()}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {emails.length > 0 && (
+            <span className="inline-flex flex-wrap gap-1">
+              {emails.map((e) => (
+                <Chip key={e}>{e}</Chip>
+              ))}
+            </span>
+          )}
+        </div>
+      }
+    />
   )
 }
