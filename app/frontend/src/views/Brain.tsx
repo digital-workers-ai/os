@@ -117,6 +117,10 @@ interface Goals {
 }
 
 const keyCol = 'font-medium text-dbb-charcoal'
+const PAGE_FILL = 'lg:flex lg:flex-col lg:h-[calc(100vh-11.25rem-1px)]'
+const FILL = 'min-w-0 lg:flex lg:h-full lg:flex-col lg:min-h-0'
+const BODY = 'lg:min-h-0 lg:overflow-y-auto lg:-mx-6 lg:px-6 lg:-mb-6 lg:pb-6 lg:rounded-b-xl'
+const STICKY_HEAD = '[&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-card [&_th]:shadow-[inset_0_-1px_0_theme(colors.dbb.warm)]'
 
 const severityTone = (s: string): Tone => (s === 'high' ? 'err' : s === 'medium' ? 'warn' : 'neutral')
 
@@ -128,7 +132,19 @@ const describe = (c: Condition) =>
 const paramValue = (v: unknown) => (typeof v === 'number' ? num(v) : String(v))
 
 function Loaded<T>({ got, children }: { got: ReturnType<typeof useLoad<T>>; children: (d: T) => ReactNode }) {
-  return <SectionCard>{got.error ? <ErrorBanner error={got.error} /> : got.data ? children(got.data) : <Loading />}</SectionCard>
+  if (got.error)
+    return (
+      <SectionCard>
+        <ErrorBanner error={got.error} />
+      </SectionCard>
+    )
+  if (!got.data)
+    return (
+      <SectionCard>
+        <Loading />
+      </SectionCard>
+    )
+  return children(got.data)
 }
 
 function Grounding({ value }: { value: string }) {
@@ -161,15 +177,17 @@ const expressionText = (m: MetricDef) =>
 function OntologyTab({ o }: { o: Ontology }) {
   const entities = Object.entries(o.entities)
   return (
-    <>
-      <div className="mt-6 flex flex-wrap gap-1.5 first:mt-0">
-        {o.source_priority.map((s, i) => (
-          <Chip key={s}>
-            {i + 1} <strong>{s}</strong>
-          </Chip>
-        ))}
-      </div>
-      <div className="mt-6 first:mt-0">
+    <div className="space-y-6">
+      <SectionCard title="Source priority">
+        <div className="flex flex-wrap gap-1.5">
+          {o.source_priority.map((s, i) => (
+            <Chip key={s}>
+              {i + 1} <strong>{s}</strong>
+            </Chip>
+          ))}
+        </div>
+      </SectionCard>
+      <SectionCard>
         <Table>
           <TableHeader>
             <TableRow>
@@ -213,8 +231,8 @@ function OntologyTab({ o }: { o: Ontology }) {
             })}
           </TableBody>
         </Table>
-      </div>
-      <div className="mt-6 first:mt-0">
+      </SectionCard>
+      <SectionCard>
         <Table>
           <TableHeader>
             <TableRow>
@@ -241,38 +259,20 @@ function OntologyTab({ o }: { o: Ontology }) {
             ))}
           </TableBody>
         </Table>
-      </div>
-    </>
+      </SectionCard>
+    </div>
   )
 }
 
 function MappingsTab({ m }: { m: Mappings }) {
   const [source, setSource] = useState('')
-  const [offset, setOffset] = useState(0)
-  const [size, setSize] = useState(PAGE)
   const sources = [...new Set(m.lines.map((l) => l.source))].sort()
   const lines = source ? m.lines.filter((l) => l.source === source) : m.lines
-  const page = lines.slice(offset, offset + size)
-  const changeSize = (n: number) => {
-    setSize(n)
-    setOffset(0)
-  }
-  useEffect(() => {
-    setOffset(0)
-    setSize(PAGE)
-  }, [m.lines])
   return (
-    <>
-      <div className="mt-6 first:mt-0">
-        <div className="mb-3">
-          <Select
-            value={source || ALL}
-            onValueChange={(v) => {
-              setSource(v === ALL ? '' : v)
-              setOffset(0)
-            }}
-          >
-            <SelectTrigger className="h-8 w-48">
+      <SectionCard
+        title={
+          <Select value={source || ALL} onValueChange={(v) => setSource(v === ALL ? '' : v)}>
+            <SelectTrigger className="h-6 w-48 font-normal">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -284,9 +284,12 @@ function MappingsTab({ m }: { m: Mappings }) {
               ))}
             </SelectContent>
           </Select>
-        </div>
-        <Table className="table-fixed">
-          <TableHeader>
+        }
+        className={FILL}
+        bodyClassName={BODY}
+      >
+        <Table className="table-fixed" wrapperClassName="overflow-x-visible">
+          <TableHeader className={STICKY_HEAD}>
             <TableRow>
               <TableHead className="w-28">Source ({num(lines.length)})</TableHead>
               <TableHead className="w-32">Source type</TableHead>
@@ -297,7 +300,7 @@ function MappingsTab({ m }: { m: Mappings }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {page.map((l) => (
+            {lines.map((l) => (
               <TableRow key={`${l.source}|${l.object_type}|${l.path}|${l.entity}|${l.label}`}>
                 <TableCell className={keyCol}>{l.source}</TableCell>
                 <TableCell>
@@ -315,28 +318,13 @@ function MappingsTab({ m }: { m: Mappings }) {
             ))}
           </TableBody>
         </Table>
-        <Pager offset={offset} count={page.length} total={lines.length} onPage={setOffset} size={size} allSize={lines.length} onSize={changeSize} />
-      </div>
-      <div className="mt-6 first:mt-0">
-        {m.hook_sources.length === 0 ? (
-          <p className="text-sm text-dbb-muted">no hook sources</p>
-        ) : (
-          <div className="flex flex-wrap gap-1.5">
-            {m.hook_sources.map((s) => (
-              <Chip key={s}>
-                <strong>{s}</strong>
-              </Chip>
-            ))}
-          </div>
-        )}
-      </div>
-    </>
+      </SectionCard>
   )
 }
 
 function TransformsTab({ t }: { t: Transforms }) {
   const [offset, setOffset] = useState(0)
-  const [size, setSize] = useState(PAGE)
+  const [size, setSize] = useState(PAGE * 2)
   const registry = Object.entries(t.registry)
   const labels = Object.entries(t.labels).sort(([a], [b]) => a.localeCompare(b))
   const page = labels.slice(offset, offset + size)
@@ -346,31 +334,11 @@ function TransformsTab({ t }: { t: Transforms }) {
   }
   useEffect(() => {
     setOffset(0)
-    setSize(PAGE)
+    setSize(PAGE * 2)
   }, [t.labels])
   return (
-    <>
-      <div className="mt-6 first:mt-0">
-        <Table className="table-fixed">
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-56">Function ({num(registry.length)})</TableHead>
-              <TableHead>Produces</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {registry.map(([fn, r]) => (
-              <TableRow key={fn}>
-                <TableCell className={keyCol}>
-                  <Mono>{fn}</Mono>
-                </TableCell>
-                <TableCell>{r.produces}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-      <div className="mt-6 first:mt-0">
+    <div className="space-y-6">
+      <SectionCard>
         <Table className="table-fixed">
           <TableHeader>
             <TableRow>
@@ -393,40 +361,58 @@ function TransformsTab({ t }: { t: Transforms }) {
             ))}
           </TableBody>
         </Table>
-        <Pager offset={offset} count={page.length} total={labels.length} onPage={setOffset} size={size} allSize={labels.length} onSize={changeSize} />
-      </div>
-    </>
+        <Pager
+          offset={offset}
+          count={page.length}
+          total={labels.length}
+          onPage={setOffset}
+          size={size}
+          allSize={labels.length}
+          onSize={changeSize}
+          pageSize={PAGE * 2}
+        />
+      </SectionCard>
+      <SectionCard>
+        <Table className="table-fixed">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-56">Function ({num(registry.length)})</TableHead>
+              <TableHead>Produces</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {registry.map(([fn, r]) => (
+              <TableRow key={fn}>
+                <TableCell className={keyCol}>
+                  <Mono>{fn}</Mono>
+                </TableCell>
+                <TableCell>{r.produces}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </SectionCard>
+    </div>
   )
 }
 
 function MetricsTab({ m }: { m: MetricDefinitions }) {
-  const [offset, setOffset] = useState(0)
-  const [size, setSize] = useState(PAGE)
   const definitions = Object.entries(m.definitions)
-  const page = definitions.slice(offset, offset + size)
-  const changeSize = (n: number) => {
-    setSize(n)
-    setOffset(0)
-  }
-  useEffect(() => {
-    setOffset(0)
-    setSize(PAGE)
-  }, [m.definitions])
   return (
-    <>
-      <Table className="table-fixed">
-        <TableHeader>
+    <SectionCard className={FILL} bodyClassName={BODY}>
+      <Table className="table-fixed" wrapperClassName="overflow-x-visible">
+        <TableHeader className={STICKY_HEAD}>
           <TableRow>
             <TableHead className="w-56">Metric ({num(definitions.length)})</TableHead>
             <TableHead className="w-28">Entity</TableHead>
             <TableHead className="w-64">Expression</TableHead>
             <TableHead className="w-48">Filter</TableHead>
-            <TableHead className="w-64">Kind</TableHead>
-            <TableHead className="w-56">Raw fields</TableHead>
+            <TableHead className="w-48">Kind</TableHead>
+            <TableHead className="w-48">Raw fields</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {page.map(([name, d]) => {
+          {definitions.map(([name, d]) => {
             const p = m.provenance[name]
             return (
               <TableRow key={name}>
@@ -472,37 +458,25 @@ function MetricsTab({ m }: { m: MetricDefinitions }) {
           })}
         </TableBody>
       </Table>
-      <Pager offset={offset} count={page.length} total={definitions.length} onPage={setOffset} size={size} allSize={definitions.length} onSize={changeSize} />
-    </>
+    </SectionCard>
   )
 }
 
 function RulesTab({ r }: { r: Rules }) {
-  const [offset, setOffset] = useState(0)
-  const [size, setSize] = useState(PAGE)
   const rules = Object.entries(r.rules)
-  const page = rules.slice(offset, offset + size)
-  const changeSize = (n: number) => {
-    setSize(n)
-    setOffset(0)
-  }
-  useEffect(() => {
-    setOffset(0)
-    setSize(PAGE)
-  }, [r.rules])
   return (
-    <>
-      <Table className="table-fixed">
-        <TableHeader>
+    <SectionCard className={FILL} bodyClassName={BODY}>
+      <Table className="table-fixed" wrapperClassName="overflow-x-visible">
+        <TableHeader className={STICKY_HEAD}>
           <TableRow>
-            <TableHead className="w-48">Rule ({num(rules.length)})</TableHead>
+            <TableHead className="w-96">Rule ({num(rules.length)})</TableHead>
             <TableHead className="w-28">Entity</TableHead>
             <TableHead className="w-28">Severity</TableHead>
-            <TableHead className="w-96">Conditions</TableHead>
+            <TableHead className="w-48">Conditions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {page.map(([name, rule]) => (
+          {rules.map(([name, rule]) => (
             <TableRow key={name}>
               <TableCell className="align-top">
                 <span className="block font-medium text-dbb-charcoal">{rule.label}</span>
@@ -530,28 +504,16 @@ function RulesTab({ r }: { r: Rules }) {
           ))}
         </TableBody>
       </Table>
-      <Pager offset={offset} count={page.length} total={rules.length} onPage={setOffset} size={size} allSize={rules.length} onSize={changeSize} />
-    </>
+    </SectionCard>
   )
 }
 
 function GoalsTab({ g }: { g: Goals }) {
-  const [offset, setOffset] = useState(0)
-  const [size, setSize] = useState(PAGE)
   const goals = Object.entries(g.goals)
-  const page = goals.slice(offset, offset + size)
-  const changeSize = (n: number) => {
-    setSize(n)
-    setOffset(0)
-  }
-  useEffect(() => {
-    setOffset(0)
-    setSize(PAGE)
-  }, [g.goals])
   return (
-    <>
-      <Table className="table-fixed">
-        <TableHeader>
+    <SectionCard className={FILL} bodyClassName={BODY}>
+      <Table className="table-fixed" wrapperClassName="overflow-x-visible">
+        <TableHeader className={STICKY_HEAD}>
           <TableRow>
             <TableHead className="w-40">Goal ({num(goals.length)})</TableHead>
             <TableHead className="w-40">Metric</TableHead>
@@ -561,7 +523,7 @@ function GoalsTab({ g }: { g: Goals }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {page.map(([name, goal]) => {
+          {goals.map(([name, goal]) => {
             const params = Object.entries(goal.params)
             return (
               <TableRow key={name}>
@@ -591,14 +553,13 @@ function GoalsTab({ g }: { g: Goals }) {
           })}
         </TableBody>
       </Table>
-      <Pager offset={offset} count={page.length} total={goals.length} onPage={setOffset} size={size} allSize={goals.length} onSize={changeSize} />
-    </>
+    </SectionCard>
   )
 }
 
 function EnrichmentTab({ v }: { v: Vocabulary }) {
   return (
-    <>
+    <SectionCard>
       <p className="mb-3 flex flex-wrap items-center gap-2 text-sm text-dbb-muted">
         <Enabled on={v.enabled} />
         <span>
@@ -606,11 +567,11 @@ function EnrichmentTab({ v }: { v: Vocabulary }) {
         </span>
       </p>
       <Readings vocabulary={v} />
-    </>
+    </SectionCard>
   )
 }
 
-export function Engine() {
+export function Brain() {
   const ontology = useLoad(() => get<Ontology>('/api/knowledge/ontology'), [])
   const mappings = useLoad(() => get<Mappings>('/api/knowledge/mappings'), [])
   const transforms = useLoad(() => get<Transforms>('/api/knowledge/transforms'), [])
@@ -620,8 +581,8 @@ export function Engine() {
   const vocabulary = useLoad(() => get<Vocabulary>('/api/enrichment/vocabulary'), [])
 
   return (
-    <Tabs defaultValue="ontology">
-      <TabsList>
+    <Tabs defaultValue="ontology" className={PAGE_FILL}>
+      <TabsList className="shrink-0">
         <TabsTrigger value="ontology">Ontology</TabsTrigger>
         <TabsTrigger value="mappings">Mappings</TabsTrigger>
         <TabsTrigger value="transforms">Transforms</TabsTrigger>
@@ -633,19 +594,19 @@ export function Engine() {
       <TabsContent value="ontology">
         <Loaded got={ontology}>{(o) => <OntologyTab o={o} />}</Loaded>
       </TabsContent>
-      <TabsContent value="mappings">
+      <TabsContent value="mappings" className="lg:min-h-0 lg:flex-1">
         <Loaded got={mappings}>{(m) => <MappingsTab m={m} />}</Loaded>
       </TabsContent>
       <TabsContent value="transforms">
         <Loaded got={transforms}>{(t) => <TransformsTab t={t} />}</Loaded>
       </TabsContent>
-      <TabsContent value="metrics">
+      <TabsContent value="metrics" className="lg:min-h-0 lg:flex-1">
         <Loaded got={metrics}>{(m) => <MetricsTab m={m} />}</Loaded>
       </TabsContent>
-      <TabsContent value="rules">
+      <TabsContent value="rules" className="lg:min-h-0 lg:flex-1">
         <Loaded got={rules}>{(r) => <RulesTab r={r} />}</Loaded>
       </TabsContent>
-      <TabsContent value="goals">
+      <TabsContent value="goals" className="lg:min-h-0 lg:flex-1">
         <Loaded got={goals}>{(g) => <GoalsTab g={g} />}</Loaded>
       </TabsContent>
       <TabsContent value="enrichment">
