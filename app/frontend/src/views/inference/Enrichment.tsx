@@ -121,8 +121,8 @@ function Facts({ vocabulary, vocabularyError }: { vocabulary: Vocabulary | null;
           <Table className="table-fixed" wrapperClassName="overflow-x-visible">
             <TableHeader className={STICKY_HEAD}>
               <TableRow>
-                <TableHead className="w-64">Entity ({num(data.total)})</TableHead>
-                <TableHead className="w-28">Type</TableHead>
+                <TableHead className="w-64">Name ({num(data.total)})</TableHead>
+                <TableHead className="w-28">Entity</TableHead>
                 <TableHead className="w-32">Fact</TableHead>
                 <TableHead className="w-40">Value</TableHead>
                 <TableHead className="w-28">Verified</TableHead>
