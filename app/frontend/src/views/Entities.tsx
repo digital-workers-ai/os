@@ -514,7 +514,7 @@ function Canonical() {
               <TableRow>
                 <TableHead className="w-28">Entity ({num(list.data?.total ?? rows.length)})</TableHead>
                 <TableHead className="w-64">Anchor</TableHead>
-                <TableHead className={cn(NUM, 'w-24')}>Records</TableHead>
+                <TableHead className={cn(NUM, 'w-24')}>Sources</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
