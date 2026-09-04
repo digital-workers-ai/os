@@ -589,12 +589,7 @@ function RecordDetail({ record }: { record: RecordRow }) {
   const facts = Object.entries(record.facts)
 
   return (
-    <SectionCard
-      title={`${record.source} · ${record.source_id}`}
-      description={`${record.object_type} · ${record.entity_type}`}
-      className={FILL}
-      bodyClassName={BODY}
-    >
+    <SectionCard title={record.source_id} className={FILL} bodyClassName={BODY}>
       <ErrorBanner error={current?.error ?? null} className="mb-3" />
       <div className="mt-6 first:mt-0">
         {facts.length === 0 ? (
