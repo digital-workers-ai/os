@@ -8,7 +8,7 @@ import { Loading } from '@/components/ui/loading'
 import { Mono } from '@/components/ui/mono'
 import { PAGE, Pager } from '@/components/ui/pager'
 import { Chip, Pill, type Tone } from '@/components/ui/pill'
-import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { num, plural, when } from '@/lib/format'
 
 interface Finding {
@@ -58,10 +58,6 @@ interface GoalsResponse {
   unknown: number
 }
 
-const PAGE_FILL = 'flex flex-col gap-6 lg:h-[calc(100vh-11.25rem-1px)]'
-const FILL = 'min-w-0 lg:flex lg:flex-1 lg:flex-col lg:min-h-0'
-const BODY = 'lg:min-h-0 lg:overflow-y-auto lg:-mx-6 lg:px-6 lg:-mb-6 lg:pb-6 lg:rounded-b-xl'
-
 const SEVERITIES = ['high', 'medium', 'low']
 const severityRank = (s: string) => (SEVERITIES.includes(s) ? SEVERITIES.indexOf(s) : SEVERITIES.length)
 
@@ -109,8 +105,8 @@ function GoalsTable({ goals }: { goals: Goal[] }) {
   const page = goals.slice(offset, offset + size)
   return (
     <>
-      <Table wrapperClassName="overflow-x-visible">
-        <TableHeader className={STICKY_HEAD}>
+      <Table>
+        <TableHeader>
           <TableRow>
             <TableHead>Goal ({num(goals.length)})</TableHead>
             <TableHead>Metric</TableHead>
@@ -213,11 +209,9 @@ export function Insights() {
   const unreadableTotal = unreadable.reduce((sum, [, n]) => sum + n, 0)
 
   return (
-    <div className={PAGE_FILL}>
+    <div className="space-y-6">
       <SectionCard
         title="Goals"
-        className={FILL}
-        bodyClassName={BODY}
         headerRight={
           goals && (
             <div className="flex flex-wrap gap-1.5">
@@ -236,8 +230,6 @@ export function Insights() {
 
       <SectionCard
         title="Findings"
-        className={FILL}
-        bodyClassName={BODY}
         headerRight={
           rules && (
             <div className="flex flex-wrap gap-1.5">
@@ -265,8 +257,8 @@ export function Insights() {
         {rules && findings.length === 0 && <Empty>no findings</Empty>}
         {findings.length > 0 && (
           <>
-            <Table className="table-fixed" wrapperClassName="overflow-x-visible">
-              <TableHeader className={STICKY_HEAD}>
+            <Table className="table-fixed">
+              <TableHeader>
                 <TableRow>
                   <TableHead className="w-20">Severity ({num(findings.length)})</TableHead>
                   <TableHead className="w-[368px]">Rule</TableHead>
