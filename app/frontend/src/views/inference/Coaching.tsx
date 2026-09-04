@@ -5,8 +5,10 @@ import { ErrorBanner } from '@/components/ui/banner'
 import { Button } from '@/components/ui/button'
 import { Empty } from '@/components/ui/empty'
 import { Loading } from '@/components/ui/loading'
+import { Mono } from '@/components/ui/mono'
 import { Chip, Pill } from '@/components/ui/pill'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { num, relTime } from '@/lib/format'
 import { BODY, FULL, LayerOff, useLoad } from './shared'
 
@@ -26,7 +28,6 @@ interface StoredBriefing {
   briefing: string
   model: string
   prompt_version: string
-  input_sha: string
   read_manifest: { metrics: Record<string, unknown>; goals: Record<string, unknown>; findings: unknown[] }
   generated_at: string
 }
@@ -35,7 +36,6 @@ interface Briefing {
   briefing: string
   model: string
   prompt_version: string
-  input_sha: string
   generated_at: string
   read: ReadCounts
 }
@@ -44,7 +44,6 @@ const fromStored = (b: StoredBriefing): Briefing => ({
   briefing: b.briefing,
   model: b.model,
   prompt_version: b.prompt_version,
-  input_sha: b.input_sha,
   generated_at: b.generated_at,
   read: {
     metrics: Object.keys(b.read_manifest.metrics).length,
@@ -55,36 +54,47 @@ const fromStored = (b: StoredBriefing): Briefing => ({
 
 const day = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 
-function Chips({ briefing, fresh }: { briefing: Briefing; fresh: boolean }) {
+function Journal({ entries, fresh }: { entries: Briefing[]; fresh: boolean }) {
   return (
-    <p className="mt-3 flex flex-wrap items-center gap-1.5">
-      {fresh && <Pill tone="ok">just generated</Pill>}
-      <Chip>
-        model <strong>{briefing.model}</strong>
-      </Chip>
-      <Chip>
-        prompt <strong>{briefing.prompt_version}</strong>
-      </Chip>
-      <Chip>
-        input <strong>{briefing.input_sha}</strong>
-      </Chip>
-      <Chip>
-        read <strong>{num(briefing.read.metrics)}</strong> metrics · <strong>{num(briefing.read.goals)}</strong> goals ·{' '}
-        <strong>{num(briefing.read.findings)}</strong> findings
-      </Chip>
-    </p>
-  )
-}
-
-function Entry({ briefing, fresh }: { briefing: Briefing; fresh: boolean }) {
-  return (
-    <div className="py-4 first:pt-0 last:pb-0">
-      <p className="text-sm font-medium text-dbb-charcoal" title={briefing.generated_at}>
-        {relTime(briefing.generated_at)} · {day(briefing.generated_at)}
-      </p>
-      <p className="max-w-prose whitespace-pre-wrap text-sm leading-relaxed text-dbb-charcoal">{briefing.briefing}</p>
-      <Chips briefing={briefing} fresh={fresh} />
-    </div>
+    <Table className="table-fixed" wrapperClassName="overflow-x-visible">
+      <TableHeader className={STICKY_HEAD}>
+        <TableRow>
+          <TableHead className="w-36">Generated ({num(entries.length)})</TableHead>
+          <TableHead>Briefing</TableHead>
+          <TableHead className="w-44">Read</TableHead>
+          <TableHead className="w-40">Model</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {entries.map((b, i) => (
+          <TableRow key={`${b.generated_at}|${i}`}>
+            <TableCell className="align-top">
+              <span className="block font-medium text-dbb-charcoal" title={b.generated_at}>
+                {relTime(b.generated_at)}
+              </span>
+              <span className="block">{day(b.generated_at)}</span>
+              {fresh && i === 0 && (
+                <Pill tone="ok" className="mt-1">
+                  just generated
+                </Pill>
+              )}
+            </TableCell>
+            <TableCell className="align-top">
+              <p className="max-w-prose whitespace-pre-wrap text-sm leading-relaxed text-dbb-charcoal">{b.briefing}</p>
+            </TableCell>
+            <TableCell className="align-top">
+              <span className="block">{num(b.read.metrics)} metrics</span>
+              <span className="block">{num(b.read.goals)} goals</span>
+              <span className="block">{num(b.read.findings)} findings</span>
+            </TableCell>
+            <TableCell className="align-top">
+              <Mono className="block">{b.model}</Mono>
+              <Mono className="block">{b.prompt_version}</Mono>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   )
 }
 
@@ -135,11 +145,7 @@ function RoleCard({ role, title, fresh, onGenerated }: { role: string; title: Re
       ) : entries.length === 0 ? (
         <Empty>no briefing yet</Empty>
       ) : (
-        <div className="divide-y divide-dbb-warm">
-          {entries.map((b, i) => (
-            <Entry key={i} briefing={b} fresh={fresh && i === 0} />
-          ))}
-        </div>
+        <Journal entries={entries} fresh={fresh} />
       )}
     </SectionCard>
   )
