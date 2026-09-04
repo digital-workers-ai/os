@@ -17,6 +17,7 @@ interface EntityRow {
   canonical_id: string
   entity_type: string
   anchor: string
+  label: string
   members: number
   facts: Record<string, unknown>
 }
@@ -56,6 +57,7 @@ interface EntityDetail {
   canonical_id: string
   entity_type: string
   anchor: string
+  label: string
   resolved_from_alias: string | null
   aliases: string[]
   facts: Fact[]
@@ -289,7 +291,7 @@ function Detail({
     Promise.all(
       ids.map((i) =>
         get<EntityResponse>(`/api/entities/${i}`)
-          .then((r) => [i, 'retired' in r ? 'retired' : anchorText(r.anchor)] as const)
+          .then((r) => [i, 'retired' in r ? 'retired' : r.label] as const)
           .catch(() => [i, ''] as const),
       ),
     ).then((pairs) => live && setAnchors(Object.fromEntries(pairs)))
@@ -311,7 +313,7 @@ function Detail({
     : []
 
   return (
-    <SectionCard title={d ? `${d.entity_type} · ${anchorText(d.anchor)}` : 'Entity'} className={FILL} bodyClassName={BODY}>
+    <SectionCard title={d ? d.label : 'Entity'} className={FILL} bodyClassName={BODY}>
       <ErrorBanner error={detail.error} className="mb-3" />
       {detail.loading && !detail.data && <Loading />}
       {retired && (
@@ -373,7 +375,7 @@ function Detail({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[100px] min-w-[100px]">Attr</TableHead>
+                    <TableHead className="w-[100px] min-w-[100px]">Attribute</TableHead>
                     <TableHead>Value</TableHead>
                     <TableHead>Winning source</TableHead>
                     <TableHead>Observed</TableHead>
@@ -517,7 +519,6 @@ function Canonical() {
             </TableHeader>
             <TableBody>
               {rows.map((r) => {
-                const name = r.facts.name ?? r.facts.subject ?? r.facts.event_name
                 return (
                   <TableRow
                     key={r.canonical_id}
@@ -530,8 +531,8 @@ function Canonical() {
                       <Pill>{r.entity_type}</Pill>
                     </TableCell>
                     <TableCell className={KEY}>
-                      {show(name ?? anchorText(r.anchor))}
-                      {name ? <span className={cn(MONO, 'block font-normal text-dbb-muted')}>{anchorText(r.anchor)}</span> : null}
+                      {r.label}
+                      {r.label !== r.anchor ? <span className={cn(MONO, 'block font-normal text-dbb-muted')}>{anchorText(r.anchor)}</span> : null}
                     </TableCell>
                     <TableCell className={NUM}>{num(r.members)}</TableCell>
                   </TableRow>
@@ -602,7 +603,7 @@ function RecordDetail({ record }: { record: RecordRow }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[100px] min-w-[100px]">Attr</TableHead>
+                <TableHead className="w-[100px] min-w-[100px]">Attribute</TableHead>
                 <TableHead>Value</TableHead>
               </TableRow>
             </TableHeader>
