@@ -6,6 +6,7 @@ import { Empty } from '@/components/ui/empty'
 import { Loading } from '@/components/ui/loading'
 import { Mono } from '@/components/ui/mono'
 import { Chip, Pill } from '@/components/ui/pill'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { num, relTime } from '@/lib/format'
 
@@ -32,6 +33,7 @@ interface Row {
   changes: [string, unknown][]
 }
 
+const ALL = '*'
 const FILL = 'lg:flex lg:flex-col lg:max-h-[calc(100vh-11.25rem-1px)]'
 const BODY = 'lg:min-h-0 lg:overflow-y-auto lg:-mx-6 lg:px-6 lg:-mb-6 lg:pb-6 lg:rounded-b-xl'
 
@@ -50,9 +52,42 @@ const group = (events: Event[]) =>
     return rows
   }, [])
 
+const countBy = (rows: Row[], key: 'entity_type' | 'source') =>
+  [...rows.reduce((m, r) => m.set(r[key], (m.get(r[key]) ?? 0) + 1), new Map<string, number>())].sort(([a], [b]) => a.localeCompare(b))
+
+function Filter({
+  value,
+  onChange,
+  all,
+  options,
+}: {
+  value: string
+  onChange: (v: string) => void
+  all: string
+  options: [string, number][]
+}) {
+  return (
+    <Select value={value || ALL} onValueChange={(v) => onChange(v === ALL ? '' : v)}>
+      <SelectTrigger className="h-6 w-44 font-normal">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value={ALL}>{all}</SelectItem>
+        {options.map(([name, n]) => (
+          <SelectItem key={name} value={name}>
+            {name} ({num(n)})
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  )
+}
+
 export function Activity() {
   const [data, setData] = useState<ActivityResponse | null>(null)
   const [error, setError] = useState<ApiError | null>(null)
+  const [type, setType] = useState('')
+  const [source, setSource] = useState('')
 
   useEffect(() => {
     get<ActivityResponse>('/api/activity?limit=500')
@@ -63,10 +98,20 @@ export function Activity() {
       .catch((e) => setError(asApiError(e)))
   }, [])
 
-  const rows = group(data?.events ?? [])
+  const all = group(data?.events ?? [])
+  const rows = all.filter((r) => (!type || r.entity_type === type) && (!source || r.source === source))
 
   return (
-    <SectionCard className={FILL} bodyClassName={BODY}>
+    <SectionCard
+      title={
+        <div className="flex items-center gap-2">
+          <Filter value={type} onChange={setType} all={`all types (${num(all.length)})`} options={countBy(all, 'entity_type')} />
+          <Filter value={source} onChange={setSource} all={`all sources (${num(all.length)})`} options={countBy(all, 'source')} />
+        </div>
+      }
+      className={FILL}
+      bodyClassName={BODY}
+    >
       <ErrorBanner error={error} className="mb-3" />
       {!data && !error && <Loading />}
       {data && rows.length === 0 && <Empty>no activity yet</Empty>}
