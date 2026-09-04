@@ -1,7 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { get } from '@/api'
 import { SectionCard } from '@/components/SectionCard'
-import { Section } from '@/components/SectionHeading'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Loading } from '@/components/ui/loading'
 import { Mono } from '@/components/ui/mono'
@@ -10,7 +9,7 @@ import { Chip, Pill, type Tone } from '@/components/ui/pill'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { num, plural } from '@/lib/format'
+import { num } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { ALL, Enabled, useLoad } from './inference/shared'
 import { Readings, type Vocabulary } from './inference/Vocabulary'
@@ -119,8 +118,6 @@ interface Goals {
 
 const keyCol = 'font-medium text-dbb-charcoal'
 
-const counted = (label: string, n: number) => `${label} · ${num(n)}`
-
 const severityTone = (s: string): Tone => (s === 'high' ? 'err' : s === 'medium' ? 'warn' : 'neutral')
 
 const describe = (c: Condition) =>
@@ -130,23 +127,8 @@ const describe = (c: Condition) =>
 
 const paramValue = (v: unknown) => (typeof v === 'number' ? num(v) : String(v))
 
-function Loaded<T>({
-  got,
-  count,
-  children,
-}: {
-  got: ReturnType<typeof useLoad<T>>
-  count: (d: T) => string
-  children: (d: T) => ReactNode
-}) {
-  if (got.error) return <ErrorBanner error={got.error} />
-  if (!got.data) return <Loading />
-  return (
-    <>
-      <p className="text-sm text-dbb-muted">{count(got.data)}</p>
-      {children(got.data)}
-    </>
-  )
+function Loaded<T>({ got, children }: { got: ReturnType<typeof useLoad<T>>; children: (d: T) => ReactNode }) {
+  return <SectionCard>{got.error ? <ErrorBanner error={got.error} /> : got.data ? children(got.data) : <Loading />}</SectionCard>
 }
 
 function Grounding({ value }: { value: string }) {
@@ -180,20 +162,29 @@ function OntologyTab({ o }: { o: Ontology }) {
   const entities = Object.entries(o.entities)
   return (
     <>
-      <Section title={counted('Source priority', o.source_priority.length)}>
-        <div className="flex flex-wrap gap-1.5">
-          {o.source_priority.map((s, i) => (
-            <Chip key={s}>
-              {i + 1} <strong>{s}</strong>
-            </Chip>
-          ))}
-        </div>
-      </Section>
-      <Section title={counted('Entities', entities.length)}>
+      <div className="mt-6 first:mt-0">
+        <Table className="table-fixed">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-48">Source ({num(o.source_priority.length)})</TableHead>
+              <TableHead>Priority</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {o.source_priority.map((s, i) => (
+              <TableRow key={s}>
+                <TableCell className={keyCol}>{s}</TableCell>
+                <TableCell className="tabular-nums">{i + 1}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+      <div className="mt-6 first:mt-0">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Entity</TableHead>
+              <TableHead>Entity ({num(entities.length)})</TableHead>
               <TableHead>Attributes</TableHead>
               <TableHead>Identity</TableHead>
             </TableRow>
@@ -233,12 +224,12 @@ function OntologyTab({ o }: { o: Ontology }) {
             })}
           </TableBody>
         </Table>
-      </Section>
-      <Section title={counted('Relationships', o.relationships.length)}>
+      </div>
+      <div className="mt-6 first:mt-0">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Relationship</TableHead>
+              <TableHead>Relationship ({num(o.relationships.length)})</TableHead>
               <TableHead>From</TableHead>
               <TableHead>To</TableHead>
               <TableHead>Cardinality</TableHead>
@@ -261,7 +252,7 @@ function OntologyTab({ o }: { o: Ontology }) {
             ))}
           </TableBody>
         </Table>
-      </Section>
+      </div>
     </>
   )
 }
@@ -272,7 +263,6 @@ function MappingsTab({ m }: { m: Mappings }) {
   const [size, setSize] = useState(PAGE)
   const sources = [...new Set(m.lines.map((l) => l.source))].sort()
   const lines = source ? m.lines.filter((l) => l.source === source) : m.lines
-  const hooked = lines.filter((l) => l.from_hook).length
   const page = lines.slice(offset, offset + size)
   const changeSize = (n: number) => {
     setSize(n)
@@ -284,9 +274,8 @@ function MappingsTab({ m }: { m: Mappings }) {
   }, [m.lines])
   return (
     <>
-      <Section
-        title={counted('Lines', lines.length)}
-        right={
+      <div className="mt-6 first:mt-0">
+        <div className="mb-3">
           <Select
             value={source || ALL}
             onValueChange={(v) => {
@@ -306,16 +295,14 @@ function MappingsTab({ m }: { m: Mappings }) {
               ))}
             </SelectContent>
           </Select>
-        }
-      >
-        <p className="mb-3 text-sm text-dbb-muted">{num(hooked)} hook-produced fields</p>
+        </div>
         <Table className="table-fixed">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-28">Source</TableHead>
+              <TableHead className="w-28">Source ({num(lines.length)})</TableHead>
               <TableHead className="w-32">Source type</TableHead>
               <TableHead className="w-64">Path</TableHead>
-              <TableHead className="w-48">Entity.label</TableHead>
+              <TableHead className="w-48">Attribute</TableHead>
               <TableHead className="w-32">Transform</TableHead>
               <TableHead className="w-24">Origin</TableHead>
             </TableRow>
@@ -340,10 +327,10 @@ function MappingsTab({ m }: { m: Mappings }) {
           </TableBody>
         </Table>
         <Pager offset={offset} count={page.length} total={lines.length} onPage={setOffset} size={size} allSize={lines.length} onSize={changeSize} />
-      </Section>
-      <Section title={counted('Hook sources', m.hook_sources.length)}>
+      </div>
+      <div className="mt-6 first:mt-0">
         {m.hook_sources.length === 0 ? (
-          <p className="text-sm text-dbb-muted">none</p>
+          <p className="text-sm text-dbb-muted">no hook sources</p>
         ) : (
           <div className="flex flex-wrap gap-1.5">
             {m.hook_sources.map((s) => (
@@ -353,7 +340,7 @@ function MappingsTab({ m }: { m: Mappings }) {
             ))}
           </div>
         )}
-      </Section>
+      </div>
     </>
   )
 }
@@ -361,8 +348,8 @@ function MappingsTab({ m }: { m: Mappings }) {
 function TransformsTab({ t }: { t: Transforms }) {
   const [offset, setOffset] = useState(0)
   const [size, setSize] = useState(PAGE)
+  const registry = Object.entries(t.registry)
   const labels = Object.entries(t.labels).sort(([a], [b]) => a.localeCompare(b))
-  const users = (fn: string) => labels.filter(([, f]) => f === fn).length
   const page = labels.slice(offset, offset + size)
   const changeSize = (n: number) => {
     setSize(n)
@@ -374,20 +361,31 @@ function TransformsTab({ t }: { t: Transforms }) {
   }, [t.labels])
   return (
     <>
-      <Section title={counted('Registry', Object.keys(t.registry).length)}>
-        <div className="flex flex-wrap gap-1.5">
-          {Object.entries(t.registry).map(([fn, r]) => (
-            <Chip key={fn}>
-              {fn} → <strong>{r.produces}</strong> ×{users(fn)}
-            </Chip>
-          ))}
-        </div>
-      </Section>
-      <Section title={counted('Labels', labels.length)}>
+      <div className="mt-6 first:mt-0">
         <Table className="table-fixed">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-56">Label</TableHead>
+              <TableHead className="w-56">Function ({num(registry.length)})</TableHead>
+              <TableHead>Produces</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {registry.map(([fn, r]) => (
+              <TableRow key={fn}>
+                <TableCell className={keyCol}>
+                  <Mono>{fn}</Mono>
+                </TableCell>
+                <TableCell>{r.produces}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+      <div className="mt-6 first:mt-0">
+        <Table className="table-fixed">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-56">Label ({num(labels.length)})</TableHead>
               <TableHead className="w-48">Function</TableHead>
               <TableHead className="w-48">Produces</TableHead>
             </TableRow>
@@ -407,7 +405,7 @@ function TransformsTab({ t }: { t: Transforms }) {
           </TableBody>
         </Table>
         <Pager offset={offset} count={page.length} total={labels.length} onPage={setOffset} size={size} allSize={labels.length} onSize={changeSize} />
-      </Section>
+      </div>
     </>
   )
 }
@@ -426,11 +424,11 @@ function MetricsTab({ m }: { m: MetricDefinitions }) {
     setSize(PAGE)
   }, [m.definitions])
   return (
-    <Section title={counted('Definitions', definitions.length)}>
+    <>
       <Table className="table-fixed">
         <TableHeader>
           <TableRow>
-            <TableHead className="w-56">Name</TableHead>
+            <TableHead className="w-56">Metric ({num(definitions.length)})</TableHead>
             <TableHead className="w-28">Entity</TableHead>
             <TableHead className="w-64">Expression</TableHead>
             <TableHead className="w-48">Filter</TableHead>
@@ -444,7 +442,8 @@ function MetricsTab({ m }: { m: MetricDefinitions }) {
             return (
               <TableRow key={name}>
                 <TableCell className="align-top">
-                  <span className={keyCol}>{d.label}</span> <Mono>{name}</Mono>
+                  <span className="block font-medium text-dbb-charcoal">{d.label}</span>
+                  <Mono className="block">{name}</Mono>
                 </TableCell>
                 <TableCell className="align-top">{d.entity}</TableCell>
                 <TableCell className="align-top">
@@ -485,7 +484,7 @@ function MetricsTab({ m }: { m: MetricDefinitions }) {
         </TableBody>
       </Table>
       <Pager offset={offset} count={page.length} total={definitions.length} onPage={setOffset} size={size} allSize={definitions.length} onSize={changeSize} />
-    </Section>
+    </>
   )
 }
 
@@ -503,11 +502,11 @@ function RulesTab({ r }: { r: Rules }) {
     setSize(PAGE)
   }, [r.rules])
   return (
-    <Section title={counted('Rules', rules.length)}>
+    <>
       <Table className="table-fixed">
         <TableHeader>
           <TableRow>
-            <TableHead className="w-48">Rule</TableHead>
+            <TableHead className="w-48">Rule ({num(rules.length)})</TableHead>
             <TableHead className="w-28">Entity</TableHead>
             <TableHead className="w-28">Severity</TableHead>
             <TableHead className="w-96">Conditions</TableHead>
@@ -517,7 +516,7 @@ function RulesTab({ r }: { r: Rules }) {
           {page.map(([name, rule]) => (
             <TableRow key={name}>
               <TableCell className="align-top">
-                <span className={cn(keyCol, 'block')}>{rule.label}</span>
+                <span className="block font-medium text-dbb-charcoal">{rule.label}</span>
                 <Mono className="block">{name}</Mono>
               </TableCell>
               <TableCell className="align-top">{rule.entity}</TableCell>
@@ -543,7 +542,7 @@ function RulesTab({ r }: { r: Rules }) {
         </TableBody>
       </Table>
       <Pager offset={offset} count={page.length} total={rules.length} onPage={setOffset} size={size} allSize={rules.length} onSize={changeSize} />
-    </Section>
+    </>
   )
 }
 
@@ -561,11 +560,11 @@ function GoalsTab({ g }: { g: Goals }) {
     setSize(PAGE)
   }, [g.goals])
   return (
-    <Section title={counted('Goals', goals.length)}>
+    <>
       <Table className="table-fixed">
         <TableHeader>
           <TableRow>
-            <TableHead className="w-40">Goal</TableHead>
+            <TableHead className="w-40">Goal ({num(goals.length)})</TableHead>
             <TableHead className="w-40">Metric</TableHead>
             <TableHead className="text-right w-24">Target</TableHead>
             <TableHead className="w-32">Strategy</TableHead>
@@ -604,14 +603,14 @@ function GoalsTab({ g }: { g: Goals }) {
         </TableBody>
       </Table>
       <Pager offset={offset} count={page.length} total={goals.length} onPage={setOffset} size={size} allSize={goals.length} onSize={changeSize} />
-    </Section>
+    </>
   )
 }
 
 function EnrichmentTab({ v }: { v: Vocabulary }) {
   return (
     <>
-      <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-dbb-muted">
+      <p className="mb-3 flex flex-wrap items-center gap-2 text-sm text-dbb-muted">
         <Enabled on={v.enabled} />
         <span>
           model <Mono>{v.model}</Mono>
@@ -631,100 +630,38 @@ export function Engine() {
   const goals = useLoad(() => get<Goals>('/api/knowledge/goals'), [])
   const vocabulary = useLoad(() => get<Vocabulary>('/api/enrichment/vocabulary'), [])
 
-  const files = [
-    { name: 'ontology', ...ontology },
-    { name: 'mappings', ...mappings },
-    { name: 'transforms', ...transforms },
-    { name: 'metrics', ...metrics },
-    { name: 'rules', ...rules },
-    { name: 'goals', ...goals },
-    { name: 'enrichment', ...vocabulary },
-  ]
-  const served = files.filter((f) => f.data).length
-
   return (
-    <SectionCard
-      title={`${served} of ${files.length} knowledge files served`}
-      headerRight={
-        <div className="flex flex-wrap gap-1.5">
-          {files.map((f) => (
-            <Pill key={f.name} tone={f.error ? 'err' : 'neutral'}>
-              {f.name}
-            </Pill>
-          ))}
-        </div>
-      }
-    >
-      <Tabs defaultValue="ontology">
-        <TabsList>
-          <TabsTrigger value="ontology">Ontology</TabsTrigger>
-          <TabsTrigger value="mappings">Mappings</TabsTrigger>
-          <TabsTrigger value="transforms">Transforms</TabsTrigger>
-          <TabsTrigger value="metrics">Metrics</TabsTrigger>
-          <TabsTrigger value="rules">Rules</TabsTrigger>
-          <TabsTrigger value="goals">Goals</TabsTrigger>
-          <TabsTrigger value="enrichment">Enrichment</TabsTrigger>
-        </TabsList>
-        <TabsContent value="ontology">
-          <Loaded
-            got={ontology}
-            count={(o) =>
-              `${num(Object.keys(o.entities).length)} entities · ${plural(o.relationships.length, 'relationship')} · ${plural(o.source_priority.length, 'source')}`
-            }
-          >
-            {(o) => <OntologyTab o={o} />}
-          </Loaded>
-        </TabsContent>
-        <TabsContent value="mappings">
-          <Loaded
-            got={mappings}
-            count={(m) => `${plural(m.lines.length, 'line')} · ${num(m.lines.filter((l) => l.from_hook).length)} hook-produced`}
-          >
-            {(m) => <MappingsTab m={m} />}
-          </Loaded>
-        </TabsContent>
-        <TabsContent value="transforms">
-          <Loaded
-            got={transforms}
-            count={(t) => `${plural(Object.keys(t.registry).length, 'function')} · ${plural(Object.keys(t.labels).length, 'label')}`}
-          >
-            {(t) => <TransformsTab t={t} />}
-          </Loaded>
-        </TabsContent>
-        <TabsContent value="metrics">
-          <Loaded
-            got={metrics}
-            count={(m) =>
-              `${plural(Object.keys(m.definitions).length, 'definition')} · ${num(Object.values(m.definitions).filter((d) => d.inferred).length)} inferred`
-            }
-          >
-            {(m) => <MetricsTab m={m} />}
-          </Loaded>
-        </TabsContent>
-        <TabsContent value="rules">
-          <Loaded got={rules} count={(r) => plural(Object.keys(r.rules).length, 'rule')}>
-            {(r) => <RulesTab r={r} />}
-          </Loaded>
-        </TabsContent>
-        <TabsContent value="goals">
-          <Loaded got={goals} count={(g) => plural(Object.keys(g.goals).length, 'goal')}>
-            {(g) => <GoalsTab g={g} />}
-          </Loaded>
-        </TabsContent>
-        <TabsContent value="enrichment">
-          <Loaded
-            got={vocabulary}
-            count={(v) =>
-              `${plural(Object.keys(v.readings).length, 'reading')} · ${plural(
-                Object.values(v.readings).reduce((n, r) => n + r.fields.length, 0),
-                'field',
-              )}`
-            }
-          >
-            {(v) => <EnrichmentTab v={v} />}
-          </Loaded>
-        </TabsContent>
-      </Tabs>
-    </SectionCard>
+    <Tabs defaultValue="ontology">
+      <TabsList>
+        <TabsTrigger value="ontology">Ontology</TabsTrigger>
+        <TabsTrigger value="mappings">Mappings</TabsTrigger>
+        <TabsTrigger value="transforms">Transforms</TabsTrigger>
+        <TabsTrigger value="metrics">Metrics</TabsTrigger>
+        <TabsTrigger value="rules">Rules</TabsTrigger>
+        <TabsTrigger value="goals">Goals</TabsTrigger>
+        <TabsTrigger value="enrichment">Enrichment</TabsTrigger>
+      </TabsList>
+      <TabsContent value="ontology">
+        <Loaded got={ontology}>{(o) => <OntologyTab o={o} />}</Loaded>
+      </TabsContent>
+      <TabsContent value="mappings">
+        <Loaded got={mappings}>{(m) => <MappingsTab m={m} />}</Loaded>
+      </TabsContent>
+      <TabsContent value="transforms">
+        <Loaded got={transforms}>{(t) => <TransformsTab t={t} />}</Loaded>
+      </TabsContent>
+      <TabsContent value="metrics">
+        <Loaded got={metrics}>{(m) => <MetricsTab m={m} />}</Loaded>
+      </TabsContent>
+      <TabsContent value="rules">
+        <Loaded got={rules}>{(r) => <RulesTab r={r} />}</Loaded>
+      </TabsContent>
+      <TabsContent value="goals">
+        <Loaded got={goals}>{(g) => <GoalsTab g={g} />}</Loaded>
+      </TabsContent>
+      <TabsContent value="enrichment">
+        <Loaded got={vocabulary}>{(v) => <EnrichmentTab v={v} />}</Loaded>
+      </TabsContent>
+    </Tabs>
   )
 }
