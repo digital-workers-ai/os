@@ -152,14 +152,20 @@ function RoleCard({
       title={title}
       className={FULL}
       bodyClassName={BODY}
+      description={
+        generateError || history.error ? (
+          <div className="mt-2 -mb-1 flex flex-col gap-3 [&>*]:mb-0">
+            <LayerOff error={generateError} />
+            <ErrorBanner error={history.error} />
+          </div>
+        ) : null
+      }
       headerRight={
         <Button size="sm" disabled={generating} onClick={generate}>
           {generating ? 'generating…' : 'Generate'}
         </Button>
       }
     >
-      <LayerOff error={generateError} />
-      <ErrorBanner error={history.error} className="mb-3" />
       {history.loading && entries.length === 0 ? (
         <Loading />
       ) : entries.length === 0 ? (
