@@ -137,8 +137,6 @@ const FILL = 'min-w-0 lg:flex lg:flex-col lg:max-h-full'
 const BODY = 'lg:min-h-0 lg:overflow-y-auto lg:-mx-6 lg:px-6 lg:-mb-6 lg:pb-6 lg:rounded-b-xl'
 const STICKY_HEAD = '[&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-card [&_th]:shadow-[inset_0_-1px_0_theme(colors.dbb.warm)]'
 
-const counted = (label: string, n: number) => `${label} · ${num(n)}`
-
 const labelText = (label: string, anchor: string) => (label === anchor ? anchorText(anchor) : label)
 
 function useGet<T>(path: string | null) {
@@ -598,14 +596,14 @@ function RecordDetail({ record }: { record: RecordRow }) {
       bodyClassName={BODY}
     >
       <ErrorBanner error={current?.error ?? null} className="mb-3" />
-      <Section title={counted('Facts', facts.length)}>
+      <div className="mt-6 first:mt-0">
         {facts.length === 0 ? (
           <Empty>no facts</Empty>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[100px] min-w-[100px]">Attribute</TableHead>
+                <TableHead className="w-[100px] min-w-[100px]">Fact ({num(facts.length)})</TableHead>
                 <TableHead>Value</TableHead>
               </TableRow>
             </TableHeader>
@@ -621,17 +619,17 @@ function RecordDetail({ record }: { record: RecordRow }) {
             </TableBody>
           </Table>
         )}
-      </Section>
-      <Section title={counted('Raw events', events.length)}>
+      </div>
+      <div className="mt-6 first:mt-0">
         {!current && <Loading />}
         {current && events.length === 0 && <Empty>no raw events</Empty>}
         {events.length > 0 && (
           <Table className="table-fixed">
             <TableHeader>
               <TableRow>
+                <TableHead>Raw event ({num(events.length)})</TableHead>
                 <TableHead className={cn(NUM, 'w-20')}>Seq</TableHead>
                 <TableHead className="w-32">Ingested</TableHead>
-                <TableHead>Id</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -643,19 +641,19 @@ function RecordDetail({ record }: { record: RecordRow }) {
                   aria-selected={picked?.id === e.id}
                   onClick={() => setPickedId(e.id)}
                 >
+                  <TableCell>
+                    <Id id={e.id} full />
+                  </TableCell>
                   <TableCell className={NUM}>{num(e.seq)}</TableCell>
                   <TableCell className="whitespace-nowrap" title={e.ingested_at}>
                     {relTime(e.ingested_at)}
-                  </TableCell>
-                  <TableCell>
-                    <Id id={e.id} full />
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         )}
-      </Section>
+      </div>
       {picked && (
         <Section title="Payload">
           <pre className={cn(PRE, 'mt-0')}>{JSON.stringify(picked.raw_payload, null, 2)}</pre>
