@@ -53,10 +53,6 @@ export const put = <T>(path: string, body?: unknown) =>
     body: body === undefined ? undefined : JSON.stringify(body),
   })
 
-export interface Health {
-  status: string
-}
-
 export interface SourceRow {
   source: string
   label: string
@@ -172,7 +168,6 @@ export interface RunsResponse {
 }
 
 export const api = {
-  health: () => get<Health>('/api/health'),
   sources: () => get<SourcesResponse>('/api/sources'),
   sync: (sources?: string[]) => post<SyncResponse>('/api/sync', sources ? { sources } : {}),
   rebuild: () => post<RebuildResponse>('/api/rebuild'),

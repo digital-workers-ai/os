@@ -1,29 +1,13 @@
 import type { CSSProperties } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
-import { api, asApiError } from '@/api'
 import { PRODUCT } from '@/brand'
 import { ROUTES } from '@/routes'
 import { DigitalWorkersMark } from '@/components/DigitalWorkersMark'
-import { Pill } from '@/components/ui/pill'
 
 const navItem = (isActive: boolean) =>
   `flex items-center gap-2 px-3 py-1.5 rounded-lg text-[13px] font-medium whitespace-nowrap transition-all duration-150 ${
     isActive ? 'bg-white text-dbb-charcoal shadow-[0_1px_3px_rgba(0,0,0,0.06)]' : 'text-[#555] hover:bg-black/[0.04]'
   }`
-
-function HealthPill() {
-  const health = useQuery({ queryKey: ['health'], queryFn: api.health, retry: false, refetchInterval: 30_000 })
-  if (health.isError) {
-    return (
-      <Pill tone="err" title={asApiError(health.error).detail}>
-        backend unreachable
-      </Pill>
-    )
-  }
-  if (health.isPending) return <span className="text-[11px] text-dbb-muted">connecting…</span>
-  return <Pill tone={health.data.status === 'ok' ? 'ok' : 'warn'}>health {health.data.status}</Pill>
-}
 
 export function TopNav({ gray = false, style }: { gray?: boolean; style?: CSSProperties }) {
   const menu = { filter: gray ? 'grayscale(1)' : 'grayscale(0)', transition: 'filter 1000ms ease' }
@@ -45,9 +29,6 @@ export function TopNav({ gray = false, style }: { gray?: boolean; style?: CSSPro
             </NavLink>
           ))}
         </nav>
-        <div className="ml-auto shrink-0" style={menu}>
-          <HealthPill />
-        </div>
       </div>
     </header>
   )
