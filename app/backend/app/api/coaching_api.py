@@ -1,4 +1,4 @@
-from fastapi import HTTPException, Request
+from fastapi import HTTPException, Query, Request
 
 from app.api.routers import coaching as router
 from app.coaching import briefer
@@ -36,3 +36,10 @@ async def briefing(role: str, request: Request):
     if stored is None:
         raise HTTPException(404, f"no briefing stored for {role!r}")
     return {**stored, "inferred": True}
+
+
+@router.get("/{role}/history")
+async def briefing_history(role: str, limit: int = Query(50, ge=1, le=200)):
+    async with async_session() as session:
+        briefings = await briefer.history(session, role, limit)
+    return {"role": role, "briefings": briefings, "inferred": True}

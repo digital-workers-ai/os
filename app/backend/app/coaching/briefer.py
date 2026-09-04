@@ -221,21 +221,7 @@ async def generate(session, role: str, *, model_client=None) -> dict:
     }
 
 
-async def latest(session, role: str) -> dict | None:
-    row = (
-        (
-            await session.execute(
-                select(BriefingRun)
-                .where(BriefingRun.role == role, BriefingRun.ok.is_(True))
-                .order_by(BriefingRun.seq.desc())
-                .limit(1)
-            )
-        )
-        .scalars()
-        .first()
-    )
-    if row is None:
-        return None
+def _row_dict(row: BriefingRun) -> dict:
     return {
         "role": row.role,
         "briefing": row.briefing,
@@ -245,3 +231,24 @@ async def latest(session, role: str) -> dict | None:
         "read_manifest": row.read_manifest,
         "generated_at": row.created_at.isoformat(),
     }
+
+
+async def history(session, role: str, limit: int) -> list[dict]:
+    rows = (
+        (
+            await session.execute(
+                select(BriefingRun)
+                .where(BriefingRun.role == role, BriefingRun.ok.is_(True))
+                .order_by(BriefingRun.seq.desc())
+                .limit(limit)
+            )
+        )
+        .scalars()
+        .all()
+    )
+    return [_row_dict(row) for row in rows]
+
+
+async def latest(session, role: str) -> dict | None:
+    rows = await history(session, role, 1)
+    return rows[0] if rows else None
