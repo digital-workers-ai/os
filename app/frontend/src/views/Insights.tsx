@@ -277,7 +277,9 @@ export function Insights() {
                       <span className="block font-medium text-dbb-charcoal">{f.label}</span>
                       <Mono className="block">{f.rule}</Mono>
                     </TableCell>
-                    <TableCell>{f.entity_type}</TableCell>
+                    <TableCell>
+                      <Pill>{f.entity_type}</Pill>
+                    </TableCell>
                     <TableCell>{f.company ?? '—'}</TableCell>
                     <TableCell>
                       <Chips entries={Object.entries(f.evidence)} stack />
