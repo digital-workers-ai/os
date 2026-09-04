@@ -904,6 +904,59 @@ class TestCoachingLayer:
         await session.commit()
         assert (await api.get("/api/coaching/ceo")).status_code == 404
 
+    async def _seed(self, session, *runs):
+        for row in runs:
+            session.add(row)
+            await session.flush()
+        await session.commit()
+
+    async def test_a_role_with_no_runs_has_an_empty_history(
+        self, api, coaching_transacting
+    ):
+        response = await api.get("/api/coaching/ceo/history")
+        assert response.status_code == 200, response.text
+        assert response.json() == {"role": "ceo", "briefings": [], "inferred": True}
+
+    async def test_the_history_lists_successful_runs_newest_first(
+        self, api, session, coaching_transacting
+    ):
+        await self._seed(
+            session,
+            self._run(briefing="first", created_at=SEEN),
+            self._run(briefing="second", created_at=SEEN + timedelta(hours=1)),
+            self._run(ok=False, briefing=None, error="model refused"),
+        )
+        body = (await api.get("/api/coaching/ceo/history")).json()
+        assert body["role"] == "ceo"
+        assert body["inferred"] is True
+        assert [b["briefing"] for b in body["briefings"]] == ["second", "first"]
+        newest, older = body["briefings"]
+        assert newest["generated_at"] > older["generated_at"]
+        for entry in body["briefings"]:
+            assert set(entry) == {
+                "role",
+                "briefing",
+                "model",
+                "prompt_version",
+                "input_sha",
+                "read_manifest",
+                "generated_at",
+            }
+            assert entry["input_sha"] == "b" * 12
+
+    async def test_the_history_limit_keeps_the_newest(
+        self, api, session, coaching_transacting
+    ):
+        await self._seed(
+            session, self._run(briefing="first"), self._run(briefing="second")
+        )
+        body = (await api.get("/api/coaching/ceo/history?limit=1")).json()
+        assert [b["briefing"] for b in body["briefings"]] == ["second"]
+
+    async def test_a_zero_history_limit_is_a_422(self, api, coaching_transacting):
+        response = await api.get("/api/coaching/ceo/history?limit=0")
+        assert response.status_code == 422
+
 
 class TestConversationLayer:
     async def _thread(self, api):
