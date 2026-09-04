@@ -1,11 +1,12 @@
 import type { ComponentType } from 'react'
-import { Boxes, ChartColumn, ChartLine, Database, Home, Map as MapIcon, Sparkles, type LucideIcon } from 'lucide-react'
+import { Activity as ActivityIcon, Boxes, ChartColumn, ChartLine, Home, Map as MapIcon, Settings, Sparkles, type LucideIcon } from 'lucide-react'
 import { Insights } from './views/Insights'
+import { Activity } from './views/Activity'
 import { Metrics } from './views/Metrics'
 import { Entities } from './views/Entities'
 import { Inference } from './views/Inference'
 import { MapView } from './views/Map'
-import { Estate } from './views/Estate'
+import { Config } from './views/Config'
 import { Visualize } from './views/Visualize'
 
 export interface RouteDef {
@@ -25,6 +26,13 @@ export const ROUTES: RouteDef[] = [
     end: true,
     title: 'Insights',
     view: Insights,
+  },
+  {
+    to: '/activity',
+    label: 'Activity',
+    icon: ActivityIcon,
+    title: 'Activity',
+    view: Activity,
   },
   {
     to: '/metrics',
@@ -55,11 +63,11 @@ export const ROUTES: RouteDef[] = [
     view: MapView,
   },
   {
-    to: '/estate',
-    label: 'Estate',
-    icon: Database,
-    title: 'Estate',
-    view: Estate,
+    to: '/config',
+    label: 'Config',
+    icon: Settings,
+    title: 'Config',
+    view: Config,
   },
   {
     to: '/visualize',

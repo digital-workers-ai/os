@@ -22,7 +22,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { num, relTime } from '@/lib/format'
 import { cn } from '@/lib/utils'
-import { Activity, KEY, LINK, MONO, NUM, PRE } from './estate/Activity'
+
+const MONO = 'font-mono text-xs'
+const NUM = 'text-right tabular-nums'
+const KEY = 'font-medium text-dbb-charcoal'
+const PRE = 'max-h-[480px] overflow-auto rounded-lg bg-dbb-surface p-3 font-mono text-xs'
 
 const validationTone = (v: string): Tone =>
   v === 'provider-validated' ? 'ok' : v === 'mock-validated' ? 'warn' : 'neutral'
@@ -165,15 +169,12 @@ function Report({ report }: { report: EngineReport }) {
   )
 }
 
-export function Estate() {
-  const [tab, setTab] = useState('sources')
+export function Config() {
   const [sources, setSources] = useState<SourcesResponse | null>(null)
   const [sourcesError, setSourcesError] = useState<ApiError | null>(null)
   const [syncing, setSyncing] = useState<string | null>(null)
   const [sync, setSync] = useState<SyncResponse | null>(null)
   const [syncError, setSyncError] = useState<ApiError | null>(null)
-  const [synced, setSynced] = useState(0)
-  const [activitySource, setActivitySource] = useState('')
   const [rebuilding, setRebuilding] = useState(false)
   const [rebuild, setRebuild] = useState<RebuildResponse | null>(null)
   const [rebuildError, setRebuildError] = useState<ApiError | null>(null)
@@ -223,7 +224,6 @@ export function Estate() {
       setSyncError(asApiError(e))
     } finally {
       setSyncing(null)
-      setSynced((n) => n + 1)
       loadSources()
     }
   }
@@ -241,19 +241,13 @@ export function Estate() {
     }
   }
 
-  const showActivity = (source: string) => {
-    setActivitySource(source)
-    setTab('activity')
-  }
-
   const rows = sources?.sources ?? []
   const page = rows.slice(offset, offset + size)
 
   return (
-    <Tabs value={tab} onValueChange={setTab}>
+    <Tabs defaultValue="sources">
       <TabsList>
         <TabsTrigger value="sources">Sources</TabsTrigger>
-        <TabsTrigger value="activity">Activity</TabsTrigger>
         <TabsTrigger value="report">Report</TabsTrigger>
       </TabsList>
 
@@ -297,10 +291,7 @@ export function Estate() {
                   return (
                     <TableRow key={r.source}>
                       <TableCell className="whitespace-nowrap">
-                        <button type="button" className={cn(KEY, LINK)} title="show activity" onClick={() => showActivity(r.source)}>
-                          {r.label}
-                        </button>{' '}
-                        <Mono>{r.source}</Mono>
+                        <span className={KEY}>{r.label}</span> <Mono>{r.source}</Mono>
                       </TableCell>
                       <TableCell>
                         <Pill tone={validationTone(r.validation)}>{r.validation}</Pill>
@@ -418,10 +409,6 @@ export function Estate() {
             </Section>
           )}
         </SectionCard>
-      </TabsContent>
-
-      <TabsContent value="activity">
-        <Activity sources={rows} source={activitySource} onSource={setActivitySource} tick={synced} />
       </TabsContent>
 
       <TabsContent value="report">
