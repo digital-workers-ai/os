@@ -722,7 +722,7 @@ function RawSide() {
                 <TableHead className="w-28">Source ({num(records.data?.total ?? rows.length)})</TableHead>
                 <TableHead className="w-36">Source id</TableHead>
                 <TableHead className="w-28">Source type</TableHead>
-                <TableHead className="w-24">Type</TableHead>
+                <TableHead className="w-24">Entity</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
