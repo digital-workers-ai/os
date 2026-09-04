@@ -155,10 +155,25 @@ export type ReportResponse =
       report: EngineReport
     }
 
+export interface RebuildRun {
+  seq: number
+  ok: boolean
+  created_at: string
+  duration_ms: number
+  raw_events_read: number
+  entities: number
+  facts: number
+  totals: Record<string, number>
+  error: string | null
+}
+
+export interface RunsResponse {
+  runs: RebuildRun[]
+}
+
 export const api = {
   health: () => get<Health>('/api/health'),
   sources: () => get<SourcesResponse>('/api/sources'),
   sync: (sources?: string[]) => post<SyncResponse>('/api/sync', sources ? { sources } : {}),
   rebuild: () => post<RebuildResponse>('/api/rebuild'),
-  report: () => get<ReportResponse>('/api/report'),
 }

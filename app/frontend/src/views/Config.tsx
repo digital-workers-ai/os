@@ -1,11 +1,13 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useState } from 'react'
 import {
   api,
   asApiError,
+  get,
   put,
   type ApiError,
   type RebuildResponse,
   type ReportResponse,
+  type RunsResponse,
   type SourceRow,
   type SourcesResponse,
   type SyncResponse,
@@ -17,11 +19,13 @@ import { Button } from '@/components/ui/button'
 import { Empty } from '@/components/ui/empty'
 import { Loading } from '@/components/ui/loading'
 import { Mono } from '@/components/ui/mono'
-import { FilterChip, Pill } from '@/components/ui/pill'
+import { Chip, FilterChip, Pill } from '@/components/ui/pill'
 import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { num, plural, relTime } from '@/lib/format'
+import { useGet } from '@/lib/useGet'
 import { cn } from '@/lib/utils'
+import { BODY, FULL, PAGE_FILL, useLoad } from './inference/shared'
 
 type Ran = Extract<ReportResponse, { ran: true }>
 
@@ -29,10 +33,8 @@ const MONO = 'font-mono text-xs'
 const NUM = 'text-right tabular-nums'
 const KEY = 'font-medium text-dbb-charcoal'
 const TOP = 'align-top'
-const PAGE_FILL = 'lg:flex lg:flex-col lg:h-[calc(100vh-11.25rem-1px)]'
-const TAB_FILL = 'lg:min-h-0 lg:flex-1 lg:overflow-y-auto'
-const FULL = 'min-w-0 lg:flex lg:flex-col lg:h-full'
-const BODY = 'lg:min-h-0 lg:overflow-y-auto lg:-mx-6 lg:px-6 lg:-mb-6 lg:pb-6 lg:rounded-b-xl'
+const TAB = 'lg:min-h-0 lg:flex-1'
+const SPLIT = 'grid gap-6 lg:h-full lg:grid-rows-[minmax(0,2fr)_minmax(0,3fr)]'
 const NOTICES = 'mt-2 -mb-1 flex flex-col gap-3 [&>*]:mb-0'
 
 const enabledKey = (r: SourceRow) => (r.enabled ? 'enabled' : 'disabled')
@@ -44,6 +46,8 @@ const enabledOptions = (rows: SourceRow[]): [string, number][] => {
     ['disabled', rows.length - on],
   ]
 }
+
+const shortDate = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 
 function SyncBanner({ sync }: { sync: SyncResponse }) {
   const total = (k: 'rows_fetched' | 'rows_written' | 'rows_refused' | 'rows_colliding') =>
@@ -88,12 +92,11 @@ function CountTable({ label, rows }: { label: string; rows: Record<string, numbe
   )
 }
 
-function Report({ report, error, refresh }: { report: Ran; error: ApiError | null; refresh: ReactNode }) {
+function Report({ report }: { report: Ran }) {
   const r = report.report
   const rates = Object.entries(r.match_rates)
   return (
-    <div className="space-y-6">
-      <ErrorBanner error={error} />
+    <>
       <SectionCard
         title={
           <>
@@ -102,7 +105,6 @@ function Report({ report, error, refresh }: { report: Ran; error: ApiError | nul
             {num(report.facts)} facts
           </>
         }
-        headerRight={refresh}
       >
         <CountTable label="Total" rows={r.totals} />
       </SectionCard>
@@ -202,9 +204,93 @@ function Report({ report, error, refresh }: { report: Ran; error: ApiError | nul
         </SectionCard>
       )}
       <SectionCard title="Receipts">
-        <p className="mb-3 text-sm text-dbb-muted">The full report of the last rebuild, exactly as the engine produced it.</p>
+        <p className="mb-3 text-sm text-dbb-muted">The full report of this rebuild, exactly as the engine produced it.</p>
         <pre className="overflow-auto rounded-lg bg-dbb-surface p-3 font-mono text-xs">{JSON.stringify(r, null, 2)}</pre>
       </SectionCard>
+    </>
+  )
+}
+
+function Rebuilds({ rebuilds }: { rebuilds: number }) {
+  const [seq, setSeq] = useState<number | null>(null)
+  const runs = useLoad(() => get<RunsResponse>('/api/report/runs'), [rebuilds])
+  const list = runs.data?.runs ?? []
+  const newest = runs.data?.runs[0]?.seq
+  useEffect(() => {
+    if (seq === null && newest !== undefined) setSeq(newest)
+  }, [seq, newest])
+  const report = useGet<ReportResponse>(seq === null ? null : `/api/report/runs/${seq}`)
+
+  return (
+    <div className={SPLIT}>
+      <SectionCard className={FULL} bodyClassName={BODY}>
+        <ErrorBanner error={runs.error} className="mb-3" />
+        {runs.loading && <Loading />}
+        {runs.data && list.length === 0 && <Empty>no rebuild has run yet</Empty>}
+        {list.length > 0 && (
+          <Table className="table-fixed" wrapperClassName="overflow-x-visible">
+            <TableHeader className={STICKY_HEAD}>
+              <TableRow>
+                <TableHead className="w-40">Rebuild ({num(list.length)})</TableHead>
+                <TableHead className="w-24">Status</TableHead>
+                <TableHead className={cn('w-28', NUM)}>Duration</TableHead>
+                <TableHead className={cn('w-24', NUM)}>Events</TableHead>
+                <TableHead className={cn('w-24', NUM)}>Entities</TableHead>
+                <TableHead className={cn('w-24', NUM)}>Facts</TableHead>
+                <TableHead>Issues</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {list.map((run) => {
+                const issues = Object.entries(run.totals).filter(([, v]) => v !== 0)
+                return (
+                  <TableRow
+                    key={run.seq}
+                    className="cursor-pointer"
+                    data-state={run.seq === seq ? 'selected' : undefined}
+                    aria-selected={run.seq === seq}
+                    onClick={() => setSeq(run.seq)}
+                  >
+                    <TableCell className={TOP}>
+                      <span className={cn(KEY, 'block')} title={run.created_at}>
+                        {relTime(run.created_at)}
+                      </span>
+                      {shortDate(run.created_at)}
+                    </TableCell>
+                    <TableCell className={TOP}>
+                      <Pill tone={run.ok ? 'ok' : 'err'}>{run.ok ? 'ok' : 'failed'}</Pill>
+                    </TableCell>
+                    <TableCell className={cn(NUM, TOP)}>{num(run.duration_ms)} ms</TableCell>
+                    <TableCell className={cn(NUM, TOP)}>{num(run.raw_events_read)}</TableCell>
+                    <TableCell className={cn(NUM, TOP)}>{num(run.entities)}</TableCell>
+                    <TableCell className={cn(NUM, TOP)}>{num(run.facts)}</TableCell>
+                    <TableCell className={TOP}>
+                      {!run.ok ? (
+                        <span className="text-xs text-dbb-clay">{run.error}</span>
+                      ) : issues.length === 0 ? (
+                        '—'
+                      ) : (
+                        <span className="inline-flex flex-wrap gap-1">
+                          {issues.map(([k, v]) => (
+                            <Chip key={k}>
+                              {k}=<strong>{num(v)}</strong>
+                            </Chip>
+                          ))}
+                        </span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
+        )}
+      </SectionCard>
+      <div className="space-y-6 lg:min-h-0 lg:overflow-y-auto">
+        <ErrorBanner error={report.error} />
+        {report.loading && !report.data && <Loading />}
+        {report.data?.ran && <Report report={report.data} />}
+      </div>
     </div>
   )
 }
@@ -220,8 +306,7 @@ export function Config() {
   const [rebuilding, setRebuilding] = useState(false)
   const [rebuild, setRebuild] = useState<RebuildResponse | null>(null)
   const [rebuildError, setRebuildError] = useState<ApiError | null>(null)
-  const [report, setReport] = useState<ReportResponse | null>(null)
-  const [reportError, setReportError] = useState<ApiError | null>(null)
+  const [rebuilds, setRebuilds] = useState(0)
 
   const loadSources = () =>
     api
@@ -232,18 +317,8 @@ export function Config() {
       })
       .catch((e) => setSourcesError(asApiError(e)))
 
-  const loadReport = () =>
-    api
-      .report()
-      .then((r) => {
-        setReport(r)
-        setReportError(null)
-      })
-      .catch((e) => setReportError(asApiError(e)))
-
   useEffect(() => {
     loadSources()
-    loadReport()
   }, [])
 
   const runSync = async (only?: string[]) => {
@@ -281,21 +356,16 @@ export function Config() {
     setRebuildError(null)
     try {
       setRebuild(await api.rebuild())
+      setRebuilds((n) => n + 1)
     } catch (e) {
       setRebuildError(asApiError(e))
     } finally {
       setRebuilding(false)
-      loadReport()
     }
   }
 
   const all = sources?.sources ?? []
   const rows = all.filter((r) => !enabled || enabledKey(r) === enabled)
-  const refresh = (
-    <Button size="sm" variant="outline" onClick={loadReport}>
-      Refresh
-    </Button>
-  )
 
   return (
     <Tabs defaultValue="sources" className={PAGE_FILL}>
@@ -304,7 +374,7 @@ export function Config() {
         <TabsTrigger value="rebuild">Rebuild</TabsTrigger>
       </TabsList>
 
-      <TabsContent value="sources" className="lg:min-h-0 lg:flex-1">
+      <TabsContent value="sources" className={TAB}>
         <SectionCard
           title={
             <div className="flex items-center gap-2">
@@ -433,16 +503,8 @@ export function Config() {
         </SectionCard>
       </TabsContent>
 
-      <TabsContent value="rebuild" className={TAB_FILL}>
-        {report?.ran ? (
-          <Report report={report} error={reportError} refresh={refresh} />
-        ) : (
-          <SectionCard headerRight={refresh}>
-            <ErrorBanner error={reportError} />
-            {!report && !reportError && <Loading />}
-            {report && !report.ran && <Empty>{report.detail}</Empty>}
-          </SectionCard>
-        )}
+      <TabsContent value="rebuild" className={TAB}>
+        <Rebuilds rebuilds={rebuilds} />
       </TabsContent>
     </Tabs>
   )
