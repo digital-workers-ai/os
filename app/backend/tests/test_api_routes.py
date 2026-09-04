@@ -1045,12 +1045,14 @@ class TestConversationLayer:
 
 
 class TestEnrichmentLayer:
-    def _fact(self, value="pricing", verified=True, canonical_id=None):
+    def _fact(
+        self, value="pricing", verified=True, canonical_id=None, entity_type="meeting"
+    ):
         from app.models import EnrichedFact
 
         return EnrichedFact(
             canonical_id=canonical_id or uuid.uuid4(),
-            entity_type="meeting",
+            entity_type=entity_type,
             reading="sales_call",
             attr="pain_points",
             value=value,
@@ -1118,6 +1120,8 @@ class TestEnrichmentLayer:
             ("unverified_only=true", 1),
             ("attr=pain_points&value=pricing", 1),
             ("attr=pain_points&unverified_only=true", 1),
+            ("entity_type=meeting", 2),
+            ("entity_type=ticket", 0),
         ],
     )
     async def test_each_filter_narrows_the_rows(self, api, session, query, expected):
@@ -1126,6 +1130,14 @@ class TestEnrichmentLayer:
         await session.flush()
         body = (await api.get(f"/api/enrichment?{query}")).json()
         assert body["total"] == expected
+
+    async def test_the_entity_type_filter_keeps_one_kind_of_entity(self, api, session):
+        session.add(self._fact(entity_type="meeting"))
+        session.add(self._fact(entity_type="ticket"))
+        await session.flush()
+        body = (await api.get("/api/enrichment?entity_type=ticket")).json()
+        assert body["total"] == 1
+        assert body["facts"][0]["entity_type"] == "ticket"
 
     async def test_a_composed_quote_is_counted_as_unverified(self, api, session):
         session.add(self._fact(verified=False))
@@ -1179,6 +1191,7 @@ class TestNullBytesInQueryParameters:
         "/api/graph?entity_type=%00",
         "/api/metrics/history?metric=%00",
         "/api/enrichment?attr=%00",
+        "/api/enrichment?entity_type=%00",
         "/api/sync/runs?source=%00",
     ]
 
