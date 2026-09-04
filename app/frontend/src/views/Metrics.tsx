@@ -240,7 +240,7 @@ export function Metrics() {
                         </span>
                         <Mono className="block">{name}</Mono>
                       </TableCell>
-                      <TableCell>{m.entity && <Mono>{m.entity}</Mono>}</TableCell>
+                      <TableCell>{m.entity && <Pill>{m.entity}</Pill>}</TableCell>
                       <TableCell className="text-right tabular-nums text-dbb-charcoal">
                         <Value value={m.value} />
                       </TableCell>

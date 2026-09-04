@@ -786,7 +786,7 @@ export function Entities() {
     <Tabs defaultValue="canonical" className={PAGE_FILL}>
       <TabsList className="shrink-0">
         <TabsTrigger value="canonical">Canonical</TabsTrigger>
-        <TabsTrigger value="raw">Raw side</TabsTrigger>
+        <TabsTrigger value="raw">Raw entities</TabsTrigger>
         <TabsTrigger value="visualize">Visualize</TabsTrigger>
       </TabsList>
       <TabsContent value="canonical" className="lg:min-h-0 lg:flex-1">
