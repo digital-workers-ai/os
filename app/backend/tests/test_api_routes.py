@@ -1145,6 +1145,25 @@ class TestEnrichmentLayer:
         body = (await api.get("/api/enrichment")).json()
         assert body["unverified_quotes"] == 1
 
+    @pytest.mark.parametrize(
+        "query,expected",
+        [
+            ("", 2),
+            ("entity_type=ticket", 1),
+            ("value=pricing", 0),
+            ("unverified_only=true", 2),
+        ],
+    )
+    async def test_the_unverified_count_follows_the_narrowing_filters(
+        self, api, session, query, expected
+    ):
+        session.add(self._fact(value="timeline", verified=False, entity_type="meeting"))
+        session.add(self._fact(value="staffing", verified=False, entity_type="ticket"))
+        session.add(self._fact(value="pricing", verified=True, entity_type="meeting"))
+        await session.flush()
+        body = (await api.get(f"/api/enrichment?{query}")).json()
+        assert body["unverified_quotes"] == expected
+
     async def test_a_fact_on_a_named_entity_is_labeled_by_its_name(
         self, api, session, canonical
     ):
