@@ -6,7 +6,7 @@ import { ErrorBanner } from '@/components/ui/banner'
 import { Empty } from '@/components/ui/empty'
 import { Loading } from '@/components/ui/loading'
 import { Mono } from '@/components/ui/mono'
-import { Pill } from '@/components/ui/pill'
+import { Chip, Pill } from '@/components/ui/pill'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -182,6 +182,16 @@ function Id({ id, full = false }: { id: string; full?: boolean }) {
         </Pill>
       )}
     </button>
+  )
+}
+
+function Evidence({ value }: { value: string }) {
+  const at = value.indexOf('=')
+  return (
+    <Chip>
+      {at < 0 ? value : `${value.slice(0, at)}=`}
+      {at >= 0 && <strong>{value.slice(at + 1)}</strong>}
+    </Chip>
   )
 }
 
@@ -363,7 +373,9 @@ function Detail({
                     <TableCell>
                       <Mono>{m.object_type}</Mono>
                     </TableCell>
-                    <TableCell>{m.evidence}</TableCell>
+                    <TableCell>
+                      <Evidence value={m.evidence} />
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
