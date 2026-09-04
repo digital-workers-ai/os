@@ -205,7 +205,7 @@ function OntologyTab({ o }: { o: Ontology }) {
               return (
                 <TableRow key={name}>
                   <TableCell className={cn(keyCol, 'whitespace-nowrap align-top')}>
-                    {name} <span className="font-normal text-dbb-muted">{num(attrs.length)}</span>
+                    <Pill>{name}</Pill> <span className="font-normal text-dbb-muted">{num(attrs.length)}</span>
                   </TableCell>
                   <TableCell className="align-top">
                     <span className="flex flex-wrap gap-1">
@@ -252,8 +252,12 @@ function OntologyTab({ o }: { o: Ontology }) {
                 <TableCell className={keyCol}>
                   <Mono>{r.rel}</Mono>
                 </TableCell>
-                <TableCell>{r.from}</TableCell>
-                <TableCell>{r.to}</TableCell>
+                <TableCell>
+                  <Pill>{r.from}</Pill>
+                </TableCell>
+                <TableCell>
+                  <Pill>{r.to}</Pill>
+                </TableCell>
                 <TableCell>{r.cardinality}</TableCell>
                 <TableCell>
                   <Grounding value={r.grounding} />
@@ -425,7 +429,9 @@ function MetricsTab({ m }: { m: MetricDefinitions }) {
                   <span className="block font-medium text-dbb-charcoal">{d.label}</span>
                   <Mono className="block">{name}</Mono>
                 </TableCell>
-                <TableCell className="align-top">{d.entity}</TableCell>
+                <TableCell className="align-top">
+                  <Pill>{d.entity}</Pill>
+                </TableCell>
                 <TableCell className="align-top">
                   <Mono>{expressionText(d)}</Mono>
                 </TableCell>
@@ -487,7 +493,9 @@ function RulesTab({ r }: { r: Rules }) {
                 <span className="block font-medium text-dbb-charcoal">{rule.label}</span>
                 <Mono className="block">{name}</Mono>
               </TableCell>
-              <TableCell className="align-top">{rule.entity}</TableCell>
+              <TableCell className="align-top">
+                <Pill>{rule.entity}</Pill>
+              </TableCell>
               <TableCell className="align-top">
                 <Pill tone={severityTone(rule.severity)}>{rule.severity}</Pill>
               </TableCell>
