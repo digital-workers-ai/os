@@ -119,7 +119,7 @@ interface Goals {
 const keyCol = 'font-medium text-dbb-charcoal'
 const PAGE_FILL = 'lg:flex lg:flex-col lg:h-[calc(100vh-11.25rem-1px)]'
 const TAB_FILL = 'lg:min-h-0 lg:flex-1 lg:overflow-y-auto'
-const FILL = 'min-w-0 lg:flex lg:h-full lg:flex-col lg:min-h-0'
+const FILL = 'min-w-0 lg:flex lg:max-h-full lg:flex-col lg:min-h-0'
 const BODY = 'lg:min-h-0 lg:overflow-y-auto lg:-mx-6 lg:px-6 lg:-mb-6 lg:pb-6 lg:rounded-b-xl'
 
 const severityTone = (s: string): Tone => (s === 'high' ? 'err' : s === 'medium' ? 'warn' : 'neutral')
@@ -269,7 +269,9 @@ function OntologyTab({ o }: { o: Ontology }) {
 
 function MappingsTab({ m }: { m: Mappings }) {
   const [source, setSource] = useState('')
-  const sources = [...new Set(m.lines.map((l) => l.source))].sort()
+  const bySource = new Map<string, number>()
+  for (const l of m.lines) bySource.set(l.source, (bySource.get(l.source) ?? 0) + 1)
+  const sources = [...bySource.keys()].sort()
   const lines = source ? m.lines.filter((l) => l.source === source) : m.lines
   return (
       <SectionCard
@@ -279,10 +281,10 @@ function MappingsTab({ m }: { m: Mappings }) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={ALL}>all sources ({sources.length})</SelectItem>
+              <SelectItem value={ALL}>all sources ({num(m.lines.length)})</SelectItem>
               {sources.map((s) => (
                 <SelectItem key={s} value={s}>
-                  {s}
+                  {s} ({num(bySource.get(s) ?? 0)})
                 </SelectItem>
               ))}
             </SelectContent>
