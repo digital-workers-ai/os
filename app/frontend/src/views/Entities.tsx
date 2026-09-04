@@ -135,6 +135,7 @@ const WRAP = 'break-words'
 const PAGE_FILL = 'lg:flex lg:flex-col lg:h-[calc(100vh-11.25rem-1px)]'
 const SPLIT_FILL = 'grid items-start gap-6 lg:grid-cols-[1.02fr_1.18fr] lg:grid-rows-[minmax(0,1fr)] lg:h-full'
 const FILL = 'min-w-0 lg:flex lg:flex-col lg:max-h-full'
+const FULL = 'min-w-0 lg:flex lg:flex-col lg:h-full'
 const BODY = 'lg:min-h-0 lg:overflow-y-auto lg:-mx-6 lg:px-6 lg:-mb-6 lg:pb-6 lg:rounded-b-xl'
 
 const labelText = (label: string, anchor: string) => (label === anchor ? anchorText(anchor) : label)
@@ -500,7 +501,7 @@ function Canonical() {
             </SelectContent>
           </Select>
         }
-        className={FILL}
+        className={FULL}
         bodyClassName={BODY}
       >
         <ErrorBanner error={list.error} className="mb-3" />
@@ -707,7 +708,7 @@ function RawSide() {
             </Select>
           </div>
         }
-        className={FILL}
+        className={FULL}
         bodyClassName={BODY}
       >
         <ErrorBanner error={records.error} className="mb-3" />

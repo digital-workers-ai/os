@@ -119,7 +119,7 @@ interface Goals {
 const keyCol = 'font-medium text-dbb-charcoal'
 const PAGE_FILL = 'lg:flex lg:flex-col lg:h-[calc(100vh-11.25rem-1px)]'
 const TAB_FILL = 'lg:min-h-0 lg:flex-1 lg:overflow-y-auto'
-const FILL = 'min-w-0 lg:flex lg:max-h-full lg:flex-col lg:min-h-0'
+const FILL = 'min-w-0 lg:flex lg:h-full lg:flex-col lg:min-h-0'
 const BODY = 'lg:min-h-0 lg:overflow-y-auto lg:-mx-6 lg:px-6 lg:-mb-6 lg:pb-6 lg:rounded-b-xl'
 
 const severityTone = (s: string): Tone => (s === 'high' ? 'err' : s === 'medium' ? 'warn' : 'neutral')

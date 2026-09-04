@@ -63,7 +63,8 @@ interface Series {
 }
 
 const SPLIT = 'grid items-start gap-6 lg:grid-cols-[0.65fr_0.35fr]'
-const FILL = 'lg:flex lg:flex-col lg:max-h-[calc(100vh-11.25rem-1px)]'
+const FILL = 'lg:flex lg:flex-col lg:h-[calc(100vh-11.25rem-1px)]'
+const CAP = 'lg:flex lg:flex-col lg:max-h-[calc(100vh-11.25rem-1px)]'
 const BODY = 'lg:min-h-0 lg:overflow-y-auto lg:-mx-6 lg:px-6 lg:-mb-6 lg:pb-6 lg:rounded-b-xl'
 
 const recordedAt = (iso: string) => {
@@ -255,11 +256,11 @@ export function Metrics() {
       </SectionCard>
 
       {seriesError && selected ? (
-        <SectionCard title={metrics?.metrics[selected]?.label ?? selected} className={`min-w-0 ${FILL}`} bodyClassName={BODY}>
+        <SectionCard title={metrics?.metrics[selected]?.label ?? selected} className={`min-w-0 ${CAP}`} bodyClassName={BODY}>
           <ErrorBanner error={seriesError} />
         </SectionCard>
       ) : series && seriesRow ? (
-        <SectionCard title={seriesRow.label} className={`min-w-0 ${FILL}`} bodyClassName={BODY}>
+        <SectionCard title={seriesRow.label} className={`min-w-0 ${CAP}`} bodyClassName={BODY}>
           {seriesRow.error && (
             <Banner tone="err" className="mb-3">
               {seriesRow.error}
@@ -276,7 +277,7 @@ export function Metrics() {
           </Section>
         </SectionCard>
       ) : (
-        <SectionCard className={`min-w-0 ${FILL}`} bodyClassName={BODY}>
+        <SectionCard className={`min-w-0 ${CAP}`} bodyClassName={BODY}>
           <Empty>select a metric</Empty>
         </SectionCard>
       )}
