@@ -180,7 +180,7 @@ function OntologyTab({ o }: { o: Ontology }) {
     <div className="space-y-6">
       <SectionCard
         title="Source priority"
-        description="When sources disagree on an attribute, the most recently observed value wins. If they were observed at the same time, the source higher on this list wins."
+        description="When sources disagree on an attribute, the most recently observed value wins. If they were observed at the same time, the source with the lower number wins: 1 beats 2."
       >
         <div className="flex flex-wrap gap-1.5">
           {o.source_priority.map((s, i) => (
