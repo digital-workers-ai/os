@@ -7,7 +7,7 @@ import { SetPageTitleContext } from '@/context/PageTitleContext'
 type Reveal = 'none' | 'header' | 'all' | 'color'
 
 const WHITE = '#FFFFFF'
-const GRAY = '#F3F3F3'
+const GRAY = '#F8F8F8'
 const EASE = 'opacity 500ms ease, background-color 1000ms ease, filter 1000ms ease'
 const STEPS: [Reveal, number][] = [
   ['all', 4000],
