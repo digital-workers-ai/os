@@ -91,10 +91,10 @@ class TestSources:
             "subscription",
         ]
 
-    async def test_nothing_mock_validated_is_on_by_default(self, api):
+    async def test_every_source_is_enabled_until_switched_off(self, api):
         body = (await api.get("/api/sources")).json()
-        assert body["enabled_by_default"] == []
-        assert all(not s["enabled_by_default"] for s in body["sources"])
+        assert "enabled_by_default" not in body
+        assert all(s["enabled"] for s in body["sources"])
 
     async def test_the_validation_gap_is_stated_as_a_number_not_implied(self, api):
         coverage = (await api.get("/api/sources")).json()["validation_coverage"]

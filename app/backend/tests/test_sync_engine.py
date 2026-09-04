@@ -1,6 +1,7 @@
 import importlib
 from datetime import UTC, datetime, timedelta
 
+import pytest
 from sqlalchemy import func, select
 
 from app import sync
@@ -334,6 +335,58 @@ class TestZoomMeetingUuidEscaping:
             assert path.startswith("/v2/past_meetings/")
             assert path.endswith("/participants")
             assert path.count("/") == 4, path
+
+
+class TestTheSourceSwitchGatesSyncing:
+    def _recording(self, monkeypatch) -> list[str]:
+        synced: list[str] = []
+
+        async def fake_run_connector(source, sessionmaker):
+            synced.append(source)
+            return {"source": source, "ok": True, "rows_written": 0}
+
+        monkeypatch.setattr(sync, "run_connector", fake_run_connector)
+        return synced
+
+    async def test_a_source_with_no_setting_row_is_enabled(self, session):
+        assert await sync.disabled_sources(session) == set()
+
+    async def test_syncing_everything_skips_a_disabled_source(
+        self, session, sessionmaker_for_test, monkeypatch
+    ):
+        synced = self._recording(monkeypatch)
+        await sync.set_enabled(session, "hubspot", False)
+        await session.commit()
+        result = await sync.run_all(sessionmaker_for_test)
+        assert synced == sorted(set(registry.discover()) - {"hubspot"})
+        assert result["ok"] == len(synced)
+
+    async def test_naming_a_disabled_source_raises(
+        self, session, sessionmaker_for_test, monkeypatch
+    ):
+        synced = self._recording(monkeypatch)
+        await sync.set_enabled(session, "hubspot", False)
+        await session.commit()
+        with pytest.raises(sync.SourceDisabled, match="source 'hubspot' is disabled"):
+            await sync.run_all(sessionmaker_for_test, ["hubspot"])
+        assert synced == []
+
+    async def test_re_enabling_lets_it_sync_again(
+        self, session, sessionmaker_for_test, monkeypatch
+    ):
+        synced = self._recording(monkeypatch)
+        off = await sync.set_enabled(session, "hubspot", False)
+        await session.commit()
+        on = await sync.set_enabled(session, "hubspot", True)
+        await session.commit()
+        assert set(on) == {"source", "enabled", "updated_at"}
+        assert on["source"] == "hubspot" and on["enabled"] is True
+        assert datetime.fromisoformat(on["updated_at"]) > datetime.fromisoformat(
+            off["updated_at"]
+        )
+        assert await sync.disabled_sources(session) == set()
+        await sync.run_all(sessionmaker_for_test, ["hubspot"])
+        assert synced == ["hubspot"]
 
 
 class TestStatusAnswersThreeDifferentQuestions:

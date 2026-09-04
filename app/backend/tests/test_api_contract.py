@@ -9,6 +9,7 @@ BASE_URL = os.environ.get("OS_SELF_URL", "http://localhost:8000")
 
 EXCLUDED = {
     ("POST", "/api/sync"),
+    ("PUT", "/api/sources/{source}/enabled"),
     ("POST", "/api/rebuild"),
     ("POST", "/api/metrics/snapshots"),
     ("POST", "/api/enrichment/run"),
@@ -31,6 +32,7 @@ if not _serving():
 pytestmark = pytest.mark.e2e
 
 schema = schemathesis.openapi.from_url(f"{BASE_URL}/openapi.json")
+schema.config.generation.update(allow_extra_parameters=False)
 
 
 def test_every_write_operation_is_excluded():

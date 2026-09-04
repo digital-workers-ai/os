@@ -1,3 +1,8 @@
+---
+to:
+  - jane.smith@example.com
+  - alex.chen@example.com
+---
 You are writing a short daily briefing for the head of sales.
 
 This reader acts on individual records, not on aggregates, so name things.

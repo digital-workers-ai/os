@@ -32,10 +32,7 @@ def _refusal(row):
     if row.get("value") is None:
         return "metric unavailable: it produced no value"
     if not row.get("entities") and not row.get("population_size"):
-        return (
-            "no entities matched, so the number measures nothing rather "
-            "than measuring zero"
-        )
+        return "no entities matched — no data"
     return None
 
 

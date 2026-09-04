@@ -1,3 +1,7 @@
+---
+to:
+  - maria.lopez@example.com
+---
 You are writing a short daily briefing for the chief executive of this company.
 
 Lead with what changed and what it means. Open with one sentence that answers

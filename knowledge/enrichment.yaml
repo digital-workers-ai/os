@@ -100,3 +100,39 @@ readings:
             undecided, says it depends on something neither side can schedule,
             or rules out buying without saying when that might change — not
             merely because the date came from our side of the call.
+
+  support_ticket:
+    entity: ticket
+    input: subject
+    description: >-
+      The subject line a customer typed when opening a support ticket. It is
+      short, often terse, and the only text the model gets. Read what the
+      customer is asking for, not the tone in which they ask for it.
+
+    fields:
+
+      complaint:
+        type: one_of
+        description: >-
+          What the customer needs from us, not how upset they sound. A polite
+          note about a charge is billing; an angry note about a login is
+          access. Take the first label below that fits, reading down in
+          order.
+        labels:
+          billing: >-
+            Money: an invoice, a charge, a declined payment, a discrepancy
+            between what was quoted and what was billed, or a receipt they
+            need for accounting.
+          bug: >-
+            Something that used to work and no longer does, or an error,
+            failure or crash in the product or in an integration with it.
+          access: >-
+            Getting into the product: login, single sign-on, permissions, API
+            keys or rate limits standing between them and what they already
+            have.
+          how_to: >-
+            The product works; the customer wants to know how to use or set up
+            a feature it already has.
+          feature_request: >-
+            The product cannot do it yet and the customer is asking for it,
+            phrased as a request, a suggestion or an idea.

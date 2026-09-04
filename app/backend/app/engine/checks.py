@@ -455,11 +455,3 @@ def check_enrichment(onto, enrichment_paths=None) -> list[str]:
                 "what was meant"
             )
     return problems
-
-
-def enabled_sources() -> list[str]:
-    return sorted(
-        source
-        for source, entry in source_status().items()
-        if entry["status"] == "provider-validated"
-    )

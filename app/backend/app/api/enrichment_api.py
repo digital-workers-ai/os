@@ -3,13 +3,14 @@ import uuid
 from fastapi import Depends, HTTPException, Query
 from sqlalchemy import func, select
 
+from app.api.entities_api import LABEL_ATTRS, _label
 from app.api.routers import enrichment as router
 from app.caches import MAX_OFFSET
 from app.config import settings
 from app.db import async_session, get_session
 from app.enrichment import store as enrichment_store
 from app.enrichment import vocabulary as vocab_mod
-from app.models import EnrichedFact
+from app.models import EnrichedFact, EntityCanonical, FactCurrent
 
 
 @router.get("/vocabulary")
@@ -61,20 +62,21 @@ async def run(
 async def list_enriched(
     attr: str | None = None,
     value: str | None = None,
+    entity_type: str | None = None,
     unverified_only: bool = False,
     limit: int = Query(50, ge=1, le=500),
     offset: int = Query(0, ge=0, le=MAX_OFFSET),
     session=Depends(get_session),
 ):
-    query = select(EnrichedFact)
-    count = select(func.count()).select_from(EnrichedFact)
-    clauses = (
+    narrowing = (
         ([EnrichedFact.attr == attr] if attr else [])
         + ([EnrichedFact.value == value] if value else [])
-        + ([EnrichedFact.quote_verified.is_(False)] if unverified_only else [])
+        + ([EnrichedFact.entity_type == entity_type] if entity_type else [])
     )
-    for clause in clauses:
-        query, count = query.where(clause), count.where(clause)
+    unverified_clause = EnrichedFact.quote_verified.is_(False)
+    page = [*narrowing, unverified_clause] if unverified_only else narrowing
+    query = select(EnrichedFact).where(*page)
+    count = select(func.count()).select_from(EnrichedFact).where(*page)
 
     total = (await session.execute(count)).scalar_one()
     rows = (
@@ -92,6 +94,34 @@ async def list_enriched(
         .scalars()
         .all()
     )
+
+    anchors: dict = {}
+    labels: dict = {}
+    if rows:
+        ids = {r.canonical_id for r in rows}
+        anchors = dict(
+            (
+                await session.execute(
+                    select(
+                        EntityCanonical.canonical_id,
+                        EntityCanonical.anchor_key,
+                    ).where(EntityCanonical.canonical_id.in_(ids))
+                )
+            ).all()
+        )
+        for canonical_id, label_attr, label_value in (
+            await session.execute(
+                select(
+                    FactCurrent.canonical_id,
+                    FactCurrent.attr,
+                    FactCurrent.value,
+                ).where(
+                    FactCurrent.canonical_id.in_(ids),
+                    FactCurrent.attr.in_(LABEL_ATTRS),
+                )
+            )
+        ).all():
+            labels.setdefault(canonical_id, {})[label_attr] = label_value
 
     readings = vocab_mod.load()
     current = {r.sha for r in readings.values()}
@@ -114,7 +144,7 @@ async def list_enriched(
         await session.execute(
             select(func.count())
             .select_from(EnrichedFact)
-            .where(EnrichedFact.quote_verified.is_(False))
+            .where(*narrowing, unverified_clause)
         )
     ).scalar_one()
 
@@ -134,6 +164,10 @@ async def list_enriched(
             {
                 "canonical_id": str(r.canonical_id),
                 "entity_type": r.entity_type,
+                "label": _label(
+                    anchors.get(r.canonical_id, str(r.canonical_id)),
+                    labels.get(r.canonical_id, {}),
+                ),
                 "reading": r.reading,
                 "attr": r.attr,
                 "value": r.value,

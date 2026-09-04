@@ -1,8 +1,10 @@
 import hashlib
+import re
 import time
 from datetime import UTC, datetime
 from pathlib import Path
 
+import yaml
 from sqlalchemy import select
 
 from app import llm
@@ -12,6 +14,8 @@ from app.engine import goals, metrics, rules
 from app.models import BriefingRun
 
 PROMPTS = KNOWLEDGE_DIR / "briefs"
+
+FRONT_MATTER = re.compile(r"\A---\n(.*?)^---\n", re.DOTALL | re.MULTILINE)
 
 PROMPT_VERSION = "2026-08-02.1"
 
@@ -47,22 +51,37 @@ def roles() -> list[str]:
     return sorted(path.stem for path in PROMPTS.glob("*.md"))
 
 
+def split_front_matter(text: str) -> tuple[dict, str]:
+    match = FRONT_MATTER.match(text)
+    if not match:
+        return {}, text
+    return yaml.safe_load(match[1]) or {}, text[match.end() :]
+
+
 def prompt_path(role: str) -> Path:
     return PROMPTS / f"{role}.md"
 
 
-def prompt_body(role: str) -> str:
+def load_prompt(role: str) -> tuple[dict, str]:
     path = prompt_path(role)
     if not path.exists():
         raise CoachingError(f"no prompt for role {role!r} — known roles: {roles()}")
-    return path.read_text()
+    return split_front_matter(path.read_text())
+
+
+def prompt_body(role: str) -> str:
+    return load_prompt(role)[1]
+
+
+def recipients() -> dict[str, list[str]]:
+    return {role: load_prompt(role)[0].get("to", []) for role in roles()}
 
 
 def prompts_sha() -> str:
     digest = hashlib.sha256()
-    for path in sorted(PROMPTS.glob("*.md")):
-        digest.update(path.name.encode())
-        digest.update(path.read_bytes())
+    for role in roles():
+        digest.update(f"{role}.md".encode())
+        digest.update(prompt_body(role).encode())
     return digest.hexdigest()
 
 
@@ -87,10 +106,7 @@ def _metric_line(name: str, row: dict) -> str:
     if row.get("value") is None:
         return f"- {label}: UNAVAILABLE — no value could be computed"
     if not row.get("entities"):
-        return (
-            f"- {label}: no entities matched, so this measures nothing "
-            "rather than measuring zero"
-        )
+        return f"- {label}: no entities matched — no data"
 
     notes = []
     if row.get("inferred"):
@@ -224,21 +240,7 @@ async def generate(session, role: str, *, model_client=None) -> dict:
     }
 
 
-async def latest(session, role: str) -> dict | None:
-    row = (
-        (
-            await session.execute(
-                select(BriefingRun)
-                .where(BriefingRun.role == role, BriefingRun.ok.is_(True))
-                .order_by(BriefingRun.seq.desc())
-                .limit(1)
-            )
-        )
-        .scalars()
-        .first()
-    )
-    if row is None:
-        return None
+def _row_dict(row: BriefingRun) -> dict:
     return {
         "role": row.role,
         "briefing": row.briefing,
@@ -248,3 +250,24 @@ async def latest(session, role: str) -> dict | None:
         "read_manifest": row.read_manifest,
         "generated_at": row.created_at.isoformat(),
     }
+
+
+async def history(session, role: str, limit: int) -> list[dict]:
+    rows = (
+        (
+            await session.execute(
+                select(BriefingRun)
+                .where(BriefingRun.role == role, BriefingRun.ok.is_(True))
+                .order_by(BriefingRun.seq.desc())
+                .limit(limit)
+            )
+        )
+        .scalars()
+        .all()
+    )
+    return [_row_dict(row) for row in rows]
+
+
+async def latest(session, role: str) -> dict | None:
+    rows = await history(session, role, 1)
+    return rows[0] if rows else None

@@ -1,4 +1,5 @@
 import uuid
+from collections import Counter
 
 from fastapi import Depends, HTTPException, Query
 from sqlalchemy import func, select
@@ -17,6 +18,12 @@ from app.models import (
     EntityFact,
     FactCurrent,
 )
+
+LABEL_ATTRS = ("name", "title", "subject", "email", "domain", "external_ref")
+
+
+def _label(anchor: str, facts: dict) -> str:
+    return next((facts[attr] for attr in LABEL_ATTRS if attr in facts), anchor)
 
 
 @router.post("/rebuild")
@@ -134,6 +141,7 @@ async def list_entities(
                 "canonical_id": str(r.canonical_id),
                 "entity_type": r.entity_type,
                 "anchor": r.anchor_key,
+                "label": _label(r.anchor_key, facts.get(r.canonical_id, {})),
                 "members": r.member_count,
                 "facts": facts.get(r.canonical_id, {}),
             }
@@ -227,6 +235,7 @@ async def get_entity(canonical_id: str, session=Depends(get_session)):
         "canonical_id": str(row.canonical_id),
         "entity_type": row.entity_type,
         "anchor": row.anchor_key,
+        "label": _label(row.anchor_key, {f.attr: f.value for f, _ in facts}),
         "resolved_from_alias": str(resolved_from) if resolved_from else None,
         "aliases": [str(a) for a in aliases],
         "facts": [
@@ -270,6 +279,95 @@ async def get_entity(canonical_id: str, session=Depends(get_session)):
     }
 
 
+@router.get("/graph")
+async def graph(
+    entity_type: str | None = None,
+    limit: int = Query(5000, ge=1, le=20000),
+    session=Depends(get_session),
+):
+    wanted = (
+        select(EntityCanonical.canonical_id)
+        .order_by(EntityCanonical.minted_seq)
+        .limit(limit)
+    )
+    if entity_type:
+        wanted = wanted.where(EntityCanonical.entity_type == entity_type)
+    nodes = (
+        (
+            await session.execute(
+                select(EntityCanonical).where(EntityCanonical.canonical_id.in_(wanted))
+            )
+        )
+        .scalars()
+        .all()
+    )
+    edges = (
+        (
+            await session.execute(
+                select(CanonicalLink).where(
+                    CanonicalLink.from_canonical.in_(wanted),
+                    CanonicalLink.to_canonical.in_(wanted),
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    facts: dict = {}
+    for canonical_id, attr, value in (
+        await session.execute(
+            select(FactCurrent.canonical_id, FactCurrent.attr, FactCurrent.value).where(
+                FactCurrent.canonical_id.in_(wanted),
+                FactCurrent.attr.in_(LABEL_ATTRS),
+            )
+        )
+    ).all():
+        facts.setdefault(canonical_id, {})[attr] = value
+    by_type = Counter(n.entity_type for n in nodes)
+    return {
+        "nodes": [
+            {
+                "canonical_id": str(n.canonical_id),
+                "entity_type": n.entity_type,
+                "anchor": n.anchor_key,
+                "label": _label(n.anchor_key, facts.get(n.canonical_id, {})),
+                "members": n.member_count,
+            }
+            for n in sorted(nodes, key=lambda n: (n.entity_type, n.anchor_key))
+        ],
+        "edges": sorted(
+            (
+                {
+                    "from": str(e.from_canonical),
+                    "to": str(e.to_canonical),
+                    "rel": e.rel,
+                    "grounding": e.grounding,
+                }
+                for e in edges
+            ),
+            key=lambda e: (e["from"], e["to"], e["rel"]),
+        ),
+        "counts": {
+            "nodes": len(nodes),
+            "edges": len(edges),
+            "by_type": dict(sorted(by_type.items())),
+        },
+    }
+
+
+def _run_report(row: EngineRun) -> dict:
+    return {
+        "ran": True,
+        "ok": row.ok,
+        "duration_ms": row.duration_ms,
+        "raw_events_read": row.raw_events_read,
+        "entities": row.entities_written,
+        "facts": row.facts_written,
+        "created_at": row.created_at.isoformat(),
+        "report": row.report,
+    }
+
+
 @router.get("/report")
 async def latest_report(session=Depends(get_session)):
     newest = (
@@ -277,13 +375,46 @@ async def latest_report(session=Depends(get_session)):
     ).scalar_one_or_none()
     if newest is None:
         return {"ran": False, "detail": "no rebuild has run yet"}
+    return _run_report(newest)
+
+
+@router.get("/report/runs")
+async def list_runs(
+    limit: int = Query(50, ge=1, le=200),
+    session=Depends(get_session),
+):
+    rows = (
+        (
+            await session.execute(
+                select(EngineRun).order_by(EngineRun.seq.desc()).limit(limit)
+            )
+        )
+        .scalars()
+        .all()
+    )
     return {
-        "ran": True,
-        "ok": newest.ok,
-        "duration_ms": newest.duration_ms,
-        "raw_events_read": newest.raw_events_read,
-        "entities": newest.entities_written,
-        "facts": newest.facts_written,
-        "created_at": newest.created_at.isoformat(),
-        "report": newest.report,
+        "runs": [
+            {
+                "seq": r.seq,
+                "ok": r.ok,
+                "created_at": r.created_at.isoformat(),
+                "duration_ms": r.duration_ms,
+                "raw_events_read": r.raw_events_read,
+                "entities": r.entities_written,
+                "facts": r.facts_written,
+                "totals": r.report.get("totals", {}),
+                "error": r.report.get("error"),
+            }
+            for r in rows
+        ]
     }
+
+
+@router.get("/report/runs/{seq}", responses={404: {"description": "no such run"}})
+async def get_run(seq: int, session=Depends(get_session)):
+    row = (
+        await session.execute(select(EngineRun).where(EngineRun.seq == seq))
+    ).scalar_one_or_none()
+    if row is None:
+        raise HTTPException(404, "no such run")
+    return _run_report(row)

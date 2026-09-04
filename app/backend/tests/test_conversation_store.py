@@ -1,9 +1,20 @@
 import uuid
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import delete, select
 
 from app.conversation import store
 from app.models import ConversationThread, ConversationTurn
+
+SEEN = datetime(2026, 8, 1, tzinfo=UTC)
+
+TURN = {
+    "answer": "MRR is 0.",
+    "receipts": [],
+    "turns": 1,
+    "model": "claude-test",
+    "prompt_version": "2026-08-02.1",
+}
 
 
 class TestThreadsAreNeverDeleted:
@@ -57,3 +68,30 @@ class TestStoredHistory:
 
     async def test_an_unknown_conversation_is_not_found(self, session):
         assert await store.get_conversation(session, uuid.uuid4()) is None
+
+
+class TestListing:
+    async def test_nothing_is_listed_before_any_thread_exists(self, session):
+        assert await store.list_conversations(session, limit=50, offset=0) == []
+
+    async def test_a_thread_with_a_new_turn_moves_to_the_front(self, session):
+        older = await store.create_conversation(session)
+        newer = await store.create_conversation(session)
+        await store.append_turn(session, older, "what is mrr?", TURN)
+        listed = await store.list_conversations(session, limit=50, offset=0)
+        assert [row["conversation_id"] for row in listed] == [str(older), str(newer)]
+
+    async def test_paging_walks_newest_first_without_repeating(self, session):
+        stamped = [
+            ConversationThread(updated_at=SEEN + timedelta(days=n)) for n in range(3)
+        ]
+        session.add_all(stamped)
+        await session.flush()
+        first = await store.list_conversations(session, limit=2, offset=0)
+        second = await store.list_conversations(session, limit=2, offset=2)
+        assert [row["conversation_id"] for row in first + second] == [
+            str(stamped[2].id),
+            str(stamped[1].id),
+            str(stamped[0].id),
+        ]
+        assert first[0]["updated_at"] == (SEEN + timedelta(days=2)).isoformat()

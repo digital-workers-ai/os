@@ -339,11 +339,6 @@ class TestAccountCurrencyExemption:
 
 
 class TestValidationLabels:
-    def test_nothing_ships_on_by_default_until_it_is_provider_validated(self):
-        status = checks.source_status()
-        for source in checks.enabled_sources():
-            assert status[source]["status"] == "provider-validated", source
-
     def test_the_pilot_sources_derive_mock_validated(self):
         status = checks.source_status()
         for source in ("hubspot", "salesforce", "stripe", "customerio", "google_ads"):
@@ -363,7 +358,6 @@ class TestValidationLabels:
         assert status["stripe"]["status"] == "provider-validated"
         assert status["zoom"]["status"] == "provider-validated"
         assert status["hubspot"]["status"] == "mock-validated"
-        assert checks.enabled_sources() == ["stripe", "zoom"]
 
     def test_entities_derive_from_the_mapping_lines(self):
         status = checks.source_status()

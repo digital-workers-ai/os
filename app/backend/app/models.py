@@ -292,3 +292,11 @@ class SyncRun(Base):
     __table_args__ = (
         Index("ix_sync_run_source_time", "source", text("started_at DESC")),
     )
+
+
+class SourceSetting(Base):
+    __tablename__ = "source_setting"
+
+    source = Column(String(64), primary_key=True)  # connector key: hubspot, stripe, zendesk
+    enabled = Column(Boolean, nullable=False)  # sync allowed: true, false
+    updated_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # last change: server now(), 2026-09-04T12:00:00Z

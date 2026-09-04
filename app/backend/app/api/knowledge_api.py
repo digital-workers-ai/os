@@ -1,5 +1,6 @@
+from app.api.insights_api import rule_definitions
 from app.api.routers import knowledge as router
-from app.engine import mappings, metrics, ontology, transforms
+from app.engine import goals, mappings, metrics, ontology, transforms
 from app.sources import hooks
 
 
@@ -62,4 +63,24 @@ async def get_metric_definitions():
     return {
         "definitions": definitions,
         "provenance": metrics.provenance(definitions, mappings.load()),
+    }
+
+
+@router.get("/rules")
+async def get_rules():
+    return await rule_definitions()
+
+
+@router.get("/goals")
+async def get_goals():
+    return {
+        "goals": {
+            name: {
+                "metric": spec.get("metric"),
+                "target": spec.get("target"),
+                "strategy": spec.get("strategy"),
+                "params": spec.get("params") or {},
+            }
+            for name, spec in sorted(goals.definitions().items())
+        }
     }
