@@ -43,6 +43,7 @@ function Verified({ ok }: { ok: boolean }) {
 }
 
 function Facts({ vocabulary, vocabularyError }: { vocabulary: Vocabulary | null; vocabularyError: ApiError | null }) {
+  const [entity, setEntity] = useState('')
   const [attr, setAttr] = useState('')
   const [value, setValue] = useState('')
   const [unverified, setUnverified] = useState(false)
@@ -51,6 +52,7 @@ function Facts({ vocabulary, vocabularyError }: { vocabulary: Vocabulary | null;
   const bodyRef = useRef<HTMLDivElement>(null)
 
   const params = new URLSearchParams({ limit: String(size), offset: String(offset) })
+  if (entity) params.set('entity_type', entity)
   if (attr) params.set('attr', attr)
   if (value) params.set('value', value)
   if (unverified) params.set('unverified_only', 'true')
@@ -63,6 +65,12 @@ function Facts({ vocabulary, vocabularyError }: { vocabulary: Vocabulary | null;
   }
   const changeSize = (n: number) => {
     setSize(n)
+    goTo(0)
+  }
+  const pickEntity = (e: string) => {
+    setEntity(e)
+    setAttr('')
+    setValue('')
     goTo(0)
   }
   const pickAttr = (a: string) => {
@@ -80,25 +88,31 @@ function Facts({ vocabulary, vocabularyError }: { vocabulary: Vocabulary | null;
   }
 
   const byValue = data?.by_value ?? {}
+  const entityCounts = new Map<string, number>()
   const attrCounts = new Map<string, number>()
   const labelCounts = new Map<string, number>()
-  Object.entries(vocabulary?.readings ?? {}).forEach(([name, r]) =>
+  Object.entries(vocabulary?.readings ?? {}).forEach(([name, r]) => {
+    const matches = !entity || r.entity === entity
     r.fields.forEach((f) =>
       f.labels.forEach((g) => {
         const n = byValue[`${name}.${f.name}.${g.label}`] ?? 0
+        entityCounts.set(r.entity, (entityCounts.get(r.entity) ?? 0) + n)
+        if (!matches) return
         attrCounts.set(f.name, (attrCounts.get(f.name) ?? 0) + n)
         if (!attr || f.name === attr) labelCounts.set(g.label, (labelCounts.get(g.label) ?? 0) + n)
       }),
-    ),
-  )
+    )
+  })
   const total = sum(Object.values(byValue))
-  const valuesTotal = attr ? (attrCounts.get(attr) ?? 0) : total
+  const factsTotal = entity ? (entityCounts.get(entity) ?? 0) : total
+  const valuesTotal = attr ? (attrCounts.get(attr) ?? 0) : factsTotal
 
   return (
     <SectionCard
       title={
         <div className="flex items-center gap-2">
-          <Filter value={attr} onChange={pickAttr} all={`all facts (${num(total)})`} options={[...attrCounts]} />
+          <Filter value={entity} onChange={pickEntity} all={`all entities (${num(total)})`} options={[...entityCounts]} />
+          <Filter value={attr} onChange={pickAttr} all={`all facts (${num(factsTotal)})`} options={[...attrCounts]} />
           <Filter value={value} onChange={pickValue} all={`all values (${num(valuesTotal)})`} options={[...labelCounts]} />
           <Filter
             value={unverified ? UNVERIFIED : ''}
