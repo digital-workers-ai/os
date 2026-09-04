@@ -3,13 +3,14 @@ import uuid
 from fastapi import Depends, HTTPException, Query
 from sqlalchemy import func, select
 
+from app.api.entities_api import LABEL_ATTRS, _label
 from app.api.routers import enrichment as router
 from app.caches import MAX_OFFSET
 from app.config import settings
 from app.db import async_session, get_session
 from app.enrichment import store as enrichment_store
 from app.enrichment import vocabulary as vocab_mod
-from app.models import EnrichedFact
+from app.models import EnrichedFact, EntityCanonical, FactCurrent
 
 
 @router.get("/vocabulary")
@@ -93,6 +94,34 @@ async def list_enriched(
         .all()
     )
 
+    anchors: dict = {}
+    labels: dict = {}
+    if rows:
+        ids = {r.canonical_id for r in rows}
+        anchors = dict(
+            (
+                await session.execute(
+                    select(
+                        EntityCanonical.canonical_id,
+                        EntityCanonical.anchor_key,
+                    ).where(EntityCanonical.canonical_id.in_(ids))
+                )
+            ).all()
+        )
+        for canonical_id, label_attr, label_value in (
+            await session.execute(
+                select(
+                    FactCurrent.canonical_id,
+                    FactCurrent.attr,
+                    FactCurrent.value,
+                ).where(
+                    FactCurrent.canonical_id.in_(ids),
+                    FactCurrent.attr.in_(LABEL_ATTRS),
+                )
+            )
+        ).all():
+            labels.setdefault(canonical_id, {})[label_attr] = label_value
+
     readings = vocab_mod.load()
     current = {r.sha for r in readings.values()}
     by_value = {
@@ -134,6 +163,10 @@ async def list_enriched(
             {
                 "canonical_id": str(r.canonical_id),
                 "entity_type": r.entity_type,
+                "label": _label(
+                    anchors.get(r.canonical_id, str(r.canonical_id)),
+                    labels.get(r.canonical_id, {}),
+                ),
                 "reading": r.reading,
                 "attr": r.attr,
                 "value": r.value,
