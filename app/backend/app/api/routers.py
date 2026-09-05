@@ -12,6 +12,7 @@ coaching = APIRouter(prefix="/api/coaching", tags=["coaching"])
 conversation = APIRouter(prefix="/api/conversation", tags=["conversation"])
 definitions = APIRouter(prefix="/api/definitions", tags=["definitions"])
 activity = APIRouter(prefix="/api/activity", tags=["activity"])
+mcp = APIRouter(prefix="/api/mcp", tags=["mcp"])
 
 ROUTERS = (
     sources,
@@ -24,6 +25,7 @@ ROUTERS = (
     conversation,
     definitions,
     activity,
+    mcp,
 )
 HANDLER_MODULES = (
     "app.api.raw_api",
@@ -36,6 +38,7 @@ HANDLER_MODULES = (
     "app.api.conversation_api",
     "app.api.definitions_api",
     "app.api.activity_api",
+    "app.api.mcp_api",
 )
 
 

@@ -99,4 +99,5 @@ The stack is Docker Compose (`app/docker-compose.yml`): postgres :5442, mock :81
 - `definitions/` — the definition files (`ontology.yaml` through `enrichment.yaml`) and `briefs/`, the role prompt files
 - `app/backend/` — FastAPI backend; tests in `app/backend/tests/`
 - `app/backend/app/sources/` — one package per source: connector plus extract hook
+- `app/backend/app/mcp.py` — the read-only MCP server at `/mcp` (Streamable HTTP): the conversation's six tools, the definition files as `definitions://` resources, the role briefs as `briefing_<role>` prompts, every call logged to `mcp_call`; localhost only until auth exists
 - `mock/` — vendored mock providers (verbatim; exempt from repo style rules)

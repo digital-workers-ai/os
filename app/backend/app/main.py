@@ -5,6 +5,7 @@ from urllib.parse import unquote
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
+from app import mcp
 from app.api import register_routes
 from app.config import validate_startup
 from app.db import create_schema
@@ -22,10 +23,11 @@ async def lifespan(app):
     if problems:
         raise checks.BuildCheckError(problems)
     logger.info("build checks: ok")
-    yield
+    async with mcp.http_app.lifespan(mcp.http_app):
+        yield
 
 
-app = FastAPI(title="OS v0", lifespan=lifespan)
+app = FastAPI(title="OS", lifespan=lifespan)
 
 
 @app.middleware("http")
@@ -62,6 +64,7 @@ async def refuse_null_bytes(request, call_next):
 
 
 register_routes(app)
+app.add_route(mcp.PATH, mcp.http_app)
 
 
 @app.get("/api/health")

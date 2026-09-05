@@ -1,4 +1,5 @@
 import json
+from contextlib import asynccontextmanager
 
 import httpx
 import pytest_asyncio
@@ -59,14 +60,14 @@ async def client(session, sessionmaker_for_test, monkeypatch):
         yield client
 
 
-@pytest_asyncio.fixture
-async def api():
+@asynccontextmanager
+async def served():
     async with main.lifespan(main.app):
         transport = httpx.ASGITransport(app=main.app)
         async with httpx.AsyncClient(
             transport=transport, base_url="http://backend"
-        ) as client:
-            yield client
+        ) as api:
+            yield api
 
 
 async def _logged(session) -> list[tuple]:
@@ -168,9 +169,10 @@ class TestCallLog:
 
 
 class TestHttp:
-    async def test_the_api_describes_the_server(self, api):
+    async def test_the_api_describes_the_server(self):
         assert main.app.title == "OS"
-        body = (await api.get("/api/mcp")).json()
+        async with served() as api:
+            body = (await api.get("/api/mcp")).json()
         assert body["path"] == "/mcp"
         assert {tool["name"] for tool in body["tools"]} == TOOLS
         assert {resource["uri"] for resource in body["resources"]} == URIS
@@ -187,8 +189,9 @@ class TestHttp:
             2,
         )
 
-    async def test_the_endpoint_answers_inside_the_app(self, api):
-        response = await api.post("/mcp", json=INITIALIZE, headers=MCP_HEADERS)
+    async def test_the_endpoint_answers_inside_the_app(self):
+        async with served() as api:
+            response = await api.post("/mcp", json=INITIALIZE, headers=MCP_HEADERS)
         assert response.status_code == 200
         [data] = [
             line.removeprefix("data: ")

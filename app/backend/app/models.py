@@ -300,3 +300,16 @@ class SourceSetting(Base):
     source = Column(String(64), primary_key=True)  # connector key: hubspot, stripe, zendesk
     enabled = Column(Boolean, nullable=False)  # sync allowed: true, false
     updated_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # last change: server now(), 2026-09-04T12:00:00Z
+
+
+class McpCall(Base):
+    __tablename__ = "mcp_call"
+
+    seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic call counter: 1, 2, 3
+    kind = Column(String(16), nullable=False)  # what was requested: tool, resource, prompt
+    name = Column(String(128), nullable=False)  # tool, uri or prompt: get_metrics, definitions://metrics, briefing_ceo
+    arguments = Column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))  # arguments as given: {"name": "mrr"}, {}
+    ok = Column(Boolean, nullable=False)  # call succeeded: true, false
+    duration_ms = Column(Integer, nullable=False, server_default=text("0"))  # call wall time: 12, 3400
+    error = Column(Text)  # failure detail: "Error calling tool 'get_goals': down", null
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # call timestamp: server now(), 2026-09-04T12:00:00Z
