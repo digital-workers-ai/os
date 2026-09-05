@@ -5,6 +5,7 @@ import {
   get,
   put,
   type ApiError,
+  type McpIndex,
   type RebuildResponse,
   type ReportResponse,
   type RunsResponse,
@@ -34,6 +35,9 @@ const NUM = 'text-right tabular-nums'
 const KEY = 'font-medium text-dbb-charcoal'
 const TOP = 'align-top'
 const TAB = 'lg:min-h-0 lg:flex-1'
+const TAB_SCROLL = 'lg:min-h-0 lg:flex-1 lg:overflow-y-auto'
+const NARROW = 'w-px whitespace-nowrap'
+const PRE = 'overflow-auto rounded-lg bg-dbb-surface p-3 font-mono text-xs'
 const SPLIT = 'grid items-start gap-6 lg:h-full lg:grid-cols-[0.45fr_0.55fr] lg:grid-rows-[minmax(0,1fr)]'
 const NOTICES = 'mt-2 -mb-1 flex flex-col gap-3 [&>*]:mb-0'
 
@@ -156,7 +160,7 @@ function Report({ report }: { report: Ran }) {
             <TableBody>
               {r.oversized.map((o, i) => (
                 <TableRow key={i}>
-                  <TableCell className={cn('w-px whitespace-nowrap', TOP)}>
+                  <TableCell className={cn(NARROW, TOP)}>
                     <Pill tone="warn">{o.kind}</Pill>
                   </TableCell>
                   <TableCell className={TOP}>
@@ -219,7 +223,7 @@ function Report({ report }: { report: Ran }) {
       )}
       <SectionCard title="Receipts" testId="rebuild-receipts">
         <p className="mb-3 text-sm text-dbb-muted">The full report of this rebuild, exactly as the engine produced it.</p>
-        <pre className="overflow-auto rounded-lg bg-dbb-surface p-3 font-mono text-xs">{JSON.stringify(r, null, 2)}</pre>
+        <pre className={PRE}>{JSON.stringify(r, null, 2)}</pre>
       </SectionCard>
     </>
   )
@@ -305,6 +309,121 @@ function Rebuilds({ rebuilds }: { rebuilds: number }) {
   )
 }
 
+function Mcp() {
+  const index = useLoad(() => get<McpIndex>('/api/mcp'), [])
+  const [copied, setCopied] = useState(false)
+  const data = index.data
+  const endpoint = `${window.location.origin}${data?.path ?? ''}`
+  const copy = () => {
+    if (!navigator.clipboard) return
+    navigator.clipboard
+      .writeText(endpoint)
+      .then(() => {
+        setCopied(true)
+        setTimeout(() => setCopied(false), 1500)
+      })
+      .catch(() => {})
+  }
+  return (
+    <div className="space-y-6">
+      <SectionCard
+        testId="mcp"
+        title={data && <Mono>{endpoint}</Mono>}
+        headerRight={
+          data && (
+            <Button size="sm" variant="outline" onClick={copy} data-testid="mcp-copy">
+              {copied ? 'Copied' : 'Copy'}
+            </Button>
+          )
+        }
+      >
+        <ErrorBanner error={index.error} />
+        {index.loading && <Loading />}
+        {data && data.tools.length === 0 && <Empty>no tools</Empty>}
+        {data && data.tools.length > 0 && (
+          <Table data-testid="mcp-tools">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Tool ({num(data.tools.length)})</TableHead>
+                <TableHead>Description</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.tools.map((t) => (
+                <TableRow key={t.name}>
+                  <TableCell className={cn(NARROW, TOP)}>
+                    <Mono>{t.name}</Mono>
+                  </TableCell>
+                  <TableCell className={TOP}>{t.description}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </SectionCard>
+      {data && (
+        <>
+          <SectionCard testId="mcp-resources">
+            {data.resources.length === 0 && <Empty>no resources</Empty>}
+            {data.resources.length > 0 && (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Resource ({num(data.resources.length)})</TableHead>
+                    <TableHead>URI</TableHead>
+                    <TableHead>Description</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.resources.map((r) => (
+                    <TableRow key={r.uri}>
+                      <TableCell className={cn(KEY, NARROW, TOP)}>{r.name}</TableCell>
+                      <TableCell className={cn(NARROW, TOP)}>
+                        <Mono>{r.uri}</Mono>
+                      </TableCell>
+                      <TableCell className={TOP}>{r.description}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </SectionCard>
+          <SectionCard testId="mcp-prompts">
+            {data.prompts.length === 0 && <Empty>no prompts</Empty>}
+            {data.prompts.length > 0 && (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Prompt ({num(data.prompts.length)})</TableHead>
+                    <TableHead>Description</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.prompts.map((p) => (
+                    <TableRow key={p.name}>
+                      <TableCell className={cn(NARROW, TOP)}>
+                        <Mono>{p.name}</Mono>
+                      </TableCell>
+                      <TableCell className={TOP}>{p.description}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </SectionCard>
+          <SectionCard title="Client config" testId="mcp-client">
+            <p className="mb-3 text-sm text-dbb-muted">One line for Claude Code, or the JSON for Claude Desktop and Cursor.</p>
+            <div className="space-y-3">
+              <pre className={PRE}>{`claude mcp add --transport http os ${endpoint}`}</pre>
+              <pre className={PRE}>{JSON.stringify({ mcpServers: { os: { type: 'http', url: endpoint } } }, null, 2)}</pre>
+            </div>
+          </SectionCard>
+        </>
+      )}
+    </div>
+  )
+}
+
 export function Config() {
   const [sources, setSources] = useState<SourcesResponse | null>(null)
   const [sourcesError, setSourcesError] = useState<ApiError | null>(null)
@@ -385,6 +504,9 @@ export function Config() {
         </TabsTrigger>
         <TabsTrigger value="rebuild" data-testid="tab-rebuild">
           Rebuild
+        </TabsTrigger>
+        <TabsTrigger value="mcp" data-testid="tab-mcp">
+          MCP
         </TabsTrigger>
       </TabsList>
 
@@ -536,6 +658,10 @@ export function Config() {
 
       <TabsContent value="rebuild" className={TAB} data-testid="tabpanel-rebuild">
         <Rebuilds rebuilds={rebuilds} />
+      </TabsContent>
+
+      <TabsContent value="mcp" className={TAB_SCROLL} data-testid="tabpanel-mcp">
+        <Mcp />
       </TabsContent>
     </Tabs>
   )

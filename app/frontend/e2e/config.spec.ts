@@ -28,6 +28,26 @@ const SYNC = {
   ],
 }
 const REBUILT = { ok: true, duration_ms: 1234, raw_events_read: 382, entities: 388, facts: 1488 }
+const MCP = {
+  path: '/mcp',
+  tools: [
+    { name: 'get_metrics', description: 'Metric series with current value and trend' },
+    { name: 'get_goals', description: 'Goals with progress against target' },
+    { name: 'get_findings', description: 'Rule findings, newest first' },
+    { name: 'entity_counts', description: 'Entity counts per type' },
+    { name: 'find_entities', description: 'Search entities by name or type' },
+    { name: 'get_entity', description: 'One entity with its facts and links' },
+  ],
+  resources: ['ontology', 'mappings', 'transforms', 'synonyms', 'metrics', 'rules', 'goals', 'enrichment'].map((name) => ({
+    uri: `definitions://${name}`,
+    name,
+    description: `Committed ${name} definitions`,
+  })),
+  prompts: [
+    { name: 'briefing_ceo', description: 'CEO briefing from the current estate' },
+    { name: 'briefing_head_of_sales', description: 'Head of Sales briefing from the current estate' },
+  ],
+}
 
 const sourceRow = (page: Page, source: string) => page.locator(`[data-testid="sources-row"][data-source="${source}"]`)
 const enabledChips = (page: Page) => page.getByTestId('sources-table').locator('[data-testid^="source-enabled-"]')
@@ -50,6 +70,12 @@ const expectInHeader = async (page: Page, testId: string) => {
 const openRebuild = async (page: Page) => {
   await visit(page, '/config')
   await page.getByTestId('tab-rebuild').click()
+  await settle(page)
+}
+
+const openMcp = async (page: Page) => {
+  await visit(page, '/config')
+  await page.getByTestId('tab-mcp').click()
   await settle(page)
 }
 
@@ -191,4 +217,29 @@ test('rebuild scrolled', async ({ page }) => {
   await scroll(page.getByTestId('rebuild-receipt'), 300)
   await expect(heads(page.getByTestId('rebuild-runs-table')).first()).toBeInViewport()
   await snap(page, 'config-rebuild-scrolled')
+})
+
+test('mcp tab', async ({ page }) => {
+  await mockJson(page, '**/api/mcp', MCP)
+  await openMcp(page)
+  const endpoint = `${new URL(page.url()).origin}/mcp`
+  await expect(page.getByTestId('mcp-title')).toHaveText(endpoint)
+  await expect(page.getByTestId('mcp-copy')).toHaveText('Copy')
+  await expect(heads(page.getByTestId('mcp-tools'))).toHaveText(['Tool (6)', 'Description'])
+  await expect(heads(page.getByTestId('mcp-resources'))).toHaveText(['Resource (8)', 'URI', 'Description'])
+  await expect(heads(page.getByTestId('mcp-prompts'))).toHaveText(['Prompt (2)', 'Description'])
+  const blocks = page.getByTestId('mcp-client-body').locator('pre')
+  await expect(blocks).toHaveCount(2)
+  await expect(blocks.nth(0)).toHaveText(`claude mcp add --transport http os ${endpoint}`)
+  await expect(blocks.nth(1)).toContainText(`"url": "${endpoint}"`)
+  await snap(page, 'config-mcp')
+})
+
+test('mcp error', async ({ page }) => {
+  await mockJson(page, '**/api/mcp', { detail: 'mcp index unavailable' }, 500)
+  await openMcp(page)
+  await expect(page.getByTestId('mcp-body').getByTestId('error-banner')).toHaveText('500 mcp index unavailable')
+  await expect(page.getByTestId('mcp-tools')).toHaveCount(0)
+  await expect(page.getByTestId('mcp-client')).toHaveCount(0)
+  await snap(page, 'config-mcp-error')
 })

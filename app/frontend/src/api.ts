@@ -167,6 +167,13 @@ export interface RunsResponse {
   runs: RebuildRun[]
 }
 
+export interface McpIndex {
+  path: string
+  tools: { name: string; description: string }[]
+  resources: { uri: string; name: string; description: string }[]
+  prompts: { name: string; description: string }[]
+}
+
 export const api = {
   sources: () => get<SourcesResponse>('/api/sources'),
   sync: (sources?: string[]) => post<SyncResponse>('/api/sync', sources ? { sources } : {}),
