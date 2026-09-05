@@ -1,4 +1,4 @@
-# OS v0
+# OS
 
 An AI Operating System substrate: it pulls raw data from the tools a company uses, projects it into a clean entity graph, and (in later slices) computes metrics, rules, and goals on top. Deterministic by design — same inputs, same outputs, no model calls in the pipeline.
 
@@ -83,6 +83,8 @@ Three durability rules: the rebuild never touches `enriched_fact` (it's the one 
 
 **prompts_sha** — one digest over every prompt file, stamped on each stored briefing beside `input_sha` (the exact estate block read) and the model. Together they finish the provenance sentence a briefing owes its reader: *these numbers, worded this way, by this model.* Rewording a prompt changes the sha, so an old briefing honestly reads as the product of retired wording rather than a change in the business — the same move as enrichment's `vocabulary_sha`, because in both layers the prose *is* part of the instrument, and an instrument that changed silently would forge its own history.
 
+**MCP** (`/mcp`) — the estate as a tool server for any agent on the machine, over the Model Context Protocol (Streamable HTTP). It is read-only and calls no model itself. It serves the conversation's six tools (`get_metrics`, `get_goals`, `get_findings`, `entity_counts`, `find_entities`, `get_entity`) built from the same specs and handlers the ask agent uses, so an agent asking for MRR gets the reviewed number with its receipts rather than a guess over raw tables; the definition files as `definitions://<name>` resources, so an agent can read what a metric means before asking for it; and each role brief as a `briefing_<role>` prompt. Every call is written to `mcp_call` (kind, name, arguments, ok, duration, error). `GET /api/mcp` lists what is served; the console's Config → MCP tab shows it with the endpoint and a client config to copy. There is no authentication on `/mcp` or `/api` yet, so it is for localhost only until the OAuth item in `TODO.md` lands.
+
 ## Running
 
 ```
@@ -93,10 +95,19 @@ Three durability rules: the rebuild never touches `enriched_fact` (it's the one 
 
 The stack is Docker Compose (`app/docker-compose.yml`): postgres :5442, mock :8192, backend :8092. `test.sh` starts it as needed.
 
+Connect an MCP client to the running stack: `claude mcp add --transport http os http://localhost:3092/mcp` for Claude Code, or for Claude Desktop and Cursor:
+
+```json
+{ "mcpServers": { "os": { "type": "http", "url": "http://localhost:3092/mcp" } } }
+```
+
+Then ask the client for the goals, or for a company by name; the answers come from the tools above and each call shows up in `mcp_call`.
+
 ## Layout
 
 - `ROADMAP.md` — the feature-slice plan to v11 parity, checkbox-tracked
 - `definitions/` — the definition files (`ontology.yaml` through `enrichment.yaml`) and `briefs/`, the role prompt files
 - `app/backend/` — FastAPI backend; tests in `app/backend/tests/`
 - `app/backend/app/sources/` — one package per source: connector plus extract hook
+- `app/backend/app/mcp.py` — the read-only MCP server at `/mcp` (Streamable HTTP): the conversation's six tools, the definition files as `definitions://` resources, the role briefs as `briefing_<role>` prompts, every call logged to `mcp_call`; localhost only until auth exists
 - `mock/` — vendored mock providers (verbatim; exempt from repo style rules)

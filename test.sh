@@ -62,8 +62,8 @@ if [ -n "${snap_script:-}" ]; then
   echo "==> fresh snap stack (postgres, mock, backend, frontend)"
   docker volume create os_frontend_node_modules >/dev/null
   compose_snap down -v --remove-orphans
-  compose_snap up -d --wait postgres mock backend
-  compose_snap up -d frontend
+  compose_snap up -d --build --wait postgres mock backend
+  compose_snap up -d --build frontend
   wait_for_frontend
   echo "==> sync + rebuild"
   post_api sync
