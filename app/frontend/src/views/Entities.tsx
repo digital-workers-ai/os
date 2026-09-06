@@ -204,12 +204,12 @@ function RawEventView({ event }: { event: RawEvent }) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Id</TableHead>
-            <TableHead className={NUM}>Seq</TableHead>
-            <TableHead>Source</TableHead>
-            <TableHead>Source type</TableHead>
-            <TableHead>Source id</TableHead>
-            <TableHead>Ingested</TableHead>
+            <TableHead hint="Unique id of this raw event">Id</TableHead>
+            <TableHead hint="Order in which we received it" className={NUM}>Seq</TableHead>
+            <TableHead hint="The tool that sent this event">Source</TableHead>
+            <TableHead hint="Kind of object the tool sent">Source type</TableHead>
+            <TableHead hint="The tool's own id for this object">Source id</TableHead>
+            <TableHead hint="When we stored the event">Ingested</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -340,10 +340,10 @@ function Detail({
             <Table data-testid="detail-sources">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Source ({num(d.members.length)})</TableHead>
-                  <TableHead>Source id</TableHead>
-                  <TableHead>Source type</TableHead>
-                  <TableHead>Evidence</TableHead>
+                  <TableHead hint="A tool holding a record of this entity">Source ({num(d.members.length)})</TableHead>
+                  <TableHead hint="The tool's own id for that record">Source id</TableHead>
+                  <TableHead hint="Kind of object the tool holds">Source type</TableHead>
+                  <TableHead hint="The values used to match this record in">Evidence</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -373,12 +373,12 @@ function Detail({
               <Table data-testid="detail-facts">
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[100px] min-w-[100px]">Fact ({num(d.facts.length)})</TableHead>
-                    <TableHead>Value</TableHead>
-                    <TableHead>Winning source</TableHead>
-                    <TableHead>Observed</TableHead>
-                    <TableHead className={NUM}>Disagreements</TableHead>
-                    <TableHead>Raw event</TableHead>
+                    <TableHead hint="One attribute of this entity" className="w-[100px] min-w-[100px]">Fact ({num(d.facts.length)})</TableHead>
+                    <TableHead hint="The value we kept for this attribute">Value</TableHead>
+                    <TableHead hint="The tool whose value we kept">Winning source</TableHead>
+                    <TableHead hint="When the winning value was seen">Observed</TableHead>
+                    <TableHead hint="How many other tools gave a different value" className={NUM}>Disagreements</TableHead>
+                    <TableHead hint="The event the winning value came from">Raw event</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -427,10 +427,10 @@ function Detail({
               <Table data-testid="detail-links">
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Link ({num(links.length)})</TableHead>
-                    <TableHead>Relationship</TableHead>
-                    <TableHead>Target</TableHead>
-                    <TableHead>Grounding</TableHead>
+                    <TableHead hint="Whether the link points out from here or in">Link ({num(links.length)})</TableHead>
+                    <TableHead hint="How the two entities are related">Relationship</TableHead>
+                    <TableHead hint="The other entity in the relationship">Target</TableHead>
+                    <TableHead hint="The kind and field that back this link">Grounding</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -513,9 +513,9 @@ function Canonical() {
           <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="entities-table">
             <TableHeader className={STICKY_HEAD}>
               <TableRow>
-                <TableHead className="w-28">Entity ({num(list.data?.total ?? rows.length)})</TableHead>
-                <TableHead className="w-64">Anchor</TableHead>
-                <TableHead className={cn(NUM, 'w-24')}>Sources</TableHead>
+                <TableHead hint="The thing's name, merged across tools" className="w-28">Entity ({num(list.data?.total ?? rows.length)})</TableHead>
+                <TableHead hint="Source, type and id that pin this entity" className="w-64">Anchor</TableHead>
+                <TableHead hint="How many tools hold a record of it" className={cn(NUM, 'w-24')}>Sources</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -601,8 +601,8 @@ function RecordDetail({ record }: { record: RecordRow }) {
           <Table data-testid="record-facts">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[100px] min-w-[100px]">Fact ({num(facts.length)})</TableHead>
-                <TableHead>Value</TableHead>
+                <TableHead hint="One attribute this tool holds" className="w-[100px] min-w-[100px]">Fact ({num(facts.length)})</TableHead>
+                <TableHead hint="The value the tool holds for it">Value</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -625,8 +625,8 @@ function RecordDetail({ record }: { record: RecordRow }) {
           <Table className="table-fixed" data-testid="record-events">
             <TableHeader>
               <TableRow>
-                <TableHead>Raw event ({num(events.length)})</TableHead>
-                <TableHead className="w-32">Ingested</TableHead>
+                <TableHead hint="One payload exactly as the tool sent it">Raw event ({num(events.length)})</TableHead>
+                <TableHead hint="When we stored the event" className="w-32">Ingested</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -729,10 +729,10 @@ function RawSide() {
           <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="records-table">
             <TableHeader className={STICKY_HEAD}>
               <TableRow>
-                <TableHead className="w-28">Source ({num(records.data?.total ?? rows.length)})</TableHead>
-                <TableHead className="w-36">Source id</TableHead>
-                <TableHead className="w-28">Source type</TableHead>
-                <TableHead className="w-24">Entity</TableHead>
+                <TableHead hint="The tool this record came from" className="w-28">Source ({num(records.data?.total ?? rows.length)})</TableHead>
+                <TableHead hint="The tool's own id for this record" className="w-36">Source id</TableHead>
+                <TableHead hint="Kind of object the tool holds" className="w-28">Source type</TableHead>
+                <TableHead hint="What kind of thing this record describes" className="w-24">Entity</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

@@ -196,9 +196,9 @@ function OntologyTab({ o }: { o: Ontology }) {
         <Table data-testid="definitions-ontology-table">
           <TableHeader>
             <TableRow>
-              <TableHead>Entity ({num(entities.length)})</TableHead>
-              <TableHead>Attributes</TableHead>
-              <TableHead>Identity</TableHead>
+              <TableHead hint="One kind of record, with its attribute count">Entity ({num(entities.length)})</TableHead>
+              <TableHead hint="Fields this kind can carry, each with its type">Attributes</TableHead>
+              <TableHead hint="Attributes that tell one apart from another">Identity</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -241,11 +241,11 @@ function OntologyTab({ o }: { o: Ontology }) {
         <Table data-testid="definitions-relationships-table">
           <TableHeader>
             <TableRow>
-              <TableHead>Relationship ({num(o.relationships.length)})</TableHead>
-              <TableHead>From</TableHead>
-              <TableHead>To</TableHead>
-              <TableHead>Cardinality</TableHead>
-              <TableHead>Grounding</TableHead>
+              <TableHead hint="Name of the link between two record kinds">Relationship ({num(o.relationships.length)})</TableHead>
+              <TableHead hint="The kind of record the link starts from">From</TableHead>
+              <TableHead hint="The kind of record the link points to">To</TableHead>
+              <TableHead hint="How many on each side, like many to one">Cardinality</TableHead>
+              <TableHead hint="Which attribute connects the two, by reference or match">Grounding</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -305,12 +305,12 @@ function MappingsTab({ m }: { m: Mappings }) {
         <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="definitions-mappings-table">
           <TableHeader className={STICKY_HEAD}>
             <TableRow>
-              <TableHead className="w-28">Source ({num(lines.length)})</TableHead>
-              <TableHead className="w-32">Source type</TableHead>
-              <TableHead className="w-64">Path</TableHead>
-              <TableHead className="w-48">Attribute</TableHead>
-              <TableHead className="w-32">Transform</TableHead>
-              <TableHead className="w-24">Origin</TableHead>
+              <TableHead className="w-28" hint="The tool the data comes from">Source ({num(lines.length)})</TableHead>
+              <TableHead className="w-32" hint="The object kind inside that tool, like contacts">Source type</TableHead>
+              <TableHead className="w-64" hint="Where in the tool's payload the value lives">Path</TableHead>
+              <TableHead className="w-48" hint="The record kind and field this value fills">Attribute</TableHead>
+              <TableHead className="w-32" hint="The function that cleans the value before storing">Transform</TableHead>
+              <TableHead className="w-24" hint="Straight from the payload, or computed by a hook">Origin</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -356,9 +356,9 @@ function TransformsTab({ t }: { t: Transforms }) {
         <Table className="table-fixed" data-testid="definitions-transforms-table">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-56">Label ({num(labels.length)})</TableHead>
-              <TableHead className="w-48">Function</TableHead>
-              <TableHead className="w-48">Produces</TableHead>
+              <TableHead className="w-56" hint="The attribute name this cleanup applies to">Label ({num(labels.length)})</TableHead>
+              <TableHead className="w-48" hint="The code that cleans values for this label">Function</TableHead>
+              <TableHead className="w-48" hint="The kind of value that comes out, like date">Produces</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -390,8 +390,8 @@ function TransformsTab({ t }: { t: Transforms }) {
         <Table className="table-fixed" data-testid="definitions-transforms-functions-table">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-56">Function ({num(registry.length)})</TableHead>
-              <TableHead>Produces</TableHead>
+              <TableHead className="w-56" hint="Every cleanup function the system can apply">Function ({num(registry.length)})</TableHead>
+              <TableHead hint="The kind of value that comes out, like number">Produces</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -417,12 +417,12 @@ function MetricsTab({ m }: { m: MetricDefinitions }) {
       <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="definitions-metrics-table">
         <TableHeader className={STICKY_HEAD}>
           <TableRow>
-            <TableHead className="w-56">Metric ({num(definitions.length)})</TableHead>
-            <TableHead className="w-28">Entity</TableHead>
-            <TableHead className="w-64">Expression</TableHead>
-            <TableHead className="w-48">Filter</TableHead>
-            <TableHead className="w-48">Kind</TableHead>
-            <TableHead className="w-48">Raw fields</TableHead>
+            <TableHead className="w-56" hint="The measure's display name and its internal key">Metric ({num(definitions.length)})</TableHead>
+            <TableHead className="w-28" hint="The kind of record the measure is computed over">Entity</TableHead>
+            <TableHead className="w-64" hint="How the number is computed, like SUM(amount)">Expression</TableHead>
+            <TableHead className="w-48" hint="Only records matching these values are counted">Filter</TableHead>
+            <TableHead className="w-48" hint="Observed from tool data, or inferred by the model">Kind</TableHead>
+            <TableHead className="w-48" hint="The tool fields this number is read from">Raw fields</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -485,10 +485,10 @@ function RulesTab({ r }: { r: Rules }) {
       <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="definitions-rules-table">
         <TableHeader className={STICKY_HEAD}>
           <TableRow>
-            <TableHead className="w-96">Rule ({num(rules.length)})</TableHead>
-            <TableHead className="w-28">Entity</TableHead>
-            <TableHead className="w-28">Severity</TableHead>
-            <TableHead className="w-48">Conditions</TableHead>
+            <TableHead className="w-96" hint="The check's display name and its internal key">Rule ({num(rules.length)})</TableHead>
+            <TableHead className="w-28" hint="The kind of record the check looks at">Entity</TableHead>
+            <TableHead className="w-28" hint="How serious a finding from this check is">Severity</TableHead>
+            <TableHead className="w-48" hint="What must be true for the rule to fire">Conditions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -533,11 +533,11 @@ function GoalsTab({ g }: { g: Goals }) {
       <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="definitions-goals-table">
         <TableHeader className={STICKY_HEAD}>
           <TableRow>
-            <TableHead className="w-40">Goal ({num(goals.length)})</TableHead>
-            <TableHead className="w-40">Metric</TableHead>
-            <TableHead className="text-right w-24">Target</TableHead>
-            <TableHead className="w-32">Strategy</TableHead>
-            <TableHead className="w-64">Params</TableHead>
+            <TableHead className="w-40" hint="The goal's internal key">Goal ({num(goals.length)})</TableHead>
+            <TableHead className="w-40" hint="The measure the goal tracks">Metric</TableHead>
+            <TableHead className="text-right w-24" hint="The number the metric is measured against">Target</TableHead>
+            <TableHead className="w-32" hint="How met or missed is decided against the target">Strategy</TableHead>
+            <TableHead className="w-64" hint="Extra settings the strategy uses, like band limits">Params</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

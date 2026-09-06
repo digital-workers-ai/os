@@ -159,12 +159,12 @@ function Facts({ vocabulary, vocabularyError }: { vocabulary: Vocabulary | null;
           <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="facts-table">
             <TableHeader className={STICKY_HEAD}>
               <TableRow>
-                <TableHead className="w-64">Name ({num(data.total)})</TableHead>
-                <TableHead className="w-28">Entity</TableHead>
-                <TableHead className="w-32">Fact</TableHead>
-                <TableHead className="w-40">Value</TableHead>
-                <TableHead className="w-28">Verified</TableHead>
-                <TableHead>Quote</TableHead>
+                <TableHead hint="The entity the text was about" className="w-64">Name ({num(data.total)})</TableHead>
+                <TableHead hint="What kind of thing it is" className="w-28">Entity</TableHead>
+                <TableHead hint="The question the model answered about the text" className="w-32">Fact</TableHead>
+                <TableHead hint="The label the model chose as its answer" className="w-40">Value</TableHead>
+                <TableHead hint="Whether the quote really appears in the text" className="w-28">Verified</TableHead>
+                <TableHead hint="The passage the model cited for its answer">Quote</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

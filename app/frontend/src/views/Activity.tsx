@@ -122,11 +122,11 @@ export function Activity() {
         <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="activity-table">
           <TableHeader className={STICKY_HEAD}>
             <TableRow>
-              <TableHead className="w-64">Entity ({num(rows.length)})</TableHead>
-              <TableHead className="w-36">Type</TableHead>
-              <TableHead>Changes</TableHead>
-              <TableHead className="w-32">Source</TableHead>
-              <TableHead className="w-32">When</TableHead>
+              <TableHead className="w-64" hint="The thing that changed">Entity ({num(rows.length)})</TableHead>
+              <TableHead className="w-36" hint="What kind of thing it is">Type</TableHead>
+              <TableHead hint="Which values changed and what they became">Changes</TableHead>
+              <TableHead className="w-32" hint="Which tool reported the change">Source</TableHead>
+              <TableHead className="w-32" hint="When the source saw the change">When</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

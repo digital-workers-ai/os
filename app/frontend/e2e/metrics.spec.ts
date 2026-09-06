@@ -1,5 +1,5 @@
 import type { Page, Route } from '@playwright/test'
-import { expect, mockJson, NOW, snap, test, visit } from './fixtures'
+import { expect, header, mockJson, NOW, snap, test, visit } from './fixtures'
 
 type MetricRow = Record<string, unknown>
 
@@ -46,7 +46,7 @@ const title = (page: Page) => page.getByTestId('series-title')
 
 test('nothing selected', async ({ page }) => {
   await visit(page, '/metrics')
-  await expect(page.getByTestId('metrics-table').getByRole('columnheader', { name: 'Metric (14)' })).toBeVisible()
+  await expect(header(page.getByTestId('metrics-table'), 'Metric (14)')).toBeVisible()
   await expect(page.getByTestId('series').getByTestId('empty')).toHaveText('select a metric')
   await snap(page, 'metrics-default')
 })
@@ -59,7 +59,7 @@ test('row selected', async ({ page }) => {
   await row.click()
   await expect(row).toHaveAttribute('aria-selected', 'true')
   await expect(title(page)).toHaveText(label)
-  await expect(page.getByTestId('series-table').getByRole('columnheader', { name: 'Value' })).toBeVisible()
+  await expect(header(page.getByTestId('series-table'), 'Value')).toBeVisible()
   await snap(page, 'metrics-selected')
 })
 

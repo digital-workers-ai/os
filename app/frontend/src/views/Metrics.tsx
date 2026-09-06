@@ -144,9 +144,9 @@ function RunSection({ run }: { run: Run }) {
           <Table className="table-fixed" data-testid="series-table">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-28 text-right">Value</TableHead>
-                <TableHead className="w-24 text-right">Entities</TableHead>
-                <TableHead className="w-32">Recorded</TableHead>
+                <TableHead className="w-28 text-right" hint="The metric's value at that time">Value</TableHead>
+                <TableHead className="w-24 text-right" hint="How many things were counted at that time">Entities</TableHead>
+                <TableHead className="w-32" hint="When this value was recorded">Recorded</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -212,11 +212,11 @@ export function Metrics() {
             <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="metrics-table">
               <TableHeader className="[&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-card [&_th]:shadow-[inset_0_-1px_0_theme(colors.dbb.warm)]">
                 <TableRow>
-                  <TableHead className="w-64">Metric ({num(rows.length)})</TableHead>
-                  <TableHead className="w-32">Entity</TableHead>
-                  <TableHead className="w-24 text-right">Value</TableHead>
-                  <TableHead className="w-28 text-right">Entities</TableHead>
-                  <TableHead className="w-28 text-center">Inferred from</TableHead>
+                  <TableHead className="w-64" hint="The metric's name, with its id below">Metric ({num(rows.length)})</TableHead>
+                  <TableHead className="w-32" hint="What kind of thing the metric measures">Entity</TableHead>
+                  <TableHead className="w-24 text-right" hint="The metric's latest value">Value</TableHead>
+                  <TableHead className="w-28 text-right" hint="How many things were counted">Entities</TableHead>
+                  <TableHead className="w-28 text-center" hint="Which reading this value was inferred from, if any">Inferred from</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

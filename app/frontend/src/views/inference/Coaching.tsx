@@ -58,10 +58,10 @@ function Journal({ entries, fresh, to }: { entries: Briefing[]; fresh: boolean; 
     <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="coaching-journal">
       <TableHeader className={STICKY_HEAD}>
         <TableRow>
-          <TableHead className="w-36">Generated ({num(entries.length)})</TableHead>
-          <TableHead>Briefing</TableHead>
-          <TableHead className="w-56">To</TableHead>
-          <TableHead className="w-48">Read</TableHead>
+          <TableHead hint="When the model wrote this briefing" className="w-36">Generated ({num(entries.length)})</TableHead>
+          <TableHead hint="Text the model wrote for this role">Briefing</TableHead>
+          <TableHead hint="Who the briefing is addressed to" className="w-56">To</TableHead>
+          <TableHead hint="What the model looked at, and which model" className="w-48">Read</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

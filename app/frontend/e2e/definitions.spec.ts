@@ -1,8 +1,7 @@
 import type { Locator, Page } from '@playwright/test'
-import { expect, mockJson, openFilter, pickOption, snap, test, visit } from './fixtures'
+import { expect, header, mockJson, openFilter, pickOption, snap, test, visit } from './fixtures'
 
-const counted = (scope: Locator, label: string) =>
-  scope.getByRole('columnheader', { name: new RegExp(`^${label} \\(\\d[\\d,]*\\)$`) })
+const counted = (scope: Locator, label: string) => header(scope, new RegExp(`^${label} \\(\\d[\\d,]*\\)$`))
 
 const table = (page: Page, card: string) => page.getByTestId(`${card}-table`)
 
@@ -47,7 +46,7 @@ test('mappings dropdown', async ({ page }) => {
   await closeFilter(page, 'mappings-source-filter')
   await pickOption(page, 'mappings-source-filter', value)
   await expect(page.getByTestId('mappings-source-filter')).toHaveText(name)
-  await expect(table(page, 'definitions-mappings').getByRole('columnheader', { name: `Source (${count})`, exact: true })).toBeVisible()
+  await expect(header(table(page, 'definitions-mappings'), `Source (${count})`)).toBeVisible()
   await snap(page, 'definitions-mappings-filtered')
 })
 

@@ -300,6 +300,21 @@ async def pin(s, column, target: datetime) -> int:
     return shifted.rowcount
 
 
+async def pin_engine_run_durations(s) -> int:
+    ids = (
+        (await s.execute(select(EngineRun.id).order_by(EngineRun.seq.desc())))
+        .scalars()
+        .all()
+    )
+    for index, run_id in enumerate(ids):
+        await s.execute(
+            update(EngineRun)
+            .where(EngineRun.id == run_id)
+            .values(duration_ms=max(100, 1587 - 300 * index))
+        )
+    return len(ids)
+
+
 async def main() -> None:
     readings = vocabulary.load()
     async with async_session() as s:
@@ -312,6 +327,7 @@ async def main() -> None:
             column.class_.__tablename__: await pin(s, column, target)
             for column, target in PINS
         }
+        engine_run_durations = await pin_engine_run_durations(s)
         snapshots = await seed_snapshots(s)
         await s.commit()
     counts = {
@@ -320,6 +336,7 @@ async def main() -> None:
         "briefing_run": briefings,
         "metric_snapshot": snapshots,
         **pinned,
+        "engine_run_duration_ms": engine_run_durations,
     }
     print(" ".join(f"{k}={v}" for k, v in counts.items()), f"anchor={NOW.isoformat()}")
 
