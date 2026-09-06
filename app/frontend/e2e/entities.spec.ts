@@ -1,12 +1,9 @@
 import type { Locator, Page } from '@playwright/test'
-import { expect, mockJson, openFilter, pickOption, settle, snap, test, visit } from './fixtures'
+import { expect, header, mockJson, openFilter, pickOption, settle, snap, test, visit } from './fixtures'
 
 const TABS = { canonical: 'Canonical', raw: 'Raw entities', visualize: 'Visualize' }
 
-const counted = (scope: Locator, label: string) =>
-  scope.getByRole('columnheader', { name: new RegExp(`^${label} \\(\\d[\\d,]*\\)$`) })
-
-const header = (scope: Locator, name: string) => scope.getByRole('columnheader', { name, exact: true })
+const counted = (scope: Locator, label: string) => header(scope, new RegExp(`^${label} \\(\\d[\\d,]*\\)$`))
 
 const option = (page: Page, filter: string, value: string) =>
   page.locator(`[data-testid="${filter}-option"][data-value="${value}"]`)
@@ -95,7 +92,7 @@ test('raw record selected', async ({ page }) => {
   await expect(counted(page.getByTestId('record-events'), 'Raw event')).toBeVisible()
   await expect(detail.getByRole('heading', { name: 'Payload' })).toBeVisible()
   await expect(page.getByTestId('record-payload')).toBeVisible()
-  await snap(page, 'entities-raw-selected')
+  await snap(page, 'entities-raw-selected', { mask: [page.getByTestId('record-events').locator('tbody td').first()] })
 })
 
 test('raw dropdowns open', async ({ page }) => {

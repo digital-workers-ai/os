@@ -35,12 +35,12 @@ export function Readings({ vocabulary, sticky = false, testId }: { vocabulary: V
     <Table className="table-fixed" wrapperClassName={sticky ? 'overflow-x-visible' : undefined} data-testid={testId}>
       <TableHeader className={sticky ? STICKY_HEAD : undefined}>
         <TableRow>
-          <TableHead className="w-64">Reading ({num(readings.length)})</TableHead>
-          <TableHead className="w-32">Vocabulary</TableHead>
-          <TableHead className="w-32">Field</TableHead>
-          <TableHead className="w-24">Type</TableHead>
-          <TableHead className="w-64">Description</TableHead>
-          <TableHead>Labels</TableHead>
+          <TableHead className="w-64" hint="Questions the model answers about one text field">Reading ({num(readings.length)})</TableHead>
+          <TableHead className="w-32" hint="Digest of the questions when they were written">Vocabulary</TableHead>
+          <TableHead className="w-32" hint="One question the model answers">Field</TableHead>
+          <TableHead className="w-24" hint="Whether one answer or several may be chosen">Type</TableHead>
+          <TableHead className="w-64" hint="What the question means and how to answer it">Description</TableHead>
+          <TableHead hint="The answers the model may choose, with meanings">Labels</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

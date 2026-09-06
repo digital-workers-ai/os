@@ -1,10 +1,10 @@
-import { expect, mockJson, openFilter, snap, test, visit } from './fixtures'
+import { expect, header, mockJson, openFilter, snap, test, visit } from './fixtures'
 
 test('default', async ({ page }) => {
   await visit(page, '/activity')
   const table = page.getByTestId('activity-table')
-  await expect(table.getByRole('columnheader', { name: /^Entity \([\d,]+\)$/ })).toBeVisible()
-  for (const name of ['Type', 'Changes', 'Source', 'When']) await expect(table.getByRole('columnheader', { name, exact: true })).toBeVisible()
+  await expect(header(table, /^Entity \([\d,]+\)$/)).toBeVisible()
+  for (const name of ['Type', 'Changes', 'Source', 'When']) await expect(header(table, name)).toBeVisible()
   await snap(page, 'activity-default')
 })
 

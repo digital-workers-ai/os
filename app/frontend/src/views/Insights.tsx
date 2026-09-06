@@ -108,13 +108,13 @@ function GoalsTable({ goals }: { goals: Goal[] }) {
       <Table data-testid="goals-table">
         <TableHeader>
           <TableRow>
-            <TableHead>Goal ({num(goals.length)})</TableHead>
-            <TableHead>Metric</TableHead>
-            <TableHead className="text-right">Target</TableHead>
-            <TableHead className="text-right">Current</TableHead>
-            <TableHead>Verdict</TableHead>
-            <TableHead>Progress</TableHead>
-            <TableHead>Detail</TableHead>
+            <TableHead hint="Which goal this row checks">Goal ({num(goals.length)})</TableHead>
+            <TableHead hint="The metric this goal watches">Metric</TableHead>
+            <TableHead className="text-right" hint="The value the goal wants to reach">Target</TableHead>
+            <TableHead className="text-right" hint="What the metric is right now">Current</TableHead>
+            <TableHead hint="Whether the goal is met, missed or unknown">Verdict</TableHead>
+            <TableHead hint="How close the current value is to target">Progress</TableHead>
+            <TableHead hint="Ranges, trends, errors, or why it is unknown">Detail</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -262,11 +262,11 @@ export function Insights() {
             <Table className="table-fixed" data-testid="findings-table">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-20">Severity ({num(findings.length)})</TableHead>
-                  <TableHead className="w-[368px]">Rule</TableHead>
-                  <TableHead className="w-28">Entity</TableHead>
-                  <TableHead className="w-28">Company</TableHead>
-                  <TableHead className="w-60">Evidence</TableHead>
+                  <TableHead className="w-20" hint="How serious this finding is">Severity ({num(findings.length)})</TableHead>
+                  <TableHead className="w-[368px]" hint="The rule that fired, with its id below">Rule</TableHead>
+                  <TableHead className="w-28" hint="What kind of thing the rule fired for">Entity</TableHead>
+                  <TableHead className="w-28" hint="The company this finding belongs to">Company</TableHead>
+                  <TableHead className="w-60" hint="The values that made the rule fire">Evidence</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

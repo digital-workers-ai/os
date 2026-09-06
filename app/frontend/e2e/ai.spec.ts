@@ -35,7 +35,7 @@ const onGenerate = (page: Page, respond: (r: Route) => Promise<void>) =>
   page.route('**/api/coaching/ceo', (r) => (r.request().method() === 'POST' ? respond(r) : r.fallback()))
 
 const badge = (page: Page) => page.getByTestId('page-heading-row').getByTestId('page-badge')
-const heads = (table: Locator) => table.getByRole('columnheader')
+const heads = (table: Locator) => table.locator('th')
 const column = (rows: Locator, n: number) => rows.locator(`td:nth-child(${n})`)
 const options = (page: Page, filter: string) => page.getByTestId(`${filter}-option`)
 

@@ -1,4 +1,4 @@
-import { test as base, expect, type Page } from '@playwright/test'
+import { test as base, expect, type Locator, type Page } from '@playwright/test'
 
 export const NOW = new Date('2026-09-04T12:00:00Z')
 
@@ -8,6 +8,12 @@ export const test = base.extend({
     await use(page)
   },
 })
+
+const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+export function header(scope: Locator | Page, label: string | RegExp) {
+  return scope.locator('th').filter({ hasText: typeof label === 'string' ? new RegExp(`^${escape(label)}$`) : label })
+}
 
 export async function settle(page: Page) {
   await page.evaluate(() => document.fonts.ready)
@@ -20,8 +26,12 @@ export async function visit(page: Page, path: string) {
   await settle(page)
 }
 
-export async function snap(page: Page, name: string) {
-  await expect(page).toHaveScreenshot(`${name}.png`)
+export async function snap(
+  page: Page,
+  name: string,
+  options?: Parameters<ReturnType<typeof expect<Page>>['toHaveScreenshot']>[1],
+) {
+  await expect(page).toHaveScreenshot(`${name}.png`, options)
 }
 
 export async function openFilter(page: Page, testId: string) {

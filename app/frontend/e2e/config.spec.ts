@@ -52,7 +52,7 @@ const MCP = {
 const sourceRow = (page: Page, source: string) => page.locator(`[data-testid="sources-row"][data-source="${source}"]`)
 const enabledChips = (page: Page) => page.getByTestId('sources-table').locator('[data-testid^="source-enabled-"]')
 const options = (page: Page) => page.getByTestId('sources-enabled-filter-option')
-const heads = (table: Locator) => table.getByRole('columnheader')
+const heads = (table: Locator) => table.locator('th')
 const runs = (page: Page) => page.getByTestId('rebuild-run')
 const chips = (page: Page) => page.getByTestId('rebuild-status').locator(':scope > span')
 const receiptsTitle = (page: Page) => page.getByTestId('rebuild-receipts-title')

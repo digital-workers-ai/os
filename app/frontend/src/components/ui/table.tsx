@@ -1,6 +1,8 @@
 import * as React from "react"
+import { Info } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 const STICKY_HEAD = "[&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-card [&_th]:shadow-[inset_0_-1px_0_theme(colors.dbb.warm)]"
 
@@ -74,8 +76,8 @@ TableRow.displayName = "TableRow"
 
 const TableHead = React.forwardRef<
   HTMLTableCellElement,
-  React.ThHTMLAttributes<HTMLTableCellElement>
->(({ className, ...props }, ref) => (
+  React.ThHTMLAttributes<HTMLTableCellElement> & { hint?: string }
+>(({ className, hint, children, ...props }, ref) => (
   <th
     ref={ref}
     className={cn(
@@ -83,7 +85,26 @@ const TableHead = React.forwardRef<
       className
     )}
     {...props}
-  />
+  >
+    {children}
+    {hint ? (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            aria-label={hint}
+            data-testid="hint"
+            className="ml-1 inline-flex align-[-2px] text-dbb-muted/60 hover:text-dbb-charcoal focus-visible:text-dbb-charcoal focus-visible:outline-none"
+          >
+            <Info size={12} strokeWidth={2} />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="top" className="max-w-xs">
+          {hint}
+        </TooltipContent>
+      </Tooltip>
+    ) : null}
+  </th>
 ))
 TableHead.displayName = "TableHead"
 

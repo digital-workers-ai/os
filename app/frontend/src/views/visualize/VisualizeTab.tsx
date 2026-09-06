@@ -89,10 +89,10 @@ function Graph({ data }: { data: GraphResponse }) {
         <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="visualize-table">
           <TableHeader className={STICKY_HEAD}>
             <TableRow>
-              <TableHead>
+              <TableHead hint="Drawn as a sun with the things linked to it">
                 {title} ({num(rows.length)})
               </TableHead>
-              <TableHead className={cn(NUM, 'w-20')}>Links</TableHead>
+              <TableHead hint="How many things connect to it" className={cn(NUM, 'w-20')}>Links</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

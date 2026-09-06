@@ -71,17 +71,19 @@ function SyncBanner({ sync }: { sync: SyncResponse }) {
   )
 }
 
-function CountTable({ label, rows }: { label: string; rows: Record<string, number> }) {
+function CountTable({ label, hint, rows }: { label: string; hint: string; rows: Record<string, number> }) {
   const entries = Object.entries(rows)
   if (entries.length === 0) return null
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>
+          <TableHead hint={hint}>
             {label} ({num(entries.length)})
           </TableHead>
-          <TableHead className={NUM}>Count</TableHead>
+          <TableHead className={NUM} hint="How many times it happened">
+            Count
+          </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -124,16 +126,16 @@ function Report({ report }: { report: Ran }) {
           </div>
         }
       >
-        <CountTable label="Total" rows={r.totals} />
+        <CountTable label="Total" hint="The kind of problem the rebuild counted" rows={r.totals} />
       </SectionCard>
       {r.quarantines.length > 0 && (
         <SectionCard testId="rebuild-quarantines">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Quarantine ({num(r.quarantines.length)})</TableHead>
-                <TableHead>Record</TableHead>
-                <TableHead>Detail</TableHead>
+                <TableHead hint="Which link type was held back as suspicious">Quarantine ({num(r.quarantines.length)})</TableHead>
+                <TableHead hint="The record whose link was held back">Record</TableHead>
+                <TableHead hint="Why the link looked suspicious">Detail</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -153,8 +155,8 @@ function Report({ report }: { report: Ran }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Oversized ({num(r.oversized.length)})</TableHead>
-                <TableHead>Detail</TableHead>
+                <TableHead hint="What kind of record was too big to process">Oversized ({num(r.oversized.length)})</TableHead>
+                <TableHead hint="Everything known about the oversized record">Detail</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -177,7 +179,7 @@ function Report({ report }: { report: Ran }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Dead path ({num(r.dead_paths.length)})</TableHead>
+                <TableHead hint="A mapping path that matched nothing in the data">Dead path ({num(r.dead_paths.length)})</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -192,7 +194,7 @@ function Report({ report }: { report: Ran }) {
       )}
       {Object.keys(r.disagreements).length > 0 && (
         <SectionCard testId="rebuild-disagreements">
-          <CountTable label="Disagreement" rows={r.disagreements} />
+          <CountTable label="Disagreement" hint="The field sources gave different values for" rows={r.disagreements} />
         </SectionCard>
       )}
       {rates.length > 0 && (
@@ -200,11 +202,19 @@ function Report({ report }: { report: Ran }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Relationship ({num(rates.length)})</TableHead>
-                <TableHead className={NUM}>Candidates</TableHead>
-                <TableHead className={NUM}>Matched</TableHead>
-                <TableHead className={NUM}>Edges</TableHead>
-                <TableHead className={NUM}>Rate</TableHead>
+                <TableHead hint="The kind of link between two things">Relationship ({num(rates.length)})</TableHead>
+                <TableHead className={NUM} hint="How many links were attempted">
+                  Candidates
+                </TableHead>
+                <TableHead className={NUM} hint="How many links found their target">
+                  Matched
+                </TableHead>
+                <TableHead className={NUM} hint="How many links were written">
+                  Edges
+                </TableHead>
+                <TableHead className={NUM} hint="Matched divided by candidates">
+                  Rate
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -249,10 +259,12 @@ function Rebuilds({ rebuilds }: { rebuilds: number }) {
           <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="rebuild-runs-table">
             <TableHeader className={STICKY_HEAD}>
               <TableRow>
-                <TableHead className="w-32">Rebuild ({num(list.length)})</TableHead>
-                <TableHead className="w-20">Status</TableHead>
-                <TableHead className={cn('w-24', NUM)}>Duration</TableHead>
-                <TableHead>Issues</TableHead>
+                <TableHead className="w-32" hint="When this rebuild ran">Rebuild ({num(list.length)})</TableHead>
+                <TableHead className="w-20" hint="Whether the rebuild succeeded or failed">Status</TableHead>
+                <TableHead className={cn('w-24', NUM)} hint="How long the rebuild took">
+                  Duration
+                </TableHead>
+                <TableHead hint="Totals that were not zero">Issues</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -344,8 +356,8 @@ function Mcp() {
           <Table data-testid="mcp-tools">
             <TableHeader>
               <TableRow>
-                <TableHead>Tool ({num(data.tools.length)})</TableHead>
-                <TableHead>Description</TableHead>
+                <TableHead hint="What an agent can call here">Tool ({num(data.tools.length)})</TableHead>
+                <TableHead hint="What the tool does">Description</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -369,9 +381,9 @@ function Mcp() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Resource ({num(data.resources.length)})</TableHead>
-                    <TableHead>URI</TableHead>
-                    <TableHead>Description</TableHead>
+                    <TableHead hint="A file an agent can read">Resource ({num(data.resources.length)})</TableHead>
+                    <TableHead hint="The address an agent uses to read it">URI</TableHead>
+                    <TableHead hint="What the resource holds">Description</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -394,8 +406,8 @@ function Mcp() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Prompt ({num(data.prompts.length)})</TableHead>
-                    <TableHead>Description</TableHead>
+                    <TableHead hint="A ready-made instruction an agent can request">Prompt ({num(data.prompts.length)})</TableHead>
+                    <TableHead hint="What the prompt asks for">Description</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -565,11 +577,11 @@ export function Config() {
             <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="sources-table">
               <TableHeader className={STICKY_HEAD}>
                 <TableRow>
-                  <TableHead className="w-56">Source ({num(rows.length)})</TableHead>
-                  <TableHead className="w-56">Entities</TableHead>
-                  <TableHead className="w-40">Last sync</TableHead>
-                  <TableHead className="w-40">Rows</TableHead>
-                  <TableHead className="w-24">Enabled</TableHead>
+                  <TableHead className="w-56" hint="The external tool data comes from">Source ({num(rows.length)})</TableHead>
+                  <TableHead className="w-56" hint="What kinds of things this source provides">Entities</TableHead>
+                  <TableHead className="w-40" hint="When the last sync ran and whether it worked">Last sync</TableHead>
+                  <TableHead className="w-40" hint="When this source last brought new data">Rows</TableHead>
+                  <TableHead className="w-24" hint="Whether this source is allowed to sync">Enabled</TableHead>
                   <TableHead className="w-24" />
                 </TableRow>
               </TableHeader>
