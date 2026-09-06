@@ -25,7 +25,9 @@ import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, Table
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { num, plural, relTime } from '@/lib/format'
 import { useGet } from '@/lib/useGet'
+import { useTab } from '@/lib/useTab'
 import { cn } from '@/lib/utils'
+import { CONFIG_ROUTE } from '@/routes'
 import { BODY, FULL, PAGE_FILL, useLoad } from './inference/shared'
 
 type Ran = Extract<ReportResponse, { ran: true }>
@@ -448,6 +450,7 @@ export function Config() {
   const [rebuild, setRebuild] = useState<RebuildResponse | null>(null)
   const [rebuildError, setRebuildError] = useState<ApiError | null>(null)
   const [rebuilds, setRebuilds] = useState(0)
+  const [tab, setTab] = useTab(CONFIG_ROUTE)
 
   const loadSources = () =>
     api
@@ -509,7 +512,7 @@ export function Config() {
   const rows = all.filter((r) => !enabled || enabledKey(r) === enabled)
 
   return (
-    <Tabs defaultValue="sources" className={PAGE_FILL}>
+    <Tabs value={tab} onValueChange={setTab} className={PAGE_FILL}>
       <TabsList className="shrink-0">
         <TabsTrigger value="sources" data-testid="tab-sources">
           Sources

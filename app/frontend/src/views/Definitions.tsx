@@ -11,7 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { num } from '@/lib/format'
+import { useTab } from '@/lib/useTab'
 import { cn } from '@/lib/utils'
+import { DEFINITIONS_ROUTE } from '@/routes'
 import { useLoad } from './inference/shared'
 import { Readings, type Vocabulary } from './inference/Vocabulary'
 
@@ -591,9 +593,10 @@ export function Definitions() {
   const rules = useLoad(() => get<Rules>('/api/definitions/rules'), [])
   const goals = useLoad(() => get<Goals>('/api/definitions/goals'), [])
   const vocabulary = useLoad(() => get<Vocabulary>('/api/enrichment/vocabulary'), [])
+  const [tab, setTab] = useTab(DEFINITIONS_ROUTE)
 
   return (
-    <Tabs defaultValue="ontology" className={PAGE_FILL}>
+    <Tabs value={tab} onValueChange={setTab} className={PAGE_FILL}>
       <TabsList className="shrink-0">
         <TabsTrigger value="ontology" data-testid="tab-ontology">
           Ontology

@@ -12,7 +12,9 @@ import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, Table
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { anchorText, num, relTime, short } from '@/lib/format'
 import { useGet } from '@/lib/useGet'
+import { useTab } from '@/lib/useTab'
 import { cn } from '@/lib/utils'
+import { ENTITIES_ROUTE } from '@/routes'
 import { VisualizeTab } from './visualize/VisualizeTab'
 
 interface EntityRow {
@@ -780,8 +782,9 @@ function RawSide() {
 }
 
 export function Entities() {
+  const [tab, setTab] = useTab(ENTITIES_ROUTE)
   return (
-    <Tabs defaultValue="canonical" className={PAGE_FILL}>
+    <Tabs value={tab} onValueChange={setTab} className={PAGE_FILL}>
       <TabsList className="shrink-0">
         <TabsTrigger value="canonical" data-testid="tab-canonical">
           Canonical
