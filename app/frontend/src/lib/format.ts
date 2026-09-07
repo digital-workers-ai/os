@@ -1,10 +1,12 @@
+import { ANCHOR_SEP } from '@/search/vocab'
+
 export const num = (n: number) => n.toLocaleString()
 
 export const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`
 
 export const short = (s: string, n = 8) => (s.length > n ? `${s.slice(0, n)}…` : s)
 
-export const anchorText = (anchor: string) => anchor.split('|').join('<>')
+export const anchorText = (anchor: string) => anchor.split(ANCHOR_SEP).join('<>')
 
 export function relTime(iso: string | null): string {
   if (!iso) return 'never'

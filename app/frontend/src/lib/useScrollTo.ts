@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
+import type { ROW } from '@/search/vocab'
 
-export function useScrollTo(table: string, attr: string, value: string | null, ready = true) {
+export function useScrollTo(table: string, attr: (typeof ROW)[keyof typeof ROW], value: string | null, ready = true) {
   useEffect(() => {
     const row = ready && value !== null ? document.querySelector(`[data-testid="${table}"] [data-${attr}="${CSS.escape(value)}"]`) : null
     if (!row) return

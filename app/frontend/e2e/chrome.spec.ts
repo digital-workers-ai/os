@@ -1,13 +1,14 @@
 import { expect, NOW, settle, snap, test, visit } from './fixtures'
+import { PATH } from '../src/paths'
 
 const ROUTES: [string, string][] = [
-  ['/activity', 'Activity'],
-  ['/metrics', 'Metrics'],
-  ['/entities', 'Entities'],
-  ['/ai', 'AI'],
-  ['/definitions', 'Definitions'],
-  ['/config', 'Config'],
-  ['/search', 'Search'],
+  [PATH.activity, 'Activity'],
+  [PATH.metrics, 'Metrics'],
+  [PATH.entities, 'Entities'],
+  [PATH.ai, 'AI'],
+  [PATH.definitions, 'Definitions'],
+  [PATH.config, 'Config'],
+  [PATH.search, 'Search'],
 ]
 
 const NAV = ['home', 'activity', 'metrics', 'entities', 'ai', 'definitions', 'config', 'search']
@@ -17,7 +18,7 @@ test.describe('intro', () => {
 
   test('plays through splash, header and page', async ({ page }) => {
     await page.clock.pauseAt(NOW)
-    await page.goto('/')
+    await page.goto(PATH.home)
     await settle(page)
     await expect(page.getByTestId('intro')).toBeVisible()
     await page.clock.runFor(1200)
@@ -33,7 +34,7 @@ test.describe('intro', () => {
 
   test('route change does not replay the intro', async ({ page }) => {
     await page.clock.pauseAt(NOW)
-    await page.goto('/')
+    await page.goto(PATH.home)
     await settle(page)
     await page.clock.runFor(5000)
     await expect(page.getByTestId('intro')).toHaveCount(0)

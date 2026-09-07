@@ -16,6 +16,7 @@ import { useScrollTo } from '@/lib/useScrollTo'
 import { useTab } from '@/lib/useTab'
 import { cn } from '@/lib/utils'
 import { DEFINITIONS_ROUTE } from '@/routes'
+import { LINK, ROW } from '@/search/vocab'
 import { useLoad } from './inference/shared'
 import { Readings, type Vocabulary } from './inference/Vocabulary'
 
@@ -145,7 +146,7 @@ const marked = (name: string, selected: string | null) => ({
 function useSelected(table: string, param: string) {
   const [params] = useSearchParams()
   const selected = params.get(param)
-  useScrollTo(table, 'name', selected)
+  useScrollTo(table, ROW.name, selected)
   return selected
 }
 
@@ -193,7 +194,7 @@ const expressionText = (m: MetricDef) =>
     : (m.expression ?? '')
 
 function OntologyTab({ o }: { o: Ontology }) {
-  const selected = useSelected('definitions-ontology-table', 'type')
+  const selected = useSelected('definitions-ontology-table', LINK.type)
   const entities = Object.entries(o.entities)
   return (
     <div className="space-y-6">
@@ -429,7 +430,7 @@ function TransformsTab({ t }: { t: Transforms }) {
 }
 
 function MetricsTab({ m }: { m: MetricDefinitions }) {
-  const selected = useSelected('definitions-metrics-table', 'metric')
+  const selected = useSelected('definitions-metrics-table', LINK.metric)
   const definitions = Object.entries(m.definitions)
   return (
     <SectionCard className={FILL} bodyClassName={BODY} testId="definitions-metrics">
@@ -498,7 +499,7 @@ function MetricsTab({ m }: { m: MetricDefinitions }) {
 }
 
 function RulesTab({ r }: { r: Rules }) {
-  const selected = useSelected('definitions-rules-table', 'rule')
+  const selected = useSelected('definitions-rules-table', LINK.rule)
   const rules = Object.entries(r.rules)
   return (
     <SectionCard className={FILL} bodyClassName={BODY} testId="definitions-rules">
@@ -547,7 +548,7 @@ function RulesTab({ r }: { r: Rules }) {
 }
 
 function GoalsTab({ g }: { g: Goals }) {
-  const selected = useSelected('definitions-goals-table', 'goal')
+  const selected = useSelected('definitions-goals-table', LINK.goal)
   const goals = Object.entries(g.goals)
   return (
     <SectionCard className={FILL} bodyClassName={BODY} testId="definitions-goals">
@@ -597,7 +598,7 @@ function GoalsTab({ g }: { g: Goals }) {
 }
 
 function EnrichmentTab({ v }: { v: Vocabulary }) {
-  const selected = useSelected('definitions-enrichment-table', 'reading')
+  const selected = useSelected('definitions-enrichment-table', LINK.reading)
   return (
     <SectionCard className={FILL} bodyClassName={BODY} testId="definitions-enrichment">
       <Readings vocabulary={v} sticky testId="definitions-enrichment-table" selected={selected} />

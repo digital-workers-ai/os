@@ -30,6 +30,19 @@ from app.models import (
     SearchChunk,
     SearchDocument,
 )
+from app.search_vocab import (
+    DEFINITION_KINDS,
+    MARK_CLOSE,
+    MARK_OPEN,
+    NON_ENTITY_KINDS,
+    QUOTE_PREFIX,
+    READING_PREFIX,
+    UNKNOWN_KIND,
+    Attr,
+    Kind,
+    Mode,
+    Weight,
+)
 
 SEEN = datetime(2026, 8, 1, tzinfo=UTC)
 DIMS = 1536
@@ -380,13 +393,13 @@ class TestKindsAndParsing:
     def test_kinds_cover_entity_types_briefings_raw_and_definitions(self):
         expected = (
             set(ontology.load().entities)
-            | {"briefing", "raw"}
-            | set(search.DEFINITION_KINDS)
+            | set(NON_ENTITY_KINDS)
+            | set(DEFINITION_KINDS)
         )
         assert search.kinds() == sorted(expected)
 
     def test_the_constants_are_the_agreed_ones(self):
-        assert search.DEFINITION_KINDS == (
+        assert DEFINITION_KINDS == (
             "metric",
             "rule",
             "goal",
@@ -394,7 +407,9 @@ class TestKindsAndParsing:
             "entity_type",
             "reading",
         )
-        assert search.MODES == ("words", "meaning", "both")
+        assert NON_ENTITY_KINDS == ("briefing", "raw")
+        assert tuple(Mode) == ("words", "meaning", "both")
+        assert tuple(Weight) == ("A", "B", "D")
         assert issubclass(search.SearchError, RuntimeError)
 
     @pytest.mark.parametrize(
@@ -474,7 +489,7 @@ class TestIndexEntities:
         rows = await documents(session, kind="person", attr="name")
         assert {r.text for r in rows} == {"Bruce Wayne", "Batman"}
         assert {(r.ref_id, r.label, r.weight) for r in rows} == {
-            (str(bruce), "Bruce Wayne", "A")
+            (str(bruce), "Bruce Wayne", Weight.STRONG)
         }
         assert counts == {"documents": 3, "chunks": 0}
 
@@ -488,7 +503,7 @@ class TestIndexEntities:
             "person", {"name": "Bruce"}, member_facts={"hubspot": {"phone": None}}
         )
         await search.index(session)
-        assert {r.attr for r in await documents(session)} == {"name", "anchor"}
+        assert {r.attr for r in await documents(session)} == {"name", Attr.ANCHOR}
 
     async def test_date_and_number_attrs_are_left_out(self, session, canonical):
         await canonical(
@@ -504,7 +519,7 @@ class TestIndexEntities:
         assert {r.attr for r in await documents(session)} == {
             "name",
             "status",
-            "anchor",
+            Attr.ANCHOR,
         }
 
     async def test_weights_follow_the_attr(self, session, canonical):
@@ -523,18 +538,18 @@ class TestIndexEntities:
         await search.index(session)
         weights = {(r.kind, r.attr): r.weight for r in await documents(session)}
         assert weights == {
-            ("person", "name"): "A",
-            ("person", "email"): "A",
-            ("person", "title"): "A",
-            ("person", "external_ref"): "A",
-            ("person", "phone"): "B",
-            ("person", "anchor"): "A",
-            ("ticket", "subject"): "A",
-            ("ticket", "priority"): "B",
-            ("ticket", "anchor"): "A",
-            ("meeting", "transcript"): "D",
-            ("meeting", "status"): "B",
-            ("meeting", "anchor"): "A",
+            ("person", "name"): Weight.STRONG,
+            ("person", "email"): Weight.STRONG,
+            ("person", "title"): Weight.STRONG,
+            ("person", "external_ref"): Weight.STRONG,
+            ("person", "phone"): Weight.NORMAL,
+            ("person", Attr.ANCHOR): Weight.STRONG,
+            ("ticket", "subject"): Weight.STRONG,
+            ("ticket", "priority"): Weight.NORMAL,
+            ("ticket", Attr.ANCHOR): Weight.STRONG,
+            ("meeting", Attr.TRANSCRIPT): Weight.LONG,
+            ("meeting", "status"): Weight.NORMAL,
+            ("meeting", Attr.ANCHOR): Weight.STRONG,
         }
 
     async def test_an_email_carries_its_derived_forms(self, session, canonical):
@@ -554,8 +569,12 @@ class TestIndexEntities:
     async def test_the_anchor_row_spells_the_key_out(self, session, canonical):
         acme = await canonical("company", {"name": "Acme"})
         await search.index(session)
-        (row,) = await documents(session, attr="anchor")
-        assert (row.kind, row.ref_id, row.weight) == ("company", str(acme), "A")
+        (row,) = await documents(session, attr=Attr.ANCHOR)
+        assert (row.kind, row.ref_id, row.weight) == (
+            "company",
+            str(acme),
+            Weight.STRONG,
+        )
         assert row.value == "test|company|1"
         assert row.text == "test company 1 1"
 
@@ -595,12 +614,12 @@ class TestIndexEntities:
         rows = [
             r
             for r in await documents(session, kind="meeting")
-            if r.attr.startswith(("reading:", "quote:"))
+            if r.attr.startswith((READING_PREFIX, QUOTE_PREFIX))
         ]
         assert sorted((r.attr, r.weight, r.text) for r in rows) == [
-            ("quote:sales_call", "D", "budget is set"),
-            ("reading:sales_call", "B", "interest=strong"),
-            ("reading:sales_call", "B", "pain_points=pricing"),
+            (f"{QUOTE_PREFIX}sales_call", Weight.LONG, "budget is set"),
+            (f"{READING_PREFIX}sales_call", Weight.NORMAL, "interest=strong"),
+            (f"{READING_PREFIX}sales_call", Weight.NORMAL, "pain_points=pricing"),
         ]
         assert all(r.value == r.text for r in rows)
 
@@ -625,12 +644,12 @@ class TestIndexBriefingsAndRaw:
         session.add(briefing_row(text=None))
         await session.flush()
         await search.index(session)
-        (row,) = await documents(session, kind="briefing")
+        (row,) = await documents(session, kind=Kind.BRIEFING)
         assert row.ref_id == f"head_of_sales/{good.seq}"
         assert row.label == "Head of sales · 4 Sep 2026"
         assert (row.attr, row.weight, row.value, row.text) == (
-            "briefing",
-            "D",
+            Attr.BRIEFING,
+            Weight.LONG,
             "Wayne is churning.",
             "Wayne is churning.",
         )
@@ -646,7 +665,7 @@ class TestIndexBriefingsAndRaw:
         session.add(other)
         await session.flush()
         await search.index(session)
-        rows = await documents(session, kind="raw")
+        rows = await documents(session, kind=Kind.RAW)
         assert {(r.ref_id, r.text) for r in rows} == {
             (str(newer.id), "new · fresh"),
             (str(other.id), "x"),
@@ -654,7 +673,7 @@ class TestIndexBriefingsAndRaw:
         (row,) = [r for r in rows if r.ref_id == str(newer.id)]
         assert row.value == "new · fresh"
         assert row.label == "hubspot · contacts · con_001"
-        assert (row.attr, row.weight) == ("payload", "D")
+        assert (row.attr, row.weight) == (Attr.PAYLOAD, Weight.LONG)
         assert row.happened_at is None
 
 
@@ -673,7 +692,7 @@ class TestIndexChunks:
         assert [r.chunk_index for r in rows] == [0, 1, 2]
         assert [r.text for r in rows] == search.chunks("\n".join(self.LINES))
         for row in rows:
-            assert row.attr == "transcript"
+            assert row.attr == Attr.TRANSCRIPT
             assert row.sha == hashlib.sha256(row.text.encode()).hexdigest()
             assert (row.model, row.embedding, row.embedded_at) == (None, None, None)
 
@@ -760,7 +779,7 @@ class TestIndexPartial:
             "defense"
         ]
         assert len(await documents(session, ref_id=str(globex))) == 2
-        assert await documents(session, kind="briefing") == []
+        assert await documents(session, kind=Kind.BRIEFING) == []
 
     async def test_only_the_named_briefing_is_added(self, session, canonical):
         acme = await canonical("company", {"name": "Acme"})
@@ -773,7 +792,9 @@ class TestIndexPartial:
         await session.flush()
         counts = await search.index(session, briefing_seqs=[second.seq])
         assert counts == {"documents": 1, "chunks": 0}
-        assert [r.text for r in await documents(session, kind="briefing")] == ["second"]
+        assert [r.text for r in await documents(session, kind=Kind.BRIEFING)] == [
+            "second"
+        ]
         assert len(await documents(session, ref_id=str(acme))) == 2
 
     async def test_a_named_entity_that_vanished_loses_its_rows(
@@ -942,7 +963,7 @@ class TestQueryWords:
         assert result == {
             "q": "w",
             "kind": None,
-            "mode": "words",
+            "mode": Mode.WORDS,
             "meaning_enabled": False,
             "rerank_enabled": False,
             "reranked": False,
@@ -1021,35 +1042,36 @@ class TestQueryWords:
         assert hit["evidence"] == "interest=strong"
         quoted = await search.query(session, "approved")
         (hit,) = of_kind(quoted, "meeting")
-        assert "«approved»" in hit["evidence"]
+        assert f"{MARK_OPEN}approved{MARK_CLOSE}" in hit["evidence"]
 
     async def test_a_transcript_hit_is_marked_in_context(self, session, estate):
         result = await search.query(session, "reporting")
         (hit,) = of_kind(result, "meeting")
         assert hit["id"] == str(estate["kickoff"])
         assert hit["label"] == "Q3 kickoff"
-        assert "«reporting»" in hit["evidence"]
+        assert f"{MARK_OPEN}reporting{MARK_CLOSE}" in hit["evidence"]
 
     async def test_a_raw_payload_hit_is_marked_in_context(self, session, estate):
         result = await search.query(session, "gotham")
-        assert result["by_kind"] == {"raw": 1}
+        assert result["by_kind"] == {Kind.RAW: 1}
         (hit,) = result["results"]
         assert hit["id"] == str(estate["raw"].id)
         assert hit["label"] == "hubspot · contacts · con_001"
-        assert "«Gotham»" in hit["evidence"]
+        assert f"{MARK_OPEN}Gotham{MARK_CLOSE}" in hit["evidence"]
 
     async def test_a_briefing_hit_carries_its_role_and_seq(self, session, estate):
-        result = await search.query(session, "churn", kind="briefing")
+        result = await search.query(session, "churn", kind=Kind.BRIEFING)
         assert [h["id"] for h in result["results"]] == [
             f"ceo/{estate['newer'].seq}",
             f"ceo/{estate['older'].seq}",
         ]
         assert result["results"][0]["label"] == "Ceo · 1 Aug 2026"
-        assert "«Churn»" in result["results"][0]["evidence"]
+        assert f"{MARK_OPEN}Churn{MARK_CLOSE}" in result["results"][0]["evidence"]
 
     async def test_the_newer_of_two_equal_briefings_comes_first(self, session, estate):
         found = [
-            h["id"] for h in of_kind(await search.query(session, "churn"), "briefing")
+            h["id"]
+            for h in of_kind(await search.query(session, "churn"), Kind.BRIEFING)
         ]
         assert found == [f"ceo/{estate['newer'].seq}", f"ceo/{estate['older'].seq}"]
 
@@ -1074,7 +1096,7 @@ class TestQueryWords:
         assert explicit["kind"] == "company"
 
     async def test_an_unknown_kind_is_refused(self, session, estate):
-        with pytest.raises(search.SearchError, match="unknown kind"):
+        with pytest.raises(search.SearchError, match=UNKNOWN_KIND):
             await search.query(session, "wayne", kind="nope")
 
     async def test_an_unknown_mode_is_refused(self, session, estate):
@@ -1179,17 +1201,17 @@ class TestQueryDefinitions:
 class TestQueryMeaning:
     async def test_meaning_while_embeddings_are_off_is_refused(self, session, estate):
         with pytest.raises(search.SearchError, match="EMBEDDINGS_ENABLED"):
-            await search.query(session, "pricing", mode="meaning")
+            await search.query(session, "pricing", mode=Mode.MEANING)
 
     async def test_both_while_embeddings_are_off_is_refused(self, session, estate):
         with pytest.raises(search.SearchError, match="EMBEDDINGS_ENABLED"):
-            await search.query(session, "pricing", mode="both")
+            await search.query(session, "pricing", mode=Mode.BOTH)
 
     async def test_the_closest_embedded_chunk_wins(self, session, vectors, embedder):
         fake = embedder()
-        result = await search.query(session, "pricing", mode="meaning")
+        result = await search.query(session, "pricing", mode=Mode.MEANING)
         assert fake.calls == [["pricing"]]
-        assert (result["mode"], result["meaning_enabled"]) == ("meaning", True)
+        assert (result["mode"], result["meaning_enabled"]) == (Mode.MEANING, True)
         assert result["reranked"] is False
         assert ids(result) == [str(vectors["k3"]), str(vectors["k1"])]
         assert result["results"][0] == {
@@ -1208,7 +1230,7 @@ class TestQueryMeaning:
         self, session, vectors, embedder
     ):
         embedder()
-        result = await search.query(session, "kryptonite", mode="meaning")
+        result = await search.query(session, "kryptonite", mode=Mode.MEANING)
         assert ids(result) == [str(vectors["k1"]), str(vectors["k3"])]
         assert result["results"][0]["evidence"] == (
             "Lex: kryptonite is late.\nOtis: reporting too."
@@ -1218,14 +1240,14 @@ class TestQueryMeaning:
         self, session, vectors, embedder
     ):
         embedder()
-        result = await search.query(session, "mrr reporting", mode="meaning")
+        result = await search.query(session, "mrr reporting", mode=Mode.MEANING)
         assert str(vectors["k2"]) not in ids(result)
         assert "metric" not in result["by_kind"]
 
     async def test_the_kind_filter_and_paging_apply(self, session, vectors, embedder):
         embedder()
         result = await search.query(
-            session, "pricing", mode="meaning", kind="meeting", limit=1, offset=1
+            session, "pricing", mode=Mode.MEANING, kind="meeting", limit=1, offset=1
         )
         assert ids(result) == [str(vectors["k1"])]
         assert result["total"] == 2
@@ -1236,14 +1258,14 @@ class TestQueryMeaning:
 
         monkeypatch.setattr("app.llm.embeddings.embed", down)
         with pytest.raises(llm.LLMError, match="down"):
-            await search.query(session, "pricing", mode="meaning")
+            await search.query(session, "pricing", mode=Mode.MEANING)
 
 
 class TestQueryBoth:
     async def test_fusion_orders_by_reciprocal_rank(self, session, vectors, embedder):
         embedder()
-        result = await search.query(session, "kryptonite", mode="both")
-        assert result["mode"] == "both"
+        result = await search.query(session, "kryptonite", mode=Mode.BOTH)
+        assert result["mode"] == Mode.BOTH
         assert ids(result) == [
             str(vectors["k1"]),
             str(vectors["company"]),
@@ -1256,12 +1278,12 @@ class TestQueryBoth:
         self, session, vectors, embedder, reranker, monkeypatch
     ):
         embedder()
-        fused = await search.query(session, "kryptonite", mode="both")
+        fused = await search.query(session, "kryptonite", mode=Mode.BOTH)
         monkeypatch.setattr(settings, "RERANK_ENABLED", True)
         fake = reranker(
             {"Pricing sync": 0.9, "Kryptonite Ltd": 0.5, "Shipment sync": 0.1}
         )
-        result = await search.query(session, "kryptonite", mode="both")
+        result = await search.query(session, "kryptonite", mode=Mode.BOTH)
         assert fake.calls == [
             (
                 "kryptonite",
@@ -1282,7 +1304,7 @@ class TestQueryBoth:
         monkeypatch.setattr(settings, "RERANK_ENABLED", True)
         monkeypatch.setattr(settings, "RERANK_TOP", 2)
         fake = reranker({"Kryptonite Ltd": 0.9, "Shipment sync": 0.1})
-        result = await search.query(session, "kryptonite", mode="both")
+        result = await search.query(session, "kryptonite", mode=Mode.BOTH)
         assert len(fake.calls[0][1]) == 2
         assert ids(result) == [
             str(vectors["company"]),
@@ -1296,7 +1318,7 @@ class TestQueryBoth:
         embedder()
         monkeypatch.setattr(settings, "RERANK_ENABLED", True)
         reranker(raises=llm.LLMError("rerank down"))
-        result = await search.query(session, "kryptonite", mode="both")
+        result = await search.query(session, "kryptonite", mode=Mode.BOTH)
         assert (result["rerank_enabled"], result["reranked"]) == (True, False)
         assert ids(result) == [
             str(vectors["k1"]),
@@ -1443,7 +1465,7 @@ class TestHooks:
         result = await run.rebuild(session, run_checks=False)
         assert result["search"] == {"documents": 1, "chunks": 0}
         assert "embeddings" not in result
-        assert [r.text for r in await documents(session, kind="briefing")] == [
+        assert [r.text for r in await documents(session, kind=Kind.BRIEFING)] == [
             "Pipeline is up."
         ]
 
@@ -1494,10 +1516,12 @@ class TestHooks:
             vocabulary_sha=reading.sha,
         )
         await enrichment_store.write(session, meeting, reading, result)
-        rows = await documents(session, ref_id=str(meeting), attr="reading:sales_call")
+        rows = await documents(
+            session, ref_id=str(meeting), attr=f"{READING_PREFIX}sales_call"
+        )
         assert [r.text for r in rows] == ["interest=strong"]
         (quote,) = await documents(
-            session, ref_id=str(meeting), attr="quote:sales_call"
+            session, ref_id=str(meeting), attr=f"{QUOTE_PREFIX}sales_call"
         )
         assert quote.text == "pricing is the blocker"
 
@@ -1507,7 +1531,7 @@ class TestHooks:
             session, "ceo", model_client=StubModel("Churn is rising.")
         )
         stored = (await session.execute(select(BriefingRun))).scalar_one()
-        (row,) = await documents(session, kind="briefing")
+        (row,) = await documents(session, kind=Kind.BRIEFING)
         assert row.ref_id == f"ceo/{stored.seq}"
         assert row.text == "Churn is rising."
 

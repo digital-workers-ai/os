@@ -26,14 +26,34 @@ from app.models import (
     SearchChunk,
     SearchDocument,
 )
+from app.search_vocab import (
+    ANCHOR_SEP,
+    BRIEFING_REF_SEP,
+    DEFAULT_LIMIT,
+    DEFINITION_KINDS,
+    EVIDENCE_SEP,
+    HEADLINE_OPTIONS,
+    LABEL_CHARS,
+    LABEL_SEP,
+    MIN_QUERY_CHARS,
+    NON_ENTITY_KINDS,
+    QUOTE_PREFIX,
+    READING_PREFIX,
+    STRONG_ATTRS,
+    TEXT_SEARCH_CONFIG,
+    TRIGRAM_THRESHOLD,
+    UNINDEXED_TYPES,
+    UNKNOWN_KIND,
+    UNKNOWN_MODE,
+    Attr,
+    Kind,
+    Mode,
+    Param,
+    Weight,
+)
 from app.sources import registry
 from app.store import latest_rows_query
 
-DEFINITION_KINDS = ("metric", "rule", "goal", "source", "entity_type", "reading")
-MODES = ("words", "meaning", "both")
-STRONG_ATTRS = ("name", "title", "subject", "email", "domain", "external_ref")
-UNINDEXED_TYPES = ("date", "number")
-NON_ENTITY_KINDS = ("briefing", "raw")
 TOKEN = re.compile(r"[\w@.+-]+")
 SENTENCE_END = re.compile(r"(?<=[.?!]) ")
 RRF_K = 60
@@ -43,32 +63,33 @@ CHUNK_EVIDENCE_CHARS = 200
 _EMBED_LOCK_ID = 0x_E3BED
 
 WORDS_SQL = text(
-    """
+    f"""
     WITH hits AS (
         SELECT DISTINCT ON (d.kind, d.ref_id)
                d.kind, d.ref_id, d.label, d.attr, d.weight, d.value, d.text,
                d.happened_at,
-               ts_rank_cd(d.tsv, to_tsquery('simple', :expr)) AS score
+               ts_rank_cd(d.tsv, to_tsquery('{TEXT_SEARCH_CONFIG}', :expr)) AS score
         FROM search_document d
-        WHERE d.tsv @@ to_tsquery('simple', :expr)
+        WHERE d.tsv @@ to_tsquery('{TEXT_SEARCH_CONFIG}', :expr)
         ORDER BY d.kind, d.ref_id, score DESC, d.attr, d.text
     )
     SELECT kind, ref_id, label, attr, weight, value, happened_at, score,
-           CASE WHEN weight = 'D' THEN ts_headline(
-               'simple', text, to_tsquery('simple', :expr),
-               'MaxFragments=1,MaxWords=18,MinWords=8,StartSel=«,StopSel=»'
+           CASE WHEN weight = '{Weight.LONG}' THEN ts_headline(
+               '{TEXT_SEARCH_CONFIG}', text, to_tsquery('{TEXT_SEARCH_CONFIG}', :expr),
+               '{HEADLINE_OPTIONS}'
            ) END AS headline
     FROM hits
     """
 )
 
 TRIGRAM_SQL = text(
-    """
+    f"""
     SELECT DISTINCT ON (d.kind, d.ref_id)
            d.kind, d.ref_id, d.label, d.attr, d.weight, d.value, d.happened_at,
            similarity(d.text, :q) AS score, NULL AS headline
     FROM search_document d
-    WHERE d.weight IN ('A', 'B') AND similarity(d.text, :q) > 0.3
+    WHERE d.weight IN ('{Weight.STRONG}', '{Weight.NORMAL}')
+      AND similarity(d.text, :q) > {TRIGRAM_THRESHOLD}
     ORDER BY d.kind, d.ref_id, score DESC, d.attr, d.text
     """
 )
@@ -83,7 +104,9 @@ def _uuid(*parts) -> uuid.UUID:
 
 
 def kinds() -> list[str]:
-    return sorted([*ontology.load().entities, *NON_ENTITY_KINDS, *DEFINITION_KINDS])
+    return sorted(
+        map(str, [*ontology.load().entities, *NON_ENTITY_KINDS, *DEFINITION_KINDS])
+    )
 
 
 def parse_query(q: str) -> tuple[str, str | None]:
@@ -138,7 +161,7 @@ def _strings(value):
 
 
 def document_text_for_raw(payload: dict) -> str:
-    return " · ".join(_strings(payload))
+    return LABEL_SEP.join(_strings(payload))
 
 
 def _derived(attr: str, value: str) -> list[str]:
@@ -176,7 +199,7 @@ class _Documents:
                 "id": _uuid(kind, ref_id, attr, ordinal),
                 "kind": kind,
                 "ref_id": ref_id,
-                "label": label[:512],
+                "label": label[:LABEL_CHARS],
                 "attr": attr,
                 "value": value,
                 "text": value if words is None else words,
@@ -259,15 +282,15 @@ async def _index_entities(session, docs: _Documents, ids) -> int:
         facts = current.get(cid, {})
         ref, label = str(cid), entities_api._label(anchor_key, facts)
         when = _happened_at(onto, entity_type, facts)
-        source_id = anchor_key.split("|", 2)[-1]
-        anchor_words = f"{anchor_key.replace('|', ' ')} {source_id}"
+        source_id = anchor_key.split(ANCHOR_SEP, 2)[-1]
+        anchor_words = f"{anchor_key.replace(ANCHOR_SEP, ' ')} {source_id}"
         docs.add(
             entity_type,
             ref,
             label,
-            "anchor",
+            Attr.ANCHOR,
             anchor_key,
-            "A",
+            Weight.STRONG,
             words=anchor_words,
             happened_at=when,
         )
@@ -278,7 +301,11 @@ async def _index_entities(session, docs: _Documents, ids) -> int:
                 continue
             seen.add((attr, value))
             weight = (
-                "A" if attr in STRONG_ATTRS else "D" if attr == "transcript" else "B"
+                Weight.STRONG
+                if attr in STRONG_ATTRS
+                else Weight.LONG
+                if attr == Attr.TRANSCRIPT
+                else Weight.NORMAL
             )
             words = " ".join(filter(None, [value, *_derived(attr, value)]))
             docs.add(
@@ -292,23 +319,30 @@ async def _index_entities(session, docs: _Documents, ids) -> int:
                 happened_at=when,
             )
         for reading, attr, value, quote in readings.get(cid, []):
-            reading_attr, reading_value = f"reading:{reading}", f"{attr}={value}"
+            reading_attr = f"{READING_PREFIX}{reading}"
+            reading_value = f"{attr}{EVIDENCE_SEP}{value}"
             docs.add(
                 entity_type,
                 ref,
                 label,
                 reading_attr,
                 reading_value,
-                "B",
+                Weight.NORMAL,
                 happened_at=when,
             )
             if quote:
-                quote_attr = f"quote:{reading}"
+                quote_attr = f"{QUOTE_PREFIX}{reading}"
                 docs.add(
-                    entity_type, ref, label, quote_attr, quote, "D", happened_at=when
+                    entity_type,
+                    ref,
+                    label,
+                    quote_attr,
+                    quote,
+                    Weight.LONG,
+                    happened_at=when,
                 )
-        if facts.get("transcript"):
-            transcripts[cid] = facts["transcript"]
+        if facts.get(Attr.TRANSCRIPT):
+            transcripts[cid] = facts[Attr.TRANSCRIPT]
     return await _sync_chunks(session, transcripts, ids)
 
 
@@ -322,7 +356,7 @@ async def _sync_chunks(session, transcripts: dict, ids) -> int:
         ).scalars()
     }
     wanted = {
-        (cid, "transcript", index): piece
+        (cid, Attr.TRANSCRIPT, index): piece
         for cid, transcript in transcripts.items()
         for index, piece in enumerate(chunks(transcript))
     }
@@ -368,30 +402,32 @@ async def _index_briefings(session, docs: _Documents, seqs) -> None:
     if seqs is not None:
         await session.execute(
             delete(SearchDocument).where(
-                SearchDocument.kind == "briefing",
-                SearchDocument.ref_id.in_([f"{r.role}/{r.seq}" for r in runs]),
+                SearchDocument.kind == Kind.BRIEFING,
+                SearchDocument.ref_id.in_(
+                    [f"{r.role}{BRIEFING_REF_SEP}{r.seq}" for r in runs]
+                ),
             )
         )
     for run in runs:
         role = run.role.replace("_", " ").capitalize()
-        label = f"{role} · {run.created_at:%-d %b %Y}"
-        ref = f"{run.role}/{run.seq}"
+        label = f"{role}{LABEL_SEP}{run.created_at:%-d %b %Y}"
+        ref = f"{run.role}{BRIEFING_REF_SEP}{run.seq}"
         docs.add(
-            "briefing",
+            Kind.BRIEFING,
             ref,
             label,
-            "briefing",
+            Attr.BRIEFING,
             run.briefing,
-            "D",
+            Weight.LONG,
             happened_at=run.created_at,
         )
 
 
 async def _index_raw(session, docs: _Documents) -> None:
     for event in (await session.execute(latest_rows_query())).scalars():
-        label = f"{event.source} · {event.object_type} · {event.source_id}"
+        label = LABEL_SEP.join((event.source, event.object_type, event.source_id))
         words = document_text_for_raw(event.raw_payload)
-        docs.add("raw", str(event.id), label, "payload", words, "D")
+        docs.add(Kind.RAW, str(event.id), label, Attr.PAYLOAD, words, Weight.LONG)
 
 
 async def index(session, *, canonical_ids=None, briefing_seqs=None) -> dict:
@@ -480,7 +516,7 @@ def _load_definitions() -> list[dict]:
     def add(kind, name, label, words, evidence):
         entries.append(
             {
-                "kind": kind,
+                "kind": str(kind),
                 "id": name,
                 "label": label,
                 "text": words.lower(),
@@ -491,38 +527,38 @@ def _load_definitions() -> list[dict]:
     for name, spec in sorted(metrics.load_definitions().items()):
         label = spec.get("label", name)
         add(
-            "metric",
+            Kind.METRIC,
             name,
             label,
             f"{name} {label} {spec.get('entity', '')}",
-            f"label={label}",
+            f"label{EVIDENCE_SEP}{label}",
         )
     for name, rule in sorted(rules.load().items()):
         add(
-            "rule",
+            Kind.RULE,
             name,
             rule.label,
             f"{name} {rule.label} {rule.entity}",
-            f"label={rule.label}",
+            f"label{EVIDENCE_SEP}{rule.label}",
         )
     for name, spec in sorted(goals.load().items()):
         metric = spec.get("metric", "")
-        add("goal", name, name, f"{name} {metric}", f"metric={metric}")
+        add(Kind.GOAL, name, name, f"{name} {metric}", f"metric{EVIDENCE_SEP}{metric}")
     for name in sorted(registry.discover()):
-        add("source", name, name, name, f"source={name}")
+        add(Kind.SOURCE, name, name, name, f"source{EVIDENCE_SEP}{name}")
     for name, spec in sorted(ontology.load().entities.items()):
         attrs = list(spec.attrs)
         add(
-            "entity_type",
+            Kind.ENTITY_TYPE,
             name,
             name,
             f"{name} {' '.join(attrs)}",
-            f"attrs={', '.join(attrs)}",
+            f"attrs{EVIDENCE_SEP}{', '.join(attrs)}",
         )
     for name, reading in sorted(vocabulary.load().items()):
         values = [label for field in reading.fields for label in field.labels]
         words = f"{name} {reading.entity} {reading.input_attr} {' '.join(values)}"
-        add("reading", name, name, words, f"values={', '.join(values)}")
+        add(Kind.READING, name, name, words, f"values{EVIDENCE_SEP}{', '.join(values)}")
     return entries
 
 
@@ -534,11 +570,11 @@ def _lexeme(token: str) -> str:
 
 
 def _evidence(row) -> str:
-    if row.weight == "D":
+    if row.weight == Weight.LONG:
         return row.headline
-    if row.attr.startswith("reading:"):
+    if row.attr.startswith(READING_PREFIX):
         return row.value[:EVIDENCE_CHARS]
-    return f"{row.attr}={row.value[:EVIDENCE_CHARS]}"
+    return f"{row.attr}{EVIDENCE_SEP}{row.value[:EVIDENCE_CHARS]}"
 
 
 def _recency(happened_at) -> float:
@@ -607,7 +643,7 @@ async def _meaning(session, q: str) -> list[dict]:
                 and_(
                     SearchDocument.kind == EntityCanonical.entity_type,
                     SearchDocument.ref_id == cast(EntityCanonical.canonical_id, String),
-                    SearchDocument.attr == "anchor",
+                    SearchDocument.attr == Attr.ANCHOR,
                 ),
             )
             .where(SearchChunk.embedding.is_not(None))
@@ -659,39 +695,39 @@ async def query(
     q: str,
     *,
     kind: str | None = None,
-    mode: str = "words",
-    limit: int = 10,
+    mode: str = Mode.WORDS,
+    limit: int = DEFAULT_LIMIT,
     offset: int = 0,
 ) -> dict:
-    if mode not in MODES:
-        raise SearchError(f"unknown mode {mode!r}; one of {list(MODES)}")
+    if mode not in Mode:
+        raise SearchError(f"{UNKNOWN_MODE} {mode!r}; one of {[m.value for m in Mode]}")
     q, prefix = parse_query(q)
     kind = kind or prefix
     if kind is not None and kind not in kinds():
-        raise SearchError(f"unknown kind {kind!r}; one of {kinds()}")
+        raise SearchError(f"{UNKNOWN_KIND} {kind!r}; one of {kinds()}")
     response = {
-        "q": q,
-        "kind": kind,
-        "mode": mode,
+        Param.Q: q,
+        Param.KIND: kind,
+        Param.MODE: str(mode),
         "meaning_enabled": settings.EMBEDDINGS_ENABLED,
         "rerank_enabled": settings.RERANK_ENABLED,
         "reranked": False,
         "total": 0,
-        "limit": limit,
-        "offset": offset,
+        Param.LIMIT: limit,
+        Param.OFFSET: offset,
         "by_kind": {},
         "results": [],
     }
-    if len(q) < 2:
+    if len(q) < MIN_QUERY_CHARS:
         return response
 
     hits: list[dict] = []
-    if mode != "meaning":
-        hits = await _words(session, q, fallback=mode == "words")
-    if mode != "words":
+    if mode != Mode.MEANING:
+        hits = await _words(session, q, fallback=mode == Mode.WORDS)
+    if mode != Mode.WORDS:
         meaning = await _meaning(session, q)
-        hits = _fuse(hits, meaning) if mode == "both" else meaning
-    if mode == "both" and settings.RERANK_ENABLED and hits:
+        hits = _fuse(hits, meaning) if mode == Mode.BOTH else meaning
+    if mode == Mode.BOTH and settings.RERANK_ENABLED and hits:
         hits, response["reranked"] = await _rerank(q, hits)
 
     by_kind = Counter(hit["kind"] for hit in hits)

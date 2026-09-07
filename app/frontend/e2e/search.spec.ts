@@ -1,30 +1,33 @@
 import type { Locator, Page } from '@playwright/test'
 import { expect, header, mockJson, NOW, openFilter, settle, snap, test, visit } from './fixtures'
+import { PATH, TAB, tabPath } from '../src/paths'
+import { BRIEFING_REF_SEP, KIND, LINK, MODES, PARAM, RAW_API } from '../src/search/vocab'
 
 const Q = 'wayne'
 const TYPO = 'acme corpp'
 const NONSENSE = 'zzqx'
 const EMPTY_HINT = 'type to search everything stored · ⌘K opens search from any page'
 const DEFINITION_HREFS: Record<string, string> = {
-  metric: '/metrics?metric=',
-  rule: '/definitions/rules?rule=',
-  goal: '/definitions/goals?goal=',
-  source: '/config/sources?source=',
-  entity_type: '/definitions/ontology?type=',
-  reading: '/definitions/enrichment?reading=',
+  [KIND.metric]: `${PATH.metrics}?${LINK.metric}=`,
+  [KIND.rule]: `${tabPath('definitions', TAB.definitions.rules)}?${LINK.rule}=`,
+  [KIND.goal]: `${tabPath('definitions', TAB.definitions.goals)}?${LINK.goal}=`,
+  [KIND.source]: `${tabPath('config', TAB.config.sources)}?${LINK.source}=`,
+  [KIND.entityType]: `${tabPath('definitions', TAB.definitions.ontology)}?${LINK.type}=`,
+  [KIND.reading]: `${tabPath('definitions', TAB.definitions.enrichment)}?${LINK.reading}=`,
 }
 
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 const at = (path: string) => new RegExp(`${escape(path)}$`)
+const searchFor = (q: string) => `${PATH.search}?${PARAM.q}=${q}`
 
 const hrefFor = (kind: string, id: string) => {
-  if (kind === 'raw') return `/entities/raw?event=${encodeURIComponent(id)}`
-  if (kind === 'briefing') {
-    const [role, seq] = id.split('/')
-    return `/ai/coaching?role=${encodeURIComponent(role)}&briefing=${encodeURIComponent(seq)}`
+  if (kind === KIND.raw) return `${tabPath('entities', TAB.entities.raw)}?${LINK.event}=${encodeURIComponent(id)}`
+  if (kind === KIND.briefing) {
+    const [role, seq] = id.split(BRIEFING_REF_SEP)
+    return `${tabPath('ai', TAB.ai.coaching)}?${LINK.role}=${encodeURIComponent(role)}&${LINK.briefing}=${encodeURIComponent(seq)}`
   }
   const prefix = DEFINITION_HREFS[kind]
-  return prefix ? `${prefix}${encodeURIComponent(id)}` : `/entities/canonical?entity=${encodeURIComponent(id)}`
+  return prefix ? `${prefix}${encodeURIComponent(id)}` : `${tabPath('entities', TAB.entities.canonical)}?${LINK.entity}=${encodeURIComponent(id)}`
 }
 
 const palette = (page: Page) => page.getByTestId('search-palette')
@@ -73,7 +76,7 @@ test.describe('intro', () => {
 
   test('⌘K is inert until the page is revealed', async ({ page }) => {
     await page.clock.pauseAt(NOW)
-    await page.goto('/')
+    await page.goto(PATH.home)
     await settle(page)
     await expect(page.getByTestId('intro')).toBeVisible()
     await page.keyboard.press('Meta+k')
@@ -85,7 +88,7 @@ test.describe('intro', () => {
 })
 
 test('palette is closed until ⌘K', async ({ page }) => {
-  await visit(page, '/')
+  await visit(page, PATH.home)
   await expect(palette(page)).toHaveCount(0)
   await open(page)
   await expect(input(page)).toHaveAttribute('placeholder', 'Search everything…')
@@ -93,13 +96,13 @@ test('palette is closed until ⌘K', async ({ page }) => {
   await expect(results(page)).toHaveCount(0)
   const goto = page.getByTestId('search-goto')
   expect(await goto.count()).toBeGreaterThanOrEqual(20)
-  await expect(goto.filter({ hasText: 'Entities · Review' })).toHaveAttribute('href', '/entities/review')
-  await expect(goto.filter({ hasText: 'Config · MCP' })).toHaveAttribute('href', '/config/mcp')
+  await expect(goto.filter({ hasText: 'Entities · Review' })).toHaveAttribute('href', tabPath('entities', TAB.entities.review))
+  await expect(goto.filter({ hasText: 'Config · MCP' })).toHaveAttribute('href', tabPath('config', TAB.config.mcp))
   await snap(page, 'palette-open')
 })
 
 test('Ctrl+K opens, Esc and the backdrop close', async ({ page }) => {
-  await visit(page, '/')
+  await visit(page, PATH.home)
   await open(page, 'Control+k')
   await page.keyboard.press('Escape')
   await expect(palette(page)).toHaveCount(0)
@@ -109,25 +112,25 @@ test('Ctrl+K opens, Esc and the backdrop close', async ({ page }) => {
 })
 
 test('route change closes the palette', async ({ page }) => {
-  await visit(page, '/')
+  await visit(page, PATH.home)
   await page.getByTestId('nav-metrics').click()
   await settle(page)
   await open(page)
   await page.goBack()
-  await expect(page).toHaveURL(at('/'))
+  await expect(page).toHaveURL(at(PATH.home))
   await expect(palette(page)).toHaveCount(0)
 })
 
 test('go-to link navigates and closes', async ({ page }) => {
-  await visit(page, '/')
+  await visit(page, PATH.home)
   await open(page)
   await page.getByTestId('search-goto').filter({ hasText: 'Entities · Review' }).click()
-  await expect(page).toHaveURL(at('/entities/review'))
+  await expect(page).toHaveURL(at(tabPath('entities', TAB.entities.review)))
   await expect(palette(page)).toHaveCount(0)
 })
 
 test('results are grouped by kind', async ({ page }) => {
-  await visit(page, '/')
+  await visit(page, PATH.home)
   await open(page)
   await query(page, Q)
   const groups = page.getByTestId('search-group')
@@ -140,12 +143,12 @@ test('results are grouped by kind', async ({ page }) => {
   await expect(results(page).first()).toHaveAttribute('role', 'option')
   await expect(results(page).first()).toHaveAttribute('data-id', /./)
   await expect(highlighted(page)).toHaveCount(0)
-  await expect(page.getByTestId('search-all')).toHaveAttribute('href', `/search?q=${Q}`)
+  await expect(page.getByTestId('search-all')).toHaveAttribute('href', searchFor(Q))
   await snap(page, 'palette-results')
 })
 
 test('arrow down and enter open the top hit', async ({ page }) => {
-  await visit(page, '/')
+  await visit(page, PATH.home)
   await open(page)
   await query(page, Q)
   await page.keyboard.press('ArrowDown')
@@ -154,7 +157,7 @@ test('arrow down and enter open the top hit', async ({ page }) => {
   await expect(input(page)).toHaveAttribute('aria-activedescendant', /./)
   const id = (await hit.getAttribute('data-id'))!
   await page.keyboard.press('Enter')
-  await expect(page).toHaveURL(at(`/entities/canonical?entity=${id}`))
+  await expect(page).toHaveURL(at(`${tabPath('entities', TAB.entities.canonical)}?${LINK.entity}=${id}`))
   await expect(palette(page)).toHaveCount(0)
   await settle(page)
   await expectSelected(page.locator(`[data-testid="entities-row"][data-id="${id}"]`))
@@ -167,20 +170,20 @@ test('arrow down and enter open the top hit', async ({ page }) => {
 })
 
 test('enter without a highlight opens the search page', async ({ page }) => {
-  await visit(page, '/')
+  await visit(page, PATH.home)
   await open(page)
   await query(page, Q)
   await page.keyboard.press('Enter')
-  await expect(page).toHaveURL(at(`/search?q=${Q}`))
+  await expect(page).toHaveURL(at(searchFor(Q)))
   await expect(palette(page)).toHaveCount(0)
 })
 
 test('view all opens the search page and remembers the query', async ({ page }) => {
-  await visit(page, '/')
+  await visit(page, PATH.home)
   await open(page)
   await query(page, Q)
   await page.getByTestId('search-all').click()
-  await expect(page).toHaveURL(at(`/search?q=${Q}`))
+  await expect(page).toHaveURL(at(searchFor(Q)))
   await expect(palette(page)).toHaveCount(0)
   await settle(page)
   await expect(page.getByTestId('search-table')).toBeVisible()
@@ -190,20 +193,20 @@ test('view all opens the search page and remembers the query', async ({ page }) 
 })
 
 test('kind prefix narrows the palette', async ({ page }) => {
-  await visit(page, '/')
+  await visit(page, PATH.home)
   await open(page)
-  await query(page, `briefing:${Q}`)
-  expect(new Set(await kinds(results(page)))).toEqual(new Set(['briefing']))
+  await query(page, `${KIND.briefing}:${Q}`)
+  expect(new Set(await kinds(results(page)))).toEqual(new Set([KIND.briefing]))
   await expect(page.getByTestId('search-group')).toHaveCount(1)
   await page.getByTestId('search-all').click()
   await expect(page).toHaveURL(/\/search\?q=/)
   await settle(page)
   await total(page)
-  expect(new Set(await kinds(rows(page)))).toEqual(new Set(['briefing']))
+  expect(new Set(await kinds(rows(page)))).toEqual(new Set([KIND.briefing]))
 })
 
 test('no matches', async ({ page }) => {
-  await visit(page, '/')
+  await visit(page, PATH.home)
   await open(page)
   await input(page).fill(NONSENSE)
   await expect(page.getByTestId('search-status')).toHaveText('no matches')
@@ -213,7 +216,7 @@ test('no matches', async ({ page }) => {
 })
 
 test('search page empty', async ({ page }) => {
-  await visit(page, '/search')
+  await visit(page, PATH.search)
   await expect(page.getByTestId('nav-search')).toHaveAttribute('aria-current', 'page')
   await expect(page.getByTestId('page-heading')).toHaveText('Search')
   await expect(title(page)).toHaveText('Results (0)')
@@ -227,7 +230,7 @@ test('search page empty', async ({ page }) => {
 })
 
 test('search page results', async ({ page }) => {
-  await visit(page, `/search?q=${Q}`)
+  await visit(page, searchFor(Q))
   const n = await total(page)
   expect(n).toBeGreaterThan(0)
   const table = page.getByTestId('search-table')
@@ -238,20 +241,20 @@ test('search page results', async ({ page }) => {
   const company = rowsOf(page, 'company').filter({ hasText: 'Wayne Enterprises' })
   await expect(company).toHaveCount(1)
   await expect(company.locator('td').nth(2)).toContainText(/wayne/i)
-  await expect(rowsOf(page, 'briefing').first().locator('mark').first()).toHaveText(/wayne/i)
+  await expect(rowsOf(page, KIND.briefing).first().locator('mark').first()).toHaveText(/wayne/i)
   await expect(page.locator('[data-testid^="search-mode-"]')).toHaveCount(0)
   await expect(page.getByTestId('search-kind-filter')).toHaveText(`all kinds (${n})`)
   await snap(page, 'search-results')
 })
 
 test('kind filter narrows the rows', async ({ page }) => {
-  await visit(page, `/search?q=${Q}`)
+  await visit(page, searchFor(Q))
   const n = await total(page)
   await openFilter(page, 'search-kind-filter')
   const option = (value: string) => page.locator(`[data-testid="search-kind-filter-option"][data-value="${value}"]`)
   await expect(option('*')).toHaveText(`all kinds (${n})`)
   await expect(option('company')).toHaveText(/^company \(\d+\)$/)
-  await expect(option('briefing')).toHaveText(/^briefing \(\d+\)$/)
+  await expect(option(KIND.briefing)).toHaveText(/^briefing \(\d+\)$/)
   const companies = count(await option('company').innerText())
   await snap(page, 'search-kind-open')
   await option('company').click()
@@ -263,35 +266,35 @@ test('kind filter narrows the rows', async ({ page }) => {
 })
 
 test('briefing prefix lists only briefings and opens the journal row', async ({ page }) => {
-  await visit(page, `/search?q=briefing:${Q}`)
+  await visit(page, searchFor(`${KIND.briefing}:${Q}`))
   await expect(title(page)).toHaveText('Results (4)')
   await expect(rows(page)).toHaveCount(4)
-  expect(new Set(await kinds(rows(page)))).toEqual(new Set(['briefing']))
+  expect(new Set(await kinds(rows(page)))).toEqual(new Set([KIND.briefing]))
   const row = rows(page).first()
   const id = (await row.getAttribute('data-id'))!
   await row.click()
-  await expect(page).toHaveURL(at(hrefFor('briefing', id)))
+  await expect(page).toHaveURL(at(hrefFor(KIND.briefing, id)))
   await settle(page)
-  const [role, seq] = id.split('/')
+  const [role, seq] = id.split(BRIEFING_REF_SEP)
   await expect(page.getByTestId(`coaching-role-${role}`)).toHaveAttribute('aria-pressed', 'true')
   await expectSelected(page.locator(`[data-testid="coaching-row"][data-seq="${seq}"]`))
 })
 
 test('typo falls back to similar names', async ({ page }) => {
-  await visit(page, `/search?q=${encodeURIComponent(TYPO)}`)
+  await visit(page, searchFor(encodeURIComponent(TYPO)))
   expect(await total(page)).toBeGreaterThan(0)
   await expect(rows(page).first()).toContainText('Acme Corp')
 })
 
 test('typing drives the url', async ({ page }) => {
-  await visit(page, '/search')
+  await visit(page, PATH.search)
   await page.getByTestId('search-box').fill('globex')
-  await expect(page).toHaveURL(at('/search?q=globex'))
+  await expect(page).toHaveURL(at(searchFor('globex')))
   await expect(rows(page).first()).toContainText(/globex/i)
 })
 
 test('no results', async ({ page }) => {
-  await visit(page, `/search?q=${NONSENSE}`)
+  await visit(page, searchFor(NONSENSE))
   await expect(title(page)).toHaveText('Results (0)')
   await expect(page.getByTestId('search').getByTestId('empty')).toHaveText('no matches')
   await expect(page.getByTestId('search-table')).toHaveCount(0)
@@ -299,15 +302,15 @@ test('no results', async ({ page }) => {
 
 test('layer off and errors', async ({ page }) => {
   await mockJson(page, '**/api/search?*', { detail: 'EMBEDDINGS_ENABLED is off' }, 409)
-  await visit(page, `/search?q=${Q}&mode=meaning`)
+  await visit(page, `${searchFor(Q)}&${PARAM.mode}=${MODES[1]}`)
   await expect(page.getByTestId('search').getByTestId('banner')).toHaveText('EMBEDDINGS_ENABLED is off')
   await mockJson(page, '**/api/search?*', { detail: 'boom' }, 500)
-  await visit(page, `/search?q=${Q}`)
+  await visit(page, searchFor(Q))
   await expect(page.getByTestId('search').getByTestId('error-banner')).toHaveText('500 boom')
 })
 
 test('rows open the thing they name', async ({ page }) => {
-  await visit(page, `/search?q=${Q}`)
+  await visit(page, searchFor(Q))
   const company = rowsOf(page, 'company').first()
   const id = (await company.getAttribute('data-id'))!
   await expect(company).toHaveCSS('cursor', 'pointer')
@@ -316,21 +319,21 @@ test('rows open the thing they name', async ({ page }) => {
   await settle(page)
   await expectSelected(page.locator(`[data-testid="entities-row"][data-id="${id}"]`))
 
-  await visit(page, '/search?q=mrr')
-  const metric = page.locator('[data-testid="search-row"][data-kind="metric"][data-id="mrr"]')
+  await visit(page, searchFor('mrr'))
+  const metric = page.locator(`[data-testid="search-row"][data-kind="${KIND.metric}"][data-id="mrr"]`)
   await expect(metric).toContainText('MRR')
   await metric.click()
-  await expect(page).toHaveURL(at(hrefFor('metric', 'mrr')))
+  await expect(page).toHaveURL(at(hrefFor(KIND.metric, 'mrr')))
   await settle(page)
   await expectSelected(page.locator('[data-testid="metrics-row"][data-name="mrr"]'))
 })
 
 test('search page never scrolls', async ({ page }) => {
-  for (const path of ['/search', `/search?q=${Q}`]) await expectNoScroll(page, path)
+  for (const path of [PATH.search, searchFor(Q)]) await expectNoScroll(page, path)
 })
 
 test('deep link selects a metric', async ({ page }) => {
-  await visit(page, '/metrics?metric=mrr')
+  await visit(page, `${PATH.metrics}?${LINK.metric}=mrr`)
   await expectSelected(page.locator('[data-testid="metrics-row"][data-name="mrr"]'))
   await expect(page.getByTestId('series-title')).toHaveText('MRR')
 })
@@ -339,7 +342,7 @@ test('deep link selects a briefing', async ({ page }) => {
   const history = await (await page.request.get('/api/coaching/head_of_sales/history')).json()
   const seq = Math.min(...history.briefings.map((b: { seq: number }) => b.seq))
   expect(seq).toBeGreaterThan(0)
-  await visit(page, `/ai/coaching?role=head_of_sales&briefing=${seq}`)
+  await visit(page, `${tabPath('ai', TAB.ai.coaching)}?${LINK.role}=head_of_sales&${LINK.briefing}=${seq}`)
   await expect(page.getByTestId('tab-coaching')).toHaveAttribute('data-state', 'active')
   await expect(page.getByTestId('coaching-role-head_of_sales')).toHaveAttribute('aria-pressed', 'true')
   const row = page.locator(`[data-testid="coaching-row"][data-seq="${seq}"]`)
@@ -348,7 +351,7 @@ test('deep link selects a briefing', async ({ page }) => {
 })
 
 test('deep link marks a rule', async ({ page }) => {
-  await visit(page, '/definitions/rules?rule=subscription_past_due')
+  await visit(page, `${tabPath('definitions', TAB.definitions.rules)}?${LINK.rule}=subscription_past_due`)
   await expect(page.getByTestId('tab-rules')).toHaveAttribute('data-state', 'active')
   const row = page.getByTestId('definitions-rules-table').locator('tr[data-name="subscription_past_due"]')
   await expect(row).toContainText('Subscription Past Due')
@@ -357,7 +360,7 @@ test('deep link marks a rule', async ({ page }) => {
 })
 
 test('deep link marks a source', async ({ page }) => {
-  await visit(page, '/config/sources?source=zendesk')
+  await visit(page, `${tabPath('config', TAB.config.sources)}?${LINK.source}=zendesk`)
   await expect(page.getByTestId('tab-sources')).toHaveAttribute('data-state', 'active')
   const row = page.locator('[data-testid="sources-row"][data-source="zendesk"]')
   await expect(row).toHaveAttribute('data-state', 'selected')
@@ -365,10 +368,10 @@ test('deep link marks a source', async ({ page }) => {
 })
 
 test('deep link picks a raw event', async ({ page }) => {
-  const { events } = await (await page.request.get('/api/raw?source=zendesk&object_type=organizations&limit=50')).json()
+  const { events } = await (await page.request.get(`${RAW_API}?source=zendesk&object_type=organizations&limit=50`)).json()
   const event = events.find((e: { raw_payload: { name?: string } }) => e.raw_payload.name === 'Wayne Enterprises')
   expect(event).toBeDefined()
-  await visit(page, `/entities/raw?event=${event.id}`)
+  await visit(page, `${tabPath('entities', TAB.entities.raw)}?${LINK.event}=${event.id}`)
   await expect(page.getByTestId('tab-raw')).toHaveAttribute('data-state', 'active')
   await expect(page.getByTestId('records-source-filter')).toHaveText('zendesk')
   await expectSelected(page.locator(`[data-testid="records-row"][data-key="zendesk|organizations|${event.source_id}"]`))
@@ -378,7 +381,7 @@ test('deep link picks a raw event', async ({ page }) => {
 })
 
 test('nav lists search last', async ({ page }) => {
-  await visit(page, '/search')
+  await visit(page, PATH.search)
   const items = page.getByTestId('top-nav').locator('[data-testid^="nav-"]')
   await expect(items.last()).toHaveAttribute('data-testid', 'nav-search')
   await expect(items.last()).toHaveText('Search')

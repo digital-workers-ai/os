@@ -10,6 +10,7 @@ import {
   Sparkles,
   type LucideIcon,
 } from 'lucide-react'
+import { PATH, TAB } from './paths'
 import { Insights } from './views/Insights'
 import { Activity } from './views/Activity'
 import { Metrics } from './views/Metrics'
@@ -39,63 +40,63 @@ export interface TabbedRoute extends RouteDef {
 }
 
 export const ENTITIES_ROUTE: TabbedRoute = {
-  to: '/entities',
+  to: PATH.entities,
   label: 'Entities',
   icon: Boxes,
   title: 'Entities',
   view: Entities,
   tabs: [
-    { value: 'canonical', label: 'Canonical' },
-    { value: 'raw', label: 'Raw entities' },
-    { value: 'visualize', label: 'Visualize' },
-    { value: 'review', label: 'Review' },
+    { value: TAB.entities.canonical, label: 'Canonical' },
+    { value: TAB.entities.raw, label: 'Raw entities' },
+    { value: TAB.entities.visualize, label: 'Visualize' },
+    { value: TAB.entities.review, label: 'Review' },
   ],
 }
 
 export const AI_ROUTE: TabbedRoute = {
-  to: '/ai',
+  to: PATH.ai,
   label: 'AI',
   icon: Sparkles,
   title: 'AI',
   view: AI,
   tabs: [
-    { value: 'enrichment', label: 'Enrichment' },
-    { value: 'coaching', label: 'Coaching' },
+    { value: TAB.ai.enrichment, label: 'Enrichment' },
+    { value: TAB.ai.coaching, label: 'Coaching' },
   ],
 }
 
 export const DEFINITIONS_ROUTE: TabbedRoute = {
-  to: '/definitions',
+  to: PATH.definitions,
   label: 'Definitions',
   icon: BookOpen,
   title: 'Definitions',
   view: Definitions,
   tabs: [
-    { value: 'ontology', label: 'Ontology' },
-    { value: 'mappings', label: 'Mappings' },
-    { value: 'transforms', label: 'Transforms' },
-    { value: 'metrics', label: 'Metrics' },
-    { value: 'rules', label: 'Rules' },
-    { value: 'goals', label: 'Goals' },
-    { value: 'enrichment', label: 'Enrichment' },
+    { value: TAB.definitions.ontology, label: 'Ontology' },
+    { value: TAB.definitions.mappings, label: 'Mappings' },
+    { value: TAB.definitions.transforms, label: 'Transforms' },
+    { value: TAB.definitions.metrics, label: 'Metrics' },
+    { value: TAB.definitions.rules, label: 'Rules' },
+    { value: TAB.definitions.goals, label: 'Goals' },
+    { value: TAB.definitions.enrichment, label: 'Enrichment' },
   ],
 }
 
 export const CONFIG_ROUTE: TabbedRoute = {
-  to: '/config',
+  to: PATH.config,
   label: 'Config',
   icon: Settings,
   title: 'Config',
   view: Config,
   tabs: [
-    { value: 'sources', label: 'Sources' },
-    { value: 'rebuild', label: 'Rebuild' },
-    { value: 'mcp', label: 'MCP' },
+    { value: TAB.config.sources, label: 'Sources' },
+    { value: TAB.config.rebuild, label: 'Rebuild' },
+    { value: TAB.config.mcp, label: 'MCP' },
   ],
 }
 
 export const SEARCH_ROUTE: RouteDef = {
-  to: '/search',
+  to: PATH.search,
   label: 'Search',
   icon: SearchIcon,
   title: 'Search',
@@ -104,7 +105,7 @@ export const SEARCH_ROUTE: RouteDef = {
 
 export const ROUTES: RouteDef[] = [
   {
-    to: '/',
+    to: PATH.home,
     label: 'Home',
     icon: Home,
     end: true,
@@ -112,14 +113,14 @@ export const ROUTES: RouteDef[] = [
     view: Insights,
   },
   {
-    to: '/activity',
+    to: PATH.activity,
     label: 'Activity',
     icon: ActivityIcon,
     title: 'Activity',
     view: Activity,
   },
   {
-    to: '/metrics',
+    to: PATH.metrics,
     label: 'Metrics',
     icon: ChartColumn,
     title: 'Metrics',

@@ -11,6 +11,7 @@ import { Chip, FilterChip, Pill } from '@/components/ui/pill'
 import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { num, relTime } from '@/lib/format'
 import { useScrollTo } from '@/lib/useScrollTo'
+import { LINK, ROW } from '@/search/vocab'
 import { BODY, FULL, LayerOff, useLoad } from './shared'
 
 interface CoachingIndex {
@@ -141,7 +142,7 @@ function RoleCard({
   const [generating, setGenerating] = useState(false)
   const [generateError, setGenerateError] = useState<ApiError | null>(null)
   const entries = generated ? [generated, ...items] : items
-  useScrollTo('coaching-journal', 'seq', briefing, entries.length > 0)
+  useScrollTo('coaching-journal', ROW.seq, briefing, entries.length > 0)
 
   useEffect(() => {
     if (!history.data) return
@@ -198,7 +199,7 @@ function RoleCard({
 export function Coaching({ onEnabled }: { onEnabled: (on: boolean) => void }) {
   const index = useLoad(() => get<CoachingIndex>('/api/coaching'), [])
   const [params] = useSearchParams()
-  const role = params.get('role')
+  const role = params.get(LINK.role)
   const [selected, setSelected] = useState(role)
   const [fresh, setFresh] = useState<string | null>(null)
   const roles = index.data?.roles ?? []
@@ -232,7 +233,7 @@ export function Coaching({ onEnabled }: { onEnabled: (on: boolean) => void }) {
       role={selected}
       to={emails}
       fresh={fresh === selected}
-      briefing={params.get('briefing')}
+      briefing={params.get(LINK.briefing)}
       onGenerated={() => setFresh(selected)}
       title={
         <span className="inline-flex gap-1">

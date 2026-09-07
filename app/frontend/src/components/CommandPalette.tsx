@@ -8,18 +8,18 @@ import { Loading } from '@/components/ui/loading'
 import { hrefFor } from '@/lib/hrefFor'
 import { anchorText, num } from '@/lib/format'
 import { cn } from '@/lib/utils'
+import { PATH } from '@/paths'
 import { ROUTES, SEARCH_ROUTE } from '@/routes'
+import { ANCHOR_ATTR, DEFAULT_LIMIT, EVIDENCE_SEP, LABEL_SEP, MIN_QUERY_CHARS, PARAM, RECENT_KEY, SEARCH_API } from '@/search/vocab'
 
-const RECENT_KEY = 'dw-os.search.recent'
 const MAX_RECENT = 5
-const MAX_ROWS = 10
 const DEBOUNCE_MS = 150
 const ROW = 'block w-full px-3 py-2 text-left text-sm text-dbb-charcoal hover:bg-black/[0.04]'
 const HEADING = 'px-3 pb-1 pt-2 text-[11px] uppercase tracking-wide text-dbb-muted'
 
 const GOTO = ROUTES.filter((route) => route !== SEARCH_ROUTE).flatMap((route) => [
   { label: route.label, to: route.to },
-  ...(route.tabs ?? []).map((tab) => ({ label: `${route.label} · ${tab.label}`, to: `${route.to}/${tab.value}` })),
+  ...(route.tabs ?? []).map((tab) => ({ label: `${route.label}${LABEL_SEP}${tab.label}`, to: `${route.to}/${tab.value}` })),
 ])
 
 function readRecent(): string[] {
@@ -39,7 +39,7 @@ function remember(q: string) {
   }
 }
 
-const evidenceText = (evidence: string) => (evidence.startsWith('anchor=') ? anchorText(evidence) : evidence)
+const evidenceText = (evidence: string) => (evidence.startsWith(`${ANCHOR_ATTR}${EVIDENCE_SEP}`) ? anchorText(evidence) : evidence)
 
 const groupByKind = (hits: SearchHit[]) =>
   [...new Set(hits.map((hit) => hit.kind))].flatMap((kind) => hits.filter((hit) => hit.kind === kind))
@@ -54,14 +54,14 @@ function Palette({ close }: { close: () => void }) {
   const q = query.trim()
 
   useEffect(() => {
-    if (q.length < 2) {
+    if (q.length < MIN_QUERY_CHARS) {
       setGot(null)
       setError(null)
       return
     }
     let live = true
     const timer = setTimeout(() => {
-      get<SearchResponse>(`/api/search?q=${encodeURIComponent(q)}&limit=${MAX_ROWS}`)
+      get<SearchResponse>(`${SEARCH_API}?${PARAM.q}=${encodeURIComponent(q)}&${PARAM.limit}=${DEFAULT_LIMIT}`)
         .then((res) => {
           if (!live) return
           setGot({ q, res })
@@ -85,11 +85,11 @@ function Palette({ close }: { close: () => void }) {
   }, [active])
 
   const res = got?.res ?? null
-  const rows = useMemo(() => groupByKind((res?.results ?? []).slice(0, MAX_ROWS)), [res])
+  const rows = useMemo(() => groupByKind((res?.results ?? []).slice(0, DEFAULT_LIMIT)), [res])
   const fresh = got?.q === q ? got.res : null
   const allHref = fresh?.kind
-    ? `/search?q=${encodeURIComponent(fresh.q)}&kind=${encodeURIComponent(fresh.kind)}`
-    : `/search?q=${encodeURIComponent(q)}`
+    ? `${PATH.search}?${PARAM.q}=${encodeURIComponent(fresh.q)}&${PARAM.kind}=${encodeURIComponent(fresh.kind)}`
+    : `${PATH.search}?${PARAM.q}=${encodeURIComponent(q)}`
 
   const go = (href: string) => {
     if (q) remember(q)
@@ -112,7 +112,7 @@ function Palette({ close }: { close: () => void }) {
   }
 
   const body =
-    q.length < 2 ? (
+    q.length < MIN_QUERY_CHARS ? (
       <>
         {recent.length > 0 && (
           <div>

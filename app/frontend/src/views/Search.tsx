@@ -11,19 +11,20 @@ import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, Table
 import { anchorText, num } from '@/lib/format'
 import { hrefFor } from '@/lib/hrefFor'
 import { useGet } from '@/lib/useGet'
+import { ANCHOR_ATTR, ANCHOR_SEP, EVIDENCE_SEP, MARK_CLOSE, MARK_OPEN, MAX_LIMIT, MODES, PARAM, SEARCH_API } from '@/search/vocab'
 import { BODY, FULL, LayerOff, PAGE_FILL } from './inference/shared'
 
 const PAGE_SIZE = 50
 const DEBOUNCE_MS = 250
-const MODES = ['words', 'meaning', 'both'] as const
+const MARKED = new RegExp(`${MARK_OPEN}([^${MARK_CLOSE}]*)${MARK_CLOSE}`)
 
-const name = (label: string) => (label.includes('|') ? anchorText(label) : label)
+const name = (label: string) => (label.includes(ANCHOR_SEP) ? anchorText(label) : label)
 
 function Evidence({ text }: { text: string }) {
-  if (text.includes('«')) {
+  if (text.includes(MARK_OPEN)) {
     return (
       <span className="text-dbb-muted">
-        {text.split(/«([^»]*)»/).map((part, i) =>
+        {text.split(MARKED).map((part, i) =>
           i % 2 ? (
             <mark key={i} className="bg-transparent font-medium text-dbb-charcoal">
               {part}
@@ -35,13 +36,13 @@ function Evidence({ text }: { text: string }) {
       </span>
     )
   }
-  const at = text.indexOf('=')
+  const at = text.indexOf(EVIDENCE_SEP)
   const attr = text.slice(0, at)
   const value = text.slice(at + 1)
   return (
     <Chip>
-      {at < 0 ? text : `${attr}=`}
-      {at >= 0 && <strong>{attr === 'anchor' ? anchorText(value) : value}</strong>}
+      {at < 0 ? text : `${attr}${EVIDENCE_SEP}`}
+      {at >= 0 && <strong>{attr === ANCHOR_ATTR ? anchorText(value) : value}</strong>}
     </Chip>
   )
 }
@@ -49,10 +50,10 @@ function Evidence({ text }: { text: string }) {
 export function Search() {
   const [params, setParams] = useSearchParams()
   const navigate = useNavigate()
-  const q = params.get('q') ?? ''
-  const kind = params.get('kind') ?? ''
-  const mode = params.get('mode') ?? 'words'
-  const offset = Number(params.get('offset')) || 0
+  const q = params.get(PARAM.q) ?? ''
+  const kind = params.get(PARAM.kind) ?? ''
+  const mode = params.get(PARAM.mode) ?? MODES[0]
+  const offset = Number(params.get(PARAM.offset)) || 0
   const [text, setText] = useState(q)
   const [size, setSize] = useState(PAGE_SIZE)
   const bodyRef = useRef<HTMLDivElement>(null)
@@ -70,12 +71,12 @@ export function Search() {
   useEffect(() => setText(q), [q])
   useEffect(() => {
     if (text === q) return
-    const timer = setTimeout(() => write({ q: text, offset: '' }, true), DEBOUNCE_MS)
+    const timer = setTimeout(() => write({ [PARAM.q]: text, [PARAM.offset]: '' }, true), DEBOUNCE_MS)
     return () => clearTimeout(timer)
   }, [text, q, setParams])
 
   const search = useGet<SearchResponse>(
-    q ? `/api/search?${new URLSearchParams({ q, ...(kind && { kind }), mode, limit: String(size), offset: String(offset) })}` : null,
+    q ? `${SEARCH_API}?${new URLSearchParams({ [PARAM.q]: q, ...(kind && { [PARAM.kind]: kind }), [PARAM.mode]: mode, [PARAM.limit]: String(size), [PARAM.offset]: String(offset) })}` : null,
   )
   const data = search.data
   const results = data?.results ?? []
@@ -83,7 +84,7 @@ export function Search() {
   const across = byKind.reduce((n, [, c]) => n + c, 0)
 
   const goTo = (n: number) => {
-    write({ offset: n ? String(n) : '' }, false)
+    write({ [PARAM.offset]: n ? String(n) : '' }, false)
     bodyRef.current?.scrollTo({ top: 0 })
   }
   const changeSize = (n: number) => {
@@ -103,12 +104,12 @@ export function Search() {
               autoFocus
               value={text}
               onChange={(e) => setText(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && write({ q: text, offset: '' }, false)}
+              onKeyDown={(e) => e.key === 'Enter' && write({ [PARAM.q]: text, [PARAM.offset]: '' }, false)}
               data-testid="search-box"
             />
             <Filter
               value={kind}
-              onChange={(k) => write({ kind: k, offset: '' }, false)}
+              onChange={(k) => write({ [PARAM.kind]: k, [PARAM.offset]: '' }, false)}
               all={`all kinds (${num(across)})`}
               options={byKind}
               testId="search-kind-filter"
@@ -118,7 +119,7 @@ export function Search() {
                 <FilterChip
                   key={m}
                   on={mode === m}
-                  onClick={() => write({ mode: m === 'words' ? '' : m, offset: '' }, false)}
+                  onClick={() => write({ [PARAM.mode]: m === MODES[0] ? '' : m, [PARAM.offset]: '' }, false)}
                   data-testid={`search-mode-${m}`}
                 >
                   {m}
@@ -176,7 +177,7 @@ export function Search() {
                 total={data.total}
                 onPage={goTo}
                 size={size}
-                allSize={Math.min(data.total, 500)}
+                allSize={Math.min(data.total, MAX_LIMIT)}
                 onSize={changeSize}
                 pageSize={PAGE_SIZE}
               />

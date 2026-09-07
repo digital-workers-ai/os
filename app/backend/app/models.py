@@ -21,6 +21,9 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR, UUID
 from sqlalchemy.orm import DeclarativeBase
 
+from app.config import settings
+from app.search_vocab import LABEL_CHARS, TEXT_SEARCH_CONFIG, Weight
+
 
 class Base(DeclarativeBase):
     pass
@@ -351,13 +354,13 @@ class SearchDocument(Base):
     id = Column(UUID(as_uuid=True), primary_key=True)  # uuid5 of kind|ref_id|attr|ordinal: 6f1c…, 9b2d…
     kind = Column(String(64), nullable=False)  # entity type or document kind: person, briefing, raw
     ref_id = Column(String(160), nullable=False)  # what the hit opens: 9c17…, ceo/4, 6f1c…
-    label = Column(String(512), nullable=False)  # hit label: "Wayne Enterprises", "CEO · 4 Sep 2026"
+    label = Column(String(LABEL_CHARS), nullable=False)  # hit label: "Wayne Enterprises", "CEO · 4 Sep 2026"
     attr = Column(String(128), nullable=False)  # source attribute: name, anchor, reading:sales_call, payload
     value = Column(Text, nullable=False)  # display value: "Wayne Enterprises", "interest=strong", "stripe|company|cus_001"
     text = Column(Text, nullable=False)  # the indexed words: "Wayne Enterprises", "hello@acme.io hello acme.io acme"
     weight = Column(String(1), nullable=False)  # rank weight, A strongest: A, B, D
     happened_at = Column(DateTime(timezone=True))  # briefing or meeting time: 2026-09-04T12:00:00Z, null
-    tsv = Column(TSVECTOR, Computed("setweight(to_tsvector('simple', text), weight::\"char\")", persisted=True))  # weighted lexemes: 'wayne':1A 'enterprises':2A
+    tsv = Column(TSVECTOR, Computed(f"setweight(to_tsvector('{TEXT_SEARCH_CONFIG}', text), weight::\"char\")", persisted=True))  # weighted lexemes: 'wayne':1A 'enterprises':2A
 
     __table_args__ = (
         Index("ix_search_document_tsv", "tsv", postgresql_using="gin"),
@@ -366,7 +369,7 @@ class SearchDocument(Base):
             "text",
             postgresql_using="gin",
             postgresql_ops={"text": "gin_trgm_ops"},
-            postgresql_where="weight IN ('A', 'B')",
+            postgresql_where=f"weight IN ('{Weight.STRONG}', '{Weight.NORMAL}')",
         ),
         Index("ix_search_document_ref", "kind", "ref_id"),
     )
@@ -382,7 +385,7 @@ class SearchChunk(Base):
     text = Column(Text, nullable=False)  # chunk words: "Bruce: the pricing is what stalls us"
     sha = Column(String(64), nullable=False)  # SHA-256 hex of text: "a3f9…", "0c7a…"
     model = Column(String(128))  # embedding model, null until embedded: text-embedding-3-small, null
-    embedding = Column(Vector(1536))  # embedding vector, null until embedded: [0.01, -0.2, …], null
+    embedding = Column(Vector(settings.EMBEDDING_DIMS))  # embedding vector, null until embedded: [0.01, -0.2, …], null
     embedded_at = Column(DateTime(timezone=True))  # embedding timestamp: 2026-09-04T12:00:00Z, null
 
     __table_args__ = (
