@@ -51,7 +51,8 @@ const query = async (page: Page, q: string) => {
 }
 
 const total = async (page: Page) => {
-  await expect(title(page)).toHaveText(/^Results \(\d[\d,]*\)$/)
+  await expect(title(page)).toHaveText(/^Results \([1-9][\d,]*\)$/)
+  await expect(rows(page).first()).toBeVisible()
   return count(await title(page).innerText())
 }
 
@@ -62,6 +63,7 @@ const expectSelected = async (row: Locator) => {
 
 const expectNoScroll = async (page: Page, path: string) => {
   await visit(page, path)
+  if (path.includes('q=')) await total(page)
   const [scrollHeight, innerHeight] = await page.evaluate(() => [document.documentElement.scrollHeight, window.innerHeight])
   expect(scrollHeight, path).toBeLessThanOrEqual(innerHeight)
 }
@@ -196,6 +198,7 @@ test('kind prefix narrows the palette', async ({ page }) => {
   await page.getByTestId('search-all').click()
   await expect(page).toHaveURL(/\/search\?q=/)
   await settle(page)
+  await total(page)
   expect(new Set(await kinds(rows(page)))).toEqual(new Set(['briefing']))
 })
 
