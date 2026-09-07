@@ -128,7 +128,7 @@ class TestDeadPaths:
 
 
 class TestTotals:
-    def test_totals_has_nine_integer_keys_without_counts_or_rates(self):
+    def test_totals_has_ten_integer_keys_without_counts_or_rates(self):
         report = SyncReport()
         totals = report.totals()
         assert set(totals) == {
@@ -141,8 +141,16 @@ class TestTotals:
             "oversized",
             "disagreements",
             "records_skipped",
+            "candidates",
         }
         assert all(isinstance(v, int) for v in totals.values())
+
+    def test_nominations_add_up_across_entity_types(self):
+        report = SyncReport()
+        report.nominate(2)
+        report.nominate(1)
+        assert report.totals()["candidates"] == 3
+        assert report.clean()
 
     def test_list_shaped_facts_total_as_lengths(self):
         report = SyncReport()

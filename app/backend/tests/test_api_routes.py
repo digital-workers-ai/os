@@ -7,7 +7,14 @@ import pytest
 import pytest_asyncio
 from sqlalchemy import func, select, update
 
-from app.api import conversation_api, entities_api, metrics_api, sources_api
+from app import store
+from app.api import (
+    conversation_api,
+    entities_api,
+    metrics_api,
+    resolution_api,
+    sources_api,
+)
 from app.db import get_session
 from app.engine import goals, mappings, metrics, ontology, rules, run
 from app.engine.transforms import TRANSFORM_TYPES, TRANSFORMS
@@ -18,12 +25,19 @@ from app.models import (
     EngineRun,
     Entity,
     EntityFact,
+    MergeCandidate,
     RawEvent,
     SyncRun,
 )
 from app.sources import hooks
 
-SELF_TRANSACTING = (sources_api, entities_api, metrics_api, conversation_api)
+SELF_TRANSACTING = (
+    sources_api,
+    entities_api,
+    metrics_api,
+    conversation_api,
+    resolution_api,
+)
 
 SEEN = datetime(2026, 8, 1, tzinfo=UTC)
 
@@ -794,6 +808,30 @@ class TestReport:
         body = (await api.get("/api/report")).json()
         assert body["ran"] is True and body["raw_events_read"] == 99
 
+    async def test_the_nominations_total_is_lifted_out_of_the_report(
+        self, api, session
+    ):
+        session.add(
+            EngineRun(
+                ok=True,
+                raw_events_read=1,
+                entities_written=1,
+                facts_written=1,
+                report={"totals": {"candidates": 4}},
+            )
+        )
+        await session.flush()
+        body = (await api.get("/api/report")).json()
+        assert body["candidates"] == 4
+
+    async def test_a_run_recorded_without_totals_has_zero_nominations(
+        self, api, session
+    ):
+        session.add(EngineRun(ok=False, report={"error": "BuildCheckError: x"}))
+        await session.flush()
+        body = (await api.get("/api/report")).json()
+        assert body["candidates"] == 0
+
     async def test_rebuilding_an_empty_estate_is_a_run_not_a_failure(self, api):
         body = (await api.post("/api/rebuild")).json()
         assert body["ok"] is True
@@ -1552,3 +1590,265 @@ class TestDefinitions:
 
     async def test_there_is_no_checks_endpoint(self, api):
         assert (await api.get("/api/definitions/checks")).status_code == 404
+
+
+PHONE = "+14155550101"
+CARLOS = ("intercom|person|con_1", "zendesk|person|u_1")
+MARIA = ("intercom|person|con_2", "zendesk|person|u_2")
+ITEM_SHAPE = {
+    "seq",
+    "entity_type",
+    "left",
+    "right",
+    "score",
+    "status",
+    "evidence_holds",
+    "decided_at",
+    "evidence",
+}
+
+
+async def _record(session, source, object_type, source_id, **fields):
+    await store.save_raw(
+        session,
+        source=source,
+        object_type=object_type,
+        source_id=source_id,
+        raw_payload={"id": source_id, **fields},
+    )
+
+
+class TestResolutionQueue:
+    @pytest_asyncio.fixture
+    async def queued(self, session):
+        await _record(
+            session, "intercom", "contacts", "con_1", name="C Chinchilla", phone=PHONE
+        )
+        await _record(session, "zendesk", "users", "u_1", name="Carlos Ch", phone=PHONE)
+        await _record(
+            session,
+            "intercom",
+            "contacts",
+            "con_2",
+            name="M. Lopez",
+            email="ml@acme.io",
+        )
+        await _record(
+            session,
+            "zendesk",
+            "users",
+            "u_2",
+            name="Maria Lopez",
+            email="maria@acme.io",
+        )
+        await session.commit()
+        await run.rebuild(session)
+        rows = (await session.execute(select(MergeCandidate))).scalars().all()
+        return {row.left_anchor: row.seq for row in rows}
+
+    async def _pair(self, api, seq, status="all"):
+        body = (await api.get(f"/api/resolution/candidates?status={status}")).json()
+        return next(c for c in body["candidates"] if c["seq"] == seq)
+
+    async def test_an_empty_estate_is_an_empty_queue_with_zero_counts(self, api):
+        body = (await api.get("/api/resolution/candidates")).json()
+        assert body == {
+            "candidates": [],
+            "counts": {"pending": 0, "confirmed": 0, "rejected": 0},
+        }
+
+    async def test_the_queue_lists_pairs_newest_first_with_their_evidence(
+        self, api, queued
+    ):
+        body = (await api.get("/api/resolution/candidates")).json()
+        assert body["counts"] == {"pending": 2, "confirmed": 0, "rejected": 0}
+        assert [c["left"]["anchor"] for c in body["candidates"]] == [
+            MARIA[0],
+            CARLOS[0],
+        ]
+        maria, carlos = body["candidates"]
+        assert set(carlos) == ITEM_SHAPE
+        assert carlos["seq"] == queued[CARLOS[0]]
+        assert carlos["entity_type"] == "person"
+        assert carlos["left"]["anchor"] == CARLOS[0]
+        assert carlos["left"]["label"] == "C Chinchilla"
+        assert carlos["right"]["anchor"] == CARLOS[1]
+        assert carlos["right"]["label"] == "Carlos Ch"
+        assert carlos["left"]["canonical_id"] != carlos["right"]["canonical_id"]
+        assert (carlos["score"], carlos["status"], carlos["evidence_holds"]) == (
+            0.8,
+            "pending",
+            True,
+        )
+        assert carlos["decided_at"] is None
+        assert carlos["evidence"] == [
+            {"attr": "name", "left_value": "C Chinchilla", "right_value": "Carlos Ch"},
+            {"attr": "phone", "left_value": PHONE, "right_value": PHONE},
+        ]
+        assert maria["evidence"][1] == {
+            "attr": "email_domain",
+            "left_value": "acme.io",
+            "right_value": "acme.io",
+        }
+
+    async def test_each_side_names_the_cluster_the_record_belongs_to(self, api, queued):
+        body = (await api.get("/api/resolution/candidates")).json()
+        carlos = next(c for c in body["candidates"] if c["seq"] == queued[CARLOS[0]])
+        for side in ("left", "right"):
+            entity = (
+                await api.get(f"/api/entities/{carlos[side]['canonical_id']}")
+            ).json()
+            assert entity["anchor"] == carlos[side]["anchor"]
+
+    async def test_the_status_filter_narrows_the_list_and_all_lists_everything(
+        self, api, queued
+    ):
+        seq = queued[CARLOS[0]]
+        assert (
+            await api.post(f"/api/resolution/candidates/{seq}/confirm")
+        ).status_code == 200
+        pending = (await api.get("/api/resolution/candidates")).json()
+        assert [c["left"]["anchor"] for c in pending["candidates"]] == [MARIA[0]]
+        assert pending["counts"] == {"pending": 1, "confirmed": 1, "rejected": 0}
+        confirmed = (
+            await api.get("/api/resolution/candidates?status=confirmed")
+        ).json()
+        assert [c["seq"] for c in confirmed["candidates"]] == [seq]
+        everything = (await api.get("/api/resolution/candidates?status=all")).json()
+        assert len(everything["candidates"]) == 2
+        assert (
+            await api.get("/api/resolution/candidates?status=bogus")
+        ).status_code == 422
+
+    @pytest.mark.parametrize("query", ["limit=0", "limit=501"])
+    async def test_out_of_range_limits_are_refused(self, api, query):
+        response = await api.get(f"/api/resolution/candidates?{query}")
+        assert response.status_code == 422
+
+    async def test_the_limit_caps_the_page(self, api, queued):
+        body = (await api.get("/api/resolution/candidates?limit=1")).json()
+        assert len(body["candidates"]) == 1
+        assert body["counts"]["pending"] == 2
+
+
+class TestResolutionDecisions:
+    @pytest_asyncio.fixture
+    async def queued(self, session):
+        await _record(
+            session, "intercom", "contacts", "con_1", name="C Chinchilla", phone=PHONE
+        )
+        await _record(session, "zendesk", "users", "u_1", name="Carlos Ch", phone=PHONE)
+        await session.commit()
+        await run.rebuild(session)
+        row = (await session.execute(select(MergeCandidate))).scalar_one()
+        return row.seq
+
+    async def test_confirming_merges_the_pair(self, api, queued):
+        response = await api.post(f"/api/resolution/candidates/{queued}/confirm")
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert set(body) == ITEM_SHAPE
+        assert (body["seq"], body["status"]) == (queued, "confirmed")
+        assert body["decided_at"] is not None
+        assert body["left"]["canonical_id"] == body["right"]["canonical_id"]
+        entity = (await api.get(f"/api/entities/{body['left']['canonical_id']}")).json()
+        assert {m["source"] for m in entity["members"]} == {"intercom", "zendesk"}
+        assert {m["evidence"] for m in entity["members"]} == {
+            "singleton",
+            f"human={queued}",
+        }
+
+    async def test_confirming_twice_is_a_409(self, api, queued):
+        await api.post(f"/api/resolution/candidates/{queued}/confirm")
+        response = await api.post(f"/api/resolution/candidates/{queued}/confirm")
+        assert response.status_code == 409
+        assert "confirmed" in response.json()["detail"]
+
+    async def test_rejecting_drops_the_pair_from_the_queue(self, api, queued):
+        response = await api.post(f"/api/resolution/candidates/{queued}/reject")
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert (body["seq"], body["status"]) == (queued, "rejected")
+        assert body["decided_at"] is not None
+        assert body["left"]["canonical_id"] != body["right"]["canonical_id"]
+        pending = (await api.get("/api/resolution/candidates")).json()
+        assert pending["candidates"] == []
+        assert pending["counts"] == {"pending": 0, "confirmed": 0, "rejected": 1}
+        assert (
+            await api.post(f"/api/resolution/candidates/{queued}/reject")
+        ).status_code == 409
+
+    async def test_a_rejected_pair_can_still_be_confirmed(self, api, queued):
+        await api.post(f"/api/resolution/candidates/{queued}/reject")
+        response = await api.post(f"/api/resolution/candidates/{queued}/confirm")
+        assert response.status_code == 200, response.text
+        assert response.json()["status"] == "confirmed"
+
+    async def test_a_confirmed_pair_can_be_rejected(self, api, queued):
+        await api.post(f"/api/resolution/candidates/{queued}/confirm")
+        response = await api.post(f"/api/resolution/candidates/{queued}/reject")
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert body["status"] == "rejected"
+        assert body["left"]["canonical_id"] != body["right"]["canonical_id"]
+
+    async def test_unmerging_returns_a_confirmed_pair_to_the_queue(self, api, queued):
+        await api.post(f"/api/resolution/candidates/{queued}/confirm")
+        response = await api.post(f"/api/resolution/candidates/{queued}/unmerge")
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert (body["status"], body["decided_at"]) == ("pending", None)
+        assert body["left"]["canonical_id"] != body["right"]["canonical_id"]
+        pending = (await api.get("/api/resolution/candidates")).json()
+        assert [c["seq"] for c in pending["candidates"]] == [body["seq"]]
+        assert pending["counts"] == {"pending": 1, "confirmed": 0, "rejected": 0}
+        assert [e["attr"] for e in body["evidence"]] == ["name", "phone"]
+
+    async def test_unmerging_a_pair_whose_evidence_is_gone_leaves_the_queue_empty(
+        self, api, session, queued
+    ):
+        await api.post(f"/api/resolution/candidates/{queued}/confirm")
+        await _record(
+            session,
+            "intercom",
+            "contacts",
+            "con_1",
+            name="C Chinchilla",
+            phone="+14155550199",
+        )
+        await session.commit()
+        response = await api.post(f"/api/resolution/candidates/{queued}/unmerge")
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert (body["seq"], body["status"], body["evidence"]) == (
+            queued,
+            "pending",
+            [],
+        )
+        assert body["left"]["canonical_id"] != body["right"]["canonical_id"]
+        pending = (await api.get("/api/resolution/candidates?status=all")).json()
+        assert pending["candidates"] == []
+
+    async def test_unmerging_a_pending_pair_is_a_409(self, api, queued):
+        response = await api.post(f"/api/resolution/candidates/{queued}/unmerge")
+        assert response.status_code == 409
+        assert "confirmed" in response.json()["detail"]
+
+    @pytest.mark.parametrize("decision", ["confirm", "reject", "unmerge"])
+    async def test_an_unknown_candidate_is_a_404(self, api, decision):
+        response = await api.post(f"/api/resolution/candidates/999/{decision}")
+        assert response.status_code == 404
+        assert response.json()["detail"] == "no such candidate"
+
+    async def test_a_decision_during_a_rebuild_is_a_409_and_changes_nothing(
+        self, api, queued, sessionmaker_for_test
+    ):
+        async with sessionmaker_for_test() as holder:
+            await holder.execute(
+                select(func.pg_try_advisory_xact_lock(run._REBUILD_LOCK_ID))
+            )
+            response = await api.post(f"/api/resolution/candidates/{queued}/confirm")
+        assert response.status_code == 409
+        assert "already in progress" in response.json()["detail"]
+        pending = (await api.get("/api/resolution/candidates")).json()
+        assert [c["seq"] for c in pending["candidates"]] == [queued]

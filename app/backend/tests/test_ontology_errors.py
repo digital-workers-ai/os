@@ -236,3 +236,34 @@ class TestBoot:
         async with main.lifespan(main.app):
             ran.append("serving")
         assert ran == ["config", "schema", "checks", "serving"]
+
+
+class TestCandidates:
+    def test_the_block_must_name_an_attr_and_list_corroborators(self, tmp_path):
+        doc = a_doc()
+        doc["entities"]["company"]["candidates"] = "name"
+        with pytest.raises(ont.OntologyError, match="`candidates:`"):
+            ont.load(write(tmp_path, doc))
+
+    def test_corroborate_must_not_be_empty(self, tmp_path):
+        doc = a_doc()
+        doc["entities"]["company"]["candidates"] = {"name": "name", "corroborate": []}
+        with pytest.raises(ont.OntologyError, match="`candidates:`"):
+            ont.load(write(tmp_path, doc))
+
+    def test_a_well_formed_block_is_kept_on_the_entity(self, tmp_path):
+        doc = a_doc()
+        doc["entities"]["company"]["candidates"] = {
+            "name": "name",
+            "corroborate": ["domain"],
+        }
+        spec = ont.load(write(tmp_path, doc)).candidates("company")
+        assert (spec.name, spec.corroborate) == ("name", ("domain",))
+
+    def test_the_shipped_person_declares_its_review_evidence(self):
+        spec = ont.load().candidates("person")
+        assert (spec.name, spec.corroborate) == ("name", ("phone", "email_domain"))
+
+    def test_an_entity_without_the_block_has_none(self):
+        assert ont.load().candidates("company") is None
+        assert ont.load().candidates("unicorn") is None
