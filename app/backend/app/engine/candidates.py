@@ -7,7 +7,7 @@ from sqlalchemy import delete, insert, select
 from app.engine.resolver import is_blocked
 from app.models import MergeCandidate, MergeCandidateEvidence
 
-VIRTUAL = {"email_domain": "email"}
+VIRTUAL = {"email_domain": "email"}  # derived corroborators: the field they are read from
 ALIKE = 0.8
 PER_RECORD_CAP = 5
 DECIDED = ("confirmed", "rejected")
