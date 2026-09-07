@@ -2,6 +2,8 @@ import { useCallback, useState, type ReactNode } from 'react'
 import { usePageBadge } from '@/components/PageHeader'
 import { Banner } from '@/components/ui/banner'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useTab } from '@/lib/useTab'
+import { AI_ROUTE } from '@/routes'
 import { Coaching } from './inference/Coaching'
 import { Enrichment } from './inference/Enrichment'
 import { PAGE_FILL } from './inference/shared'
@@ -21,11 +23,11 @@ function Gate({ flag, testId, children }: { flag: Flag; testId: string; children
 }
 
 export function AI() {
-  const [tab, setTab] = useState<Tab>('enrichment')
+  const [tab, setTab] = useTab(AI_ROUTE)
   const [flags, setFlags] = useState<Record<Tab, Flag>>({ enrichment: null, coaching: null })
   const onEnrichment = useCallback((on: boolean) => setFlags((f) => ({ ...f, enrichment: on })), [])
   const onCoaching = useCallback((on: boolean) => setFlags((f) => ({ ...f, coaching: on })), [])
-  const flag = flags[tab]
+  const flag = flags[tab as Tab]
   usePageBadge(
     flag === false ? (
       <Banner className="inline-flex items-center px-3 py-0.5" testId="page-badge">
@@ -35,7 +37,7 @@ export function AI() {
   )
 
   return (
-    <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className={PAGE_FILL}>
+    <Tabs value={tab} onValueChange={setTab} className={PAGE_FILL}>
       <TabsList className="shrink-0">
         <TabsTrigger value="enrichment" data-testid="tab-enrichment">
           Enrichment
