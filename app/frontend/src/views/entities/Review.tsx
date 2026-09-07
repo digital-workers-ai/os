@@ -9,6 +9,7 @@ import { Loading } from '@/components/ui/loading'
 import { Mono } from '@/components/ui/mono'
 import { Chip, Pill, type Tone } from '@/components/ui/pill'
 import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { anchorText, num } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { BODY, FULL, useLoad } from '../inference/shared'
@@ -138,7 +139,18 @@ export function Review() {
                 <TableCell className={TOP}>
                   <span className="inline-flex flex-wrap gap-1">
                     <Pill tone={TONE[c.status]}>{c.status}</Pill>
-                    {c.status === 'confirmed' && !c.evidence_holds && <Pill tone="warn">evidence gone</Pill>}
+                    {c.status === 'confirmed' && !c.evidence_holds && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span tabIndex={0} data-testid="review-evidence-gone" className="inline-flex focus-visible:outline-none">
+                            <Pill tone="warn">evidence gone</Pill>
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs">
+                          A person confirmed this pair, but the two records no longer share any evidence. Check it again; unmerge if it was wrong.
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
                   </span>
                 </TableCell>
                 <TableCell className={cn('pr-0 text-right', TOP)}>

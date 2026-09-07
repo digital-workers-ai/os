@@ -188,6 +188,11 @@ test('review confirmed', async ({ page }) => {
   await expect(row.getByText('evidence gone')).toBeVisible()
   await expect(row.getByTestId('review-unmerge')).toHaveText('Unmerge')
   await expect(row.getByTestId('review-confirm')).toHaveCount(0)
+  await page.getByTestId('review-evidence-gone').hover()
+  await expect(page.getByRole('tooltip')).toBeVisible()
+  await expect(page.getByRole('tooltip')).toContainText('no longer share any evidence')
+  await page.mouse.move(0, 0, { steps: 20 })
+  await expect(page.getByRole('tooltip')).toHaveCount(0)
   await snap(page, 'entities-review-confirmed')
 })
 
