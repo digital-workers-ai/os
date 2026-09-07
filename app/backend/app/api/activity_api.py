@@ -20,6 +20,7 @@ async def list_activity(
                 EntityCanonical.canonical_id == FactCurrent.canonical_id,
             )
             .join(Entity, Entity.id == FactCurrent.entity_id, isouter=True)
+            .where(FactCurrent.entity_id.is_not(None))
             .order_by(
                 FactCurrent.observed_at.desc(),
                 FactCurrent.canonical_id,

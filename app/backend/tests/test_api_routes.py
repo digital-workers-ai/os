@@ -764,6 +764,25 @@ class TestMetrics:
         assert set(body) == {"as_of", "metrics"}
         assert datetime.fromisoformat(body["as_of"]).tzinfo is not None
 
+    async def test_as_of_is_the_instant_the_metrics_were_measured(
+        self, api, monkeypatch
+    ):
+        seen: dict = {}
+
+        async def spy(session, now=None):
+            seen["now"] = now
+            return {}
+
+        monkeypatch.setattr(metrics, "evaluate", spy)
+        body = (await api.get("/api/metrics")).json()
+        assert body["as_of"] == seen["now"].isoformat()
+
+    async def test_every_row_carries_the_meaning_its_definition_declares(self, api):
+        rows = (await api.get("/api/metrics")).json()["metrics"]
+        defs = metrics.load_definitions()
+        assert rows["mrr"]["description"] == defs["mrr"]["description"]
+        assert rows["mrr"]["synonyms"] == defs["mrr"]["synonyms"]
+
     async def test_reading_history_never_writes_it(self, api):
         before = (await api.get("/api/metrics/history")).json()["history"]
         await api.get("/api/metrics")

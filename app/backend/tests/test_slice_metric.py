@@ -106,6 +106,19 @@ class TestAWindowNarrowsByDate:
         assert result["window_direction"] == "forward"
         assert result["window_from"] < result["window_to"]
 
+    async def test_zero_days_is_refused_not_read_as_no_window(self, session):
+        result = await agent.slice_metric(
+            session, metric="new_subscriptions_30d", window_days=0
+        )
+        assert "positive integer" in result["error"]
+        assert "window_days" not in result
+
+    async def test_a_boolean_is_not_a_number_of_days(self, session):
+        result = await agent.slice_metric(
+            session, metric="mrr", window_days=True, window_attr="started_at"
+        )
+        assert result["error"] == "window_days True must be a whole number of days"
+
     async def test_a_window_that_is_not_a_number_is_an_error_not_a_crash(self, session):
         result = await agent.slice_metric(
             session,
@@ -212,6 +225,10 @@ class TestDiscoveryComesBackWithTheScalar:
         paths = {entry["path"] for entry in result["dimensions"]}
         assert {"interest", "timing"} <= paths
         assert "pain_points" not in paths
+
+    async def test_an_inferred_metric_offers_no_window_to_read(self, session):
+        result = await agent.slice_metric(session, metric="strong_interest_share")
+        assert "window_attrs" not in result
 
 
 class TestAnInferredSliceStaysMarked:

@@ -196,6 +196,26 @@ class TestCheck:
         assert "unknown key" in text
         assert "where" in text
 
+    def test_a_money_sum_onto_a_target_that_declares_currency_is_refused(
+        self, tmp_path, onto
+    ):
+        doc = {
+            "deal": {"billed": {"expression": "SUM(order.amount)", "via": "placed_by"}}
+        }
+        assert "shadows a declared attr of deal" in _problems(tmp_path, onto, doc)
+
+    def test_a_second_money_sum_on_one_target_is_refused(self, tmp_path, onto):
+        doc = {
+            "company": {
+                "mrr": dict(MRR["company"]["mrr"]),
+                "pipeline": {"expression": "SUM(deal.amount)", "via": "belongs_to"},
+            }
+        }
+        text = _problems(tmp_path, onto, doc)
+        assert "derived company.pipeline: " in text
+        assert "currency" in text
+        assert "twice" in text
+
     def test_an_expression_the_grammar_cannot_parse_is_refused(self, tmp_path, onto):
         doc = {
             "company": {
@@ -207,11 +227,36 @@ class TestCheck:
         assert "everything we bill" in text
 
 
+class TestABrokenFileIsReportedNotRaised:
+    def test_a_spec_the_grammar_refuses_still_lets_the_checks_finish(self, tmp_path):
+        path = _yaml(
+            tmp_path,
+            {"company": {"mrr": {**MRR["company"]["mrr"], "where": "status=active"}}},
+        )
+        problems = checks.run(derived_path=path)
+        assert any("unknown key" in p and "where" in p for p in problems)
+
+    def test_a_file_that_is_not_a_mapping_still_lets_the_checks_finish(self, tmp_path):
+        path = tmp_path / "derived.yaml"
+        path.write_text("- a\n")
+        problems = checks.run(derived_path=path)
+        assert any("top level must be a mapping" in p for p in problems)
+
+    def test_attrs_of_falls_back_to_the_declared_attrs(self, tmp_path, onto):
+        path = _yaml(
+            tmp_path,
+            {"company": {"mrr": {**MRR["company"]["mrr"], "where": "status=active"}}},
+        )
+        attrs = _derived().attrs_of(onto, path)("company")
+        assert attrs == onto.entities["company"].attrs
+
+
 class TestTypes:
     def test_sum_and_count_are_numbers(self):
         assert _derived().types_for("company") == {
             "mrr": "number",
             "open_tickets": "number",
+            "currency": "string",
         }
 
     def test_max_takes_the_type_of_the_source_attr(self):
@@ -241,6 +286,19 @@ class TestCompute:
         assert [(f.entity_type, f.attr, f.value_num) for f in facts] == [
             ("company", "open_tickets", 0)
         ]
+
+    def test_a_count_is_written_the_way_the_pipeline_writes_a_number(
+        self, tmp_path, onto
+    ):
+        folded = [
+            _fact("c1", "company", "domain", "acme.io"),
+            _fact("t1", "ticket", "status", "open"),
+        ]
+        edges = [_edge("t1", "belongs_to", "c1")]
+        facts, _refused = _derived().compute(
+            _specs(tmp_path, TICKETS), onto, folded, edges, MONEY
+        )
+        assert _by_attr(facts)[("c1", "open_tickets")].value == "1.0"
 
     def test_count_counts_the_sources_that_point_at_the_target(self, tmp_path, onto):
         folded = [
@@ -281,6 +339,31 @@ class TestCompute:
         )
         assert _by_attr(facts)[("c1", "mrr")].value_num == 100.0
 
+    def test_a_money_sum_carries_the_currency_of_its_sources(self, tmp_path, onto):
+        folded = [
+            _fact("c1", "company", "domain", "acme.io"),
+            _fact("s1", "subscription", "mrr", "100.0", 100.0),
+            _fact("s1", "subscription", "status", "active"),
+            _fact("s1", "subscription", "currency", "usd"),
+        ]
+        edges = [_edge("s1", "belongs_to", "c1")]
+        facts, _refused = _derived().compute(
+            _specs(tmp_path, MRR), onto, folded, edges, MONEY
+        )
+        currency = _by_attr(facts)[("c1", "currency")]
+        assert (currency.value, currency.value_num) == ("usd", None)
+        assert currency.observed_at == _by_attr(facts)[("c1", "mrr")].observed_at
+
+    def test_a_company_with_no_sources_gets_a_zero_and_no_currency(
+        self, tmp_path, onto
+    ):
+        folded = [_fact("c1", "company", "domain", "acme.io")]
+        facts, _refused = _derived().compute(
+            _specs(tmp_path, MRR), onto, folded, [], MONEY
+        )
+        assert _by_attr(facts)[("c1", "mrr")].value_num == 0
+        assert ("c1", "currency") not in _by_attr(facts)
+
     def test_two_currencies_under_one_company_refuse_the_sum(self, tmp_path, onto):
         folded = [
             _fact("c1", "company", "domain", "acme.io"),
@@ -318,6 +401,32 @@ class TestCompute:
         assert _by_attr(facts)[("p1", "last_meeting_at")].value == (
             "2026-03-02T10:00:00Z"
         )
+
+    def test_max_is_stamped_with_the_winning_facts_own_observation(
+        self, tmp_path, onto
+    ):
+        folded = [
+            _fact("p1", "person", "email", "a@acme.io"),
+            _fact(
+                "m1",
+                "meeting",
+                "started_at",
+                "2026-01-09T10:00:00Z",
+                observed_at=NEWER,
+            ),
+            _fact(
+                "m2",
+                "meeting",
+                "started_at",
+                "2026-03-02T10:00:00Z",
+                observed_at=OLDER,
+            ),
+        ]
+        edges = [_edge("m1", "attended_by", "p1"), _edge("m2", "attended_by", "p1")]
+        facts, _refused = _derived().compute(
+            _specs(tmp_path, LAST_MEETING), onto, folded, edges, MONEY
+        )
+        assert _by_attr(facts)[("p1", "last_meeting_at")].observed_at == OLDER
 
     def test_max_writes_nothing_when_no_source_carries_the_attr(self, tmp_path, onto):
         folded = [
@@ -504,6 +613,11 @@ async def _seed_acme(session, canonical, link):
         _edge(subscription, "belongs_to", company),
         _edge(ticket, "belongs_to", company),
     ]
+    await _write_derived(session, folded, edges)
+    return company
+
+
+async def _write_derived(session, folded, edges):
     facts, _refused = _derived().compute(
         _derived().load(), ontology.load(), folded, edges, MONEY
     )
@@ -523,6 +637,21 @@ async def _seed_acme(session, canonical, link):
             )
         )
     await session.flush()
+
+
+async def _seed_paying_company(session, canonical, link, name, currency):
+    company = await canonical("company", {"domain": f"{name}.io", "name": name})
+    subscription = await canonical(
+        "subscription", {"mrr": 1000, "currency": currency, "status": "active"}
+    )
+    await link(subscription, "belongs_to", company)
+    folded = [
+        _fact(company, "company", "domain", f"{name}.io"),
+        _fact(subscription, "subscription", "mrr", "1000.0", 1000.0),
+        _fact(subscription, "subscription", "currency", currency),
+        _fact(subscription, "subscription", "status", "active"),
+    ]
+    await _write_derived(session, folded, [_edge(subscription, "belongs_to", company)])
     return company
 
 
@@ -550,6 +679,17 @@ class TestConsumers:
             session, {"m": {"entity": "company", "expression": "AVG(mrr)"}}
         )
         assert result["m"]["value"] == 1500.0
+
+    async def test_an_average_across_two_currencies_is_refused(
+        self, session, canonical, link
+    ):
+        await _seed_paying_company(session, canonical, link, "acme", "usd")
+        await _seed_paying_company(session, canonical, link, "globex", "eur")
+        result = await metrics.evaluate_definitions(
+            session, {"m": {"entity": "company", "expression": "AVG(mrr)"}}
+        )
+        assert result["m"]["value"] is None
+        assert result["m"]["mixed_currencies"] == ["eur", "usd"]
 
     async def test_search_leaves_a_derived_number_unindexed(
         self, session, canonical, link

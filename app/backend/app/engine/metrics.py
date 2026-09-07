@@ -66,14 +66,6 @@ def load_definitions(path=None) -> dict:
     return load_mapping(path or DEFAULT_METRICS, MetricSpecError)
 
 
-def money_labels(path=None) -> set:
-    return {
-        label
-        for label, fn in transforms.load_map(path).items()
-        if fn == "normalize_money"
-    }
-
-
 def _parse_expression(expression) -> dict:
     match = _AGG_RE.match(str(expression or ""))
     if not match:
@@ -269,7 +261,11 @@ def parse_spec(spec) -> dict:
     window_days = spec.get("window_days")
     direction = spec.get("window_direction")
     if window_days is not None:
-        if not isinstance(window_days, int) or window_days <= 0:
+        if (
+            isinstance(window_days, bool)
+            or not isinstance(window_days, int)
+            or window_days <= 0
+        ):
             raise MetricSpecError(
                 f"window_days {window_days!r} must be a positive integer"
             )
@@ -762,7 +758,7 @@ async def _breakdown(session, onto, spec, parsed, money, window, term_ids) -> di
 
 async def evaluate_definitions(session, defs: dict, now=None) -> dict:
     onto = ontology.load()
-    money = money_labels()
+    money = transforms.money_labels()
     now = now or datetime.now(UTC)
     out: dict = {}
     for name, spec in defs.items():

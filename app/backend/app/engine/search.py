@@ -577,7 +577,7 @@ definitions = caches.cached(_load_definitions)
 
 
 def _names(text: str, token: str) -> bool:
-    return token in text or token.removesuffix("s") in text
+    return token in text or (len(token) >= 4 and token.removesuffix("s") in text)
 
 
 def _lexeme(token: str) -> str:

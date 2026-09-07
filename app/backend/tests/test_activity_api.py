@@ -1,3 +1,4 @@
+import uuid
 from datetime import UTC, datetime, timedelta
 
 import httpx
@@ -132,6 +133,28 @@ class TestActivity:
         assert [(e["label"], e["attr"], e["value"]) for e in events] == [
             ("test|event|1", "kind", "click")
         ]
+
+    async def test_a_derived_fact_is_a_computation_not_an_observation(
+        self, api, session, canonical
+    ):
+        acme = await canonical("company", {"name": "Acme"})
+        session.add(
+            FactCurrent(
+                id=uuid.uuid4(),
+                canonical_id=acme,
+                entity_type="company",
+                attr="mrr",
+                value="1500.0",
+                value_num=1500.0,
+                entity_id=None,
+                raw_event_id=None,
+                observed_at=SEEN,
+                disagreements=0,
+            )
+        )
+        await session.flush()
+        events = (await api.get("/api/activity")).json()["events"]
+        assert [(e["attr"], e["source"]) for e in events] == [("name", "hubspot")]
 
     async def test_a_rebuild_feeds_the_activity_from_raw_events(self, api, session):
         await store.save_raw(

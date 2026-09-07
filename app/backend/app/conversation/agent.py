@@ -115,6 +115,15 @@ def _fix_filter(name: str, composed: dict, attr: str, value: str) -> dict | None
     return None
 
 
+def _whole_days(value):
+    if isinstance(value, bool):
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
 def _dimension(onto, path: str, kind: str, via: str = "") -> dict:
     entry = {"path": path, "type": kind}
     if via:
@@ -167,12 +176,12 @@ async def slice_metric(
     if bool(filter_attr) != bool(filter_value):
         return {"error": "filter_attr and filter_value go together"}
     if window_days is not None:
-        try:
-            window_days = int(window_days)
-        except (TypeError, ValueError):
+        days = _whole_days(window_days)
+        if days is None:
             return {
                 "error": f"window_days {window_days!r} must be a whole number of days"
             }
+        window_days = days
 
     spec = defs[name]
     onto = ontology.load()
@@ -194,7 +203,7 @@ async def slice_metric(
             ("window_attr", str(window_attr)),
             ("window_direction", str(window_direction)),
         )
-        if value
+        if value is not None and value != ""
     }
     if given:
         composed = {k: v for k, v in composed.items() if not k.startswith("window_")}
@@ -216,11 +225,12 @@ async def slice_metric(
     result = {"metric": name, **row}
     if filter_attr:
         result["applied_filter"] = {str(filter_attr): str(filter_value)}
-    if not (group_by or window_days or filter_attr):
+    if not (group_by or window_days is not None or filter_attr):
         result["dimensions"] = _dimensions(onto, attrs_of, composed)
-        result["window_attrs"] = sorted(
-            attr for attr, kind in attrs_of(entity).items() if kind == "date"
-        )
+        if not composed.get("inferred"):
+            result["window_attrs"] = sorted(
+                attr for attr, kind in attrs_of(entity).items() if kind == "date"
+            )
     return result
 
 

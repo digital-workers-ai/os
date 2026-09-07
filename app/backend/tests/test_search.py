@@ -1159,6 +1159,10 @@ class TestQueryDefinitions:
         plural = of_kind(await search.query(session, "tickets"), "entity_type")
         assert [h["id"] for h in singular] == [h["id"] for h in plural] == ["ticket"]
 
+    def test_a_short_token_is_never_stripped_to_a_letter(self):
+        assert search._names("open ticket", "tickets")
+        assert not search._names("a company", "as")
+
     async def test_a_plural_of_nothing_still_matches_nothing(self, session):
         assert of_kind(await search.query(session, "unicorns"), "entity_type") == []
 

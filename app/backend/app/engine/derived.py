@@ -1,7 +1,7 @@
 import re
 
 from app.caches import DEFINITIONS_DIR, load_mapping
-from app.engine import ontology
+from app.engine import ontology, transforms
 from app.engine.survivorship import FoldedFact
 
 DEFAULT_DERIVED = DEFINITIONS_DIR / "derived.yaml"
@@ -45,25 +45,42 @@ def parse(spec) -> dict:
     }
 
 
+def _loaded(path) -> dict:
+    try:
+        return load(path)
+    except DerivedError:
+        return {}
+
+
+def _carries_currency(parsed: dict, money) -> bool:
+    return parsed["agg"] == "SUM" and parsed["attr"] in money
+
+
 def _types(onto, specs) -> dict:
+    money = transforms.money_labels()
     types: dict = {}
     for entity, attrs in specs.items():
         for attr, spec in attrs.items():
-            parsed = parse(spec)
+            try:
+                parsed = parse(spec)
+            except DerivedError:
+                continue
             types.setdefault(entity, {})[attr] = (
                 "number"
                 if parsed["agg"] in ("SUM", "COUNT")
                 else onto.attr_type(parsed["entity"], parsed["attr"])
             )
+            if _carries_currency(parsed, money):
+                types[entity]["currency"] = "string"
     return types
 
 
 def types_for(entity, path=None) -> dict:
-    return _types(ontology.load(), load(path)).get(entity, {})
+    return _types(ontology.load(), _loaded(path)).get(entity, {})
 
 
 def attrs_of(onto, path=None):
-    types = _types(onto, load(path))
+    types = _types(onto, _loaded(path))
 
     def of(entity: str) -> dict:
         return {**onto.entities[entity].attrs, **types.get(entity, {})}
@@ -72,8 +89,14 @@ def attrs_of(onto, path=None):
 
 
 def check(onto, path=None) -> list[str]:
+    try:
+        specs = load(path)
+    except DerivedError as e:
+        return [str(e)]
+    money = transforms.money_labels()
+    money_targets: set = set()
     problems: list[str] = []
-    for entity, attrs in load(path).items():
+    for entity, attrs in specs.items():
         target = onto.entities.get(entity)
         for attr, spec in attrs.items():
             prefix = f"derived {entity}.{attr}: "
@@ -104,6 +127,19 @@ def check(onto, path=None) -> list[str]:
                     f"{parsed['via']} {entity}"
                 )
             problems += _source_problems(prefix, parsed, source)
+            if not _carries_currency(parsed, money):
+                continue
+            if "currency" in target.attrs:
+                problems.append(
+                    f"{prefix}the currency this money SUM writes shadows a "
+                    f"declared attr of {entity}"
+                )
+            if entity in money_targets:
+                problems.append(
+                    f"{prefix}a second money SUM on {entity} writes its "
+                    "currency twice — one target carries one currency"
+                )
+            money_targets.add(entity)
     return problems
 
 
@@ -151,9 +187,27 @@ def _greatest(kind):
     return lambda fact: fact.value
 
 
-def _mixed_currencies(values: dict, kept: list, attr: str, money) -> bool:
-    spans = {values[cid]["currency"].value for cid in kept if "currency" in values[cid]}
-    return attr in money and len(spans) > 1
+def _currencies(values: dict, kept: list) -> set:
+    return {values[cid]["currency"].value for cid in kept if "currency" in values[cid]}
+
+
+def _number_text(value) -> str:
+    return str(float(value))
+
+
+def _derived_fact(target, entity, attr, value, value_num, observed_at) -> FoldedFact:
+    return FoldedFact(
+        canonical_id=target,
+        entity_type=entity,
+        attr=attr,
+        value=value,
+        value_num=value_num,
+        source="",
+        entity_key=None,
+        raw_event_id=None,
+        observed_at=observed_at,
+        disagreements=0,
+    )
 
 
 def _aggregate(parsed: dict, kind, values: dict, newest: dict, kept: list):
@@ -161,14 +215,15 @@ def _aggregate(parsed: dict, kind, values: dict, newest: dict, kept: list):
     carrying = [values[cid][attr] for cid in kept if attr in values[cid]]
     stamps = [fact.observed_at for fact in carrying]
     if parsed["agg"] == "COUNT":
-        return str(len(kept)), float(len(kept)), [newest[cid] for cid in kept]
+        counted = float(len(kept))
+        return _number_text(counted), counted, [newest[cid] for cid in kept]
     if parsed["agg"] == "SUM":
         total = float(sum(fact.value_num for fact in carrying))
-        return str(total), total, stamps
+        return _number_text(total), total, stamps
     if not carrying:
         return None
     best = max(carrying, key=_greatest(kind))
-    return best.value, best.value_num, stamps
+    return best.value, best.value_num, [best.observed_at]
 
 
 def compute(specs: dict, onto, folded: list, edges: list, money) -> tuple:
@@ -186,6 +241,7 @@ def compute(specs: dict, onto, folded: list, edges: list, money) -> tuple:
         for attr, spec in attrs.items():
             parsed = parse(spec)
             kind = onto.attr_type(parsed["entity"], parsed["attr"])
+            carries_currency = _carries_currency(parsed, money)
             for target in targets:
                 kept = [
                     cid
@@ -193,9 +249,8 @@ def compute(specs: dict, onto, folded: list, edges: list, money) -> tuple:
                     if kinds.get(cid) == parsed["entity"]
                     and _passes(values[cid], parsed["filter"])
                 ]
-                if parsed["agg"] == "SUM" and _mixed_currencies(
-                    values, kept, parsed["attr"], money
-                ):
+                spans = _currencies(values, kept) if carries_currency else set()
+                if len(spans) > 1:
                     refused.append(
                         {
                             "entity": entity,
@@ -209,18 +264,14 @@ def compute(specs: dict, onto, folded: list, edges: list, money) -> tuple:
                 if made is None:
                     continue
                 value, value_num, stamps = made
+                observed_at = max(stamps) if stamps else newest[target]
                 facts.append(
-                    FoldedFact(
-                        canonical_id=target,
-                        entity_type=entity,
-                        attr=attr,
-                        value=value,
-                        value_num=value_num,
-                        source="",
-                        entity_key=None,
-                        raw_event_id=None,
-                        observed_at=max(stamps) if stamps else newest[target],
-                        disagreements=0,
-                    )
+                    _derived_fact(target, entity, attr, value, value_num, observed_at)
                 )
+                if stamps and len(spans) == 1:
+                    facts.append(
+                        _derived_fact(
+                            target, entity, "currency", spans.pop(), None, observed_at
+                        )
+                    )
     return facts, refused

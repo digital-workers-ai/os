@@ -11,7 +11,6 @@ from app.engine import (
     derived,
     links,
     mappings,
-    metrics,
     ontology,
     pipeline,
     resolver,
@@ -171,7 +170,7 @@ async def rebuild(session, *, run_checks: bool = True) -> dict:
         del report.match_rates[label]
 
     derived_facts, derived_refused = derived.compute(
-        derived.load(), onto, folded, edges, metrics.money_labels()
+        derived.load(), onto, folded, edges, transforms.money_labels()
     )
     for fact in derived_facts:
         report.count(f"derived/{fact.entity_type}.{fact.attr}")

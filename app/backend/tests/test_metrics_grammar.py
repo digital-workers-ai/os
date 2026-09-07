@@ -1,6 +1,6 @@
 import pytest
 
-from app.engine import mappings, metrics
+from app.engine import mappings, metrics, transforms
 
 
 def parse(spec):
@@ -155,7 +155,13 @@ class TestShippedCatalog:
             metrics.parse_spec(spec)
 
     def test_money_labels_are_discovered_from_the_transforms(self):
-        assert metrics.money_labels() == {"amount", "mrr", "price", "spend", "budget"}
+        assert transforms.money_labels() == {
+            "amount",
+            "mrr",
+            "price",
+            "spend",
+            "budget",
+        }
 
 
 class TestProvenance:
@@ -322,7 +328,7 @@ class TestWindowGrammar:
             parse(counted(window_days=30))
         assert "window_days needs window_attr" in str(err.value)
 
-    @pytest.mark.parametrize("days", [0, -3, 1.5, "30"])
+    @pytest.mark.parametrize("days", [0, -3, 1.5, "30", True])
     def test_a_window_that_is_not_a_positive_whole_number_of_days_is_refused(
         self, days
     ):
