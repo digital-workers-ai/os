@@ -1,3 +1,5 @@
+import type { Mode } from './search/vocab'
+
 export class ApiError extends Error {
   status: number
   detail: string
@@ -184,7 +186,7 @@ export interface SearchHit {
 export interface SearchResponse {
   q: string
   kind: string | null
-  mode: 'words' | 'meaning' | 'both'
+  mode: Mode
   meaning_enabled: boolean
   rerank_enabled: boolean
   reranked: boolean

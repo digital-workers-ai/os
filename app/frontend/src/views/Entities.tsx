@@ -17,6 +17,7 @@ import { useScrollTo } from '@/lib/useScrollTo'
 import { useTab } from '@/lib/useTab'
 import { cn } from '@/lib/utils'
 import { ENTITIES_ROUTE } from '@/routes'
+import { LINK as DEEP_LINK, ROW as ROW_ATTR } from '@/search/vocab'
 import { Review } from './entities/Review'
 import { VisualizeTab } from './visualize/VisualizeTab'
 
@@ -464,7 +465,7 @@ function Detail({
 
 function Canonical() {
   const [params, setParams] = useSearchParams()
-  const selected = params.get('entity')
+  const selected = params.get(DEEP_LINK.entity)
   const [type, setType] = useState('')
   const [trace, setTrace] = useState<Trace | null>(null)
   const list = useGet<EntitiesResponse>(`/api/entities?${query({ entity_type: type, limit: SCAN })}`)
@@ -472,7 +473,7 @@ function Canonical() {
 
   const pick = (t: string) => setType(t)
   const open = (id: string) => {
-    setParams({ entity: id }, { replace: true })
+    setParams({ [DEEP_LINK.entity]: id }, { replace: true })
     setTrace(null)
   }
 
@@ -488,7 +489,7 @@ function Canonical() {
     if (!found && type) setType('')
   }, [selected, loaded, found, type])
 
-  useScrollTo('entities-table', 'id', selected, found)
+  useScrollTo('entities-table', ROW_ATTR.id, selected, found)
 
   return (
     <div className={SPLIT_FILL}>
@@ -684,7 +685,7 @@ function RecordDetail({ record, eventId }: { record: RecordRow; eventId: string 
 
 function RawSide() {
   const [params] = useSearchParams()
-  const eventId = params.get('event')
+  const eventId = params.get(DEEP_LINK.event)
   const event = useGet<RawEvent>(eventId ? `/api/raw/${encodeURIComponent(eventId)}` : null)
   const [type, setType] = useState('')
   const [source, setSource] = useState('')
@@ -719,7 +720,7 @@ function RawSide() {
   }, [target, source, records.data, records.loading, type])
 
   const isPicked = (r: RecordRow) => !!picked && recordKey(picked) === recordKey(r)
-  useScrollTo('records-table', 'key', targetKey, !!picked && recordKey(picked) === targetKey)
+  useScrollTo('records-table', ROW_ATTR.key, targetKey, !!picked && recordKey(picked) === targetKey)
 
   return (
     <div className={SPLIT_FILL}>

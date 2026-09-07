@@ -1,0 +1,20 @@
+export const MODES = ['words', 'meaning', 'both'] as const
+export type Mode = (typeof MODES)[number]
+export const KIND = { briefing: 'briefing', raw: 'raw', metric: 'metric', rule: 'rule', goal: 'goal', source: 'source', entityType: 'entity_type', reading: 'reading' } as const
+export type Kind = (typeof KIND)[keyof typeof KIND]
+export const PARAM = { q: 'q', kind: 'kind', mode: 'mode', limit: 'limit', offset: 'offset' } as const
+export const LINK = { entity: 'entity', event: 'event', metric: 'metric', role: 'role', briefing: 'briefing', rule: 'rule', goal: 'goal', type: 'type', reading: 'reading', source: 'source' } as const
+export const ROW = { id: 'id', key: 'key', name: 'name', seq: 'seq', source: 'source' } as const
+export const MARK_OPEN = '«'
+export const MARK_CLOSE = '»'
+export const EVIDENCE_SEP = '='
+export const LABEL_SEP = ' · '
+export const ANCHOR_SEP = '|'
+export const BRIEFING_REF_SEP = '/'
+export const MIN_QUERY_CHARS = 2
+export const DEFAULT_LIMIT = 10
+export const MAX_LIMIT = 500
+export const ANCHOR_ATTR = 'anchor'
+export const RECENT_KEY = 'dw-os.search.recent'
+export const SEARCH_API = '/api/search'
+export const RAW_API = '/api/raw'

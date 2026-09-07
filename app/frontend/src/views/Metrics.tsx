@@ -11,6 +11,7 @@ import { Pill } from '@/components/ui/pill'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { num, relTime } from '@/lib/format'
 import { useScrollTo } from '@/lib/useScrollTo'
+import { LINK, ROW } from '@/search/vocab'
 
 interface InferredFrom {
   reading: string
@@ -171,7 +172,7 @@ function RunSection({ run }: { run: Run }) {
 
 export function Metrics() {
   const [params, setParams] = useSearchParams()
-  const selected = params.get('metric')
+  const selected = params.get(LINK.metric)
   const [metrics, setMetrics] = useState<MetricsResponse | null>(null)
   const [metricsError, setMetricsError] = useState<ApiError | null>(null)
   const [series, setSeries] = useState<Series | null>(null)
@@ -201,9 +202,9 @@ export function Metrics() {
     if (selected) loadSeries(selected)
   }, [selected])
 
-  useScrollTo('metrics-table', 'name', selected, !!metrics)
+  useScrollTo('metrics-table', ROW.name, selected, !!metrics)
 
-  const select = (name: string) => setParams({ metric: name }, { replace: true })
+  const select = (name: string) => setParams({ [LINK.metric]: name }, { replace: true })
 
   const rows = Object.entries(metrics?.metrics ?? {})
   const seriesRow = series ? metrics?.metrics[series.metric] : undefined

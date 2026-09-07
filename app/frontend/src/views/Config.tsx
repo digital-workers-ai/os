@@ -30,6 +30,7 @@ import { useScrollTo } from '@/lib/useScrollTo'
 import { useTab } from '@/lib/useTab'
 import { cn } from '@/lib/utils'
 import { CONFIG_ROUTE } from '@/routes'
+import { LINK, ROW } from '@/search/vocab'
 import { BODY, FULL, PAGE_FILL, useLoad } from './inference/shared'
 
 type Ran = Extract<ReportResponse, { ran: true }>
@@ -454,7 +455,7 @@ export function Config() {
   const [rebuilds, setRebuilds] = useState(0)
   const [tab, setTab] = useTab(CONFIG_ROUTE)
   const [params] = useSearchParams()
-  const selected = params.get('source')
+  const selected = params.get(LINK.source)
 
   const loadSources = () =>
     api
@@ -514,7 +515,7 @@ export function Config() {
 
   const all = sources?.sources ?? []
   const rows = all.filter((r) => !enabled || enabledKey(r) === enabled)
-  useScrollTo('sources-table', 'source', selected, !!sources)
+  useScrollTo('sources-table', ROW.source, selected, !!sources)
 
   return (
     <Tabs value={tab} onValueChange={setTab} className={PAGE_FILL}>

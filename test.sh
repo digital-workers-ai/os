@@ -85,9 +85,14 @@ if ! compose ps --status running --services 2>/dev/null | grep -qx backend; then
   compose up -d --build --wait postgres mock backend
 fi
 
+if [ "$mode" = "unit" ]; then
+  echo "==> search vocabulary"
+  python3 backend/tools/check_search_vocab.py
+fi
+
 echo "==> ruff"
-compose exec -T backend ruff check app tests
-compose exec -T backend ruff format --check app tests
+compose exec -T backend ruff check app tests tools
+compose exec -T backend ruff format --check app tests tools
 
 echo "==> $mode suite"
 
