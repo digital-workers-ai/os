@@ -79,6 +79,19 @@ How the engine reads it, per pair of records not already in one cluster:
 
 Keys are normalized so the comparison is honest: `phone` keeps digits only and drops a leading US 1; `email_domain` is a virtual attribute, the part of `email` after the `@`, and it counts only when it isn't a free-mail or placeholder domain, the same blocklist the resolver uses. Anything else listed is compared as plain lowercase text.
 
+How "alike" is decided: names are lowercased, stripped of punctuation and split into words, then compared with Python's `difflib.SequenceMatcher`, which is in the standard library, so no dependency and the same answer on every machine. Its `ratio()` is twice the number of matching characters divided by the total length of both strings, from 0 to 1. Two names are alike at 0.8 or above. Because a first name shortened to an initial scores badly on characters, a second rule catches that case: both names have at least two words, the first words start with the same letter, and one last word is a prefix of the other, at least two letters long; that scores 0.8 flat. Some pairs:
+
+```
+carlos chinchilla   carlos chinchilla   1.00   alike
+richard hendricks   rich hendricks      0.90   alike
+jane smith          j smith             0.82   alike
+carlos ch           c chinchilla        0.38   alike by the initial-and-prefix rule
+bob chen            robert chen         0.74   not alike (a nickname map would be needed)
+carlos chinchilla   maria lopez         0.29   not alike
+```
+
+The score is only a nomination. It never merges anything on its own, and a person sees it as the `name` chip on the pair.
+
 Two rules keep it safe: a name alone never counts, and a corroborator alone never counts. Both have to agree. And the build checks refuse a declaration that names an attribute the entity doesn't have.
 
 To extend it, add an attribute to the list. To do companies, give `company` its own block, `name: name` with a corroborator that exists for companies; today they only carry domain, industry and name, and domain is already identity, so companies wait for a corroborator worth trusting.
