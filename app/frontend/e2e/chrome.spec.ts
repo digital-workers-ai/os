@@ -7,9 +7,10 @@ const ROUTES: [string, string][] = [
   ['/ai', 'AI'],
   ['/definitions', 'Definitions'],
   ['/config', 'Config'],
+  ['/search', 'Search'],
 ]
 
-const NAV = ['home', 'activity', 'metrics', 'entities', 'ai', 'definitions', 'config']
+const NAV = ['home', 'activity', 'metrics', 'entities', 'ai', 'definitions', 'config', 'search']
 
 test.describe('intro', () => {
   test.use({ contextOptions: { reducedMotion: 'no-preference' } })

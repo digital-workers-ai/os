@@ -39,6 +39,8 @@ async def db_engine():
 
     engine = create_async_engine(test_database_url(), pool_pre_ping=True)
     async with engine.begin() as conn:
+        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS pg_trgm"))
         await conn.run_sync(Base.metadata.create_all)
     yield engine
     await engine.dispose()
@@ -60,15 +62,16 @@ async def session(db_engine, sessionmaker_for_test):
 
 @pytest_asyncio.fixture
 async def canonical(session):
-    from app.models import EntityCanonical, FactCurrent
+    from app.models import CanonicalMember, EntityCanonical, EntityFact, FactCurrent
 
     counter = {"n": 0}
 
-    async def _make(entity_type: str, facts: dict, sources=None):
+    async def _make(entity_type: str, facts: dict, sources=None, member_facts=None):
         counter["n"] += 1
         anchor = f"test|{entity_type}|{counter['n']}"
         canonical_id = uuid.uuid5(uuid.NAMESPACE_URL, anchor)
         sources = sources or ["hubspot"]
+        member_facts = member_facts or {}
         session.add(
             EntityCanonical(
                 canonical_id=canonical_id,
@@ -92,6 +95,26 @@ async def canonical(session):
                     first_seq=counter["n"],
                 )
             )
+        await session.flush()
+        for source, entity_id in zip(sources, entity_ids, strict=True):
+            session.add(
+                CanonicalMember(
+                    id=uuid.uuid5(uuid.NAMESPACE_URL, f"{anchor}|{source}|member"),
+                    canonical_id=canonical_id,
+                    entity_id=entity_id,
+                )
+            )
+            for attr, value in {**facts, **member_facts.get(source, {})}.items():
+                session.add(
+                    EntityFact(
+                        id=uuid.uuid5(uuid.NAMESPACE_URL, f"{anchor}|{source}|{attr}"),
+                        entity_id=entity_id,
+                        attr=attr,
+                        value=None if value is None else str(value),
+                        is_null=value is None,
+                        observed_at=FIXTURE_SEEN,
+                    )
+                )
         for attr, value in facts.items():
             number = None
             try:
