@@ -28,10 +28,10 @@ NOW = datetime(2026, 9, 4, 12, 0, tzinfo=UTC)
 MODEL = "claude-sonnet-5"
 PROMPT = "2026-08-02.1"
 PINS = [
-    (SyncRun.started_at, NOW - timedelta(days=1)),
-    (EngineRun.created_at, NOW - timedelta(hours=2)),
-    (FactCurrent.observed_at, NOW - timedelta(hours=1)),
-    (RawEvent.ingested_at, NOW - timedelta(hours=1)),
+    (SyncRun.started_at, NOW - timedelta(days=1), None),
+    (EngineRun.created_at, NOW - timedelta(hours=2), None),
+    (FactCurrent.observed_at, NOW - timedelta(hours=1), timedelta(days=1)),
+    (RawEvent.ingested_at, NOW - timedelta(hours=1), None),
 ]
 PLAN = {
     "Globex": ("strong", "this_quarter", ["manual_work", "reporting_gaps"], True),
@@ -333,14 +333,14 @@ async def seed_snapshots(s) -> int:
     return n
 
 
-async def pin(s, column, target: datetime) -> int:
+async def pin(s, column, target: datetime, window: timedelta | None) -> int:
     newest = await s.scalar(select(func.max(column)))
     if newest is None:
         return 0
-    shifted = await s.execute(
-        update(column.class_).values({column.key: column + (target - newest)})
-    )
-    return shifted.rowcount
+    shift = update(column.class_).values({column.key: column + (target - newest)})
+    if window is not None:
+        shift = shift.where(column >= newest - window)
+    return (await s.execute(shift)).rowcount
 
 
 async def pin_engine_run_durations(s) -> int:
@@ -400,8 +400,8 @@ async def main() -> None:
         briefings = await seed_briefings(s)
         indexed = await search.index(s)
         pinned = {
-            column.class_.__tablename__: await pin(s, column, target)
-            for column, target in PINS
+            column.class_.__tablename__: await pin(s, column, target, window)
+            for column, target, window in PINS
         }
         engine_run_durations = await pin_engine_run_durations(s)
         snapshots = await seed_snapshots(s)

@@ -220,6 +220,55 @@ Meaning search is opt-in, like every layer that calls a model: set `EMBEDDINGS_E
 
 A dev database created before the search PR predates the `pgvector` image: `docker compose -p os -f app/docker-compose.yml down -v`, bring the stack up, sync, rebuild, and re-seed with `python -m tools.seed_demo` inside the backend container.
 
+## Configuration
+
+Everything is read from the environment, and `app/.env` (copied from `app/.env.example`) is loaded first; every knob has a default, so an empty file runs. The three API keys are never settings — the Anthropic and OpenAI clients read theirs from the environment, the ZeroEntropy client reads its own — and startup refuses to run a flag whose key is missing.
+
+| Variable | Default | What it does |
+|---|---|---|
+| `DATABASE_URL` | `postgresql+asyncpg://os:os@localhost:5442/os` | Postgres connection; compose sets it to the `postgres` service |
+| `MOCK_BASE_URL` | `http://localhost:8192` | Where the vendored mock providers answer; compose sets `http://mock:8100` |
+| `SYNC_RUN_RETENTION_DAYS` | `30` | Sync runs older than this are pruned |
+| `ENGINE_RUN_RETENTION` | `200` | Rebuild receipts kept |
+| `CONNECTOR_MAX_PAGES` | `500` | Pages a connector pulls per object type before stopping |
+| `CONNECTOR_MAX_BYTES` | `52428800` | Payload bytes a connector accepts per pull (50 MiB) |
+| `ER_BUCKET_CAP` | `50` | Records per identity bucket before entity resolution refuses to merge it |
+| `ER_ONE_RECORD_PER_SOURCE` | `true` | A canonical entity holds at most one record per source |
+| `ENRICHMENT_ENABLED` | `false` | Read transcripts into structured facts; needs `ANTHROPIC_API_KEY` |
+| `ENRICHMENT_MODEL` | `claude-sonnet-5` | Model for enrichment |
+| `ENRICHMENT_MAX_TOKENS` | `8000` | Output cap per enrichment call |
+| `ENRICHMENT_MAX_CALLS_PER_RUN` | `200` | Model calls per enrichment run |
+| `ENRICHMENT_CONCURRENCY` | `4` | Enrichment calls in flight at once |
+| `COACHING_ENABLED` | `false` | Generate role briefings; needs `ANTHROPIC_API_KEY` |
+| `COACHING_MODEL` | `claude-sonnet-5` | Model for briefings |
+| `COACHING_MAX_TOKENS` | `8000` | Output cap per briefing |
+| `CONVERSATION_ENABLED` | `false` | The ask agent; needs `ANTHROPIC_API_KEY` |
+| `CONVERSATION_MODEL` | `claude-sonnet-5` | Model for the ask agent |
+| `CONVERSATION_MAX_TOKENS` | `8000` | Output cap per turn |
+| `CONVERSATION_MAX_TURNS` | `8` | Tool-call rounds per question |
+| `CONVERSATION_MAX_TOOL_RESULT_CHARS` | `12000` | A tool result is truncated beyond this |
+| `CONVERSATION_MAX_HISTORY_TURNS` | `12` | Earlier turns replayed to the model |
+| `CONVERSATION_MAX_TURN_CHARS` | `4000` | A stored turn is truncated beyond this |
+| `EMBEDDINGS_ENABLED` | `false` | Meaning search over transcript chunks; needs `OPENAI_API_KEY` |
+| `EMBEDDING_MODEL` | `text-embedding-3-small` | OpenAI embedding model |
+| `EMBEDDING_DIMS` | `1536` | Vector width; must match the `search_chunk` column |
+| `EMBEDDING_BATCH` | `100` | Chunks per embedding request |
+| `EMBEDDINGS_MAX_CALLS_PER_RUN` | `200` | Embedding requests per run |
+| `RERANK_ENABLED` | `false` | Zerank over hybrid results; needs `ZEROENTROPY_API_KEY` |
+| `RERANK_MODEL` | `zerank-2` | ZeroEntropy reranker model |
+| `RERANK_TOP` | `20` | Results sent to the reranker |
+| `SEARCH_CHUNK_CHARS` | `1200` | Target size of a transcript chunk |
+
+Keys, set only in the environment or `app/.env`:
+
+| Variable | Needed by |
+|---|---|
+| `ANTHROPIC_API_KEY` | `ENRICHMENT_ENABLED`, `COACHING_ENABLED`, `CONVERSATION_ENABLED` |
+| `OPENAI_API_KEY` | `EMBEDDINGS_ENABLED` |
+| `ZEROENTROPY_API_KEY` | `RERANK_ENABLED` |
+
+The compose files add the wiring, not knobs: `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` (all `os`) on the database, `BACKEND_URL` on the frontend dev server, and `docker-compose.snap.yml` pins every model flag off for the snapshot stack.
+
 ## Layout
 
 - `ROADMAP.md` — the feature-slice plan to v11 parity, checkbox-tracked

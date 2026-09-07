@@ -2,11 +2,10 @@ import os
 
 import httpx
 
-from app.config import settings
+from app.config import RERANK_CREDENTIAL_ENV, settings
 from app.llm import LLMError
 
 RERANK_URL = "https://api.zeroentropy.dev/v1/models/rerank"
-CREDENTIAL_ENV = "ZEROENTROPY_API_KEY"
 
 _client = None
 
@@ -35,7 +34,7 @@ async def rerank(
         "query": query,
         "documents": documents,
     }
-    headers = {"Authorization": f"Bearer {os.environ.get(CREDENTIAL_ENV, '')}"}
+    headers = {"Authorization": f"Bearer {os.environ.get(RERANK_CREDENTIAL_ENV, '')}"}
     try:
         api = client_override or client()
         response = await api.post(RERANK_URL, json=body, headers=headers)
