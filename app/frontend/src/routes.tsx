@@ -1,5 +1,15 @@
 import type { ComponentType } from 'react'
-import { Activity as ActivityIcon, BookOpen, Boxes, ChartColumn, Home, Settings, Sparkles, type LucideIcon } from 'lucide-react'
+import {
+  Activity as ActivityIcon,
+  BookOpen,
+  Boxes,
+  ChartColumn,
+  Home,
+  Search as SearchIcon,
+  Settings,
+  Sparkles,
+  type LucideIcon,
+} from 'lucide-react'
 import { Insights } from './views/Insights'
 import { Activity } from './views/Activity'
 import { Metrics } from './views/Metrics'
@@ -7,6 +17,7 @@ import { Entities } from './views/Entities'
 import { AI } from './views/AI'
 import { Definitions } from './views/Definitions'
 import { Config } from './views/Config'
+import { Search } from './views/Search'
 
 export interface TabDef {
   value: string
@@ -83,6 +94,14 @@ export const CONFIG_ROUTE: TabbedRoute = {
   ],
 }
 
+export const SEARCH_ROUTE: RouteDef = {
+  to: '/search',
+  label: 'Search',
+  icon: SearchIcon,
+  title: 'Search',
+  view: Search,
+}
+
 export const ROUTES: RouteDef[] = [
   {
     to: '/',
@@ -110,4 +129,5 @@ export const ROUTES: RouteDef[] = [
   AI_ROUTE,
   DEFINITIONS_ROUTE,
   CONFIG_ROUTE,
+  SEARCH_ROUTE,
 ]

@@ -10,6 +10,8 @@ services:
     environment:
       ENRICHMENT_ENABLED: "false"
       COACHING_ENABLED: "false"
+      EMBEDDINGS_ENABLED: "false"
+      RERANK_ENABLED: "false"
 
   frontend:
     ports: !reset []

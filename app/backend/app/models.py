@@ -1,10 +1,12 @@
 import uuid
 
+from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
     BigInteger,
     Boolean,
     CheckConstraint,
     Column,
+    Computed,
     DateTime,
     Float,
     ForeignKey,
@@ -16,7 +18,7 @@ from sqlalchemy import (
     UniqueConstraint,
     text,
 )
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR, UUID
 from sqlalchemy.orm import DeclarativeBase
 
 
@@ -341,3 +343,69 @@ class MergeCandidateEvidence(Base):
     attr = Column(String(64), nullable=False)  # what agreed: name, phone, email_domain
     left_value = Column(Text, nullable=False)  # left record's value: "C Chinchilla", "+14155550101"
     right_value = Column(Text, nullable=False)  # right record's value: "Carlos Ch", "+14155550101"
+
+
+class SearchDocument(Base):
+    __tablename__ = "search_document"
+
+    id = Column(UUID(as_uuid=True), primary_key=True)  # uuid5 of kind|ref_id|attr|ordinal: 6f1c…, 9b2d…
+    kind = Column(String(64), nullable=False)  # entity type or document kind: person, briefing, raw
+    ref_id = Column(String(160), nullable=False)  # what the hit opens: 9c17…, ceo/4, 6f1c…
+    label = Column(String(512), nullable=False)  # hit label: "Wayne Enterprises", "CEO · 4 Sep 2026"
+    attr = Column(String(128), nullable=False)  # source attribute: name, anchor, reading:sales_call, payload
+    value = Column(Text, nullable=False)  # display value: "Wayne Enterprises", "interest=strong", "stripe|company|cus_001"
+    text = Column(Text, nullable=False)  # the indexed words: "Wayne Enterprises", "hello@acme.io hello acme.io acme"
+    weight = Column(String(1), nullable=False)  # rank weight, A strongest: A, B, D
+    happened_at = Column(DateTime(timezone=True))  # briefing or meeting time: 2026-09-04T12:00:00Z, null
+    tsv = Column(TSVECTOR, Computed("setweight(to_tsvector('simple', text), weight::\"char\")", persisted=True))  # weighted lexemes: 'wayne':1A 'enterprises':2A
+
+    __table_args__ = (
+        Index("ix_search_document_tsv", "tsv", postgresql_using="gin"),
+        Index(
+            "ix_search_document_trgm",
+            "text",
+            postgresql_using="gin",
+            postgresql_ops={"text": "gin_trgm_ops"},
+            postgresql_where="weight IN ('A', 'B')",
+        ),
+        Index("ix_search_document_ref", "kind", "ref_id"),
+    )
+
+
+class SearchChunk(Base):
+    __tablename__ = "search_chunk"
+
+    id = Column(UUID(as_uuid=True), primary_key=True)  # uuid5 of canonical_id|attr|chunk_index: 6f1c…, 9b2d…
+    canonical_id = Column(UUID(as_uuid=True), nullable=False)  # owning canonical entity: 9c17…, 0d4e…
+    attr = Column(String(128), nullable=False)  # source attribute: transcript
+    chunk_index = Column(Integer, nullable=False)  # position within attribute text: 0, 1, 7
+    text = Column(Text, nullable=False)  # chunk words: "Bruce: the pricing is what stalls us"
+    sha = Column(String(64), nullable=False)  # SHA-256 hex of text: "a3f9…", "0c7a…"
+    model = Column(String(128))  # embedding model, null until embedded: text-embedding-3-small, null
+    embedding = Column(Vector(1536))  # embedding vector, null until embedded: [0.01, -0.2, …], null
+    embedded_at = Column(DateTime(timezone=True))  # embedding timestamp: 2026-09-04T12:00:00Z, null
+
+    __table_args__ = (
+        UniqueConstraint("canonical_id", "attr", "chunk_index", name="search_chunk_position"),
+        Index(
+            "ix_search_chunk_embedding",
+            "embedding",
+            postgresql_using="hnsw",
+            postgresql_ops={"embedding": "vector_cosine_ops"},
+        ),
+    )
+
+
+class EmbeddingRun(Base):
+    __tablename__ = "embedding_run"
+
+    seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic run counter: 1, 2, 3
+    ok = Column(Boolean, nullable=False)  # every batch succeeded: true, false
+    model = Column(String(128), nullable=False)  # embedding model configured: text-embedding-3-small
+    embedded = Column(Integer, nullable=False, server_default=text("0"))  # chunks embedded this run: 0, 42
+    skipped = Column(Integer, nullable=False, server_default=text("0"))  # chunks already current: 0, 300
+    failed = Column(Integer, nullable=False, server_default=text("0"))  # chunks whose batch errored: 0, 100
+    error = Column(Text)  # first failure detail: "RateLimitError: quota", null
+    truncated_at_cap = Column(Boolean, nullable=False, server_default=text("false"))  # stopped at call cap: true, false
+    duration_ms = Column(Integer, nullable=False, server_default=text("0"))  # run wall time: 12, 3400
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # run timestamp: server now(), 2026-09-04T12:00:00Z

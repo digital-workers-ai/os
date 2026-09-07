@@ -10,7 +10,7 @@ from sqlalchemy import select
 from app import llm
 from app.caches import DEFINITIONS_DIR
 from app.config import settings
-from app.engine import goals, metrics, rules
+from app.engine import goals, metrics, rules, search
 from app.models import BriefingRun
 
 PROMPTS = DEFINITIONS_DIR / "briefs"
@@ -225,6 +225,8 @@ async def generate(session, role: str, *, model_client=None) -> dict:
         session.add(run)
         await session.commit()
 
+    await search.index(session, briefing_seqs=[run.seq])
+    await session.commit()
     return {
         "role": role,
         "briefing": text,
@@ -242,6 +244,7 @@ async def generate(session, role: str, *, model_client=None) -> dict:
 
 def _row_dict(row: BriefingRun) -> dict:
     return {
+        "seq": row.seq,
         "role": row.role,
         "briefing": row.briefing,
         "model": row.model,

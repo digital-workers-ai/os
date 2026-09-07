@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Outlet } from 'react-router-dom'
 import { PRODUCT } from '@/brand'
+import { CommandPalette } from '@/components/CommandPalette'
 import { DigitalWorkersMark, type IntroPhase } from '@/components/DigitalWorkersMark'
 import { TopNav } from '@/components/TopNav'
 import { SetPageBadgeContext, SetPageTitleContext } from '@/context/PageTitleContext'
@@ -85,6 +86,7 @@ export function Layout() {
           </SetPageBadgeContext.Provider>
         </SetPageTitleContext.Provider>
       </main>
+      <CommandPalette enabled={reached('all')} />
     </div>
   )
 }

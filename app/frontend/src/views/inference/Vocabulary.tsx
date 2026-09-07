@@ -29,7 +29,17 @@ export interface Vocabulary {
   readings: Record<string, Reading>
 }
 
-export function Readings({ vocabulary, sticky = false, testId }: { vocabulary: Vocabulary; sticky?: boolean; testId?: string }) {
+export function Readings({
+  vocabulary,
+  sticky = false,
+  testId,
+  selected = null,
+}: {
+  vocabulary: Vocabulary
+  sticky?: boolean
+  testId?: string
+  selected?: string | null
+}) {
   const readings = Object.entries(vocabulary.readings)
   return (
     <Table className="table-fixed" wrapperClassName={sticky ? 'overflow-x-visible' : undefined} data-testid={testId}>
@@ -46,7 +56,12 @@ export function Readings({ vocabulary, sticky = false, testId }: { vocabulary: V
       <TableBody>
         {readings.flatMap(([name, r]) =>
           r.fields.map((f, i) => (
-            <TableRow key={`${name}|${f.name}`}>
+            <TableRow
+              key={`${name}|${f.name}`}
+              data-name={name}
+              data-state={name === selected ? 'selected' : undefined}
+              aria-selected={name === selected}
+            >
               {i === 0 && (
                 <>
                   <TableCell rowSpan={r.fields.length} className="align-top">

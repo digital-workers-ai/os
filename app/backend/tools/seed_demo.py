@@ -8,7 +8,7 @@ from sqlalchemy import delete, func, select, update
 from app import store
 from app.coaching import briefer
 from app.db import async_session
-from app.engine import metrics
+from app.engine import metrics, search
 from app.engine.run import rebuild
 from app.enrichment import vocabulary
 from app.models import (
@@ -398,6 +398,7 @@ async def main() -> None:
         meetings = await seed_meetings(s, readings["sales_call"].sha)
         tickets = await seed_tickets(s, readings["support_ticket"].sha)
         briefings = await seed_briefings(s)
+        indexed = await search.index(s)
         pinned = {
             column.class_.__tablename__: await pin(s, column, target)
             for column, target in PINS
@@ -410,6 +411,8 @@ async def main() -> None:
         "enriched_fact": meetings + tickets,
         "enrichment_run": 2,
         "briefing_run": briefings,
+        "search_document": indexed["documents"],
+        "search_chunk": indexed["chunks"],
         "metric_snapshot": snapshots,
         **pinned,
         "engine_run_duration_ms": engine_run_durations,

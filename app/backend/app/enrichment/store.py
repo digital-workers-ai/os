@@ -4,6 +4,7 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.exc import IntegrityError
 
 from app.config import settings
+from app.engine import search
 from app.enrichment import reader, vocabulary
 from app.models import (
     CanonicalAlias,
@@ -169,6 +170,7 @@ async def write(session, canonical_id, reading, result) -> int:
                 prompt_version=result.prompt_version,
             )
         )
+    await search.index(session, canonical_ids=[canonical_id])
     return len(result.findings)
 
 

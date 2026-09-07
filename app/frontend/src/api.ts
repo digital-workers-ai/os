@@ -174,6 +174,37 @@ export interface McpIndex {
   prompts: { name: string; description: string }[]
 }
 
+export interface SearchHit {
+  kind: string
+  id: string
+  label: string
+  evidence: string
+}
+
+export interface SearchResponse {
+  q: string
+  kind: string | null
+  mode: 'words' | 'meaning' | 'both'
+  meaning_enabled: boolean
+  rerank_enabled: boolean
+  reranked: boolean
+  total: number
+  limit: number
+  offset: number
+  by_kind: Record<string, number>
+  results: SearchHit[]
+}
+
+export interface RawEventDetail {
+  id: string
+  source: string
+  object_type: string
+  source_id: string
+  seq: number
+  ingested_at: string
+  raw_payload: unknown
+}
+
 export const api = {
   sources: () => get<SourcesResponse>('/api/sources'),
   sync: (sources?: string[]) => post<SyncResponse>('/api/sync', sources ? { sources } : {}),
