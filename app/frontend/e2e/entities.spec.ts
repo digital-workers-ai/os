@@ -1,7 +1,7 @@
 import type { Locator, Page } from '@playwright/test'
-import { expect, header, mockJson, openFilter, pickOption, settle, snap, test, visit } from './fixtures'
+import { CANDIDATES, expect, header, mockCandidates, mockJson, openFilter, pickOption, settle, snap, test, visit } from './fixtures'
 
-const TABS = { canonical: 'Canonical', raw: 'Raw entities', visualize: 'Visualize' }
+const TABS = { canonical: 'Canonical', raw: 'Raw entities', visualize: 'Visualize', review: 'Review' }
 
 const counted = (scope: Locator, label: string) => header(scope, new RegExp(`^${label} \\(\\d[\\d,]*\\)$`))
 
@@ -124,7 +124,7 @@ test('visualize person', async ({ page }) => {
   await expect(header(table, 'Company (10)')).toBeVisible()
   const person = page.getByTestId('visualize-toggle-person')
   await person.click()
-  await expect(header(table, 'Person (23)')).toBeVisible()
+  await expect(header(table, 'Person (28)')).toBeVisible()
   await expect(person).toHaveText(/^person \d+$/)
   await expect(person).toHaveAttribute('aria-pressed', 'true')
   await snap(page, 'entities-visualize-person')
@@ -146,4 +146,81 @@ test('canonical empty', async ({ page }) => {
   await expect(page.getByTestId('entities').getByTestId('empty')).toHaveText('no entities')
   await expect(page.getByTestId('entities-type-filter')).toHaveText('all types (0)')
   await snap(page, 'entities-canonical-empty')
+})
+
+test('review default', async ({ page }) => {
+  await mockCandidates(page)
+  await openTab(page, 'review')
+  const table = page.getByTestId('review-table')
+  await expect(header(table, 'Pair (1)')).toBeVisible()
+  for (const name of ['Entity', 'Evidence', 'Score', 'Status']) await expect(header(table, name)).toBeVisible()
+  const row = page.getByTestId('review-row')
+  await expect(row).toHaveCount(1)
+  await expect(row).toHaveAttribute('data-seq', '1')
+  await expect(row).toContainText('Carlos Ch')
+  await expect(row).toContainText('C Chinchilla')
+  await expect(row.getByTestId('review-confirm')).toHaveText('Confirm')
+  await expect(row.getByTestId('review-reject')).toHaveText('Reject')
+  await expect(page.getByTestId('review-status-filter')).toHaveText('pending (1)')
+  await snap(page, 'entities-review-default')
+})
+
+test('review filter open', async ({ page }) => {
+  await mockCandidates(page)
+  await openTab(page, 'review')
+  await expect(header(page.getByTestId('review-table'), 'Pair (1)')).toBeVisible()
+  await openFilter(page, 'review-status-filter')
+  await expect(option(page, 'review-status-filter', '*')).toHaveText('all (3)')
+  for (const status of ['pending', 'confirmed', 'rejected']) {
+    await expect(option(page, 'review-status-filter', status)).toHaveText(`${status} (1)`)
+  }
+  await snap(page, 'entities-review-filter-open')
+  await closeFilter(page, 'review-status-filter')
+})
+
+test('review confirmed', async ({ page }) => {
+  await mockCandidates(page)
+  await openTab(page, 'review')
+  await expect(header(page.getByTestId('review-table'), 'Pair (1)')).toBeVisible()
+  await pickOption(page, 'review-status-filter', 'confirmed')
+  const row = page.getByTestId('review-row')
+  await expect(row).toHaveAttribute('data-seq', '2')
+  await expect(row.getByText('evidence gone')).toBeVisible()
+  await expect(row.getByTestId('review-unmerge')).toHaveText('Unmerge')
+  await expect(row.getByTestId('review-confirm')).toHaveCount(0)
+  await snap(page, 'entities-review-confirmed')
+})
+
+test('review confirm', async ({ page }) => {
+  const candidates = CANDIDATES.map((c) => ({ ...c }))
+  await mockCandidates(page, candidates)
+  await page.route('**/api/resolution/candidates/1/confirm', (r) => {
+    candidates[0].status = 'confirmed'
+    return r.fulfill({ json: candidates[0] })
+  })
+  await openTab(page, 'review')
+  await expect(page.getByTestId('review-row')).toHaveCount(1)
+  await page.getByTestId('review-confirm').click()
+  await expect(page.getByTestId('review').getByTestId('empty')).toHaveText('no pairs to review')
+  await expect(page.getByTestId('review-row')).toHaveCount(0)
+  await expect(page.getByTestId('review-status-filter')).toHaveText('pending (0)')
+})
+
+test('review 409', async ({ page }) => {
+  await mockCandidates(page)
+  await mockJson(page, '**/api/resolution/candidates/1/confirm', { detail: 'a rebuild is already in progress' }, 409)
+  await openTab(page, 'review')
+  await page.getByTestId('review-confirm').click()
+  await expect(page.getByTestId('review-description').getByTestId('review-error')).toHaveText('409 a rebuild is already in progress')
+  await expect(page.getByTestId('review-row')).toHaveCount(1)
+  await expect(page.getByTestId('review-confirm')).toBeEnabled()
+  await snap(page, 'entities-review-409')
+})
+
+test('review empty', async ({ page }) => {
+  await mockCandidates(page, [])
+  await openTab(page, 'review')
+  await expect(page.getByTestId('review').getByTestId('empty')).toHaveText('no pairs to review')
+  await expect(page.getByTestId('review-status-filter')).toHaveText('pending (0)')
+  await snap(page, 'entities-review-empty')
 })

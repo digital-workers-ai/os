@@ -15,6 +15,7 @@ import { useGet } from '@/lib/useGet'
 import { useTab } from '@/lib/useTab'
 import { cn } from '@/lib/utils'
 import { ENTITIES_ROUTE } from '@/routes'
+import { Review } from './entities/Review'
 import { VisualizeTab } from './visualize/VisualizeTab'
 
 interface EntityRow {
@@ -795,6 +796,9 @@ export function Entities() {
         <TabsTrigger value="visualize" data-testid="tab-visualize">
           Visualize
         </TabsTrigger>
+        <TabsTrigger value="review" data-testid="tab-review">
+          Review
+        </TabsTrigger>
       </TabsList>
       <TabsContent value="canonical" className="lg:min-h-0 lg:flex-1" data-testid="tabpanel-canonical">
         <Canonical />
@@ -804,6 +808,9 @@ export function Entities() {
       </TabsContent>
       <TabsContent value="visualize" className="lg:min-h-0 lg:flex-1" data-testid="tabpanel-visualize">
         <VisualizeTab />
+      </TabsContent>
+      <TabsContent value="review" className="lg:min-h-0 lg:flex-1" data-testid="tabpanel-review">
+        <Review />
       </TabsContent>
     </Tabs>
   )

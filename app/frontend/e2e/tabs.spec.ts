@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test'
-import { expect, mockJson, settle, test, visit } from './fixtures'
+import { expect, mockCandidates, mockJson, settle, test, visit } from './fixtures'
 
 const MCP = {
   path: '/mcp',
@@ -9,7 +9,7 @@ const MCP = {
 }
 
 const PAGES: { path: string; title: string; tabs: Record<string, string> }[] = [
-  { path: '/entities', title: 'Entities', tabs: { canonical: 'Canonical', raw: 'Raw entities', visualize: 'Visualize' } },
+  { path: '/entities', title: 'Entities', tabs: { canonical: 'Canonical', raw: 'Raw entities', visualize: 'Visualize', review: 'Review' } },
   { path: '/ai', title: 'AI', tabs: { enrichment: 'Enrichment', coaching: 'Coaching' } },
   {
     path: '/definitions',
@@ -31,6 +31,7 @@ const DEEP: [string, string][] = [
   ['/definitions/rules', 'rules'],
   ['/ai/coaching', 'coaching'],
   ['/entities/visualize', 'visualize'],
+  ['/entities/review', 'review'],
   ['/config/mcp', 'mcp'],
 ]
 
@@ -56,6 +57,7 @@ for (const { path, title, tabs } of PAGES) {
 
   test(`${path} tabs drive the url and title`, async ({ page }) => {
     await mockJson(page, '**/api/mcp', MCP)
+    await mockCandidates(page)
     await visit(page, path)
     for (const tab of [...rest, first]) {
       await trigger(page, tab).click()
@@ -69,6 +71,7 @@ for (const { path, title, tabs } of PAGES) {
 for (const [path, tab] of DEEP) {
   test(`deep link ${path}`, async ({ page }) => {
     await mockJson(page, '**/api/mcp', MCP)
+    await mockCandidates(page)
     await visit(page, path)
     const [, section] = path.split('/')
     await expectTab(page, `/${section}`, tab)

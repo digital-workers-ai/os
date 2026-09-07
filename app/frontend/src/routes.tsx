@@ -37,6 +37,7 @@ export const ENTITIES_ROUTE: TabbedRoute = {
     { value: 'canonical', label: 'Canonical' },
     { value: 'raw', label: 'Raw entities' },
     { value: 'visualize', label: 'Visualize' },
+    { value: 'review', label: 'Review' },
   ],
 }
 

@@ -184,7 +184,7 @@ test('rebuild tab default', async ({ page }) => {
   await expect(runs(page).first()).toHaveAttribute('data-state', 'selected')
   await expect(page.locator('[data-testid="rebuild-run"][data-state="selected"]')).toHaveCount(1)
   await expect(chips(page)).toHaveText(['ok', /^ran \d+[smhd] ago$/, /^duration [\d,]+ ms$/, /^raw events [\d,]+$/, /^entities [\d,]+$/, /^facts [\d,]+$/])
-  await expect(heads(page.getByTestId('rebuild-totals')).first()).toHaveText('Total (9)')
+  await expect(heads(page.getByTestId('rebuild-totals')).first()).toHaveText('Total (10)')
   await expect(receiptsTitle(page)).toHaveText('Receipts')
   await snap(page, 'config-rebuild-default')
 })
