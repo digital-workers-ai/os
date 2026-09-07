@@ -541,6 +541,7 @@ class TestEntityDetail:
                 "raw_event_id": None,
                 "observed_at": SEEN.isoformat(),
                 "disagreements": 1,
+                "derived": False,
             }
         ]
 

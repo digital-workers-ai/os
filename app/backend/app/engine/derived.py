@@ -2,6 +2,7 @@ import re
 
 from app.caches import DEFINITIONS_DIR, load_mapping
 from app.engine import ontology
+from app.engine.survivorship import FoldedFact
 
 DEFAULT_DERIVED = DEFINITIONS_DIR / "derived.yaml"
 
@@ -121,3 +122,105 @@ def _source_problems(prefix, parsed, source) -> list[str]:
                 f"{prefix}filter attr {attr!r} is not an attr of {source.name}"
             )
     return problems
+
+
+def _index(folded) -> tuple:
+    values: dict = {}
+    newest: dict = {}
+    kinds: dict = {}
+    for fact in folded:
+        values.setdefault(fact.canonical_id, {})[fact.attr] = fact
+        newest[fact.canonical_id] = max(
+            newest.get(fact.canonical_id, fact.observed_at), fact.observed_at
+        )
+        kinds[fact.canonical_id] = fact.entity_type
+    return values, newest, kinds
+
+
+def _passes(values: dict, wanted: dict) -> bool:
+    for attr, value in wanted.items():
+        fact = values.get(str(attr))
+        if fact is None or fact.value.casefold() != str(value).casefold():
+            return False
+    return True
+
+
+def _greatest(kind):
+    if kind == "number":
+        return lambda fact: fact.value_num
+    return lambda fact: fact.value
+
+
+def _mixed_currencies(values: dict, kept: list, attr: str, money) -> bool:
+    spans = {values[cid]["currency"].value for cid in kept if "currency" in values[cid]}
+    return attr in money and len(spans) > 1
+
+
+def _aggregate(parsed: dict, kind, values: dict, newest: dict, kept: list):
+    attr = parsed["attr"]
+    carrying = [values[cid][attr] for cid in kept if attr in values[cid]]
+    stamps = [fact.observed_at for fact in carrying]
+    if parsed["agg"] == "COUNT":
+        return str(len(kept)), float(len(kept)), [newest[cid] for cid in kept]
+    if parsed["agg"] == "SUM":
+        total = float(sum(fact.value_num for fact in carrying))
+        return str(total), total, stamps
+    if not carrying:
+        return None
+    best = max(carrying, key=_greatest(kind))
+    return best.value, best.value_num, stamps
+
+
+def compute(specs: dict, onto, folded: list, edges: list, money) -> tuple:
+    values, newest, kinds = _index(folded)
+    inbound: dict = {}
+    for edge in edges:
+        inbound.setdefault((edge.to_canonical, edge.rel), []).append(
+            edge.from_canonical
+        )
+
+    facts: list = []
+    refused: list = []
+    for entity, attrs in specs.items():
+        targets = [cid for cid, kind in kinds.items() if kind == entity]
+        for attr, spec in attrs.items():
+            parsed = parse(spec)
+            kind = onto.attr_type(parsed["entity"], parsed["attr"])
+            for target in targets:
+                kept = [
+                    cid
+                    for cid in inbound.get((target, parsed["via"]), [])
+                    if kinds.get(cid) == parsed["entity"]
+                    and _passes(values[cid], parsed["filter"])
+                ]
+                if parsed["agg"] == "SUM" and _mixed_currencies(
+                    values, kept, parsed["attr"], money
+                ):
+                    refused.append(
+                        {
+                            "entity": entity,
+                            "attr": attr,
+                            "canonical_id": target,
+                            "reason": "mixed_currencies",
+                        }
+                    )
+                    continue
+                made = _aggregate(parsed, kind, values, newest, kept)
+                if made is None:
+                    continue
+                value, value_num, stamps = made
+                facts.append(
+                    FoldedFact(
+                        canonical_id=target,
+                        entity_type=entity,
+                        attr=attr,
+                        value=value,
+                        value_num=value_num,
+                        source="",
+                        entity_key=None,
+                        raw_event_id=None,
+                        observed_at=max(stamps) if stamps else newest[target],
+                        disagreements=0,
+                    )
+                )
+    return facts, refused

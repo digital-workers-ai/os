@@ -8,8 +8,10 @@ from app.config import settings
 from app.engine import (
     candidates,
     checks,
+    derived,
     links,
     mappings,
+    metrics,
     ontology,
     pipeline,
     resolver,
@@ -168,6 +170,14 @@ async def rebuild(session, *, run_checks: bool = True) -> dict:
     for label in [k for k, v in report.match_rates.items() if not v["candidates"]]:
         del report.match_rates[label]
 
+    derived_facts, derived_refused = derived.compute(
+        derived.load(), onto, folded, edges, metrics.money_labels()
+    )
+    for fact in derived_facts:
+        report.count(f"derived/{fact.entity_type}.{fact.attr}")
+    for row in derived_refused:
+        report.count(f"derived_refused/{row['entity']}.{row['attr']}/{row['reason']}")
+
     aliases = dict(resolution["aliases"])
     retired: list = []
     of_record = resolution["of_record"]
@@ -188,6 +198,7 @@ async def rebuild(session, *, run_checks: bool = True) -> dict:
         aliases=aliases,
         retired=retired,
         folded=folded,
+        derived_facts=derived_facts,
         edges=edges,
     )
     indexed = await search.index(session)
@@ -204,7 +215,7 @@ async def rebuild(session, *, run_checks: bool = True) -> dict:
     for entity in projected.values():
         report.count(f"records/{entity.source}/{entity.entity_type}")
 
-    facts_written = sum(len(e.facts) for e in projected.values())
+    facts_written = sum(len(e.facts) for e in projected.values()) + len(derived_facts)
     duration_ms = int((time.monotonic() - started) * 1000)
     run = EngineRun(
         ok=True,
@@ -240,7 +251,9 @@ async def rebuild(session, *, run_checks: bool = True) -> dict:
     return result
 
 
-async def _write(session, *, projected, clusters, aliases, retired, folded, edges):
+async def _write(
+    session, *, projected, clusters, aliases, retired, folded, derived_facts, edges
+):
     await _clear_projection(session)
 
     entity_ids: dict = {}
@@ -315,7 +328,8 @@ async def _write(session, *, projected, clusters, aliases, retired, folded, edge
     if alias_rows:
         await session.execute(CanonicalAlias.__table__.insert(), alias_rows)
 
-    if folded:
+    current = folded + derived_facts
+    if current:
         await session.execute(
             FactCurrent.__table__.insert(),
             [
@@ -331,7 +345,7 @@ async def _write(session, *, projected, clusters, aliases, retired, folded, edge
                     "observed_at": fact.observed_at,
                     "disagreements": fact.disagreements,
                 }
-                for fact in sorted(folded, key=lambda f: (str(f.canonical_id), f.attr))
+                for fact in sorted(current, key=lambda f: (str(f.canonical_id), f.attr))
             ],
         )
 

@@ -401,6 +401,60 @@ class TestCompute:
         )
         assert _by_attr(facts)[("c1", "open_tickets")].observed_at == NEWER
 
+    def test_a_source_missing_a_filter_attr_is_dropped(self, tmp_path, onto):
+        folded = [
+            _fact("c1", "company", "domain", "acme.io"),
+            _fact("s1", "subscription", "mrr", "100.0", 100.0),
+            _fact("s1", "subscription", "currency", "usd"),
+        ]
+        edges = [_edge("s1", "belongs_to", "c1")]
+        facts, _refused = _derived().compute(
+            _specs(tmp_path, MRR), onto, folded, edges, MONEY
+        )
+        assert _by_attr(facts)[("c1", "mrr")].value_num == 0
+
+    def test_a_sum_over_a_label_that_is_not_money_ignores_currency(
+        self, tmp_path, onto
+    ):
+        folded = [
+            _fact("c1", "company", "domain", "acme.io"),
+            _fact("d1", "deal", "amount", "300.0", 300.0),
+            _fact("d1", "deal", "currency", "usd"),
+            _fact("d2", "deal", "amount", "400.0", 400.0),
+            _fact("d2", "deal", "currency", "eur"),
+        ]
+        edges = [_edge("d1", "belongs_to", "c1"), _edge("d2", "belongs_to", "c1")]
+        doc = {
+            "company": {
+                "pipeline": {"expression": "SUM(deal.amount)", "via": "belongs_to"}
+            }
+        }
+        facts, refused = _derived().compute(
+            _specs(tmp_path, doc), onto, folded, edges, frozenset()
+        )
+        assert refused == []
+        assert _by_attr(facts)[("c1", "pipeline")].value_num == 700.0
+
+    def test_max_over_numbers_takes_the_greatest(self, tmp_path, onto):
+        folded = [
+            _fact("c1", "company", "domain", "acme.io"),
+            _fact("s1", "subscription", "mrr", "900.0", 900.0),
+            _fact("s2", "subscription", "mrr", "1100.0", 1100.0),
+        ]
+        edges = [_edge("s1", "belongs_to", "c1"), _edge("s2", "belongs_to", "c1")]
+        doc = {
+            "company": {
+                "top_mrr": {
+                    "expression": "MAX(subscription.mrr)",
+                    "via": "belongs_to",
+                }
+            }
+        }
+        facts, _refused = _derived().compute(
+            _specs(tmp_path, doc), onto, folded, edges, MONEY
+        )
+        assert _by_attr(facts)[("c1", "top_mrr")].value_num == 1100.0
+
     def test_two_runs_over_the_same_input_agree(self, tmp_path, onto):
         folded = [
             _fact("c1", "company", "domain", "acme.io"),
@@ -497,15 +551,17 @@ class TestConsumers:
         )
         assert result["m"]["value"] == 1500.0
 
-    async def test_search_reaches_the_company_through_its_derived_fact(
+    async def test_search_leaves_a_derived_number_unindexed(
         self, session, canonical, link
     ):
         acme = await _seed_acme(session, canonical, link)
         await search.index(session)
         results = (await search.query(session, "mrr"))["results"]
-        assert any(
+        assert not any(
             r["id"] == str(acme) and r["evidence"].startswith("mrr=") for r in results
         )
+        by_name = (await search.query(session, "Acme"))["results"]
+        assert any(r["id"] == str(acme) for r in by_name)
 
     async def test_the_entity_payload_marks_which_facts_are_derived(
         self, api, session, canonical, link
@@ -590,6 +646,34 @@ async def _seed_a_linked_subscription(session):
     await session.commit()
 
 
+async def _seed_a_second_currency(session):
+    await store.save_raw(
+        session,
+        source="stripe",
+        object_type="subscriptions",
+        source_id="sub_2",
+        raw_payload={
+            "id": "sub_2",
+            "customer": "cus_1",
+            "currency": "eur",
+            "status": "active",
+            "start_date": 1705386400,
+            "items": {
+                "data": [
+                    {
+                        "quantity": 1,
+                        "price": {
+                            "unit_amount": 90000,
+                            "recurring": {"interval": "month", "interval_count": 1},
+                        },
+                    }
+                ]
+            },
+        },
+    )
+    await session.commit()
+
+
 class TestTheRebuild:
     async def test_a_rebuild_writes_and_counts_the_derived_company_mrr(self, session):
         await _seed_a_linked_subscription(session)
@@ -629,6 +713,22 @@ class TestTheRebuild:
         ).scalar_one()
         assert all_derived
         assert written == entity_facts + all_derived
+
+    async def test_a_rebuild_reports_a_company_whose_currencies_disagree(self, session):
+        await _seed_a_linked_subscription(session)
+        await _seed_a_second_currency(session)
+        result = await run.rebuild(session, run_checks=False)
+
+        counts = result["report"]["counts"]
+        assert counts["derived_refused/company.mrr/mixed_currencies"] == 1
+        assert "derived/company.mrr" not in counts
+        assert (
+            await session.execute(
+                select(func.count())
+                .select_from(FactCurrent)
+                .where(FactCurrent.entity_type == "company", FactCurrent.attr == "mrr")
+            )
+        ).scalar_one() == 0
 
     async def test_the_rebuild_hands_compute_the_folded_facts_and_the_edges(
         self, session, monkeypatch
