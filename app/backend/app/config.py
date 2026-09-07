@@ -3,7 +3,14 @@ import os
 from pydantic_settings import BaseSettings
 
 ANTHROPIC_CREDENTIAL_ENV = "ANTHROPIC_API_KEY"
+EMBEDDINGS_CREDENTIAL_ENV = "OPENAI_API_KEY"
+RERANK_CREDENTIAL_ENV = "ZEROENTROPY_API_KEY"
 LLM_FLAGS = ("ENRICHMENT_ENABLED", "COACHING_ENABLED", "CONVERSATION_ENABLED")
+CREDENTIALS = {
+    ANTHROPIC_CREDENTIAL_ENV: LLM_FLAGS,
+    EMBEDDINGS_CREDENTIAL_ENV: ("EMBEDDINGS_ENABLED",),
+    RERANK_CREDENTIAL_ENV: ("RERANK_ENABLED",),
+}
 
 
 class Settings(BaseSettings):
@@ -30,6 +37,15 @@ class Settings(BaseSettings):
     CONVERSATION_MAX_TOOL_RESULT_CHARS: int = 12_000
     CONVERSATION_MAX_HISTORY_TURNS: int = 12
     CONVERSATION_MAX_TURN_CHARS: int = 4_000
+    EMBEDDINGS_ENABLED: bool = False
+    EMBEDDING_MODEL: str = "text-embedding-3-small"
+    EMBEDDING_DIMS: int = 1536
+    EMBEDDING_BATCH: int = 100
+    EMBEDDINGS_MAX_CALLS_PER_RUN: int = 200
+    RERANK_ENABLED: bool = False
+    RERANK_MODEL: str = "zerank-2"
+    RERANK_TOP: int = 20
+    SEARCH_CHUNK_CHARS: int = 1200
 
     model_config = {"env_file": ".env", "extra": "ignore"}
 
@@ -41,17 +57,20 @@ class StartupError(RuntimeError):
     pass
 
 
-def has_credential(env: dict | None = None) -> bool:
+def has_credential(
+    env: dict | None = None, name: str = ANTHROPIC_CREDENTIAL_ENV
+) -> bool:
     env = os.environ if env is None else env
-    return bool(env.get(ANTHROPIC_CREDENTIAL_ENV))
+    return bool(env.get(name))
 
 
 def validate_startup(env: dict | None = None) -> None:
-    on = sorted(name for name in LLM_FLAGS if getattr(settings, name))
-    if on and not has_credential(env):
-        raise StartupError(
-            f"{', '.join(on)} on and no Anthropic credential is present "
-            f"({ANTHROPIC_CREDENTIAL_ENV}). The layer would "
-            "produce nothing, which is indistinguishable from having nothing "
-            "to produce. Set a credential, or switch it off."
-        )
+    for credential, flags in CREDENTIALS.items():
+        on = sorted(name for name in flags if getattr(settings, name))
+        if on and not has_credential(env, credential):
+            raise StartupError(
+                f"{', '.join(on)} on and no credential is present "
+                f"({credential}). The layer would "
+                "produce nothing, which is indistinguishable from having nothing "
+                "to produce. Set a credential, or switch it off."
+            )

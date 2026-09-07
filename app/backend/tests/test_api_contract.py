@@ -19,6 +19,7 @@ EXCLUDED = {
     ("POST", "/api/resolution/candidates/{seq}/confirm"),
     ("POST", "/api/resolution/candidates/{seq}/reject"),
     ("POST", "/api/resolution/candidates/{seq}/unmerge"),
+    ("POST", "/api/search/embed"),
 }
 
 

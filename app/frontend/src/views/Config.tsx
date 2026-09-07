@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import {
   api,
   asApiError,
@@ -25,6 +26,7 @@ import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, Table
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { num, plural, relTime } from '@/lib/format'
 import { useGet } from '@/lib/useGet'
+import { useScrollTo } from '@/lib/useScrollTo'
 import { useTab } from '@/lib/useTab'
 import { cn } from '@/lib/utils'
 import { CONFIG_ROUTE } from '@/routes'
@@ -451,6 +453,8 @@ export function Config() {
   const [rebuildError, setRebuildError] = useState<ApiError | null>(null)
   const [rebuilds, setRebuilds] = useState(0)
   const [tab, setTab] = useTab(CONFIG_ROUTE)
+  const [params] = useSearchParams()
+  const selected = params.get('source')
 
   const loadSources = () =>
     api
@@ -510,6 +514,7 @@ export function Config() {
 
   const all = sources?.sources ?? []
   const rows = all.filter((r) => !enabled || enabledKey(r) === enabled)
+  useScrollTo('sources-table', 'source', selected, !!sources)
 
   return (
     <Tabs value={tab} onValueChange={setTab} className={PAGE_FILL}>
@@ -593,7 +598,13 @@ export function Config() {
                   const last = sync?.results.find((s) => s.source === r.source)
                   const lastOk = r.last_success === r.last_attempt
                   return (
-                    <TableRow key={r.source} data-testid="sources-row" data-source={r.source}>
+                    <TableRow
+                      key={r.source}
+                      data-testid="sources-row"
+                      data-source={r.source}
+                      data-state={r.source === selected ? 'selected' : undefined}
+                      aria-selected={r.source === selected}
+                    >
                       <TableCell className={TOP}>
                         <span className={cn(KEY, 'block')}>{r.label}</span>
                         <Mono>{r.source}</Mono>

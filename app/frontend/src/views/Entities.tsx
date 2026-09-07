@@ -1,5 +1,6 @@
-import { useEffect, useState, type MouseEvent } from 'react'
-import { asApiError, get, type ApiError } from '@/api'
+import { useEffect, useRef, useState, type MouseEvent } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { asApiError, get, type ApiError, type RawEventDetail } from '@/api'
 import { SectionCard } from '@/components/SectionCard'
 import { Section } from '@/components/SectionHeading'
 import { ErrorBanner } from '@/components/ui/banner'
@@ -12,6 +13,7 @@ import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, Table
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { anchorText, num, relTime, short } from '@/lib/format'
 import { useGet } from '@/lib/useGet'
+import { useScrollTo } from '@/lib/useScrollTo'
 import { useTab } from '@/lib/useTab'
 import { cn } from '@/lib/utils'
 import { ENTITIES_ROUTE } from '@/routes'
@@ -94,15 +96,7 @@ interface RecordsResponse {
   entities: RecordRow[]
 }
 
-interface RawEvent {
-  id: string
-  seq: number
-  source: string
-  object_type: string
-  source_id: string
-  ingested_at: string
-  raw_payload: unknown
-}
+type RawEvent = RawEventDetail
 
 interface RawResponse {
   total: number
@@ -128,6 +122,8 @@ const query = (params: Record<string, string | number | undefined>) =>
 
 const show = (v: unknown) =>
   v === null || v === undefined ? '—' : typeof v === 'object' ? JSON.stringify(v) : String(v)
+
+const recordKey = (r: { source: string; object_type: string; source_id: string }) => `${r.source}|${r.object_type}|${r.source_id}`
 
 const MONO = 'font-mono text-xs'
 const NUM = 'text-right tabular-nums'
@@ -467,20 +463,32 @@ function Detail({
 }
 
 function Canonical() {
+  const [params, setParams] = useSearchParams()
+  const selected = params.get('entity')
   const [type, setType] = useState('')
-  const [selected, setSelected] = useState<string | null>(null)
   const [trace, setTrace] = useState<Trace | null>(null)
   const list = useGet<EntitiesResponse>(`/api/entities?${query({ entity_type: type, limit: SCAN })}`)
+  const applied = useRef<string | null>(null)
 
   const pick = (t: string) => setType(t)
   const open = (id: string) => {
-    setSelected(id)
+    setParams({ entity: id }, { replace: true })
     setTrace(null)
   }
 
   const byType = Object.entries(list.data?.by_type ?? {})
   const all = byType.reduce((n, [, c]) => n + c, 0)
   const rows = list.data?.entities ?? []
+  const loaded = !!list.data && !list.loading
+  const found = !!selected && rows.some((r) => r.canonical_id === selected)
+
+  useEffect(() => {
+    if (!selected || !loaded || applied.current === selected) return
+    applied.current = selected
+    if (!found && type) setType('')
+  }, [selected, loaded, found, type])
+
+  useScrollTo('entities-table', 'id', selected, found)
 
   return (
     <div className={SPLIT_FILL}>
@@ -547,6 +555,11 @@ function Canonical() {
             </TableBody>
           </Table>
         )}
+        {loaded && selected && !found && !type && (
+          <p className="mt-3 text-sm text-dbb-muted" data-testid="entities-selected-hidden">
+            the selected entity is beyond the first {num(SCAN)} rows
+          </p>
+        )}
         {list.data && list.data.total > rows.length && (
           <p className="mt-3 text-sm text-dbb-muted">
             showing the first {num(rows.length)} of {num(list.data.total)}
@@ -573,14 +586,17 @@ async function eventsFor(source: string, objectType: string, sourceId: string): 
   }
 }
 
-function RecordDetail({ record }: { record: RecordRow }) {
-  const key = `${record.source}|${record.object_type}|${record.source_id}`
+function RecordDetail({ record, eventId }: { record: RecordRow; eventId: string | null }) {
+  const key = recordKey(record)
   const [state, setState] = useState<{ key: string; events: RawEvent[]; error: ApiError | null } | null>(null)
-  const [pickedId, setPickedId] = useState<string | null>(null)
+  const [pickedId, setPickedId] = useState(eventId)
+
+  useEffect(() => {
+    setPickedId(eventId)
+  }, [key, eventId])
 
   useEffect(() => {
     let live = true
-    setPickedId(null)
     eventsFor(record.source, record.object_type, record.source_id)
       .then((events) => live && setState({ key, events, error: null }))
       .catch((e) => live && setState({ key, events: [], error: asApiError(e) }))
@@ -637,6 +653,7 @@ function RecordDetail({ record }: { record: RecordRow }) {
                 <TableRow
                   key={e.id}
                   className={ROW}
+                  data-id={e.id}
                   data-state={picked?.id === e.id ? 'selected' : undefined}
                   aria-selected={picked?.id === e.id}
                   onClick={() => setPickedId(e.id)}
@@ -666,20 +683,43 @@ function RecordDetail({ record }: { record: RecordRow }) {
 }
 
 function RawSide() {
+  const [params] = useSearchParams()
+  const eventId = params.get('event')
+  const event = useGet<RawEvent>(eventId ? `/api/raw/${encodeURIComponent(eventId)}` : null)
   const [type, setType] = useState('')
   const [source, setSource] = useState('')
   const [sources, setSources] = useState<string[]>([])
   const [picked, setPicked] = useState<RecordRow | null>(null)
+  const applied = useRef<string | null>(null)
   const records = useGet<RecordsResponse>(`/api/records?${query({ entity_type: type, source, limit: SCAN })}`)
   const rows = records.data?.entities ?? []
   const byType = Object.entries(records.data?.by_type ?? {})
+  const target = event.data
+  const targetKey = target ? recordKey(target) : null
 
   useEffect(() => {
-    if (!source && records.data) setSources([...new Set(records.data.entities.map((r) => r.source))].sort())
-  }, [source, records.data])
+    const seen = records.data?.entities.map((r) => r.source) ?? []
+    if (seen.length) setSources((known) => [...new Set([...known, ...seen])].sort())
+  }, [records.data])
 
-  const isPicked = (r: RecordRow) =>
-    picked?.source === r.source && picked?.object_type === r.object_type && picked?.source_id === r.source_id
+  useEffect(() => {
+    if (!target || applied.current === target.id) return
+    if (source !== target.source) {
+      setSource(target.source)
+      return
+    }
+    if (records.loading || !records.data) return
+    const hit = records.data.entities.find((r) => recordKey(r) === recordKey(target))
+    if (hit) setPicked(hit)
+    if (!hit && type) {
+      setType('')
+      return
+    }
+    applied.current = target.id
+  }, [target, source, records.data, records.loading, type])
+
+  const isPicked = (r: RecordRow) => !!picked && recordKey(picked) === recordKey(r)
+  useScrollTo('records-table', 'key', targetKey, !!picked && recordKey(picked) === targetKey)
 
   return (
     <div className={SPLIT_FILL}>
@@ -723,6 +763,7 @@ function RawSide() {
         className={FULL}
         bodyClassName={BODY}
       >
+        <ErrorBanner error={event.error} className="mb-3" />
         <ErrorBanner error={records.error} className="mb-3" />
         {records.loading && !records.data ? (
           <Loading />
@@ -744,6 +785,7 @@ function RawSide() {
                   key={`${r.source}|${r.object_type}|${r.source_id}|${i}`}
                   className={ROW}
                   data-testid="records-row"
+                  data-key={recordKey(r)}
                   data-state={isPicked(r) ? 'selected' : undefined}
                   aria-selected={isPicked(r)}
                   onClick={() => setPicked(r)}
@@ -772,7 +814,7 @@ function RawSide() {
         )}
       </SectionCard>
       {picked ? (
-        <RecordDetail record={picked} />
+        <RecordDetail record={picked} eventId={eventId} />
       ) : (
         <SectionCard className={FILL} bodyClassName={BODY} testId="record-detail">
           <Empty>select a record</Empty>

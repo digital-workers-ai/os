@@ -145,6 +145,12 @@ test('config', async ({ page }) => {
   await audit(page, 'config mcp')
 })
 
+test('search', async ({ page }) => {
+  await visit(page, '/search?q=wayne')
+  await expect(page.getByTestId('search-table')).toBeVisible()
+  await audit(page, 'search')
+})
+
 test('hover shows the hint', async ({ page }) => {
   await visit(page, '/metrics')
   await page.getByTestId('metrics-table').locator('[data-testid=hint][aria-label="How many things were counted"]').hover()

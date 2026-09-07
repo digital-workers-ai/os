@@ -14,6 +14,7 @@ definitions = APIRouter(prefix="/api/definitions", tags=["definitions"])
 activity = APIRouter(prefix="/api/activity", tags=["activity"])
 mcp = APIRouter(prefix="/api/mcp", tags=["mcp"])
 resolution = APIRouter(prefix="/api/resolution", tags=["resolution"])
+search = APIRouter(prefix="/api/search", tags=["search"])
 
 ROUTERS = (
     sources,
@@ -28,6 +29,7 @@ ROUTERS = (
     activity,
     mcp,
     resolution,
+    search,
 )
 HANDLER_MODULES = (
     "app.api.raw_api",
@@ -42,6 +44,7 @@ HANDLER_MODULES = (
     "app.api.activity_api",
     "app.api.mcp_api",
     "app.api.resolution_api",
+    "app.api.search_api",
 )
 
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { asApiError, get, type ApiError } from '@/api'
 import { SectionCard } from '@/components/SectionCard'
 import { Section } from '@/components/SectionHeading'
@@ -9,6 +10,7 @@ import { Mono } from '@/components/ui/mono'
 import { Pill } from '@/components/ui/pill'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { num, relTime } from '@/lib/format'
+import { useScrollTo } from '@/lib/useScrollTo'
 
 interface InferredFrom {
   reading: string
@@ -168,9 +170,10 @@ function RunSection({ run }: { run: Run }) {
 }
 
 export function Metrics() {
+  const [params, setParams] = useSearchParams()
+  const selected = params.get('metric')
   const [metrics, setMetrics] = useState<MetricsResponse | null>(null)
   const [metricsError, setMetricsError] = useState<ApiError | null>(null)
-  const [selected, setSelected] = useState<string | null>(null)
   const [series, setSeries] = useState<Series | null>(null)
   const [seriesError, setSeriesError] = useState<ApiError | null>(null)
 
@@ -197,6 +200,10 @@ export function Metrics() {
   useEffect(() => {
     if (selected) loadSeries(selected)
   }, [selected])
+
+  useScrollTo('metrics-table', 'name', selected, !!metrics)
+
+  const select = (name: string) => setParams({ metric: name }, { replace: true })
 
   const rows = Object.entries(metrics?.metrics ?? {})
   const seriesRow = series ? metrics?.metrics[series.metric] : undefined
@@ -230,7 +237,7 @@ export function Metrics() {
                       data-name={name}
                       data-state={name === selected ? 'selected' : undefined}
                       aria-selected={name === selected}
-                      onClick={() => setSelected(name)}
+                      onClick={() => select(name)}
                     >
                       <TableCell>
                         <span className="flex items-center gap-1.5">
@@ -240,7 +247,7 @@ export function Metrics() {
                               aria-label="show warning"
                               className="leading-none"
                               data-testid="metrics-warning"
-                              onClick={() => setSelected(name)}
+                              onClick={() => select(name)}
                             >
                               ⚠️
                             </button>

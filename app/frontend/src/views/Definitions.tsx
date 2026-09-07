@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { get } from '@/api'
 import { ALL } from '@/components/Filter'
 import { SectionCard } from '@/components/SectionCard'
@@ -11,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { num } from '@/lib/format'
+import { useScrollTo } from '@/lib/useScrollTo'
 import { useTab } from '@/lib/useTab'
 import { cn } from '@/lib/utils'
 import { DEFINITIONS_ROUTE } from '@/routes'
@@ -134,6 +136,19 @@ const describe = (c: Condition) =>
 
 const paramValue = (v: unknown) => (typeof v === 'number' ? num(v) : String(v))
 
+const marked = (name: string, selected: string | null) => ({
+  'data-name': name,
+  'data-state': name === selected ? 'selected' : undefined,
+  'aria-selected': name === selected,
+})
+
+function useSelected(table: string, param: string) {
+  const [params] = useSearchParams()
+  const selected = params.get(param)
+  useScrollTo(table, 'name', selected)
+  return selected
+}
+
 function Loaded<T>({ got, children }: { got: ReturnType<typeof useLoad<T>>; children: (d: T) => ReactNode }) {
   if (got.error)
     return (
@@ -178,6 +193,7 @@ const expressionText = (m: MetricDef) =>
     : (m.expression ?? '')
 
 function OntologyTab({ o }: { o: Ontology }) {
+  const selected = useSelected('definitions-ontology-table', 'type')
   const entities = Object.entries(o.entities)
   return (
     <div className="space-y-6">
@@ -207,7 +223,7 @@ function OntologyTab({ o }: { o: Ontology }) {
             {entities.map(([name, spec]) => {
               const attrs = Object.entries(spec.attrs)
               return (
-                <TableRow key={name}>
+                <TableRow key={name} {...marked(name, selected)}>
                   <TableCell className={cn(keyCol, 'whitespace-nowrap align-top')}>
                     <Pill>{name}</Pill> <span className="font-normal text-dbb-muted">{num(attrs.length)}</span>
                   </TableCell>
@@ -413,6 +429,7 @@ function TransformsTab({ t }: { t: Transforms }) {
 }
 
 function MetricsTab({ m }: { m: MetricDefinitions }) {
+  const selected = useSelected('definitions-metrics-table', 'metric')
   const definitions = Object.entries(m.definitions)
   return (
     <SectionCard className={FILL} bodyClassName={BODY} testId="definitions-metrics">
@@ -431,7 +448,7 @@ function MetricsTab({ m }: { m: MetricDefinitions }) {
           {definitions.map(([name, d]) => {
             const p = m.provenance[name]
             return (
-              <TableRow key={name}>
+              <TableRow key={name} {...marked(name, selected)}>
                 <TableCell className="align-top">
                   <span className="block font-medium text-dbb-charcoal">{d.label}</span>
                   <Mono className="block">{name}</Mono>
@@ -481,6 +498,7 @@ function MetricsTab({ m }: { m: MetricDefinitions }) {
 }
 
 function RulesTab({ r }: { r: Rules }) {
+  const selected = useSelected('definitions-rules-table', 'rule')
   const rules = Object.entries(r.rules)
   return (
     <SectionCard className={FILL} bodyClassName={BODY} testId="definitions-rules">
@@ -495,7 +513,7 @@ function RulesTab({ r }: { r: Rules }) {
         </TableHeader>
         <TableBody>
           {rules.map(([name, rule]) => (
-            <TableRow key={name}>
+            <TableRow key={name} {...marked(name, selected)}>
               <TableCell className="align-top">
                 <span className="block font-medium text-dbb-charcoal">{rule.label}</span>
                 <Mono className="block">{name}</Mono>
@@ -529,6 +547,7 @@ function RulesTab({ r }: { r: Rules }) {
 }
 
 function GoalsTab({ g }: { g: Goals }) {
+  const selected = useSelected('definitions-goals-table', 'goal')
   const goals = Object.entries(g.goals)
   return (
     <SectionCard className={FILL} bodyClassName={BODY} testId="definitions-goals">
@@ -546,7 +565,7 @@ function GoalsTab({ g }: { g: Goals }) {
           {goals.map(([name, goal]) => {
             const params = Object.entries(goal.params)
             return (
-              <TableRow key={name}>
+              <TableRow key={name} {...marked(name, selected)}>
                 <TableCell className="align-top">
                   <Mono>{name}</Mono>
                 </TableCell>
@@ -578,9 +597,10 @@ function GoalsTab({ g }: { g: Goals }) {
 }
 
 function EnrichmentTab({ v }: { v: Vocabulary }) {
+  const selected = useSelected('definitions-enrichment-table', 'reading')
   return (
     <SectionCard className={FILL} bodyClassName={BODY} testId="definitions-enrichment">
-      <Readings vocabulary={v} sticky testId="definitions-enrichment-table" />
+      <Readings vocabulary={v} sticky testId="definitions-enrichment-table" selected={selected} />
     </SectionCard>
   )
 }

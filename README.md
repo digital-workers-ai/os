@@ -185,6 +185,8 @@ Three durability rules: the rebuild never touches `enriched_fact` (it's the one 
 
 **prompts_sha** — one digest over every prompt file, stamped on each stored briefing beside `input_sha` (the exact estate block read) and the model. Together they finish the provenance sentence a briefing owes its reader: *these numbers, worded this way, by this model.* Rewording a prompt changes the sha, so an old briefing honestly reads as the product of retired wording rather than a change in the business — the same move as enrichment's `vocabulary_sha`, because in both layers the prose *is* part of the instrument, and an instrument that changed silently would forge its own history.
 
+**Search** (`GET /api/search`, ⌘K in the console, `/search`) — one search over everything stored, with three legs that share one endpoint. *Words*: at every rebuild the engine writes one row per fact into `search_document` — every member's facts, not only the survivorship winners, so a merged person is found by whichever name or email either source knows; the anchor key; enrichment readings with their verified quotes; every briefing; and the latest payload of every raw event — indexed with Postgres `tsvector` under the `simple` configuration (no stemming, so a prefix matches mid-word: `pricin` finds pricing) and weighted so a name outranks a transcript. Emails and domains are also stored as their parts, so `acme` finds `hello@acme.io`. When the word query finds nothing, a trigram pass over names and labels answers instead (`carlso` finds Carlos). A prefix like `person:wayne` sets the kind filter. Every hit carries evidence — the attribute that matched (`status=past_due`) or the passage with the matching words marked — and opens the thing itself: the entity with its row selected, the metric with its series, the briefing in the journal, the raw event in the Raw tab. *Meaning* (`EMBEDDINGS_ENABLED`, `OPENAI_API_KEY`): transcripts are split into chunks at rebuild and embedded by a separate capped run (`POST /api/search/embed`, also after a rebuild) into `search_chunk` with `pgvector`; vectors are keyed on the chunk's hash and model, so a rebuild re-embeds only what changed, and word search keeps working while vectors are missing. *Both* (`mode=both`): reciprocal rank fusion of the two legs, and, with `RERANK_ENABLED` and a ZeroEntropy key, Zerank 2 over the top twenty, falling back to fusion order on any error. The index is exactly as fresh as the last rebuild. Dates and numbers are not indexed; nothing in a raw payload that never became a fact is reachable except through the raw hit itself.
+
 **MCP** (`/mcp`) — the estate as a tool server for any agent on the machine, over the Model Context Protocol (Streamable HTTP). It is read-only and calls no model itself. It serves the conversation's six tools (`get_metrics`, `get_goals`, `get_findings`, `entity_counts`, `find_entities`, `get_entity`) built from the same specs and handlers the ask agent uses, so an agent asking for MRR gets the reviewed number with its receipts rather than a guess over raw tables; the definition files as `definitions://<name>` resources, so an agent can read what a metric means before asking for it; and each role brief as a `briefing_<role>` prompt. Every call is written to `mcp_call` (kind, name, arguments, ok, duration, error). `GET /api/mcp` lists what is served; the console's Config → MCP tab shows it with the endpoint and a client config to copy. There is no authentication on `/mcp` or `/api` yet, so it is for localhost only until the OAuth item in `TODO.md` lands.
 
 ## Running
@@ -205,11 +207,74 @@ Connect an MCP client to the running stack: `claude mcp add --transport http os 
 
 Then ask the client for the goals, or for a company by name; the answers come from the tools above and each call shows up in `mcp_call`.
 
+Search the estate from the console: press ⌘K (Ctrl+K on Linux and Windows) on any page, or open Search in the nav (`/search`). Type any word — a name, an email, an id, a status, a word from a transcript or a briefing — and a prefix narrows the kind: `person:wayne`, `briefing:churn`, `raw:sub_000008`. Opening a hit lands on the thing itself with its row selected. From the API:
+
+```
+curl 'localhost:8092/api/search?q=past_due'
+curl 'localhost:8092/api/search?q=wayne&kind=meeting&limit=5'
+```
+
+Each answer carries `total`, `by_kind` and `results` of `kind`, `id`, `label`, `evidence`. The index is refilled at every rebuild, so a search is exactly as fresh as the projection.
+
+Meaning search is opt-in, like every layer that calls a model: set `EMBEDDINGS_ENABLED=true` and `OPENAI_API_KEY` in `app/.env`, restart the backend, then `curl -X POST localhost:8092/api/search/embed` once (it also runs after every rebuild from then on). Query with `mode=meaning` or `mode=both`; the Search page grows a `words · meaning · both` toggle. Reranking on top of `mode=both` needs `RERANK_ENABLED=true` and `ZEROENTROPY_API_KEY`. Startup refuses a flag whose key is missing.
+
+A dev database created before the search PR predates the `pgvector` image: `docker compose -p os -f app/docker-compose.yml down -v`, bring the stack up, sync, rebuild, and re-seed with `python -m tools.seed_demo` inside the backend container.
+
+## Configuration
+
+Everything is read from the environment, and `app/.env` (copied from `app/.env.example`) is loaded first; every knob has a default, so an empty file runs. The three API keys are never settings — the Anthropic and OpenAI clients read theirs from the environment, the ZeroEntropy client reads its own — and startup refuses to run a flag whose key is missing.
+
+| Variable | Default | What it does |
+|---|---|---|
+| `DATABASE_URL` | `postgresql+asyncpg://os:os@localhost:5442/os` | Postgres connection; compose sets it to the `postgres` service |
+| `MOCK_BASE_URL` | `http://localhost:8192` | Where the vendored mock providers answer; compose sets `http://mock:8100` |
+| `SYNC_RUN_RETENTION_DAYS` | `30` | Sync runs older than this are pruned |
+| `ENGINE_RUN_RETENTION` | `200` | Rebuild receipts kept |
+| `CONNECTOR_MAX_PAGES` | `500` | Pages a connector pulls per object type before stopping |
+| `CONNECTOR_MAX_BYTES` | `52428800` | Payload bytes a connector accepts per pull (50 MiB) |
+| `ER_BUCKET_CAP` | `50` | Records per identity bucket before entity resolution refuses to merge it |
+| `ER_ONE_RECORD_PER_SOURCE` | `true` | A canonical entity holds at most one record per source |
+| `ENRICHMENT_ENABLED` | `false` | Read transcripts into structured facts; needs `ANTHROPIC_API_KEY` |
+| `ENRICHMENT_MODEL` | `claude-sonnet-5` | Model for enrichment |
+| `ENRICHMENT_MAX_TOKENS` | `8000` | Output cap per enrichment call |
+| `ENRICHMENT_MAX_CALLS_PER_RUN` | `200` | Model calls per enrichment run |
+| `ENRICHMENT_CONCURRENCY` | `4` | Enrichment calls in flight at once |
+| `COACHING_ENABLED` | `false` | Generate role briefings; needs `ANTHROPIC_API_KEY` |
+| `COACHING_MODEL` | `claude-sonnet-5` | Model for briefings |
+| `COACHING_MAX_TOKENS` | `8000` | Output cap per briefing |
+| `CONVERSATION_ENABLED` | `false` | The ask agent; needs `ANTHROPIC_API_KEY` |
+| `CONVERSATION_MODEL` | `claude-sonnet-5` | Model for the ask agent |
+| `CONVERSATION_MAX_TOKENS` | `8000` | Output cap per turn |
+| `CONVERSATION_MAX_TURNS` | `8` | Tool-call rounds per question |
+| `CONVERSATION_MAX_TOOL_RESULT_CHARS` | `12000` | A tool result is truncated beyond this |
+| `CONVERSATION_MAX_HISTORY_TURNS` | `12` | Earlier turns replayed to the model |
+| `CONVERSATION_MAX_TURN_CHARS` | `4000` | A stored turn is truncated beyond this |
+| `EMBEDDINGS_ENABLED` | `false` | Meaning search over transcript chunks; needs `OPENAI_API_KEY` |
+| `EMBEDDING_MODEL` | `text-embedding-3-small` | OpenAI embedding model |
+| `EMBEDDING_DIMS` | `1536` | Vector width; must match the `search_chunk` column |
+| `EMBEDDING_BATCH` | `100` | Chunks per embedding request |
+| `EMBEDDINGS_MAX_CALLS_PER_RUN` | `200` | Embedding requests per run |
+| `RERANK_ENABLED` | `false` | Zerank over hybrid results; needs `ZEROENTROPY_API_KEY` |
+| `RERANK_MODEL` | `zerank-2` | ZeroEntropy reranker model |
+| `RERANK_TOP` | `20` | Results sent to the reranker |
+| `SEARCH_CHUNK_CHARS` | `1200` | Target size of a transcript chunk |
+
+Keys, set only in the environment or `app/.env`:
+
+| Variable | Needed by |
+|---|---|
+| `ANTHROPIC_API_KEY` | `ENRICHMENT_ENABLED`, `COACHING_ENABLED`, `CONVERSATION_ENABLED` |
+| `OPENAI_API_KEY` | `EMBEDDINGS_ENABLED` |
+| `ZEROENTROPY_API_KEY` | `RERANK_ENABLED` |
+
+The compose files add the wiring, not knobs: `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` (all `os`) on the database, `BACKEND_URL` on the frontend dev server, and `docker-compose.snap.yml` pins every model flag off for the snapshot stack.
+
 ## Layout
 
 - `ROADMAP.md` — the feature-slice plan to v11 parity, checkbox-tracked
 - `definitions/` — the definition files (`ontology.yaml` through `enrichment.yaml`) and `briefs/`, the role prompt files
 - `app/backend/` — FastAPI backend; tests in `app/backend/tests/`
 - `app/backend/app/sources/` — one package per source: connector plus extract hook
+- `app/backend/app/engine/search.py` — the search index (`search_document`, `search_chunk`) refilled at rebuild, the word, trigram and meaning legs, fusion and reranking, served by `api/search_api.py`
 - `app/backend/app/mcp.py` — the read-only MCP server at `/mcp` (Streamable HTTP): the conversation's six tools, the definition files as `definitions://` resources, the role briefs as `briefing_<role>` prompts, every call logged to `mcp_call`; localhost only until auth exists
 - `mock/` — vendored mock providers (verbatim; exempt from repo style rules)

@@ -3,6 +3,7 @@ import uuid
 
 from sqlalchemy import delete, func, select
 
+from app import llm
 from app.config import settings
 from app.engine import (
     candidates,
@@ -12,6 +13,7 @@ from app.engine import (
     ontology,
     pipeline,
     resolver,
+    search,
     survivorship,
     transforms,
 )
@@ -188,6 +190,7 @@ async def rebuild(session, *, run_checks: bool = True) -> dict:
         folded=folded,
         edges=edges,
     )
+    indexed = await search.index(session)
 
     nominated = candidates.generate(records, onto, resolution["of_record"])
     report.nominate(len(nominated))
@@ -217,7 +220,7 @@ async def rebuild(session, *, run_checks: bool = True) -> dict:
     await session.flush()
     await prune(session)
     await session.commit()
-    return {
+    result = {
         "ok": True,
         "duration_ms": duration_ms,
         "raw_events_read": len(rows),
@@ -226,8 +229,15 @@ async def rebuild(session, *, run_checks: bool = True) -> dict:
         "facts": len(folded),
         "links": len(edges),
         "candidates": len(nominated),
+        "search": indexed,
         "report": report.as_dict(),
     }
+    if settings.EMBEDDINGS_ENABLED:
+        try:
+            result["embeddings"] = await search.embed(session)
+        except (search.SearchError, llm.LLMError) as exc:
+            result["embeddings"] = {"error": str(exc)}
+    return result
 
 
 async def _write(session, *, projected, clusters, aliases, retired, folded, edges):

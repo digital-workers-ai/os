@@ -516,7 +516,14 @@ class TestEntityDetail:
         assert body["canonical_id"] == str(acme)
         assert body["label"] == "Acme"
         assert [f["attr"] for f in body["facts"]] == ["name"]
-        assert body["members"] == []
+        assert body["members"] == [
+            {
+                "source": "hubspot",
+                "source_id": "company_1",
+                "object_type": "companys",
+                "evidence": "singleton",
+            }
+        ]
         assert body["links"]["in"][0]["rel"] == "belongs_to"
         assert body["links"]["out"] == []
         assert body["resolved_from_alias"] is None
@@ -1110,6 +1117,7 @@ class TestCoachingLayer:
         assert newest["generated_at"] > older["generated_at"]
         for entry in body["briefings"]:
             assert set(entry) == {
+                "seq",
                 "role",
                 "briefing",
                 "model",
@@ -1441,6 +1449,7 @@ class TestNullBytesInQueryParameters:
         "/api/enrichment?attr=%00",
         "/api/enrichment?entity_type=%00",
         "/api/sync/runs?source=%00",
+        "/api/search?q=%00",
     ]
 
     @pytest.mark.parametrize("route", ROUTES)
@@ -1467,6 +1476,7 @@ class TestANullByteInThePathIsRefusedToo:
         "path",
         [
             "/api/entities/%00",
+            "/api/raw/%00",
             "/api/enrichment/%00",
             "/api/metrics/history/%00",
             "/api/coaching/%00",

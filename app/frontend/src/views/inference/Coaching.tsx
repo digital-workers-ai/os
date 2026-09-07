@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { asApiError, get, post, type ApiError } from '@/api'
 import { SectionCard } from '@/components/SectionCard'
 import { ErrorBanner } from '@/components/ui/banner'
@@ -9,6 +10,7 @@ import { Mono } from '@/components/ui/mono'
 import { Chip, FilterChip, Pill } from '@/components/ui/pill'
 import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { num, relTime } from '@/lib/format'
+import { useScrollTo } from '@/lib/useScrollTo'
 import { BODY, FULL, LayerOff, useLoad } from './shared'
 
 interface CoachingIndex {
@@ -24,6 +26,7 @@ interface ReadCounts {
 }
 
 interface StoredBriefing {
+  seq: number
   briefing: string
   model: string
   prompt_version: string
@@ -32,6 +35,7 @@ interface StoredBriefing {
 }
 
 interface Briefing {
+  seq?: number
   briefing: string
   model: string
   prompt_version: string
@@ -40,6 +44,7 @@ interface Briefing {
 }
 
 const fromStored = (b: StoredBriefing): Briefing => ({
+  seq: b.seq,
   briefing: b.briefing,
   model: b.model,
   prompt_version: b.prompt_version,
@@ -53,7 +58,8 @@ const fromStored = (b: StoredBriefing): Briefing => ({
 
 const day = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 
-function Journal({ entries, fresh, to }: { entries: Briefing[]; fresh: boolean; to: string[] }) {
+function Journal({ entries, fresh, to, selected }: { entries: Briefing[]; fresh: boolean; to: string[]; selected: string | null }) {
+  const marked = (b: Briefing) => b.seq !== undefined && String(b.seq) === selected
   return (
     <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="coaching-journal">
       <TableHeader className={STICKY_HEAD}>
@@ -66,7 +72,13 @@ function Journal({ entries, fresh, to }: { entries: Briefing[]; fresh: boolean; 
       </TableHeader>
       <TableBody>
         {entries.map((b, i) => (
-          <TableRow key={`${b.generated_at}|${i}`} data-testid="coaching-row">
+          <TableRow
+            key={`${b.generated_at}|${i}`}
+            data-testid="coaching-row"
+            data-seq={b.seq}
+            data-state={marked(b) ? 'selected' : undefined}
+            aria-selected={marked(b)}
+          >
             <TableCell className="align-top">
               <span className="block font-medium text-dbb-charcoal" title={b.generated_at}>
                 {relTime(b.generated_at)}
@@ -113,12 +125,14 @@ function RoleCard({
   title,
   to,
   fresh,
+  briefing,
   onGenerated,
 }: {
   role: string
   title: ReactNode
   to: string[]
   fresh: boolean
+  briefing: string | null
   onGenerated: () => void
 }) {
   const history = useLoad(() => get<{ briefings: StoredBriefing[] }>(`/api/coaching/${encodeURIComponent(role)}/history`), [role])
@@ -127,6 +141,7 @@ function RoleCard({
   const [generating, setGenerating] = useState(false)
   const [generateError, setGenerateError] = useState<ApiError | null>(null)
   const entries = generated ? [generated, ...items] : items
+  useScrollTo('coaching-journal', 'seq', briefing, entries.length > 0)
 
   useEffect(() => {
     if (!history.data) return
@@ -174,7 +189,7 @@ function RoleCard({
       ) : entries.length === 0 ? (
         <Empty>no briefing yet</Empty>
       ) : (
-        <Journal entries={entries} fresh={fresh} to={to} />
+        <Journal entries={entries} fresh={fresh} to={to} selected={briefing} />
       )}
     </SectionCard>
   )
@@ -182,7 +197,9 @@ function RoleCard({
 
 export function Coaching({ onEnabled }: { onEnabled: (on: boolean) => void }) {
   const index = useLoad(() => get<CoachingIndex>('/api/coaching'), [])
-  const [selected, setSelected] = useState<string | null>(null)
+  const [params] = useSearchParams()
+  const role = params.get('role')
+  const [selected, setSelected] = useState(role)
   const [fresh, setFresh] = useState<string | null>(null)
   const roles = index.data?.roles ?? []
   const emails = selected ? (index.data?.recipients[selected] ?? []) : []
@@ -190,6 +207,10 @@ export function Coaching({ onEnabled }: { onEnabled: (on: boolean) => void }) {
   useEffect(() => {
     if (index.data) onEnabled(index.data.enabled)
   }, [index.data, onEnabled])
+
+  useEffect(() => {
+    if (role) setSelected(role)
+  }, [role])
 
   useEffect(() => {
     const first = index.data?.roles[0]
@@ -211,6 +232,7 @@ export function Coaching({ onEnabled }: { onEnabled: (on: boolean) => void }) {
       role={selected}
       to={emails}
       fresh={fresh === selected}
+      briefing={params.get('briefing')}
       onGenerated={() => setFresh(selected)}
       title={
         <span className="inline-flex gap-1">
