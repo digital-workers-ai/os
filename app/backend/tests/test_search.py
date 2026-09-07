@@ -1144,6 +1144,16 @@ class TestQueryDefinitions:
             "evidence": "label=MRR",
         }
 
+    async def test_a_metric_is_found_by_a_business_synonym(self, session):
+        await search.index(session)
+        found = of_kind(await search.query(session, "revenue"), "metric")
+        assert "mrr" in [hit["id"] for hit in found]
+
+    async def test_an_entity_type_is_found_by_a_business_synonym(self, session):
+        await search.index(session)
+        found = of_kind(await search.query(session, "clients"), "entity_type")
+        assert [hit["id"] for hit in found] == ["company"]
+
     async def test_every_token_must_be_in_the_text(self, session):
         result = await search.query(session, "average mrr")
         assert [h["id"] for h in of_kind(result, "metric")] == ["avg_mrr"]

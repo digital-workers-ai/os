@@ -758,6 +758,11 @@ class TestMetrics:
         ]
         assert all("error" not in row for row in body.values())
 
+    async def test_the_payload_says_when_it_was_measured(self, api):
+        body = (await api.get("/api/metrics")).json()
+        assert set(body) == {"as_of", "metrics"}
+        assert datetime.fromisoformat(body["as_of"]).tzinfo is not None
+
     async def test_reading_history_never_writes_it(self, api):
         before = (await api.get("/api/metrics/history")).json()["history"]
         await api.get("/api/metrics")
@@ -1525,6 +1530,14 @@ class TestDefinitions:
             "cardinality": "many_to_one",
             "grounding": "match:email",
         }
+
+    async def test_the_ontology_is_served_with_its_glossary(self, api):
+        body = (await api.get("/api/definitions/ontology")).json()
+        company = body["entities"]["company"]
+        assert company["description"]
+        assert isinstance(company["synonyms"], list)
+        assert isinstance(body["attributes"], dict)
+        assert "mrr" in body["attributes"]
 
     async def test_every_mapping_line_is_served_with_its_transform(self, api):
         response = await api.get("/api/definitions/mappings")

@@ -20,11 +20,15 @@ ALL_FILES = (
     "goals.yaml",
     "enrichment.yaml",
 )
+OPTIONAL_FILES = ("derived.yaml",)
 
 
 @pytest.fixture
 def files(tmp_path):
     for name in ALL_FILES:
+        shutil.copy(DEFINITIONS / name, tmp_path / name)
+    optional = [name for name in OPTIONAL_FILES if (DEFINITIONS / name).exists()]
+    for name in optional:
         shutil.copy(DEFINITIONS / name, tmp_path / name)
 
     class Bundle:
@@ -45,6 +49,8 @@ def files(tmp_path):
                 "rules_path": tmp_path / "rules.yaml",
                 "goals_path": tmp_path / "goals.yaml",
             }
+            if "derived.yaml" in optional:
+                kwargs["derived_path"] = tmp_path / "derived.yaml"
             kwargs.update(overrides)
             return checks.run(**kwargs)
 
@@ -393,3 +399,131 @@ class TestValidationLabels:
         assert status["stripe"]["entities"] == ["company", "person", "subscription"]
         assert status["hubspot"]["entities"] == ["company", "deal", "person"]
         assert status["segment"]["entities"] == ["data_source"]
+
+
+def _with_metric(files, spec, name="sliced"):
+    files.edit("metrics.yaml", lambda d: d.update({name: spec}))
+    return files.problems()
+
+
+def _counted(**extra):
+    return {"entity": "subscription", "expression": "COUNT(entity)", **extra}
+
+
+class TestDimensionsBindToTheOntology:
+    def test_a_breakdown_that_walks_no_declared_edge(self, files):
+        problems = _with_metric(files, _counted(group_by="person.title"))
+        assert any("walks no declared edge" in p for p in problems), problems
+
+    def test_a_breakdown_over_a_fan_out_edge_double_counts(self, files):
+        files.edit(
+            "ontology.yaml",
+            lambda d: _rel(d, "belongs_to", "subscription").update(
+                {"cardinality": "many_to_many"}
+            ),
+        )
+        problems = _with_metric(files, _counted(group_by="company.industry"))
+        assert any("double-counts by construction" in p for p in problems), problems
+
+    def test_a_breakdown_over_an_attr_the_far_side_lacks(self, files):
+        problems = _with_metric(files, _counted(group_by="company.foo"))
+        assert any("'foo' is not an attr of company" in p for p in problems), problems
+
+    def test_a_breakdown_over_an_attr_the_entity_lacks(self, files):
+        problems = _with_metric(files, _counted(group_by="foo"))
+        assert any("is not an attr of" in p for p in problems), problems
+
+    def test_a_breakdown_over_a_date_without_a_grain(self, files):
+        problems = _with_metric(files, _counted(group_by="started_at"))
+        assert any("needs grain" in p for p in problems), problems
+
+    def test_a_grain_over_something_that_is_not_a_date(self, files):
+        problems = _with_metric(files, _counted(group_by="status", grain="month"))
+        assert any("not a date" in p for p in problems), problems
+
+    def test_a_window_over_a_string_attr(self, files):
+        problems = _with_metric(
+            files,
+            {
+                "entity": "deal",
+                "expression": "COUNT(entity)",
+                "window_days": 30,
+                "window_attr": "name",
+            },
+        )
+        assert any("is string, not a date" in p for p in problems), problems
+
+    def test_a_window_over_an_attr_the_entity_lacks(self, files):
+        problems = _with_metric(files, _counted(window_days=30, window_attr="foo"))
+        assert any("window_attr 'foo' is not an attr" in p for p in problems), problems
+
+    def test_an_unknown_metric_key_is_a_build_problem(self, files):
+        problems = _with_metric(files, _counted(groupby="status"))
+        assert any("unknown key" in p for p in problems), problems
+
+    def test_a_dimension_problem_names_the_metric_it_came_from(self, files):
+        problems = _with_metric(files, _counted(group_by="foo"))
+        assert any(p.startswith("metric 'sliced': ") for p in problems), problems
+
+
+class TestGlossaryTypesAndCollisions:
+    def test_a_metric_description_must_be_a_string(self, files):
+        files.edit("metrics.yaml", lambda d: d["mrr"].update({"description": 5}))
+        assert any("must be a string" in p for p in files.problems())
+
+    def test_metric_synonyms_must_be_a_list_of_strings(self, files):
+        files.edit("metrics.yaml", lambda d: d["mrr"].update({"synonyms": "revenue"}))
+        assert any("must be a list of strings" in p for p in files.problems())
+
+    def test_a_metric_synonym_that_is_another_metrics_name_collides(self, files):
+        files.edit("metrics.yaml", lambda d: d["mrr"].update({"synonyms": ["avg_mrr"]}))
+        problems = files.problems()
+        assert any("synonym" in p and "collides" in p for p in problems), problems
+
+    def test_two_metrics_may_not_share_a_synonym(self, files):
+        def mutate(doc):
+            doc["mrr"]["synonyms"] = ["Revenue"]
+            doc["contracted_mrr"]["synonyms"] = ["revenue"]
+
+        files.edit("metrics.yaml", mutate)
+        problems = files.problems()
+        assert any("synonym" in p and "collides" in p for p in problems), problems
+
+    def test_an_entity_synonym_that_is_another_entity_name_collides(self, files):
+        files.edit(
+            "ontology.yaml",
+            lambda d: d["entities"]["company"].update({"synonyms": ["person"]}),
+        )
+        problems = files.problems()
+        assert any("synonym" in p and "collides" in p for p in problems), problems
+
+    def test_an_attribute_gloss_must_name_a_declared_label(self, files):
+        files.edit(
+            "ontology.yaml",
+            lambda d: d.update({"attributes": {"foo": {"description": "nothing"}}}),
+        )
+        problems = files.problems()
+        assert any("is not a declared attr of any entity" in p for p in problems), (
+            problems
+        )
+
+    def test_an_attribute_synonym_that_is_a_label_collides(self, files):
+        files.edit(
+            "ontology.yaml",
+            lambda d: d.update({"attributes": {"mrr": {"synonyms": ["domain"]}}}),
+        )
+        problems = files.problems()
+        assert any("synonym" in p and "collides" in p for p in problems), problems
+
+    def test_an_unknown_key_on_an_entity_is_refused(self, files):
+        files.edit(
+            "ontology.yaml",
+            lambda d: d["entities"]["company"].update({"descr": "a customer"}),
+        )
+        problems = files.problems()
+        assert any("unknown key" in p for p in problems), problems
+
+    def test_an_unknown_top_level_ontology_key_is_refused(self, files):
+        files.edit("ontology.yaml", lambda d: d.update({"attribtues": {}}))
+        problems = files.problems()
+        assert any("unknown key" in p for p in problems), problems
