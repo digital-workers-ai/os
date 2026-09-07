@@ -18,6 +18,67 @@ Think of `raw_event` as the enrollment book: every record ever seen is in it, pe
 
 **Resolution guards** — the rules that keep merging honest, each aimed at a trap real estates set. Beyond the blocklists: **bucket quarantine** — if one tool has *two of its own records* sharing a "unique" value (two Stripe customers on one domain), that value clearly identifies nobody, so it's disqualified as merge evidence for everyone; this one statistic took company precision from 0.92 to 1.00 on the adversarial corpus. **One record per source** — a cluster never absorbs a second record from the same tool: if HubSpot itself thinks they're two people, we don't overrule it. **Corroboration** — a tenant-scoped id (`external_ref`, marked `identity_scope: tenant` in the ontology) is trusted between two tools only where other evidence confirms they share a numbering scheme; no confirmation means no merge, never benefit of the doubt. The guards are measured, not assumed: a vendored adversarial corpus scores the resolver on every CI run, with floors of 0.99 company / 0.98 person pairwise precision — quietly breaking a guard fails the build.
 
+**Resolution ladder** — what happens to two records that are not tied by an identifier but look like the same person. Names never merge on their own; they can only nominate. A pair whose names look alike *and* whose records agree on a second, independent attribute (a phone, a non-free email domain) becomes a candidate in the review queue, with its evidence attached. A person confirms or rejects. A confirmed pair merges and is kept across rebuilds; a rejected pair is remembered and never shown again unless someone confirms it later; unmerge returns a confirmed pair to the queue. Every rebuild re-checks the evidence behind each confirmed pair and flags the ones whose evidence has gone, so a human decision can outlive its reason but never silently. The queue is also the label set: once a pattern has enough confirmations and no rejections it can be measured on the adversarial corpus and, only then, promoted to automatic.
+
+```
+two records, same kind
+        │
+        ▼
+1. shared identifier?  (email, source id, domain)
+        │ yes ───────────────────────────────────► MERGE, automatic
+        │ no
+        ▼
+2. names look alike?
+        │ no ────────────────────────────────────► two entities
+        │ yes
+        ▼
+3. a second attribute agrees?  (phone, email domain)
+        │ no ────────────────────────────────────► two entities
+        │ yes
+        ▼
+4. REVIEW QUEUE  pair + evidence
+        │
+   ┌────┴─────┐
+   ▼          ▼
+confirm     reject
+   │          │
+   ▼          ▼
+MERGE       two entities, remembered
+(human, survives rebuilds; unmerge sends it back to 4)
+   │
+   ▼
+5. every rebuild re-checks the evidence
+        │ still holds ────────────────────────────► keep
+        │ gone ──────────────────────────────────► flagged for a look
+        │
+        ▼
+6. confirmations accumulate → measure the pattern → promote to step 1
+```
+
+Five pairs through the ladder:
+
+```
+a. Carlos Ch <carlos@acme.io>          C Chinchilla <carlos@acme.io>
+   step 1: same email                 → merged automatically; the name kept has a receipt
+
+b. Carlos Ch  +1 415 555 0101          C Chinchilla  +1 415 555 0101
+   step 1: no shared id · step 2: alike · step 3: same phone
+                                      → queued → confirmed → merged, kept across rebuilds
+
+c. Carlos Chinchilla (no email)        Carlos Chinchilla <carlos@acme.io>
+   step 1: no · step 2: alike · step 3: nothing else agrees
+                                      → two entities; the first counts as identity_less
+
+d. Bob Chen <bob@acme.io>              Robert Chen <robert@acme.io>
+   step 2: alike (nickname) · step 3: same domain acme.io
+                                      → queued → rejected: two people at Acme
+                                      → remembered, not shown again
+
+e. J. Smith <jane@acme.io>             Jane Smith <jane@acme.io>
+   step 1: merged by email long ago, then HubSpot corrects the first to <john@acme.io>
+   step 5: the shared email is gone   → flagged; the operator unmerges, or reconfirms
+```
+
 **Adversarial corpus** — `mock/adversarial.py`, test-only fixture data the mock server never serves and no production code imports. It lives beside `mock/world.py` and extends it: the same mock universe's companies and people, deliberately corrupted into 890 records across six pretend tools, seeded with 53 collisions — shared agency domains, same-name companies, office mailboxes, recycled ids. Every record carries `.truth`, the id of the real thing it describes, so right and wrong merges are *checkable*, never guessed; fixed random seeds make the corpus byte-identical on every import. The precision test runs each record through the shipped transforms (measuring the real pipeline, not an idealized one), resolves with the real guard settings, and scores the clustering pairwise against `.truth`.
 
 **ER settings** — the resolver's only two knobs, in `app/config.py`, env-overridable per deployment. `ER_BUCKET_CAP` (50): if more than 50 *distinct* tools share one identity value, it's junk — the backstop for the one trap the within-one-source statistic can't see. `ER_ONE_RECORD_PER_SOURCE` (true): the on/off switch for that guard, a boolean because a tenant whose CRM is known to be full of duplicates might legitimately want the resolver to merge through them. The other guards have no knobs on purpose — they compare the data against itself, so there is nothing to calibrate.
