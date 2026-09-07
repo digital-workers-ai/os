@@ -1,7 +1,15 @@
 import yaml
 
 from app.caches import BACKEND_DIR
-from app.engine import goals, mappings, metrics, ontology, rules, strategies
+from app.engine import (
+    candidates,
+    goals,
+    mappings,
+    metrics,
+    ontology,
+    rules,
+    strategies,
+)
 from app.engine.transforms import (
     TRANSFORM_TYPES,
     TRANSFORMS,
@@ -184,6 +192,19 @@ def run(
                     "evidence must be normalized, or exact match compares "
                     "raw provider formatting and merges nothing"
                 )
+
+    for entity, spec in sorted(onto.entities.items()):
+        review = spec.candidates
+        if review is None:
+            continue
+        for attr in (review.name, *review.corroborate):
+            if attr in spec.attrs or candidates.VIRTUAL.get(attr) in spec.attrs:
+                continue
+            problems.append(
+                f"candidates: {entity}.{attr} is named as review evidence but "
+                f"{entity} declares no such attr — a nomination on a value no "
+                "record carries can never fire"
+            )
 
     money = {label for label, fn in transform_map.items() if fn == "normalize_money"}
     for entity, spec in sorted(onto.entities.items()):

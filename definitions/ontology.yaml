@@ -18,6 +18,11 @@ entities:
       - external_ref
     identity_scope:
       external_ref: tenant
+    candidates:
+      name: name
+      corroborate:
+        - phone
+        - email_domain
   deal:
     attrs:
       name: string

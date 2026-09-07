@@ -445,3 +445,32 @@ def resolve(
             key: clusters[resolve_index(i)].canonical_id for key, i in of_record.items()
         },
     }
+
+
+def union(resolution: dict, pairs) -> dict:
+    live = {c.canonical_id: c for c in resolution["clusters"]}
+    of_record, aliases = resolution["of_record"], resolution["aliases"]
+    for seq, left_anchor, right_anchor in pairs:
+        keys = [tuple(anchor.split("|", 2)) for anchor in (left_anchor, right_anchor)]
+        sides = [live.get(of_record.get(key)) for key in keys]
+        if None in sides or sides[0] is sides[1]:
+            continue
+        survivor, loser = sorted(sides, key=lambda c: (c.minted_order, c.anchor_key))
+        joined = keys[1] if sides[1] is loser else keys[0]
+        survivor.members.update(loser.members)
+        survivor.members[joined] = f"human={seq}"
+        survivor.sources |= loser.sources
+        del live[loser.canonical_id]
+        aliases.update(
+            {
+                alias: survivor.canonical_id
+                for alias, target in aliases.items()
+                if target == loser.canonical_id
+            }
+        )
+        aliases[loser.canonical_id] = survivor.canonical_id
+        of_record.update(dict.fromkeys(loser.members, survivor.canonical_id))
+    resolution["clusters"] = [
+        c for c in resolution["clusters"] if c.canonical_id in live
+    ]
+    return resolution

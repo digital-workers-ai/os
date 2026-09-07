@@ -363,6 +363,7 @@ def _run_report(row: EngineRun) -> dict:
         "raw_events_read": row.raw_events_read,
         "entities": row.entities_written,
         "facts": row.facts_written,
+        "candidates": row.report.get("totals", {}).get("candidates", 0),
         "created_at": row.created_at.isoformat(),
         "report": row.report,
     }

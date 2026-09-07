@@ -15,6 +15,7 @@ class SyncReport:
         self.match_rates: dict = {}
         self.records_skipped: Counter = Counter()
         self.counts: Counter = Counter()
+        self.candidates: int = 0
 
     def declare_path(self, entity: str, key: str) -> None:
         self.declared_paths.add(f"{entity}:{key}")
@@ -57,6 +58,9 @@ class SyncReport:
     def count(self, key: str, n: int = 1) -> None:
         self.counts[key] += n
 
+    def nominate(self, n: int) -> None:
+        self.candidates += n
+
     def dead_paths(self) -> list:
         return sorted(p for p in self.declared_paths if not self.path_hits.get(p))
 
@@ -71,6 +75,7 @@ class SyncReport:
             "oversized": len(self.oversized),
             "disagreements": sum(self.disagreements.values()),
             "records_skipped": sum(self.records_skipped.values()),
+            "candidates": self.candidates,
         }
 
     def clean(self) -> bool:
