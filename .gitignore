@@ -12,4 +12,3 @@ htmlcov/
 .ruff_cache/
 app/frontend/e2e/results/
 app/frontend/e2e/report/
-temp/
