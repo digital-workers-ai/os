@@ -163,6 +163,8 @@ attributes:
     description: The provider's id for the company a subscription belongs to.
   organization_ref:
     description: The provider's id for the company a ticket belongs to.
+  industry:
+    description: The sector the company works in, as its records classify it.
   mrr:
     description: Monthly recurring revenue in the subscription's currency.
     synonyms: [revenue, run-rate]

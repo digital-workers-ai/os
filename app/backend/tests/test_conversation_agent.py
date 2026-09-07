@@ -149,6 +149,30 @@ class TestTheGlossaryReachesTheModel:
         assert "company" in result["glossary"]
         assert {"description", "synonyms"} <= set(result["glossary"]["company"])
 
+    async def test_a_type_that_declares_no_meaning_is_left_out(
+        self, session, monkeypatch
+    ):
+        from dataclasses import replace
+
+        from app.engine import ontology
+
+        onto = ontology.load()
+        plain = replace(onto.entities["order"], description=None, synonyms=())
+        monkeypatch.setattr(
+            ontology,
+            "load",
+            lambda: replace(onto, entities={**onto.entities, "order": plain}),
+        )
+        result = await agent.entity_counts(session)
+        assert "order" not in result["glossary"]
+        assert result["glossary"]["company"]["synonyms"]
+
+    async def test_a_declared_meaning_reaches_the_metrics_listing(self, session):
+        payload = await agent.get_metrics(session)
+        assert payload["metrics"]["mrr"]["description"]
+        assert "revenue" in payload["metrics"]["mrr"]["synonyms"]
+        assert "synonyms" not in payload["metrics"]["avg_mrr"]
+
 
 class TestThePromptDeclaresTheSlicingTool:
     def test_the_system_prompt_names_the_tool_that_composes_a_slice(self):

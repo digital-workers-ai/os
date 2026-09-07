@@ -1,8 +1,11 @@
+from dataclasses import replace
+
 import pytest
 from test_conversation_loop import Reply, ScriptedModel, Text, ToolUse
 
 from app.config import settings
 from app.conversation import agent
+from app.engine import ontology
 
 SLICE_FIELDS = {
     "metric": "string",
@@ -247,3 +250,65 @@ class TestTheModelCanReachIt:
         assert result["receipts"] == [{"tool": "slice_metric", "input": arguments}]
         [sent] = model.sent[1]["messages"][-1]["content"]
         assert "breakdown" in sent["content"]
+
+
+class TestOnlyAnEdgeThatCannotFanOutIsOffered:
+    async def test_a_fan_out_hop_is_left_out_of_the_dimensions(
+        self, session, monkeypatch
+    ):
+        onto = ontology.load()
+        fan_out = ontology.Relationship(
+            rel="covers",
+            from_type="subscription",
+            to_type="ticket",
+            cardinality="one_to_many",
+            match="email",
+        )
+        monkeypatch.setattr(
+            ontology,
+            "load",
+            lambda: replace(onto, relationships=(*onto.relationships, fan_out)),
+        )
+        result = await agent.slice_metric(session, metric="mrr")
+        paths = {entry["path"] for entry in result["dimensions"]}
+        assert "company.industry" in paths
+        assert not [path for path in paths if path.startswith("ticket.")]
+
+
+class TestAGivenWindowReplacesTheDeclaredOne:
+    async def test_a_declared_direction_does_not_leak_into_the_new_window(
+        self, session
+    ):
+        result = await agent.slice_metric(
+            session, metric="deals_closing_30d", window_days=7, window_attr="closed_at"
+        )
+        assert result["window_days"] == 7
+        assert result["window_direction"] == "trailing"
+
+
+class TestADeclaredSliceStillAnswers:
+    async def test_a_metric_that_declares_its_own_breakdown_needs_no_arguments(
+        self, session, canonical, link
+    ):
+        await subscriptions_by_industry(canonical, link)
+        result = await agent.slice_metric(session, metric="mrr_by_industry")
+        assert result["breakdown"] == {"retail": 75.0, "saas": 100.0}
+        assert result["dimensions"]
+
+
+class TestAFilterOnAnInferredMetricIsAskedOfTheReading:
+    async def test_a_declared_field_narrows_the_read_population(self, session):
+        result = await agent.slice_metric(
+            session,
+            metric="calls_by_interest",
+            filter_attr="timing",
+            filter_value="immediate",
+        )
+        assert result["applied_filter"] == {"timing": "immediate"}
+        assert result["inferred"] is True
+
+    async def test_a_field_the_reading_never_asks_for_is_refused(self, session):
+        result = await agent.slice_metric(
+            session, metric="calls_by_interest", filter_attr="mood", filter_value="warm"
+        )
+        assert "is not a field of reading 'sales_call'" in result["error"]

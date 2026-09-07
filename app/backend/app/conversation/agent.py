@@ -1,17 +1,23 @@
 import json
 import uuid
+from copy import deepcopy
 
 from sqlalchemy import func, select
 
 from app import llm
 from app.config import settings
 from app.conversation import store
-from app.engine import goals, mappings, metrics, rules
+from app.engine import derived, goals, mappings, metrics, ontology, rules
+from app.enrichment import vocabulary
 from app.models import CanonicalAlias, Entity, EntityCanonical, FactCurrent
 
 FENCE_OPEN, FENCE_CLOSE = "<tool_result>", "</tool_result>"
 
-PROMPT_VERSION = "2026-08-02.1"
+PROMPT_VERSION = "2026-09-07.1"
+
+GLOSS_KEYS = ("description", "synonyms")
+
+GROUPABLE = ("string", "date")
 
 SYSTEM = f"""\
 You are the conversational surface of a company's canonical knowledge base. It \
@@ -30,6 +36,10 @@ missing. Never fill a gap from general knowledge.
 - Never calculate. Business numbers come from get_metrics, where every metric \
 is a reviewed definition evaluated live. If no metric fits the question, say \
 so — do not derive one from facts, and do not add, divide or project.
+- A metric split by a dimension, narrowed to one attribute, or limited to a \
+time window comes from slice_metric, which composes a reviewed metric with \
+declared parts and refuses anything else. If no metric fits the question even \
+sliced, say so.
 - A metric marked `inferred` was read by a model out of free text. Say so \
 every time you mention it. A value marked unavailable is a broken measurement, \
 not a small number.
@@ -47,8 +57,15 @@ class ConversationError(RuntimeError):
     pass
 
 
+def _gloss(spec: dict) -> dict:
+    return {key: spec[key] for key in GLOSS_KEYS if key in spec}
+
+
 def _summary(row: dict) -> dict:
     out: dict = {"value": row.get("value"), "entities": row.get("entities")}
+    for key in GLOSS_KEYS:
+        if row.get(key):
+            out[key] = row[key]
     if row.get("inferred"):
         out["inferred"] = True
         out["reading"] = row.get("reading")
@@ -72,11 +89,139 @@ async def get_metrics(session, name: str = "") -> dict:
         provenance = metrics.provenance(metrics.load_definitions(), mappings.load())
         raw_fields = provenance.get(str(name), {}).get("raw_fields", [])
         return {"metrics": {str(name): {**row, "raw_fields": raw_fields}}}
+    defs = metrics.load_definitions()
     return {
-        "metrics": {metric: _summary(row) for metric, row in values.items()},
+        "metrics": {
+            metric: _summary({**row, **_gloss(defs[metric])})
+            for metric, row in values.items()
+        },
         "detail": "values and caveats only — call get_metrics with a `name` for "
-        "one metric's label, receipts, breakdown and raw provider fields",
+        "one metric's label, receipts, breakdown and raw provider fields, or "
+        "slice_metric to split one by a dimension, a window or a filter",
     }
+
+
+def _fix_filter(name: str, composed: dict, attr: str, value: str) -> dict | None:
+    for term in composed.get("terms") or [composed]:
+        fixed = dict(
+            (term.get("filter") if "filter" in term else composed.get("filter")) or {}
+        )
+        if attr in fixed:
+            return {
+                "error": f"{name} already fixes {attr}={fixed[attr]} — slice a "
+                f"metric that leaves {attr} free"
+            }
+        term["filter"] = {**fixed, attr: value}
+    return None
+
+
+def _dimension(onto, path: str, kind: str, via: str = "") -> dict:
+    entry = {"path": path, "type": kind}
+    if via:
+        entry["via"] = via
+    gloss = onto.attributes.get(path.split(".")[-1])
+    if gloss and gloss.description:
+        entry["description"] = gloss.description
+    return entry
+
+
+def _dimensions(onto, attrs_of, spec: dict) -> list:
+    if spec.get("inferred"):
+        reading = vocabulary.load()[str(spec.get("reading"))]
+        return [
+            _dimension(onto, field.name, "string")
+            for field in reading.fields
+            if field.kind == "one_of"
+        ]
+    entity = str(spec.get("entity"))
+    entries = {
+        attr: _dimension(onto, attr, kind)
+        for attr, kind in attrs_of(entity).items()
+        if kind in GROUPABLE
+    }
+    for rel in onto.relationships_from(entity):
+        if rel.cardinality not in ontology.SAFE_FOR_GROUP_BY:
+            continue
+        for attr, kind in attrs_of(rel.to_type).items():
+            if kind in GROUPABLE:
+                path = f"{rel.to_type}.{attr}"
+                entries.setdefault(path, _dimension(onto, path, kind, rel.rel))
+    return [entries[path] for path in sorted(entries)]
+
+
+async def slice_metric(
+    session,
+    metric: str = "",
+    group_by: str = "",
+    grain: str = "",
+    window_days=None,
+    window_attr: str = "",
+    window_direction: str = "",
+    filter_attr: str = "",
+    filter_value: str = "",
+) -> dict:
+    defs = metrics.load_definitions()
+    name = str(metric)
+    if name not in defs:
+        return {"error": f"no metric named {name!r}", "available": sorted(defs)}
+    if bool(filter_attr) != bool(filter_value):
+        return {"error": "filter_attr and filter_value go together"}
+    if window_days is not None:
+        try:
+            window_days = int(window_days)
+        except (TypeError, ValueError):
+            return {
+                "error": f"window_days {window_days!r} must be a whole number of days"
+            }
+
+    spec = defs[name]
+    onto = ontology.load()
+    attrs_of = derived.attrs_of(onto)
+    entity = str(spec.get("entity"))
+    if filter_attr and not spec.get("inferred"):
+        if str(filter_attr) not in attrs_of(entity):
+            return {"error": f"filter_attr {filter_attr!r} is not an attr of {entity}"}
+
+    composed = deepcopy(spec)
+    if group_by:
+        composed["group_by"] = str(group_by)
+    if grain:
+        composed["grain"] = str(grain)
+    given = {
+        key: value
+        for key, value in (
+            ("window_days", window_days),
+            ("window_attr", str(window_attr)),
+            ("window_direction", str(window_direction)),
+        )
+        if value
+    }
+    if given:
+        composed = {k: v for k, v in composed.items() if not k.startswith("window_")}
+        composed.update(given)
+    if filter_attr:
+        refused = _fix_filter(name, composed, str(filter_attr), str(filter_value))
+        if refused:
+            return refused
+
+    try:
+        metrics.parse_spec(composed)
+    except metrics.MetricSpecError as exc:
+        return {"error": str(exc)}
+    problems = metrics.validate_dimensions(composed, onto, attrs_of)
+    if problems:
+        return {"error": problems[0]}
+
+    row = (await metrics.evaluate_definitions(session, {name: composed}))[name]
+    result = {"metric": name, **row}
+    if filter_attr:
+        result["applied_filter"] = {str(filter_attr): str(filter_value)}
+    if not (group_by or window_days or filter_attr):
+        result["dimensions"] = _dimensions(onto, attrs_of, composed)
+        result["window_attrs"] = sorted(
+            attr for attr, kind in attrs_of(entity).items() if kind == "date"
+        )
+    return result
 
 
 async def get_goals(session) -> dict:
@@ -96,7 +241,15 @@ async def entity_counts(session) -> dict:
             )
         )
     ).all()
-    return {"entities_by_type": dict(sorted(rows))}
+    onto = ontology.load()
+    return {
+        "entities_by_type": dict(sorted(rows)),
+        "glossary": {
+            name: {"description": spec.description, "synonyms": list(spec.synonyms)}
+            for name, spec in sorted(onto.entities.items())
+            if spec.description or spec.synonyms
+        },
+    }
 
 
 async def find_entities(
@@ -205,6 +358,32 @@ TOOLS = [
         "input_schema": {"type": "object", "properties": {"name": {"type": "string"}}},
     },
     {
+        "name": "slice_metric",
+        "description": "One reviewed metric, composed with a declared dimension, "
+        "a time window, or one equality filter — `group_by` an attr of the "
+        "metric's entity or `entity.attr` one declared hop away, with `grain` "
+        "to bucket a date; `window_days` with `window_attr` for a trailing or "
+        "forward span; `filter_attr` with `filter_value` to fix one attribute "
+        "the metric leaves free. Called with only `metric` it returns the "
+        "value and lists the dimensions and window attrs that metric can be "
+        "sliced by. It composes declared parts and refuses the rest — it never "
+        "derives a number the definitions do not.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "metric": {"type": "string"},
+                "group_by": {"type": "string"},
+                "grain": {"type": "string"},
+                "window_days": {"type": "integer"},
+                "window_attr": {"type": "string"},
+                "window_direction": {"type": "string"},
+                "filter_attr": {"type": "string"},
+                "filter_value": {"type": "string"},
+            },
+            "required": ["metric"],
+        },
+    },
+    {
         "name": "get_goals",
         "description": "Company goals against live metrics: current, target, and "
         "whether each was met, missed, or could not be decided.",
@@ -249,6 +428,7 @@ TOOLS = [
 
 HANDLERS = {
     "get_metrics": get_metrics,
+    "slice_metric": slice_metric,
     "get_goals": get_goals,
     "get_findings": get_findings,
     "entity_counts": entity_counts,
