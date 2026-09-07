@@ -1,5 +1,6 @@
 import inspect
 import uuid
+from datetime import UTC, date, datetime
 
 import pytest
 from sqlalchemy import select, text
@@ -314,3 +315,274 @@ class TestTheBindParameterCeiling:
         await canonical("company", {"domain": "a.io"})
         written = await m.record_snapshots(session)
         assert written > 0
+
+
+NOW = datetime(2026, 9, 7, 12, tzinfo=UTC)
+
+
+async def evaluate_at(session, spec, now=NOW, name="m"):
+    return (await m.evaluate_definitions(session, {name: spec}, now=now))[name]
+
+
+class TestBreakdowns:
+    async def test_a_breakdown_over_an_own_attr_buckets_by_value(
+        self, session, canonical
+    ):
+        await canonical("company", {"domain": "a.io", "industry": "Finance"})
+        await canonical("company", {"domain": "b.io", "industry": "Software"})
+        await canonical("company", {"domain": "c.io", "industry": "Software"})
+        result = await evaluate_at(
+            session,
+            {
+                "entity": "company",
+                "expression": "COUNT(entity)",
+                "group_by": "industry",
+            },
+        )
+        assert result["value"] == 3
+        assert result["breakdown"] == {"Finance": 1, "Software": 2}
+        assert result["group_by"] == "industry"
+
+    async def test_a_breakdown_walks_a_declared_edge(self, session, canonical, link):
+        finance = await canonical("company", {"domain": "a.io", "industry": "Finance"})
+        software = await canonical(
+            "company", {"domain": "b.io", "industry": "Software"}
+        )
+        for owner in (finance, software, software):
+            sub = await canonical("subscription", {"mrr": 10, "status": "active"})
+            await link(sub, "belongs_to", owner)
+        result = await evaluate_at(
+            session,
+            {
+                "entity": "subscription",
+                "expression": "COUNT(entity)",
+                "group_by": "company.industry",
+            },
+        )
+        assert result["breakdown"] == {"Finance": 1, "Software": 2}
+        assert result["group_by_via"] == "belongs_to"
+
+    async def test_an_entity_off_the_edge_is_counted_not_hidden(
+        self, session, canonical, link
+    ):
+        finance = await canonical("company", {"domain": "a.io", "industry": "Finance"})
+        linked = await canonical("subscription", {"mrr": 10, "status": "active"})
+        await link(linked, "belongs_to", finance)
+        await canonical("subscription", {"mrr": 10, "status": "active"})
+        result = await evaluate_at(
+            session,
+            {
+                "entity": "subscription",
+                "expression": "COUNT(entity)",
+                "group_by": "company.industry",
+            },
+        )
+        assert result["breakdown"] == {"Finance": 1}
+        assert result["ungrouped_entities"] == 1
+
+    async def test_buckets_come_only_from_what_the_metric_measured(
+        self, session, canonical
+    ):
+        await canonical("subscription", {"status": "active", "currency": "usd"})
+        await canonical("subscription", {"status": "canceled", "currency": "eur"})
+        result = await evaluate_at(
+            session,
+            {
+                "entity": "subscription",
+                "expression": "COUNT(entity)",
+                "filter": {"status": "active"},
+                "group_by": "currency",
+            },
+        )
+        assert result["breakdown"] == {"usd": 1}
+
+    async def test_a_breakdown_over_an_undeclared_edge_is_one_metrics_error(
+        self, session, canonical
+    ):
+        await canonical("subscription", {"mrr": 10})
+        result = await evaluate_at(
+            session,
+            {
+                "entity": "subscription",
+                "expression": "COUNT(entity)",
+                "group_by": "person.title",
+            },
+        )
+        assert "walks no declared edge" in result["error"]
+
+    async def test_a_bucket_that_spans_currencies_is_unknown(self, session, canonical):
+        await canonical(
+            "subscription", {"mrr": 100, "currency": "usd", "status": "active"}
+        )
+        await canonical(
+            "subscription", {"mrr": 100, "currency": "eur", "status": "active"}
+        )
+        await canonical(
+            "subscription", {"mrr": 30, "currency": "usd", "status": "trial"}
+        )
+        result = await evaluate_at(
+            session,
+            {"entity": "subscription", "expression": "SUM(mrr)", "group_by": "status"},
+        )
+        assert result["breakdown"] == {"active": None, "trial": 30.0}
+
+
+class TestGrainBuckets:
+    async def _seed(self, canonical):
+        for started in ("2025-11-20", "2026-03-05", "2026-07-02"):
+            await canonical(
+                "subscription", {"mrr": 10, "started_at": f"{started}T00:00:00Z"}
+            )
+
+    @pytest.mark.parametrize(
+        ("grain", "keys"),
+        [
+            ("day", ["2025-11-20", "2026-03-05", "2026-07-02"]),
+            ("week", ["2025-W47", "2026-W10", "2026-W27"]),
+            ("month", ["2025-11", "2026-03", "2026-07"]),
+            ("quarter", ["2025-Q4", "2026-Q1", "2026-Q3"]),
+        ],
+    )
+    async def test_a_date_breakdown_buckets_at_the_declared_grain(
+        self, session, canonical, grain, keys
+    ):
+        await self._seed(canonical)
+        result = await evaluate_at(
+            session,
+            {
+                "entity": "subscription",
+                "expression": "COUNT(entity)",
+                "group_by": "started_at",
+                "grain": grain,
+            },
+        )
+        assert list(result["breakdown"]) == keys
+        assert result["grain"] == grain
+
+    async def test_a_year_grain_collects_the_dates_that_share_a_year(
+        self, session, canonical
+    ):
+        await self._seed(canonical)
+        result = await evaluate_at(
+            session,
+            {
+                "entity": "subscription",
+                "expression": "COUNT(entity)",
+                "group_by": "started_at",
+                "grain": "year",
+            },
+        )
+        assert result["breakdown"] == {"2025": 1, "2026": 2}
+
+    async def test_a_date_that_will_not_parse_is_counted_and_left_ungrouped(
+        self, session, canonical
+    ):
+        await canonical(
+            "subscription", {"mrr": 10, "started_at": "2026-03-05T00:00:00Z"}
+        )
+        await canonical("subscription", {"mrr": 10, "started_at": "whenever"})
+        result = await evaluate_at(
+            session,
+            {
+                "entity": "subscription",
+                "expression": "COUNT(entity)",
+                "group_by": "started_at",
+                "grain": "month",
+            },
+        )
+        assert result["breakdown"] == {"2026-03": 1}
+        assert result["group_bad_values"] == 1
+
+
+class TestWindowBounds:
+    def test_a_trailing_window_ends_today_and_spans_its_days(self):
+        low, high = m.window_bounds(30, "trailing", NOW)
+        assert high == "2026-09-07"
+        assert (
+            date.fromisoformat(high).toordinal()
+            - date.fromisoformat(low).toordinal()
+            + 1
+            == 30
+        )
+
+    def test_a_forward_window_starts_today(self):
+        low, high = m.window_bounds(30, "forward", NOW)
+        assert low == "2026-09-07"
+        assert high == "2026-10-06"
+
+    def test_a_one_day_window_is_a_single_date(self):
+        assert m.window_bounds(1, "trailing", NOW) == ("2026-09-07", "2026-09-07")
+        assert m.window_bounds(1, "forward", NOW) == ("2026-09-07", "2026-09-07")
+
+
+class TestWindowedMetrics:
+    def _windowed(self, **extra):
+        return {
+            "entity": "subscription",
+            "expression": "COUNT(entity)",
+            "window_days": 30,
+            "window_attr": "started_at",
+            **extra,
+        }
+
+    async def test_a_trailing_window_has_a_ceiling(self, session, canonical):
+        await canonical("subscription", {"started_at": "2026-08-20T00:00:00Z"})
+        await canonical("subscription", {"started_at": "2026-12-01T00:00:00Z"})
+        await canonical("subscription", {"started_at": "2025-01-01T00:00:00Z"})
+        result = await evaluate_at(session, self._windowed())
+        assert result["value"] == 1
+
+    async def test_a_forward_window_counts_the_future_not_the_past(
+        self, session, canonical
+    ):
+        await canonical("subscription", {"started_at": "2026-09-20T00:00:00Z"})
+        await canonical("subscription", {"started_at": "2026-08-20T00:00:00Z"})
+        result = await evaluate_at(session, self._windowed(window_direction="forward"))
+        assert result["value"] == 1
+
+    async def test_the_receipt_names_the_window_it_measured(self, session, canonical):
+        await canonical("subscription", {"started_at": "2026-08-20T00:00:00Z"})
+        result = await evaluate_at(session, self._windowed())
+        assert result["window_days"] == 30
+        assert result["window_direction"] == "trailing"
+        assert result["window_from"] == "2026-08-09"
+        assert result["window_to"] == "2026-09-07"
+
+    async def test_a_value_that_is_not_a_date_is_counted_and_excluded(
+        self, session, canonical
+    ):
+        await canonical("subscription", {"started_at": "2026-08-20T00:00:00Z"})
+        await canonical("subscription", {"started_at": "soon"})
+        result = await evaluate_at(session, self._windowed())
+        assert result["value"] == 1
+        assert result["window_bad_values"] == 1
+
+    async def test_an_entity_with_no_row_for_the_attr_drops_out(
+        self, session, canonical
+    ):
+        await canonical("subscription", {"started_at": "2026-08-20T00:00:00Z"})
+        await canonical("subscription", {"mrr": 10})
+        result = await evaluate_at(session, self._windowed())
+        assert result["value"] == 1
+        assert "window_bad_values" not in result
+
+    async def test_the_window_narrows_before_the_filter_does(self, session, canonical):
+        await canonical(
+            "subscription", {"started_at": "2026-08-20T00:00:00Z", "status": "active"}
+        )
+        await canonical(
+            "subscription", {"started_at": "2026-08-21T00:00:00Z", "status": "canceled"}
+        )
+        await canonical(
+            "subscription", {"started_at": "2025-01-01T00:00:00Z", "status": "active"}
+        )
+        result = await evaluate_at(session, self._windowed(filter={"status": "active"}))
+        assert result["value"] == 1
+        assert result["population_size"] == 3
+
+    async def test_a_clock_free_call_reads_the_wall_clock(self, session, canonical):
+        today = datetime.now(UTC).date().isoformat()
+        await canonical("subscription", {"started_at": f"{today}T00:00:00Z"})
+        await canonical("subscription", {"started_at": "2020-01-01T00:00:00Z"})
+        values = await m.evaluate_definitions(session, {"m": self._windowed()})
+        assert values["m"]["value"] == 1

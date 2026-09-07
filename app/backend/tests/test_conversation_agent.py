@@ -8,6 +8,7 @@ from app.conversation import agent
 SAMPLE_INPUT = {
     "find_entities": {"entity_type": "company", "limit": 1},
     "get_entity": {"canonical_id": "00000000-0000-0000-0000-000000000000"},
+    "slice_metric": {"metric": "mrr"},
 }
 
 
@@ -128,6 +129,57 @@ class TestBadToolArgumentsAreReportedNotRaised:
     async def test_a_valid_limit_still_works(self, session):
         result = await agent.HANDLERS["find_entities"](session, limit=5)
         assert "entities" in result
+
+
+class TestTheGlossaryReachesTheModel:
+    def test_a_declared_meaning_travels_with_the_listing_row(self):
+        summary = agent._summary(
+            {"value": 1, "entities": 1, "description": "d", "synonyms": ["s"]}
+        )
+        assert summary["description"] == "d"
+        assert summary["synonyms"] == ["s"]
+
+    def test_a_metric_that_declares_neither_carries_no_empty_keys(self):
+        summary = agent._summary({"value": 1, "entities": 1})
+        assert "description" not in summary
+        assert "synonyms" not in summary
+
+    async def test_the_entity_counts_carry_the_entity_glossary(self, session):
+        result = await agent.entity_counts(session)
+        assert "company" in result["glossary"]
+        assert {"description", "synonyms"} <= set(result["glossary"]["company"])
+
+    async def test_a_type_that_declares_no_meaning_is_left_out(
+        self, session, monkeypatch
+    ):
+        from dataclasses import replace
+
+        from app.engine import ontology
+
+        onto = ontology.load()
+        plain = replace(onto.entities["order"], description=None, synonyms=())
+        monkeypatch.setattr(
+            ontology,
+            "load",
+            lambda: replace(onto, entities={**onto.entities, "order": plain}),
+        )
+        result = await agent.entity_counts(session)
+        assert "order" not in result["glossary"]
+        assert result["glossary"]["company"]["synonyms"]
+
+    async def test_a_declared_meaning_reaches_the_metrics_listing(self, session):
+        payload = await agent.get_metrics(session)
+        assert payload["metrics"]["mrr"]["description"]
+        assert "revenue" in payload["metrics"]["mrr"]["synonyms"]
+        assert "synonyms" not in payload["metrics"]["avg_mrr"]
+
+
+class TestThePromptDeclaresTheSlicingTool:
+    def test_the_system_prompt_names_the_tool_that_composes_a_slice(self):
+        assert "slice_metric" in agent.SYSTEM
+
+    def test_the_prompt_version_moves_with_the_prompt(self):
+        assert agent.PROMPT_VERSION == "2026-09-07.1"
 
 
 class TestTenantTextIsFenced:

@@ -3,6 +3,7 @@ import yaml
 from app.caches import BACKEND_DIR
 from app.engine import (
     candidates,
+    derived,
     goals,
     mappings,
     metrics,
@@ -54,6 +55,33 @@ def source_status(lines=None) -> dict:
     return status
 
 
+def _glossary_problems(prefix, description, synonyms) -> list[str]:
+    problems: list[str] = []
+    if description is not None and not isinstance(description, str):
+        problems.append(f"{prefix}: description must be a string")
+    if synonyms is not None and not (
+        isinstance(synonyms, list) and all(isinstance(s, str) for s in synonyms)
+    ):
+        problems.append(f"{prefix}: synonyms must be a list of strings")
+    return problems
+
+
+def _collision_problems(prefix, names, glosses) -> list[str]:
+    problems: list[str] = []
+    taken = {str(name).lower(): str(name) for name in names}
+    for owner, synonyms in glosses:
+        for synonym in synonyms:
+            key = str(synonym).lower()
+            if key in taken:
+                problems.append(
+                    f"{prefix} {owner!r}: synonym {synonym!r} collides with "
+                    f"{taken[key]!r}"
+                )
+                continue
+            taken[key] = owner
+    return problems
+
+
 def _labels_by_entity(lines) -> dict:
     index: dict = {}
     for line in lines:
@@ -69,6 +97,7 @@ def run(
     rules_path=None,
     goals_path=None,
     enrichment_paths=None,
+    derived_path=None,
 ) -> list[str]:
     problems: list[str] = []
 
@@ -88,6 +117,8 @@ def run(
         return [str(e)]
     modules = registry.discover()
     connectors = set(modules)
+    problems += derived.check(onto, derived_path)
+    attrs_of = derived.attrs_of(onto, derived_path)
 
     for source in sorted({line.source for line in lines}):
         if source not in connectors:
@@ -130,8 +161,8 @@ def run(
             )
 
     label_types: dict = {}
-    for entity, spec in sorted(onto.entities.items()):
-        for attr, kind in sorted(spec.attrs.items()):
+    for entity in sorted(onto.entities):
+        for attr, kind in sorted(attrs_of(entity).items()):
             prior = label_types.get(attr)
             if prior and prior[1] != kind:
                 problems.append(
@@ -271,7 +302,8 @@ def run(
                     "declared in the ontology"
                 )
                 continue
-            if term["operand"] != "entity" and term["operand"] not in term_spec.attrs:
+            term_attrs = attrs_of(term_entity)
+            if term["operand"] != "entity" and term["operand"] not in term_attrs:
                 problems.append(
                     f"metric {name!r}: aggregates {term['operand']!r}, which is "
                     f"not an attr of {term_entity}"
@@ -279,19 +311,26 @@ def run(
             if (
                 term["agg"] in ("SUM", "AVG")
                 and term["operand"] != "entity"
-                and term_spec.attrs.get(term["operand"]) != "number"
+                and term_attrs.get(term["operand"]) != "number"
             ):
                 problems.append(
                     f"metric {name!r}: {term['agg']}({term['operand']}) over a "
-                    f"{term_spec.attrs.get(term['operand'])} attr — "
+                    f"{term_attrs.get(term['operand'])} attr — "
                     "arithmetic on a non-number is a category error"
                 )
             for attr in term["filter"] or {}:
-                if str(attr) not in term_spec.attrs:
+                if str(attr) not in term_attrs:
                     problems.append(
                         f"metric {name!r}: filters on {attr!r}, which is not an "
                         f"attr of {term_entity}"
                     )
+        problems += [
+            f"metric {name!r}: {problem}"
+            for problem in metrics.validate_dimensions(spec, onto, attrs_of)
+        ]
+        problems += _glossary_problems(
+            f"metric {name!r}", spec.get("description"), spec.get("synonyms")
+        )
 
     lineage = metrics.provenance(defs or {}, lines)
     for name in sorted(defs or {}):
@@ -307,10 +346,39 @@ def run(
                     "be empty, so the number could not show its receipts"
                 )
 
+    problems += _collision_problems(
+        "metric",
+        defs or {},
+        [
+            (name, spec.get("synonyms") or [])
+            for name, spec in sorted((defs or {}).items())
+            if isinstance(spec, dict) and isinstance(spec.get("synonyms"), list)
+        ],
+    )
+    for entity, spec in sorted(onto.entities.items()):
+        problems += _glossary_problems(
+            f"ontology: {entity}", spec.description, list(spec.synonyms)
+        )
+    problems += _collision_problems(
+        "ontology: entity",
+        onto.entities,
+        [(name, spec.synonyms) for name, spec in sorted(onto.entities.items())],
+    )
+    problems += _collision_problems(
+        "ontology: attribute",
+        label_types,
+        [(label, gloss.synonyms) for label, gloss in sorted(onto.attributes.items())],
+    )
+    for label in sorted(onto.attributes):
+        if label not in label_types:
+            problems.append(
+                f"ontology: attributes.{label} is not a declared attr of any entity"
+            )
+
     problems += check_enrichment(onto, enrichment_paths)
 
     try:
-        problems += check_rules(onto, rules.load(rules_path))
+        problems += check_rules(onto, rules.load(rules_path), attrs_of)
     except (rules.RuleError, yaml.YAMLError) as e:
         problems.append(f"rules.yaml: {e}")
     try:
@@ -321,8 +389,9 @@ def run(
     return problems
 
 
-def check_rules(onto, definitions) -> list[str]:
+def check_rules(onto, definitions, attrs_of=None) -> list[str]:
     problems: list[str] = []
+    attrs_of = attrs_of or derived.attrs_of(onto)
     for name, body in sorted((definitions or {}).items()):
         if isinstance(body, rules.Rule):
             rule = body
@@ -353,7 +422,7 @@ def check_rules(onto, definitions) -> list[str]:
                     f"{condition.attr!r} — known: {sorted(rules.OPERATORS)}"
                 )
                 continue
-            kind = spec.attrs.get(condition.attr)
+            kind = attrs_of(rule.entity).get(condition.attr)
             if kind is None:
                 problems.append(
                     f"rule {name!r}: {rule.entity}.{condition.attr} is not a "

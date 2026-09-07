@@ -271,3 +271,7 @@ def apply(name: str, source: str, object_type: str, value):
 
 def load_map(path=None) -> dict:
     return load_mapping(path or DEFAULT_TRANSFORMS, TransformError)
+
+
+def money_labels(path=None) -> set:
+    return {label for label, fn in load_map(path).items() if fn == "normalize_money"}

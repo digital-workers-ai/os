@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from app.caches import DEFINITIONS_DIR, load_mapping
@@ -12,6 +12,19 @@ IDENTITY_SCOPES = ("global", "tenant")
 DEFAULT_IDENTITY_SCOPE = "global"
 
 CARDINALITIES = ("many_to_one", "one_to_one", "one_to_many", "many_to_many")
+
+SAFE_FOR_GROUP_BY = ("many_to_one", "one_to_one")
+
+TOP_LEVEL_KEYS = ("entities", "source_priority", "relationships", "attributes")
+
+ENTITY_KEYS = (
+    "attrs",
+    "identity",
+    "identity_scope",
+    "candidates",
+    "description",
+    "synonyms",
+)
 
 
 class OntologyError(ValueError):
@@ -39,12 +52,20 @@ class CandidateSpec:
 
 
 @dataclass(frozen=True)
+class AttributeGloss:
+    description: str | None = None
+    synonyms: tuple = ()
+
+
+@dataclass(frozen=True)
 class EntitySpec:
     name: str
     attrs: dict
     identity: tuple = ()
     identity_scope: dict | None = None
     candidates: CandidateSpec | None = None
+    description: str | None = None
+    synonyms: tuple = ()
 
     def scope_of(self, attr: str) -> str:
         return (self.identity_scope or {}).get(attr, DEFAULT_IDENTITY_SCOPE)
@@ -55,6 +76,7 @@ class Ontology:
     entities: dict
     relationships: tuple = ()
     source_priority: tuple = ()
+    attributes: dict = field(default_factory=dict)
 
     def attr_type(self, entity: str, attr: str) -> str | None:
         spec = self.entities.get(entity)
@@ -74,6 +96,9 @@ class Ontology:
         spec = self.entities.get(entity)
         return spec.candidates if spec else None
 
+    def relationships_from(self, entity: str) -> tuple:
+        return tuple(r for r in self.relationships if r.from_type == entity)
+
     def priority_index(self, source: str) -> int:
         try:
             return self.source_priority.index(source)
@@ -85,6 +110,12 @@ def load(path=None) -> Ontology:
     path = Path(path or DEFAULT_ONTOLOGY)
     doc = load_mapping(path, OntologyError)
 
+    unknown = [key for key in doc if key not in TOP_LEVEL_KEYS]
+    if unknown:
+        raise OntologyError(
+            f"{path.name}: unknown key {unknown[0]!r} — known: {list(TOP_LEVEL_KEYS)}"
+        )
+
     raw_entities = doc.get("entities")
     if not isinstance(raw_entities, dict) or not raw_entities:
         raise OntologyError(f"{path.name}: `entities:` must be a non-empty mapping")
@@ -93,6 +124,12 @@ def load(path=None) -> Ontology:
     for name, spec in raw_entities.items():
         if not isinstance(spec, dict):
             raise OntologyError(f"entity {name!r} must be a mapping")
+        unknown = [key for key in spec if key not in ENTITY_KEYS]
+        if unknown:
+            raise OntologyError(
+                f"entity {name!r}: unknown key {unknown[0]!r} — known: "
+                f"{list(ENTITY_KEYS)}"
+            )
         attrs = spec.get("attrs")
         if not isinstance(attrs, dict) or not attrs:
             raise OntologyError(f"entity {name!r} declares no attrs")
@@ -150,6 +187,8 @@ def load(path=None) -> Ontology:
             )
             if review
             else None,
+            description=spec.get("description"),
+            synonyms=tuple(spec.get("synonyms") or ()),
         )
 
     relationships = []
@@ -190,8 +229,17 @@ def load(path=None) -> Ontology:
     if not isinstance(priority, list):
         raise OntologyError("`source_priority:` must be a list of source names")
 
+    attributes = {
+        str(label): AttributeGloss(
+            description=gloss.get("description"),
+            synonyms=tuple(gloss.get("synonyms") or ()),
+        )
+        for label, gloss in (doc.get("attributes") or {}).items()
+    }
+
     return Ontology(
         entities=entities,
         relationships=tuple(relationships),
         source_priority=tuple(str(s) for s in priority),
+        attributes=attributes,
     )

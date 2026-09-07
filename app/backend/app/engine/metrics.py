@@ -1,17 +1,56 @@
 import math
 import re
+from datetime import UTC, date, datetime, timedelta
 
 from sqlalchemy import func, select
 
 from app.caches import DEFINITIONS_DIR, load_mapping
-from app.engine import transforms
+from app.engine import derived, ontology, transforms
 from app.enrichment import vocabulary
-from app.models import EnrichedFact, EntityCanonical, FactCurrent, MetricSnapshot
+from app.models import (
+    CanonicalLink,
+    EnrichedFact,
+    EntityCanonical,
+    FactCurrent,
+    MetricSnapshot,
+)
 
 DEFAULT_METRICS = DEFINITIONS_DIR / "metrics.yaml"
 
 _AGG_RE = re.compile(r"^(COUNT_DISTINCT|SUM|AVG|COUNT)\((\w+)\)$")
 _ATTR_RE = re.compile(r"^\w+$")
+PATH_RE = re.compile(r"^(\w+)\.(\w+)$")
+_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}")
+
+SPEC_KEYS = frozenset(
+    {
+        "label",
+        "description",
+        "synonyms",
+        "entity",
+        "expression",
+        "filter",
+        "source",
+        "inferred",
+        "reading",
+        "population",
+        "op",
+        "terms",
+        "group_by",
+        "grain",
+        "window_days",
+        "window_attr",
+        "window_direction",
+    }
+)
+
+TERM_KEYS = frozenset({"expression", "filter", "source", "entity"})
+
+GRAINS = ("day", "week", "month", "quarter", "year")
+
+TRAILING, FORWARD = "trailing", "forward"
+
+DIRECTIONS = (FORWARD, TRAILING)
 
 ID_CHUNK = 8000
 
@@ -25,14 +64,6 @@ class MetricSpecError(ValueError):
 
 def load_definitions(path=None) -> dict:
     return load_mapping(path or DEFAULT_METRICS, MetricSpecError)
-
-
-def money_labels(path=None) -> set:
-    return {
-        label
-        for label, fn in transforms.load_map(path).items()
-        if fn == "normalize_money"
-    }
 
 
 def _parse_expression(expression) -> dict:
@@ -52,6 +83,11 @@ def parse_terms(spec) -> tuple:
         raise MetricSpecError(f"op {op!r} is not supported — the only ratio op is '/'")
     parsed = []
     for term in spec["terms"]:
+        unknown = sorted(set(term) - TERM_KEYS)
+        if unknown:
+            raise MetricSpecError(
+                f"unknown key {unknown[0]!r} on a term — known: {sorted(TERM_KEYS)}"
+            )
         entry = _parse_expression(term.get("expression"))
         entry["filter"] = term["filter"] if "filter" in term else spec.get("filter")
         if "source" in term:
@@ -121,6 +157,11 @@ def _validate_enriched_term(spec, term, reading) -> None:
 def parse_spec(spec) -> dict:
     if not isinstance(spec, dict):
         raise MetricSpecError("metric spec must be a mapping")
+    unknown = sorted(set(spec) - SPEC_KEYS)
+    if unknown:
+        raise MetricSpecError(
+            f"unknown key {unknown[0]!r} — known: {sorted(SPEC_KEYS)}"
+        )
     terms, op = parse_terms(spec)
     if not spec.get("entity"):
         raise MetricSpecError("metric is missing `entity`")
@@ -137,6 +178,18 @@ def parse_spec(spec) -> dict:
                 "canonical attr holds one current value per entity, so COUNT "
                 "already counts distinct entities"
             )
+    group_by = spec.get("group_by")
+    if group_by is not None:
+        if len({term.get("entity") or spec["entity"] for term in terms}) > 1:
+            raise MetricSpecError(
+                "group_by over a cross-entity ratio is not defined — the two "
+                "terms count different kinds of thing"
+            )
+        if not (_ATTR_RE.match(str(group_by)) or PATH_RE.match(str(group_by))):
+            raise MetricSpecError(
+                f"group_by {group_by!r} must be `attr` or `entity.attr`"
+            )
+
     if op:
         signatures = [
             (
@@ -182,12 +235,148 @@ def parse_spec(spec) -> dict:
         population = str(spec.get("population") or "read")
         if population not in ("read", "all"):
             raise MetricSpecError(f"population {population!r} must be `read` or `all`")
+        fields = {field.name: field for field in reading.fields}
+        if str(group_by) in fields and fields[str(group_by)].kind == "many_of":
+            raise MetricSpecError(
+                f"group_by {group_by!r} is a many_of field — one entity carries "
+                "several labels, so buckets would not sum to the total"
+            )
     elif spec.get("inferred"):
         raise MetricSpecError(
             "`inferred: true` on a metric that touches no reading — the flag "
             "says the number came from a model, and this one did not"
         )
-    return {"terms": terms, "op": op, "inferred": bool(spec.get("inferred"))}
+
+    grain = spec.get("grain")
+    if grain is not None:
+        if group_by is None:
+            raise MetricSpecError(
+                "grain without group_by — a grain buckets a breakdown over a "
+                "date, and there is no breakdown"
+            )
+        if str(grain) not in GRAINS:
+            raise MetricSpecError(f"grain {grain!r} must be one of {list(GRAINS)}")
+
+    window = None
+    window_days = spec.get("window_days")
+    direction = spec.get("window_direction")
+    if window_days is not None:
+        if (
+            isinstance(window_days, bool)
+            or not isinstance(window_days, int)
+            or window_days <= 0
+        ):
+            raise MetricSpecError(
+                f"window_days {window_days!r} must be a positive integer"
+            )
+        if not spec.get("window_attr"):
+            raise MetricSpecError(
+                "window_days needs window_attr — the business-time attr the "
+                "window is measured on"
+            )
+        if direction is not None and str(direction) not in DIRECTIONS:
+            raise MetricSpecError(
+                f"window_direction {direction!r} must be one of {sorted(DIRECTIONS)}"
+            )
+        window = {
+            "days": window_days,
+            "attr": str(spec["window_attr"]),
+            "direction": str(direction or TRAILING),
+        }
+    elif direction is not None:
+        raise MetricSpecError(
+            "window_direction without window_days — a direction with no span "
+            "does not describe a window"
+        )
+
+    return {
+        "terms": terms,
+        "op": op,
+        "inferred": bool(spec.get("inferred")),
+        "group_by": str(group_by) if group_by is not None else None,
+        "grain": str(grain) if grain is not None else None,
+        "window": window,
+    }
+
+
+def window_bounds(window_days, direction, now) -> tuple:
+    span = timedelta(days=int(window_days) - 1)
+    if direction == FORWARD:
+        return now.date().isoformat(), (now + span).date().isoformat()
+    return (now - span).date().isoformat(), now.date().isoformat()
+
+
+def _bucket(value, grain) -> str | None:
+    try:
+        day = date.fromisoformat(str(value)[:10])
+    except ValueError:
+        return None
+    if grain == "day":
+        return day.isoformat()
+    if grain == "week":
+        year, week, _weekday = day.isocalendar()
+        return f"{year}-W{week:02d}"
+    if grain == "month":
+        return f"{day:%Y-%m}"
+    if grain == "quarter":
+        return f"{day.year}-Q{(day.month - 1) // 3 + 1}"
+    return str(day.year)
+
+
+def validate_dimensions(spec, onto, attrs_of) -> list[str]:
+    problems: list[str] = []
+    entity = str(spec.get("entity"))
+    attrs = attrs_of(entity)
+    group_by = spec.get("group_by")
+    grain = spec.get("grain")
+    kind = None
+    if spec.get("inferred"):
+        reading = vocabulary.load()[str(spec.get("reading") or "")]
+        if str(group_by) in {field.name for field in reading.fields}:
+            group_by = None
+    if group_by:
+        path = PATH_RE.match(str(group_by))
+        if path:
+            target, attr = path.group(1), path.group(2)
+            edges = [r for r in onto.relationships_from(entity) if r.to_type == target]
+            safe = [r for r in edges if r.cardinality in ontology.SAFE_FOR_GROUP_BY]
+            if not edges:
+                problems.append(
+                    f"group_by {group_by!r} walks no declared edge from "
+                    f"{entity} to {target}"
+                )
+            elif not safe:
+                problems.append(
+                    f"group_by {group_by!r} walks a {edges[0].cardinality} edge "
+                    "— a breakdown over a fan-out edge double-counts by "
+                    "construction"
+                )
+            elif attr not in attrs_of(target):
+                problems.append(
+                    f"group_by {group_by!r} — {attr!r} is not an attr of {target}"
+                )
+            else:
+                kind = attrs_of(target)[attr]
+        elif str(group_by) not in attrs:
+            problems.append(f"group_by {group_by!r} is not an attr of {entity}")
+        else:
+            kind = attrs[str(group_by)]
+    if kind == "date":
+        if not grain:
+            problems.append(
+                f"group_by {group_by!r} is a date — a breakdown over a date needs grain"
+            )
+    elif kind is not None and grain:
+        problems.append(f"grain {grain!r} on {group_by!r}, which is {kind}, not a date")
+    window_attr = spec.get("window_attr")
+    if window_attr:
+        if str(window_attr) not in attrs:
+            problems.append(f"window_attr {window_attr!r} is not an attr of {entity}")
+        elif attrs[str(window_attr)] != "date":
+            problems.append(
+                f"window_attr {window_attr!r} is {attrs[str(window_attr)]}, not a date"
+            )
+    return problems
 
 
 async def _in_chunks(session, ids, build) -> list:
@@ -200,7 +389,7 @@ async def _in_chunks(session, ids, build) -> list:
     return rows
 
 
-async def _ids_for(session, entity_type: str, filt) -> tuple:
+async def _ids_for(session, entity_type: str, filt, window) -> tuple:
     notes: dict = {}
     ids = {
         r[0]
@@ -213,6 +402,26 @@ async def _ids_for(session, entity_type: str, filt) -> tuple:
         ).all()
     }
     notes["population_size"] = len(ids)
+    if window:
+        inside, bad = set(), 0
+        rows = (
+            await session.execute(
+                select(FactCurrent.canonical_id, FactCurrent.value).where(
+                    FactCurrent.attr == window["attr"],
+                    FactCurrent.entity_type == entity_type,
+                )
+            )
+        ).all()
+        for canonical_id, value in rows:
+            text = str(value).strip()
+            if not _DATE_RE.match(text):
+                bad += 1
+                continue
+            if window["from"] <= text[:10] <= window["to"]:
+                inside.add(canonical_id)
+        if bad:
+            notes["window_bad_values"] = bad
+        ids &= inside
     for attr, value in (filt or {}).items():
         if not ids:
             break
@@ -400,16 +609,21 @@ async def _producers(session, reading, counted) -> list:
     return sorted({f"{model}@{version}" for model, version in stamps})
 
 
-async def _measure(session, spec: dict, terms: list, op, money: set) -> dict:
+async def _measure(session, spec, terms, op, money, window, term_ids=None) -> dict:
     reading = None
     if any(term["source"] == "enriched" for term in terms):
         reading = vocabulary.load()[str(spec.get("reading"))]
         population = str(spec.get("population") or "read")
 
     values, notes_all, entities, measured = [], {}, 0, []
-    for term in terms:
+    for index, term in enumerate(terms):
         entity_type = str(term.get("entity") or spec["entity"])
-        if term["source"] == "enriched":
+        if term_ids is not None:
+            ids, notes = term_ids[index], {}
+            value, agg_notes = await _aggregate_bucket(
+                session, ids, term, reading, money
+            )
+        elif term["source"] == "enriched":
             ids, notes = await _enriched_ids(
                 session, entity_type, term["filter"], reading, population
             )
@@ -417,7 +631,7 @@ async def _measure(session, spec: dict, terms: list, op, money: set) -> dict:
                 session, ids, term["agg"], term["operand"], reading
             )
         else:
-            ids, notes = await _ids_for(session, entity_type, term["filter"])
+            ids, notes = await _ids_for(session, entity_type, term["filter"], window)
             value, agg_notes = await _aggregate(
                 session, ids, term["agg"], term["operand"], money
             )
@@ -438,19 +652,140 @@ async def _measure(session, spec: dict, terms: list, op, money: set) -> dict:
         )
     if entities == 0:
         result["note"] = "no entities matched — no data"
+    result["_term_ids"] = measured
     return result
 
 
-async def evaluate_definitions(session, defs: dict) -> dict:
-    money = money_labels()
+async def _aggregate_bucket(session, ids, term, reading, money) -> tuple:
+    if term["source"] == "enriched":
+        return await _aggregate_enriched(
+            session, ids, term["agg"], term["operand"], reading
+        )
+    return await _aggregate(session, ids, term["agg"], term["operand"], money)
+
+
+async def _group_map(session, onto, entity_type, group_by, reading) -> tuple:
+    path = PATH_RE.match(group_by)
+    if not path:
+        if reading is not None and group_by in {f.name for f in reading.fields}:
+            query = select(EnrichedFact.canonical_id, EnrichedFact.value).where(
+                EnrichedFact.attr == group_by,
+                EnrichedFact.reading == reading.name,
+                EnrichedFact.vocabulary_sha == reading.sha,
+            )
+        else:
+            query = select(FactCurrent.canonical_id, FactCurrent.value).where(
+                FactCurrent.attr == group_by,
+                FactCurrent.entity_type == entity_type,
+            )
+        return dict((await session.execute(query)).all()), None
+
+    target_type, attr = path.group(1), path.group(2)
+    edges = [
+        r
+        for r in onto.relationships_from(entity_type)
+        if r.to_type == target_type and r.cardinality in ontology.SAFE_FOR_GROUP_BY
+    ]
+    if not edges:
+        raise MetricSpecError(
+            f"group_by {group_by!r} walks no declared edge from {entity_type} "
+            f"to {target_type} with a cardinality that cannot fan out"
+        )
+    rel = edges[0].rel
+    links = (
+        await session.execute(
+            select(CanonicalLink.from_canonical, CanonicalLink.to_canonical).where(
+                CanonicalLink.rel == rel
+            )
+        )
+    ).all()
+    values = dict(
+        (
+            await session.execute(
+                select(FactCurrent.canonical_id, FactCurrent.value).where(
+                    FactCurrent.attr == attr,
+                    FactCurrent.entity_type == target_type,
+                )
+            )
+        ).all()
+    )
+    return {source: values[target] for source, target in links if target in values}, rel
+
+
+async def _breakdown(session, onto, spec, parsed, money, window, term_ids) -> dict:
+    reading = None
+    if parsed["inferred"]:
+        reading = vocabulary.load()[str(spec.get("reading"))]
+    mapping, via = await _group_map(
+        session, onto, str(spec["entity"]), parsed["group_by"], reading
+    )
+    grain = parsed["grain"]
+    measured = set().union(*term_ids)
+    buckets: dict = {}
+    unbucketed = 0
+    for canonical_id, value in mapping.items():
+        if canonical_id not in measured:
+            continue
+        key = _bucket(value, grain) if grain else value
+        if key is None:
+            unbucketed += 1
+            continue
+        buckets.setdefault(key, set()).add(canonical_id)
+
+    out: dict = {"group_by": parsed["group_by"], "breakdown": {}}
+    for key in sorted(buckets):
+        bucket = await _measure(
+            session,
+            spec,
+            parsed["terms"],
+            parsed["op"],
+            money,
+            window,
+            term_ids=[ids & buckets[key] for ids in term_ids],
+        )
+        out["breakdown"][key] = bucket["value"]
+    if grain:
+        out["grain"] = grain
+    if via:
+        out["group_by_via"] = via
+    ungrouped = len(measured) - sum(len(ids) for ids in buckets.values())
+    if ungrouped > 0:
+        out["ungrouped_entities"] = ungrouped
+    if unbucketed:
+        out["group_bad_values"] = unbucketed
+    return out
+
+
+async def evaluate_definitions(session, defs: dict, now=None) -> dict:
+    onto = ontology.load()
+    money = transforms.money_labels()
+    now = now or datetime.now(UTC)
     out: dict = {}
     for name, spec in defs.items():
         label = spec.get("label", name) if isinstance(spec, dict) else name
         try:
             parsed = parse_spec(spec)
-            result = await _measure(session, spec, parsed["terms"], parsed["op"], money)
+            window = parsed["window"]
+            if window:
+                low, high = window_bounds(window["days"], window["direction"], now)
+                window = {**window, "from": low, "to": high}
+            result = await _measure(
+                session, spec, parsed["terms"], parsed["op"], money, window
+            )
+            term_ids = result.pop("_term_ids")
             result["label"] = label
             result["entity"] = spec.get("entity")
+            if window:
+                result["window_days"] = window["days"]
+                result["window_direction"] = window["direction"]
+                result["window_from"] = window["from"]
+                result["window_to"] = window["to"]
+            if parsed["group_by"]:
+                result.update(
+                    await _breakdown(
+                        session, onto, spec, parsed, money, window, term_ids
+                    )
+                )
             out[name] = result
         except MetricSpecError as e:
             out[name] = {"error": str(e), "label": label}
@@ -463,8 +798,8 @@ async def evaluate_definitions(session, defs: dict) -> dict:
     return out
 
 
-async def evaluate(session) -> dict:
-    return await evaluate_definitions(session, load_definitions())
+async def evaluate(session, now=None) -> dict:
+    return await evaluate_definitions(session, load_definitions(), now=now)
 
 
 async def record_snapshots(session) -> int:
@@ -544,10 +879,20 @@ async def history(session, metric: str, limit: int = 500) -> dict:
     }
 
 
+def _mapped_pairs(specs, entity, attr) -> set:
+    spec = (specs.get(entity) or {}).get(attr)
+    if spec is None:
+        return {(entity, attr)}
+    parsed = derived.parse(spec)
+    named = [*parsed["filter"], *([parsed["attr"]] if parsed["attr"] else [])]
+    return {(parsed["entity"], str(name)) for name in named}
+
+
 def provenance(defs: dict, lines) -> dict:
     by_entity_label: dict = {}
     for line in lines:
         by_entity_label.setdefault((line.entity, line.label), []).append(line)
+    specs = derived.load()
 
     out: dict = {}
     for name, spec in defs.items():
@@ -583,10 +928,21 @@ def provenance(defs: dict, lines) -> dict:
                 wanted.add((entity, term["operand"]))
             for attr in term["filter"] or {}:
                 wanted.add((entity, str(attr)))
+        if parsed["window"]:
+            wanted.add((spec.get("entity"), parsed["window"]["attr"]))
+        if parsed["group_by"]:
+            path = PATH_RE.match(parsed["group_by"])
+            if path:
+                wanted.add((path.group(1), path.group(2)))
+            else:
+                wanted.add((spec.get("entity"), parsed["group_by"]))
+        mapped: set = set()
+        for pair in wanted:
+            mapped |= _mapped_pairs(specs, *pair)
         fields = sorted(
             {
                 f"{line.source}.{line.object_type}.{'.'.join(line.path)}"
-                for key in wanted
+                for key in mapped
                 for line in by_entity_label.get(key, [])
             }
         )

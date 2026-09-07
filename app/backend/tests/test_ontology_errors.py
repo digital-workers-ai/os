@@ -267,3 +267,87 @@ class TestCandidates:
     def test_an_entity_without_the_block_has_none(self):
         assert ont.load().candidates("company") is None
         assert ont.load().candidates("unicorn") is None
+
+
+class TestGlossary:
+    def test_an_entity_carries_its_description_and_synonyms(self, tmp_path):
+        doc = a_doc()
+        doc["entities"]["company"].update(
+            {
+                "description": "A customer organization.",
+                "synonyms": ["client", "account"],
+            }
+        )
+        spec = ont.load(write(tmp_path, doc)).entities["company"]
+        assert spec.description == "A customer organization."
+        assert spec.synonyms == ("client", "account")
+
+    def test_an_entity_with_no_glossary_carries_none_of_it(self, tmp_path):
+        spec = ont.load(write(tmp_path, a_doc())).entities["company"]
+        assert spec.description is None
+        assert spec.synonyms == ()
+
+    def test_the_attributes_block_lands_on_the_ontology(self, tmp_path):
+        doc = a_doc(
+            attributes={
+                "domain": {
+                    "description": "The company's web domain.",
+                    "synonyms": ["website", "url"],
+                }
+            }
+        )
+        gloss = ont.load(write(tmp_path, doc)).attributes["domain"]
+        assert gloss.description == "The company's web domain."
+        assert gloss.synonyms == ("website", "url")
+
+    def test_an_attribute_with_no_synonyms_carries_an_empty_tuple(self, tmp_path):
+        doc = a_doc(attributes={"domain": {"description": "The web domain."}})
+        assert ont.load(write(tmp_path, doc)).attributes["domain"].synonyms == ()
+
+
+class TestClosedKeys:
+    def test_an_unknown_key_on_an_entity_is_refused(self, tmp_path):
+        doc = a_doc()
+        doc["entities"]["company"]["descr"] = "a customer"
+        with pytest.raises(ont.OntologyError, match="unknown key"):
+            ont.load(write(tmp_path, doc))
+
+    def test_an_unknown_top_level_key_is_refused(self, tmp_path):
+        with pytest.raises(ont.OntologyError, match="unknown key"):
+            ont.load(write(tmp_path, a_doc(attribtues={})))
+
+
+class TestEdgesLeavingAnEntity:
+    def test_relationships_from_names_only_the_edges_that_leave(self, tmp_path):
+        doc = a_doc(
+            relationships=[
+                {
+                    "rel": "belongs_to",
+                    "from": "deal",
+                    "to": "company",
+                    "cardinality": "many_to_one",
+                    "via": "account_ref",
+                },
+                {
+                    "rel": "same_as",
+                    "from": "company",
+                    "to": "company",
+                    "cardinality": "one_to_one",
+                    "match": "domain",
+                },
+            ]
+        )
+        doc["entities"]["deal"] = {
+            "attrs": {"amount": "number", "account_ref": "string"}
+        }
+        loaded = ont.load(write(tmp_path, doc))
+        assert [(r.rel, r.to_type) for r in loaded.relationships_from("deal")] == [
+            ("belongs_to", "company")
+        ]
+
+    def test_the_shipped_subscription_leaves_by_one_edge(self):
+        edges = ont.load().relationships_from("subscription")
+        assert [(r.rel, r.to_type) for r in edges] == [("belongs_to", "company")]
+
+    def test_the_safe_cardinalities_are_the_ones_that_do_not_fan_out(self):
+        assert ont.SAFE_FOR_GROUP_BY == ("many_to_one", "one_to_one")

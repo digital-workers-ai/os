@@ -246,6 +246,7 @@ async def get_entity(canonical_id: str, session=Depends(get_session)):
                 "raw_event_id": str(f.raw_event_id) if f.raw_event_id else None,
                 "observed_at": f.observed_at.isoformat(),
                 "disagreements": f.disagreements,
+                "derived": f.entity_id is None,
             }
             for f, source in facts
         ],

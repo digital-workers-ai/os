@@ -1144,6 +1144,28 @@ class TestQueryDefinitions:
             "evidence": "label=MRR",
         }
 
+    async def test_a_metric_is_found_by_a_business_synonym(self, session):
+        await search.index(session)
+        found = of_kind(await search.query(session, "revenue"), "metric")
+        assert "mrr" in [hit["id"] for hit in found]
+
+    async def test_an_entity_type_is_found_by_a_business_synonym(self, session):
+        await search.index(session)
+        found = of_kind(await search.query(session, "clients"), "entity_type")
+        assert [hit["id"] for hit in found] == ["company"]
+
+    async def test_a_plural_query_finds_the_singular_definition(self, session):
+        singular = of_kind(await search.query(session, "ticket"), "entity_type")
+        plural = of_kind(await search.query(session, "tickets"), "entity_type")
+        assert [h["id"] for h in singular] == [h["id"] for h in plural] == ["ticket"]
+
+    def test_a_short_token_is_never_stripped_to_a_letter(self):
+        assert search._names("open ticket", "tickets")
+        assert not search._names("a company", "as")
+
+    async def test_a_plural_of_nothing_still_matches_nothing(self, session):
+        assert of_kind(await search.query(session, "unicorns"), "entity_type") == []
+
     async def test_every_token_must_be_in_the_text(self, session):
         result = await search.query(session, "average mrr")
         assert [h["id"] for h in of_kind(result, "metric")] == ["avg_mrr"]

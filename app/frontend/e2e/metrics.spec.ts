@@ -46,7 +46,7 @@ const title = (page: Page) => page.getByTestId('series-title')
 
 test('nothing selected', async ({ page }) => {
   await visit(page, '/metrics')
-  await expect(header(page.getByTestId('metrics-table'), 'Metric (14)')).toBeVisible()
+  await expect(header(page.getByTestId('metrics-table'), 'Metric (21)')).toBeVisible()
   await expect(page.getByTestId('series').getByTestId('empty')).toHaveText('select a metric')
   await snap(page, 'metrics-default')
 })
@@ -61,6 +61,16 @@ test('row selected', async ({ page }) => {
   await expect(title(page)).toHaveText(label)
   await expect(header(page.getByTestId('series-table'), 'Value')).toBeVisible()
   await snap(page, 'metrics-selected')
+})
+
+test('breakdown', async ({ page }) => {
+  await mockSeries(page)
+  await visit(page, '/metrics?metric=mrr_by_industry')
+  const breakdown = page.getByTestId('series-breakdown-table')
+  await expect(breakdown).toBeVisible()
+  expect(await breakdown.locator('tbody tr').count()).toBeGreaterThan(0)
+  await expect(page.getByTestId('series-actions').getByText('by company.industry')).toBeVisible()
+  await snap(page, 'metrics-breakdown')
 })
 
 test('warning row', async ({ page }) => {

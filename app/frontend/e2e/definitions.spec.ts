@@ -22,6 +22,7 @@ test('ontology', async ({ page }) => {
     'When sources disagree on an attribute, the most recently observed value wins.',
   )
   await expect(counted(table(page, 'definitions-ontology'), 'Entity')).toBeVisible()
+  await expect(header(table(page, 'definitions-ontology'), 'Meaning')).toBeVisible()
   await expect(counted(table(page, 'definitions-relationships'), 'Relationship')).toBeVisible()
   await expect(table(page, 'definitions-ontology').getByText('person', { exact: true }).first()).toBeVisible()
   await snap(page, 'definitions-ontology')
@@ -87,7 +88,15 @@ test('transforms pager', async ({ page }) => {
 test('metrics', async ({ page }) => {
   await openTab(page, 'metrics')
   await expect(counted(table(page, 'definitions-metrics'), 'Metric')).toBeVisible()
+  await expect(header(table(page, 'definitions-metrics'), 'Meaning')).toBeVisible()
   await snap(page, 'definitions-metrics')
+})
+
+test('derived', async ({ page }) => {
+  await openTab(page, 'derived')
+  await expect(counted(table(page, 'definitions-derived'), 'Derived fact')).toBeVisible()
+  await expect(header(table(page, 'definitions-derived'), 'Meaning')).toBeVisible()
+  await snap(page, 'definitions-derived')
 })
 
 test('rules', async ({ page }) => {

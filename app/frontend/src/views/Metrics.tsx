@@ -23,6 +23,7 @@ interface InferredFrom {
 
 interface MetricRow {
   label: string
+  description?: string | null
   entity?: string
   value?: number | null
   entities?: number
@@ -38,6 +39,17 @@ interface MetricRow {
   raw_fields?: string[]
   attrs?: string[]
   inferred_from?: InferredFrom
+  group_by?: string
+  grain?: string
+  group_by_via?: string
+  breakdown?: Record<string, number | null>
+  ungrouped_entities?: number
+  group_bad_values?: number
+  window_days?: number
+  window_direction?: string
+  window_from?: string
+  window_to?: string
+  window_bad_values?: number
 }
 
 interface MetricsResponse {
@@ -134,6 +146,56 @@ function Sparkline({ points }: { points: Point[] }) {
         </circle>
       ))}
     </svg>
+  )
+}
+
+function slicePills(m: MetricRow) {
+  if (!m.group_by && !m.window_days) return undefined
+  return (
+    <span className="inline-flex flex-wrap items-center gap-1.5">
+      {m.group_by ? <Pill>{`by ${m.group_by}${m.grain ? ` · ${m.grain}` : ''}`}</Pill> : null}
+      {m.window_days ? <Pill>{`${num(m.window_days)}d ${m.window_direction}`}</Pill> : null}
+    </span>
+  )
+}
+
+function Breakdown({ m }: { m: MetricRow }) {
+  const buckets = Object.entries(m.breakdown ?? {})
+  if (buckets.length === 0) return null
+  const top = Math.max(0, ...buckets.map(([, v]) => v ?? 0))
+  const notes: string[] = []
+  if (m.group_by_via) notes.push(`walks ${m.group_by_via}`)
+  if (m.ungrouped_entities) notes.push(`${num(m.ungrouped_entities)} without a value`)
+  if (m.group_bad_values) notes.push(`${num(m.group_bad_values)} unreadable dates`)
+  return (
+    <Section title="Breakdown" testId="series-breakdown">
+      <Table className="table-fixed" data-testid="series-breakdown-table">
+        <TableHeader>
+          <TableRow>
+            <TableHead hint="Which group this row covers">Bucket</TableHead>
+            <TableHead className="w-48 text-right" hint="The metric's value inside this group">Value</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {buckets.map(([bucket, value]) => (
+            <TableRow key={bucket}>
+              <TableCell className="break-words text-dbb-charcoal">{bucket}</TableCell>
+              <TableCell className="text-right">
+                <span className="inline-flex items-center gap-2">
+                  <span className="block h-1.5 w-16 rounded-full bg-dbb-sand">
+                    <span className="block h-full rounded-full bg-dbb-charcoal" style={{ width: `${top > 0 ? ((value ?? 0) / top) * 100 : 0}%` }} />
+                  </span>
+                  <span className="tabular-nums text-dbb-charcoal">
+                    <Value value={value} />
+                  </span>
+                </span>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      {notes.length > 0 && <p className="mt-3 text-xs text-dbb-muted">{notes.join(' · ')}</p>}
+    </Section>
   )
 }
 
@@ -277,7 +339,14 @@ export function Metrics() {
           <ErrorBanner error={seriesError} />
         </SectionCard>
       ) : series && seriesRow ? (
-        <SectionCard title={seriesRow.label} className={`min-w-0 ${CAP}`} bodyClassName={BODY} testId="series">
+        <SectionCard
+          title={seriesRow.label}
+          description={seriesRow.description}
+          headerRight={slicePills(seriesRow)}
+          className={`min-w-0 ${CAP}`}
+          bodyClassName={BODY}
+          testId="series"
+        >
           {seriesRow.error && (
             <Banner tone="err" className="mb-3" testId="series-error">
               {seriesRow.error}
@@ -291,6 +360,7 @@ export function Metrics() {
               {seriesRow.note}
             </Banner>
           )}
+          <Breakdown m={seriesRow} />
           {series.runs.map((run, i) => <RunSection key={i} run={run} />)}
           <Section title="Receipts" testId="series-receipts">
             <p className="mb-3 text-sm text-dbb-muted">

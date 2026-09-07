@@ -87,7 +87,7 @@ class TestCurrencyLookup:
 
 class TestSnapshotsSkipWhatCannotBeStored:
     async def test_a_metric_that_errored_is_not_snapshotted(self, session, monkeypatch):
-        async def broken(session, defs):
+        async def broken(session, defs, now=None):
             return {
                 "good": {"value": 1, "entities": 1},
                 "bad": {"error": "could not read"},
@@ -97,7 +97,7 @@ class TestSnapshotsSkipWhatCannotBeStored:
         assert await metrics.record_snapshots(session) == 1
 
     async def test_a_non_finite_value_is_not_snapshotted(self, session, monkeypatch):
-        async def broken(session, defs):
+        async def broken(session, defs, now=None):
             return {
                 "good": {"value": 1, "entities": 1},
                 "bad": {"value": float("nan"), "entities": 1},

@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 from fastapi import Depends, Query
 from sqlalchemy import select
 
@@ -6,14 +8,20 @@ from app.db import async_session, get_session
 from app.engine import mappings, metrics
 from app.models import MetricSnapshot
 
+GLOSS_KEYS = ("description", "synonyms")
+
 
 @router.get("")
 async def get_metrics(session=Depends(get_session)):
-    values = await metrics.evaluate(session)
-    lineage = metrics.provenance(metrics.load_definitions(), mappings.load())
+    now = datetime.now(UTC)
+    values = await metrics.evaluate(session, now=now)
+    defs = metrics.load_definitions()
+    lineage = metrics.provenance(defs, mappings.load())
     for name, row in values.items():
+        spec = defs[name]
         row.update(lineage.get(name, {}))
-    return {"metrics": values}
+        row.update({key: spec[key] for key in GLOSS_KEYS if key in spec})
+    return {"as_of": now.isoformat(), "metrics": values}
 
 
 @router.post("/snapshots")

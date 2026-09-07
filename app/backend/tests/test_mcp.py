@@ -19,6 +19,7 @@ TOOLS = {
     "entity_counts",
     "find_entities",
     "get_entity",
+    "slice_metric",
 }
 DEFINITIONS = (
     "ontology",
@@ -29,6 +30,7 @@ DEFINITIONS = (
     "rules",
     "goals",
     "enrichment",
+    "derived",
 )
 URIS = {f"definitions://{name}" for name in DEFINITIONS}
 READ_ONLY = {
@@ -79,7 +81,7 @@ async def _logged(session) -> list[tuple]:
 
 
 class TestTools:
-    async def test_the_six_agent_tools_are_served_read_only(self, client):
+    async def test_the_seven_agent_tools_are_served_read_only(self, client):
         tools = await client.list_tools()
         assert {tool.name for tool in tools} == TOOLS
         assert {tool.name: tool.description for tool in tools} == {
@@ -101,6 +103,7 @@ class TestTools:
             "entity_counts": {},
             "find_entities": {"entity_type": "company", "name": "Acme"},
             "get_entity": {"canonical_id": str(company)},
+            "slice_metric": {"metric": "mrr"},
         }
         for name, arguments in calls.items():
             direct = await agent.HANDLERS[name](session, **arguments)
@@ -125,7 +128,7 @@ class TestTools:
 
 
 class TestResources:
-    async def test_the_eight_definition_files_are_resources(self, client):
+    async def test_the_nine_definition_files_are_resources(self, client):
         resources = await client.list_resources()
         assert {str(resource.uri) for resource in resources} == URIS
         assert {resource.mime_type for resource in resources} == {"application/yaml"}
@@ -184,8 +187,8 @@ class TestHttp:
         assert all(r["name"] and r["description"] for r in body["resources"])
         assert all(prompt["description"] for prompt in body["prompts"])
         assert (len(body["tools"]), len(body["resources"]), len(body["prompts"])) == (
-            6,
-            8,
+            7,
+            9,
             2,
         )
 

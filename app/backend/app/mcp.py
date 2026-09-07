@@ -29,6 +29,7 @@ DEFINITIONS = {
     "rules": "the conditions worth a human's attention, as declared predicates",
     "goals": "the targets the business holds itself to, judged by strategies",
     "enrichment": "the questions a model may ask of declared texts, as readings",
+    "derived": "the cross-entity facts the rebuild computes, as declared rollups",
 }
 
 

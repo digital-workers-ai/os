@@ -11,6 +11,7 @@ import { Chip, Pill, type Tone } from '@/components/ui/pill'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { num } from '@/lib/format'
 import { useScrollTo } from '@/lib/useScrollTo'
 import { useTab } from '@/lib/useTab'
@@ -20,7 +21,12 @@ import { LINK, ROW } from '@/search/vocab'
 import { useLoad } from './inference/shared'
 import { Readings, type Vocabulary } from './inference/Vocabulary'
 
-interface EntitySpec {
+interface Gloss {
+  description?: string | null
+  synonyms?: string[]
+}
+
+interface EntitySpec extends Gloss {
   identity: string[]
   attrs: Record<string, string>
 }
@@ -37,6 +43,7 @@ interface Ontology {
   source_priority: string[]
   entities: Record<string, EntitySpec>
   relationships: Relationship[]
+  attributes?: Record<string, Gloss>
 }
 
 interface MappingLine {
@@ -64,7 +71,7 @@ interface Term {
   filter?: Record<string, string>
 }
 
-interface MetricDef {
+interface MetricDef extends Gloss {
   label: string
   entity: string
   expression?: string
@@ -74,6 +81,11 @@ interface MetricDef {
   reading?: string
   op?: string
   terms?: Term[]
+  group_by?: string
+  grain?: string
+  window_days?: number
+  window_attr?: string
+  window_direction?: string
 }
 
 interface InferredFrom {
@@ -120,6 +132,17 @@ interface GoalDeclaration {
 
 interface Goals {
   goals: Record<string, GoalDeclaration>
+}
+
+interface DerivedSpec extends Gloss {
+  expression: string
+  via: string
+  filter?: Record<string, string>
+  type: string
+}
+
+interface Derived {
+  derived: Record<string, Record<string, DerivedSpec>>
 }
 
 const keyCol = 'font-medium text-dbb-charcoal'
@@ -193,6 +216,46 @@ const expressionText = (m: MetricDef) =>
         .join(` ${m.op ?? '?'} `)
     : (m.expression ?? '')
 
+const dimensionText = (m: MetricDef) =>
+  (m.group_by ? ` by ${m.group_by}${m.grain ? ` · ${m.grain}` : ''}` : '') +
+  (m.window_days ? ` · ${m.window_days}d ${m.window_direction ?? 'trailing'} on ${m.window_attr}` : '')
+
+function Meaning({ gloss }: { gloss: Gloss | undefined }) {
+  const synonyms = gloss?.synonyms ?? []
+  if (!gloss?.description && synonyms.length === 0) return <>—</>
+  return (
+    <span className="flex flex-col items-start gap-1">
+      {gloss?.description && <span>{gloss.description}</span>}
+      {synonyms.length > 0 && (
+        <span className="flex flex-wrap gap-1">
+          {synonyms.map((w) => (
+            <Chip key={w}>{w}</Chip>
+          ))}
+        </span>
+      )}
+    </span>
+  )
+}
+
+function AttributeChip({ attr, type, gloss }: { attr: string; type: string; gloss: Gloss | undefined }) {
+  const chip = (
+    <Chip className="font-mono">
+      <strong>{attr}</strong>:{type}
+    </Chip>
+  )
+  if (!gloss?.description) return chip
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="inline-flex">{chip}</span>
+      </TooltipTrigger>
+      <TooltipContent side="top" className="max-w-xs">
+        {gloss.description}
+      </TooltipContent>
+    </Tooltip>
+  )
+}
+
 function OntologyTab({ o }: { o: Ontology }) {
   const selected = useSelected('definitions-ontology-table', LINK.type)
   const entities = Object.entries(o.entities)
@@ -216,6 +279,7 @@ function OntologyTab({ o }: { o: Ontology }) {
           <TableHeader>
             <TableRow>
               <TableHead hint="One kind of record, with its attribute count">Entity ({num(entities.length)})</TableHead>
+              <TableHead hint="What this kind means and its other names">Meaning</TableHead>
               <TableHead hint="Fields this kind can carry, each with its type">Attributes</TableHead>
               <TableHead hint="Attributes that tell one apart from another">Identity</TableHead>
             </TableRow>
@@ -229,11 +293,12 @@ function OntologyTab({ o }: { o: Ontology }) {
                     <Pill>{name}</Pill> <span className="font-normal text-dbb-muted">{num(attrs.length)}</span>
                   </TableCell>
                   <TableCell className="align-top">
+                    <Meaning gloss={spec} />
+                  </TableCell>
+                  <TableCell className="align-top">
                     <span className="flex flex-wrap gap-1">
                       {attrs.map(([attr, type]) => (
-                        <Chip key={attr} className="font-mono">
-                          <strong>{attr}</strong>:{type}
-                        </Chip>
+                        <AttributeChip key={attr} attr={attr} type={type} gloss={o.attributes?.[attr]} />
                       ))}
                     </span>
                   </TableCell>
@@ -437,12 +502,13 @@ function MetricsTab({ m }: { m: MetricDefinitions }) {
       <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="definitions-metrics-table">
         <TableHeader className={STICKY_HEAD}>
           <TableRow>
-            <TableHead className="w-56" hint="The measure's display name and its internal key">Metric ({num(definitions.length)})</TableHead>
+            <TableHead className="w-48" hint="The measure's display name and its internal key">Metric ({num(definitions.length)})</TableHead>
+            <TableHead className="w-56" hint="What this measure means and its other names">Meaning</TableHead>
             <TableHead className="w-28" hint="The kind of record the measure is computed over">Entity</TableHead>
             <TableHead className="w-64" hint="How the number is computed, like SUM(amount)">Expression</TableHead>
-            <TableHead className="w-48" hint="Only records matching these values are counted">Filter</TableHead>
-            <TableHead className="w-48" hint="Observed from tool data, or inferred by the model">Kind</TableHead>
-            <TableHead className="w-48" hint="The tool fields this number is read from">Raw fields</TableHead>
+            <TableHead className="w-40" hint="Only records matching these values are counted">Filter</TableHead>
+            <TableHead className="w-44" hint="Observed from tool data, or inferred by the model">Kind</TableHead>
+            <TableHead className="w-40" hint="The tool fields this number is read from">Raw fields</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -455,10 +521,13 @@ function MetricsTab({ m }: { m: MetricDefinitions }) {
                   <Mono className="block">{name}</Mono>
                 </TableCell>
                 <TableCell className="align-top">
+                  <Meaning gloss={d} />
+                </TableCell>
+                <TableCell className="align-top">
                   <Pill>{d.entity}</Pill>
                 </TableCell>
                 <TableCell className="align-top">
-                  <Mono>{expressionText(d)}</Mono>
+                  <Mono>{expressionText(d) + dimensionText(d)}</Mono>
                 </TableCell>
                 <TableCell className="align-top">{filterText(d.filter) ? <Mono>{filterText(d.filter)}</Mono> : '—'}</TableCell>
                 <TableCell className="align-top">
@@ -492,6 +561,50 @@ function MetricsTab({ m }: { m: MetricDefinitions }) {
               </TableRow>
             )
           })}
+        </TableBody>
+      </Table>
+    </SectionCard>
+  )
+}
+
+function DerivedTab({ d }: { d: Derived }) {
+  const rows = Object.entries(d.derived)
+    .flatMap(([entity, attrs]) => Object.entries(attrs).map(([attr, spec]) => ({ entity, attr, spec })))
+    .sort((a, b) => a.entity.localeCompare(b.entity) || a.attr.localeCompare(b.attr))
+  return (
+    <SectionCard className={FILL} bodyClassName={BODY} testId="definitions-derived">
+      <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="definitions-derived-table">
+        <TableHeader className={STICKY_HEAD}>
+          <TableRow>
+            <TableHead className="w-40" hint="A fact computed from related records">Derived fact ({num(rows.length)})</TableHead>
+            <TableHead className="w-28" hint="The kind of record the fact is written on">Entity</TableHead>
+            <TableHead className="w-48" hint="How the number is computed, like SUM(amount)">Expression</TableHead>
+            <TableHead className="w-32" hint="The link walked to reach the source records">Via</TableHead>
+            <TableHead className="w-40" hint="Only records matching these values are counted">Filter</TableHead>
+            <TableHead className="w-56" hint="What this fact means and its other names">Meaning</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rows.map(({ entity, attr, spec }) => (
+            <TableRow key={`${entity}.${attr}`}>
+              <TableCell className={cn(keyCol, 'align-top')}>
+                <Mono>{attr}</Mono>
+              </TableCell>
+              <TableCell className="align-top">
+                <Pill>{entity}</Pill>
+              </TableCell>
+              <TableCell className="align-top">
+                <Mono>{spec.expression}</Mono>
+              </TableCell>
+              <TableCell className="align-top">
+                <Mono>{spec.via}</Mono>
+              </TableCell>
+              <TableCell className="align-top">{filterText(spec.filter) ? <Mono>{filterText(spec.filter)}</Mono> : '—'}</TableCell>
+              <TableCell className="align-top">
+                <Meaning gloss={spec} />
+              </TableCell>
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
     </SectionCard>
@@ -611,6 +724,7 @@ export function Definitions() {
   const mappings = useLoad(() => get<Mappings>('/api/definitions/mappings'), [])
   const transforms = useLoad(() => get<Transforms>('/api/definitions/transforms'), [])
   const metrics = useLoad(() => get<MetricDefinitions>('/api/definitions/metrics'), [])
+  const derived = useLoad(() => get<Derived>('/api/definitions/derived'), [])
   const rules = useLoad(() => get<Rules>('/api/definitions/rules'), [])
   const goals = useLoad(() => get<Goals>('/api/definitions/goals'), [])
   const vocabulary = useLoad(() => get<Vocabulary>('/api/enrichment/vocabulary'), [])
@@ -630,6 +744,9 @@ export function Definitions() {
         </TabsTrigger>
         <TabsTrigger value="metrics" data-testid="tab-metrics">
           Metrics
+        </TabsTrigger>
+        <TabsTrigger value="derived" data-testid="tab-derived">
+          Derived
         </TabsTrigger>
         <TabsTrigger value="rules" data-testid="tab-rules">
           Rules
@@ -652,6 +769,9 @@ export function Definitions() {
       </TabsContent>
       <TabsContent value="metrics" className={TAB_FILL} data-testid="tabpanel-metrics">
         <Loaded got={metrics}>{(m) => <MetricsTab m={m} />}</Loaded>
+      </TabsContent>
+      <TabsContent value="derived" className={TAB_FILL} data-testid="tabpanel-derived">
+        <Loaded got={derived}>{(d) => <DerivedTab d={d} />}</Loaded>
       </TabsContent>
       <TabsContent value="rules" className={TAB_FILL} data-testid="tabpanel-rules">
         <Loaded got={rules}>{(r) => <RulesTab r={r} />}</Loaded>

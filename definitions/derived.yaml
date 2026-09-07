@@ -1,0 +1,15 @@
+company:
+  mrr:
+    expression: SUM(subscription.mrr)
+    via: belongs_to
+    filter:
+      status: active
+  open_tickets:
+    expression: COUNT(ticket)
+    via: belongs_to
+    filter:
+      status: open
+person:
+  last_meeting_at:
+    expression: MAX(meeting.started_at)
+    via: attended_by

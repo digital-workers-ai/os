@@ -1,6 +1,6 @@
 import pytest
 
-from app.engine import mappings, metrics
+from app.engine import mappings, metrics, transforms
 
 
 def parse(spec):
@@ -155,7 +155,13 @@ class TestShippedCatalog:
             metrics.parse_spec(spec)
 
     def test_money_labels_are_discovered_from_the_transforms(self):
-        assert metrics.money_labels() == {"amount", "mrr", "price", "spend", "budget"}
+        assert transforms.money_labels() == {
+            "amount",
+            "mrr",
+            "price",
+            "spend",
+            "budget",
+        }
 
 
 class TestProvenance:
@@ -180,3 +186,205 @@ class TestProvenance:
             {"bad": {"entity": "deal", "expression": "MEDIAN(x)"}}, mappings.load()
         )
         assert lineage == {}
+
+
+INFERRED = {
+    "entity": "meeting",
+    "source": "enriched",
+    "inferred": True,
+    "reading": "sales_call",
+    "expression": "COUNT(entity)",
+}
+
+
+def counted(**extra):
+    return {"entity": "subscription", "expression": "COUNT(entity)", **extra}
+
+
+class TestClosedKeySets:
+    def test_the_spec_key_set_names_every_key_a_metric_may_carry(self):
+        assert set(metrics.SPEC_KEYS) == {
+            "label",
+            "description",
+            "synonyms",
+            "entity",
+            "expression",
+            "filter",
+            "source",
+            "inferred",
+            "reading",
+            "population",
+            "op",
+            "terms",
+            "group_by",
+            "grain",
+            "window_days",
+            "window_attr",
+            "window_direction",
+        }
+
+    def test_the_term_key_set_names_every_key_a_term_may_carry(self):
+        assert set(metrics.TERM_KEYS) == {"expression", "filter", "source", "entity"}
+
+    def test_the_grains_are_the_five_calendar_buckets(self):
+        assert metrics.GRAINS == ("day", "week", "month", "quarter", "year")
+
+    def test_an_unknown_top_level_key_is_refused(self):
+        with pytest.raises(metrics.MetricSpecError) as err:
+            parse(counted(groupby="status"))
+        assert "unknown key" in str(err.value)
+        assert "groupby" in str(err.value)
+
+    def test_an_unknown_term_key_is_refused(self):
+        with pytest.raises(metrics.MetricSpecError) as err:
+            parse(
+                {
+                    "entity": "subscription",
+                    "op": "/",
+                    "terms": [
+                        {"expression": "SUM(mrr)", "grouping": "status"},
+                        {"expression": "COUNT(entity)"},
+                    ],
+                }
+            )
+        assert "unknown key" in str(err.value)
+        assert "grouping" in str(err.value)
+
+
+class TestGroupByGrammar:
+    def test_a_plain_attr_is_accepted(self):
+        assert parse(counted(group_by="status"))["group_by"] == "status"
+
+    def test_a_single_hop_path_is_accepted(self):
+        assert parse(counted(group_by="company.industry"))["group_by"] == (
+            "company.industry"
+        )
+
+    def test_a_second_hop_is_refused(self):
+        with pytest.raises(metrics.MetricSpecError) as err:
+            parse(counted(group_by="company.owner.name"))
+        assert "entity.attr" in str(err.value)
+
+    def test_a_breakdown_of_a_cross_entity_ratio_is_refused(self):
+        with pytest.raises(metrics.MetricSpecError) as err:
+            parse(
+                {
+                    "entity": "deal",
+                    "op": "/",
+                    "group_by": "status",
+                    "terms": [
+                        {"entity": "deal", "expression": "COUNT(entity)"},
+                        {"entity": "company", "expression": "COUNT(entity)"},
+                    ],
+                }
+            )
+        assert "cross-entity ratio" in str(err.value)
+
+    def test_a_metric_with_no_breakdown_parses_to_none(self):
+        parsed = parse(counted())
+        assert parsed["group_by"] is None
+        assert parsed["grain"] is None
+
+
+class TestGrainGrammar:
+    @pytest.mark.parametrize("grain", ["day", "week", "month", "quarter", "year"])
+    def test_every_grain_is_accepted(self, grain):
+        parsed = parse(counted(group_by="started_at", grain=grain))
+        assert parsed["grain"] == grain
+
+    def test_a_grain_without_a_breakdown_is_refused(self):
+        with pytest.raises(metrics.MetricSpecError) as err:
+            parse(counted(grain="month"))
+        assert "grain without group_by" in str(err.value)
+
+    def test_a_grain_that_is_not_a_calendar_bucket_is_refused(self):
+        with pytest.raises(metrics.MetricSpecError) as err:
+            parse(counted(group_by="started_at", grain="fortnight"))
+        assert "fortnight" in str(err.value)
+        assert "must be one of" in str(err.value)
+
+
+class TestWindowGrammar:
+    def test_a_window_carries_days_attr_and_a_default_direction(self):
+        parsed = parse(counted(window_days=30, window_attr="started_at"))
+        assert parsed["window"] == {
+            "days": 30,
+            "attr": "started_at",
+            "direction": "trailing",
+        }
+
+    def test_a_metric_with_no_window_parses_to_none(self):
+        assert parse(counted())["window"] is None
+
+    @pytest.mark.parametrize("direction", ["trailing", "forward"])
+    def test_both_directions_are_accepted(self, direction):
+        parsed = parse(
+            counted(window_days=7, window_attr="started_at", window_direction=direction)
+        )
+        assert parsed["window"]["direction"] == direction
+
+    def test_a_window_without_an_attr_to_read_is_refused(self):
+        with pytest.raises(metrics.MetricSpecError) as err:
+            parse(counted(window_days=30))
+        assert "window_days needs window_attr" in str(err.value)
+
+    @pytest.mark.parametrize("days", [0, -3, 1.5, "30", True])
+    def test_a_window_that_is_not_a_positive_whole_number_of_days_is_refused(
+        self, days
+    ):
+        with pytest.raises(metrics.MetricSpecError) as err:
+            parse(counted(window_days=days, window_attr="started_at"))
+        assert "positive integer" in str(err.value)
+
+    def test_a_direction_without_a_window_is_refused(self):
+        with pytest.raises(metrics.MetricSpecError) as err:
+            parse(counted(window_attr="started_at", window_direction="forward"))
+        assert "window_direction without window_days" in str(err.value)
+
+    def test_a_direction_that_is_neither_way_is_refused(self):
+        with pytest.raises(metrics.MetricSpecError) as err:
+            parse(
+                counted(
+                    window_days=30,
+                    window_attr="started_at",
+                    window_direction="sideways",
+                )
+            )
+        assert "sideways" in str(err.value)
+        assert "must be one of" in str(err.value)
+
+
+class TestInferredMetricsKeepTheirLimits:
+    def test_an_inferred_metric_still_refuses_a_window(self):
+        with pytest.raises(metrics.MetricSpecError, match="never ran"):
+            parse({**INFERRED, "window_days": 30, "window_attr": "started_at"})
+        assert parse(INFERRED)["window"] is None
+
+    def test_a_breakdown_over_a_many_of_field_is_refused(self):
+        with pytest.raises(metrics.MetricSpecError) as err:
+            parse({**INFERRED, "group_by": "pain_points"})
+        assert "many_of" in str(err.value)
+
+    def test_a_breakdown_over_a_one_of_field_is_allowed(self):
+        assert parse({**INFERRED, "group_by": "interest"})["group_by"] == "interest"
+
+
+class TestProvenanceOverDimensions:
+    def _lineage(self, spec):
+        return metrics.provenance({"sliced": spec}, mappings.load())["sliced"]
+
+    def test_a_windowed_metric_names_the_attr_the_window_reads(self):
+        lineage = self._lineage(
+            counted(window_days=30, window_attr="started_at"),
+        )
+        assert "subscription.started_at" in lineage["attrs"]
+
+    def test_a_dotted_breakdown_names_the_attr_on_the_far_side(self):
+        lineage = self._lineage(counted(group_by="company.industry"))
+        assert "company.industry" in lineage["attrs"]
+
+    def test_a_plain_breakdown_names_the_attr_it_buckets_on(self):
+        lineage = self._lineage(
+            {"entity": "deal", "expression": "COUNT(entity)", "group_by": "status"}
+        )
+        assert "deal.status" in lineage["attrs"]

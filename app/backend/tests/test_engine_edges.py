@@ -2,7 +2,7 @@ import pytest
 import yaml
 from sqlalchemy.exc import IntegrityError
 
-from app.engine import metrics
+from app.engine import metrics, transforms
 
 
 class TestMetricSpecRefusals:
@@ -31,7 +31,7 @@ class TestMetricSpecRefusals:
         path.write_text(
             yaml.safe_dump({"amount": "normalize_money", "name": "normalize_text"})
         )
-        assert metrics.money_labels(path) == {"amount"}
+        assert transforms.money_labels(path) == {"amount"}
 
 
 class TestMetricArithmeticRefusesNonsense:
