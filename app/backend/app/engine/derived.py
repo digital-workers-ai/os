@@ -6,7 +6,7 @@ from app.engine.survivorship import FoldedFact
 
 DEFAULT_DERIVED = DEFINITIONS_DIR / "derived.yaml"
 
-SPEC_KEYS = frozenset({"description", "synonyms", "expression", "via", "filter"})
+SPEC_KEYS = frozenset({"expression", "via", "filter"})
 
 _OVER_ATTR_RE = re.compile(r"^(SUM|MAX)\((\w+)\.(\w+)\)$")
 _COUNT_RE = re.compile(r"^COUNT\((\w+)\)$")

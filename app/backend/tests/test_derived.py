@@ -97,6 +97,15 @@ class TestTheFile:
         assert set(specs["company"]) == {"mrr", "open_tickets"}
         assert "last_meeting_at" in specs["person"]
 
+    def test_the_shipped_specs_carry_no_gloss_of_their_own(self):
+        keys = {
+            key
+            for attrs in _derived().load().values()
+            for spec in attrs.values()
+            for key in spec
+        }
+        assert keys == {"expression", "via", "filter"}
+
     def test_a_file_that_is_not_a_mapping_is_refused(self, tmp_path):
         path = tmp_path / "derived.yaml"
         path.write_text("- a\n")
@@ -195,6 +204,20 @@ class TestCheck:
         text = _problems(tmp_path, onto, doc)
         assert "unknown key" in text
         assert "where" in text
+
+    def test_a_spec_that_glosses_itself_is_refused(self, tmp_path, onto):
+        doc = {
+            "company": {
+                "mrr": {
+                    **MRR["company"]["mrr"],
+                    "description": "Recurring revenue.",
+                    "synonyms": ["revenue"],
+                }
+            }
+        }
+        text = _problems(tmp_path, onto, doc)
+        assert "unknown key" in text
+        assert "description" in text
 
     def test_a_money_sum_onto_a_target_that_declares_currency_is_refused(
         self, tmp_path, onto
@@ -727,7 +750,35 @@ class TestConsumers:
             "type",
         }
         assert mrr["type"] == "number"
+        assert mrr["description"] == ontology.load().attributes["mrr"].description
+        assert mrr["synonyms"] == []
         assert body["derived"]["person"]["last_meeting_at"]["type"] == "date"
+
+    async def test_the_route_reads_the_gloss_from_the_attributes_map(
+        self, api, tmp_path, monkeypatch
+    ):
+        path = _yaml(
+            tmp_path,
+            {
+                "company": {
+                    "open_tickets": dict(TICKETS["company"]["open_tickets"]),
+                    "open_deals": {"expression": "COUNT(deal)", "via": "belongs_to"},
+                }
+            },
+        )
+        monkeypatch.setattr(_derived(), "DEFAULT_DERIVED", path)
+        body = (await api.get("/api/definitions/derived")).json()["derived"]["company"]
+        assert body["open_tickets"]["description"] == (
+            ontology.load().attributes["open_tickets"].description
+        )
+        assert body["open_deals"] == {
+            "expression": "COUNT(deal)",
+            "via": "belongs_to",
+            "filter": {},
+            "description": None,
+            "synonyms": [],
+            "type": "number",
+        }
 
     def test_provenance_walks_a_derived_attr_to_its_raw_fields(self):
         lineage = metrics.provenance(

@@ -166,8 +166,7 @@ attributes:
   industry:
     description: The sector the company works in, as its records classify it.
   mrr:
-    description: Monthly recurring revenue in the subscription's currency.
-    synonyms: [revenue, run-rate]
+    description: "Monthly recurring revenue: a subscription's own, or the active total across a company's subscriptions."
   status:
     description: Where the record sits in its own lifecycle, folded to one vocabulary.
   category:
@@ -206,6 +205,10 @@ attributes:
     description: The person's job title.
   owner:
     description: Who is accountable for the deal.
+  open_tickets:
+    description: Support tickets raised by the company that are still open.
+  last_meeting_at:
+    description: When the person last attended a meeting.
 
 source_priority:
   - salesforce

@@ -4,6 +4,11 @@ from app.engine import derived, goals, mappings, metrics, ontology, transforms
 from app.sources import hooks
 
 
+def _gloss(glossary, attr) -> dict:
+    gloss = glossary.get(attr) or ontology.AttributeGloss()
+    return {"description": gloss.description, "synonyms": list(gloss.synonyms)}
+
+
 @router.get("/ontology")
 async def get_ontology():
     onto = ontology.load()
@@ -41,6 +46,7 @@ async def get_ontology():
 @router.get("/derived")
 async def get_derived():
     specs = derived.load()
+    glossary = ontology.load().attributes
     types = {entity: derived.types_for(entity) for entity in specs}
     return {
         "derived": {
@@ -49,8 +55,7 @@ async def get_derived():
                     "expression": str(spec.get("expression")),
                     "via": str(spec.get("via")),
                     "filter": spec.get("filter") or {},
-                    "description": spec.get("description"),
-                    "synonyms": list(spec.get("synonyms") or []),
+                    **_gloss(glossary, attr),
                     "type": types[entity].get(attr),
                 }
                 for attr, spec in attrs.items()
