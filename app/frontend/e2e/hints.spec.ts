@@ -1,5 +1,5 @@
 import type { Page, Route } from '@playwright/test'
-import { expect, mockJson, NOW, settle, snap, test, visit } from './fixtures'
+import { expect, mockCandidates, mockJson, NOW, settle, snap, test, visit } from './fixtures'
 
 const DEFINITIONS: Record<string, string[]> = {
   ontology: ['definitions-ontology-table', 'definitions-relationships-table'],
@@ -89,6 +89,7 @@ test('metrics', async ({ page }) => {
 
 test('entities', async ({ page }) => {
   test.slow()
+  await mockCandidates(page)
   await visit(page, '/entities')
   await expect(page.getByTestId('entities-table')).toBeVisible()
   await audit(page, 'entities canonical')
@@ -102,6 +103,9 @@ test('entities', async ({ page }) => {
   await openTab(page, 'visualize')
   await expect(page.getByTestId('visualize-table')).toBeVisible()
   await audit(page, 'entities visualize')
+  await openTab(page, 'review')
+  await expect(page.getByTestId('review-table')).toBeVisible()
+  await audit(page, 'entities review')
 })
 
 test('ai', async ({ page }) => {

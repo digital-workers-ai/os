@@ -313,3 +313,31 @@ class McpCall(Base):
     duration_ms = Column(Integer, nullable=False, server_default=text("0"))  # call wall time: 12, 3400
     error = Column(Text)  # failure detail: "Error calling tool 'get_goals': down", null
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # call timestamp: server now(), 2026-09-04T12:00:00Z
+
+
+class MergeCandidate(Base):
+    __tablename__ = "merge_candidate"
+
+    seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic candidate counter: 1, 2, 3
+    entity_type = Column(String(64), nullable=False)  # ontology entity kind: person
+    left_anchor = Column(String(512), nullable=False)  # lower record key of pair: intercom|person|con_1
+    right_anchor = Column(String(512), nullable=False)  # higher record key of pair: zendesk|person|u_1
+    score = Column(Float, nullable=False)  # name similarity: 0.8, 0.93, 1.0
+    status = Column(String(16), nullable=False, server_default=text("'pending'"))  # review state: pending, confirmed, rejected
+    evidence_holds = Column(Boolean, nullable=False, server_default=text("true"))  # corroboration still agrees: true, false
+    decided_at = Column(DateTime(timezone=True))  # when reviewed, null pending: 2026-09-04T12:00:00Z, null
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: server now(), 2026-08-30T12:00:00Z
+
+    __table_args__ = (
+        UniqueConstraint("entity_type", "left_anchor", "right_anchor", name="merge_candidate_pair"),
+    )
+
+
+class MergeCandidateEvidence(Base):
+    __tablename__ = "merge_candidate_evidence"
+
+    seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic evidence counter: 1, 2, 3
+    candidate_seq = Column(BigInteger, ForeignKey("merge_candidate.seq", ondelete="CASCADE"), nullable=False)  # owning candidate: 1, 42
+    attr = Column(String(64), nullable=False)  # what agreed: name, phone, email_domain
+    left_value = Column(Text, nullable=False)  # left record's value: "C Chinchilla", "+14155550101"
+    right_value = Column(Text, nullable=False)  # right record's value: "Carlos Ch", "+14155550101"

@@ -18,6 +18,108 @@ Think of `raw_event` as the enrollment book: every record ever seen is in it, pe
 
 **Resolution guards** — the rules that keep merging honest, each aimed at a trap real estates set. Beyond the blocklists: **bucket quarantine** — if one tool has *two of its own records* sharing a "unique" value (two Stripe customers on one domain), that value clearly identifies nobody, so it's disqualified as merge evidence for everyone; this one statistic took company precision from 0.92 to 1.00 on the adversarial corpus. **One record per source** — a cluster never absorbs a second record from the same tool: if HubSpot itself thinks they're two people, we don't overrule it. **Corroboration** — a tenant-scoped id (`external_ref`, marked `identity_scope: tenant` in the ontology) is trusted between two tools only where other evidence confirms they share a numbering scheme; no confirmation means no merge, never benefit of the doubt. The guards are measured, not assumed: a vendored adversarial corpus scores the resolver on every CI run, with floors of 0.99 company / 0.98 person pairwise precision — quietly breaking a guard fails the build.
 
+**Resolution ladder** — what happens to two records that are not tied by an identifier but look like the same person. Names never merge on their own; they can only nominate. A pair whose names look alike *and* whose records agree on a second, independent attribute (a phone, a non-free email domain) becomes a candidate in the review queue, with its evidence attached. A person confirms or rejects. A confirmed pair merges and is kept across rebuilds; a rejected pair is remembered and never shown again unless someone confirms it later; unmerge returns a confirmed pair to the queue. Every rebuild re-checks the evidence behind each confirmed pair and flags the ones whose evidence has gone, so a human decision can outlive its reason but never silently. The queue is also the label set: once a pattern has enough confirmations and no rejections it can be measured on the adversarial corpus and, only then, promoted to automatic.
+
+```
+two records, same kind
+        │
+        ▼
+1. shared identifier?  (email, source id, domain)
+        │ yes ───────────────────────────────────► MERGE, automatic
+        │ no
+        ▼
+2. names look alike?
+        │ no ────────────────────────────────────► two entities
+        │ yes
+        ▼
+3. a second attribute agrees?  (phone, email domain)
+        │ no ────────────────────────────────────► two entities
+        │ yes
+        ▼
+4. REVIEW QUEUE  pair + evidence
+        │
+   ┌────┴─────┐
+   ▼          ▼
+confirm     reject
+   │          │
+   ▼          ▼
+MERGE       two entities, remembered
+(human, survives rebuilds; unmerge sends it back to 4)
+   │
+   ▼
+5. every rebuild re-checks the evidence
+        │ still holds ────────────────────────────► keep
+        │ gone ──────────────────────────────────► flagged for a look
+        │
+        ▼
+6. confirmations accumulate → measure the pattern → promote to step 1
+```
+
+**Candidates, declared** — the ladder is switched on per entity kind in `ontology.yaml`. The person entity reads:
+
+```yaml
+person:
+  attrs: { email, name, phone, title, external_ref }
+  identity: [email, external_ref]
+  candidates:
+    name: name
+    corroborate:
+      - phone
+      - email_domain
+```
+
+Three parts: `identity` is unchanged, it is what merges automatically; `name` names the attribute whose values get compared; `corroborate` lists what can back a name up.
+
+How the engine reads it, per pair of records not already in one cluster:
+
+1. Compare the two `name` values. Not alike: stop.
+2. For each corroborator, derive a key from each record and compare.
+3. One key agrees: the pair is a candidate, that agreement is its evidence.
+4. None agree: stop, two entities.
+
+Keys are normalized so the comparison is honest: `phone` keeps digits only and drops a leading US 1; `email_domain` is a virtual attribute, the part of `email` after the `@`, and it counts only when it isn't a free-mail or placeholder domain, the same blocklist the resolver uses. Anything else listed is compared as plain lowercase text.
+
+How "alike" is decided: names are lowercased, stripped of punctuation and split into words, then compared with Python's `difflib.SequenceMatcher`, which is in the standard library, so no dependency and the same answer on every machine. Its `ratio()` is twice the number of matching characters divided by the total length of both strings, from 0 to 1. Two names are alike at 0.8 or above. Because a first name shortened to an initial scores badly on characters, a second rule catches that case: both names have at least two words, the first words start with the same letter, and one last word is a prefix of the other, at least two letters long; that scores 0.8 flat. Some pairs:
+
+```
+carlos chinchilla   carlos chinchilla   1.00   alike
+richard hendricks   rich hendricks      0.90   alike
+jane smith          j smith             0.82   alike
+carlos ch           c chinchilla        0.38   alike by the initial-and-prefix rule
+bob chen            robert chen         0.74   not alike (a nickname map would be needed)
+carlos chinchilla   maria lopez         0.29   not alike
+```
+
+The score is only a nomination. It never merges anything on its own, and a person sees it as the `name` chip on the pair.
+
+Two rules keep it safe: a name alone never counts, and a corroborator alone never counts. Both have to agree. And the build checks refuse a declaration that names an attribute the entity doesn't have.
+
+To extend it, add an attribute to the list. To do companies, give `company` its own block, `name: name` with a corroborator that exists for companies; today they only carry domain, industry and name, and domain is already identity, so companies wait for a corroborator worth trusting.
+
+Five pairs through the ladder:
+
+```
+a. Carlos Ch <carlos@acme.io>          C Chinchilla <carlos@acme.io>
+   step 1: same email                 → merged automatically; the name kept has a receipt
+
+b. Carlos Ch  +1 415 555 0101          C Chinchilla  +1 415 555 0101
+   step 1: no shared id · step 2: alike · step 3: same phone
+                                      → queued → confirmed → merged, kept across rebuilds
+
+c. Carlos Chinchilla (no email)        Carlos Chinchilla <carlos@acme.io>
+   step 1: no · step 2: alike · step 3: nothing else agrees
+                                      → two entities; the first counts as identity_less
+
+d. Bob Chen <bob@acme.io>              Robert Chen <robert@acme.io>
+   step 2: alike (nickname) · step 3: same domain acme.io
+                                      → queued → rejected: two people at Acme
+                                      → remembered, not shown again
+
+e. J. Smith <jane@acme.io>             Jane Smith <jane@acme.io>
+   step 1: merged by email long ago, then HubSpot corrects the first to <john@acme.io>
+   step 5: the shared email is gone   → flagged; the operator unmerges, or reconfirms
+```
+
 **Adversarial corpus** — `mock/adversarial.py`, test-only fixture data the mock server never serves and no production code imports. It lives beside `mock/world.py` and extends it: the same mock universe's companies and people, deliberately corrupted into 890 records across six pretend tools, seeded with 53 collisions — shared agency domains, same-name companies, office mailboxes, recycled ids. Every record carries `.truth`, the id of the real thing it describes, so right and wrong merges are *checkable*, never guessed; fixed random seeds make the corpus byte-identical on every import. The precision test runs each record through the shipped transforms (measuring the real pipeline, not an idealized one), resolves with the real guard settings, and scores the clustering pairwise against `.truth`.
 
 **ER settings** — the resolver's only two knobs, in `app/config.py`, env-overridable per deployment. `ER_BUCKET_CAP` (50): if more than 50 *distinct* tools share one identity value, it's junk — the backstop for the one trap the within-one-source statistic can't see. `ER_ONE_RECORD_PER_SOURCE` (true): the on/off switch for that guard, a boolean because a tenant whose CRM is known to be full of duplicates might legitimately want the resolver to merge through them. The other guards have no knobs on purpose — they compare the data against itself, so there is nothing to calibrate.

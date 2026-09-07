@@ -445,3 +445,49 @@ def resolve(
             key: clusters[resolve_index(i)].canonical_id for key, i in of_record.items()
         },
     }
+
+
+# When a person has confirmed that two records are the same, this joins
+# their two groups. It runs after the automatic merging, so it never
+# changes what the machine decided; it only glues two of its results
+# together. The older group keeps its id, so the same confirmation lands
+# the same way on every rebuild and nothing has to be stored except the
+# decision itself.
+def union(resolution: dict, pairs) -> dict:
+    live = {c.canonical_id: c for c in resolution["clusters"]}
+    of_record, aliases = resolution["of_record"], resolution["aliases"]
+    for seq, left_anchor, right_anchor in pairs:
+        keys = [tuple(anchor.split("|", 2)) for anchor in (left_anchor, right_anchor)]
+        # the cluster each record belongs to right now
+        sides = [live.get(of_record.get(key)) for key in keys]
+        # either record gone, or both already in one cluster
+        if None in sides or sides[0] is sides[1]:
+            continue
+        # survivor: minted earliest, same rule as the resolver, so the anchor and
+        # id stay stable
+        survivor, loser = sorted(sides, key=lambda c: (c.minted_order, c.anchor_key))
+        joined = keys[1] if sides[1] is loser else keys[0]
+        # move the loser's members in; the joined record's evidence says which
+        # candidate a human confirmed
+        survivor.members.update(loser.members)
+        survivor.members[joined] = f"human={seq}"
+        # fold in the loser's sources, drop the loser
+        survivor.sources |= loser.sources
+        del live[loser.canonical_id]
+        # every alias that pointed at the loser now points at the survivor, and
+        # the loser's own id becomes an alias
+        aliases.update(
+            {
+                alias: survivor.canonical_id
+                for alias, target in aliases.items()
+                if target == loser.canonical_id
+            }
+        )
+        aliases[loser.canonical_id] = survivor.canonical_id
+        # repoint the loser's records
+        of_record.update(dict.fromkeys(loser.members, survivor.canonical_id))
+    # only the clusters still alive
+    resolution["clusters"] = [
+        c for c in resolution["clusters"] if c.canonical_id in live
+    ]
+    return resolution

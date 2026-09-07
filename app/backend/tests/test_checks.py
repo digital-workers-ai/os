@@ -221,6 +221,35 @@ class TestEachCheckFires:
         )
         assert any("'unicorn'" in p and "not declared" in p for p in files.problems())
 
+    def test_a_corroborator_the_entity_does_not_carry(self, files):
+        files.edit(
+            "ontology.yaml",
+            lambda d: d["entities"]["person"]["candidates"].update(
+                {"corroborate": ["phone", "fax"]}
+            ),
+        )
+        problems = files.problems()
+        assert any("candidates: person.fax" in p for p in problems), problems
+        assert not any("person.phone" in p for p in problems)
+
+    def test_a_candidate_name_the_entity_does_not_carry(self, files):
+        files.edit(
+            "ontology.yaml",
+            lambda d: d["entities"]["person"]["candidates"].update(
+                {"name": "nickname"}
+            ),
+        )
+        assert any("candidates: person.nickname" in p for p in files.problems())
+
+    def test_a_virtual_corroborator_passes_on_its_base_attr(self, files):
+        files.edit(
+            "ontology.yaml",
+            lambda d: d["entities"]["person"]["candidates"].update(
+                {"corroborate": ["email_domain"]}
+            ),
+        )
+        assert not any("candidates:" in p for p in files.problems())
+
     def test_a_hook_field_from_a_source_with_no_hook(self, files):
         files.edit(
             "mappings.yaml",

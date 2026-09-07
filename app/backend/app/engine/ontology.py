@@ -33,11 +33,18 @@ class Relationship:
 
 
 @dataclass(frozen=True)
+class CandidateSpec:
+    name: str
+    corroborate: tuple
+
+
+@dataclass(frozen=True)
 class EntitySpec:
     name: str
     attrs: dict
     identity: tuple = ()
     identity_scope: dict | None = None
+    candidates: CandidateSpec | None = None
 
     def scope_of(self, attr: str) -> str:
         return (self.identity_scope or {}).get(attr, DEFAULT_IDENTITY_SCOPE)
@@ -62,6 +69,10 @@ class Ontology:
         if not spec:
             return ()
         return tuple(a for a in spec.identity if spec.scope_of(a) == "tenant")
+
+    def candidates(self, entity: str) -> CandidateSpec | None:
+        spec = self.entities.get(entity)
+        return spec.candidates if spec else None
 
     def priority_index(self, source: str) -> int:
         try:
@@ -116,11 +127,29 @@ def load(path=None) -> Ontology:
                     f"{name}.{attr}: identity scope {scope!r} is not one of "
                     f"{list(IDENTITY_SCOPES)}"
                 )
+        review = spec.get("candidates")
+        if review is not None and not (
+            isinstance(review, dict)
+            and isinstance(review.get("name"), str)
+            and isinstance(review.get("corroborate"), list)
+            and review["corroborate"]
+        ):
+            raise OntologyError(
+                f"entity {name!r}: `candidates:` must map `name` to the attr "
+                "whose values are compared and `corroborate` to a non-empty "
+                "list of attrs that can back a name up"
+            )
         entities[str(name)] = EntitySpec(
             name=str(name),
             attrs=dict(attrs),
             identity=tuple(identity),
             identity_scope={str(k): str(v) for k, v in scopes.items()},
+            candidates=CandidateSpec(
+                name=review["name"],
+                corroborate=tuple(str(a) for a in review["corroborate"]),
+            )
+            if review
+            else None,
         )
 
     relationships = []

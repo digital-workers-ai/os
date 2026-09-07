@@ -5,6 +5,7 @@ from sqlalchemy import delete, func, select
 
 from app.config import settings
 from app.engine import (
+    candidates,
     checks,
     links,
     mappings,
@@ -44,8 +45,12 @@ def _uuid(*parts) -> uuid.UUID:
 def _resolver_records(projected: dict, onto) -> list:
     records = []
     for entity in projected.values():
+        review = onto.candidates(entity.entity_type)
+        attrs = onto.identity_attrs(entity.entity_type) + (
+            candidates.attrs_read(review) if review else ()
+        )
         identity = {}
-        for attr in onto.identity_attrs(entity.entity_type):
+        for attr in attrs:
             fact = entity.facts.get(attr)
             if fact is not None and fact.value is not None:
                 identity[attr] = fact.value
@@ -123,12 +128,17 @@ async def rebuild(session, *, run_checks: bool = True) -> dict:
         first_seen=first_seen,
     )
 
-    resolution = resolver.resolve(
-        _resolver_records(projected, onto),
-        onto,
-        report,
-        bucket_cap=settings.ER_BUCKET_CAP,
-        one_record_per_source=settings.ER_ONE_RECORD_PER_SOURCE,
+    records = _resolver_records(projected, onto)
+    reviewed = await candidates.decided(session)
+    resolution = resolver.union(
+        resolver.resolve(
+            records,
+            onto,
+            report,
+            bucket_cap=settings.ER_BUCKET_CAP,
+            one_record_per_source=settings.ER_ONE_RECORD_PER_SOURCE,
+        ),
+        candidates.confirmed_pairs(reviewed),
     )
     folded = survivorship.fold(resolution["clusters"], projected, onto, report)
 
@@ -179,6 +189,10 @@ async def rebuild(session, *, run_checks: bool = True) -> dict:
         edges=edges,
     )
 
+    nominated = candidates.generate(records, onto, resolution["of_record"])
+    report.nominate(len(nominated))
+    await candidates.persist(session, nominated, reviewed, records, onto)
+
     live_clusters = [
         c for c in resolution["clusters"] if c.canonical_id in live_canonical
     ]
@@ -211,6 +225,7 @@ async def rebuild(session, *, run_checks: bool = True) -> dict:
         "canonical": len(live_clusters),
         "facts": len(folded),
         "links": len(edges),
+        "candidates": len(nominated),
         "report": report.as_dict(),
     }
 
