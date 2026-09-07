@@ -42,3 +42,11 @@ new_subscription:
   severity: low
   all:
     - {attr: started_at, within_days: 30}
+
+paying_company_with_open_tickets:
+  label: Paying Company With Open Tickets
+  entity: company
+  severity: high
+  all:
+    - {attr: mrr, gte: 1000}
+    - {attr: open_tickets, gte: 1}

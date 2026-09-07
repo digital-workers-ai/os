@@ -526,11 +526,12 @@ def _load_definitions() -> list[dict]:
 
     for name, spec in sorted(metrics.load_definitions().items()):
         label = spec.get("label", name)
+        synonyms = " ".join(spec.get("synonyms") or ())
         add(
             Kind.METRIC,
             name,
             label,
-            f"{name} {label} {spec.get('entity', '')}",
+            f"{name} {label} {spec.get('entity', '')} {synonyms}",
             f"label{EVIDENCE_SEP}{label}",
         )
     for name, rule in sorted(rules.load().items()):
@@ -546,13 +547,23 @@ def _load_definitions() -> list[dict]:
         add(Kind.GOAL, name, name, f"{name} {metric}", f"metric{EVIDENCE_SEP}{metric}")
     for name in sorted(registry.discover()):
         add(Kind.SOURCE, name, name, name, f"source{EVIDENCE_SEP}{name}")
-    for name, spec in sorted(ontology.load().entities.items()):
+    onto = ontology.load()
+    for name, spec in sorted(onto.entities.items()):
         attrs = list(spec.attrs)
+        aliases = [
+            *spec.synonyms,
+            *(
+                synonym
+                for attr in attrs
+                if attr in onto.attributes
+                for synonym in onto.attributes[attr].synonyms
+            ),
+        ]
         add(
             Kind.ENTITY_TYPE,
             name,
             name,
-            f"{name} {' '.join(attrs)}",
+            " ".join([name, *attrs, *aliases]),
             f"attrs{EVIDENCE_SEP}{', '.join(attrs)}",
         )
     for name, reading in sorted(vocabulary.load().items()):
@@ -563,6 +574,10 @@ def _load_definitions() -> list[dict]:
 
 
 definitions = caches.cached(_load_definitions)
+
+
+def _names(text: str, token: str) -> bool:
+    return token in text or token.removesuffix("s") in text
 
 
 def _lexeme(token: str) -> str:
@@ -611,7 +626,7 @@ async def _words(session, q: str, *, fallback: bool) -> list[dict]:
     hits += [
         {**entry, "score": 1.0, "recency": math.inf}
         for entry in definitions()
-        if all(token in entry["text"] for token in tokens)
+        if all(_names(entry["text"], token) for token in tokens)
     ]
     return _ranked(hits)
 

@@ -1,6 +1,6 @@
 from app.api.insights_api import rule_definitions
 from app.api.routers import definitions as router
-from app.engine import goals, mappings, metrics, ontology, transforms
+from app.engine import derived, goals, mappings, metrics, ontology, transforms
 from app.sources import hooks
 
 
@@ -10,8 +10,20 @@ async def get_ontology():
     return {
         "source_priority": list(onto.source_priority),
         "entities": {
-            name: {"identity": list(spec.identity), "attrs": spec.attrs}
+            name: {
+                "identity": list(spec.identity),
+                "attrs": spec.attrs,
+                "description": spec.description,
+                "synonyms": list(spec.synonyms),
+            }
             for name, spec in sorted(onto.entities.items())
+        },
+        "attributes": {
+            label: {
+                "description": gloss.description,
+                "synonyms": list(gloss.synonyms),
+            }
+            for label, gloss in sorted(onto.attributes.items())
         },
         "relationships": [
             {
@@ -23,6 +35,28 @@ async def get_ontology():
             }
             for rel in onto.relationships
         ],
+    }
+
+
+@router.get("/derived")
+async def get_derived():
+    specs = derived.load()
+    types = {entity: derived.types_for(entity) for entity in specs}
+    return {
+        "derived": {
+            entity: {
+                attr: {
+                    "expression": str(spec.get("expression")),
+                    "via": str(spec.get("via")),
+                    "filter": spec.get("filter") or {},
+                    "description": spec.get("description"),
+                    "synonyms": list(spec.get("synonyms") or []),
+                    "type": types[entity].get(attr),
+                }
+                for attr, spec in attrs.items()
+            }
+            for entity, attrs in specs.items()
+        }
     }
 
 

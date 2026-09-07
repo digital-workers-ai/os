@@ -396,6 +396,20 @@ class TestBreakdowns:
         )
         assert result["breakdown"] == {"usd": 1}
 
+    async def test_a_breakdown_over_an_undeclared_edge_is_one_metrics_error(
+        self, session, canonical
+    ):
+        await canonical("subscription", {"mrr": 10})
+        result = await evaluate_at(
+            session,
+            {
+                "entity": "subscription",
+                "expression": "COUNT(entity)",
+                "group_by": "person.title",
+            },
+        )
+        assert "walks no declared edge" in result["error"]
+
     async def test_a_bucket_that_spans_currencies_is_unknown(self, session, canonical):
         await canonical(
             "subscription", {"mrr": 100, "currency": "usd", "status": "active"}

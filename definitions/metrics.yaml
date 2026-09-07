@@ -1,5 +1,7 @@
 mrr:
   label: MRR
+  description: Monthly recurring revenue on active subscriptions.
+  synonyms: [revenue, run-rate]
   entity: subscription
   expression: SUM(mrr)
   filter:
@@ -7,11 +9,14 @@ mrr:
 
 contracted_mrr:
   label: Contracted MRR
+  description: Monthly recurring revenue across every subscription, active or not.
+  synonyms: [booked revenue]
   entity: subscription
   expression: SUM(mrr)
 
 avg_mrr:
   label: Average MRR
+  description: Average monthly recurring revenue per active subscription.
   entity: subscription
   expression: AVG(mrr)
   filter:
@@ -19,11 +24,13 @@ avg_mrr:
 
 subscription_count:
   label: Subscriptions
+  description: How many subscriptions the estate holds, in any status.
   entity: subscription
   expression: COUNT(entity)
 
 active_subscriptions:
   label: Active Subscriptions
+  description: Subscriptions currently in an active status.
   entity: subscription
   expression: COUNT(entity)
   filter:
@@ -31,6 +38,8 @@ active_subscriptions:
 
 churned_subscriptions:
   label: Churned Subscriptions
+  description: Subscriptions that have been canceled.
+  synonyms: [churn]
   entity: subscription
   expression: COUNT(entity)
   filter:
@@ -38,11 +47,14 @@ churned_subscriptions:
 
 deal_count:
   label: Deals
+  description: How many deals the pipeline holds, open or closed.
   entity: deal
   expression: COUNT(entity)
 
 won_value:
   label: Won Value
+  description: Total value of the deals marked closed won.
+  synonyms: [bookings]
   entity: deal
   expression: SUM(amount)
   filter:
@@ -50,21 +62,26 @@ won_value:
 
 company_count:
   label: Companies
+  description: How many companies the estate knows about.
+  synonyms: [customers]
   entity: company
   expression: COUNT(entity)
 
 companies_with_industry:
   label: Companies with Industry
+  description: How many companies carry an industry — a coverage check on the field.
   entity: company
   expression: COUNT(industry)
 
 avg_deal_size:
   label: Average Deal Size
+  description: Average value of a deal, across every status.
   entity: deal
   expression: AVG(amount)
 
 strong_interest_share:
   label: Share of Read Calls with Strong Interest
+  description: Share of the sales calls read by the model where interest was strong.
   entity: meeting
   source: enriched
   inferred: true
@@ -79,6 +96,7 @@ strong_interest_share:
 
 calls_citing_pricing:
   label: Read Calls Citing Pricing
+  description: Read sales calls where the model found pricing named as a pain point.
   entity: meeting
   source: enriched
   inferred: true
@@ -89,6 +107,7 @@ calls_citing_pricing:
 
 pain_points_per_read_call:
   label: Pain Points Named per Read Call
+  description: Pain points the model found per read sales call, on average.
   entity: meeting
   source: enriched
   inferred: true
@@ -99,3 +118,60 @@ pain_points_per_read_call:
       filter: {}
     - expression: COUNT(entity)
       filter: {}
+
+mrr_by_industry:
+  label: MRR by Industry
+  description: Active monthly recurring revenue split by the industry of the paying company.
+  entity: subscription
+  expression: SUM(mrr)
+  filter:
+    status: active
+  group_by: company.industry
+
+mrr_by_start_month:
+  label: MRR by Start Month
+  description: Monthly recurring revenue grouped by the month each subscription started.
+  entity: subscription
+  expression: SUM(mrr)
+  group_by: started_at
+  grain: month
+
+deals_by_status:
+  label: Deals by Status
+  description: How many deals sit in each pipeline status.
+  entity: deal
+  expression: COUNT(entity)
+  group_by: status
+
+new_subscriptions_30d:
+  label: New Subscriptions (30d)
+  description: Subscriptions that started in the last 30 days.
+  entity: subscription
+  expression: COUNT(entity)
+  window_days: 30
+  window_attr: started_at
+
+deals_closing_30d:
+  label: Deals Closing (30d)
+  description: Deals whose forecast close date falls in the next 30 days.
+  entity: deal
+  expression: COUNT(entity)
+  window_days: 30
+  window_attr: closed_at
+  window_direction: forward
+
+calls_by_interest:
+  label: Read Calls by Interest
+  description: Read sales calls grouped by the interest level the model judged.
+  entity: meeting
+  source: enriched
+  inferred: true
+  reading: sales_call
+  expression: COUNT(entity)
+  group_by: interest
+
+avg_mrr_per_company:
+  label: MRR per Company
+  description: Mean active monthly recurring revenue per company, from the derived fact.
+  entity: company
+  expression: AVG(mrr)

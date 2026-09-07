@@ -1,5 +1,7 @@
 entities:
   company:
+    description: An organization the business sells to or serves.
+    synonyms: [client, account, customer]
     attrs:
       domain: string
       industry: string
@@ -7,6 +9,8 @@ entities:
     identity:
       - domain
   person:
+    description: A human the business knows — a contact, a lead or a user at a company.
+    synonyms: [contact, lead]
     attrs:
       email: string
       name: string
@@ -24,6 +28,8 @@ entities:
         - phone
         - email_domain
   deal:
+    description: A sales opportunity with a value and a forecast close date.
+    synonyms: [opportunity]
     attrs:
       name: string
       amount: number
@@ -33,6 +39,7 @@ entities:
       account_ref: string
       owner: string
   order:
+    description: A completed purchase placed by a person.
     attrs:
       amount: number
       currency: string
@@ -40,6 +47,7 @@ entities:
       email: string
       placed_at: date
   product:
+    description: Something the business sells, with a price and a catalogue code.
     attrs:
       name: string
       currency: string
@@ -48,6 +56,8 @@ entities:
       sku: string
       price: number
   subscription:
+    description: A recurring plan a company pays for, month after month.
+    synonyms: [plan]
     attrs:
       customer_ref: string
       mrr: number
@@ -55,6 +65,8 @@ entities:
       status: string
       started_at: date
   ticket:
+    description: A support request raised by a customer and worked to a close.
+    synonyms: [case, support request]
     attrs:
       subject: string
       status: string
@@ -64,6 +76,7 @@ entities:
       organization_ref: string
       opened_at: date
   message:
+    description: An outbound message sent to a person, such as an SMS.
     attrs:
       status: string
       amount: number
@@ -71,6 +84,8 @@ entities:
       phone: string
       occurred_at: date
   meeting:
+    description: A scheduled call, sometimes with a transcript of what was said.
+    synonyms: [call]
     attrs:
       name: string
       status: string
@@ -80,15 +95,18 @@ entities:
       started_at: date
       ended_at: date
   event:
+    description: Something a person did in the product, at a point in time.
     attrs:
       event_name: string
       email: string
       occurred_at: date
   event_definition:
+    description: The catalogue entry describing one kind of product event.
     attrs:
       name: string
       category: string
   ad_account:
+    description: An advertising account holding campaigns and a budget.
     attrs:
       name: string
       status: string
@@ -96,6 +114,7 @@ entities:
       country: string
       budget: number
   email_campaign:
+    description: One email send to a list, with its open and click counts.
     attrs:
       name: string
       subject: string
@@ -105,10 +124,12 @@ entities:
       clicks: number
       sent_at: date
   audience:
+    description: A named list of people a campaign can be sent to.
     attrs:
       name: string
       members: number
   campaign:
+    description: A paid advertising campaign, with its spend and its results.
     attrs:
       name: string
       currency: string
@@ -119,6 +140,7 @@ entities:
       clicks: number
       impressions: number
   traffic_report:
+    description: One day of website traffic for one channel.
     attrs:
       report_date: date
       channel: string
@@ -126,9 +148,62 @@ entities:
       users: number
       pageviews: number
   data_source:
+    description: An upstream system feeding the estate.
     attrs:
       name: string
       category: string
+
+attributes:
+  external_ref:
+    description: A tenant-scoped id another tool assigned to the person.
+    synonyms: [user id, customer id]
+  account_ref:
+    description: The provider's id for the company a deal belongs to.
+  customer_ref:
+    description: The provider's id for the company a subscription belongs to.
+  organization_ref:
+    description: The provider's id for the company a ticket belongs to.
+  mrr:
+    description: Monthly recurring revenue in the subscription's currency.
+    synonyms: [revenue, run-rate]
+  status:
+    description: Where the record sits in its own lifecycle, folded to one vocabulary.
+  category:
+    description: The kind of thing the record is, as the source classifies it.
+  channel:
+    description: The route the contact or the traffic arrived through.
+  sends:
+    description: How many recipients the email campaign went to.
+  members:
+    description: How many people the audience holds.
+  sessions:
+    description: Visits to the site on the reporting day.
+  users:
+    description: Distinct people who visited the site on the reporting day.
+  pageviews:
+    description: Pages viewed on the site on the reporting day.
+  report_date:
+    description: The day the traffic figures cover.
+  event_name:
+    description: What the person did, as the product names it.
+  transcript:
+    description: The written record of what was said on the call.
+  budget:
+    description: What the ad account is allowed to spend.
+  spend:
+    description: What the campaign has spent so far.
+  conversions:
+    description: Actions the campaign counts as a result.
+  impressions:
+    description: How many times the campaign's ads were shown.
+  priority:
+    description: How urgent the ticket is, as support graded it.
+  sku:
+    description: The code that identifies the product in the catalogue.
+  title:
+    description: The person's job title.
+  owner:
+    description: Who is accountable for the deal.
 
 source_priority:
   - salesforce

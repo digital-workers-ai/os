@@ -129,6 +129,18 @@ async def evaluate(session, spec, name="m"):
     return out[name]
 
 
+class TestABreakdownOverAReadingField:
+    async def test_read_calls_bucket_by_the_label_the_model_gave_them(
+        self, session, estate
+    ):
+        result = await evaluate(
+            session,
+            {**BASE, "expression": "COUNT(entity)", "group_by": "interest"},
+        )
+        assert result["breakdown"] == {"moderate": 1, "strong": 2, "weak": 1}
+        assert result["group_by"] == "interest"
+
+
 class TestProducedByNamesWhatWasCounted:
     async def test_a_filtered_metric_names_only_its_own_producers(
         self, session, estate, reading

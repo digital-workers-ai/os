@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 from fastapi import Depends, Query
 from sqlalchemy import select
 
@@ -13,7 +15,7 @@ async def get_metrics(session=Depends(get_session)):
     lineage = metrics.provenance(metrics.load_definitions(), mappings.load())
     for name, row in values.items():
         row.update(lineage.get(name, {}))
-    return {"metrics": values}
+    return {"as_of": datetime.now(UTC).isoformat(), "metrics": values}
 
 
 @router.post("/snapshots")

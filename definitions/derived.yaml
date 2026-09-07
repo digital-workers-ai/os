@@ -1,0 +1,18 @@
+company:
+  mrr:
+    description: Active monthly recurring revenue across the company's subscriptions.
+    expression: SUM(subscription.mrr)
+    via: belongs_to
+    filter:
+      status: active
+  open_tickets:
+    description: Support tickets raised by the company that are still open.
+    expression: COUNT(ticket)
+    via: belongs_to
+    filter:
+      status: open
+person:
+  last_meeting_at:
+    description: When the person last attended a meeting.
+    expression: MAX(meeting.started_at)
+    via: attended_by
