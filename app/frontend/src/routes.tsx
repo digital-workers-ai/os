@@ -76,6 +76,7 @@ export const DEFINITIONS_ROUTE: TabbedRoute = {
     { value: TAB.definitions.mappings, label: 'Mappings' },
     { value: TAB.definitions.transforms, label: 'Transforms' },
     { value: TAB.definitions.metrics, label: 'Metrics' },
+    { value: TAB.definitions.derived, label: 'Derived' },
     { value: TAB.definitions.rules, label: 'Rules' },
     { value: TAB.definitions.goals, label: 'Goals' },
     { value: TAB.definitions.enrichment, label: 'Enrichment' },

@@ -19,6 +19,7 @@ const PAGES: { path: string; title: string; tabs: Record<string, string> }[] = [
       mappings: 'Mappings',
       transforms: 'Transforms',
       metrics: 'Metrics',
+      derived: 'Derived',
       rules: 'Rules',
       goals: 'Goals',
       enrichment: 'Enrichment',

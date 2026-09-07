@@ -37,8 +37,9 @@ const MCP = {
     { name: 'entity_counts', description: 'Entity counts per type' },
     { name: 'find_entities', description: 'Search entities by name or type' },
     { name: 'get_entity', description: 'One entity with its facts and links' },
+    { name: 'slice_metric', description: 'Composes a reviewed metric with a declared dimension, a time window, or one equality filter' },
   ],
-  resources: ['ontology', 'mappings', 'transforms', 'synonyms', 'metrics', 'rules', 'goals', 'enrichment'].map((name) => ({
+  resources: ['ontology', 'mappings', 'transforms', 'synonyms', 'metrics', 'derived', 'rules', 'goals', 'enrichment'].map((name) => ({
     uri: `definitions://${name}`,
     name,
     description: `Committed ${name} definitions`,
@@ -225,8 +226,8 @@ test('mcp tab', async ({ page }) => {
   const endpoint = `${new URL(page.url()).origin}/mcp`
   await expect(page.getByTestId('mcp-title')).toHaveText(endpoint)
   await expect(page.getByTestId('mcp-copy')).toHaveText('Copy')
-  await expect(heads(page.getByTestId('mcp-tools'))).toHaveText(['Tool (6)', 'Description'])
-  await expect(heads(page.getByTestId('mcp-resources'))).toHaveText(['Resource (8)', 'URI', 'Description'])
+  await expect(heads(page.getByTestId('mcp-tools'))).toHaveText(['Tool (7)', 'Description'])
+  await expect(heads(page.getByTestId('mcp-resources'))).toHaveText(['Resource (9)', 'URI', 'Description'])
   await expect(heads(page.getByTestId('mcp-prompts'))).toHaveText(['Prompt (2)', 'Description'])
   const blocks = page.getByTestId('mcp-client-body').locator('pre')
   await expect(blocks).toHaveCount(2)

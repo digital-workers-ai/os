@@ -45,6 +45,7 @@ interface Fact {
   raw_event_id: string | null
   observed_at: string
   disagreements: number
+  derived?: boolean
 }
 
 interface Member {
@@ -392,7 +393,7 @@ function Detail({
                         <TableCell>
                           <span className={cn('block max-w-[40ch]', WRAP)}>{show(f.value)}</span>
                         </TableCell>
-                        <TableCell>{source ? <Mono>{source}</Mono> : '—'}</TableCell>
+                        <TableCell>{f.derived ? <Pill>derived</Pill> : source ? <Mono>{source}</Mono> : '—'}</TableCell>
                         <TableCell className="whitespace-nowrap" title={f.observed_at}>
                           {relTime(f.observed_at)}
                         </TableCell>

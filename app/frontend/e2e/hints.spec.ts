@@ -6,6 +6,7 @@ const DEFINITIONS: Record<string, string[]> = {
   mappings: ['definitions-mappings-table'],
   transforms: ['definitions-transforms-table', 'definitions-transforms-functions-table'],
   metrics: ['definitions-metrics-table'],
+  derived: ['definitions-derived-table'],
   rules: ['definitions-rules-table'],
   goals: ['definitions-goals-table'],
   enrichment: ['definitions-enrichment-table'],
