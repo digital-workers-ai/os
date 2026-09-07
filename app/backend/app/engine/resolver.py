@@ -447,14 +447,12 @@ def resolve(
     }
 
 
-# Applies human confirmations after the resolver has done its own merging.
-# Takes the resolver's result (clusters plus a map from each source record
-# to its cluster) and the confirmed pairs from the review queue. Runs after
-# evidence-based resolution, so a human merge never changes how the machine
-# merged; it only joins two of its results. Deterministic: the same
-# confirmations on the same records give the same survivor every rebuild,
-# which is what lets a confirmed pair survive without being written
-# anywhere but the queue.
+# When a person has confirmed that two records are the same, this joins
+# their two groups. It runs after the automatic merging, so it never
+# changes what the machine decided; it only glues two of its results
+# together. The older group keeps its id, so the same confirmation lands
+# the same way on every rebuild and nothing has to be stored except the
+# decision itself.
 def union(resolution: dict, pairs) -> dict:
     live = {c.canonical_id: c for c in resolution["clusters"]}
     of_record, aliases = resolution["of_record"], resolution["aliases"]
