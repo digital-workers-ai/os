@@ -5,9 +5,11 @@ from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import delete, func, select, update
 
+from app import store
 from app.coaching import briefer
 from app.db import async_session
 from app.engine import metrics
+from app.engine.run import rebuild
 from app.enrichment import vocabulary
 from app.models import (
     BriefingRun,
@@ -16,6 +18,7 @@ from app.models import (
     EnrichmentRun,
     EntityCanonical,
     FactCurrent,
+    MergeCandidate,
     MetricSnapshot,
     RawEvent,
     SyncRun,
@@ -129,6 +132,46 @@ MANIFEST = {
         {"rule": "stale_deal", "entity": "Initech"},
     ],
 }
+LOOKALIKES = {
+    "carlos": (
+        ("zendesk", "users", "29001", {"name": "Carlos Ch", "phone": "+14155550101"}),
+        (
+            "intercom",
+            "contacts",
+            "con_demo_carlos",
+            {"name": "C Chinchilla", "phone": "+1 415 555 0101"},
+        ),
+    ),
+    "maria": (
+        (
+            "zendesk",
+            "users",
+            "29002",
+            {"name": "Maria Lopez", "email": "maria@zenith-labs.io"},
+        ),
+        (
+            "intercom",
+            "contacts",
+            "con_demo_maria",
+            {"name": "M. Lopez", "email": "m.lopez@zenith-labs.io"},
+        ),
+    ),
+    "alex": (
+        (
+            "zendesk",
+            "users",
+            "29003",
+            {"name": "Alex Rivera", "email": "alex@northwind.co"},
+        ),
+        (
+            "intercom",
+            "contacts",
+            "con_demo_alex",
+            {"name": "Alexandra Rivera", "email": "alexandra@northwind.co"},
+        ),
+    ),
+}
+DECIDED = {"maria": "confirmed", "alex": "rejected"}
 
 
 def sha(text: str) -> str:
@@ -315,9 +358,41 @@ async def pin_engine_run_durations(s) -> int:
     return len(ids)
 
 
+async def seed_candidates(s) -> int:
+    for records in LOOKALIKES.values():
+        for source, object_type, source_id, fields in records:
+            payload = {"id": source_id, **fields}
+            await store.save_raw(
+                s,
+                source=source,
+                object_type=object_type,
+                source_id=source_id,
+                raw_payload=payload,
+            )
+    await s.commit()
+    await rebuild(s)
+    for pair, status in DECIDED.items():
+        left, right = sorted(
+            f"{source}|person|{source_id}"
+            for source, _object_type, source_id, _fields in LOOKALIKES[pair]
+        )
+        await s.execute(
+            update(MergeCandidate)
+            .where(
+                MergeCandidate.left_anchor == left,
+                MergeCandidate.right_anchor == right,
+            )
+            .values(status=status, decided_at=NOW - timedelta(hours=3))
+        )
+    await s.commit()
+    await rebuild(s)
+    return await s.scalar(select(func.count()).select_from(MergeCandidate))
+
+
 async def main() -> None:
     readings = vocabulary.load()
     async with async_session() as s:
+        candidates = await seed_candidates(s)
         for table in (EnrichedFact, EnrichmentRun, BriefingRun, MetricSnapshot):
             await s.execute(delete(table))
         meetings = await seed_meetings(s, readings["sales_call"].sha)
@@ -331,6 +406,7 @@ async def main() -> None:
         snapshots = await seed_snapshots(s)
         await s.commit()
     counts = {
+        "merge_candidate": candidates,
         "enriched_fact": meetings + tickets,
         "enrichment_run": 2,
         "briefing_run": briefings,
