@@ -55,6 +55,34 @@ MERGE       two entities, remembered
 6. confirmations accumulate → measure the pattern → promote to step 1
 ```
 
+**Candidates, declared** — the ladder is switched on per entity kind in `ontology.yaml`. The person entity reads:
+
+```yaml
+person:
+  attrs: { email, name, phone, title, external_ref }
+  identity: [email, external_ref]
+  candidates:
+    name: name
+    corroborate:
+      - phone
+      - email_domain
+```
+
+Three parts: `identity` is unchanged, it is what merges automatically; `name` names the attribute whose values get compared; `corroborate` lists what can back a name up.
+
+How the engine reads it, per pair of records not already in one cluster:
+
+1. Compare the two `name` values. Not alike: stop.
+2. For each corroborator, derive a key from each record and compare.
+3. One key agrees: the pair is a candidate, that agreement is its evidence.
+4. None agree: stop, two entities.
+
+Keys are normalized so the comparison is honest: `phone` keeps digits only and drops a leading US 1; `email_domain` is a virtual attribute, the part of `email` after the `@`, and it counts only when it isn't a free-mail or placeholder domain, the same blocklist the resolver uses. Anything else listed is compared as plain lowercase text.
+
+Two rules keep it safe: a name alone never counts, and a corroborator alone never counts. Both have to agree. And the build checks refuse a declaration that names an attribute the entity doesn't have.
+
+To extend it, add an attribute to the list. To do companies, give `company` its own block, `name: name` with a corroborator that exists for companies; today they only carry domain, industry and name, and domain is already identity, so companies wait for a corroborator worth trusting.
+
 Five pairs through the ladder:
 
 ```
