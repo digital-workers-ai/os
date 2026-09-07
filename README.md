@@ -207,6 +207,19 @@ Connect an MCP client to the running stack: `claude mcp add --transport http os 
 
 Then ask the client for the goals, or for a company by name; the answers come from the tools above and each call shows up in `mcp_call`.
 
+Search the estate from the console: press ⌘K (Ctrl+K on Linux and Windows) on any page, or open Search in the nav (`/search`). Type any word — a name, an email, an id, a status, a word from a transcript or a briefing — and a prefix narrows the kind: `person:wayne`, `briefing:churn`, `raw:sub_000008`. Opening a hit lands on the thing itself with its row selected. From the API:
+
+```
+curl 'localhost:8092/api/search?q=past_due'
+curl 'localhost:8092/api/search?q=wayne&kind=meeting&limit=5'
+```
+
+Each answer carries `total`, `by_kind` and `results` of `kind`, `id`, `label`, `evidence`. The index is refilled at every rebuild, so a search is exactly as fresh as the projection.
+
+Meaning search is opt-in, like every layer that calls a model: set `EMBEDDINGS_ENABLED=true` and `OPENAI_API_KEY` in `app/.env`, restart the backend, then `curl -X POST localhost:8092/api/search/embed` once (it also runs after every rebuild from then on). Query with `mode=meaning` or `mode=both`; the Search page grows a `words · meaning · both` toggle. Reranking on top of `mode=both` needs `RERANK_ENABLED=true` and `ZEROENTROPY_API_KEY`. Startup refuses a flag whose key is missing.
+
+A dev database created before the search PR predates the `pgvector` image: `docker compose -p os -f app/docker-compose.yml down -v`, bring the stack up, sync, rebuild, and re-seed with `python -m tools.seed_demo` inside the backend container.
+
 ## Layout
 
 - `ROADMAP.md` — the feature-slice plan to v11 parity, checkbox-tracked
