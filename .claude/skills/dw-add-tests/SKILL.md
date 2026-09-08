@@ -11,7 +11,7 @@ Test what `$ARGUMENTS` names, or what the conversation just changed.
 
 ## Rules
 
-- Red before green. The failing test is written, run and committed before the implementation, as its own commit, so red is visible in history (`CLAUDE.md`). A test that passes before the implementation exists is testing nothing; fix it.
+- Red before green. The failing test is written, run and committed before the implementation, as its own commit, so red is visible in history. A test that passes before the implementation exists is testing nothing; fix it.
 - 100% line and branch coverage is machine-enforced: `./test.sh unit` runs pytest with `--cov-branch --cov-fail-under=100`. Every new branch gets a test. A coverage pragma is a comment, and comments are not allowed, so restructure the code instead of excluding it.
 - Never remove an existing test. Never silently change one: a modified test is reported as before / after / why.
 - Every test runs with the clock pinned at `2026-09-04T12:00Z`, an autouse fixture in `conftest.py`; the app reads time only through `app/clock.py`, so `as_of`, window bounds and app-written timestamps are exact in assertions.
@@ -32,7 +32,7 @@ Test what `$ARGUMENTS` names, or what the conversation just changed.
 
 3. Plan: one line per test with the file and what it pins. Every branch of the change appears here.
 
-4. Write the tests. A new file is `test_<feature>.py` with the fixtures its siblings use; no docstrings, no comments (`CLAUDE.md`). One thing per test, and the name says which.
+4. Write the tests. A new file is `test_<feature>.py` with the fixtures its siblings use; no docstrings, no comments. One thing per test, and the name says which.
 
 5. Run the red on the subset:
 

@@ -56,7 +56,7 @@ Commit the current changes on a branch, push, and open a pull request. This is t
    gh run watch --exit-status "$(gh run list --branch <branch> --limit 1 --json databaseId -q '.[0].databaseId')"
    ```
 
-   A red run is diagnosed, fixed through a delegated agent (`CLAUDE.md`), pushed, and watched again. `main` requires the `unit` check; the `snapshots` job fails on any pixel the console moved, which means the baselines are missing from the PR.
+   A red run is diagnosed, fixed through a delegated agent, pushed, and watched again. `main` requires the `unit` check; the `snapshots` job fails on any pixel the console moved, which means the baselines are missing from the PR.
 
 7. Report the PR URL.
 

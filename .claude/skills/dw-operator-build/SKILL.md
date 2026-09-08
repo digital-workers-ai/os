@@ -39,7 +39,7 @@ approved issue is feedback on work already pushed.
    Otherwise `git checkout -b operator/issue-<N>-<slug> origin/main`.
 3. Set the committer if unset: `git config user.name "operator"` and
    `git config user.email "operator@users.noreply.github.com"`.
-4. Implement exactly the plan, under `CLAUDE.md`: no comments anywhere, ship
+4. Implement exactly the plan: no comments anywhere, ship
    only what the plan needs. Delegating parallel work to subagents is
    allowed; the `Agent` tool is in the allowlist. Follow `dw-add-tests`: the
    failing test is committed before the change that makes it pass, coverage

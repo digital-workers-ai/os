@@ -50,11 +50,11 @@ This skill is the plan format and the flow. The two stops below are for a person
 
 ## Schema
 
-There is no migration step and no schema approval gate. The schema is SQLAlchemy `create_all` at startup, so a new table is a model in the PR that first writes it, and nothing else. `create_all` never alters an existing table: a changed column means resetting the dev volume with `docker compose -p os -f app/docker-compose.yml down -v` and bringing the stack back up. Say so in the PR body when a change needs it. Every column carries its trailing comment, the one exception in `CLAUDE.md`.
+There is no migration step and no schema approval gate. The schema is SQLAlchemy `create_all` at startup, so a new table is a model in the PR that first writes it, and nothing else. `create_all` never alters an existing table: a changed column means resetting the dev volume with `docker compose -p os -f app/docker-compose.yml down -v` and bringing the stack back up. Say so in the PR body when a change needs it. Every column carries its trailing comment, the one place a comment is allowed.
 
 ## Build
 
-5. Delegate. The main session orchestrates and reviews; every code edit goes to a subagent (`CLAUDE.md`). Launch independent tasks together, each carrying the file paths, the project rules, and the success criterion: `./test.sh unit` green.
+5. Delegate. The main session orchestrates and reviews; every code edit goes to a subagent. Launch independent tasks together, each carrying the file paths, the project rules, and the success criterion: `./test.sh unit` green.
 
 6. Red first. The failing tests are written, run and committed before the implementation, as their own commit (`dw-add-tests` has the rules). Then the implementation, then green.
 
