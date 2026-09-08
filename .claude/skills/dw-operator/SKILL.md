@@ -19,20 +19,14 @@ prompt arrives as `Event: <schedule|workflow_dispatch|issue_comment>. Issue:
 that subject without skipping the rest. An `issue_comment` event is a
 revision request on the named issue: skip to Revising.
 
-The copy is reachable two ways:
+The copy is reachable with `psql "$OPERATOR_DATABASE_URL"`: a restored copy
+of last night's production database, or the mock estate when no snapshot is
+configured. It is disposable, so there is no read-only role, and nothing you
+do to it reaches production.
 
-- `psql "$OPERATOR_DATABASE_URL"`: a restored copy of last night's
-  production database, or the mock estate when no snapshot is configured.
-  It is disposable, so there is no read-only role, and nothing you do to it
-  reaches production.
-- The local backend at `$OPERATOR_API`: `GET /api/metrics`,
-  `/api/insights/rules`, `/api/insights/goals`, `/api/report`,
-  `/api/sources`, `/api/sync/runs`, `/api/metrics/history`,
-  `/api/resolution/candidates`, `/api/enrichment/coverage`,
-  `/api/search?q=`; the README's Concepts section names the rest.
-
-`POST $OPERATOR_API/api/rebuild` recomputes the copy from `raw_event` with
-the definitions in the working tree. An `Edit` to a file under `definitions/`
+The local backend at `$OPERATOR_API` recomputes the copy with
+`POST /api/rebuild` from `raw_event` with the definitions in the working
+tree. An `Edit` to a file under `definitions/`
 followed by a rebuild shows the effect of the change; `git checkout --
 definitions` and another rebuild restore the before. A rebuild answers 409
 while one is running: wait and retry
