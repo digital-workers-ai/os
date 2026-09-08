@@ -1,7 +1,5 @@
 # Contributing
 
-`CLAUDE.md` is the short form the agents read; this is the long form for a person. Every command below runs from the repository root.
-
 ## Setup
 
 Docker Desktop is the only requirement on the host, plus `python3` for the search-vocabulary check that `./test.sh unit` runs before the suite.
