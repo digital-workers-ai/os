@@ -1,5 +1,5 @@
 ---
-name: _ship
+name: dw-ship
 description: Run the test gate, branch, commit with the rationale in the body, push, open the PR, and watch CI
 user-invocable: true
 argument-hint: "[branch-name] [--draft]"

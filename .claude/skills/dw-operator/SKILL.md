@@ -1,5 +1,5 @@
 ---
-name: _operator
+name: dw-operator
 description: Headless operator for the estate — audits last night's database copy against the brief in definitions/operator.md, opens proposal and finding issues, revises a plan on request, writes the run summary. Invoked by .github/workflows/operator.yml.
 disable-model-invocation: true
 ---
@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 Run the routine in `definitions/operator.md` against a copy of the estate and
 deliver what you find as GitHub issues. Never write code, never build: a
-person approves an issue, and `_operator-build` builds it.
+person approves an issue, and `dw-operator-build` builds it.
 
 ## Context
 
@@ -77,7 +77,7 @@ gh issue create --title "<imperative, under 70 characters>" \
 The query, its result, and what it means. Counts and a few example values.
 
 ## Plan
-The `## Changes` checklist from `.claude/skills/_implement/SKILL.md`: one a
+The `## Changes` checklist from `.claude/skills/dw-implement/SKILL.md`: one a
 builder can follow without you.
 
 ## Verify

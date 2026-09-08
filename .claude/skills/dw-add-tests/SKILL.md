@@ -1,5 +1,5 @@
 ---
-name: _add-tests
+name: dw-add-tests
 description: Write the failing tests for a change before it is built, hold coverage at 100% line and branch, and report every test touched
 user-invocable: true
 argument-hint: "[what to test, or empty for what the conversation just changed]"
@@ -67,4 +67,4 @@ Suite: ./test.sh unit — <passed>/<total>
 Coverage: <the coverage line>
 ```
 
-Say when the tests were written after the code. Then hand off to `_ship`.
+Say when the tests were written after the code. Then hand off to `dw-ship`.

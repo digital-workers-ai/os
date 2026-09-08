@@ -51,7 +51,7 @@ jobs:
           branch_prefix: "operator/"
           show_full_output: true
           prompt: |
-            Read .claude/skills/_operator-build/SKILL.md and follow it for issue ${{ github.event.issue.number }}. Event: ${{ github.event_name }}.
+            Read .claude/skills/dw-operator-build/SKILL.md and follow it for issue ${{ github.event.issue.number }}. Event: ${{ github.event_name }}.
           claude_args: |
             --model claude-opus-5
             --max-turns 150

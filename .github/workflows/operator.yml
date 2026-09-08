@@ -99,7 +99,7 @@ jobs:
           github_token: ${{ secrets.OPERATOR_GITHUB_PAT }}
           show_full_output: true
           prompt: |
-            Read .claude/skills/_operator/SKILL.md and follow it.
+            Read .claude/skills/dw-operator/SKILL.md and follow it.
             Event: ${{ github.event_name }}.
             Issue: ${{ github.event.issue.number || 'none' }}.
             Focus: ${{ inputs.focus || 'none' }}.

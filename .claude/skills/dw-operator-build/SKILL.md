@@ -1,5 +1,5 @@
 ---
-name: _operator-build
+name: dw-operator-build
 description: Headless build agent for approved operator issues — implements the plan in the issue body, opens or updates the pull request that closes it, replies on the issue. Invoked by .github/workflows/operator-build.yml.
 disable-model-invocation: true
 ---
@@ -18,9 +18,9 @@ copied from `app/.env.example`. There is no database copy here: the plan
 carries the evidence, and `./test.sh unit` plus CI are the gate. The three
 convention skills you follow:
 
-- `.claude/skills/_implement/SKILL.md`: the plan format you are reading.
-- `.claude/skills/_ship/SKILL.md`: branch, commit and PR conventions.
-- `.claude/skills/_add-tests/SKILL.md`: red before green, coverage held.
+- `.claude/skills/dw-implement/SKILL.md`: the plan format you are reading.
+- `.claude/skills/dw-ship/SKILL.md`: branch, commit and PR conventions.
+- `.claude/skills/dw-add-tests/SKILL.md`: red before green, coverage held.
 
 An `issues` event is a fresh approval. An `issue_comment` event on an
 approved issue is feedback on work already pushed.
@@ -41,15 +41,15 @@ approved issue is feedback on work already pushed.
    `git config user.email "operator@users.noreply.github.com"`.
 4. Implement exactly the plan, under `CLAUDE.md`: no comments anywhere, ship
    only what the plan needs. Delegating parallel work to subagents is
-   allowed; the `Agent` tool is in the allowlist. Follow `_add-tests`: the
+   allowed; the `Agent` tool is in the allowlist. Follow `dw-add-tests`: the
    failing test is committed before the change that makes it pass, coverage
    stays at 100% line and branch, and no existing test is removed or
-   silently changed. Commits follow `_ship`: imperative subject under 72
+   silently changed. Commits follow `dw-ship`: imperative subject under 72
    characters, the rationale in the body.
 5. Gate: `./format.sh`, then `./test.sh unit` must pass. When anything under
    `app/frontend/` changed, also `./test.sh snap` (about nine minutes; run it
    alone). Both start the compose stack on the runner; that is expected.
-6. Push: `git push -u origin <branch>`. New PR: `gh pr create` with `_ship`'s
+6. Push: `git push -u origin <branch>`. New PR: `gh pr create` with `dw-ship`'s
    body, `## Changes` bullets and a `## Test checklist` whose first item is
    the plan's Verify step, and `Closes #<N>` in the body. Existing PR: push,
    then `gh pr comment <PR>` with what changed.

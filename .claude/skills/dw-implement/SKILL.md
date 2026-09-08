@@ -1,6 +1,6 @@
 ---
-name: _implement
-description: Plan a change as a checklist at docs/plans/<slug>.md, confirm it, then build it red before green and hand it to _ship
+name: dw-implement
+description: Plan a change as a checklist at docs/plans/<slug>.md, confirm it, then build it red before green and hand it to dw-ship
 user-invocable: true
 argument-hint: "<feature description>"
 ---
@@ -9,7 +9,7 @@ argument-hint: "<feature description>"
 
 Take the feature from `$ARGUMENTS`, or from what the conversation has been circling. If neither says what to build, ask.
 
-This skill is the plan format and the flow. The two stops below are for a person driving directly. A headless agent replaces them with its own gates: the `_operator` skills take the plan from an approved issue and never stop here.
+This skill is the plan format and the flow. The two stops below are for a person driving directly. A headless agent replaces them with its own gates: the `dw-operator` skills take the plan from an approved issue and never stop here.
 
 ## Plan
 
@@ -56,7 +56,7 @@ There is no migration step and no schema approval gate. The schema is SQLAlchemy
 
 5. Delegate. The main session orchestrates and reviews; every code edit goes to a subagent (`CLAUDE.md`). Launch independent tasks together, each carrying the file paths, the project rules, and the success criterion: `./test.sh unit` green.
 
-6. Red first. The failing tests are written, run and committed before the implementation, as their own commit (`_add-tests` has the rules). Then the implementation, then green.
+6. Red first. The failing tests are written, run and committed before the implementation, as their own commit (`dw-add-tests` has the rules). Then the implementation, then green.
 
 7. Tick the plan as tasks land: `- [ ]` becomes `- [x]`.
 
@@ -66,4 +66,4 @@ There is no migration step and no schema approval gate. The schema is SQLAlchemy
 
 9. Report: what was built, the files, any caveat.
 
-10. Ship with `_ship`.
+10. Ship with `dw-ship`.
