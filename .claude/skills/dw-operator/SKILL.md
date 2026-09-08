@@ -49,17 +49,14 @@ back.
    Open means pending. Closed with `approved` means built. Closed without
    `approved` means declined, and a declined subject returns only when the
    evidence changed, with the change named in the new issue.
-3. Read the known work: `TODO.md` at the repo root and `docs/todo-evals.md`
-   when present. Neither is yours to re-propose; cite them when they explain
-   what you found.
-4. Work through the brief's reading order with `psql` and the API. Where a
+3. Work through the brief's reading order with `psql` and the API. Where a
    definition line would close a gap, try it: edit, rebuild, read the number,
    put the file back, rebuild again. Quote before and after.
-5. Choose. At most three proposals a run, one subject each. Findings are not
+4. Choose. At most three proposals a run, one subject each. Findings are not
    capped, but check each against the trail first: an open finding on the
    same subject is not reopened; `gh issue comment <N>` if the evidence moved.
-6. Open the issues in the formats below.
-7. The run summary is your final message, under 400 words: what changed
+5. Open the issues in the formats below.
+6. The run summary is your final message, under 400 words: what changed
    since the last run, in the repository (`git log`) and in the estate;
    what you proposed, with issue numbers; what you looked at and left
    alone, with the reason. The workflow lifts it into the job's step
@@ -131,7 +128,6 @@ MD
   the runner.
 - Never apply the `approved` label. A person applying it is the gate.
 - Never re-open a declined subject without naming what changed.
-- Never propose known work: `TODO.md` and `docs/todo-evals.md`.
 - Identity, blocklist and resolution-guard changes ship with a measurement
   on the adversarial corpus (`app/backend/tests/test_adversarial_er.py` and
   its floors) or not at all.

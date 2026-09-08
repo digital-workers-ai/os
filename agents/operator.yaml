@@ -59,8 +59,6 @@ brief: |
     series suggests, and say that the number is for the approver to set.
   - Identity, blocklists and the resolution guards are measured on the
     adversarial corpus. A change there ships with the measurement, or not at all.
-  - Known work in `TODO.md` and `docs/todo-evals.md` is not yours to re-propose.
-    Cite it when it explains what you found.
 
   Something that needs a person and not a change — a pair to confirm, a source
   to look at, a number that cannot be right — is a finding: an issue that says
