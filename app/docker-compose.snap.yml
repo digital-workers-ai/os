@@ -1,6 +1,3 @@
-x-pinned-clock: &pinned-clock
-  CLOCK_PINNED_AT: "2026-09-04T12:00:00Z"
-
 services:
   postgres:
     ports: !reset []
@@ -11,18 +8,18 @@ services:
   backend:
     ports: !reset []
     environment:
-      <<: *pinned-clock
       ENRICHMENT_ENABLED: "false"
       COACHING_ENABLED: "false"
       EMBEDDINGS_ENABLED: "false"
       RERANK_ENABLED: "false"
+      CLOCK_PINNED_AT: "2026-09-04T12:00:00Z"
 
   frontend:
     ports: !reset []
 
   playwright:
     environment:
-      <<: *pinned-clock
+      CLOCK_PINNED_AT: "2026-09-04T12:00:00Z"
 
 volumes:
   frontend_node_modules:
