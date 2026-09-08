@@ -7,7 +7,7 @@ on:
     types: [created]
 
 jobs:
-  build:
+  gate:
     if: |
       (github.event_name == 'issues' &&
        github.event.label.name == 'approved' &&
@@ -18,8 +18,27 @@ jobs:
        contains(github.event.issue.labels.*.name, 'operator') &&
        (contains(github.event.issue.labels.*.name, 'approved') ||
         (contains(github.event.issue.labels.*.name, 'awaiting-approval') &&
-         (startsWith(github.event.comment.body, 'lgtm') || startsWith(github.event.comment.body, 'approve')) &&
-         contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association))))
+         (startsWith(github.event.comment.body, 'lgtm') || startsWith(github.event.comment.body, 'approve')))))
+    runs-on: ubuntu-latest
+    outputs:
+      allowed: ${{ steps.permission.outputs.allowed }}
+    steps:
+      - name: Admit only the repository owner or an admin
+        id: permission
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ACTOR: ${{ github.event.sender.login || github.actor }}
+        run: |
+          permission=$(gh api "repos/${{ github.repository }}/collaborators/$ACTOR/permission" --jq .permission 2>/dev/null || echo none)
+          echo "actor=$ACTOR permission=$permission"
+          if [ "$permission" = "admin" ]; then
+            echo "allowed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "allowed=false" >> "$GITHUB_OUTPUT"
+          fi
+  build:
+    needs: gate
+    if: needs.gate.outputs.allowed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     concurrency:
@@ -32,20 +51,25 @@ jobs:
       id-token: write
       actions: read
     steps:
-      - env:
+      - name: Settle labels and acknowledge
+        env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh issue edit ${{ github.event.issue.number }} --repo ${{ github.repository }} \
             --add-label approved --remove-label awaiting-approval 2>/dev/null || true
           gh issue comment ${{ github.event.issue.number }} --repo ${{ github.repository }} \
             --body "Building now; the pull request will be linked here."
-      - uses: actions/checkout@v4
+      - name: Check out with full history
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - run: cp app/.env.example app/.env
-      - id: agent
+      - name: Copy the example env
+        run: cp app/.env.example app/.env
+      - name: Read the operator's model
+        id: agent
         run: echo "model=$(yq -r .model agents/operator.yaml)" >> "$GITHUB_OUTPUT"
-      - id: claude
+      - name: Run the build
+        id: claude
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -58,25 +82,13 @@ jobs:
             --model ${{ steps.agent.outputs.model }}
             --max-turns 150
             --allowedTools "Read,Grep,Glob,Edit,Write,Agent,Bash(git:*),Bash(gh issue view:*),Bash(gh issue comment:*),Bash(gh pr list:*),Bash(gh pr view:*),Bash(gh pr create:*),Bash(gh pr comment:*),Bash(./test.sh:*),Bash(./format.sh),Bash(docker compose:*),Bash(python:*),Bash(npm:*)"
-      - if: always() && steps.claude.outputs.execution_file != ''
+      - name: Report the run's cost
+        if: always() && steps.claude.outputs.execution_file != ''
         env:
           GH_TOKEN: ${{ github.token }}
           EXEC_FILE: ${{ steps.claude.outputs.execution_file }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           [ -f "$EXEC_FILE" ] || exit 0
-          BODY=$(python3 - <<'PY'
-          import json, os
-          try:
-              raw = open(os.environ["EXEC_FILE"]).read().strip()
-              entries = json.loads(raw) if raw.startswith("[") else [json.loads(l) for l in raw.splitlines() if l.strip()]
-              r = next((e for e in reversed(entries) if e.get("type") == "result"), {})
-              cost = r.get("total_cost_usd")
-              mins, secs = divmod(int(r.get("duration_ms", 0) / 1000), 60)
-              cost_s = f"${cost:.2f}" if isinstance(cost, (int, float)) else "n/a"
-              print(f"Build run: {cost_s} API · {r.get('num_turns', '?')} turns · {mins}m{secs:02d}s · [logs]({os.environ['RUN_URL']})")
-          except Exception:
-              pass
-          PY
-          )
+          BODY=$(python3 .github/scripts/report_run.py "Build run")
           [ -n "$BODY" ] && gh issue comment ${{ github.event.issue.number }} --repo ${{ github.repository }} --body "$BODY" || true

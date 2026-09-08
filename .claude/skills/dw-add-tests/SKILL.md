@@ -26,7 +26,7 @@ Test what `$ARGUMENTS` names, or what the conversation just changed.
    - `test_properties.py` — hypothesis property suite
    - `test_api_contract.py` — schemathesis over the live OpenAPI; `e2e`-marked, because unit-suite DB contention manufactures false 500s
    - `e2e/` — `e2e`-marked, runs against the live mock estate
-   - `live/` — `llm`-marked, calls the real Anthropic API; needs a key, never in CI
+   - `live/` — `llm`-marked, calls the real LLM API; needs a key, never in CI
 
    `./test.sh unit` runs `not e2e and not llm`; `./test.sh e2e` runs `e2e and not llm`.
 
