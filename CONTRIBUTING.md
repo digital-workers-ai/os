@@ -68,8 +68,6 @@ The `dw-*` skills under `.claude/skills/` are the in-repo workflow for Claude Co
 - `dw-ship` runs the gate, branches, commits and opens the PR
 - `dw-operator` and `dw-operator-build` are the daily operator agent's rules
 
-`CLAUDE.md` is the short form the agents read; this file is the long form for a person.
-
 ## Reporting
 
 Bugs and feature requests go through the issue forms. Security reports follow `SECURITY.md`, never a public issue. `CODE_OF_CONDUCT.md` applies to every interaction in the project.
