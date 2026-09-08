@@ -1,0 +1,141 @@
+name: operator
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+    inputs:
+      focus:
+        type: string
+        default: ""
+  issue_comment:
+    types: [created]
+
+jobs:
+  operator:
+    if: |
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issue_comment' &&
+       !github.event.issue.pull_request &&
+       github.event.comment.user.type != 'Bot' &&
+       contains(github.event.issue.labels.*.name, 'operator') &&
+       !contains(github.event.issue.labels.*.name, 'approved') &&
+       !startsWith(github.event.comment.body, 'lgtm') &&
+       !startsWith(github.event.comment.body, 'approve'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    concurrency:
+      group: operator-${{ github.event.issue.number || 'daily' }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+      id-token: write
+      actions: read
+    env:
+      OPERATOR_DATABASE_URL: postgresql://os:os@localhost:5442/os
+      OPERATOR_API: http://localhost:8092
+    steps:
+      - if: github.event_name == 'issue_comment'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue comment ${{ github.event.issue.number }} --repo ${{ github.repository }} --body "Reading the comment now."
+      - uses: actions/checkout@v4
+      - run: cp app/.env.example app/.env
+      - if: vars.OPERATOR_SNAPSHOT_S3 != '' && vars.OPERATOR_SNAPSHOT_GCS != ''
+        run: |
+          echo "::error::OPERATOR_SNAPSHOT_S3 and OPERATOR_SNAPSHOT_GCS are both set; the operator restores from one cloud, unset the other"
+          exit 1
+      - run: docker compose -f app/docker-compose.yml up -d --build --wait postgres
+      - if: vars.OPERATOR_SNAPSHOT_S3 != ''
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.OPERATOR_AWS_ROLE_ARN }}
+          aws-region: us-east-1
+      - if: vars.OPERATOR_SNAPSHOT_S3 != ''
+        run: aws s3 cp "s3://${{ vars.OPERATOR_SNAPSHOT_S3 }}" os.dump
+      - if: vars.OPERATOR_SNAPSHOT_GCS != ''
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.OPERATOR_GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.OPERATOR_GCP_SERVICE_ACCOUNT }}
+      - if: vars.OPERATOR_SNAPSHOT_GCS != ''
+        run: gcloud storage cp "gs://${{ vars.OPERATOR_SNAPSHOT_GCS }}" os.dump
+      - if: vars.OPERATOR_SNAPSHOT_S3 != '' || vars.OPERATOR_SNAPSHOT_GCS != ''
+        run: docker compose -f app/docker-compose.yml exec -T postgres pg_restore -U os -d os --no-owner --no-privileges --exit-on-error < os.dump
+      - if: vars.OPERATOR_SNAPSHOT_S3 == '' && vars.OPERATOR_SNAPSHOT_GCS == ''
+        run: |
+          docker compose -f app/docker-compose.yml up -d --build --wait mock backend
+          post_api() {
+            for _ in $(seq 5); do
+              code=$(curl -sS -o /dev/null -w '%{http_code}' -X POST "$OPERATOR_API/api/$1")
+              echo "POST /api/$1 -> $code"
+              case "$code" in
+                2*) return 0 ;;
+                409) sleep 3 ;;
+                *) return 1 ;;
+              esac
+            done
+            return 1
+          }
+          post_api sync
+          post_api rebuild
+          post_api metrics/snapshots
+      - run: docker compose -f app/docker-compose.yml up -d --build --wait backend
+      - if: failure()
+        run: |
+          {
+            echo "## backend logs"
+            echo '```'
+            docker compose -f app/docker-compose.yml logs --tail 60 backend
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - id: claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.OPERATOR_GITHUB_PAT }}
+          show_full_output: true
+          prompt: |
+            Read .claude/skills/_operator/SKILL.md and follow it.
+            Event: ${{ github.event_name }}.
+            Issue: ${{ github.event.issue.number || 'none' }}.
+            Focus: ${{ inputs.focus || 'none' }}.
+          claude_args: |
+            --model claude-opus-5
+            --max-turns 200
+            --allowedTools "Read,Grep,Glob,Edit,Bash(psql:*),Bash(curl:*),Bash(docker compose:*),Bash(git diff:*),Bash(git checkout --:*),Bash(git log:*),Bash(gh issue list:*),Bash(gh issue view:*),Bash(gh issue create:*),Bash(gh issue comment:*),Bash(gh issue edit:*),Bash(gh issue close:*),Bash(gh pr list:*)"
+      - if: always() && steps.claude.outputs.execution_file != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXEC_FILE: ${{ steps.claude.outputs.execution_file }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          ISSUE: ${{ github.event.issue.number }}
+        run: |
+          [ -f "$EXEC_FILE" ] || exit 0
+          BODY=$(python3 - <<'PY'
+          import json, os
+          try:
+              raw = open(os.environ["EXEC_FILE"]).read().strip()
+              entries = json.loads(raw) if raw.startswith("[") else [json.loads(l) for l in raw.splitlines() if l.strip()]
+              r = next((e for e in reversed(entries) if e.get("type") == "result"), {})
+              summary = r.get("result")
+              if isinstance(summary, str) and summary.strip():
+                  with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
+                      f.write(summary.rstrip() + "\n\n")
+              cost = r.get("total_cost_usd")
+              mins, secs = divmod(int(r.get("duration_ms", 0) / 1000), 60)
+              cost_s = f"${cost:.2f}" if isinstance(cost, (int, float)) else "n/a"
+              print(f"Operator run: {cost_s} API · {r.get('num_turns', '?')} turns · {mins}m{secs:02d}s · [logs]({os.environ['RUN_URL']})")
+          except Exception:
+              pass
+          PY
+          )
+          [ -n "$BODY" ] || exit 0
+          if [ -n "$ISSUE" ]; then
+            gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" --body "$BODY" || true
+          else
+            echo "$BODY" >> "$GITHUB_STEP_SUMMARY"
+          fi
