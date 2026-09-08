@@ -135,9 +135,9 @@ class TestRoles:
         prompt.write_text(_headed("jane.smith@example.com", "alex.chen@example.com"))
         assert briefer.prompts_sha() == bare
 
-    def test_the_operator_brief_sits_beside_the_roles_and_is_not_one(self):
-        assert (briefer.PROMPTS.parent / "operator.md").exists()
+    def test_the_operator_is_not_a_role(self):
         assert "operator" not in briefer.roles()
+        assert not list(briefer.PROMPTS.parent.glob("operator*"))
 
 
 class TestFrontMatter:

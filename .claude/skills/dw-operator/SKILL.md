@@ -1,14 +1,14 @@
 ---
 name: dw-operator
-description: Headless operator for the estate — audits last night's database copy against the brief in definitions/operator.md, opens proposal and finding issues, revises a plan on request, writes the run summary. Invoked by .github/workflows/operator.yml.
+description: Headless operator for the estate — audits last night's database copy against the routine in the `brief` key of agents/operator.yaml, opens proposal and finding issues, revises a plan on request, writes the run summary. Invoked by .github/workflows/operator.yml.
 disable-model-invocation: true
 ---
 
 # Agent: Operator
 
-Run the routine in `definitions/operator.md` against a copy of the estate and
-deliver what you find as GitHub issues. Never write code, never build: a
-person approves an issue, and `dw-operator-build` builds it.
+Run the routine in the `brief` key of `agents/operator.yaml` against a copy
+of the estate and deliver what you find as GitHub issues. Never write code,
+never build: a person approves an issue, and `dw-operator-build` builds it.
 
 ## Context
 
@@ -42,8 +42,8 @@ back.
 
 ## Steps
 
-1. Read `definitions/operator.md`. It is the routine; this file is the rules
-   of engagement.
+1. Read `agents/operator.yaml`. Its `brief` key is the routine; this file is
+   the rules of engagement.
 2. Read the trail, which is your memory:
    `gh issue list --label operator --state all --limit 200 --json number,title,state,labels,closedAt`.
    Open means pending. Closed with `approved` means built. Closed without

@@ -43,6 +43,8 @@ jobs:
         with:
           fetch-depth: 0
       - run: cp app/.env.example app/.env
+      - id: agent
+        run: echo "model=$(yq -r .model agents/operator.yaml)" >> "$GITHUB_OUTPUT"
       - id: claude
         uses: anthropics/claude-code-action@v1
         with:
@@ -53,7 +55,7 @@ jobs:
           prompt: |
             Read .claude/skills/dw-operator-build/SKILL.md and follow it for issue ${{ github.event.issue.number }}. Event: ${{ github.event_name }}.
           claude_args: |
-            --model claude-opus-5
+            --model ${{ steps.agent.outputs.model }}
             --max-turns 150
             --allowedTools "Read,Grep,Glob,Edit,Write,Agent,Bash(git:*),Bash(gh issue view:*),Bash(gh issue comment:*),Bash(gh pr list:*),Bash(gh pr view:*),Bash(gh pr create:*),Bash(gh pr comment:*),Bash(./test.sh:*),Bash(./format.sh),Bash(docker compose:*),Bash(python:*),Bash(npm:*)"
       - if: always() && steps.claude.outputs.execution_file != ''

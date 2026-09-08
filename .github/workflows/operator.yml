@@ -44,6 +44,8 @@ jobs:
         run: gh issue comment ${{ github.event.issue.number }} --repo ${{ github.repository }} --body "Reading the comment now."
       - uses: actions/checkout@v4
       - run: cp app/.env.example app/.env
+      - id: agent
+        run: echo "model=$(yq -r .model agents/operator.yaml)" >> "$GITHUB_OUTPUT"
       - if: vars.OPERATOR_SNAPSHOT_S3 != '' && vars.OPERATOR_SNAPSHOT_GCS != ''
         run: |
           echo "::error::OPERATOR_SNAPSHOT_S3 and OPERATOR_SNAPSHOT_GCS are both set; the operator restores from one cloud, unset the other"
@@ -104,7 +106,7 @@ jobs:
             Issue: ${{ github.event.issue.number || 'none' }}.
             Focus: ${{ inputs.focus || 'none' }}.
           claude_args: |
-            --model claude-opus-5
+            --model ${{ steps.agent.outputs.model }}
             --max-turns 200
             --allowedTools "Read,Grep,Glob,Edit,Bash(psql:*),Bash(curl:*),Bash(docker compose:*),Bash(git diff:*),Bash(git checkout --:*),Bash(git log:*),Bash(gh issue list:*),Bash(gh issue view:*),Bash(gh issue create:*),Bash(gh issue comment:*),Bash(gh issue edit:*),Bash(gh issue close:*),Bash(gh pr list:*)"
       - if: always() && steps.claude.outputs.execution_file != ''
