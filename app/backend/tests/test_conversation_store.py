@@ -3,6 +3,7 @@ from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import delete, select
 
+from app.config import settings
 from app.conversation import store
 from app.models import ConversationThread, ConversationTurn
 from tests.conftest import NOW
@@ -82,9 +83,12 @@ class TestListing:
     async def test_nothing_is_listed_before_any_thread_exists(self, session):
         assert await store.list_conversations(session, limit=50, offset=0) == []
 
-    async def test_a_thread_with_a_new_turn_moves_to_the_front(self, session):
+    async def test_a_thread_with_a_new_turn_moves_to_the_front(
+        self, session, monkeypatch
+    ):
         older = await store.create_conversation(session)
         newer = await store.create_conversation(session)
+        monkeypatch.setattr(settings, "CLOCK_PINNED_AT", NOW + timedelta(minutes=1))
         await store.append_turn(session, older, "what is mrr?", TURN)
         listed = await store.list_conversations(session, limit=50, offset=0)
         assert [row["conversation_id"] for row in listed] == [str(older), str(newer)]

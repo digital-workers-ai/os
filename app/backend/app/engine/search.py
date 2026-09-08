@@ -4,11 +4,11 @@ import re
 import time
 import uuid
 from collections import Counter
-from datetime import UTC, datetime
+from datetime import datetime
 
 from sqlalchemy import String, and_, cast, delete, func, or_, select, text
 
-from app import caches, llm
+from app import caches, clock, llm
 from app.api import entities_api
 from app.config import settings
 from app.engine import goals, metrics, ontology, rules
@@ -491,7 +491,7 @@ async def embed(session, *, limit: int | None = None) -> dict:
             failed += len(rows)
             error = error or str(exc)
             continue
-        now = datetime.now(UTC)
+        now = clock.now()
         for row, vector in zip(rows, vectors, strict=True):
             row.embedding, row.model, row.embedded_at = vector, model, now
         embedded += len(rows)

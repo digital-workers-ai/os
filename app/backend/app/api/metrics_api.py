@@ -1,8 +1,7 @@
-from datetime import UTC, datetime
-
 from fastapi import Depends, Query
 from sqlalchemy import select
 
+from app import clock
 from app.api.routers import metrics as router
 from app.db import async_session, get_session
 from app.engine import mappings, metrics
@@ -13,7 +12,7 @@ GLOSS_KEYS = ("description", "synonyms")
 
 @router.get("")
 async def get_metrics(session=Depends(get_session)):
-    now = datetime.now(UTC)
+    now = clock.now()
     values = await metrics.evaluate(session, now=now)
     defs = metrics.load_definitions()
     lineage = metrics.provenance(defs, mappings.load())

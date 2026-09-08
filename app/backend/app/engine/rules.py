@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 
 from sqlalchemy import select
 
-from app import caches
+from app import caches, clock
 from app.caches import load_mapping
 from app.models import CanonicalLink, EntityCanonical, FactCurrent
 
@@ -269,7 +269,7 @@ def _hit(condition: Condition, facts: dict, now: datetime) -> bool:
 
 async def evaluate(session, *, rules=None, now=None, report=None) -> list:
     rules = rules if rules is not None else definitions()
-    now = now or datetime.now(UTC)
+    now = now or clock.now()
     report = report if report is not None else Report()
 
     entity_types = sorted({rule.entity for rule in rules.values()})

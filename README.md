@@ -208,6 +208,8 @@ Three durability rules: the rebuild never touches `enriched_fact` (it's the one 
 
 The stack is Docker Compose (`app/docker-compose.yml`): postgres :5442, mock :8192, backend :8092. `test.sh` starts it as needed.
 
+Every pytest test runs with the clock pinned at `2026-09-04T12:00Z`: a fixture sets `CLOCK_PINNED_AT`, the app reads the calendar only through `app/clock.py`, and ruff refuses any other wall-clock read, so `as_of`, window bounds, and app-written timestamps are exact in assertions. Durations from `time.monotonic()` and Postgres column defaults stay on their own clocks.
+
 Connect an MCP client to the running stack: `claude mcp add --transport http os http://localhost:3092/mcp` for Claude Code, or for Claude Desktop and Cursor:
 
 ```json
@@ -267,6 +269,7 @@ Everything is read from the environment, and `app/.env` (copied from `app/.env.e
 | `RERANK_MODEL` | `zerank-2` | ZeroEntropy reranker model |
 | `RERANK_TOP` | `20` | Results sent to the reranker |
 | `SEARCH_CHUNK_CHARS` | `1200` | Target size of a transcript chunk |
+| `CLOCK_PINNED_AT` | unset | Pins the app clock at one instant; the snapshot stack sets `2026-09-04T12:00:00Z` so backend, seed, and browser agree on the day |
 
 Keys, set only in the environment or `app/.env`:
 
@@ -276,7 +279,7 @@ Keys, set only in the environment or `app/.env`:
 | `OPENAI_API_KEY` | `EMBEDDINGS_ENABLED` |
 | `ZEROENTROPY_API_KEY` | `RERANK_ENABLED` |
 
-The compose files add the wiring, not knobs: `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` (all `os`) on the database, `BACKEND_URL` on the frontend dev server, and `docker-compose.snap.yml` pins every model flag off for the snapshot stack.
+The compose files add the wiring, not knobs: `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` (all `os`) on the database, `BACKEND_URL` on the frontend dev server, and `docker-compose.snap.yml` pins every model flag off for the snapshot stack and the clock at `2026-09-04T12:00:00Z` for the backend, the seed, and the Playwright browser.
 
 ## Layout
 

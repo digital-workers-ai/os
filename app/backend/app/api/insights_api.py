@@ -1,7 +1,6 @@
-from datetime import UTC, datetime
-
 from fastapi import Depends, Query
 
+from app import clock
 from app.api.routers import insights as router
 from app.db import get_session
 from app.engine import goals, rules
@@ -9,7 +8,7 @@ from app.engine import goals, rules
 
 @router.get("/rules")
 async def list_rules(severity: str | None = Query(None), session=Depends(get_session)):
-    now = datetime.now(UTC)
+    now = clock.now()
     report = rules.Report()
     findings = await rules.evaluate(session, now=now, report=report)
     if severity:

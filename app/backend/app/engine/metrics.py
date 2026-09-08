@@ -1,9 +1,10 @@
 import math
 import re
-from datetime import UTC, date, datetime, timedelta
+from datetime import date, timedelta
 
 from sqlalchemy import func, select
 
+from app import clock
 from app.caches import DEFINITIONS_DIR, load_mapping
 from app.engine import derived, ontology, transforms
 from app.enrichment import vocabulary
@@ -759,7 +760,7 @@ async def _breakdown(session, onto, spec, parsed, money, window, term_ids) -> di
 async def evaluate_definitions(session, defs: dict, now=None) -> dict:
     onto = ontology.load()
     money = transforms.money_labels()
-    now = now or datetime.now(UTC)
+    now = now or clock.now()
     out: dict = {}
     for name, spec in defs.items():
         label = spec.get("label", name) if isinstance(spec, dict) else name

@@ -207,3 +207,8 @@ def count_queries(db_engine):
             event.remove(db_engine.sync_engine, "before_cursor_execute", _on_execute)
 
     return _counting
+
+
+@pytest.fixture(autouse=True)
+def pinned_clock(monkeypatch):
+    monkeypatch.setattr(settings, "CLOCK_PINNED_AT", NOW)

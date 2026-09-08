@@ -1,13 +1,12 @@
 import hashlib
 import re
 import time
-from datetime import UTC, datetime
 from pathlib import Path
 
 import yaml
 from sqlalchemy import select
 
-from app import llm
+from app import clock, llm
 from app.caches import DEFINITIONS_DIR
 from app.config import settings
 from app.engine import goals, metrics, rules, search
@@ -230,7 +229,7 @@ async def generate(session, role: str, *, model_client=None) -> dict:
     return {
         "role": role,
         "briefing": text,
-        "generated_at": datetime.now(UTC).isoformat(),
+        "generated_at": clock.now().isoformat(),
         "model": run.model,
         "prompt_version": PROMPT_VERSION,
         "input_sha": run.input_sha[:12],

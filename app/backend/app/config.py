@@ -1,5 +1,7 @@
 import os
+from datetime import datetime
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings
 
 ANTHROPIC_CREDENTIAL_ENV = "ANTHROPIC_API_KEY"
@@ -46,8 +48,18 @@ class Settings(BaseSettings):
     RERANK_MODEL: str = "zerank-2"
     RERANK_TOP: int = 20
     SEARCH_CHUNK_CHARS: int = 1200
+    CLOCK_PINNED_AT: datetime | None = None
 
     model_config = {"env_file": ".env", "extra": "ignore"}
+
+    @field_validator("CLOCK_PINNED_AT")
+    @classmethod
+    def pin_carries_a_timezone(cls, value: datetime | None) -> datetime | None:
+        if value is not None and value.tzinfo is None:
+            raise ValueError(
+                "CLOCK_PINNED_AT must carry a timezone, e.g. 2026-09-04T12:00:00Z"
+            )
+        return value
 
 
 settings = Settings()
