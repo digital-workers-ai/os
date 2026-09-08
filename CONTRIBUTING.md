@@ -19,7 +19,7 @@ The example env is empty and that runs: every knob has a default. The compose pr
 
 ```
 ./test.sh unit           ruff check + ruff format --check, then pytest at 100% line and branch coverage
-./test.sh e2e            the e2e-marked suite against the live mock estate
+./test.sh e2e            the e2e-marked suite against the live mock providers
 ./test.sh snap           Playwright screenshots of every console page against the committed baselines
 ./test.sh snap-update    accept new baselines
 ./format.sh              apply what ruff can fix

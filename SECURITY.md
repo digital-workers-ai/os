@@ -18,4 +18,4 @@ API keys live in `app/.env`, which is gitignored, or in the environment. They ar
 
 The operator reads a restored copy of the database in the CI runner and never touches production.
 
-The mock estate under `mock/` is fictional data.
+The mock providers under `mock/` serve fictional data.

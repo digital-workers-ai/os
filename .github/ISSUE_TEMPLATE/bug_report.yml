@@ -1,5 +1,5 @@
 name: Bug report
-description: Something the estate got wrong
+description: Something does not work as described
 labels: [bug]
 body:
   - type: textarea
