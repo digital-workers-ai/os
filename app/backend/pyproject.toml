@@ -40,7 +40,7 @@ target-version = "py312"
 line-length = 88
 
 [tool.ruff.lint]
-select = ["E", "W", "F", "I", "B", "UP", "C4", "DTZ"]
+select = ["E", "W", "F", "I", "B", "UP", "C4", "DTZ", "TID251"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["app", "tests"]
@@ -48,8 +48,17 @@ known-first-party = ["app", "tests"]
 [tool.ruff.lint.flake8-bugbear]
 extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Body"]
 
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"datetime.datetime.now".msg = "read the clock through app.clock.now"
+"datetime.datetime.utcnow".msg = "read the clock through app.clock.now"
+"datetime.datetime.today".msg = "read the clock through app.clock.now"
+"datetime.date.today".msg = "read the clock through app.clock.now"
+"time.time".msg = "read the clock through app.clock.now"
+
 [tool.ruff.lint.per-file-ignores]
 "app/models.py" = ["E501"]
+"app/clock.py" = ["TID251"]
+"tests/test_clock.py" = ["TID251"]
 
 [tool.ruff.format]
 exclude = ["app/models.py"]

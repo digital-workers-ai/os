@@ -1,14 +1,15 @@
 import uuid
-from datetime import UTC, datetime
 
 from sqlalchemy import select, update
 
+from app import clock
 from app.config import settings
 from app.models import ConversationThread, ConversationTurn
 
 
 async def create_conversation(session) -> uuid.UUID:
-    row = ConversationThread()
+    now = clock.now()
+    row = ConversationThread(created_at=now, updated_at=now)
     session.add(row)
     await session.flush()
     return row.id
@@ -113,6 +114,6 @@ async def append_turn(
     await session.execute(
         update(ConversationThread)
         .where(ConversationThread.id == conversation_id)
-        .values(updated_at=datetime.now(UTC))
+        .values(updated_at=clock.now())
     )
     await session.flush()

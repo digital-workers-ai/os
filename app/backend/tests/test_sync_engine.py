@@ -8,6 +8,7 @@ from app import sync
 from app.config import settings
 from app.models import RawEvent, SyncRun
 from app.sources import client, registry
+from tests.conftest import NOW
 
 
 class TestSyncIsolation:
@@ -52,6 +53,20 @@ class TestSyncIsolation:
         result = await sync.run_all(sessionmaker_for_test, ["hubspot"])
         assert "missing_id=3" in result["results"][0]["detail"]
         assert result["ok"] == 1
+
+    async def test_a_run_is_stamped_from_the_app_clock(
+        self, session, sessionmaker_for_test, monkeypatch
+    ):
+        async def pull(session, store):
+            return None
+
+        module = type("M", (), {"pull": staticmethod(pull)})
+        monkeypatch.setattr(registry, "discover", lambda: {"hubspot": module})
+
+        await sync.run_all(sessionmaker_for_test, ["hubspot"])
+
+        row = (await session.execute(select(SyncRun))).scalar_one()
+        assert row.started_at == NOW
 
 
 class TestOneUnstorableRecordCostsOneRecord:
@@ -377,13 +392,13 @@ class TestTheSourceSwitchGatesSyncing:
         synced = self._recording(monkeypatch)
         off = await sync.set_enabled(session, "hubspot", False)
         await session.commit()
+        monkeypatch.setattr(settings, "CLOCK_PINNED_AT", NOW + timedelta(minutes=1))
         on = await sync.set_enabled(session, "hubspot", True)
         await session.commit()
         assert set(on) == {"source", "enabled", "updated_at"}
         assert on["source"] == "hubspot" and on["enabled"] is True
-        assert datetime.fromisoformat(on["updated_at"]) > datetime.fromisoformat(
-            off["updated_at"]
-        )
+        assert off["updated_at"] == NOW.isoformat()
+        assert on["updated_at"] == (NOW + timedelta(minutes=1)).isoformat()
         assert await sync.disabled_sources(session) == set()
         await sync.run_all(sessionmaker_for_test, ["hubspot"])
         assert synced == ["hubspot"]
@@ -456,13 +471,12 @@ class TestStatusAnswersThreeDifferentQuestions:
 class TestRetentionIsEnforcedNotJustDeclared:
     async def test_a_sync_run_past_the_window_is_pruned(self, session, monkeypatch):
         monkeypatch.setattr(settings, "SYNC_RUN_RETENTION_DAYS", 30)
-        now = datetime.now(UTC)
         session.add(
             SyncRun(
                 source="hubspot",
                 ok=True,
                 detail="older",
-                started_at=now - timedelta(days=31),
+                started_at=NOW - timedelta(days=31),
             )
         )
         session.add(
@@ -470,7 +484,7 @@ class TestRetentionIsEnforcedNotJustDeclared:
                 source="hubspot",
                 ok=True,
                 detail="inside",
-                started_at=now - timedelta(days=29),
+                started_at=NOW - timedelta(days=29),
             )
         )
         await session.flush()

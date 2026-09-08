@@ -11,6 +11,7 @@ from app.models import Base, Entity
 
 TEST_DB_SUFFIX = "_test"
 FIXTURE_SEEN = datetime(2026, 8, 1, tzinfo=UTC)
+NOW = datetime(2026, 9, 4, 12, tzinfo=UTC)
 
 
 def _split_url(url: str) -> tuple[str, str]:
@@ -206,3 +207,8 @@ def count_queries(db_engine):
             event.remove(db_engine.sync_engine, "before_cursor_execute", _on_execute)
 
     return _counting
+
+
+@pytest.fixture(autouse=True)
+def pinned_clock(monkeypatch):
+    monkeypatch.setattr(settings, "CLOCK_PINNED_AT", NOW)

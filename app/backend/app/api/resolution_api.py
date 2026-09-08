@@ -1,9 +1,9 @@
-from datetime import UTC, datetime
 from typing import Literal
 
 from fastapi import Depends, HTTPException, Query
 from sqlalchemy import func, select, tuple_
 
+from app import clock
 from app.api.entities_api import LABEL_ATTRS, _label
 from app.api.routers import resolution as router
 from app.db import async_session, get_session
@@ -78,7 +78,7 @@ async def _decide(seq: int, decision: str) -> dict:
                 f"{' or '.join(allowed)} pair",
             )
         row.status = status
-        row.decided_at = None if status == "pending" else datetime.now(UTC)
+        row.decided_at = None if status == "pending" else clock.now()
         await session.flush()
         try:
             await run.rebuild(session)

@@ -1,6 +1,10 @@
 import { test as base, expect, type Locator, type Page } from '@playwright/test'
 
-export const NOW = new Date('2026-09-04T12:00:00Z')
+const pinned = process.env.CLOCK_PINNED_AT
+if (!pinned || Number.isNaN(Date.parse(pinned))) {
+  throw new Error('CLOCK_PINNED_AT is not set; docker-compose.snap.yml pins it for the snap stack')
+}
+export const NOW = new Date(pinned)
 
 export const test = base.extend({
   page: async ({ page }, use) => {

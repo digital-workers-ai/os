@@ -1,4 +1,5 @@
 import inspect
+import re
 from pathlib import Path
 
 import pytest
@@ -554,4 +555,7 @@ class TestLineage:
         for path in package.glob("*.py"):
             assert "anthropic" not in path.read_text()
         source = Path(briefer.__file__).read_text()
-        assert "from app import llm" in source or "app.llm" in source
+        assert (
+            re.search(r"^from app import .*\bllm\b", source, re.M)
+            or "app.llm" in source
+        )

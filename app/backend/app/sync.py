@@ -1,8 +1,9 @@
 import logging
-from datetime import UTC, datetime, timedelta
+from datetime import timedelta
 
 from sqlalchemy import delete, func, select
 
+from app import clock
 from app.config import settings
 from app.models import SourceSetting, SyncRun
 from app.sources import registry
@@ -30,7 +31,7 @@ async def set_enabled(session, source: str, enabled: bool) -> dict:
         setting = SourceSetting(source=source)
         session.add(setting)
     setting.enabled = enabled
-    setting.updated_at = datetime.now(UTC)
+    setting.updated_at = clock.now()
     await session.flush()
     return {
         "source": source,
@@ -43,7 +44,7 @@ async def run_connector(source: str, sessionmaker) -> dict:
     module = registry.get(source)
 
     async with sessionmaker() as session:
-        run = SyncRun(source=source, ok=False, started_at=datetime.now(UTC))
+        run = SyncRun(source=source, ok=False, started_at=clock.now())
         session.add(run)
         await session.commit()
         run_id = run.id
@@ -204,5 +205,5 @@ async def status(session) -> list[dict]:
 
 
 async def prune_sync_runs(session) -> None:
-    cutoff = datetime.now(UTC) - timedelta(days=settings.SYNC_RUN_RETENTION_DAYS)
+    cutoff = clock.now() - timedelta(days=settings.SYNC_RUN_RETENTION_DAYS)
     await session.execute(delete(SyncRun).where(SyncRun.started_at < cutoff))

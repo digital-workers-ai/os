@@ -1,12 +1,13 @@
 import inspect
 import uuid
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 
 import pytest
 from sqlalchemy import select, text
 
 from app.engine import metrics as m
 from app.models import FactCurrent
+from tests.conftest import NOW as PINNED
 
 
 async def evaluate(session, spec, name="m"):
@@ -580,9 +581,11 @@ class TestWindowedMetrics:
         assert result["value"] == 1
         assert result["population_size"] == 3
 
-    async def test_a_clock_free_call_reads_the_wall_clock(self, session, canonical):
-        today = datetime.now(UTC).date().isoformat()
-        await canonical("subscription", {"started_at": f"{today}T00:00:00Z"})
+    async def test_a_clock_free_call_reads_the_app_clock(self, session, canonical):
+        recent = (PINNED - timedelta(days=28)).date().isoformat()
+        await canonical("subscription", {"started_at": f"{recent}T00:00:00Z"})
         await canonical("subscription", {"started_at": "2020-01-01T00:00:00Z"})
         values = await m.evaluate_definitions(session, {"m": self._windowed()})
         assert values["m"]["value"] == 1
+        assert values["m"]["window_from"] == "2026-08-06"
+        assert values["m"]["window_to"] == "2026-09-04"

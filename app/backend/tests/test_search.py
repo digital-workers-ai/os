@@ -43,6 +43,7 @@ from app.search_vocab import (
     Mode,
     Weight,
 )
+from tests.conftest import NOW
 
 SEEN = datetime(2026, 8, 1, tzinfo=UTC)
 DIMS = 1536
@@ -862,7 +863,7 @@ class TestEmbed:
         for row in await chunk_rows(session):
             assert len(row.embedding) == DIMS
             assert row.model == settings.EMBEDDING_MODEL
-            assert row.embedded_at is not None
+            assert row.embedded_at == NOW
         (receipt,) = await embedding_runs(session)
         assert receipt.ok is True
         assert (receipt.embedded, receipt.skipped, receipt.failed) == (5, 0, 0)

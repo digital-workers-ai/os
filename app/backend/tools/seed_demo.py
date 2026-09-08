@@ -1,11 +1,11 @@
 import asyncio
 import hashlib
 import re
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 
 from sqlalchemy import delete, func, select, update
 
-from app import store
+from app import clock, store
 from app.coaching import briefer
 from app.db import async_session
 from app.engine import metrics, search
@@ -24,7 +24,7 @@ from app.models import (
     SyncRun,
 )
 
-NOW = datetime(2026, 9, 4, 12, 0, tzinfo=UTC)
+NOW = clock.now()
 MODEL = "claude-sonnet-5"
 PROMPT = "2026-08-02.1"
 PINS = [
