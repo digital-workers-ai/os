@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 
 from app import db
 from app.models import Base
-from tests.conftest import admin_database_url, test_database_url
+from tests import conftest
 
 MIGRATIONS = Path(__file__).resolve().parents[1] / "alembic"
 EXTENSIONS = {"vector", "pg_trgm"}
@@ -58,10 +58,12 @@ class TestMigrations:
     async def test_a_fresh_database_is_built_and_torn_down_by_the_migrations_alone(
         self,
     ):
-        url = test_database_url() + "_fresh"
+        url = conftest.test_database_url() + "_fresh"
         name = url.rpartition("/")[2]
         expected = set(Base.metadata.tables)
-        admin = create_async_engine(admin_database_url(), isolation_level="AUTOCOMMIT")
+        admin = create_async_engine(
+            conftest.admin_database_url(), isolation_level="AUTOCOMMIT"
+        )
         async with admin.connect() as conn:
             await conn.execute(text(f'DROP DATABASE IF EXISTS "{name}" WITH (FORCE)'))
             await conn.execute(text(f'CREATE DATABASE "{name}"'))

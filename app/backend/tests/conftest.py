@@ -6,6 +6,7 @@ import pytest_asyncio
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+from app import db
 from app.config import settings
 from app.models import Base, Entity
 
@@ -40,9 +41,7 @@ async def db_engine():
 
     engine = create_async_engine(test_database_url(), pool_pre_ping=True)
     async with engine.begin() as conn:
-        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
-        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS pg_trgm"))
-        await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(db.migrate)
     yield engine
     await engine.dispose()
 

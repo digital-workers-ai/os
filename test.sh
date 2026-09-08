@@ -91,8 +91,8 @@ if [ "$mode" = "unit" ]; then
 fi
 
 echo "==> ruff"
-compose exec -T backend ruff check app tests tools
-compose exec -T backend ruff format --check app tests tools
+compose exec -T backend ruff check app tests tools alembic
+compose exec -T backend ruff format --check app tests tools alembic
 
 echo "==> $mode suite"
 
