@@ -11,6 +11,7 @@ from app.models import Base, Entity
 
 TEST_DB_SUFFIX = "_test"
 FIXTURE_SEEN = datetime(2026, 8, 1, tzinfo=UTC)
+NOW = datetime(2026, 9, 4, 12, tzinfo=UTC)
 
 
 def _split_url(url: str) -> tuple[str, str]:

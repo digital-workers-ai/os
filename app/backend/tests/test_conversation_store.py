@@ -5,6 +5,7 @@ from sqlalchemy import delete, select
 
 from app.conversation import store
 from app.models import ConversationThread, ConversationTurn
+from tests.conftest import NOW
 
 SEEN = datetime(2026, 8, 1, tzinfo=UTC)
 
@@ -68,6 +69,13 @@ class TestStoredHistory:
 
     async def test_an_unknown_conversation_is_not_found(self, session):
         assert await store.get_conversation(session, uuid.uuid4()) is None
+
+    async def test_a_recorded_turn_stamps_the_thread_with_the_app_clock(self, session):
+        conversation_id = await store.create_conversation(session)
+        await store.append_turn(session, conversation_id, "what is mrr?", TURN)
+        thread = await store.get_conversation(session, conversation_id)
+        await session.refresh(thread)
+        assert thread.updated_at == NOW
 
 
 class TestListing:

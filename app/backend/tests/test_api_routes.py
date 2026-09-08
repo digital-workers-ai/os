@@ -30,6 +30,7 @@ from app.models import (
     SyncRun,
 )
 from app.sources import hooks
+from tests.conftest import NOW
 
 SELF_TRANSACTING = (
     sources_api,
@@ -762,7 +763,7 @@ class TestMetrics:
     async def test_the_payload_says_when_it_was_measured(self, api):
         body = (await api.get("/api/metrics")).json()
         assert set(body) == {"as_of", "metrics"}
-        assert datetime.fromisoformat(body["as_of"]).tzinfo is not None
+        assert body["as_of"] == NOW.isoformat()
 
     async def test_as_of_is_the_instant_the_metrics_were_measured(
         self, api, monkeypatch
@@ -976,9 +977,9 @@ class TestInsights:
         assert body["report"] == {"evaluated": 0, "unreadable": {}}
         assert set(body["by_severity"]) == {"high", "medium", "low"}
 
-    async def test_as_of_is_on_the_payload_and_timezone_aware(self, api):
+    async def test_as_of_is_the_instant_the_rules_were_judged(self, api):
         body = (await api.get("/api/insights/rules")).json()
-        assert datetime.fromisoformat(body["as_of"]).tzinfo is not None
+        assert body["as_of"] == NOW.isoformat()
 
     async def test_the_severity_filter_narrows_the_findings(self, api, canonical):
         await canonical("subscription", {"status": "past_due", "mrr": "100"})
@@ -1093,6 +1094,19 @@ class TestCoachingLayer:
         response = await api.post("/api/coaching/ceo")
         assert response.status_code == 409
         assert "COACHING_ENABLED" in response.json()["detail"]
+
+    async def test_a_generated_briefing_is_stamped_with_the_pinned_instant(
+        self, api, coaching_transacting, monkeypatch
+    ):
+        monkeypatch.setattr("app.coaching.briefer.settings.COACHING_ENABLED", True)
+
+        async def complete(*args, **kwargs):
+            return "Pipeline is up."
+
+        monkeypatch.setattr("app.coaching.briefer.llm.complete", complete)
+        response = await api.post("/api/coaching/ceo")
+        assert response.status_code == 200, response.text
+        assert response.json()["generated_at"] == NOW.isoformat()
 
     async def test_a_stored_briefing_comes_back_with_its_lineage(
         self, api, session, coaching_transacting
@@ -1792,7 +1806,7 @@ class TestResolutionDecisions:
         body = response.json()
         assert set(body) == ITEM_SHAPE
         assert (body["seq"], body["status"]) == (queued, "confirmed")
-        assert body["decided_at"] is not None
+        assert body["decided_at"] == NOW.isoformat()
         assert body["left"]["canonical_id"] == body["right"]["canonical_id"]
         entity = (await api.get(f"/api/entities/{body['left']['canonical_id']}")).json()
         assert {m["source"] for m in entity["members"]} == {"intercom", "zendesk"}
@@ -1812,7 +1826,7 @@ class TestResolutionDecisions:
         assert response.status_code == 200, response.text
         body = response.json()
         assert (body["seq"], body["status"]) == (queued, "rejected")
-        assert body["decided_at"] is not None
+        assert body["decided_at"] == NOW.isoformat()
         assert body["left"]["canonical_id"] != body["right"]["canonical_id"]
         pending = (await api.get("/api/resolution/candidates")).json()
         assert pending["candidates"] == []
