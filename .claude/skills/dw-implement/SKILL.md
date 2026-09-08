@@ -33,6 +33,7 @@ This skill is the plan format and the flow. The two stops below are for a person
    ### Backend
    - [ ] <task> — `app/backend/tests/test_<module>.py` — <the failing test>
    - [ ] <task> — `app/backend/app/<module>.py` — <what changes>
+   - [ ] <task> — `app/backend/alembic/versions/<generated>.py` — the generated migration, read in full
 
    ### Frontend
    - [ ] <task> — `app/frontend/src/<path>` — <what changes>
@@ -50,7 +51,17 @@ This skill is the plan format and the flow. The two stops below are for a person
 
 ## Schema
 
-There is no migration step and no schema approval gate. The schema is SQLAlchemy `create_all` at startup, so a new table is a model in the PR that first writes it, and nothing else. `create_all` never alters an existing table: a changed column means resetting the dev volume with `docker compose -p os -f app/docker-compose.yml down -v` and bringing the stack back up. Say so in the PR body when a change needs it. Every column carries its trailing comment, the one place a comment is allowed.
+The schema is a chain of Alembic migrations in `app/backend/alembic/versions/`. The boot runs them to head before the build checks, so a fresh database, the test database and a restored snapshot all reach the checkout's head with no extra step.
+
+To change it:
+
+1. Change the model in `app/backend/app/models.py`. Every column keeps its trailing comment, the one place a comment is allowed.
+2. Generate, never hand-write: `docker compose -f app/docker-compose.yml exec -T backend alembic revision --autogenerate -m "<what changes>"`. The post-write hooks strip Alembic's markers and format the file.
+3. Read the whole generated file and show it in full before going on. Autogenerate also picks up any drift it finds; anything not part of this change is a question for the reviewer, not something to keep quietly.
+4. Prove it both ways through the same `exec`: `alembic upgrade head`, `alembic downgrade -1`, `alembic upgrade head`.
+5. `./test.sh unit` runs `test_migrations.py`, which fails when head and the models disagree.
+
+Never edit a migration that has been applied anywhere; add a new one. A table still lands in the PR that first writes it. A database built before migrations existed has every table and no version row: `alembic stamp head` once through the same `exec`, or reset the volume with `docker compose -p os -f app/docker-compose.yml down -v`.
 
 ## Build
 

@@ -45,7 +45,9 @@ approved issue is feedback on work already pushed.
    failing test is committed before the change that makes it pass, coverage
    stays at 100% line and branch, and no existing test is removed or
    silently changed. Commits follow `dw-ship`: imperative subject under 72
-   characters, the rationale in the body.
+   characters, the rationale in the body. A schema change is a migration
+   generated the way `dw-implement`'s Schema section says, never
+   hand-written, and the PR body shows the generated file in full.
 5. Gate: `./format.sh`, then `./test.sh unit` must pass. When anything under
    `app/frontend/` changed, also `./test.sh snap` (about nine minutes; run it
    alone). Both start the compose stack on the runner; that is expected.

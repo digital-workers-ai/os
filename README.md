@@ -214,6 +214,8 @@ The stack is Docker Compose (`app/docker-compose.yml`): postgres :5442, mock :81
 
 Every pytest test runs with the clock pinned at `2026-09-04T12:00Z`: a fixture sets `CLOCK_PINNED_AT`, the app reads the calendar only through `app/clock.py`, and ruff refuses any other wall-clock read, so `as_of`, window bounds, and app-written timestamps are exact in assertions. Durations from `time.monotonic()` and Postgres column defaults stay on their own clocks.
 
+The schema is a chain of Alembic migrations (`app/backend/alembic/`), and the boot runs them to head before the build checks, so a new database needs no step and a running one is upgraded on its next start. Changing the schema is a model edit, then `docker compose -f app/docker-compose.yml exec -T backend alembic revision --autogenerate -m "<what changes>"`, then reading the whole generated file; `test_migrations.py` fails when head and the models disagree. Generated files carry no comments, because the revision template has none and a post-write hook strips Alembic's markers before ruff formats the file. A database built before migrations existed has every table and no version row: run `alembic stamp head` once through the same `exec`, or reset the volume.
+
 Connect an MCP client to the running stack: `claude mcp add --transport http os http://localhost:3092/mcp` for Claude Code, or for Claude Desktop and Cursor:
 
 ```json
@@ -303,7 +305,7 @@ The operator reads its snapshot location and identity from repository variables,
 | `OPERATOR_GCP_WORKLOAD_IDENTITY_PROVIDER` | Workload Identity Federation pool whose attribute condition names this repository |
 | `OPERATOR_GCP_SERVICE_ACCOUNT` | the service account that pool impersonates |
 
-On the production side the job is a nightly `pg_dump -Fc os` written to the fixed key `os-latest.dump` on the cloud the database lives on, overwritten each night with bucket versioning keeping the history. It runs wherever the database runs — a scheduled ECS task or Cloud Run job on the backend image, or the managed database's own export — and the bucket grants read to that one federated identity only, so no secret carries the dump's location or a token. The runner restores it with `pg_restore --no-owner --no-privileges --exit-on-error` into the compose `postgres` service (the `pgvector` image, so the extensions exist) and boots the checkout's backend against it. The dump carries the deployed schema: if `main` has moved a column since, the backend refuses to boot on the copy and the run's step summary reports that instead of an audit, which is the honest outcome.
+On the production side the job is a nightly `pg_dump -Fc os` written to the fixed key `os-latest.dump` on the cloud the database lives on, overwritten each night with bucket versioning keeping the history. It runs wherever the database runs — a scheduled ECS task or Cloud Run job on the backend image, or the managed database's own export — and the bucket grants read to that one federated identity only, so no secret carries the dump's location or a token. The runner restores it with `pg_restore --no-owner --no-privileges --exit-on-error` into the compose `postgres` service (the `pgvector` image, so the extensions exist) and boots the checkout's backend against it. The dump carries the deployed schema and its `alembic_version`, and at boot the checkout migrates the copy to its own head, so a schema change since the dump is applied to the copy rather than a reason to stop; what still stops the run is a migration that fails on the copy's data, and the step summary reports that instead of an audit.
 
 The compose files add the wiring, not knobs: `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` (all `os`) on the database, `BACKEND_URL` on the frontend dev server, and `docker-compose.snap.yml` pins every model flag off for the snapshot stack and the clock at `2026-09-04T12:00:00Z` for the backend, the seed, and the Playwright browser.
 
@@ -315,6 +317,7 @@ The compose files add the wiring, not knobs: `POSTGRES_USER`, `POSTGRES_PASSWORD
 - `.claude/skills/` — `dw-implement`, `dw-ship`, `dw-add-tests`, the conventions for anyone working in the repo; `dw-operator` and `dw-operator-build`, the two agents' rules
 - `definitions/` — the definition files (`ontology.yaml` through `derived.yaml`) and `briefs/`, the role prompt files
 - `app/backend/` — FastAPI backend; tests in `app/backend/tests/`
+- `app/backend/alembic/` — the migrations: `env.py`, the comment-free revision template, `versions/`; the boot runs them to head
 - `app/backend/app/sources/` — one package per source: connector plus extract hook
 - `app/backend/app/engine/search.py` — the search index (`search_document`, `search_chunk`) refilled at rebuild, the word, trigram and meaning legs, fusion and reranking, served by `api/search_api.py`
 - `app/backend/app/mcp.py` — the read-only MCP server at `/mcp` (Streamable HTTP): the conversation's seven tools, the definition files as `definitions://` resources, the role briefs as `briefing_<role>` prompts, every call logged to `mcp_call`; localhost only until auth exists
