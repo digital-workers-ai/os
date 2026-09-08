@@ -22,7 +22,12 @@ brief: |
   - How records were merged. Clusters whose members disagree on a name, an email
     or a phone; candidates pending for more than a week; confirmed pairs whose
     evidence no longer holds; records carrying no identity at all; a domain or
-    mailbox that keeps merging things it should not.
+    mailbox that keeps merging things it should not. And what people decided by
+    hand: every `merge_candidate` a person confirmed or rejected since the last
+    run (`status`, `decided_at`), with its score and evidence. Pairs people keep
+    confirming are an identity rule the resolver is missing; pairs they keep
+    rejecting are a rule merging what it should not. Either is a proposal
+    measured on the adversarial corpus, never a quiet change.
   - What the numbers say. Series in `metric_snapshot` that jumped, dropped or
     turned null; metrics nobody set a goal for; goals that have read unknown for
     many runs, or met since their first reading; rules that never fire, or fire
