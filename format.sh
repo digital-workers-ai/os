@@ -11,5 +11,5 @@ if ! compose ps --status running --services 2>/dev/null | grep -qx backend; then
   compose up -d --build --wait postgres backend
 fi
 
-compose exec -T backend ruff check --fix app tests
-compose exec -T backend ruff format app tests
+compose exec -T backend ruff check --fix app tests tools alembic
+compose exec -T backend ruff format app tests tools alembic

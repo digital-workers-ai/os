@@ -3,6 +3,7 @@ name = "dw-os"
 version = "0.0.0"
 requires-python = ">=3.12"
 dependencies = [
+    "alembic>=1.19",
     "anthropic>=0.69.0",
     "fastapi>=0.115.0",
     "fastmcp>=4.0.3",
@@ -44,6 +45,7 @@ select = ["E", "W", "F", "I", "B", "UP", "C4", "DTZ", "TID251"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["app", "tests"]
+known-third-party = ["alembic"]
 
 [tool.ruff.lint.flake8-bugbear]
 extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Body"]
@@ -57,6 +59,7 @@ extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Body"]
 
 [tool.ruff.lint.per-file-ignores]
 "app/models.py" = ["E501"]
+"alembic/versions/*.py" = ["E501"]
 "app/clock.py" = ["TID251"]
 "tests/test_clock.py" = ["TID251"]
 
