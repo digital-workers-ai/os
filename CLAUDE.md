@@ -1,5 +1,7 @@
 # Project rules
 
+The long form for a person is `CONTRIBUTING.md`; this file is the short form the agents read.
+
 ## Commands
 
 - `./test.sh unit` — lint (ruff check + format --check), then pytest with 100% line+branch coverage enforced; runs inside the backend container

@@ -1,0 +1,34 @@
+name: Bug report
+description: Something the estate got wrong
+labels: [bug]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        curl -X POST localhost:8092/api/sync
+        curl -X POST localhost:8092/api/rebuild
+        curl localhost:8092/api/...
+    validations:
+      required: true
+  - type: input
+    id: commit
+    attributes:
+      label: Commit
+      placeholder: output of git rev-parse --short HEAD
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or test output
+      render: shell

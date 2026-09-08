@@ -1,24 +1,143 @@
 # OS
 
-An AI Operating System substrate: it pulls raw data from the tools a company uses, projects it into a clean entity graph, and (in later slices) computes metrics, rules, and goals on top. Deterministic by design — same inputs, same outputs, no model calls in the pipeline.
+**A company's tools, folded into one entity graph, with receipts on every number.**
 
-## Concepts
+[![ci](https://github.com/digital-workers-ai/os/actions/workflows/ci.yml/badge.svg)](https://github.com/digital-workers-ai/os/actions/workflows/ci.yml) [![license: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
 
-**Source** — one external tool (HubSpot, Stripe, …). Each has a connector that knows how to pull its API. In development every source is served by the vendored mock estate in `mock/`, 27 providers rendering one shared fictional world.
+An AI Operating System substrate: it pulls raw data from the tools a company uses, projects it into a clean entity graph, and computes metrics, rules, and goals on top. Deterministic by design — same inputs, same outputs, no model calls in the pipeline.
 
-**Raw event** — one payload exactly as a source returned it, stored append-only in `raw_event`. Nothing is ever edited or deleted here; a record that changes gets a new row. This is the system's ground truth: everything else can be rebuilt from it.
+## Table of contents
+
+- [Quickstart](#quickstart)
+- [How it works](#how-it-works)
+- [Substrate](#substrate)
+  - [Source](#source)
+  - [Raw event](#raw-event)
+  - [Sync](#sync)
+  - [Entity](#entity)
+- [Entity resolution](#entity-resolution)
+  - [Canonical entity](#canonical-entity)
+  - [Resolution guards](#resolution-guards)
+  - [Resolution ladder](#resolution-ladder)
+  - [Candidates, declared](#candidates-declared)
+  - [Adversarial corpus](#adversarial-corpus)
+  - [ER settings](#er-settings)
+  - [Survivorship](#survivorship)
+- [Facts and provenance](#facts-and-provenance)
+  - [Fact](#fact)
+  - [Derived fact](#derived-fact)
+  - [Observation time](#observation-time)
+  - [seq, first_seq, minted_seq](#seq-first_seq-minted_seq)
+  - [ProjectedEntity / ProjectedFact](#projectedentity--projectedfact)
+- [Definitions](#definitions)
+  - [Definition files](#definition-files)
+- [Metrics, goals and insights](#metrics-goals-and-insights)
+  - [Metric](#metric)
+  - [Slicing (`slice_metric`)](#slicing-slice_metric)
+  - [Snapshot](#snapshot)
+  - [Insights (rules and findings)](#insights-rules-and-findings)
+  - [Goal](#goal)
+  - [Strategy](#strategy)
+  - [Params](#params)
+- [Rebuild](#rebuild)
+  - [Transform](#transform)
+  - [Rebuild (projection)](#rebuild-projection)
+  - [Build checks](#build-checks)
+  - [Report](#report)
+- [Inference](#inference)
+  - [Enrichment](#enrichment)
+  - [Role](#role)
+  - [Briefing (coaching, `COACHING_ENABLED`)](#briefing-coaching-coaching_enabled)
+  - [prompts_sha](#prompts_sha)
+- [Search and MCP](#search-and-mcp)
+  - [Search (`GET /api/search`, ⌘K in the console, `/search`)](#search-get-apisearch-k-in-the-console-search)
+  - [MCP (`/mcp`)](#mcp-mcp)
+- [Operator](#operator)
+- [Running](#running)
+- [Configuration](#configuration)
+- [Layout](#layout)
+- [Status](#status)
+- [Contributing](#contributing)
+- [Security](#security)
+- [License](#license)
+
+## Quickstart
+
+Docker is the only requirement; everything runs against the vendored mock estate, 27 providers rendering one fictional world, and no API key is needed.
+
+```bash
+git clone https://github.com/digital-workers-ai/os.git && cd os
+cp app/.env.example app/.env
+docker compose -f app/docker-compose.yml up -d --build --wait
+curl -X POST localhost:8092/api/sync
+curl -X POST localhost:8092/api/rebuild
+open http://localhost:3092
+```
+
+The console opens on Insights, the goals and findings over the mock estate. Compose runs postgres on `:5442`, the mock estate on `:8192`, the backend on `:8092` and the console on `:3092`; `GET localhost:8092/api/metrics` answers with every number and its receipts. Connecting an MCP client and switching on the model layers are covered in [Running](#running) and [Configuration](#configuration) below.
+
+![The console home: goals and findings over the mock estate](app/frontend/e2e/__screenshots__/smoke.spec.ts/home.png)
+
+## How it works
+
+Raw payloads enter at the top, every layer below is recomputed from the one above it, and the layers that call a model are opt-in.
+
+```
+27 sources ──sync──► raw_event  (append-only, never edited; everything below is rebuilt from it)
+                         │  rebuild: mappings · transforms · build checks · report
+                         ▼
+                  entity / entity_fact   (one per source: HubSpot's Acme, Stripe's Acme)
+                         │  resolution · survivorship · links
+                         ▼
+                  canonical entity        (one per real-world thing, receipts on every value)
+                         │
+          ┌──────────────┼──────────────┐
+          ▼              ▼              ▼
+       metrics         rules          goals
+      (receipts)     (findings)     (verdicts)
+                         │
+                         ▼   opt-in: one flag and one key per layer
+            enrichment · briefings · ask
+                         │
+                         ▼
+   console :3092 · search ⌘K · MCP /mcp · operator (nightly, proposes, never commits)
+```
+
+The sections that follow define each term, in the order the data flows.
+
+## Substrate
+
+### Source
+
+One external tool (HubSpot, Stripe, …). Each has a connector that knows how to pull its API. In development every source is served by the vendored mock estate in `mock/`, 27 providers rendering one shared fictional world.
+
+### Raw event
+
+One payload exactly as a source returned it, stored append-only in `raw_event`. Nothing is ever edited or deleted here; a record that changes gets a new row. This is the system's ground truth: everything else can be rebuilt from it.
 
 Think of `raw_event` as the enrollment book: every record ever seen is in it, permanently.
 
-**Sync** — one pull attempt for a source (`POST /api/sync`). It records itself in `sync_run` — including refusals, id collisions, and truncations — because a quiet source and a broken one must never look the same.
+### Sync
 
-**Entity** — one thing a single source knows about: a company, a person, a deal. Identity is structural — `(source, entity_type, source_id)` — so the same real-world company known to two tools is, at this layer, two entities.
+One pull attempt for a source (`POST /api/sync`). It records itself in `sync_run` — including refusals, id collisions, and truncations — because a quiet source and a broken one must never look the same.
 
-**Canonical entity** — one real-world thing, merged across tools. Resolution buckets entities on declared identity attributes (a company's domain, a person's email) and records the evidence on every membership (`domain=acme.io`). Survivorship then folds the members' facts into one value per attribute — newest observation wins, declared source priority breaks ties — keeping receipts (winning source, raw event, disagreement count). Blocklists stop false merges: a free-mail domain identifies no company, a placeholder identifies nothing.
+### Entity
 
-**Resolution guards** — the rules that keep merging honest, each aimed at a trap real estates set. Beyond the blocklists: **bucket quarantine** — if one tool has *two of its own records* sharing a "unique" value (two Stripe customers on one domain), that value clearly identifies nobody, so it's disqualified as merge evidence for everyone; this one statistic took company precision from 0.92 to 1.00 on the adversarial corpus. **One record per source** — a cluster never absorbs a second record from the same tool: if HubSpot itself thinks they're two people, we don't overrule it. **Corroboration** — a tenant-scoped id (`external_ref`, marked `identity_scope: tenant` in the ontology) is trusted between two tools only where other evidence confirms they share a numbering scheme; no confirmation means no merge, never benefit of the doubt. The guards are measured, not assumed: a vendored adversarial corpus scores the resolver on every CI run, with floors of 0.99 company / 0.98 person pairwise precision — quietly breaking a guard fails the build.
+One thing a single source knows about: a company, a person, a deal. Identity is structural — `(source, entity_type, source_id)` — so the same real-world company known to two tools is, at this layer, two entities.
 
-**Resolution ladder** — what happens to two records that are not tied by an identifier but look like the same person. Names never merge on their own; they can only nominate. A pair whose names look alike *and* whose records agree on a second, independent attribute (a phone, a non-free email domain) becomes a candidate in the review queue, with its evidence attached. A person confirms or rejects. A confirmed pair merges and is kept across rebuilds; a rejected pair is remembered and never shown again unless someone confirms it later; unmerge returns a confirmed pair to the queue. Every rebuild re-checks the evidence behind each confirmed pair and flags the ones whose evidence has gone, so a human decision can outlive its reason but never silently. The queue is also the label set: once a pattern has enough confirmations and no rejections it can be measured on the adversarial corpus and, only then, promoted to automatic.
+## Entity resolution
+
+### Canonical entity
+
+One real-world thing, merged across tools. Resolution buckets entities on declared identity attributes (a company's domain, a person's email) and records the evidence on every membership (`domain=acme.io`). Survivorship then folds the members' facts into one value per attribute — newest observation wins, declared source priority breaks ties — keeping receipts (winning source, raw event, disagreement count). Blocklists stop false merges: a free-mail domain identifies no company, a placeholder identifies nothing.
+
+### Resolution guards
+
+The rules that keep merging honest, each aimed at a trap real estates set. Beyond the blocklists: **bucket quarantine** — if one tool has *two of its own records* sharing a "unique" value (two Stripe customers on one domain), that value clearly identifies nobody, so it's disqualified as merge evidence for everyone; this one statistic took company precision from 0.92 to 1.00 on the adversarial corpus. **One record per source** — a cluster never absorbs a second record from the same tool: if HubSpot itself thinks they're two people, we don't overrule it. **Corroboration** — a tenant-scoped id (`external_ref`, marked `identity_scope: tenant` in the ontology) is trusted between two tools only where other evidence confirms they share a numbering scheme; no confirmation means no merge, never benefit of the doubt. The guards are measured, not assumed: a vendored adversarial corpus scores the resolver on every CI run, with floors of 0.99 company / 0.98 person pairwise precision — quietly breaking a guard fails the build.
+
+### Resolution ladder
+
+What happens to two records that are not tied by an identifier but look like the same person. Names never merge on their own; they can only nominate. A pair whose names look alike *and* whose records agree on a second, independent attribute (a phone, a non-free email domain) becomes a candidate in the review queue, with its evidence attached. A person confirms or rejects. A confirmed pair merges and is kept across rebuilds; a rejected pair is remembered and never shown again unless someone confirms it later; unmerge returns a confirmed pair to the queue. Every rebuild re-checks the evidence behind each confirmed pair and flags the ones whose evidence has gone, so a human decision can outlive its reason but never silently. The queue is also the label set: once a pattern has enough confirmations and no rejections it can be measured on the adversarial corpus and, only then, promoted to automatic.
 
 ```
 two records, same kind
@@ -55,7 +174,9 @@ MERGE       two entities, remembered
 6. confirmations accumulate → measure the pattern → promote to step 1
 ```
 
-**Candidates, declared** — the ladder is switched on per entity kind in `ontology.yaml`. The person entity reads:
+### Candidates, declared
+
+The ladder is switched on per entity kind in `ontology.yaml`. The person entity reads:
 
 ```yaml
 person:
@@ -120,28 +241,50 @@ e. J. Smith <jane@acme.io>             Jane Smith <jane@acme.io>
    step 5: the shared email is gone   → flagged; the operator unmerges, or reconfirms
 ```
 
-**Adversarial corpus** — `mock/adversarial.py`, test-only fixture data the mock server never serves and no production code imports. It lives beside `mock/world.py` and extends it: the same mock universe's companies and people, deliberately corrupted into 890 records across six pretend tools, seeded with 53 collisions — shared agency domains, same-name companies, office mailboxes, recycled ids. Every record carries `.truth`, the id of the real thing it describes, so right and wrong merges are *checkable*, never guessed; fixed random seeds make the corpus byte-identical on every import. The precision test runs each record through the shipped transforms (measuring the real pipeline, not an idealized one), resolves with the real guard settings, and scores the clustering pairwise against `.truth`.
+### Adversarial corpus
 
-**ER settings** — the resolver's only two knobs, in `app/config.py`, env-overridable per deployment. `ER_BUCKET_CAP` (50): if more than 50 *distinct* tools share one identity value, it's junk — the backstop for the one trap the within-one-source statistic can't see. `ER_ONE_RECORD_PER_SOURCE` (true): the on/off switch for that guard, a boolean because a tenant whose CRM is known to be full of duplicates might legitimately want the resolver to merge through them. The other guards have no knobs on purpose — they compare the data against itself, so there is nothing to calibrate.
+`mock/adversarial.py`, test-only fixture data the mock server never serves and no production code imports. It lives beside `mock/world.py` and extends it: the same mock universe's companies and people, deliberately corrupted into 890 records across six pretend tools, seeded with 53 collisions — shared agency domains, same-name companies, office mailboxes, recycled ids. Every record carries `.truth`, the id of the real thing it describes, so right and wrong merges are *checkable*, never guessed; fixed random seeds make the corpus byte-identical on every import. The precision test runs each record through the shipped transforms (measuring the real pipeline, not an idealized one), resolves with the real guard settings, and scores the clustering pairwise against `.truth`.
 
-**Survivorship** — how many opinions become one answer. When a cluster's members disagree about an attribute (HubSpot: "Acme Corp", Stripe: "ACME Corporation"), the fold picks one value per attribute by a fixed rule: newest observation wins (on the provider's clock), a time tie falls to declared `source_priority`, and a remaining tie falls to stable name order — so a rebuild always picks the same winner. Along the way it counts disagreements (distinct losing values, stamped on the fact), lets a winning clear silence the attribute entirely (an empty field that is *fresher* beats an old value), and stamps receipts on every winner: which source, which raw event, observed when.
+### ER settings
 
-**Fact** — one attribute of one entity as asserted by one source: "hubspot says company hs_company_001's domain is acme.io." Each fact keeps its provenance (which raw event asserted it, when the provider observed it). Facts obey the **three-state rule**:
+The resolver's only two knobs, in `app/config.py`, env-overridable per deployment. `ER_BUCKET_CAP` (50): if more than 50 *distinct* tools share one identity value, it's junk — the backstop for the one trap the within-one-source statistic can't see. `ER_ONE_RECORD_PER_SOURCE` (true): the on/off switch for that guard, a boolean because a tenant whose CRM is known to be full of duplicates might legitimately want the resolver to merge through them. The other guards have no knobs on purpose — they compare the data against itself, so there is nothing to calibrate.
+
+### Survivorship
+
+How many opinions become one answer. When a cluster's members disagree about an attribute (HubSpot: "Acme Corp", Stripe: "ACME Corporation"), the fold picks one value per attribute by a fixed rule: newest observation wins (on the provider's clock), a time tie falls to declared `source_priority`, and a remaining tie falls to stable name order — so a rebuild always picks the same winner. Along the way it counts disagreements (distinct losing values, stamped on the fact), lets a winning clear silence the attribute entirely (an empty field that is *fresher* beats an old value), and stamps receipts on every winner: which source, which raw event, observed when.
+
+## Facts and provenance
+
+### Fact
+
+One attribute of one entity as asserted by one source: "hubspot says company hs_company_001's domain is acme.io." Each fact keeps its provenance (which raw event asserted it, when the provider observed it). Facts obey the **three-state rule**:
 - *absent* — the source never mentioned the attribute: no fact row at all
 - *cleared* — the source said "this is empty": a fact row with `is_null` true
 - *value* — a normalized value that survived its transform
 
 A value the transform refused (garbage date, non-numeric amount) becomes none of these — it is counted and named in the report, never stored and never turned into a null.
 
-**Derived fact** — a fact about one entity computed from the records that point at it, so a rule or a metric can ask a cross-entity question without a join grammar. `derived.yaml` declares them per entity: a company's `mrr` is `SUM(subscription.mrr)` over the subscriptions linked to it by `belongs_to` where `status: active`; its `open_tickets` is `COUNT(ticket)` over the same edge; a person's `last_meeting_at` is `MAX(meeting.started_at)` over `attended_by`. One declared edge, one aggregate, an optional equality filter — that is the whole grammar, and everything it needs is already in the ontology. They are computed at rebuild, after links are built, and land in `fact_current` like any other current value, but with no member and no raw event behind them: a derived fact is a *computation*, not a source's claim, and the API says so (`derived: true`). The refusals are the ordinary ones: a derived name that shadows a declared attribute of its entity fails the build, and a money sum over sources spanning two currencies writes nothing for that entity and is counted in the report — one company's mixed books cost that company's number, not everyone's. A derived attribute is glossed where every label is — the `attributes:` map — so `open_tickets` reads the same in the derived tab, a dimension list and a rule. Rules and metrics may name them like any attribute (`paying_company_with_open_tickets`, `avg_mrr_per_company`), and provenance walks back through the derivation to the source's raw fields, so the receipt still ends at a provider payload. Dates and numbers stay out of the search index here as everywhere, so today's three derived facts are never indexed.
+### Derived fact
 
-**Observation time** — every fact carries `observed_at`: when the data changed *according to the provider's own clock* (each connector's `OBSERVED_AT` declares where that timestamp lives in the payload). It exists because "newest observation wins" only works on the provider's clock — on our ingestion clock, whichever source synced last would win every disagreement. When the provider's timestamp is missing or unreadable, ingestion time is used and the substitution is counted in the report, never silent.
+A fact about one entity computed from the records that point at it, so a rule or a metric can ask a cross-entity question without a join grammar. `derived.yaml` declares them per entity: a company's `mrr` is `SUM(subscription.mrr)` over the subscriptions linked to it by `belongs_to` where `status: active`; its `open_tickets` is `COUNT(ticket)` over the same edge; a person's `last_meeting_at` is `MAX(meeting.started_at)` over `attended_by`. One declared edge, one aggregate, an optional equality filter — that is the whole grammar, and everything it needs is already in the ontology. They are computed at rebuild, after links are built, and land in `fact_current` like any other current value, but with no member and no raw event behind them: a derived fact is a *computation*, not a source's claim, and the API says so (`derived: true`). The refusals are the ordinary ones: a derived name that shadows a declared attribute of its entity fails the build, and a money sum over sources spanning two currencies writes nothing for that entity and is counted in the report — one company's mixed books cost that company's number, not everyone's. A derived attribute is glossed where every label is — the `attributes:` map — so `open_tickets` reads the same in the derived tab, a dimension list and a rule. Rules and metrics may name them like any attribute (`paying_company_with_open_tickets`, `avg_mrr_per_company`), and provenance walks back through the derivation to the source's raw fields, so the receipt still ends at a provider payload. Dates and numbers stay out of the search index here as everywhere, so today's three derived facts are never indexed.
 
-**seq, first_seq, minted_seq** — one currency at three levels. `seq` is the raw-event insertion counter, the estate's unambiguous "which came first" (timestamps can't order rows written in one transaction). `first_seq` is a record's earliest seq — when it was *first* seen; edits add higher seqs, so it never moves. `minted_seq` is the founding record's `first_seq` on a canonical entity. Resolution processes records in `first_seq` order and mints the canonical id from the earliest record's key — so editing a record can never re-anchor a cluster or change its id.
+### Observation time
 
-**ProjectedEntity / ProjectedFact** — the rebuild's in-memory intermediates, produced by the pipeline before anything is written. A `ProjectedFact` is one normalized value plus everything needed downstream: the numeric form for number attributes, the asserting raw event, the observation time and whose clock it came from, and the seq. A `ProjectedEntity` groups those facts under one `(source, entity_type, source_id)` with its `first_seq` and the `anchor_key` string its database id is hashed from. Resolution, survivorship, and links all operate on these objects; only at the end does the rebuild translate them into `entity` / `entity_fact` rows. They never leave the process — if you're reading the database or the API, you're seeing their persisted results, not them.
+Every fact carries `observed_at`: when the data changed *according to the provider's own clock* (each connector's `OBSERVED_AT` declares where that timestamp lives in the payload). It exists because "newest observation wins" only works on the provider's clock — on our ingestion clock, whichever source synced last would win every disagreement. When the provider's timestamp is missing or unreadable, ingestion time is used and the substitution is counted in the report, never silent.
 
-**Definition files** — the YAML files in `definitions/` that make the system declarative:
+### seq, first_seq, minted_seq
+
+One currency at three levels. `seq` is the raw-event insertion counter, the estate's unambiguous "which came first" (timestamps can't order rows written in one transaction). `first_seq` is a record's earliest seq — when it was *first* seen; edits add higher seqs, so it never moves. `minted_seq` is the founding record's `first_seq` on a canonical entity. Resolution processes records in `first_seq` order and mints the canonical id from the earliest record's key — so editing a record can never re-anchor a cluster or change its id.
+
+### ProjectedEntity / ProjectedFact
+
+The rebuild's in-memory intermediates, produced by the pipeline before anything is written. A `ProjectedFact` is one normalized value plus everything needed downstream: the numeric form for number attributes, the asserting raw event, the observation time and whose clock it came from, and the seq. A `ProjectedEntity` groups those facts under one `(source, entity_type, source_id)` with its `first_seq` and the `anchor_key` string its database id is hashed from. Resolution, survivorship, and links all operate on these objects; only at the end does the rebuild translate them into `entity` / `entity_fact` rows. They never leave the process — if you're reading the database or the API, you're seeing their persisted results, not them.
+
+## Definitions
+
+### Definition files
+
+The YAML files in `definitions/` that make the system declarative:
 - `ontology.yaml` — what entities exist and what typed attributes each may have. An entity's `identity:` list names which attributes count as merge evidence — `company: [domain]`, `person: [email]`: two records sharing a normalized identity value become one canonical entity. The list is deliberately short: names are never identity (too fuzzy — "Acme Corp" vs "ACME Corporation" is the problem, not the key), vendor ids never (each source's ids are its own), and an entity with no `identity:` list (subscription) is never merged at all — one tool owns it. `source_priority:` orders sources for survivorship tiebreaks; `relationships:` declares the edges links may build and what grounds them.
 - `mappings.yaml` — one line per raw field worth keeping: `source.object_type.path → attribute`
 - `transforms.yaml` — which normalizer each attribute's values pass through
@@ -156,31 +299,63 @@ Every metric and entity may also carry a `description` and `synonyms`, and `onto
 
 Adding a field, a metric, or a rule to the system is editing a YAML line, not writing code.
 
-**Metric** — a number computed over the canonical layer, declared in `metrics.yaml` (a definition file like the rest: `mrr` is `SUM(mrr)` over subscriptions where `status: active`). Because metrics run over canonical entities, `COUNT(company)` counts Acme once — not once per tool. Every value carries receipts: the population before the filter, how many rows actually fed the aggregate, who lacked the attribute, and the raw provider fields the number walked in from (`mrr` traces to `stripe.subscriptions._amount_monthly`). The semantics refuse to flatter: a sum of nothing is 0 but an average of nothing is unknown (`None`) — a zero average would read as a measurement that never happened; mixed currencies refuse to aggregate rather than silently sum; and one broken definition errors on its own row without taking the catalog down. Served by `GET /api/metrics`.
+## Metrics, goals and insights
+
+### Metric
+
+A number computed over the canonical layer, declared in `metrics.yaml` (a definition file like the rest: `mrr` is `SUM(mrr)` over subscriptions where `status: active`). Because metrics run over canonical entities, `COUNT(company)` counts Acme once — not once per tool. Every value carries receipts: the population before the filter, how many rows actually fed the aggregate, who lacked the attribute, and the raw provider fields the number walked in from (`mrr` traces to `stripe.subscriptions._amount_monthly`). The semantics refuse to flatter: a sum of nothing is 0 but an average of nothing is unknown (`None`) — a zero average would read as a measurement that never happened; mixed currencies refuse to aggregate rather than silently sum; and one broken definition errors on its own row without taking the catalog down. Served by `GET /api/metrics`.
 
 A metric can also declare **how it is cut**. `group_by` splits it into buckets — an own attribute (`status`), a date attribute at a `grain` (`started_at` by month), or an attribute one declared hop away (`company.industry`, walked over the `belongs_to` edge). Only edges that cannot fan out are allowed: a breakdown over a one-to-many hop double-counts by construction, so it is refused rather than rounded. Buckets are drawn only from the entities the metric actually measured, and each bucket is re-measured over its own ids — so a ratio stays a ratio and mixed currencies still refuse per bucket — while whatever the breakdown could not place is counted (`ungrouped_entities`, `group_bad_values`) rather than dropped. `window_days` with `window_attr` narrows the population to a span on a date attribute: trailing back from today by default, `forward` for what is coming, with the bounds it used (`window_from`, `window_to`) returned beside the value. The clock is a parameter, serialized as `as_of` on the payload, because "subscriptions started in the last 30 days" has an answer that depends on when you asked. The key set is closed — a `groupby` typo refuses the build rather than being ignored — and only the scalar is snapshotted: a breakdown is a question you ask now, not a series.
 
-**Slicing** (`slice_metric`) — the same grammar handed to a model. The ask agent's seventh tool takes a declared metric and composes it with a dimension, a window, or one equality filter, then runs the composition through the same parser and the same ontology checks the build runs, so the model picks *which declared parts to combine* and never writes an expression. It refuses in the layer's own words: a filter on an attribute the metric already fixes (`mrr` fixes `status: active`) comes back naming the conflict rather than silently overriding it, and a hop over an edge nobody declared is a sentence, not an empty result. Called with only a metric it answers with the scalar and lists what that metric can be split by — each dimension with its type, the edge it walks, and its glossed meaning — so discovery is a tool call rather than a guess. It derives nothing the definitions cannot.
+### Slicing (`slice_metric`)
 
-**Snapshot** — one metric's value written down with a timestamp: a diary entry for a number. Live values (`GET /api/metrics`) are always *now* and forget; `POST /api/metrics/snapshots` records every metric as a row, and repeated scheduled calls accumulate the series `GET /api/metrics/history` serves — what charts draw and trend goals judge. Three rules, each from a real bug: only the snapshot route writes history (never a rebuild or a page load — v4's read-triggered snapshots turned history into a graph of how often the dashboard was open); a run that measured nothing stores NULL, not zero, with the row still written ("couldn't measure" and "measured zero" are different claims, and "nothing measured" differs from "nobody ran the job"); a broken metric costs one row, never the snapshot.
+The same grammar handed to a model. The ask agent's seventh tool takes a declared metric and composes it with a dimension, a window, or one equality filter, then runs the composition through the same parser and the same ontology checks the build runs, so the model picks *which declared parts to combine* and never writes an expression. It refuses in the layer's own words: a filter on an attribute the metric already fixes (`mrr` fixes `status: active`) comes back naming the conflict rather than silently overriding it, and a hop over an edge nobody declared is a sentence, not an empty result. Called with only a metric it answers with the scalar and lists what that metric can be split by — each dimension with its type, the edge it walks, and its glossed meaning — so discovery is a tool call rather than a guess. It derives nothing the definitions cannot.
 
-**Insights (rules and findings)** — the estate naming what deserves a look. A rule, declared in `rules.yaml`, is a claim about **one entity's own attributes** — "a subscription whose status is `past_due`", "a deal past its own close date" — with a severity meaning *how quickly someone wants to know*, not confidence. Cross-entity questions are deliberately outside the grammar: that needs a join, and the limitation is stated rather than disguised. Evaluating the rules (`GET /api/insights/rules`) produces **findings**, each carrying receipts: the canonical entity, a human anchor, the company it hangs off (walked in through canonical links), and per-condition evidence — for an `is_null` rule, the absence itself is the evidence. Two conventions hold everything up: **absence is not falsity** (a cleared status is not "a status that isn't closed"; only `exists`/`is_null` are satisfiable by a missing value), and **unreadability is counted** — zero findings over a clean estate and zero findings over unparseable dates are different claims, and the report says which. The clock is a parameter, serialized as `as_of`: a rule about something being fourteen days old has an answer that depends on when you asked.
+### Snapshot
 
-**Goal** — a commitment the business holds itself to, declared in `goals.yaml` as three parts: a **metric** (which number), a **target** (what it should be — every target in the file was picked by a person, never derived), and a **strategy** (how to judge). `GET /api/insights/goals` answers with one row per goal — current value, verdict, progress — and a summary. The verdict vocabulary is three-valued on purpose: **met**, **missed**, and **unknown**, and unknown is never folded into missed — "we can't tell" is not a failure. A goal refuses to judge what the estate cannot answer, with the reason on its row: the metric doesn't exist, it errored, it spans currencies, it produced no value, or nothing matched over an *empty estate* — while zero matches over a *real* population is a genuine measurement, and a "keep churn under five" goal rightly goes green on it.
+One metric's value written down with a timestamp: a diary entry for a number. Live values (`GET /api/metrics`) are always *now* and forget; `POST /api/metrics/snapshots` records every metric as a row, and repeated scheduled calls accumulate the series `GET /api/metrics/history` serves — what charts draw and trend goals judge. Three rules, each from a real bug: only the snapshot route writes history (never a rebuild or a page load — v4's read-triggered snapshots turned history into a graph of how often the dashboard was open); a run that measured nothing stores NULL, not zero, with the row still written ("couldn't measure" and "measured zero" are different claims, and "nothing measured" differs from "nobody ran the job"); a broken metric costs one row, never the snapshot.
 
-**Strategy** — the judgment rule inside a goal. `at_least` and `at_most` compare the current value to the target (met on equality; a zero target reads done-or-not rather than dividing by zero). `increasing` judges the *snapshot series*, not just its endpoints — a dip that recovers higher is a rise, a shed-and-re-add back to the same level is not, and fewer than two points is not a trend but a refusal with a reason. `threshold_band` is for "hold it near" numbers — bad in *both* directions, like average deal size (too low: selling small; suspiciously high: a whale is skewing the mix, or the mid-market stopped closing). It judges met when the value sits inside a band around the target, and its `detail` names which side was breached. Strategies are pure, total functions over values — no clock, no database, and no input makes one raise — returning `(met, progress, detail)`. More strategies (streaks, growth rates) arrive with the goals that consume them.
+### Insights (rules and findings)
 
-**Params** — the tuning knobs a strategy exposes, declared per goal in `goals.yaml`. `threshold_band` takes `band_low: 0.8` / `band_high: 1.25`: multipliers of the target, so a 25,000 target reads healthy anywhere in [20,000 … 31,250]. The asymmetry is a human judgment (more tolerance for drifting high than low), which is why they're params rather than code. The band edges are sorted after multiplying — with a negative target the low multiplier yields the *larger* edge, and the unsorted version produced an inverted band where met was unreachable. Omitted params fall back to declared defaults; param *values* are validated at build time (a `band_low: "wide"` refuses the boot with the problem named, instead of booting clean and 500ing the first time someone opens the goals page).
+The estate naming what deserves a look. A rule, declared in `rules.yaml`, is a claim about **one entity's own attributes** — "a subscription whose status is `past_due`", "a deal past its own close date" — with a severity meaning *how quickly someone wants to know*, not confidence. Cross-entity questions are deliberately outside the grammar: that needs a join, and the limitation is stated rather than disguised. Evaluating the rules (`GET /api/insights/rules`) produces **findings**, each carrying receipts: the canonical entity, a human anchor, the company it hangs off (walked in through canonical links), and per-condition evidence — for an `is_null` rule, the absence itself is the evidence. Two conventions hold everything up: **absence is not falsity** (a cleared status is not "a status that isn't closed"; only `exists`/`is_null` are satisfiable by a missing value), and **unreadability is counted** — zero findings over a clean estate and zero findings over unparseable dates are different claims, and the report says which. The clock is a parameter, serialized as `as_of`: a rule about something being fourteen days old has an answer that depends on when you asked.
 
-**Transform** — a pure normalizing function (`normalize_domain`, `normalize_money`, …). Transforms refuse rather than guess: a value they can't interpret raises a named reason (`not_a_date`, `not_a_number`) that lands in the report. A closed registry — data never selects arbitrary code.
+### Goal
 
-**Rebuild** (projection) — `POST /api/rebuild`: wipe the entity layer and recompute it from the newest raw event per record, through mappings and transforms. Deterministic (ids are content-derived uuid5s — two rebuilds produce byte-identical rows), locked (a concurrent rebuild gets a 409), and rebuildable at any time because raw events are never lost.
+A commitment the business holds itself to, declared in `goals.yaml` as three parts: a **metric** (which number), a **target** (what it should be — every target in the file was picked by a person, never derived), and a **strategy** (how to judge). `GET /api/insights/goals` answers with one row per goal — current value, verdict, progress — and a summary. The verdict vocabulary is three-valued on purpose: **met**, **missed**, and **unknown**, and unknown is never folded into missed — "we can't tell" is not a failure. A goal refuses to judge what the estate cannot answer, with the reason on its row: the metric doesn't exist, it errored, it spans currencies, it produced no value, or nothing matched over an *empty estate* — while zero matches over a *real* population is a genuine measurement, and a "keep churn under five" goal rightly goes green on it.
 
-**Build checks** — `problems = checks.run()`: the line that decides whether the estate is allowed to exist. `run()` reads all nine definition files and cross-validates every claim one makes about another — every mapping names a real connector and a real ontology attribute, every transform exists in the registry and lands the type it claims, every metric term is answerable, every identity attribute is normalized, every goal's strategy exists and its param *values* make sense. It returns a list of problems, each a sentence naming the file, the line's subject, and what's wrong; an empty list is the only passing grade. It runs twice over the system's life: at boot (a non-empty list raises `BuildCheckError` and the app refuses to start — the log line `build checks: ok` is the receipt) and before every rebuild, because the YAMLs are live-mounted and editing one then calling `/api/rebuild` is the ordinary workflow — the check catches the typo *before* the entity layer is wiped, not after. Severity is two-tier: an unparseable `mappings`/`ontology`/`transforms` file fails alone (nothing downstream is checkable without it), while a broken `metrics`/`rules`/`goals` file is reported and checking continues, so one bad file yields its own problem rather than a cascade of confusing ones.
+### Strategy
 
-**Report** — the rebuild's self-accounting (`GET /api/report`): every refused value bucketed by reason, every cleared field, every mapping line that matched nothing (`dead_paths` — how you notice a provider renamed a field), every failed row. The design rule: nothing is dropped silently.
+The judgment rule inside a goal. `at_least` and `at_most` compare the current value to the target (met on equality; a zero target reads done-or-not rather than dividing by zero). `increasing` judges the *snapshot series*, not just its endpoints — a dip that recovers higher is a rise, a shed-and-re-add back to the same level is not, and fewer than two points is not a trend but a refusal with a reason. `threshold_band` is for "hold it near" numbers — bad in *both* directions, like average deal size (too low: selling small; suspiciously high: a whale is skewing the mix, or the mid-market stopped closing). It judges met when the value sits inside a band around the target, and its `detail` names which side was breached. Strategies are pure, total functions over values — no clock, no database, and no input makes one raise — returning `(met, progress, detail)`. More strategies (streaks, growth rates) arrive with the goals that consume them.
 
-**Enrichment** — the first of two layers that call a model, and it is opt-in on purpose (`ENRICHMENT_ENABLED` defaults off; switching it on without an `ANTHROPIC_API_KEY` refuses the boot). Everything above this line in the README is deterministic; from here down is where inference lives, behind one module (`app/llm`) and one flag per layer.
+### Params
+
+The tuning knobs a strategy exposes, declared per goal in `goals.yaml`. `threshold_band` takes `band_low: 0.8` / `band_high: 1.25`: multipliers of the target, so a 25,000 target reads healthy anywhere in [20,000 … 31,250]. The asymmetry is a human judgment (more tolerance for drifting high than low), which is why they're params rather than code. The band edges are sorted after multiplying — with a negative target the low multiplier yields the *larger* edge, and the unsorted version produced an inverted band where met was unreachable. Omitted params fall back to declared defaults; param *values* are validated at build time (a `band_low: "wide"` refuses the boot with the problem named, instead of booting clean and 500ing the first time someone opens the goals page).
+
+## Rebuild
+
+### Transform
+
+A pure normalizing function (`normalize_domain`, `normalize_money`, …). Transforms refuse rather than guess: a value they can't interpret raises a named reason (`not_a_date`, `not_a_number`) that lands in the report. A closed registry — data never selects arbitrary code.
+
+### Rebuild (projection)
+
+`POST /api/rebuild`: wipe the entity layer and recompute it from the newest raw event per record, through mappings and transforms. Deterministic (ids are content-derived uuid5s — two rebuilds produce byte-identical rows), locked (a concurrent rebuild gets a 409), and rebuildable at any time because raw events are never lost.
+
+### Build checks
+
+`problems = checks.run()`: the line that decides whether the estate is allowed to exist. `run()` reads all nine definition files and cross-validates every claim one makes about another — every mapping names a real connector and a real ontology attribute, every transform exists in the registry and lands the type it claims, every metric term is answerable, every identity attribute is normalized, every goal's strategy exists and its param *values* make sense. It returns a list of problems, each a sentence naming the file, the line's subject, and what's wrong; an empty list is the only passing grade. It runs twice over the system's life: at boot (a non-empty list raises `BuildCheckError` and the app refuses to start — the log line `build checks: ok` is the receipt) and before every rebuild, because the YAMLs are live-mounted and editing one then calling `/api/rebuild` is the ordinary workflow — the check catches the typo *before* the entity layer is wiped, not after. Severity is two-tier: an unparseable `mappings`/`ontology`/`transforms` file fails alone (nothing downstream is checkable without it), while a broken `metrics`/`rules`/`goals` file is reported and checking continues, so one bad file yields its own problem rather than a cascade of confusing ones.
+
+### Report
+
+The rebuild's self-accounting (`GET /api/report`): every refused value bucketed by reason, every cleared field, every mapping line that matched nothing (`dead_paths` — how you notice a provider renamed a field), every failed row. The design rule: nothing is dropped silently.
+
+## Inference
+
+These layers call a model, and each is opt-in: one flag and one key.
+
+### Enrichment
+
+The first of two layers that call a model, and it is opt-in on purpose (`ENRICHMENT_ENABLED` defaults off; switching it on without an `ANTHROPIC_API_KEY` refuses the boot). Everything above this line in the README is deterministic; from here down is where inference lives, behind one module (`app/llm`) and one flag per layer.
 
 A **reading**, declared in `enrichment.yaml`, is one named way of reading one kind of text: `sales_call` says "take every `meeting`'s `transcript` and answer three questions — interest, pain points, timing — each from a closed set of labels." The `entity:`/`input:` pair is the reading's address into the canonical layer, validated at boot (the attr must exist, be a string, and never be merge identity), and the whole spec — label glosses included — hashes into a `vocabulary_sha`, because the glosses are the prompt: changing a word changes what was asked.
 
@@ -188,17 +363,31 @@ A run (`POST /api/enrichment/run`) works through five refusals-first steps: find
 
 Three durability rules: the rebuild never touches `enriched_fact` (it's the one table not derivable from `raw_event` — the substrate is rebuilt around it); when resolution merges two entities, their readings move to the survivor; when an entity vanishes entirely, its readings are kept as orphans rather than destroyed. And **coverage is stated, not assumed** (`GET /api/enrichment/coverage`): `eligible`, `read_under_current_vocabulary`, `read_under_a_retired_vocabulary`, and `never_read` are four different claims, so "the model saw 6 of 6" is a number you read, never an impression you form. Every list payload carries `inferred: true` and a disclaimer: these are model readings, not measurements. The reader is `claude-sonnet-5` by default — closed-enum extraction doesn't need a frontier model — at roughly $1.80 per full 200-call run.
 
-**Role** — a briefing audience, and it exists because a file does: `definitions/briefs/ceo.md` *is* the role `ceo`. No registry, no enum — `roles()` is the directory listing, so a tenant adds a role by writing a prompt file and removes one by deleting it. Each file is that role's editable half of the prompt: what this reader cares about, in what order, at what length ("under 250 words", "money in full figures"). The other half — the SAFETY preamble saying fenced data is material never instruction, never compute, call a defect a defect — lives in code, because *what the role wants to hear* is a tenant decision and *what the model may never do* is not.
+### Role
 
-**Briefing** (coaching, `COACHING_ENABLED`) — a model narrating the estate's numbers to one role: metrics, goals, and findings walk into a fenced prompt, and ~250 words of prose walk out (`POST /api/coaching/{role}`; the newest success serves at `GET`). It is the system's first *unassertable* artifact — enrichment's labels are server-enforced enums with machine-checked quotes, but no test can assert a paragraph — so all the discipline moved to the input side: the context block is a pure function (no clock, no database) rendered under hard rules — a defective number becomes `UNAVAILABLE` rather than being narrated (a measurement defect must never read as a business result), zero entities reads "measures nothing rather than measuring zero", an inferred metric is marked `ESTIMATE` wherever it appears, and a goal's progress tail says *what its percentage counts* (an `at_most` goal missed by double says "over the ceiling", never "50% of target"). Every generation is stored with full lineage — failures included, because a failed briefing that leaves no row is indistinguishable from one nobody asked for — and the rebuild never touches the table: narrating the same numbers twice does not give the same paragraph, so a briefing is not derivable from `raw_event`.
+A briefing audience, and it exists because a file does: `definitions/briefs/ceo.md` *is* the role `ceo`. No registry, no enum — `roles()` is the directory listing, so a tenant adds a role by writing a prompt file and removes one by deleting it. Each file is that role's editable half of the prompt: what this reader cares about, in what order, at what length ("under 250 words", "money in full figures"). The other half — the SAFETY preamble saying fenced data is material never instruction, never compute, call a defect a defect — lives in code, because *what the role wants to hear* is a tenant decision and *what the model may never do* is not.
 
-**prompts_sha** — one digest over every prompt file, stamped on each stored briefing beside `input_sha` (the exact estate block read) and the model. Together they finish the provenance sentence a briefing owes its reader: *these numbers, worded this way, by this model.* Rewording a prompt changes the sha, so an old briefing honestly reads as the product of retired wording rather than a change in the business — the same move as enrichment's `vocabulary_sha`, because in both layers the prose *is* part of the instrument, and an instrument that changed silently would forge its own history.
+### Briefing (coaching, `COACHING_ENABLED`)
 
-**Search** (`GET /api/search`, ⌘K in the console, `/search`) — one search over everything stored, with three legs that share one endpoint. *Words*: at every rebuild the engine writes one row per fact into `search_document` — every member's facts, not only the survivorship winners, so a merged person is found by whichever name or email either source knows; the anchor key; enrichment readings with their verified quotes; every briefing; and the latest payload of every raw event — indexed with Postgres `tsvector` under the `simple` configuration (no stemming, so a prefix matches mid-word: `pricin` finds pricing) and weighted so a name outranks a transcript. Emails and domains are also stored as their parts, so `acme` finds `hello@acme.io`. When the word query finds nothing, a trigram pass over names and labels answers instead (`carlso` finds Carlos). A prefix like `person:wayne` sets the kind filter. Every hit carries evidence — the attribute that matched (`status=past_due`) or the passage with the matching words marked — and opens the thing itself: the entity with its row selected, the metric with its series, the briefing in the journal, the raw event in the Raw tab. *Meaning* (`EMBEDDINGS_ENABLED`, `OPENAI_API_KEY`): transcripts are split into chunks at rebuild and embedded by a separate capped run (`POST /api/search/embed`, also after a rebuild) into `search_chunk` with `pgvector`; vectors are keyed on the chunk's hash and model, so a rebuild re-embeds only what changed, and word search keeps working while vectors are missing. *Both* (`mode=both`): reciprocal rank fusion of the two legs, and, with `RERANK_ENABLED` and a ZeroEntropy key, Zerank 2 over the top twenty, falling back to fusion order on any error. The index is exactly as fresh as the last rebuild. Dates and numbers are not indexed; nothing in a raw payload that never became a fact is reachable except through the raw hit itself. Definitions are indexed with their glossary, so a business word reaches the reviewed definition: `revenue` finds the `mrr` metric, `clients` finds the `company` type.
+A model narrating the estate's numbers to one role: metrics, goals, and findings walk into a fenced prompt, and ~250 words of prose walk out (`POST /api/coaching/{role}`; the newest success serves at `GET`). It is the system's first *unassertable* artifact — enrichment's labels are server-enforced enums with machine-checked quotes, but no test can assert a paragraph — so all the discipline moved to the input side: the context block is a pure function (no clock, no database) rendered under hard rules — a defective number becomes `UNAVAILABLE` rather than being narrated (a measurement defect must never read as a business result), zero entities reads "measures nothing rather than measuring zero", an inferred metric is marked `ESTIMATE` wherever it appears, and a goal's progress tail says *what its percentage counts* (an `at_most` goal missed by double says "over the ceiling", never "50% of target"). Every generation is stored with full lineage — failures included, because a failed briefing that leaves no row is indistinguishable from one nobody asked for — and the rebuild never touches the table: narrating the same numbers twice does not give the same paragraph, so a briefing is not derivable from `raw_event`.
 
-**MCP** (`/mcp`) — the estate as a tool server for any agent on the machine, over the Model Context Protocol (Streamable HTTP). It is read-only and calls no model itself. It serves the conversation's seven tools (`get_metrics`, `slice_metric`, `get_goals`, `get_findings`, `entity_counts`, `find_entities`, `get_entity`) built from the same specs and handlers the ask agent uses, so an agent asking for MRR gets the reviewed number with its receipts rather than a guess over raw tables; the nine definition files as `definitions://<name>` resources, so an agent can read what a metric means before asking for it; and each role brief as a `briefing_<role>` prompt. Every call is written to `mcp_call` (kind, name, arguments, ok, duration, error). `GET /api/mcp` lists what is served; the console's Config → MCP tab shows it with the endpoint and a client config to copy. There is no authentication on `/mcp` or `/api` yet, so it is for localhost only until the OAuth item in `TODO.md` lands.
+### prompts_sha
 
-**Operator** — an engineer that operates the estate once a day. It runs as a Claude Code session in GitHub Actions (`.github/workflows/operator.yml`, 06:00 UTC) with the repository checked out and last night's database copy restored beside it, and reads what ran (`sync_run` per source, the two newest `engine_run` reports), what arrived (the newest payload per record in `raw_event`: object types no mapping reads, fields nothing maps, the vocabulary each source uses for a status), how records merged (clusters that disagree on a name or an email, candidates pending over a week, confirmed pairs whose evidence is gone, and the pairs people confirmed or rejected by hand), what the numbers say (`metric_snapshot` series that jumped or turned null, goals stuck on unknown, rules that never fire), what people asked (`conversation_turn`, `mcp_call`, briefings that failed) and who is briefed (`briefs/` against who is asking and what the estate holds). Then it proposes the changes a good engineer would make — anything in the repository: a synonym line, a mapping, a metric, a gloss, a rule, a goal, a brief, a prompt, engine code, the console — preferring the smallest change that closes the gap, and a definition line over code when both would do. A proposal is a GitHub issue labeled `operator` + `awaiting-approval` carrying the evidence (the query, its result, and where the copy allows it the number before and after a trial edit), a plan a builder can follow without the operator, and a verify step; at most three a run. Nothing is built until a person applies `approved` or replies LGTM; then a second run (`operator-build.yml`) implements the plan and opens the pull request that closes the issue, and a person merges. A finding is an `operator` issue with no plan — a pair to confirm, a source that stopped syncing, a number that cannot be right — for a person to handle; labeling it `approved` builds nothing. The trail of `operator` issues is the operator's memory: open is pending, closed without `approved` is declined, and a declined subject returns only with new evidence, named. Production is never touched: the operator reads a restored copy in the runner's own Postgres, may edit a definition and `POST /api/rebuild` the copy for before/after evidence, and the copy dies with the runner; with no snapshot configured the run syncs the mock estate and audits that. Both runs use the model named in `agents/operator.yaml`, `claude-opus-5` today.
+One digest over every prompt file, stamped on each stored briefing beside `input_sha` (the exact estate block read) and the model. Together they finish the provenance sentence a briefing owes its reader: *these numbers, worded this way, by this model.* Rewording a prompt changes the sha, so an old briefing honestly reads as the product of retired wording rather than a change in the business — the same move as enrichment's `vocabulary_sha`, because in both layers the prose *is* part of the instrument, and an instrument that changed silently would forge its own history.
+
+## Search and MCP
+
+### Search (`GET /api/search`, ⌘K in the console, `/search`)
+
+One search over everything stored, with three legs that share one endpoint. *Words*: at every rebuild the engine writes one row per fact into `search_document` — every member's facts, not only the survivorship winners, so a merged person is found by whichever name or email either source knows; the anchor key; enrichment readings with their verified quotes; every briefing; and the latest payload of every raw event — indexed with Postgres `tsvector` under the `simple` configuration (no stemming, so a prefix matches mid-word: `pricin` finds pricing) and weighted so a name outranks a transcript. Emails and domains are also stored as their parts, so `acme` finds `hello@acme.io`. When the word query finds nothing, a trigram pass over names and labels answers instead (`carlso` finds Carlos). A prefix like `person:wayne` sets the kind filter. Every hit carries evidence — the attribute that matched (`status=past_due`) or the passage with the matching words marked — and opens the thing itself: the entity with its row selected, the metric with its series, the briefing in the journal, the raw event in the Raw tab. *Meaning* (`EMBEDDINGS_ENABLED`, `OPENAI_API_KEY`): transcripts are split into chunks at rebuild and embedded by a separate capped run (`POST /api/search/embed`, also after a rebuild) into `search_chunk` with `pgvector`; vectors are keyed on the chunk's hash and model, so a rebuild re-embeds only what changed, and word search keeps working while vectors are missing. *Both* (`mode=both`): reciprocal rank fusion of the two legs, and, with `RERANK_ENABLED` and a ZeroEntropy key, Zerank 2 over the top twenty, falling back to fusion order on any error. The index is exactly as fresh as the last rebuild. Dates and numbers are not indexed; nothing in a raw payload that never became a fact is reachable except through the raw hit itself. Definitions are indexed with their glossary, so a business word reaches the reviewed definition: `revenue` finds the `mrr` metric, `clients` finds the `company` type.
+
+### MCP (`/mcp`)
+
+The estate as a tool server for any agent on the machine, over the Model Context Protocol (Streamable HTTP). It is read-only and calls no model itself. It serves the conversation's seven tools (`get_metrics`, `slice_metric`, `get_goals`, `get_findings`, `entity_counts`, `find_entities`, `get_entity`) built from the same specs and handlers the ask agent uses, so an agent asking for MRR gets the reviewed number with its receipts rather than a guess over raw tables; the nine definition files as `definitions://<name>` resources, so an agent can read what a metric means before asking for it; and each role brief as a `briefing_<role>` prompt. Every call is written to `mcp_call` (kind, name, arguments, ok, duration, error). `GET /api/mcp` lists what is served; the console's Config → MCP tab shows it with the endpoint and a client config to copy. There is no authentication on `/mcp` or `/api` yet, so it is for localhost only until the OAuth item in `TODO.md` lands.
+
+## Operator
+
+An engineer that operates the estate once a day. It runs as a Claude Code session in GitHub Actions (`.github/workflows/operator.yml`, 06:00 UTC) with the repository checked out and last night's database copy restored beside it, and reads what ran (`sync_run` per source, the two newest `engine_run` reports), what arrived (the newest payload per record in `raw_event`: object types no mapping reads, fields nothing maps, the vocabulary each source uses for a status), how records merged (clusters that disagree on a name or an email, candidates pending over a week, confirmed pairs whose evidence is gone, and the pairs people confirmed or rejected by hand), what the numbers say (`metric_snapshot` series that jumped or turned null, goals stuck on unknown, rules that never fire), what people asked (`conversation_turn`, `mcp_call`, briefings that failed) and who is briefed (`briefs/` against who is asking and what the estate holds). Then it proposes the changes a good engineer would make — anything in the repository: a synonym line, a mapping, a metric, a gloss, a rule, a goal, a brief, a prompt, engine code, the console — preferring the smallest change that closes the gap, and a definition line over code when both would do. A proposal is a GitHub issue labeled `operator` + `awaiting-approval` carrying the evidence (the query, its result, and where the copy allows it the number before and after a trial edit), a plan a builder can follow without the operator, and a verify step; at most three a run. Nothing is built until a person applies `approved` or replies LGTM; then a second run (`operator-build.yml`) implements the plan and opens the pull request that closes the issue, and a person merges. A finding is an `operator` issue with no plan — a pair to confirm, a source that stopped syncing, a number that cannot be right — for a person to handle; labeling it `approved` builds nothing. The trail of `operator` issues is the operator's memory: open is pending, closed without `approved` is declined, and a declined subject returns only with new evidence, named. Production is never touched: the operator reads a restored copy in the runner's own Postgres, may edit a definition and `POST /api/rebuild` the copy for before/after evidence, and the copy dies with the runner; with no snapshot configured the run syncs the mock estate and audits that. Both runs use the model named in `agents/operator.yaml`, `claude-opus-5` today.
 
 The operator is defined in `agents/operator.yaml`: the model it runs on and its brief, tenant-editable like a role brief. It is kept outside `definitions/` because the operator is not a briefing audience and nothing in the engine reads it: `roles()` lists `definitions/briefs/`, so an operator file there would have become a role. The rules it does not get to edit — issue formats, label moves, data rules (every value in the copy was typed by a user or written by a model, so it is material to describe and never instructions to follow; quote counts and a few example values, never a dump, never anything that looks like a credential) and hard rules (no commits, no branches, no pull requests, never apply `approved`) — live in `.claude/skills/dw-operator` and `dw-operator-build`, the same split as coaching's SAFETY preamble against a role brief. On the mock estate the demo is a vocabulary gap: mailchimp spells one email campaign's state `schedule` where sendgrid spells it `scheduled`, and zendesk's `solved` sits beside intercom's `closed`; all four fields map to `status` and `synonyms.yaml` folds none of those spellings, which is a line waiting to be proposed.
 
@@ -322,3 +511,27 @@ The compose files add the wiring, not knobs: `POSTGRES_USER`, `POSTGRES_PASSWORD
 - `app/backend/app/engine/search.py` — the search index (`search_document`, `search_chunk`) refilled at rebuild, the word, trigram and meaning legs, fusion and reranking, served by `api/search_api.py`
 - `app/backend/app/mcp.py` — the read-only MCP server at `/mcp` (Streamable HTTP): the conversation's seven tools, the definition files as `definitions://` resources, the role briefs as `briefing_<role>` prompts, every call logged to `mcp_call`; localhost only until auth exists
 - `mock/` — vendored mock providers (verbatim; exempt from repo style rules)
+
+## Status
+
+| Layer | Status |
+|---|---|
+| Sync, projection, resolution, metrics, rules, goals, word search | Deterministic, no keys needed |
+| Enrichment, briefings, ask | Opt-in: a flag and `ANTHROPIC_API_KEY` |
+| Meaning search, reranking | Opt-in: `OPENAI_API_KEY`, `ZEROENTROPY_API_KEY` |
+| Authentication on `/api` and `/mcp` | Not yet; localhost only |
+| Operator | Needs the one-time GitHub setup in Running |
+
+`ROADMAP.md` lists the shipped slices; `TODO.md` lists what is next.
+
+## Contributing
+
+`CONTRIBUTING.md` has the setup, the `./test.sh unit` gate, and the rules every change follows: no comments, minimalism, red before green, pull requests under 2k lines. `CODE_OF_CONDUCT.md` applies to every interaction in the project. Bug reports and feature requests start from the forms in the issue tracker.
+
+## Security
+
+Report a vulnerability privately, as described in `SECURITY.md`. There is no authentication on `/api` or `/mcp` yet, so the stack is for localhost or your own network boundary.
+
+## License
+
+AGPL-3.0, see `LICENSE`.

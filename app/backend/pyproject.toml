@@ -2,6 +2,7 @@
 name = "dw-os"
 version = "0.0.0"
 requires-python = ">=3.12"
+license = "AGPL-3.0-only"
 dependencies = [
     "alembic>=1.19",
     "anthropic>=0.69.0",
@@ -29,7 +30,7 @@ test = [
 ]
 
 [build-system]
-requires = ["setuptools>=75.0"]
+requires = ["setuptools>=77.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
