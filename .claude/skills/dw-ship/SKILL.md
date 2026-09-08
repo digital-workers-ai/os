@@ -70,4 +70,4 @@ gh api repos/digital-workers-ai/os/pulls/<N> -X PATCH -f title="..." -f body="..
 
 ## Merge policy
 
-Merge commits only, never squash. Carlos reviews and merges every PR. Auto-merge, `gh pr merge --merge --auto`, only when he says so. Delete-branch-on-merge is on: a merged branch is gone, so the next change branches fresh from `main`.
+Merge commits only, never squash. A person reviews and merges every PR. Auto-merge, `gh pr merge --merge --auto`, only when a person asks for it. Delete-branch-on-merge is on: a merged branch is gone, so the next change branches fresh from `main`.
