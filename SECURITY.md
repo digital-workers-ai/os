@@ -12,7 +12,7 @@ Include the commit (`git rev-parse --short HEAD`), the steps to reproduce and th
 
 ## Known limits
 
-There is no authentication on `/api` or `/mcp`. The stack is for localhost or behind your own network boundary until the OAuth item in `TODO.md` lands.
+There is no authentication on `/api` or `/mcp`. The stack is for localhost or behind your own network boundary until authentication lands.
 
 API keys live in `app/.env`, which is gitignored, or in the environment. They are never settings, and a model layer switched on without its key refuses to start.
 
