@@ -109,6 +109,15 @@ def test_reset_all_clears_every_registered_cache():
     assert transforms._synonyms_cache is None
 
 
+async def test_a_rebuild_clears_every_registered_cache(session):
+    from app import caches
+
+    get = caches.cached(_counting_loader())
+    assert get() == {"loads": 1}
+    await run.rebuild(session, run_checks=False)
+    assert get() == {"loads": 2}
+
+
 def test_the_adversarial_corpus_is_mounted_so_its_suite_cannot_silently_skip():
     root = Path(ground_truth.ADVERSARIAL_ROOT)
     assert (root / "seeds").is_dir(), (
