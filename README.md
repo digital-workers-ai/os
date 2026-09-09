@@ -18,6 +18,8 @@
 
 [![ci](https://github.com/digital-workers-ai/os/actions/workflows/ci.yml/badge.svg)](https://github.com/digital-workers-ai/os/actions/workflows/ci.yml) [![license: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
 
+## Introduction
+
 DW-OS centralizes your sales, billing, support, marketing, spreadsheets, and analytics tools, organizes what it finds, and puts your whole business behind a single pane of glass. From there it calculates your numbers, identifies what needs attention, and tracks whether you are hitting your targets.
 
 Every number calculated can tell you which tool it came from, which records it counted, and which of those records were missing the field. Nothing is a black box, and the same data always gives the same answer.
@@ -39,7 +41,7 @@ Every night, an AI agent reviews what changed and opens a GitHub issue for each 
 - [An Engineer in Your Loop](#an-engineer-in-your-loop)
 - [For Developers](#for-developers)
 - [Configuration](#configuration)
-- [Operator Snapshot Variables](#operator-snapshot-variables)
+- [Operator Variables](#operator-variables)
 - [How a Rebuild Works](#how-a-rebuild-works)
 - [Contact](#contact)
 - [License](#license)
@@ -273,11 +275,11 @@ claude mcp add --transport http os http://localhost:3092/mcp
 
 Once a day, an AI agent reviews the whole system for what quietly rots—a field nothing reads any more, two tools spelling one status differently, a merge whose evidence has disappeared, a number that jumped for no reason, a target stuck on unknown, a rule that never fires—and writes up the smallest change that would fix each one.
 
-It runs as a Claude Code session in GitHub Actions (`.github/workflows/operator.yml`, 06:00 UTC) with the repository checked out and last night's database copy restored beside it. It reads `sync_run` per source, the two newest rebuild reports, the newest payload per record (object types no mapping reads, fields nothing maps, the status vocabulary each source uses), clusters that disagree on a name or an email, candidates pending over a week, confirmed pairs whose evidence is gone, hand-made merge decisions, snapshot series that jumped or turned null, goals stuck on unknown, rules that never fire, conversation turns, agent tool calls, failed briefings, and the briefs against who is asking.
+It is off until a person switches it on; see [Operator Variables](#operator-variables). Once enabled, it runs as a Claude Code session in GitHub Actions (`.github/workflows/operator.yml`, scheduled at 06:00 UTC) with the repository checked out and last night's database copy restored beside it. It reads `sync_run` per source, the two newest rebuild reports, the newest payload per record (object types no mapping reads, fields nothing maps, the status vocabulary each source uses), clusters that disagree on a name or an email, candidates pending over a week, confirmed pairs whose evidence is gone, hand-made merge decisions, snapshot series that jumped or turned null, goals stuck on unknown, rules that never fire, conversation turns, agent tool calls, failed briefings, and the briefs against who is asking.
 
 A proposal is a GitHub issue labeled `operator` + `awaiting-approval`, carrying the query, its result, and—where possible—the number before and after a trial edit, plus a plan a builder can follow without the operator and a verify step.
 
-Nothing is built until a person applies `approved` or replies LGTM; then `operator-build.yml` implements the plan and opens the pull request that closes the issue, and a person merges. The operator never commits, never branches, and never applies `approved` itself. Production is never touched: it reads a restored copy in the runner's own Postgres, may edit a definition and rebuild the copy for before-and-after evidence, and the copy dies with the runner. Where that copy comes from is set under [Operator Snapshot Variables](#operator-snapshot-variables).
+Nothing is built until a person applies `approved` or replies LGTM; then `operator-build.yml` implements the plan and opens the pull request that closes the issue, and a person merges. The operator never commits, never branches, and never applies `approved` itself. Production is never touched: it reads a restored copy in the runner's own Postgres, may edit a definition and rebuild the copy for before-and-after evidence, and the copy dies with the runner. Where that copy comes from is set under [Operator Variables](#operator-variables).
 
 The trail of `operator` issues is its memory: open is pending, closed without `approved` is declined, and a declined subject returns only with new evidence, named. Its model and brief are in `agents/operator.yaml`; the rules it may not edit are in `.claude/skills/dw-operator` and `dw-operator-build`.
 
@@ -342,19 +344,20 @@ Everything is read from the environment, and `app/.env` is loaded first. Every s
 | `OPENAI_API_KEY`      | Meaning search                             |
 | `ZEROENTROPY_API_KEY` | Reranking                                  |
 
-## Operator Snapshot Variables
+## Operator Variables
 
-The nightly agent restores last night's database copy from object storage. These are GitHub Actions repository variables and secrets read by `.github/workflows/operator.yml`, not app settings. Set the S3 or the GCS pair, never both; with neither set, the run syncs the mock providers and audits that instead.
+The nightly agent and its builder run only when the repository variable `OPERATOR_ENABLED` is `true` and the two secrets below are set; until then both workflows are skipped. These are GitHub Actions repository variables and secrets read by `.github/workflows/operator.yml` and `operator-build.yml`, not app settings. The agent restores last night's database copy from object storage: set the S3 or the GCS pair, never both; with neither set, the run syncs the mock providers and audits that instead.
 
-| Variable                                   | Kind     | What it does                                                          |
-|--------------------------------------------|----------|-----------------------------------------------------------------------|
-| `OPERATOR_SNAPSHOT_S3`                     | variable | `bucket/path/to/os.dump`, a `pg_dump` custom-format file on S3        |
-| `OPERATOR_AWS_ROLE_ARN`                    | variable | Role assumed through OIDC to read it; the region is `us-east-1`       |
-| `OPERATOR_SNAPSHOT_GCS`                    | variable | `bucket/path/to/os.dump` on Cloud Storage                             |
-| `OPERATOR_GCP_WORKLOAD_IDENTITY_PROVIDER`  | variable | Workload identity provider the runner authenticates through           |
-| `OPERATOR_GCP_SERVICE_ACCOUNT`             | variable | Service account it impersonates to read the dump                      |
-| `ANTHROPIC_API_KEY`                        | secret   | The operator's model                                                  |
-| `OPERATOR_GITHUB_PAT`                      | secret   | Token the operator uses to open issues and the builder to open pull requests |
+| Variable                                  | Kind     | What it does                                                                 |
+|-------------------------------------------|----------|------------------------------------------------------------------------------|
+| `OPERATOR_ENABLED`                        | variable | `true` switches both workflows on; anything else and every run is skipped    |
+| `OPERATOR_SNAPSHOT_S3`                    | variable | `bucket/path/to/os.dump`, a `pg_dump` custom-format file on S3               |
+| `OPERATOR_AWS_ROLE_ARN`                   | variable | Role assumed through OIDC to read it; the region is `us-east-1`              |
+| `OPERATOR_SNAPSHOT_GCS`                   | variable | `bucket/path/to/os.dump` on Cloud Storage                                    |
+| `OPERATOR_GCP_WORKLOAD_IDENTITY_PROVIDER` | variable | Workload identity provider the runner authenticates through                  |
+| `OPERATOR_GCP_SERVICE_ACCOUNT`            | variable | Service account it impersonates to read the dump                             |
+| `ANTHROPIC_API_KEY`                       | secret   | The operator's model                                                         |
+| `OPERATOR_GITHUB_PAT`                     | secret   | Token the operator uses to open issues and the builder to open pull requests |
 
 ## How a Rebuild Works
 

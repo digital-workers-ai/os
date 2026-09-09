@@ -9,16 +9,18 @@ on:
 jobs:
   gate:
     if: |
-      (github.event_name == 'issues' &&
-       github.event.label.name == 'approved' &&
-       contains(github.event.issue.labels.*.name, 'operator')) ||
-      (github.event_name == 'issue_comment' &&
-       !github.event.issue.pull_request &&
-       github.event.comment.user.type != 'Bot' &&
-       contains(github.event.issue.labels.*.name, 'operator') &&
-       (contains(github.event.issue.labels.*.name, 'approved') ||
-        (contains(github.event.issue.labels.*.name, 'awaiting-approval') &&
-         (startsWith(github.event.comment.body, 'lgtm') || startsWith(github.event.comment.body, 'approve')))))
+      vars.OPERATOR_ENABLED == 'true' && (
+       (github.event_name == 'issues' &&
+        github.event.label.name == 'approved' &&
+        contains(github.event.issue.labels.*.name, 'operator')) ||
+       (github.event_name == 'issue_comment' &&
+        !github.event.issue.pull_request &&
+        github.event.comment.user.type != 'Bot' &&
+        contains(github.event.issue.labels.*.name, 'operator') &&
+        (contains(github.event.issue.labels.*.name, 'approved') ||
+         (contains(github.event.issue.labels.*.name, 'awaiting-approval') &&
+          (startsWith(github.event.comment.body, 'lgtm') || startsWith(github.event.comment.body, 'approve')))))
+      )
     runs-on: ubuntu-latest
     outputs:
       allowed: ${{ steps.permission.outputs.allowed }}
