@@ -3,7 +3,7 @@ import uuid
 
 from sqlalchemy import delete, func, select
 
-from app import llm
+from app import caches, llm
 from app.config import settings
 from app.engine import (
     candidates,
@@ -90,6 +90,8 @@ async def rebuild(session, *, run_checks: bool = True) -> dict:
         problems = checks.run()
         if problems:
             raise checks.BuildCheckError(problems)
+
+    caches.reset_all()
 
     got_lock = (
         await session.execute(select(func.pg_try_advisory_xact_lock(_REBUILD_LOCK_ID)))
