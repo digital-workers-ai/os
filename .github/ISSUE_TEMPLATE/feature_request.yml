@@ -1,0 +1,23 @@
+name: Feature request
+description: Something you want added or changed
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+    validations:
+      required: true
+  - type: textarea
+    id: change
+    attributes:
+      label: The proposed change
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where it lands
+      options:
+        - A definition line (definitions/*.yaml or a brief)
+        - Engine code
+        - The console
+        - Not sure
