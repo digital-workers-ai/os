@@ -18,6 +18,8 @@
 
 [![ci](https://github.com/digital-workers-ai/os/actions/workflows/ci.yml/badge.svg)](https://github.com/digital-workers-ai/os/actions/workflows/ci.yml) [![license: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
 
+## Introduction
+
 DW-OS centralizes your sales, billing, support, marketing, spreadsheets, and analytics tools, organizes what it finds, and puts your whole business behind a single pane of glass. From there it calculates your numbers, identifies what needs attention, and tracks whether you are hitting your targets.
 
 Every number calculated can tell you which tool it came from, which records it counted, and which of those records were missing the field. Nothing is a black box, and the same data always gives the same answer.
