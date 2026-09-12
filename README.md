@@ -36,6 +36,7 @@ Every night, an AI agent reviews what changed and opens a GitHub issue for each 
 - [Architecture](#architecture)
 - [Entity Resolution](#entity-resolution)
 - [Your Business as Code You Own](#your-business-as-code-you-own)
+- [The Dashboard](#the-dashboard)
 - [MCP Support](#mcp-support)
 - [The Nightly AI Engineer Agent](#the-nightly-ai-engineer-agent)
 - [An Engineer in Your Loop](#an-engineer-in-your-loop)
@@ -183,8 +184,8 @@ flowchart TD
 
 21. **Console:** The web app: a home page with goals and findings, plus pages for activity, metrics, records, the AI parts, definitions, settings, and search.
 22. **Dashboard:** A second web app for readers: the pages `dashboards.yaml` declares, one card per metric, over any date range.
-22. **Search:** One search box over everything stored: names, emails, ids, statuses, transcript passages, briefings, and the definitions themselves.
-23. **MCP:** The door for AI assistants. Any assistant on your machine can read the same numbers, definitions, and briefing prompts as the console, and every call is logged.
+23. **Search:** One search box over everything stored: names, emails, ids, statuses, transcript passages, briefings, and the definitions themselves.
+24. **MCP:** The door for AI assistants. Any assistant on your machine can read the same numbers, definitions, and briefing prompts as the console, and every call is logged.
 
 ## Entity Resolution
 
@@ -229,7 +230,7 @@ two records, same kind          (today: people; companies declare no ladder)
 
 ## Your Business as Code You Own
 
-Everything here is code your company owns: nine definition files that describe the business, and the software underneath that connects to your tools, joins the records, calculates the numbers, and writes the briefings.
+Everything here is code your company owns: ten definition files that describe the business, and the software underneath that connects to your tools, joins the records, calculates the numbers, and writes the briefings.
 
 The definitions are where most changes happen. They hold what counts as a customer, which fields matter, how revenue is calculated, what counts as a problem, what the targets are, and what questions an AI model is allowed to ask about your text. Every time the system starts, and every time it rebuilds, it checks the files against each other. If one file mentions a field another does not have, or a number over data nothing produces, or a target with a setting that makes no sense, the system refuses to start and says which file and which line. It will not run on definitions it knows are broken.
 
@@ -265,6 +266,12 @@ Because all of it lives in a repository, your business is versioned. Changing wh
 ```
 
 Briefings follow the same idea. A briefing is a few paragraphs a model writes for one job—the owner or the head of sales—saying what moved, which targets are on track, and which customers need attention. Each morning it is written fresh and each person gets a notification with theirs. What a job's briefing talks about is set by a short prompt file in plain English: what that reader cares about, in what order, at what length. One file per job, and the file is the job. Add one for the CFO and there is a CFO briefing; delete it and there is not. The prompt is versioned like everything else here, so a briefing that reads differently this month can be traced to the day someone changed the wording.
+
+## The Dashboard
+
+The console is for whoever operates it. The dashboard is for whoever runs the business. It shows the numbers and nothing else: no settings, no definitions, and no logic of its own. Every card on it is a metric from `metrics.yaml`, calculated by the same code the console uses, and every page on it is declared in `dashboards.yaml`.
+
+Adding a page is adding lines to `dashboards.yaml`. The same check that guards the other definition files guards this one: a card that names no metric, a metric listed twice on one page, or a metric on a ranged page that has no date to range over fails the build with a message naming the page — never a blank card. The console lists every page and card under Definitions → Dashboards, so what the dashboard shows is as reviewable as how each number is calculated.
 
 ## MCP Support
 
