@@ -1748,7 +1748,14 @@ class TestDefinitions:
         response = await api.get("/api/definitions/dashboards")
         assert response.status_code == 200, response.text
         body = response.json()
-        assert list(body["dashboards"]) == ["overview", "pipeline"]
+        assert list(body["dashboards"]) == [
+            "overview",
+            "website",
+            "pipeline",
+            "ads",
+            "email",
+            "social",
+        ]
         overview = body["dashboards"]["overview"]
         assert overview["label"] == "Overview"
         assert overview["range"] is True

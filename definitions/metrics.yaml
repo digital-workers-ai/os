@@ -329,3 +329,62 @@ sessions_by_channel:
   expression: SUM(sessions)
   group_by: channel
   window_attr: report_date
+
+emails_sent:
+  label: Emails Sent
+  description: Emails the campaigns sent, summed over the window.
+  synonyms: [sends]
+  entity: email_campaign
+  expression: SUM(sends)
+  window_attr: sent_at
+
+email_opens:
+  label: Email Opens
+  description: Opens the email campaigns drew, summed over the window.
+  entity: email_campaign
+  expression: SUM(opens)
+  window_attr: sent_at
+
+email_clicks:
+  label: Email Clicks
+  description: Clicks the email campaigns drew, summed over the window.
+  entity: email_campaign
+  expression: SUM(clicks)
+  window_attr: sent_at
+
+open_rate:
+  label: Open Rate
+  description: Email opens divided by emails sent over the window.
+  synonyms: [opens per send]
+  entity: email_campaign
+  op: "/"
+  terms:
+    - expression: SUM(opens)
+    - expression: SUM(sends)
+  window_attr: sent_at
+
+click_rate:
+  label: Click Rate
+  description: Email clicks divided by emails sent over the window.
+  entity: email_campaign
+  op: "/"
+  terms:
+    - expression: SUM(clicks)
+    - expression: SUM(sends)
+  window_attr: sent_at
+
+campaigns_sent:
+  label: Campaigns Sent
+  description: How many email campaigns went out in the window.
+  entity: email_campaign
+  expression: COUNT(entity)
+  window_attr: sent_at
+
+sends_by_day:
+  label: Sends by Day
+  description: Emails the campaigns sent, one bucket per day.
+  entity: email_campaign
+  expression: SUM(sends)
+  group_by: sent_at
+  grain: day
+  window_attr: sent_at
