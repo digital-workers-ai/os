@@ -1884,6 +1884,12 @@ FACEBOOK = {
 }
 
 
+SOCIAL_FAMILY = {
+    "social": {"label": "Social", "sections": [{"label": "Top", "cards": ["posts"]}]},
+    "facebook": {**FACEBOOK["facebook"], "parent": "social"},
+}
+
+
 async def _ranged(api, card, filters):
     if card["shape"] == "table":
         return await api.get(
@@ -2151,6 +2157,21 @@ class TestDefinitions:
             "limit": 5,
             "filter": {"category": "video"},
         }
+
+    async def test_every_page_carries_its_parent_or_none(self, api):
+        response = await api.get("/api/definitions/dashboards")
+        assert response.status_code == 200, response.text
+        body = response.json()
+        for page in body["dashboards"].values():
+            assert "parent" in page
+        assert body["dashboards"]["overview"]["parent"] is None
+        assert body["dashboards"]["social"]["parent"] is None
+
+    async def test_a_child_page_serves_its_parents_name(self, api, monkeypatch):
+        monkeypatch.setattr(dashboards, "definitions", lambda: SOCIAL_FAMILY)
+        body = (await api.get("/api/definitions/dashboards")).json()
+        assert body["dashboards"]["social"]["parent"] is None
+        assert body["dashboards"]["facebook"]["parent"] == "social"
 
     async def test_there_is_no_checks_endpoint(self, api):
         assert (await api.get("/api/definitions/checks")).status_code == 404

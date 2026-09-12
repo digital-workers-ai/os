@@ -80,6 +80,10 @@ def _filtered(filt, cards):
     return _page(range=False, filter=filt, sections=[{"label": "X", "cards": cards}])
 
 
+def _under(parent):
+    return {**_filtered({}, ["mrr"]), "parent": parent}
+
+
 class TestAPageParses:
     def test_a_full_page_parses_to_its_name_label_range_and_cards(self):
         page = dashboards.parse("overview", OVERVIEW)
@@ -138,6 +142,17 @@ class TestAPageFilterParses:
         assert "filter" in dashboards.PAGE_KEYS
 
 
+class TestAPageParentParses:
+    def test_a_parent_parses_to_the_named_page(self):
+        assert dashboards.parse("facebook", _page(parent="social")).parent == "social"
+
+    def test_parent_defaults_to_none(self):
+        assert dashboards.parse("overview", OVERVIEW).parent is None
+
+    def test_the_page_key_set_names_parent(self):
+        assert "parent" in dashboards.PAGE_KEYS
+
+
 class TestTheBuildRefusesAMalformedPage:
     @pytest.mark.parametrize(
         "spec,reason",
@@ -149,6 +164,7 @@ class TestTheBuildRefusesAMalformedPage:
             (_page(range="yes"), "range"),
             (_page(goals="yes"), "goals 'yes' must be true or false"),
             (_page(findings="yes"), "findings 'yes' must be true or false"),
+            (_page(parent=7), "parent 7 must be a page name"),
             (_without("sections"), "sections"),
             ({"label": "Overview"}, "needs `sections`"),
             (_page(sections={"label": "Traffic"}), "sections"),
@@ -174,6 +190,7 @@ class TestTheBuildRefusesAMalformedPage:
             "range_not_a_bool",
             "goals_not_a_bool",
             "findings_not_a_bool",
+            "parent_not_a_string",
             "missing_sections",
             "only_a_label",
             "sections_not_a_list",
@@ -400,6 +417,43 @@ class TestCheckHoldsAPageFilterToEveryCard:
     def test_a_filter_attr_the_table_cards_entity_declares_passes(self):
         defs = {"facebook": _filtered({"platform": "facebook"}, [TABLE])}
         assert dashboards.check(defs, {}, attrs_of) == []
+
+
+class TestCheckHoldsAParentToATopLevelPage:
+    def test_a_parent_that_is_not_a_declared_page(self):
+        defs = {"facebook": _under("social")}
+        problems = dashboards.check(defs, {"mrr": KPI}, attrs_of)
+        assert len(problems) == 1, problems
+        assert "facebook" in problems[0]
+        assert "social" in problems[0]
+
+    def test_a_parent_that_itself_has_a_parent(self):
+        defs = {
+            "overview": _filtered({}, ["mrr"]),
+            "social": _under("overview"),
+            "facebook": _under("social"),
+        }
+        problems = dashboards.check(defs, {"mrr": KPI}, attrs_of)
+        assert len(problems) == 1, problems
+        assert "facebook" in problems[0]
+        assert "social" in problems[0]
+
+    def test_a_page_naming_itself_as_parent(self):
+        defs = {"social": _under("social")}
+        problems = dashboards.check(defs, {"mrr": KPI}, attrs_of)
+        assert len(problems) == 1, problems
+        assert "social" in problems[0]
+        assert "itself" in problems[0]
+
+    def test_a_page_can_name_a_parent_that_is_top_level(self):
+        defs = {"social": _filtered({}, ["mrr"]), "facebook": _under("social")}
+        assert dashboards.check(defs, {"mrr": KPI}, attrs_of) == []
+
+    def test_a_malformed_parent_is_only_its_own_problem(self):
+        defs = {"social": _page(sections=[]), "facebook": _under("social")}
+        problems = dashboards.check(defs, {"mrr": KPI}, attrs_of)
+        assert len(problems) == 1, problems
+        assert "facebook" not in problems[0]
 
 
 class TestCheckHoldsATableToItsEntity:
