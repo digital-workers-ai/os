@@ -1,4 +1,4 @@
-import type { Page, Route } from '@playwright/test'
+import type { Locator, Page, Route } from '@playwright/test'
 import { expect, mockCandidates, mockJson, NOW, settle, snap, test, visit } from './fixtures'
 
 const DEFINITIONS: Record<string, string[]> = {
@@ -33,17 +33,19 @@ const enable = (page: Page, url: string) =>
     await r.fulfill({ json: { ...j, enabled: true } })
   })
 
-const collect = (page: Page) => page.getByTestId('hint').evaluateAll((els) => els.map((el) => el.getAttribute('aria-label') ?? ''))
+type Scope = Page | Locator
 
-const headers = (page: Page) => page.locator('th').filter({ hasText: /\S/ })
+const collect = (scope: Scope) => scope.getByTestId('hint').evaluateAll((els) => els.map((el) => el.getAttribute('aria-label') ?? ''))
 
-const audit = async (page: Page, state: string) => {
-  const ths = headers(page)
+const headers = (scope: Scope) => scope.locator('th').filter({ hasText: /\S/ })
+
+const audit = async (scope: Scope, state: string) => {
+  const ths = headers(scope)
   const n = await ths.count()
   await test.step(`${state}: ${n} headers`, async () => {
     expect(n).toBeGreaterThan(0)
     for (const th of await ths.all()) await expect(th.getByTestId('hint')).toHaveCount(1)
-    const hints = await collect(page)
+    const hints = await collect(scope)
     expect(hints).toHaveLength(n)
     for (const hint of hints) {
       expect(hint.trim()).not.toBe('')
@@ -114,10 +116,10 @@ test('ai', async ({ page }) => {
   await enable(page, '**/api/coaching')
   await visit(page, '/ai')
   await expect(page.getByTestId('facts-table')).toBeVisible()
-  await audit(page, 'ai enrichment')
+  await audit(page.getByTestId('tabpanel-enrichment'), 'ai enrichment')
   await openTab(page, 'coaching')
   await expect(page.getByTestId('coaching-journal')).toBeVisible()
-  await audit(page, 'ai coaching')
+  await audit(page.getByTestId('tabpanel-coaching'), 'ai coaching')
 })
 
 test('definitions', async ({ page }) => {

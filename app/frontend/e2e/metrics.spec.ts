@@ -45,8 +45,9 @@ const labelOf = async (page: Page, row: ReturnType<typeof rows>) => {
 const title = (page: Page) => page.getByTestId('series-title')
 
 test('nothing selected', async ({ page }) => {
+  const { metrics } = await (await page.request.get('/api/metrics')).json()
   await visit(page, '/metrics')
-  await expect(header(page.getByTestId('metrics-table'), 'Metric (21)')).toBeVisible()
+  await expect(header(page.getByTestId('metrics-table'), `Metric (${Object.keys(metrics).length})`)).toBeVisible()
   await expect(page.getByTestId('series').getByTestId('empty')).toHaveText('select a metric')
   await snap(page, 'metrics-default')
 })

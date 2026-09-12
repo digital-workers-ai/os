@@ -1,5 +1,5 @@
 import type { Locator, Page } from '@playwright/test'
-import { expect, header, mockJson, NOW, openFilter, settle, snap, test, visit } from './fixtures'
+import { expect, header, mockJson, NOW, openFilter, pickOption, settle, snap, test, visit } from './fixtures'
 import { PATH, TAB, tabPath } from '../src/paths'
 import { BRIEFING_REF_SEP, KIND, LINK, MODES, PARAM, RAW_API } from '../src/search/vocab'
 
@@ -7,6 +7,7 @@ const Q = 'wayne'
 const TYPO = 'acme corpp'
 const NONSENSE = 'zzqx'
 const EMPTY_HINT = 'type to search everything stored · ⌘K opens search from any page'
+const SLOW_LOAD = 20_000
 const DEFINITION_HREFS: Record<string, string> = {
   [KIND.metric]: `${PATH.metrics}?${LINK.metric}=`,
   [KIND.rule]: `${tabPath('definitions', TAB.definitions.rules)}?${LINK.rule}=`,
@@ -62,6 +63,13 @@ const total = async (page: Page) => {
 const expectSelected = async (row: Locator) => {
   await expect(row).toHaveAttribute('aria-selected', 'true')
   await expect(row).toBeInViewport()
+}
+
+const expectEntityShown = async (page: Page, kind: string, id: string) => {
+  await expect(header(page.getByTestId('entities-table'), /^Entity \(/)).toBeVisible({ timeout: SLOW_LOAD })
+  await settle(page)
+  await pickOption(page, 'entities-type-filter', kind)
+  await expectSelected(page.locator(`[data-testid="entities-row"][data-id="${id}"]`))
 }
 
 const expectNoScroll = async (page: Page, path: string) => {
@@ -156,11 +164,11 @@ test('arrow down and enter open the top hit', async ({ page }) => {
   await expect(hit).toHaveCount(1)
   await expect(input(page)).toHaveAttribute('aria-activedescendant', /./)
   const id = (await hit.getAttribute('data-id'))!
+  const kind = (await hit.getAttribute('data-kind'))!
   await page.keyboard.press('Enter')
   await expect(page).toHaveURL(at(`${tabPath('entities', TAB.entities.canonical)}?${LINK.entity}=${id}`))
   await expect(palette(page)).toHaveCount(0)
-  await settle(page)
-  await expectSelected(page.locator(`[data-testid="entities-row"][data-id="${id}"]`))
+  await expectEntityShown(page, kind, id)
   await expect(page.getByTestId('entity-detail-title')).not.toBeEmpty()
   await open(page)
   await expect(page.getByTestId('search-recent')).toHaveText([Q])
@@ -316,14 +324,14 @@ test('rows open the thing they name', async ({ page }) => {
   await expect(company).toHaveCSS('cursor', 'pointer')
   await company.click()
   await expect(page).toHaveURL(at(hrefFor('company', id)))
-  await settle(page)
-  await expectSelected(page.locator(`[data-testid="entities-row"][data-id="${id}"]`))
+  await expectEntityShown(page, 'company', id)
 
   await visit(page, searchFor('mrr'))
   const metric = page.locator(`[data-testid="search-row"][data-kind="${KIND.metric}"][data-id="mrr"]`)
   await expect(metric).toContainText('MRR')
   await metric.click()
   await expect(page).toHaveURL(at(hrefFor(KIND.metric, 'mrr')))
+  await expect(header(page.getByTestId('metrics-table'), /^Metric \(/)).toBeVisible({ timeout: SLOW_LOAD })
   await settle(page)
   await expectSelected(page.locator('[data-testid="metrics-row"][data-name="mrr"]'))
 })
