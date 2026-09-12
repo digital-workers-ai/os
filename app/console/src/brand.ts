@@ -1,1 +1,1 @@
-export const PRODUCT = 'OS'
+export const PRODUCT = 'Console'
