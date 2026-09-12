@@ -10,7 +10,7 @@ test('drawer', async ({ page }) => {
   await expect(drawer.getByRole('heading', { name: card.label, exact: true })).toBeVisible()
   await expect(drawer.getByRole('heading', { name: 'Sources', exact: true })).toBeVisible()
   await expect(drawer.getByRole('heading', { name: 'Receipts', exact: true })).toBeVisible()
-  await expect(drawer.getByTestId('open-in-console')).toHaveAttribute('href', /\/definitions\/metrics$/)
+  await expect(drawer.getByTestId('open-in-console')).toHaveAttribute('href', new RegExp(`/definitions/metrics\\?metric=${card.metric}$`))
   await settle(page)
   await snap(page, 'dashboard-definition')
   await page.keyboard.press('Escape')

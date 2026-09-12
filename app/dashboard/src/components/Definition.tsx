@@ -140,7 +140,7 @@ export function Definition({ metric, last, onClose }: { metric: string | null; l
               )}
             </Section>
             <a
-              href={consoleUrl('/definitions/metrics')}
+              href={consoleUrl(`/definitions/metrics?metric=${encodeURIComponent(metric ?? '')}`)}
               target="_blank"
               rel="noreferrer"
               className={buttonVariants({ variant: 'outline', size: 'sm', className: 'self-start' })}
