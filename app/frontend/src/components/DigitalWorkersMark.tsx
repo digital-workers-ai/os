@@ -19,7 +19,9 @@ export function DigitalWorkersMark({
   const fillers = useRef<(HTMLSpanElement | null)[]>([])
   const [widths, setWidths] = useState<number[] | null>(null)
   useLayoutEffect(() => {
-    setWidths(fillers.current.map((el) => el?.offsetWidth ?? 0))
+    const measure = () => setWidths(fillers.current.map((el) => el?.offsetWidth ?? 0))
+    measure()
+    document.fonts?.ready.then(measure)
   }, [])
   const filler = (i: number, s: string) => (
     <span
@@ -31,7 +33,7 @@ export function DigitalWorkersMark({
       style={{
         overflow: 'clip',
         opacity: phase === 'full' ? 1 : 0,
-        width: widths ? (phase === 'full' || phase === 'fade' ? widths[i] : 0) : undefined,
+        width: widths && phase !== 'full' ? (phase === 'fade' ? widths[i] : 0) : undefined,
         transition: `opacity 300ms ease, width 500ms ${QUAD}`,
       }}
     >
