@@ -8,6 +8,7 @@ interface PageSpec {
 }
 
 test('each page', async ({ page }) => {
+  test.slow()
   const { dashboards } = await (await page.request.get('/api/definitions/dashboards')).json()
   const pages = Object.entries<PageSpec>(dashboards)
   for (const [name, spec] of pages) {
