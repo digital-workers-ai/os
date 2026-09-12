@@ -1854,6 +1854,10 @@ class TestDocumentedResponses:
             assert "404" in documented, f"{path} can 404 and does not say so"
 
 
+NETWORKS = ("facebook", "instagram", "linkedin", "x", "pinterest")
+PAGES = ["overview", "attention", "website", "pipeline", "ads", "email", "social"]
+PAGES += NETWORKS
+RANGE = {"from": "2026-08-06", "to": "2026-09-04"}
 FACEBOOK = {
     "facebook": {
         "label": "Facebook",
@@ -1878,6 +1882,25 @@ FACEBOOK = {
         ],
     }
 }
+
+
+async def _ranged(api, card, filters):
+    if card["shape"] == "table":
+        return await api.get(
+            "/api/entities/top",
+            params={
+                **RANGE,
+                "entity": card["entity"],
+                "rank": card["rank"],
+                "columns": [column["attr"] for column in card["columns"]],
+                "window_attr": card["window_attr"],
+                "limit": card["limit"],
+                "filter": filters,
+            },
+        )
+    return await api.get(
+        f"/api/metrics/{card['metric']}", params={**RANGE, "filter": filters}
+    )
 
 
 class TestDefinitions:
@@ -1983,15 +2006,7 @@ class TestDefinitions:
         response = await api.get("/api/definitions/dashboards")
         assert response.status_code == 200, response.text
         body = response.json()
-        assert list(body["dashboards"]) == [
-            "overview",
-            "attention",
-            "website",
-            "pipeline",
-            "ads",
-            "email",
-            "social",
-        ]
+        assert list(body["dashboards"]) == PAGES
         overview = body["dashboards"]["overview"]
         assert overview["label"] == "Overview"
         assert overview["range"] is True
@@ -2016,30 +2031,21 @@ class TestDefinitions:
         }
         assert cards["deals_by_status"]["shape"] == "breakdown"
 
-    async def test_the_seven_pages_serve_in_order_and_every_ranged_card_can_be_ranged(
+    async def test_the_twelve_pages_serve_in_order_and_every_ranged_card_can_be_ranged(
         self, api
     ):
         response = await api.get("/api/definitions/dashboards")
         assert response.status_code == 200, response.text
         body = response.json()
-        assert list(body["dashboards"]) == [
-            "overview",
-            "attention",
-            "website",
-            "pipeline",
-            "ads",
-            "email",
-            "social",
-        ]
+        assert list(body["dashboards"]) == PAGES
         for page in body["dashboards"].values():
             if not page["range"]:
                 continue
+            filters = [f"{attr}:{value}" for attr, value in page["filter"].items()]
             for section in page["sections"]:
                 for card in section["cards"]:
-                    ranged = await api.get(
-                        f"/api/metrics/{card['metric']}?from=2026-08-06&to=2026-09-04"
-                    )
-                    assert ranged.status_code == 200, (card["metric"], ranged.text)
+                    ranged = await _ranged(api, card, filters)
+                    assert ranged.status_code == 200, (card["label"], ranged.text)
         email = {
             card["metric"]: card
             for section in body["dashboards"]["email"]["sections"]
@@ -2052,6 +2058,38 @@ class TestDefinitions:
             for card in section["cards"]
         }
         assert social["posts_by_platform"]["shape"] == "breakdown"
+        facebook = body["dashboards"]["facebook"]
+        assert facebook["filter"] == {"platform": "facebook"}
+        tables = [
+            card
+            for section in facebook["sections"]
+            for card in section["cards"]
+            if card["shape"] == "table"
+        ]
+        assert tables[0] == {
+            "shape": "table",
+            "label": "Top Posts by Reach",
+            "entity": "social_post",
+            "rank": "reach",
+            "columns": [
+                {"attr": "name", "type": "string"},
+                {"attr": "category", "type": "string"},
+                {"attr": "posted_at", "type": "date"},
+                {"attr": "reach", "type": "number"},
+                {"attr": "interactions", "type": "number"},
+            ],
+            "window_attr": "posted_at",
+            "limit": 10,
+            "filter": {},
+        }
+
+    async def test_a_shipped_page_filter_reaches_the_metric(self, api):
+        response = await api.get(
+            "/api/metrics/post_likes?filter=platform:instagram"
+            "&from=2026-08-06&to=2026-09-04"
+        )
+        assert response.status_code == 200, response.text
+        assert response.json()["applied_filter"] == {"platform": "instagram"}
 
     async def test_pages_say_whether_they_carry_goals_and_findings(self, api):
         response = await api.get("/api/definitions/dashboards")
@@ -2073,10 +2111,12 @@ class TestDefinitions:
         assert attention["sections"] == []
         assert attention["range"] is False
 
-    async def test_every_shipped_page_serves_an_empty_filter(self, api):
+    async def test_the_network_pages_filter_on_their_platform_and_the_rest_do_not(
+        self, api
+    ):
         body = (await api.get("/api/definitions/dashboards")).json()
-        for page in body["dashboards"].values():
-            assert page["filter"] == {}
+        for name, page in body["dashboards"].items():
+            assert page["filter"] == ({"platform": name} if name in NETWORKS else {})
 
     async def test_a_filtered_page_serves_its_filter(self, api, monkeypatch):
         monkeypatch.setattr(dashboards, "definitions", lambda: FACEBOOK)

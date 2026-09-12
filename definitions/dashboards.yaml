@@ -55,3 +55,129 @@ social:
       cards: [posts, post_likes, posts_by_day]
     - label: Engagement
       cards: [post_comments, post_shares, posts_by_platform, likes_by_platform]
+facebook:
+  label: Facebook
+  range: true
+  filter:
+    platform: facebook
+  sections:
+    - label: Audience
+      cards: [social_reach, social_impressions, social_engaged, social_reach_by_day, social_engaged_by_day]
+    - label: Followers
+      cards: [social_follows, social_unfollows, social_profile_views, social_follows_by_day]
+    - label: Posts
+      cards: [posts, post_reach, post_interactions, post_engagement_rate, post_interactions_by_day]
+    - label: Engagement
+      cards: [post_likes, post_comments, post_shares, post_clicks]
+    - label: Post types
+      cards: [posts_by_post_type, likes_by_post_type, reach_by_post_type]
+    - label: Top posts
+      cards:
+        - table: social_post
+          label: Top Posts by Reach
+          rank: reach
+          columns: [name, category, posted_at, reach, interactions]
+          window_attr: posted_at
+          limit: 10
+        - table: social_post
+          label: Top Posts by Likes
+          rank: likes
+          columns: [name, category, posted_at, likes, comments, shares]
+          window_attr: posted_at
+          limit: 10
+instagram:
+  label: Instagram
+  range: true
+  filter:
+    platform: instagram
+  sections:
+    - label: Audience
+      cards: [social_reach, social_impressions, social_engaged, social_reach_by_day, social_engaged_by_day]
+    - label: Followers
+      cards: [social_follows, social_profile_views, social_follows_by_day]
+    - label: Posts
+      cards: [posts, post_reach, post_interactions, post_engagement_rate, post_interactions_by_day]
+    - label: Engagement
+      cards: [post_likes, post_comments, post_saves, post_views]
+    - label: Post types
+      cards: [posts_by_post_type, likes_by_post_type, reach_by_post_type]
+    - label: Top posts
+      cards:
+        - table: social_post
+          label: Top Posts by Reach
+          rank: reach
+          columns: [name, category, posted_at, reach, interactions]
+          window_attr: posted_at
+          limit: 10
+        - table: social_post
+          label: Top Posts by Likes
+          rank: likes
+          columns: [name, category, posted_at, likes, comments, saves]
+          window_attr: posted_at
+          limit: 10
+linkedin:
+  label: LinkedIn
+  range: true
+  filter:
+    platform: linkedin
+  sections:
+    - label: Followers
+      cards: [social_follows, social_profile_views, social_follows_by_day]
+    - label: Posts
+      cards: [posts, post_impressions, post_interactions, post_engagement_rate, post_interactions_by_day]
+    - label: Engagement
+      cards: [post_likes, post_comments, post_shares, post_clicks]
+    - label: Post types
+      cards: [posts_by_post_type, likes_by_post_type]
+    - label: Top posts
+      cards:
+        - table: social_post
+          label: Top Posts by Impressions
+          rank: impressions
+          columns: [name, category, posted_at, impressions, interactions]
+          window_attr: posted_at
+          limit: 10
+        - table: social_post
+          label: Top Posts by Likes
+          rank: likes
+          columns: [name, category, posted_at, likes, comments, shares]
+          window_attr: posted_at
+          limit: 10
+x:
+  label: X
+  range: true
+  filter:
+    platform: x
+  sections:
+    - label: Posts
+      cards: [posts, post_impressions, post_interactions, post_engagement_rate]
+    - label: Engagement
+      cards: [post_likes, post_comments, post_shares, post_interactions_by_day]
+    - label: Top posts
+      cards:
+        - table: social_post
+          label: Top Posts by Likes
+          rank: likes
+          columns: [name, posted_at, likes, comments, shares]
+          window_attr: posted_at
+          limit: 10
+pinterest:
+  label: Pinterest
+  range: true
+  filter:
+    platform: pinterest
+  sections:
+    - label: Audience
+      cards: [social_reach, social_impressions, social_engaged, social_impressions_by_day]
+    - label: Pins
+      cards: [posts, post_impressions, post_saves, post_clicks, posts_by_day]
+    - label: Pin types
+      cards: [posts_by_post_type]
+    - label: Top pins
+      cards:
+        - table: social_post
+          label: Top Pins by Saves
+          rank: saves
+          columns: [name, category, posted_at, impressions, saves, clicks]
+          window_attr: posted_at
+          limit: 10
