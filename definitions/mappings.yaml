@@ -182,7 +182,7 @@ campaign_report:
   meta.daily_insights.clicks: clicks
   meta.daily_insights.impressions: impressions
   meta.daily_insights.conversions: conversions
-  google_ads.daily_campaigns.campaign.id: campaign_ref
+  google_ads.daily_campaigns._campaign_ref: campaign_ref
   google_ads.daily_campaigns.segments.date: report_date
   google_ads.daily_campaigns.metrics.costMicros: spend
   google_ads.daily_campaigns.metrics.clicks: clicks
