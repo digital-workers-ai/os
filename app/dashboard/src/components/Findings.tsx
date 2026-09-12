@@ -68,7 +68,7 @@ export function Findings() {
   const page = findings.slice(offset, offset + size)
 
   return (
-    <section className="mt-8 first:mt-0" data-testid="findings">
+    <section className="mt-8 first:mt-0" data-testid="findings" data-state={query.isPending ? 'loading' : query.error ? 'error' : 'ready'}>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2 border-b border-line pb-2">
         <div className="flex items-baseline gap-2">
           <h2 className="text-xs font-medium uppercase tracking-wide text-muted">Needs attention</h2>

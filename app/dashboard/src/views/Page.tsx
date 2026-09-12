@@ -38,7 +38,14 @@ export function Page({
   })
 
   if (!spec) return <Navigate to={`/${first}`} replace />
-  if (spec.range && !today) return todayError ? <ErrorBanner error={asApiError(todayError)} /> : <Loading />
+  if (spec.range && !today) {
+    if (todayError) return <ErrorBanner error={asApiError(todayError)} />
+    return (
+      <div data-state="loading">
+        <Loading />
+      </div>
+    )
+  }
 
   const byMetric = new Map(cards.map((card, i) => [card.metric, results[i]]))
   const allEmpty = results.length > 0 && results.every((r) => r.data?.entities === 0)

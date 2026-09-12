@@ -88,7 +88,7 @@ export function Goals() {
   const query = useQuery({ queryKey: ['goals'], queryFn: getGoals })
   const data = query.data
   return (
-    <section className="mt-8 first:mt-0" data-testid="goals">
+    <section className="mt-8 first:mt-0" data-testid="goals" data-state={query.isPending ? 'loading' : query.error ? 'error' : 'ready'}>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2 border-b border-line pb-2">
         <h2 className="text-xs font-medium uppercase tracking-wide text-muted">Goals</h2>
         {data && (
