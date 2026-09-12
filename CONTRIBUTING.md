@@ -23,7 +23,7 @@ The example env is empty and that runs: every knob has a default. The compose pr
 ./format.sh              apply what ruff can fix
 ```
 
-`unit` runs inside the backend container and starts the stack when it is down. `snap` builds a fresh stack under its own compose project: run it alone, never overlapping the unit suite, whenever anything under `app/frontend/` changes, and ship the updated baselines in the same PR. Nothing is committed on red.
+`unit` runs inside the backend container and starts the stack when it is down. `snap` builds a fresh stack under its own compose project: run it alone, never overlapping the unit suite, whenever anything under `app/console/` changes, and ship the updated baselines in the same PR. Nothing is committed on red.
 
 ## Rules
 

@@ -1,5 +1,5 @@
 import { expect, NOW, settle, snap, test, visit } from './fixtures'
-import { PATH } from '../frontend/src/paths'
+import { PATH } from '../console/src/paths'
 
 const ROUTES: [string, string][] = [
   [PATH.activity, 'Activity'],

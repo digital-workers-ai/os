@@ -49,7 +49,7 @@ approved issue is feedback on work already pushed.
    generated the way `dw-implement`'s Schema section says, never
    hand-written, and the PR body shows the generated file in full.
 5. Gate: `./format.sh`, then `./test.sh unit` must pass. When anything under
-   `app/frontend/` changed, also `./test.sh snap` (about nine minutes; run it
+   `app/console/` changed, also `./test.sh snap` (about nine minutes; run it
    alone). Both start the compose stack on the runner; that is expected.
 6. Push: `git push -u origin <branch>`. New PR: `gh pr create` with `dw-ship`'s
    body, `## Changes` bullets and a `## Test checklist` whose first item is

@@ -15,7 +15,7 @@ This skill is the plan format and the flow. The two stops below are for a person
 
 1. Read the code the change touches before writing a word of the plan. Ask when the request is ambiguous; a plan built on a guess costs more than a question.
 
-2. Present the summary and wait. One paragraph on what the change does and why, the files it touches with what changes in each, and what is out of scope. For a console change (`app/frontend/`), add a lo-fi ASCII sketch of the view with the new elements marked `← NEW`. Ask "Does this capture it?" and do not write the plan until the answer is yes.
+2. Present the summary and wait. One paragraph on what the change does and why, the files it touches with what changes in each, and what is out of scope. For a console change (`app/console/`), add a lo-fi ASCII sketch of the view with the new elements marked `← NEW`. Ask "Does this capture it?" and do not write the plan until the answer is yes.
 
 3. Write the plan at `docs/plans/<slug>.md`. `docs/` is working notes and is not committed in this repo.
 
@@ -36,7 +36,7 @@ This skill is the plan format and the flow. The two stops below are for a person
    - [ ] <task> — `app/backend/alembic/versions/<generated>.py` — the generated migration, read in full
 
    ### Frontend
-   - [ ] <task> — `app/frontend/src/<path>` — <what changes>
+   - [ ] <task> — `app/console/src/<path>` — <what changes>
 
    ### Docs
    - [ ] <task> — `README.md` — <what changes>

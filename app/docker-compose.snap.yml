@@ -14,7 +14,7 @@ services:
       RERANK_ENABLED: "false"
       CLOCK_PINNED_AT: "2026-09-04T12:00:00Z"
 
-  frontend:
+  console:
     ports: !reset []
 
   dashboard:
@@ -25,6 +25,6 @@ services:
       CLOCK_PINNED_AT: "2026-09-04T12:00:00Z"
 
 volumes:
-  frontend_node_modules:
+  console_node_modules:
     external: true
-    name: os_frontend_node_modules
+    name: os_console_node_modules

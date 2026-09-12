@@ -5,7 +5,7 @@ from pathlib import Path
 
 BACKEND = Path(__file__).resolve().parent.parent
 PYTHON_VOCAB = BACKEND / "app" / "search_vocab.py"
-TS_VOCAB = BACKEND.parent / "frontend" / "src" / "search" / "vocab.ts"
+TS_VOCAB = BACKEND.parent / "console" / "src" / "search" / "vocab.ts"
 ENUMS = {"Mode": "MODES", "Kind": "KIND", "Param": "PARAM"}
 SCALARS = (
     "MARK_OPEN",
@@ -82,7 +82,7 @@ def main() -> int:
         print(problem, file=sys.stderr)
     if problems:
         return 1
-    print("search vocabulary: backend and frontend agree")
+    print("search vocabulary: backend and console agree")
     return 0
 
 

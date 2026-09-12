@@ -12,7 +12,7 @@ export default defineConfig({
     },
   },
   server: {
-    allowedHosts: ['frontend'],
+    allowedHosts: ['console'],
     watch: { ignored: ['**/e2e/**'] },
     proxy: {
       '/api': { target: backend, changeOrigin: true, timeout: 600000 },
