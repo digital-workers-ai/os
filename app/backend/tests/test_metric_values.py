@@ -589,3 +589,131 @@ class TestWindowedMetrics:
         assert values["m"]["value"] == 1
         assert values["m"]["window_from"] == "2026-08-06"
         assert values["m"]["window_to"] == "2026-09-04"
+
+
+AUGUST = ("2026-08-01", "2026-08-31")
+
+
+class TestRangeableMetrics:
+    def _rangeable(self, **extra):
+        return {
+            "entity": "subscription",
+            "expression": "COUNT(entity)",
+            "window_attr": "started_at",
+            **extra,
+        }
+
+    async def test_an_unranged_evaluation_counts_everything_and_stamps_no_bounds(
+        self, session, canonical
+    ):
+        await canonical("subscription", {"started_at": "2026-08-20T00:00:00Z"})
+        await canonical("subscription", {"started_at": "2020-01-01T00:00:00Z"})
+        result = await m.evaluate_one(session, "m", self._rangeable(), now=NOW)
+        assert result["value"] == 2
+        assert "window_from" not in result
+        assert "window_to" not in result
+
+    async def test_bounds_count_the_entities_inside_them_both_ends_inclusive(
+        self, session, canonical
+    ):
+        for started in ("2026-07-31", "2026-08-01", "2026-08-31", "2026-09-01"):
+            await canonical("subscription", {"started_at": f"{started}T00:00:00Z"})
+        result = await m.evaluate_one(
+            session, "m", self._rangeable(), now=NOW, bounds=AUGUST
+        )
+        assert result["value"] == 2
+
+    async def test_the_receipt_names_the_attr_and_the_bounds_and_no_direction(
+        self, session, canonical
+    ):
+        await canonical("subscription", {"started_at": "2026-08-20T00:00:00Z"})
+        result = await m.evaluate_one(
+            session, "m", self._rangeable(), now=NOW, bounds=AUGUST
+        )
+        assert result["window_attr"] == "started_at"
+        assert result["window_from"] == "2026-08-01"
+        assert result["window_to"] == "2026-08-31"
+        assert result["window_days"] == 31
+        assert "window_direction" not in result
+
+    async def test_a_value_that_is_not_a_date_is_counted_in_the_bad_values(
+        self, session, canonical
+    ):
+        await canonical("subscription", {"started_at": "2026-08-20T00:00:00Z"})
+        await canonical("subscription", {"started_at": "soon"})
+        result = await m.evaluate_one(
+            session, "m", self._rangeable(), now=NOW, bounds=AUGUST
+        )
+        assert result["value"] == 1
+        assert result["window_bad_values"] == 1
+
+    async def test_bounds_on_a_fixed_window_are_refused(self, session):
+        with pytest.raises(m.MetricSpecError, match="window_days"):
+            await m.evaluate_one(
+                session,
+                "m",
+                self._rangeable(window_days=30),
+                now=NOW,
+                bounds=AUGUST,
+            )
+
+    async def test_bounds_on_a_metric_with_no_window_attr_are_refused(self, session):
+        with pytest.raises(m.MetricSpecError, match="window_attr"):
+            await m.evaluate_one(
+                session,
+                "m",
+                {"entity": "subscription", "expression": "COUNT(entity)"},
+                now=NOW,
+                bounds=AUGUST,
+            )
+
+    async def test_compare_previous_measures_the_preceding_range_of_equal_length(
+        self, session, canonical
+    ):
+        await canonical("subscription", {"started_at": "2026-08-20T00:00:00Z"})
+        await canonical("subscription", {"started_at": "2026-07-01T00:00:00Z"})
+        await canonical("subscription", {"started_at": "2026-07-31T00:00:00Z"})
+        result = await m.evaluate_one(
+            session,
+            "m",
+            self._rangeable(),
+            now=NOW,
+            bounds=AUGUST,
+            compare="previous",
+        )
+        assert result["value"] == 1
+        previous = result["previous"]
+        assert previous["value"] == 2
+        assert previous["window_from"] == "2026-07-01"
+        assert previous["window_to"] == "2026-07-31"
+        assert set(previous) == {"value", "entities", "window_from", "window_to"}
+
+    async def test_a_day_grained_breakdown_under_bounds_buckets_only_the_days_inside(
+        self, session, canonical
+    ):
+        await canonical("subscription", {"started_at": "2026-08-20T00:00:00Z"})
+        await canonical("subscription", {"started_at": "2026-09-02T00:00:00Z"})
+        result = await m.evaluate_one(
+            session,
+            "m",
+            self._rangeable(group_by="started_at", grain="day"),
+            now=NOW,
+            bounds=AUGUST,
+        )
+        assert result["breakdown"] == {"2026-08-20": 1}
+
+    async def test_a_failure_during_measurement_returns_an_error_row(
+        self, session, canonical, monkeypatch
+    ):
+        await canonical("subscription", {"started_at": "2026-08-20T00:00:00Z"})
+        await session.commit()
+
+        async def explode(session_, ids, agg, operand, *args, **kwargs):
+            await session_.execute(text("SELECT * FROM no_such_table"))
+
+        monkeypatch.setattr(m, "_aggregate", explode)
+        result = await m.evaluate_one(
+            session, "m", self._rangeable(label="Started"), now=NOW, bounds=AUGUST
+        )
+        assert "error" in result
+        assert result["label"] == "Started"

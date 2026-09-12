@@ -817,6 +817,103 @@ class TestMetrics:
         for row in rows:
             assert {"inferred", "produced_by", "vocabulary_sha"} <= set(row)
 
+    async def test_one_metric_answers_on_its_own(self, api):
+        response = await api.get("/api/metrics/mrr")
+        assert response.status_code == 200
+        row = (await api.get("/api/metrics")).json()["metrics"]["mrr"]
+        assert response.json() == {"as_of": NOW.isoformat(), "metric": "mrr", **row}
+
+    async def test_an_unknown_metric_is_a_404(self, api):
+        response = await api.get("/api/metrics/no_such_metric")
+        assert response.status_code == 404
+        assert response.json()["detail"] == "no such metric"
+
+    @pytest.mark.parametrize("query", ["from=2026-08-01", "to=2026-08-31"])
+    async def test_a_range_travels_as_a_pair(self, api, query):
+        response = await api.get(f"/api/metrics/won_value?{query}")
+        assert response.status_code == 422
+
+    async def test_a_backwards_range_is_refused(self, api):
+        response = await api.get("/api/metrics/won_value?from=2026-08-31&to=2026-08-01")
+        assert response.status_code == 422
+
+    async def test_a_range_that_is_not_dates_is_refused(self, api):
+        response = await api.get("/api/metrics/won_value?from=soon&to=2026-08-31")
+        assert response.status_code == 422
+
+    async def test_compare_needs_a_range(self, api):
+        response = await api.get("/api/metrics/won_value?compare=previous")
+        assert response.status_code == 422
+
+    async def test_a_fixed_window_refuses_a_range(self, api):
+        response = await api.get(
+            "/api/metrics/new_subscriptions_30d?from=2026-08-01&to=2026-08-31"
+        )
+        assert response.status_code == 422
+
+    async def test_a_metric_with_no_window_attr_refuses_a_range(self, api):
+        response = await api.get("/api/metrics/mrr?from=2026-08-01&to=2026-08-31")
+        assert response.status_code == 422
+
+    async def test_a_range_narrows_a_rangeable_metric(self, api, canonical):
+        await canonical(
+            "deal",
+            {
+                "amount": 100,
+                "status": "closed_won",
+                "closed_at": "2026-08-15T00:00:00Z",
+                "currency": "usd",
+            },
+        )
+        await canonical(
+            "deal",
+            {
+                "amount": 250,
+                "status": "closed_won",
+                "closed_at": "2026-07-15T00:00:00Z",
+                "currency": "usd",
+            },
+        )
+        response = await api.get("/api/metrics/won_value?from=2026-08-01&to=2026-08-31")
+        assert response.status_code == 200
+        body = response.json()
+        assert body["window_from"] == "2026-08-01"
+        assert body["window_to"] == "2026-08-31"
+        assert body["window_attr"] == "closed_at"
+        assert body["value"] == 100
+
+    async def test_compare_previous_measures_the_range_before(self, api, canonical):
+        await canonical(
+            "deal",
+            {
+                "amount": 100,
+                "status": "closed_won",
+                "closed_at": "2026-08-15T00:00:00Z",
+                "currency": "usd",
+            },
+        )
+        await canonical(
+            "deal",
+            {
+                "amount": 250,
+                "status": "closed_won",
+                "closed_at": "2026-07-15T00:00:00Z",
+                "currency": "usd",
+            },
+        )
+        response = await api.get(
+            "/api/metrics/won_value?from=2026-08-01&to=2026-08-31&compare=previous"
+        )
+        assert response.status_code == 200
+        previous = response.json()["previous"]
+        assert previous["window_from"] == "2026-07-01"
+        assert previous["window_to"] == "2026-07-31"
+        assert previous["value"] == 250
+
+    async def test_the_history_routes_are_not_shadowed(self, api):
+        assert (await api.get("/api/metrics/history")).status_code == 200
+        assert (await api.get("/api/metrics/history/deal_count")).status_code == 200
+
 
 class TestReport:
     async def test_no_rebuild_yet_says_so_rather_than_reporting_zeroes(self, api):
@@ -1489,6 +1586,7 @@ class TestNullBytesInQueryParameters:
         "/api/enrichment?entity_type=%00",
         "/api/sync/runs?source=%00",
         "/api/search?q=%00",
+        "/api/metrics/won_value?from=%00",
     ]
 
     @pytest.mark.parametrize("route", ROUTES)
@@ -1520,6 +1618,7 @@ class TestANullByteInThePathIsRefusedToo:
             "/api/metrics/history/%00",
             "/api/coaching/%00",
             "/api/conversation/conversations/%00",
+            "/api/metrics/%00",
         ],
     )
     async def test_a_null_byte_in_a_path_segment_is_a_422_or_a_404(self, api, path):
