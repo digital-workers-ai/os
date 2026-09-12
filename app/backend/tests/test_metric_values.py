@@ -266,7 +266,7 @@ class TestOneFailedMetricDoesNotPoisonTheRest:
 
 class TestTheBindParameterCeiling:
     async def test_a_set_past_the_wire_limit_does_not_raise(self, session):
-        rows = await m._in_chunks(
+        rows = await m.in_chunks(
             session,
             {uuid.uuid4() for _ in range(40_000)},
             lambda chunk: select(FactCurrent.canonical_id).where(

@@ -351,6 +351,14 @@ class TestCheckNamesWhatIsWrong:
         broken = {"entity": "deal", "expression": "COUNT(entity)", "bogus": 1}
         assert dashboards.check(defs, {"broken": broken}, attrs_of) == []
 
+    def test_a_card_whose_metric_is_not_a_mapping_is_left_to_the_metrics_check(
+        self,
+    ):
+        defs = {
+            "pipeline": _page(range=False, sections=[{"label": "X", "cards": ["mrr"]}])
+        }
+        assert dashboards.check(defs, {"mrr": "SUM(mrr)"}, attrs_of) == []
+
     def test_the_shipped_dashboards_pass_against_the_shipped_metrics(self):
         problems = dashboards.check(
             dashboards.load(),
@@ -379,10 +387,12 @@ class TestCheckHoldsAPageFilterToEveryCard:
         assert dashboards.check(defs, {"ghost": ghost}, attrs_of) == []
 
     def test_a_filter_attr_the_table_cards_entity_lacks(self):
-        deals = _table(table="deal", label="Top deals", rank="amount", columns=["name"])
+        deals = _table(
+            table="deal", label="Top deals", rank="amount", columns=["status"]
+        )
         defs = {"facebook": _filtered({"platform": "facebook"}, [deals])}
         problems = dashboards.check(defs, {}, attrs_of)
-        assert len(problems) == 2, problems
+        assert len(problems) == 1, problems
         assert "facebook" in problems[0]
         assert "Top deals" in problems[0]
         assert "platform" in problems[0]
