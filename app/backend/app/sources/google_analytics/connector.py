@@ -1,6 +1,6 @@
 import json
 
-from app.sources.util import client_for, content_id
+from app.sources.util import client_for, content_id, window
 
 SOURCE = "google_analytics"
 
@@ -24,12 +24,13 @@ assert len(REPORT_SCHEMA["metrics"]) == len(_METRICS)
 
 async def pull(session, store):
     api = client_for(SOURCE)
-    offset, limit = 0, 3
+    start, end = window()
+    offset, limit = 0, 100
     while True:
         report = await api.post(
             "/properties/123456789:runReport",
             json={
-                "dateRanges": [{"startDate": "2026-07-01", "endDate": "2026-07-15"}],
+                "dateRanges": [{"startDate": start, "endDate": end}],
                 "dimensions": _DIMENSIONS,
                 "metrics": _METRICS,
                 "limit": limit,

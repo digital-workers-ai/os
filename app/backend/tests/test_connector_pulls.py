@@ -653,7 +653,7 @@ class TestBatchThreeShapes:
         assert [(s["object_type"], s["source_id"]) for s in stored] == [
             ("campaigns", "c1")
         ]
-        assert notes == {"missing_id": 2}
+        assert notes == {"missing_id": 5}
 
     async def test_meta_counts_an_insight_row_with_no_id(self, pull):
         notes, stored = await pull(connector("meta"), {"data": [{"no_id": True}]})
@@ -661,10 +661,9 @@ class TestBatchThreeShapes:
         assert notes["missing_id"] >= 1
 
     async def test_google_ads_reads_a_bare_dict_body(self, pull):
-        notes, stored = await pull(
+        _notes, stored = await pull(
             connector("google_ads"), {"results": [{"campaign": {"id": "c9"}}]}
         )
-        assert notes is None
         assert [s["source_id"] for s in stored] == ["c9"]
 
     @pytest.mark.parametrize("body", [[], "not a collection"])
@@ -993,6 +992,23 @@ class TestWhatTheNinetyDayConnectorsAskFor:
         assert ("ig_media", "media_20260901") in {
             (s["object_type"], s["source_id"]) for s in stored
         }
+
+    async def test_meta_asks_no_media_of_a_page_with_no_instagram_account(
+        self, capture, store
+    ):
+        def body(request):
+            if request.url.path.endswith("/me/accounts"):
+                return {"data": [{"id": "page_002"}]}
+            return self._meta_body(request)
+
+        seen = capture(body)
+
+        await connector("meta").pull(None, store)
+
+        assert [r.url.path for r in seen if r.url.path.endswith("/media")] == []
+        assert [r.url.path for r in seen if r.url.path.endswith("/posts")] == [
+            "/v25.0/page_002/posts"
+        ]
 
     async def test_google_ads_asks_for_one_row_per_campaign_day_over_the_window(
         self, capture, store

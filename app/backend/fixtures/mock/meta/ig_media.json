@@ -1,0 +1,28 @@
+[
+  {
+    "payload": {
+      "caption": "New product launch!",
+      "comments_count": 24,
+      "id": "media_20260901",
+      "like_count": 280,
+      "media_product_type": "FEED",
+      "media_type": "CAROUSEL_ALBUM",
+      "permalink": "https://www.instagram.com/p/20260901/",
+      "timestamp": "2026-09-01T14:30:00+0000"
+    },
+    "source_id": "media_20260901"
+  },
+  {
+    "payload": {
+      "caption": "Behind the scenes",
+      "comments_count": 28,
+      "id": "media_20260904",
+      "like_count": 327,
+      "media_product_type": "FEED",
+      "media_type": "IMAGE",
+      "permalink": "https://www.instagram.com/p/20260904/",
+      "timestamp": "2026-09-04T14:30:00+0000"
+    },
+    "source_id": "media_20260904"
+  }
+]

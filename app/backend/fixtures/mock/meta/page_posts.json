@@ -1,0 +1,58 @@
+[
+  {
+    "payload": {
+      "comments": {
+        "data": [],
+        "summary": {
+          "can_comment": true,
+          "total_count": 20
+        }
+      },
+      "created_time": "2026-09-01T14:00:00+0000",
+      "id": "page_001_20260901",
+      "likes": {
+        "data": [],
+        "summary": {
+          "can_like": true,
+          "has_liked": false,
+          "total_count": 240
+        }
+      },
+      "message": "Exciting news! We just launched our new feature.",
+      "permalink_url": "https://www.facebook.com/mybusiness/posts/page_001_20260901",
+      "shares": {
+        "count": 32
+      },
+      "type": "video"
+    },
+    "source_id": "page_001_20260901"
+  },
+  {
+    "payload": {
+      "comments": {
+        "data": [],
+        "summary": {
+          "can_comment": true,
+          "total_count": 23
+        }
+      },
+      "created_time": "2026-09-04T14:00:00+0000",
+      "id": "page_001_20260904",
+      "likes": {
+        "data": [],
+        "summary": {
+          "can_like": true,
+          "has_liked": false,
+          "total_count": 280
+        }
+      },
+      "message": "Join our upcoming webinar on AI in 2026.",
+      "permalink_url": "https://www.facebook.com/mybusiness/posts/page_001_20260904",
+      "shares": {
+        "count": 37
+      },
+      "type": "link"
+    },
+    "source_id": "page_001_20260904"
+  }
+]

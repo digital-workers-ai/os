@@ -147,6 +147,27 @@ entities:
       sessions: number
       users: number
       pageviews: number
+  campaign_report:
+    description: "One day of one paid campaign: what it spent and what it got."
+    attrs:
+      report_date: date
+      campaign_ref: string
+      spend: number
+      clicks: number
+      impressions: number
+      conversions: number
+      currency: string
+  social_post:
+    description: One post on a social page or profile, with the engagement it drew.
+    synonyms: [post]
+    attrs:
+      name: string
+      platform: string
+      category: string
+      posted_at: date
+      likes: number
+      comments: number
+      shares: number
   data_source:
     description: An upstream system feeding the estate.
     attrs:
@@ -184,7 +205,7 @@ attributes:
   pageviews:
     description: Pages viewed on the site on the reporting day.
   report_date:
-    description: The day the traffic figures cover.
+    description: The day the figures cover.
   event_name:
     description: What the person did, as the product names it.
   transcript:
@@ -192,7 +213,7 @@ attributes:
   budget:
     description: What the ad account is allowed to spend.
   spend:
-    description: What the campaign has spent so far.
+    description: What the campaign spent, in total or on the reporting day.
   conversions:
     description: Actions the campaign counts as a result.
   impressions:
@@ -209,6 +230,18 @@ attributes:
     description: Support tickets raised by the company that are still open.
   last_meeting_at:
     description: When the person last attended a meeting.
+  campaign_ref:
+    description: The provider's id for the campaign a daily report belongs to.
+  platform:
+    description: The social network the post was published on.
+  posted_at:
+    description: When the post went live.
+  likes:
+    description: How many people liked the post.
+  comments:
+    description: How many comments the post drew.
+  shares:
+    description: How many times the post was shared.
 
 source_priority:
   - salesforce
@@ -284,3 +317,8 @@ relationships:
     to: company
     cardinality: many_to_one
     match: domain
+  - rel: belongs_to
+    from: campaign_report
+    to: campaign
+    cardinality: many_to_one
+    via: campaign_ref

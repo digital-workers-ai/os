@@ -4,6 +4,7 @@ Shared auth decorators and pagination helpers for the mock server.
 
 import base64
 import hashlib
+from datetime import date, timedelta
 from functools import wraps
 from typing import Any, Optional
 
@@ -196,3 +197,24 @@ def link_header_paginate(
         links["previous"] = f'<{base_url}?page_info={prev_info}&limit={limit}>; rel="previous"'
 
     return page, links
+
+
+def day_factor(day: date) -> float:
+    weekday = 0.6 if day.weekday() >= 5 else 1.0
+    sawtooth = 0.8 + 0.4 * ((day.day - 1) % 10) / 9
+    return weekday * sawtooth
+
+
+def days_between(start: date, end: date) -> list[date]:
+    return [start + timedelta(days=i) for i in range((end - start).days + 1)]
+
+
+def campaign_days(ac, since: date, until: date) -> list[date]:
+    start = max(since, date.fromisoformat(ac.start_date))
+    end = min(until, date.fromisoformat(ac.end_date)) if ac.end_date else until
+    return days_between(start, end)
+
+
+def daily_share(total: int, ac, day: date, until: date) -> int:
+    days_run = (until - date.fromisoformat(ac.start_date)).days + 1
+    return round(total * day_factor(day) / days_run)
