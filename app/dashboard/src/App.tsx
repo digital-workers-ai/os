@@ -41,7 +41,7 @@ export default function App() {
         <Route path="/" element={<Layout pages={pages} today={today.data ?? null} range={range} onRange={setRange} />}>
           <Route index element={<Navigate to={`/${first}`} replace />} />
           <Route
-            path=":page"
+            path=":parent?/:page"
             element={<Page pages={pages} first={first} today={today.data ?? null} todayError={today.error} range={range} />}
           />
           <Route path="*" element={<Navigate to={`/${first}`} replace />} />

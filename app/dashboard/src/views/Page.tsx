@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQueries } from '@tanstack/react-query'
 import { Navigate, useParams } from 'react-router-dom'
-import { asApiError, getMetric, getTop, isTable, type CardSpec, type MetricCardSpec, type PageSpec } from '@/api'
+import { asApiError, getMetric, getTop, isTable, pageAt, type CardSpec, type MetricCardSpec, type PageSpec } from '@/api'
 import { MetricCard } from '@/cards/MetricCard'
 import { TableCard, tableId } from '@/cards/TableCard'
 import { Definition, type Opened } from '@/components/Definition'
@@ -25,8 +25,8 @@ export function Page({
   todayError: unknown
   range: Range
 }) {
-  const { page = '' } = useParams()
-  const spec: PageSpec | undefined = pages[page]
+  const { parent, page } = useParams()
+  const spec = pageAt(pages, page, parent)
   const [open, setOpen] = useState<CardSpec | null>(null)
   const span = spec?.range && today ? bounds(range, today) : null
   const filter = spec?.filter ?? {}

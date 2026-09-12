@@ -10,6 +10,8 @@ export interface CardSpec {
 
 export const cardId = (card: CardSpec) => (card.shape === 'table' ? `card-table-${card.entity}-${card.rank}` : `card-${card.metric}`)
 
+export const pagePath = (name: string, { parent }: { parent: string | null }) => (parent ? `/${parent}/${name}` : `/${name}`)
+
 export async function ready(page: Page) {
   await expect(page.locator('[data-state="loading"]')).toHaveCount(0, { timeout: 30_000 })
   await expect(page.getByTestId('loading')).toHaveCount(0, { timeout: 30_000 })

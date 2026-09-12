@@ -175,6 +175,7 @@ interface DashboardPage {
   goals: boolean
   findings: boolean
   filter: Record<string, string>
+  parent: string | null
   sections: DashboardSection[]
 }
 
@@ -756,6 +757,8 @@ function EnrichmentTab({ v }: { v: Vocabulary }) {
   )
 }
 
+const pageName = (name: string, page: DashboardPage) => (page.parent ? `${page.parent} › ${name}` : name)
+
 const cardName = (card: DashboardCard) => (card.shape === 'table' ? `table · ${card.entity} by ${card.rank}` : card.metric)
 
 const cardFilter = (page: DashboardPage, card: DashboardCard) =>
@@ -786,7 +789,7 @@ function DashboardsTab({ d }: { d: Dashboards }) {
               section.cards.map((card, i) => (
                 <TableRow key={`${name}/${section.label}/${i}`}>
                   <TableCell className="align-top">
-                    <Mono>{name}</Mono>
+                    <Mono>{pageName(name, page)}</Mono>
                   </TableCell>
                   <TableCell className="align-top">{section.label}</TableCell>
                   <TableCell className="align-top">

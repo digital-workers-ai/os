@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Outlet, useMatch } from 'react-router-dom'
-import type { PageSpec } from '@/api'
+import { pageAt, type PageSpec } from '@/api'
 import { PRODUCT } from '@/brand'
 import { DigitalWorkersMark, type IntroPhase } from '@/components/DigitalWorkersMark'
 import { RangePicker } from '@/components/RangePicker'
@@ -47,8 +47,8 @@ export function Layout({
   range: Range
   onRange: (range: Range) => void
 }) {
-  const page = useMatch('/:page')?.params.page
-  const ranged = !!page && !!pages[page]?.range && !!today
+  const params = useMatch('/:parent?/:page')?.params
+  const ranged = !!pageAt(pages, params?.page, params?.parent)?.range && !!today
   const step = useReveal()
   const reached = (target: Step) => ORDER.indexOf(step) >= ORDER.indexOf(target)
   const phase: IntroPhase = step === 'full' || step === 'fade' || step === 'collapse' ? step : 'done'

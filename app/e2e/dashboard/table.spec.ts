@@ -1,5 +1,5 @@
 import { expect, test, visit } from '../fixtures'
-import { cardId, ready } from './ready'
+import { cardId, pagePath, ready } from './ready'
 
 interface Card {
   shape: string
@@ -14,6 +14,7 @@ interface TableCard extends Card {
 }
 
 interface PageSpec {
+  parent: string | null
   sections: { cards: Card[] }[]
 }
 
@@ -22,11 +23,11 @@ const isTable = (card: Card): card is TableCard => card.shape === 'table'
 test('table card', async ({ page }) => {
   const { dashboards } = await (await page.request.get('/api/definitions/dashboards')).json()
   const found = Object.entries<PageSpec>(dashboards)
-    .flatMap(([name, spec]) => spec.sections.flatMap((s) => s.cards.filter(isTable).map((card) => ({ name, card }))))
+    .flatMap(([name, spec]) => spec.sections.flatMap((s) => s.cards.filter(isTable).map((card) => ({ path: pagePath(name, spec), card }))))
     .at(0)
   test.skip(!found, 'no page declares a table card')
-  const { name, card } = found!
-  await visit(page, `/${name}`)
+  const { path, card } = found!
+  await visit(page, path)
   const table = page.getByTestId(cardId(card))
   await expect(table).toBeVisible()
   await expect(table).toHaveAttribute('data-state', 'ready', { timeout: 20_000 })

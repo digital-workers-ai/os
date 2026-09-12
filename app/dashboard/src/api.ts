@@ -92,12 +92,16 @@ export interface PageSpec {
   goals: boolean
   findings: boolean
   filter: Filter
+  parent: string | null
   sections: SectionSpec[]
 }
 
 export interface DashboardsResponse {
   dashboards: Record<string, PageSpec>
 }
+
+export const pageAt = (pages: Record<string, PageSpec>, name = '', parent: string | null = null): PageSpec | undefined =>
+  pages[name]?.parent === parent ? pages[name] : undefined
 
 export interface Previous {
   value: number | null
