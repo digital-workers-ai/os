@@ -764,7 +764,7 @@ function DashboardsTab({ d }: { d: Dashboards }) {
                   </TableCell>
                   <TableCell className="align-top">{section.label}</TableCell>
                   <TableCell className="align-top">
-                    <Mono>{card.metric}</Mono> <span className="text-dbb-muted">{card.label}</span>
+                    <Mono>{card.metric}</Mono> <span className="text-muted-foreground">{card.label}</span>
                   </TableCell>
                   <TableCell className="align-top">
                     <Chip>{card.shape}</Chip>
