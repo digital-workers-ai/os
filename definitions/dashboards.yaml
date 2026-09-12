@@ -38,7 +38,35 @@ ads:
     - label: Spend
       cards: [ad_spend, ad_conversions, cost_per_conversion, ad_spend_by_day]
     - label: Reach
-      cards: [ad_clicks, ad_impressions, ad_spend_by_campaign]
+      cards: [ad_clicks, ad_impressions, ad_spend_by_campaign, ad_spend_by_platform]
+google_ads:
+  label: Google Ads
+  parent: ads
+  range: true
+  filter:
+    platform: google
+  sections:
+    - label: Spend
+      cards: [ad_spend, ad_conversions, cost_per_conversion, ad_spend_by_day]
+    - label: Results
+      cards: [ad_clicks, ad_impressions, ad_ctr, ad_cpc, ad_conversions_by_day]
+    - label: Value
+      cards: [ad_conversion_value, ad_roas]
+    - label: Campaigns
+      cards: [ad_spend_by_campaign, ad_conversions_by_campaign]
+meta_ads:
+  label: Meta Ads
+  parent: ads
+  range: true
+  filter:
+    platform: meta
+  sections:
+    - label: Spend
+      cards: [ad_spend, ad_conversions, cost_per_conversion, ad_spend_by_day]
+    - label: Results
+      cards: [ad_clicks, ad_impressions, ad_ctr, ad_cpc, ad_landing_page_views, ad_conversions_by_day]
+    - label: Campaigns
+      cards: [ad_spend_by_campaign, ad_conversions_by_campaign]
 email:
   label: Email
   range: true
@@ -57,6 +85,7 @@ social:
       cards: [post_comments, post_shares, posts_by_platform, likes_by_platform]
 facebook:
   label: Facebook
+  parent: social
   range: true
   filter:
     platform: facebook
@@ -87,6 +116,7 @@ facebook:
           limit: 10
 instagram:
   label: Instagram
+  parent: social
   range: true
   filter:
     platform: instagram
@@ -117,6 +147,7 @@ instagram:
           limit: 10
 linkedin:
   label: LinkedIn
+  parent: social
   range: true
   filter:
     platform: linkedin
@@ -145,6 +176,7 @@ linkedin:
           limit: 10
 x:
   label: X
+  parent: social
   range: true
   filter:
     platform: x
@@ -163,6 +195,7 @@ x:
           limit: 10
 pinterest:
   label: Pinterest
+  parent: social
   range: true
   filter:
     platform: pinterest

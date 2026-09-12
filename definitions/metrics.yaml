@@ -259,6 +259,87 @@ ad_spend_by_campaign:
   group_by: campaign.name
   window_attr: report_date
 
+ad_ctr:
+  label: Ad Click-through Rate
+  description: Ad clicks divided by ad impressions over the reporting days.
+  synonyms: [ctr]
+  entity: campaign_report
+  op: "/"
+  terms:
+    - expression: SUM(clicks)
+    - expression: SUM(impressions)
+  window_attr: report_date
+
+ad_cpc:
+  label: Cost per Click
+  description: Ad spend divided by ad clicks over the reporting days.
+  synonyms: [cpc]
+  entity: campaign_report
+  op: "/"
+  terms:
+    - expression: SUM(spend)
+    - expression: SUM(clicks)
+  window_attr: report_date
+
+ad_clicks_by_day:
+  label: Ad Clicks by Day
+  description: Clicks the paid campaigns drew, one bucket per reporting day.
+  entity: campaign_report
+  expression: SUM(clicks)
+  group_by: report_date
+  grain: day
+  window_attr: report_date
+
+ad_conversions_by_day:
+  label: Ad Conversions by Day
+  description: Actions the paid campaigns counted as results, one bucket per reporting day.
+  entity: campaign_report
+  expression: SUM(conversions)
+  group_by: report_date
+  grain: day
+  window_attr: report_date
+
+ad_conversions_by_campaign:
+  label: Ad Conversions by Campaign
+  description: Actions each paid campaign counted as results over the reporting days.
+  entity: campaign_report
+  expression: SUM(conversions)
+  group_by: campaign.name
+  window_attr: report_date
+
+ad_spend_by_platform:
+  label: Ad Spend by Platform
+  description: What the paid campaigns spent on each ad network over the reporting days.
+  entity: campaign_report
+  expression: SUM(spend)
+  group_by: platform
+  window_attr: report_date
+
+ad_conversion_value:
+  label: Ad Conversion Value
+  description: Value the paid campaigns attributed to their conversions, summed over the reporting days.
+  entity: campaign_report
+  expression: SUM(conversion_value)
+  window_attr: report_date
+
+ad_roas:
+  label: Return on Ad Spend
+  description: Ad conversion value divided by ad spend over the reporting days.
+  synonyms: [roas]
+  entity: campaign_report
+  op: "/"
+  terms:
+    - expression: SUM(conversion_value)
+    - expression: SUM(spend)
+  window_attr: report_date
+
+ad_landing_page_views:
+  label: Ad Landing Page Views
+  description: Times the paid campaigns' ads led to a landing page view, summed over the reporting days.
+  entity: campaign_report
+  expression: SUM(landing_page_views)
+  window_attr: report_date
+
 posts:
   label: Posts
   description: How many social posts went live in the window.

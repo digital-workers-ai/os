@@ -1855,8 +1855,9 @@ class TestDocumentedResponses:
 
 
 NETWORKS = ("facebook", "instagram", "linkedin", "x", "pinterest")
-PAGES = ["overview", "attention", "website", "pipeline", "ads", "email", "social"]
-PAGES += NETWORKS
+AD_NETWORKS = {"google_ads": "google", "meta_ads": "meta"}
+PAGES = ["overview", "attention", "website", "pipeline", "ads", *AD_NETWORKS]
+PAGES += ["email", "social", *NETWORKS]
 RANGE = {"from": "2026-08-06", "to": "2026-09-04"}
 FACEBOOK = {
     "facebook": {
@@ -2037,7 +2038,7 @@ class TestDefinitions:
         }
         assert cards["deals_by_status"]["shape"] == "breakdown"
 
-    async def test_the_twelve_pages_serve_in_order_and_every_ranged_card_can_be_ranged(
+    async def test_the_fourteen_pages_serve_in_order_and_every_card_can_be_ranged(
         self, api
     ):
         response = await api.get("/api/definitions/dashboards")
@@ -2121,8 +2122,11 @@ class TestDefinitions:
         self, api
     ):
         body = (await api.get("/api/definitions/dashboards")).json()
+        platforms = {name: name for name in NETWORKS} | AD_NETWORKS
         for name, page in body["dashboards"].items():
-            assert page["filter"] == ({"platform": name} if name in NETWORKS else {})
+            expected = {"platform": platforms[name]} if name in platforms else {}
+            assert page["filter"] == expected, name
+        assert body["dashboards"]["google_ads"]["filter"] == {"platform": "google"}
 
     async def test_a_filtered_page_serves_its_filter(self, api, monkeypatch):
         monkeypatch.setattr(dashboards, "definitions", lambda: FACEBOOK)
@@ -2162,10 +2166,24 @@ class TestDefinitions:
         response = await api.get("/api/definitions/dashboards")
         assert response.status_code == 200, response.text
         body = response.json()
-        for page in body["dashboards"].values():
-            assert "parent" in page
-        assert body["dashboards"]["overview"]["parent"] is None
-        assert body["dashboards"]["social"]["parent"] is None
+        parents = {name: page["parent"] for name, page in body["dashboards"].items()}
+        assert parents == {
+            **dict.fromkeys(PAGES),
+            **dict.fromkeys(NETWORKS, "social"),
+            **dict.fromkeys(AD_NETWORKS, "ads"),
+        }
+
+    async def test_an_ad_network_page_filter_reaches_its_own_metrics(self, api):
+        for metric, platform in (
+            ("ad_roas", "google"),
+            ("ad_landing_page_views", "meta"),
+        ):
+            response = await api.get(
+                f"/api/metrics/{metric}?filter=platform:{platform}"
+                "&from=2026-08-06&to=2026-09-04"
+            )
+            assert response.status_code == 200, response.text
+            assert response.json()["applied_filter"] == {"platform": platform}
 
     async def test_a_child_page_serves_its_parents_name(self, api, monkeypatch):
         monkeypatch.setattr(dashboards, "definitions", lambda: SOCIAL_FAMILY)
