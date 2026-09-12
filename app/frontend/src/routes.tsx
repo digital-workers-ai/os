@@ -80,6 +80,7 @@ export const DEFINITIONS_ROUTE: TabbedRoute = {
     { value: TAB.definitions.rules, label: 'Rules' },
     { value: TAB.definitions.goals, label: 'Goals' },
     { value: TAB.definitions.enrichment, label: 'Enrichment' },
+    { value: TAB.definitions.dashboards, label: 'Dashboards' },
   ],
 }
 

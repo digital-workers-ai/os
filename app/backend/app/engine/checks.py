@@ -3,6 +3,7 @@ import yaml
 from app.caches import BACKEND_DIR
 from app.engine import (
     candidates,
+    dashboards,
     derived,
     goals,
     mappings,
@@ -98,6 +99,7 @@ def run(
     goals_path=None,
     enrichment_paths=None,
     derived_path=None,
+    dashboards_path=None,
 ) -> list[str]:
     problems: list[str] = []
 
@@ -385,6 +387,10 @@ def run(
         problems += check_goals(goals.load(goals_path), defs)
     except (goals.GoalError, yaml.YAMLError) as e:
         problems.append(f"goals.yaml: {e}")
+    try:
+        problems += dashboards.check(dashboards.load(dashboards_path), defs)
+    except (dashboards.DashboardError, yaml.YAMLError) as e:
+        problems.append(f"dashboards.yaml: {e}")
 
     return problems
 

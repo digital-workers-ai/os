@@ -257,6 +257,8 @@ Because all of it lives in a repository, your business is versioned. Changing wh
 ├─────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
 │ goals.yaml      │ The targets, and how each one is judged                                              │
 ├─────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
+│ dashboards.yaml │ The pages of the dashboard, and which numbers each one shows                         │
+├─────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
 │ enrichment.yaml │ The questions a model may ask of your text, and the answers it may give              │
 └─────────────────┴───────────────────────────────────────────────────────────────────────────────────────┘
 ```

@@ -1,0 +1,15 @@
+overview:
+  label: Overview
+  range: true
+  sections:
+    - label: Traffic
+      cards: [sessions, users, sessions_by_day]
+    - label: Revenue
+      cards: [won_value]
+pipeline:
+  label: Pipeline
+  sections:
+    - label: Deals
+      cards: [deal_count, won_value, avg_deal_size, deals_by_status]
+    - label: Subscriptions
+      cards: [mrr, active_subscriptions, churned_subscriptions, mrr_by_industry]
