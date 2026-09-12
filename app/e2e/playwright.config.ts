@@ -23,6 +23,7 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     trace: 'retain-on-failure',
+    serviceWorkers: 'block',
   },
   expect: {
     toHaveScreenshot: { animations: 'disabled', caret: 'hide', maxDiffPixels: 0 },
