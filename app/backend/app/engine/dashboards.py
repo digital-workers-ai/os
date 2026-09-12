@@ -83,8 +83,8 @@ def parse(name, spec) -> Page:
     ranged = _flag(name, spec, "range")
     goals = _flag(name, spec, "goals")
     findings = _flag(name, spec, "findings")
-    sections = spec.get("sections")
-    if not isinstance(sections, list) or not sections:
+    sections = spec.get("sections", [])
+    if not isinstance(sections, list) or not (sections or goals or findings):
         _refuse(name, "needs `sections`: a non-empty list")
     return Page(
         str(name),
