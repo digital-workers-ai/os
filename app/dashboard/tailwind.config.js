@@ -12,6 +12,7 @@ export default {
         ok: '#5D8A5D',
         down: '#C0625A',
         err: '#C62828',
+        brand: '#FD4E00',
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
@@ -33,6 +34,7 @@ export default {
       },
       fontFamily: {
         sans: ['Space Grotesk', 'sans-serif'],
+        logo: ['Science Gothic', 'system-ui', 'sans-serif'],
       },
     },
   },

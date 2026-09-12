@@ -10,5 +10,5 @@ htmlcov/
 .pytest_cache/
 .hypothesis/
 .ruff_cache/
-app/frontend/e2e/results/
-app/frontend/e2e/report/
+app/e2e/results/
+app/e2e/report/

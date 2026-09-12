@@ -1,0 +1,15 @@
+{
+  "name": "dw-e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "presnap": "npm ci --no-audit --no-fund",
+    "snap": "playwright test",
+    "presnap:update": "npm ci --no-audit --no-fund",
+    "snap:update": "playwright test --update-snapshots"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "typescript": "^5.7.0"
+  }
+}
