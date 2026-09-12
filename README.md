@@ -269,7 +269,7 @@ Briefings follow the same idea. A briefing is a few paragraphs a model writes fo
 
 ## The Dashboard
 
-The console is for whoever operates it. The dashboard is for whoever runs the business. It shows the numbers and nothing else: no settings, no definitions, and no logic of its own. Every card on it is a metric from `metrics.yaml`, calculated by the same code the console uses, and every page on it is declared in `dashboards.yaml`.
+The console is for whoever operates it. The dashboard is for whoever runs the business. Every card on it is a metric from `metrics.yaml`, calculated by the same code the console uses, and every page on it is declared in `dashboards.yaml`.
 
 Adding a page is adding lines to `dashboards.yaml`. The same check that guards the other definition files guards this one: a card that names no metric, a metric listed twice on one page, or a metric on a ranged page that has no date to range over fails the build with a message naming the page — never a blank card. The console lists every page and card under Definitions → Dashboards, so what the dashboard shows is as reviewable as how each number is calculated.
 
