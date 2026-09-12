@@ -495,6 +495,15 @@ class TestGoogleAdsCampaignRef:
         )
         assert out[0]["_campaign_ref"] == "ad1"
 
+    def test_a_daily_row_is_stamped_google(self):
+        from app.sources.google_ads import extract
+
+        out = extract.reshape(
+            "daily_campaigns",
+            {"campaign": {"id": "ad1"}, "segments": {"date": "2026-09-01"}},
+        )
+        assert out[0]["_platform"] == "google"
+
     def test_a_daily_row_with_no_campaign_composes_nothing(self):
         from app.sources.google_ads import extract
 
@@ -1054,6 +1063,59 @@ class TestMetaInteractions:
         )
         assert out[0]["_interactions"] == 5
         assert out[0]["_platform"] == "instagram"
+
+
+class TestMetaAdInsights:
+    _ACTIONS = [
+        {"action_type": "link_click", "value": "19"},
+        {"action_type": "landing_page_view", "value": "9"},
+        {"action_type": "offsite_conversion", "value": "1"},
+    ]
+
+    def test_a_campaign_day_is_stamped_meta(self):
+        from app.sources.meta import extract
+
+        out = extract.reshape("daily_insights", {"campaign_id": "ad3"})
+        assert out[0]["_platform"] == "meta"
+
+    def test_landing_page_views_are_lifted_out_of_the_actions(self):
+        from app.sources.meta import extract
+
+        out = extract.reshape(
+            "daily_insights", {"campaign_id": "ad3", "actions": self._ACTIONS}
+        )
+        assert out[0]["_landing_page_views"] == "9"
+
+    def test_a_day_without_that_action_is_not_stamped(self):
+        from app.sources.meta import extract
+
+        out = extract.reshape(
+            "daily_insights",
+            {"campaign_id": "ad3", "actions": [self._ACTIONS[0]]},
+        )
+        assert "_landing_page_views" not in out[0]
+
+    def test_a_day_with_no_actions_still_carries_its_platform(self):
+        from app.sources.meta import extract
+
+        out = extract.reshape("daily_insights", {"campaign_id": "ad3"})
+        assert out[0]["_platform"] == "meta"
+        assert "_landing_page_views" not in out[0]
+
+    def test_actions_that_are_not_a_list_are_ignored(self):
+        from app.sources.meta import extract
+
+        out = extract.reshape(
+            "daily_insights", {"campaign_id": "ad3", "actions": "none"}
+        )
+        assert "_landing_page_views" not in out[0]
+
+    def test_the_stamp_does_not_touch_the_stored_row(self):
+        from app.sources.meta import extract
+
+        row = {"campaign_id": "ad3", "actions": list(self._ACTIONS)}
+        extract.reshape("daily_insights", row)
+        assert row == {"campaign_id": "ad3", "actions": self._ACTIONS}
 
 
 class TestLinkedinHook:
