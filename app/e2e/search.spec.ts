@@ -70,6 +70,8 @@ const expectEntityShown = async (page: Page, kind: string, id: string) => {
   await settle(page)
   await pickOption(page, 'entities-type-filter', kind)
   await expectSelected(page.locator(`[data-testid="entities-row"][data-id="${id}"]`))
+  await expect(page.getByTestId('entities-type-filter')).toBeFocused()
+  await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
 }
 
 const expectNoScroll = async (page: Page, path: string) => {

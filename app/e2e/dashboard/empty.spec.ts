@@ -1,4 +1,5 @@
-import { expect, mockJson, NOW, settle, snap, test, visit } from '../fixtures'
+import { expect, mockJson, NOW, snap, test, visit } from '../fixtures'
+import { ready } from './ready'
 
 const EMPTY = {
   as_of: NOW.toISOString(),
@@ -17,6 +18,6 @@ test('all zero', async ({ page }) => {
   const banner = page.getByTestId('empty-page')
   await expect(banner).toContainText('No data for this page yet')
   await expect(banner.locator('a')).toHaveAttribute('href', /\/config\/sources$/)
-  await settle(page)
+  await ready(page)
   await snap(page, 'dashboard-empty')
 })

@@ -29,6 +29,6 @@ export default defineConfig({
   },
   projects: [
     { name: 'chromium', testIgnore: [...ignored, 'dashboard/**'] },
-    { name: 'dashboard', testMatch: 'dashboard/**', use: { baseURL: process.env.DASHBOARD_URL ?? 'http://localhost:3093' } },
+    { name: 'dashboard', testMatch: 'dashboard/**/*.spec.ts', use: { baseURL: process.env.DASHBOARD_URL ?? 'http://localhost:3093' } },
   ],
 })

@@ -1,4 +1,5 @@
-import { expect, settle, snap, test, visit } from '../fixtures'
+import { expect, snap, test, visit } from '../fixtures'
+import { ready } from './ready'
 
 interface PageSpec {
   range: boolean
@@ -12,7 +13,7 @@ test('each page', async ({ page }) => {
     await expect(page.getByTestId(`nav-${name}`)).toHaveAttribute('aria-current', 'page')
     for (const card of spec.sections.flatMap((s) => s.cards)) await expect(page.getByTestId(`card-${card.metric}`)).toBeVisible()
     await expect(page.getByTestId('range-picker')).toHaveCount(spec.range ? 1 : 0)
-    await settle(page)
+    await ready(page)
     await snap(page, `dashboard-${name}`)
   }
 })

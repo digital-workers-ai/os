@@ -1,4 +1,5 @@
-import { expect, settle, snap, test, visit } from '../fixtures'
+import { expect, snap, test, visit } from '../fixtures'
+import { ready } from './ready'
 
 test('drawer', async ({ page }) => {
   const { dashboards } = await (await page.request.get('/api/definitions/dashboards')).json()
@@ -11,7 +12,7 @@ test('drawer', async ({ page }) => {
   await expect(drawer.getByRole('heading', { name: 'Sources', exact: true })).toBeVisible()
   await expect(drawer.getByRole('heading', { name: 'Receipts', exact: true })).toBeVisible()
   await expect(drawer.getByTestId('open-in-console')).toHaveAttribute('href', new RegExp(`/definitions/metrics\\?metric=${card.metric}$`))
-  await settle(page)
+  await ready(page)
   await snap(page, 'dashboard-definition')
   await page.keyboard.press('Escape')
   await expect(drawer).toBeHidden()
