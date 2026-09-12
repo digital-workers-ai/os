@@ -1773,6 +1773,42 @@ class TestDefinitions:
         }
         assert cards["deals_by_status"]["shape"] == "breakdown"
 
+    async def test_the_six_pages_serve_in_order_and_every_ranged_card_can_be_ranged(
+        self, api
+    ):
+        response = await api.get("/api/definitions/dashboards")
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert list(body["dashboards"]) == [
+            "overview",
+            "website",
+            "pipeline",
+            "ads",
+            "email",
+            "social",
+        ]
+        for page in body["dashboards"].values():
+            if not page["range"]:
+                continue
+            for section in page["sections"]:
+                for card in section["cards"]:
+                    ranged = await api.get(
+                        f"/api/metrics/{card['metric']}?from=2026-08-06&to=2026-09-04"
+                    )
+                    assert ranged.status_code == 200, (card["metric"], ranged.text)
+        email = {
+            card["metric"]: card
+            for section in body["dashboards"]["email"]["sections"]
+            for card in section["cards"]
+        }
+        assert email["open_rate"]["shape"] == "ratio"
+        social = {
+            card["metric"]: card
+            for section in body["dashboards"]["social"]["sections"]
+            for card in section["cards"]
+        }
+        assert social["posts_by_platform"]["shape"] == "breakdown"
+
     async def test_there_is_no_checks_endpoint(self, api):
         assert (await api.get("/api/definitions/checks")).status_code == 404
 
