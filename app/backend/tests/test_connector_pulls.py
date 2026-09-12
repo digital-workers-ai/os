@@ -1233,3 +1233,602 @@ class TestCatalog:
         assert [r["source"] for r in rows] == sorted(ALL_SOURCES)
         for row in rows:
             assert row["label"] and row["category"] and row["unlocks"]
+
+
+class _SocialCapture:
+    @pytest.fixture
+    def capture(self, monkeypatch):
+        seen = []
+
+        def _install(handler_or_body):
+            def handler(request):
+                seen.append(request)
+                if callable(handler_or_body):
+                    return httpx.Response(200, json=handler_or_body(request))
+                return httpx.Response(200, json=handler_or_body)
+
+            monkeypatch.setattr(client, "_transport", httpx.MockTransport(handler))
+            return seen
+
+        yield _install
+        monkeypatch.setattr(client, "_transport", None)
+
+    @pytest.fixture
+    def stored(self):
+        return []
+
+    @pytest.fixture
+    def store(self, stored):
+        async def _store(session, **kwargs):
+            stored.append(kwargs)
+
+        return _store
+
+
+PAGE_METRICS = (
+    "page_impressions_unique,page_impressions,page_post_engagements,"
+    "page_fan_adds,page_fan_removes,page_views_total"
+)
+IG_METRICS = "reach,impressions,accounts_engaged,follower_count,profile_views"
+POST_METRICS = "post_impressions_unique,post_impressions,post_clicks"
+MEDIA_METRICS = "reach,impressions,views,saved"
+
+
+def _series(names, points):
+    return {"data": [{"name": name, "values": points} for name in names]}
+
+
+class TestWhatMetaAsksForItsPagesAndPosts(_SocialCapture):
+    @staticmethod
+    def _body(request):
+        path = request.url.path
+        params = request.url.params
+        if path.endswith("/me/accounts"):
+            return {
+                "data": [
+                    {"id": "page_001", "instagram_business_account": {"id": "ig_001"}}
+                ]
+            }
+        if path.endswith("/posts"):
+            return {"data": [{"id": "page_001_20260901", "message": "hello"}]}
+        if path.endswith("/media"):
+            return {"data": [{"id": "media_20260901", "caption": "hi"}]}
+        if path == "/v25.0/page_001/insights":
+            return _series(
+                PAGE_METRICS.split(","),
+                [
+                    {"value": 10, "end_time": "2026-09-01T07:00:00+0000"},
+                    {"value": 12, "end_time": "2026-09-02T07:00:00+0000"},
+                ],
+            )
+        if path == "/v25.0/ig_001/insights":
+            return _series(
+                IG_METRICS.split(","),
+                [{"value": 7, "end_time": "2026-09-01T07:00:00+0000"}],
+            )
+        if path == "/v25.0/page_001_20260901/insights":
+            return _series(POST_METRICS.split(","), [{"value": 5}])
+        if path == "/v25.0/media_20260901/insights":
+            return _series(MEDIA_METRICS.split(","), [{"value": 4}])
+        if path.endswith("/insights") and params.get("time_increment"):
+            return {"data": []}
+        return {"data": [], "paging": {}}
+
+    def _keys(self, stored):
+        return {(s["object_type"], s["source_id"]) for s in stored}
+
+    async def test_meta_asks_each_page_for_its_daily_insights_over_the_window(
+        self, capture, store
+    ):
+        seen = capture(self._body)
+
+        await connector("meta").pull(None, store)
+
+        daily = [r for r in seen if r.url.path == "/v25.0/page_001/insights"]
+        assert len(daily) == 1
+        assert daily[0].url.params.get("metric") == PAGE_METRICS
+        assert daily[0].url.params.get("period") == "day"
+        assert daily[0].url.params.get("since") == "2026-06-07"
+        assert daily[0].url.params.get("until") == "2026-09-04"
+
+    async def test_meta_stores_one_page_row_per_day_under_its_page_and_day(
+        self, capture, store, stored
+    ):
+        capture(self._body)
+
+        await connector("meta").pull(None, store)
+
+        rows = {
+            s["source_id"]: s["raw_payload"]
+            for s in stored
+            if s["object_type"] == "page_insights"
+        }
+        assert set(rows) == {"page_001|2026-09-01", "page_001|2026-09-02"}
+        assert rows["page_001|2026-09-01"] == {
+            "node": "page_001",
+            "date": "2026-09-01",
+            "values": {name: 10 for name in PAGE_METRICS.split(",")},
+        }
+
+    async def test_meta_asks_each_instagram_account_for_its_daily_insights(
+        self, capture, store
+    ):
+        seen = capture(self._body)
+
+        await connector("meta").pull(None, store)
+
+        daily = [r for r in seen if r.url.path == "/v25.0/ig_001/insights"]
+        assert len(daily) == 1
+        assert daily[0].url.params.get("metric") == IG_METRICS
+        assert daily[0].url.params.get("period") == "day"
+        assert daily[0].url.params.get("since") == "2026-06-07"
+        assert daily[0].url.params.get("until") == "2026-09-04"
+
+    async def test_meta_stores_an_instagram_day_under_its_account_and_day(
+        self, capture, store, stored
+    ):
+        capture(self._body)
+
+        await connector("meta").pull(None, store)
+
+        assert ("ig_insights", "ig_001|2026-09-01") in self._keys(stored)
+
+    async def test_meta_asks_each_post_for_its_lifetime_insights(
+        self, capture, store
+    ):
+        seen = capture(self._body)
+
+        await connector("meta").pull(None, store)
+
+        per_post = [r for r in seen if r.url.path == "/v25.0/page_001_20260901/insights"]
+        assert len(per_post) == 1
+        assert per_post[0].url.params.get("metric") == POST_METRICS
+
+    async def test_meta_stores_post_insights_under_the_post_id_so_they_merge(
+        self, capture, store, stored
+    ):
+        capture(self._body)
+
+        await connector("meta").pull(None, store)
+
+        rows = {
+            s["source_id"]: s["raw_payload"]
+            for s in stored
+            if s["object_type"] == "post_insights"
+        }
+        assert rows == {
+            "page_001_20260901": {
+                "id": "page_001_20260901",
+                "values": {name: 5 for name in POST_METRICS.split(",")},
+            }
+        }
+
+    async def test_meta_asks_each_media_item_for_its_lifetime_insights(
+        self, capture, store
+    ):
+        seen = capture(self._body)
+
+        await connector("meta").pull(None, store)
+
+        per_media = [r for r in seen if r.url.path == "/v25.0/media_20260901/insights"]
+        assert len(per_media) == 1
+        assert per_media[0].url.params.get("metric") == MEDIA_METRICS
+
+    async def test_meta_stores_media_insights_under_the_media_id_so_they_merge(
+        self, capture, store, stored
+    ):
+        capture(self._body)
+
+        await connector("meta").pull(None, store)
+
+        rows = {
+            s["source_id"]: s["raw_payload"]
+            for s in stored
+            if s["object_type"] == "media_insights"
+        }
+        assert rows == {
+            "media_20260901": {
+                "id": "media_20260901",
+                "values": {name: 4 for name in MEDIA_METRICS.split(",")},
+            }
+        }
+
+    async def test_meta_drops_a_daily_point_with_no_end_time(
+        self, capture, store, stored
+    ):
+        def body(request):
+            if request.url.path == "/v25.0/page_001/insights":
+                return _series(["page_impressions"], [{"value": 10}])
+            return self._body(request)
+
+        capture(body)
+
+        await connector("meta").pull(None, store)
+
+        assert [s for s in stored if s["object_type"] == "page_insights"] == []
+
+    async def test_meta_drops_a_lifetime_series_with_no_points(
+        self, capture, store, stored
+    ):
+        def body(request):
+            if request.url.path == "/v25.0/media_20260901/insights":
+                return {"data": [{"name": "reach", "values": []}, {"values": [{}]}]}
+            return self._body(request)
+
+        capture(body)
+
+        await connector("meta").pull(None, store)
+
+        rows = [s for s in stored if s["object_type"] == "media_insights"]
+        assert rows[0]["raw_payload"] == {"id": "media_20260901", "values": {}}
+
+    async def test_meta_asks_no_insights_of_a_post_with_no_id(
+        self, capture, store, stored
+    ):
+        def body(request):
+            if request.url.path.endswith("/posts"):
+                return {"data": [{"message": "unkeyed"}]}
+            return self._body(request)
+
+        seen = capture(body)
+
+        notes = await connector("meta").pull(None, store)
+
+        assert [s for s in stored if s["object_type"] == "post_insights"] == []
+        assert notes == {"missing_id": 1}
+        assert "/v25.0/None/insights" not in {r.url.path for r in seen}
+
+
+ORGANIZATION = "urn:li:organization:1"
+INTERVALS = "(timeRange:(start:1780790400000,end:1788566400000),timeGranularityType:DAY)"
+
+
+class TestWhatLinkedinAsksForItsOrganization(_SocialCapture):
+    @staticmethod
+    def _body(request):
+        path = request.url.path
+        if path == "/posts":
+            return {
+                "elements": [
+                    {
+                        "id": "urn:li:share:1",
+                        "commentary": "hello",
+                        "publishedAt": 1788271200000,
+                    }
+                ],
+                "paging": {"start": 0, "count": 100, "total": 1},
+            }
+        if path == "/organizationalEntityShareStatistics":
+            return {
+                "elements": [
+                    {
+                        "share": "urn:li:share:1",
+                        "totalShareStatistics": {"impressionCount": 100},
+                    }
+                ]
+            }
+        if path in ("/organizationalEntityFollowerStatistics", "/organizationPageStatistics"):
+            return {
+                "elements": [
+                    {"timeRange": {"start": 1788220800000, "end": 1788307200000}}
+                ]
+            }
+        return {"elements": [], "metadata": {}}
+
+    def _keys(self, stored):
+        return {(s["object_type"], s["source_id"]) for s in stored}
+
+    async def test_linkedin_asks_its_organization_for_posts(self, capture, store):
+        seen = capture(self._body)
+
+        await connector("linkedin").pull(None, store)
+
+        posts = [r for r in seen if r.url.path == "/posts"]
+        assert len(posts) == 1
+        assert posts[0].url.params.get("author") == ORGANIZATION
+        assert posts[0].url.params.get("q") == "author"
+        assert posts[0].url.params.get("start") == "0"
+        assert posts[0].url.params.get("count") == "100"
+        assert posts[0].headers["linkedin-version"] == "202401"
+
+    async def test_linkedin_stores_a_post_under_its_urn(self, capture, store, stored):
+        capture(self._body)
+
+        await connector("linkedin").pull(None, store)
+
+        assert ("posts", "urn:li:share:1") in self._keys(stored)
+
+    async def test_linkedin_asks_share_statistics_for_the_posts_it_found(
+        self, capture, store
+    ):
+        seen = capture(self._body)
+
+        await connector("linkedin").pull(None, store)
+
+        stats = [r for r in seen if r.url.path == "/organizationalEntityShareStatistics"]
+        assert len(stats) == 1
+        assert stats[0].url.params.get("q") == "organizationalEntity"
+        assert stats[0].url.params.get("organizationalEntity") == ORGANIZATION
+        assert stats[0].url.params.get("shares") == "List(urn:li:share:1)"
+
+    async def test_linkedin_asks_no_share_statistics_when_there_are_no_posts(
+        self, capture, store
+    ):
+        def body(request):
+            if request.url.path == "/posts":
+                return {"elements": [], "paging": {"start": 0, "count": 100, "total": 0}}
+            return self._body(request)
+
+        seen = capture(body)
+
+        await connector("linkedin").pull(None, store)
+
+        assert "/organizationalEntityShareStatistics" not in {r.url.path for r in seen}
+
+    async def test_linkedin_stores_share_statistics_under_the_post_urn_so_they_merge(
+        self, capture, store, stored
+    ):
+        capture(self._body)
+
+        await connector("linkedin").pull(None, store)
+
+        assert ("post_stats", "urn:li:share:1") in self._keys(stored)
+
+    async def test_linkedin_asks_follower_statistics_by_day_over_the_window(
+        self, capture, store
+    ):
+        seen = capture(self._body)
+
+        await connector("linkedin").pull(None, store)
+
+        rows = [r for r in seen if r.url.path == "/organizationalEntityFollowerStatistics"]
+        assert len(rows) == 1
+        assert rows[0].url.params.get("q") == "organizationalEntity"
+        assert rows[0].url.params.get("organizationalEntity") == ORGANIZATION
+        assert rows[0].url.params.get("timeIntervals") == INTERVALS
+
+    async def test_linkedin_stores_a_follower_day_under_its_organization_and_day(
+        self, capture, store, stored
+    ):
+        capture(self._body)
+
+        await connector("linkedin").pull(None, store)
+
+        assert ("follower_stats", f"{ORGANIZATION}|2026-09-01") in self._keys(stored)
+
+    async def test_linkedin_asks_page_statistics_by_day_over_the_window(
+        self, capture, store
+    ):
+        seen = capture(self._body)
+
+        await connector("linkedin").pull(None, store)
+
+        rows = [r for r in seen if r.url.path == "/organizationPageStatistics"]
+        assert len(rows) == 1
+        assert rows[0].url.params.get("q") == "organization"
+        assert rows[0].url.params.get("organization") == ORGANIZATION
+        assert rows[0].url.params.get("timeIntervals") == INTERVALS
+
+    async def test_linkedin_stores_a_page_day_under_the_same_organization_and_day(
+        self, capture, store, stored
+    ):
+        capture(self._body)
+
+        await connector("linkedin").pull(None, store)
+
+        assert ("page_stats", f"{ORGANIZATION}|2026-09-01") in self._keys(stored)
+
+    async def test_linkedin_counts_a_day_row_with_no_time_range_as_missing(
+        self, capture, store, stored
+    ):
+        def body(request):
+            if request.url.path == "/organizationPageStatistics":
+                return {"elements": [{"totalPageStatistics": {}}, {"timeRange": {}}]}
+            return self._body(request)
+
+        capture(body)
+
+        notes = await connector("linkedin").pull(None, store)
+
+        assert [s for s in stored if s["object_type"] == "page_stats"] == []
+        assert notes == {"missing_id": 2}
+
+
+class TestWhatTwitterAsksForItsTweets(_SocialCapture):
+    @staticmethod
+    def _tweet(tweet_id):
+        return {
+            "id": tweet_id,
+            "text": "hello",
+            "created_at": "2026-09-01T14:00:00.000Z",
+            "public_metrics": {"impression_count": 100},
+        }
+
+    def _body(self, request):
+        if request.url.path == "/2/users/1/tweets":
+            return {"data": [self._tweet("1")], "meta": {"result_count": 1}}
+        return {"data": []}
+
+    async def test_twitter_asks_its_user_for_tweets_over_the_window(
+        self, capture, store
+    ):
+        seen = capture(self._body)
+
+        await connector("twitter").pull(None, store)
+
+        tweets = [r for r in seen if r.url.path == "/2/users/1/tweets"]
+        assert len(tweets) == 1
+        assert tweets[0].url.params.get("start_time") == "2026-06-07T00:00:00Z"
+        assert tweets[0].url.params.get("end_time") == "2026-09-04T23:59:59Z"
+        assert tweets[0].url.params.get("max_results") == "100"
+        assert tweets[0].url.params.get("tweet.fields") == "created_at,public_metrics"
+        assert tweets[0].headers["authorization"] == "Bearer mock_twitter_token"
+
+    async def test_twitter_stores_a_tweet_under_its_own_id(
+        self, capture, store, stored
+    ):
+        capture(self._body)
+
+        await connector("twitter").pull(None, store)
+
+        assert ("tweets", "1") in {(s["object_type"], s["source_id"]) for s in stored}
+
+    async def test_twitter_walks_the_next_token_to_its_end(
+        self, capture, store, stored
+    ):
+        def body(request):
+            if request.url.path != "/2/users/1/tweets":
+                return {"data": []}
+            if request.url.params.get("pagination_token") == "tok":
+                return {"data": [self._tweet("2")], "meta": {"result_count": 1}}
+            return {
+                "data": [self._tweet("1")],
+                "meta": {"result_count": 1, "next_token": "tok"},
+            }
+
+        seen = capture(body)
+
+        await connector("twitter").pull(None, store)
+
+        pages = [r for r in seen if r.url.path == "/2/users/1/tweets"]
+        assert [r.url.params.get("pagination_token") for r in pages] == [None, "tok"]
+        assert {s["source_id"] for s in stored if s["object_type"] == "tweets"} == {
+            "1",
+            "2",
+        }
+
+    async def test_twitter_treats_a_tweet_body_with_no_data_as_no_tweets(
+        self, capture, store, stored
+    ):
+        def body(request):
+            if request.url.path == "/2/users/1/tweets":
+                return {"meta": {"result_count": 0}}
+            return {"data": []}
+
+        capture(body)
+
+        notes = await connector("twitter").pull(None, store)
+
+        assert [s for s in stored if s["object_type"] == "tweets"] == []
+        assert notes is None
+
+
+class TestWhatPinterestAsksForItsPinsAndAccount(_SocialCapture):
+    @staticmethod
+    def _body(request):
+        path = request.url.path
+        if path == "/pins":
+            return {
+                "items": [
+                    {
+                        "id": "pin_1",
+                        "title": "hello",
+                        "created_at": "2026-09-01T14:00:00",
+                        "media": {"media_type": "image"},
+                        "pin_metrics": {"all_time": {"IMPRESSION": 100}},
+                    }
+                ],
+                "bookmark": None,
+            }
+        if path == "/user_account/analytics":
+            return {
+                "all": {
+                    "daily_metrics": [
+                        {
+                            "date": "2026-09-01",
+                            "data_status": "READY",
+                            "metrics": {"IMPRESSION": 10, "ENGAGEMENT": 3},
+                        }
+                    ],
+                    "summary_metrics": {"IMPRESSION": 10},
+                }
+            }
+        return {"items": [], "bookmark": None}
+
+    def _keys(self, stored):
+        return {(s["object_type"], s["source_id"]) for s in stored}
+
+    async def test_pinterest_asks_for_its_pins_with_their_metrics(
+        self, capture, store
+    ):
+        seen = capture(self._body)
+
+        await connector("pinterest").pull(None, store)
+
+        pins = [r for r in seen if r.url.path == "/pins"]
+        assert len(pins) == 1
+        assert pins[0].url.params.get("pin_metrics") == "true"
+        assert pins[0].url.params.get("page_size") == "100"
+        assert pins[0].headers["authorization"] == "Bearer mock_pinterest_token"
+
+    async def test_pinterest_stores_a_pin_under_its_own_id(
+        self, capture, store, stored
+    ):
+        capture(self._body)
+
+        await connector("pinterest").pull(None, store)
+
+        assert ("pins", "pin_1") in self._keys(stored)
+
+    async def test_pinterest_asks_its_account_for_daily_analytics_over_the_window(
+        self, capture, store
+    ):
+        seen = capture(self._body)
+
+        await connector("pinterest").pull(None, store)
+
+        rows = [r for r in seen if r.url.path == "/user_account/analytics"]
+        assert len(rows) == 1
+        assert rows[0].url.params.get("start_date") == "2026-06-07"
+        assert rows[0].url.params.get("end_date") == "2026-09-04"
+        assert rows[0].url.params.get("metric_types") == (
+            "IMPRESSION,ENGAGEMENT,TOTAL_AUDIENCE,PIN_CLICK,SAVE"
+        )
+
+    async def test_pinterest_stores_an_account_day_under_the_account_and_day(
+        self, capture, store, stored
+    ):
+        capture(self._body)
+
+        await connector("pinterest").pull(None, store)
+
+        rows = {
+            s["source_id"]: s["raw_payload"]
+            for s in stored
+            if s["object_type"] == "account_analytics"
+        }
+        assert set(rows) == {"user_account|2026-09-01"}
+        assert rows["user_account|2026-09-01"]["metrics"] == {
+            "IMPRESSION": 10,
+            "ENGAGEMENT": 3,
+        }
+
+    async def test_pinterest_counts_an_account_day_with_no_date_as_missing(
+        self, capture, store, stored
+    ):
+        def body(request):
+            if request.url.path == "/user_account/analytics":
+                return {"all": {"daily_metrics": [{"metrics": {"IMPRESSION": 1}}]}}
+            return self._body(request)
+
+        capture(body)
+
+        notes = await connector("pinterest").pull(None, store)
+
+        assert [s for s in stored if s["object_type"] == "account_analytics"] == []
+        assert notes == {"missing_id": 1}
+
+    async def test_pinterest_treats_an_analytics_body_of_the_wrong_shape_as_no_days(
+        self, capture, store, stored
+    ):
+        def body(request):
+            if request.url.path == "/user_account/analytics":
+                return [1, 2]
+            return self._body(request)
+
+        capture(body)
+
+        notes = await connector("pinterest").pull(None, store)
+
+        assert [s for s in stored if s["object_type"] == "account_analytics"] == []
+        assert notes is None
