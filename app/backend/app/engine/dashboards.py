@@ -6,7 +6,9 @@ from app.engine import metrics
 
 DEFAULT_DASHBOARDS = caches.DEFINITIONS_DIR / "dashboards.yaml"
 
-PAGE_KEYS = frozenset({"label", "range", "goals", "findings", "filter", "sections"})
+PAGE_KEYS = frozenset(
+    {"label", "parent", "range", "goals", "findings", "filter", "sections"}
+)
 SECTION_KEYS = frozenset({"label", "cards"})
 TABLE_KEYS = frozenset(
     {"table", "label", "rank", "columns", "window_attr", "limit", "filter"}
@@ -48,6 +50,7 @@ class Section:
 class Page:
     name: str
     label: str
+    parent: str | None
     range: bool
     goals: bool
     findings: bool
@@ -64,6 +67,13 @@ def _text(name, spec, key, what) -> str:
     if not isinstance(value, str):
         _refuse(name, f"{what} is missing a string `{key}`")
     return value
+
+
+def _parent(name, spec) -> str | None:
+    parent = spec.get("parent")
+    if parent is not None and not isinstance(parent, str):
+        _refuse(name, f"parent {parent!r} must be a page name")
+    return parent
 
 
 def _flag(name, spec, key) -> bool:
@@ -171,6 +181,7 @@ def parse(name, spec) -> Page:
     if unknown:
         _refuse(name, f"unknown key {unknown[0]!r} — known: {sorted(PAGE_KEYS)}")
     label = _text(name, spec, "label", "page")
+    parent = _parent(name, spec)
     ranged = _flag(name, spec, "range")
     goals = _flag(name, spec, "goals")
     findings = _flag(name, spec, "findings")
@@ -181,6 +192,7 @@ def parse(name, spec) -> Page:
     return Page(
         str(name),
         label,
+        parent,
         ranged,
         goals,
         findings,
@@ -280,21 +292,41 @@ def _table_problems(page, card, attrs_of) -> list[str]:
     return problems
 
 
+def _parent_problems(page, parent_of) -> list[str]:
+    prefix = f"dashboards: page {page.name!r} parent {page.parent!r}"
+    if page.parent is None:
+        return []
+    if page.parent == page.name:
+        return [f"{prefix} is the page itself"]
+    if page.parent not in parent_of:
+        return [f"{prefix} names no page in dashboards.yaml"]
+    if parent_of[page.parent] is not None:
+        return [f"{prefix} has a parent of its own — pages nest one level only"]
+    return []
+
+
+def _card_problems(page, metric_defs, attrs_of) -> list[str]:
+    problems: list[str] = []
+    seen: set[str] = set()
+    for section in page.sections:
+        for card in section.cards:
+            if isinstance(card, str):
+                problems += _metric_problems(page, card, seen, metric_defs, attrs_of)
+            else:
+                problems += _table_problems(page, card, attrs_of)
+    return problems
+
+
 def check(defs, metric_defs, attrs_of) -> list[str]:
     problems: list[str] = []
+    pages: list[Page] = []
     for name, spec in defs.items():
         try:
-            page = parse(name, spec)
+            pages.append(parse(name, spec))
         except DashboardError as e:
             problems.append(str(e))
-            continue
-        seen: set[str] = set()
-        for section in page.sections:
-            for card in section.cards:
-                if isinstance(card, str):
-                    problems += _metric_problems(
-                        page, card, seen, metric_defs, attrs_of
-                    )
-                else:
-                    problems += _table_problems(page, card, attrs_of)
+    parent_of = dict.fromkeys(defs) | {page.name: page.parent for page in pages}
+    for page in pages:
+        problems += _parent_problems(page, parent_of)
+        problems += _card_problems(page, metric_defs, attrs_of)
     return problems
