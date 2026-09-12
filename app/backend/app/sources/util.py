@@ -1,6 +1,8 @@
 import hashlib
 import json
+from datetime import timedelta
 
+from app import clock
 from app.sources.client import SourceClient
 from app.sources.creds import credentials_for
 
@@ -26,6 +28,11 @@ def declare_page_complete(api, records, requested: int, what: str) -> None:
 
 def content_id(text: str) -> str:
     return hashlib.sha1(text.encode()).hexdigest()[:32]
+
+
+def window(days: int = 90) -> tuple[str, str]:
+    today = clock.now().date()
+    return (today - timedelta(days=days - 1)).isoformat(), today.isoformat()
 
 
 def pick_id(record: dict, *fields: str) -> str | None:

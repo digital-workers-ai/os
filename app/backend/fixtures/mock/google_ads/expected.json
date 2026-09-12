@@ -40,6 +40,64 @@
           "status": "active"
         }
       }
+    },
+    "daily_campaigns": {
+      "campaign_report": {
+        "ad1|2026-09-02": {
+          "campaign_ref": "ad1",
+          "clicks": "11.0",
+          "conversions": "1.0",
+          "currency": "usd",
+          "impressions": "249.0",
+          "report_date": "2026-09-02T00:00:00Z",
+          "spend": "397.86"
+        },
+        "ad1|2026-09-03": {
+          "campaign_ref": "ad1",
+          "clicks": "12.0",
+          "conversions": "1.0",
+          "currency": "usd",
+          "impressions": "262.0",
+          "report_date": "2026-09-03T00:00:00Z",
+          "spend": "418.8"
+        },
+        "ad1|2026-09-04": {
+          "campaign_ref": "ad1",
+          "clicks": "12.0",
+          "conversions": "1.0",
+          "currency": "usd",
+          "impressions": "276.0",
+          "report_date": "2026-09-04T00:00:00Z",
+          "spend": "439.74"
+        },
+        "ad2|2026-09-02": {
+          "campaign_ref": "ad2",
+          "clicks": "19.0",
+          "conversions": "0.0",
+          "currency": "usd",
+          "impressions": "398.0",
+          "report_date": "2026-09-02T00:00:00Z",
+          "spend": "784.63"
+        },
+        "ad2|2026-09-03": {
+          "campaign_ref": "ad2",
+          "clicks": "20.0",
+          "conversions": "0.0",
+          "currency": "usd",
+          "impressions": "419.0",
+          "report_date": "2026-09-03T00:00:00Z",
+          "spend": "825.93"
+        },
+        "ad2|2026-09-04": {
+          "campaign_ref": "ad2",
+          "clicks": "21.0",
+          "conversions": "0.0",
+          "currency": "usd",
+          "impressions": "439.0",
+          "report_date": "2026-09-04T00:00:00Z",
+          "spend": "867.22"
+        }
+      }
     }
   },
   "skips": {},

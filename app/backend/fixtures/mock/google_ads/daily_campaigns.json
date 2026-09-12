@@ -1,0 +1,104 @@
+[
+  {
+    "payload": {
+      "campaign": {
+        "id": "ad1"
+      },
+      "metrics": {
+        "clicks": "11",
+        "conversions": "1.0",
+        "costMicros": "397860000",
+        "impressions": "249"
+      },
+      "segments": {
+        "date": "2026-09-02"
+      }
+    },
+    "source_id": "ad1|2026-09-02"
+  },
+  {
+    "payload": {
+      "campaign": {
+        "id": "ad1"
+      },
+      "metrics": {
+        "clicks": "12",
+        "conversions": "1.0",
+        "costMicros": "418800000",
+        "impressions": "262"
+      },
+      "segments": {
+        "date": "2026-09-03"
+      }
+    },
+    "source_id": "ad1|2026-09-03"
+  },
+  {
+    "payload": {
+      "campaign": {
+        "id": "ad1"
+      },
+      "metrics": {
+        "clicks": "12",
+        "conversions": "1.0",
+        "costMicros": "439740000",
+        "impressions": "276"
+      },
+      "segments": {
+        "date": "2026-09-04"
+      }
+    },
+    "source_id": "ad1|2026-09-04"
+  },
+  {
+    "payload": {
+      "campaign": {
+        "id": "ad2"
+      },
+      "metrics": {
+        "clicks": "19",
+        "conversions": "0.0",
+        "costMicros": "784630000",
+        "impressions": "398"
+      },
+      "segments": {
+        "date": "2026-09-02"
+      }
+    },
+    "source_id": "ad2|2026-09-02"
+  },
+  {
+    "payload": {
+      "campaign": {
+        "id": "ad2"
+      },
+      "metrics": {
+        "clicks": "20",
+        "conversions": "0.0",
+        "costMicros": "825930000",
+        "impressions": "419"
+      },
+      "segments": {
+        "date": "2026-09-03"
+      }
+    },
+    "source_id": "ad2|2026-09-03"
+  },
+  {
+    "payload": {
+      "campaign": {
+        "id": "ad2"
+      },
+      "metrics": {
+        "clicks": "21",
+        "conversions": "0.0",
+        "costMicros": "867220000",
+        "impressions": "439"
+      },
+      "segments": {
+        "date": "2026-09-04"
+      }
+    },
+    "source_id": "ad2|2026-09-04"
+  }
+]

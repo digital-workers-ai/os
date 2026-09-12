@@ -7,8 +7,18 @@ Route conflict: /{id}/insights matches ads, FB pages, and IG accounts.
 Resolved by dispatching on ID prefix (act_, page_, ig_).
 """
 
+import json
+from datetime import date
+
 from fastapi import APIRouter, Request, Query
-from seeds.helpers import require_query_token, cursor_paginate
+from seeds.helpers import (
+    campaign_days,
+    cursor_paginate,
+    daily_share,
+    day_factor,
+    days_between,
+    require_query_token,
+)
 from seeds.world import AD_CAMPAIGNS
 
 router = APIRouter()
@@ -16,26 +26,96 @@ router = APIRouter()
 _META_ADS = [ac for ac in AD_CAMPAIGNS if ac.platform == "meta"]
 
 
-def _ad_insight(ac, day="2026-07-01"):
+def _insight_row(ac, day, spend_cents, impressions, clicks, conversions):
     return {
         "account_id": f"act_{ac.company_id[1:].zfill(6)}",
         "campaign_id": ac.id,
         "campaign_name": ac.name,
-        "impressions": str(ac.impressions),
-        "clicks": str(ac.clicks),
-        "spend": f"{ac.spend_cents / 100:.2f}",
-        "conversions": str(ac.conversions),
-        "ctr": f"{ac.clicks / ac.impressions:.6f}" if ac.impressions else "0",
-        "cpc": f"{ac.spend_cents / ac.clicks / 100:.2f}" if ac.clicks else "0",
-        "cpm": f"{ac.spend_cents / ac.impressions * 1000 / 100:.2f}" if ac.impressions else "0",
+        "impressions": str(impressions),
+        "clicks": str(clicks),
+        "spend": f"{spend_cents / 100:.2f}",
+        "conversions": str(conversions),
+        "ctr": f"{clicks / impressions:.6f}" if impressions else "0",
+        "cpc": f"{spend_cents / clicks / 100:.2f}" if clicks else "0",
+        "cpm": f"{spend_cents / impressions * 1000 / 100:.2f}" if impressions else "0",
         "actions": [
-            {"action_type": "link_click", "value": str(ac.clicks)},
-            {"action_type": "landing_page_view", "value": str(max(1, ac.clicks // 2))},
-            {"action_type": "offsite_conversion", "value": str(ac.conversions)},
+            {"action_type": "link_click", "value": str(clicks)},
+            {"action_type": "landing_page_view", "value": str(max(1, clicks // 2))},
+            {"action_type": "offsite_conversion", "value": str(conversions)},
         ],
         "objective": ac.objective,
         "date_start": day,
         "date_stop": day,
+    }
+
+
+def _ad_insight(ac, day="2026-07-01"):
+    return _insight_row(ac, day, ac.spend_cents, ac.impressions, ac.clicks, ac.conversions)
+
+
+def _daily_ad_insight(ac, day, until):
+    return _insight_row(
+        ac,
+        day.isoformat(),
+        daily_share(ac.spend_cents, ac, day, until),
+        daily_share(ac.impressions, ac, day, until),
+        daily_share(ac.clicks, ac, day, until),
+        daily_share(ac.conversions, ac, day, until),
+    )
+
+
+_POST_MESSAGES = [
+    "Exciting news! We just launched our new feature.",
+    "Join our upcoming webinar on AI in 2026.",
+    "Customer spotlight: How Globex grew 40% with us.",
+    "Three lessons from a year of shipping weekly.",
+    "We are hiring: come build with us.",
+]
+_POST_TYPES = ["link", "photo", "video"]
+_MEDIA_CAPTIONS = [
+    "New product launch!",
+    "Behind the scenes",
+    "Quick tip in 60 seconds",
+    "Meet the team",
+    "Weekend reading list",
+]
+_MEDIA_TYPES = ["IMAGE", "VIDEO", "CAROUSEL_ALBUM"]
+
+
+def _post_days(since, until):
+    days = days_between(date.fromisoformat(since), date.fromisoformat(until))
+    return [day for day in days if day.toordinal() % 3 == 0]
+
+
+def _page_post(page_id, day):
+    ordinal = day.toordinal() // 3
+    factor = day_factor(day)
+    post_id = f"{page_id}_{day.strftime('%Y%m%d')}"
+    return {
+        "id": post_id,
+        "message": _POST_MESSAGES[ordinal % len(_POST_MESSAGES)],
+        "created_time": f"{day.isoformat()}T14:00:00+0000",
+        "permalink_url": f"https://www.facebook.com/mybusiness/posts/{post_id}",
+        "type": _POST_TYPES[ordinal % len(_POST_TYPES)],
+        "shares": {"count": round(40 * factor)},
+        "likes": {"data": [], "summary": {"total_count": round(300 * factor), "can_like": True, "has_liked": False}},
+        "comments": {"data": [], "summary": {"total_count": round(25 * factor), "can_comment": True}},
+    }
+
+
+def _ig_media_item(day):
+    ordinal = day.toordinal() // 3
+    factor = day_factor(day)
+    stamp = day.strftime("%Y%m%d")
+    return {
+        "id": f"media_{stamp}",
+        "caption": _MEDIA_CAPTIONS[ordinal % len(_MEDIA_CAPTIONS)],
+        "timestamp": f"{day.isoformat()}T14:30:00+0000",
+        "media_type": _MEDIA_TYPES[ordinal % len(_MEDIA_TYPES)],
+        "media_product_type": "FEED",
+        "permalink": f"https://www.instagram.com/p/{stamp}/",
+        "like_count": round(350 * factor),
+        "comments_count": round(30 * factor),
     }
 
 
@@ -78,7 +158,7 @@ async def insights(
     require_query_token(request)
 
     if node_id.startswith("act_"):
-        return _handle_ad_insights(node_id, limit, after)
+        return _handle_ad_insights(node_id, limit, after, time_range, time_increment)
     elif node_id.startswith("page_") and node_id.count("_") > 1:
         return _handle_post_insights(node_id, metric)
     elif node_id.startswith("page_"):
@@ -91,11 +171,22 @@ async def insights(
     return {"data": []}
 
 
-def _handle_ad_insights(account_id, limit, after):
+def _handle_ad_insights(account_id, limit, after, time_range=None, time_increment=None):
     acct_num = account_id.replace("act_", "")
     matching = [ac for ac in _META_ADS if ac.company_id[1:].zfill(6) == acct_num]
-    insights = [_ad_insight(ac) for ac in matching]
-    page, next_cursor = cursor_paginate(insights, after, limit, id_field="campaign_id")
+    if time_range and time_increment == "1":
+        bounds = json.loads(time_range)
+        since, until = date.fromisoformat(bounds["since"]), date.fromisoformat(bounds["until"])
+        keyed = [
+            {"key": f"{ac.id}|{day.isoformat()}", "row": _daily_ad_insight(ac, day, until)}
+            for ac in matching
+            for day in campaign_days(ac, since, until)
+        ]
+        page, next_cursor = cursor_paginate(keyed, after, limit, id_field="key")
+        page = [item["row"] for item in page]
+    else:
+        insights = [_ad_insight(ac) for ac in matching]
+        page, next_cursor = cursor_paginate(insights, after, limit, id_field="campaign_id")
     result = {"data": page}
     if next_cursor:
         result["paging"] = {
@@ -233,13 +324,14 @@ async def page_posts(
     fields: str = Query("message,created_time"),
     limit: int = Query(25, ge=1, le=100),
     after: str = Query(None),
+    since: str = Query(None),
+    until: str = Query(None),
 ):
     require_query_token(request)
-    posts = [
-        {"id": f"{page_id}_001", "message": "Exciting news! We just launched our new feature.", "created_time": "2026-07-10T14:00:00+0000", "permalink_url": f"https://www.facebook.com/mybusiness/posts/{page_id}_001", "type": "link", "shares": {"count": 45}, "likes": {"data": [], "summary": {"total_count": 312, "can_like": True, "has_liked": False}}, "comments": {"data": [], "summary": {"total_count": 28, "can_comment": True}}},
-        {"id": f"{page_id}_002", "message": "Join our upcoming webinar on AI in 2026.", "created_time": "2026-07-08T10:00:00+0000", "permalink_url": f"https://www.facebook.com/mybusiness/posts/{page_id}_002", "type": "photo", "shares": {"count": 12}, "likes": {"data": [], "summary": {"total_count": 189, "can_like": True, "has_liked": False}}, "comments": {"data": [], "summary": {"total_count": 15, "can_comment": True}}},
-        {"id": f"{page_id}_003", "message": "Customer spotlight: How Globex grew 40% with us.", "created_time": "2026-07-05T12:00:00+0000", "permalink_url": f"https://www.facebook.com/mybusiness/posts/{page_id}_003", "type": "link", "shares": {"count": 23}, "likes": {"data": [], "summary": {"total_count": 245, "can_like": True, "has_liked": False}}, "comments": {"data": [], "summary": {"total_count": 19, "can_comment": True}}},
-    ]
+    if since and until:
+        posts = [_page_post(page_id, day) for day in _post_days(since, until)]
+    else:
+        posts = _fixed_posts(page_id)
     page, next_cursor = cursor_paginate(posts, after, limit)
     result = {"data": page}
     if next_cursor:
@@ -248,6 +340,14 @@ async def page_posts(
             "next": f"https://graph.facebook.com/v25.0/{page_id}/posts?after={next_cursor}",
         }
     return result
+
+
+def _fixed_posts(page_id):
+    return [
+        {"id": f"{page_id}_001", "message": "Exciting news! We just launched our new feature.", "created_time": "2026-07-10T14:00:00+0000", "permalink_url": f"https://www.facebook.com/mybusiness/posts/{page_id}_001", "type": "link", "shares": {"count": 45}, "likes": {"data": [], "summary": {"total_count": 312, "can_like": True, "has_liked": False}}, "comments": {"data": [], "summary": {"total_count": 28, "can_comment": True}}},
+        {"id": f"{page_id}_002", "message": "Join our upcoming webinar on AI in 2026.", "created_time": "2026-07-08T10:00:00+0000", "permalink_url": f"https://www.facebook.com/mybusiness/posts/{page_id}_002", "type": "photo", "shares": {"count": 12}, "likes": {"data": [], "summary": {"total_count": 189, "can_like": True, "has_liked": False}}, "comments": {"data": [], "summary": {"total_count": 15, "can_comment": True}}},
+        {"id": f"{page_id}_003", "message": "Customer spotlight: How Globex grew 40% with us.", "created_time": "2026-07-05T12:00:00+0000", "permalink_url": f"https://www.facebook.com/mybusiness/posts/{page_id}_003", "type": "link", "shares": {"count": 23}, "likes": {"data": [], "summary": {"total_count": 245, "can_like": True, "has_liked": False}}, "comments": {"data": [], "summary": {"total_count": 19, "can_comment": True}}},
+    ]
 
 
 @router.get("/v25.0/{post_id}/comments")
@@ -293,13 +393,14 @@ async def ig_media(
     fields: str = Query("id,caption,timestamp,media_type"),
     limit: int = Query(25, ge=1, le=100),
     after: str = Query(None),
+    since: str = Query(None),
+    until: str = Query(None),
 ):
     require_query_token(request)
-    media = [
-        {"id": "media_001", "caption": "New product launch!", "timestamp": "2026-07-05T14:30:00+0000", "media_type": "CAROUSEL_ALBUM", "media_product_type": "FEED", "permalink": "https://www.instagram.com/p/abc123/", "media_url": "https://scontent.xx.fbcdn.net/v/media_001.jpg", "thumbnail_url": "https://scontent.xx.fbcdn.net/v/media_001_thumb.jpg"},
-        {"id": "media_002", "caption": "Behind the scenes", "timestamp": "2026-07-03T10:00:00+0000", "media_type": "IMAGE", "media_product_type": "FEED", "permalink": "https://www.instagram.com/p/def456/", "media_url": "https://scontent.xx.fbcdn.net/v/media_002.jpg"},
-        {"id": "media_003", "caption": "Quick tip in 60 seconds", "timestamp": "2026-07-01T16:00:00+0000", "media_type": "VIDEO", "media_product_type": "REELS", "permalink": "https://www.instagram.com/reel/ghi789/", "thumbnail_url": "https://scontent.xx.fbcdn.net/v/media_003_thumb.jpg"},
-    ]
+    if since and until:
+        media = [_ig_media_item(day) for day in _post_days(since, until)]
+    else:
+        media = _fixed_media()
     page, next_cursor = cursor_paginate(media, after, limit)
     result = {"data": page}
     if next_cursor:
@@ -308,6 +409,14 @@ async def ig_media(
             "next": f"https://graph.facebook.com/v25.0/{ig_id}/media?after={next_cursor}",
         }
     return result
+
+
+def _fixed_media():
+    return [
+        {"id": "media_001", "caption": "New product launch!", "timestamp": "2026-07-05T14:30:00+0000", "media_type": "CAROUSEL_ALBUM", "media_product_type": "FEED", "permalink": "https://www.instagram.com/p/abc123/", "media_url": "https://scontent.xx.fbcdn.net/v/media_001.jpg", "thumbnail_url": "https://scontent.xx.fbcdn.net/v/media_001_thumb.jpg"},
+        {"id": "media_002", "caption": "Behind the scenes", "timestamp": "2026-07-03T10:00:00+0000", "media_type": "IMAGE", "media_product_type": "FEED", "permalink": "https://www.instagram.com/p/def456/", "media_url": "https://scontent.xx.fbcdn.net/v/media_002.jpg"},
+        {"id": "media_003", "caption": "Quick tip in 60 seconds", "timestamp": "2026-07-01T16:00:00+0000", "media_type": "VIDEO", "media_product_type": "REELS", "permalink": "https://www.instagram.com/reel/ghi789/", "thumbnail_url": "https://scontent.xx.fbcdn.net/v/media_003_thumb.jpg"},
+    ]
 
 
 # --- Page Token Exchange ---
@@ -332,7 +441,7 @@ async def me_accounts(request: Request):
     require_query_token(request)
     return {
         "data": [
-            {"id": "page_001", "name": "Acme Corp", "access_token": "mock_page_token_001"},
+            {"id": "page_001", "name": "Acme Corp", "access_token": "mock_page_token_001", "instagram_business_account": {"id": "ig_001"}},
         ]
     }
 

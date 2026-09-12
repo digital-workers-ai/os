@@ -1,0 +1,39 @@
+@font-face {
+  font-family: 'Space Grotesk';
+  font-weight: 400 700;
+  font-display: block;
+  src: url('/fonts/space-grotesk.woff2') format('woff2');
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 45 22% 96%;
+    --foreground: 0 0% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+    --accent: 48 33% 94%;
+    --accent-foreground: 0 0% 10%;
+    --border: 52 33% 82%;
+    --input: 52 33% 82%;
+    --ring: 52 33% 82%;
+    --radius: 0.75rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-medium;
+  }
+}

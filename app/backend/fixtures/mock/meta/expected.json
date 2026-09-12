@@ -29,6 +29,84 @@
         }
       }
     },
+    "daily_insights": {
+      "campaign_report": {
+        "ad3|2026-09-02": {
+          "campaign_ref": "ad3",
+          "clicks": "19.0",
+          "conversions": "1.0",
+          "currency": "usd",
+          "impressions": "1236.0",
+          "report_date": "2026-09-02T00:00:00Z",
+          "spend": "638.48"
+        },
+        "ad3|2026-09-03": {
+          "campaign_ref": "ad3",
+          "clicks": "20.0",
+          "conversions": "1.0",
+          "currency": "usd",
+          "impressions": "1301.0",
+          "report_date": "2026-09-03T00:00:00Z",
+          "spend": "672.09"
+        },
+        "ad3|2026-09-04": {
+          "campaign_ref": "ad3",
+          "clicks": "20.0",
+          "conversions": "1.0",
+          "currency": "usd",
+          "impressions": "1366.0",
+          "report_date": "2026-09-04T00:00:00Z",
+          "spend": "705.69"
+        },
+        "ad5|2026-09-02": {
+          "campaign_ref": "ad5",
+          "clicks": "46.0",
+          "conversions": "1.0",
+          "currency": "usd",
+          "impressions": "3958.0",
+          "report_date": "2026-09-02T00:00:00Z",
+          "spend": "1055.56"
+        },
+        "ad5|2026-09-03": {
+          "campaign_ref": "ad5",
+          "clicks": "48.0",
+          "conversions": "1.0",
+          "currency": "usd",
+          "impressions": "4167.0",
+          "report_date": "2026-09-03T00:00:00Z",
+          "spend": "1111.11"
+        },
+        "ad5|2026-09-04": {
+          "campaign_ref": "ad5",
+          "clicks": "51.0",
+          "conversions": "1.0",
+          "currency": "usd",
+          "impressions": "4375.0",
+          "report_date": "2026-09-04T00:00:00Z",
+          "spend": "1166.67"
+        }
+      }
+    },
+    "ig_media": {
+      "social_post": {
+        "media_20260901": {
+          "category": "carousel_album",
+          "comments": "24.0",
+          "likes": "280.0",
+          "name": "New product launch!",
+          "platform": "instagram",
+          "posted_at": "2026-09-01T14:30:00Z"
+        },
+        "media_20260904": {
+          "category": "image",
+          "comments": "28.0",
+          "likes": "327.0",
+          "name": "Behind the scenes",
+          "platform": "instagram",
+          "posted_at": "2026-09-04T14:30:00Z"
+        }
+      }
+    },
     "insights": {
       "campaign": {
         "ad12": {
@@ -58,6 +136,28 @@
           "currency": "usd",
           "impressions": "800000.0",
           "spend": "250000.0"
+        }
+      }
+    },
+    "page_posts": {
+      "social_post": {
+        "page_001_20260901": {
+          "category": "video",
+          "comments": "20.0",
+          "likes": "240.0",
+          "name": "Exciting news! We just launched our new feature.",
+          "platform": "facebook",
+          "posted_at": "2026-09-01T14:00:00Z",
+          "shares": "32.0"
+        },
+        "page_001_20260904": {
+          "category": "link",
+          "comments": "23.0",
+          "likes": "280.0",
+          "name": "Join our upcoming webinar on AI in 2026.",
+          "platform": "facebook",
+          "posted_at": "2026-09-04T14:00:00Z",
+          "shares": "37.0"
         }
       }
     }

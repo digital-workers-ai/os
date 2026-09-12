@@ -7,9 +7,11 @@ Requires both Authorization: Bearer and developer-token headers.
 """
 
 import re
+from datetime import date
+
 from fastapi import APIRouter, Request, HTTPException
 from pydantic import BaseModel
-from seeds.helpers import require_bearer, require_header
+from seeds.helpers import require_bearer, require_header, campaign_days, daily_share
 from seeds.world import AD_CAMPAIGNS, COMPANIES_BY_ID
 
 router = APIRouter()
@@ -90,6 +92,30 @@ def _keyword_result(ac, day="2026-07-01"):
     }
 
 
+_BETWEEN = re.compile(r"BETWEEN '(\d{4}-\d{2}-\d{2})' AND '(\d{4}-\d{2}-\d{2})'")
+
+
+def _daily_bounds(query: str):
+    selected = query.split(" FROM ")[0]
+    match = _BETWEEN.search(query)
+    if "segments.date" not in selected or not match:
+        return None
+    return date.fromisoformat(match.group(1)), date.fromisoformat(match.group(2))
+
+
+def _daily_result(ac, day, until):
+    return {
+        "campaign": {"id": ac.id},
+        "metrics": {
+            "costMicros": str(daily_share(ac.spend_cents, ac, day, until) * 10000),
+            "clicks": str(daily_share(ac.clicks, ac, day, until)),
+            "impressions": str(daily_share(ac.impressions, ac, day, until)),
+            "conversions": f"{daily_share(ac.conversions, ac, day, until)}.0",
+        },
+        "segments": {"date": day.isoformat()},
+    }
+
+
 def _detect_resource(query: str) -> str:
     q = query.lower()
     if "keyword_view" in q:
@@ -113,7 +139,14 @@ async def search_stream(request: Request, customer_id: str, body: SearchStreamRe
     query = body.query
     resource = _detect_resource(query)
 
-    if resource == "campaign":
+    bounds = _daily_bounds(query) if resource == "campaign" else None
+    if bounds:
+        results = [
+            _daily_result(ac, day, bounds[1])
+            for ac in _GADS_CAMPAIGNS
+            for day in campaign_days(ac, *bounds)
+        ]
+    elif resource == "campaign":
         results = [_campaign_result(ac) for ac in _GADS_CAMPAIGNS]
     elif resource == "budget":
         results = [_budget_result(ac) for ac in _GADS_CAMPAIGNS]

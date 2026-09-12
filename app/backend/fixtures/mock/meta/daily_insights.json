@@ -1,0 +1,194 @@
+[
+  {
+    "payload": {
+      "account_id": "act_000001",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "19"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "9"
+        },
+        {
+          "action_type": "offsite_conversion",
+          "value": "1"
+        }
+      ],
+      "campaign_id": "ad3",
+      "campaign_name": "Retargeting - Website Visitors",
+      "clicks": "19",
+      "conversions": "1",
+      "cpc": "33.60",
+      "cpm": "516.57",
+      "ctr": "0.015372",
+      "date_start": "2026-09-02",
+      "date_stop": "2026-09-02",
+      "impressions": "1236",
+      "objective": "CONVERSIONS",
+      "spend": "638.48"
+    },
+    "source_id": "ad3|2026-09-02"
+  },
+  {
+    "payload": {
+      "account_id": "act_000001",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "20"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "10"
+        },
+        {
+          "action_type": "offsite_conversion",
+          "value": "1"
+        }
+      ],
+      "campaign_id": "ad3",
+      "campaign_name": "Retargeting - Website Visitors",
+      "clicks": "20",
+      "conversions": "1",
+      "cpc": "33.60",
+      "cpm": "516.59",
+      "ctr": "0.015373",
+      "date_start": "2026-09-03",
+      "date_stop": "2026-09-03",
+      "impressions": "1301",
+      "objective": "CONVERSIONS",
+      "spend": "672.09"
+    },
+    "source_id": "ad3|2026-09-03"
+  },
+  {
+    "payload": {
+      "account_id": "act_000001",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "20"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "10"
+        },
+        {
+          "action_type": "offsite_conversion",
+          "value": "1"
+        }
+      ],
+      "campaign_id": "ad3",
+      "campaign_name": "Retargeting - Website Visitors",
+      "clicks": "20",
+      "conversions": "1",
+      "cpc": "35.28",
+      "cpm": "516.61",
+      "ctr": "0.014641",
+      "date_start": "2026-09-04",
+      "date_stop": "2026-09-04",
+      "impressions": "1366",
+      "objective": "CONVERSIONS",
+      "spend": "705.69"
+    },
+    "source_id": "ad3|2026-09-04"
+  },
+  {
+    "payload": {
+      "account_id": "act_000002",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "46"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "23"
+        },
+        {
+          "action_type": "offsite_conversion",
+          "value": "1"
+        }
+      ],
+      "campaign_id": "ad5",
+      "campaign_name": "Summer Campaign 2026",
+      "clicks": "46",
+      "conversions": "1",
+      "cpc": "22.95",
+      "cpm": "266.69",
+      "ctr": "0.011622",
+      "date_start": "2026-09-02",
+      "date_stop": "2026-09-02",
+      "impressions": "3958",
+      "objective": "AWARENESS",
+      "spend": "1055.56"
+    },
+    "source_id": "ad5|2026-09-02"
+  },
+  {
+    "payload": {
+      "account_id": "act_000002",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "48"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "24"
+        },
+        {
+          "action_type": "offsite_conversion",
+          "value": "1"
+        }
+      ],
+      "campaign_id": "ad5",
+      "campaign_name": "Summer Campaign 2026",
+      "clicks": "48",
+      "conversions": "1",
+      "cpc": "23.15",
+      "cpm": "266.65",
+      "ctr": "0.011519",
+      "date_start": "2026-09-03",
+      "date_stop": "2026-09-03",
+      "impressions": "4167",
+      "objective": "AWARENESS",
+      "spend": "1111.11"
+    },
+    "source_id": "ad5|2026-09-03"
+  },
+  {
+    "payload": {
+      "account_id": "act_000002",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "51"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "25"
+        },
+        {
+          "action_type": "offsite_conversion",
+          "value": "1"
+        }
+      ],
+      "campaign_id": "ad5",
+      "campaign_name": "Summer Campaign 2026",
+      "clicks": "51",
+      "conversions": "1",
+      "cpc": "22.88",
+      "cpm": "266.67",
+      "ctr": "0.011657",
+      "date_start": "2026-09-04",
+      "date_stop": "2026-09-04",
+      "impressions": "4375",
+      "objective": "AWARENESS",
+      "spend": "1166.67"
+    },
+    "source_id": "ad5|2026-09-04"
+  }
+]

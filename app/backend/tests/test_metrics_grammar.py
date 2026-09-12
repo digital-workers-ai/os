@@ -354,11 +354,29 @@ class TestWindowGrammar:
         assert "must be one of" in str(err.value)
 
 
+class TestRangeGrammar:
+    def test_a_window_attr_alone_makes_the_metric_rangeable(self):
+        parsed = parse(counted(window_attr="started_at"))
+        assert parsed["range_attr"] == "started_at"
+        assert parsed["window"] is None
+
+    def test_a_fixed_window_is_not_rangeable(self):
+        parsed = parse(counted(window_days=30, window_attr="started_at"))
+        assert parsed["range_attr"] is None
+
+    def test_a_metric_with_no_window_keys_is_not_rangeable(self):
+        assert parse(counted())["range_attr"] is None
+
+
 class TestInferredMetricsKeepTheirLimits:
     def test_an_inferred_metric_still_refuses_a_window(self):
         with pytest.raises(metrics.MetricSpecError, match="never ran"):
             parse({**INFERRED, "window_days": 30, "window_attr": "started_at"})
         assert parse(INFERRED)["window"] is None
+
+    def test_an_inferred_metric_refuses_a_range_attr_too(self):
+        with pytest.raises(metrics.MetricSpecError, match="never ran"):
+            parse({**INFERRED, "window_attr": "started_at"})
 
     def test_a_breakdown_over_a_many_of_field_is_refused(self):
         with pytest.raises(metrics.MetricSpecError) as err:
@@ -377,6 +395,10 @@ class TestProvenanceOverDimensions:
         lineage = self._lineage(
             counted(window_days=30, window_attr="started_at"),
         )
+        assert "subscription.started_at" in lineage["attrs"]
+
+    def test_a_rangeable_metric_names_the_attr_it_can_range_on(self):
+        lineage = self._lineage(counted(window_attr="started_at"))
         assert "subscription.started_at" in lineage["attrs"]
 
     def test_a_dotted_breakdown_names_the_attr_on_the_far_side(self):

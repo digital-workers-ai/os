@@ -3,7 +3,7 @@ import { defineConfig, devices } from '@playwright/test'
 export default defineConfig({
   testDir: 'e2e',
   outputDir: 'e2e/results',
-  snapshotPathTemplate: '{testDir}/__screenshots__/{testFileName}/{arg}{ext}',
+  snapshotPathTemplate: '{testDir}/__screenshots__/{testFilePath}/{arg}{ext}',
   fullyParallel: true,
   timeout: 60_000,
   workers: 2,
@@ -24,5 +24,8 @@ export default defineConfig({
   expect: {
     toHaveScreenshot: { animations: 'disabled', caret: 'hide', maxDiffPixels: 0 },
   },
-  projects: [{ name: 'chromium' }],
+  projects: [
+    { name: 'chromium', testIgnore: 'dashboard/**' },
+    { name: 'dashboard', testMatch: 'dashboard/**', use: { baseURL: process.env.DASHBOARD_URL ?? 'http://localhost:3093' } },
+  ],
 })

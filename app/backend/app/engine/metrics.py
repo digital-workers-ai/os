@@ -226,12 +226,13 @@ def parse_spec(spec) -> dict:
         for term in terms:
             if term["source"] == "enriched":
                 _validate_enriched_term(spec, term, reading)
-        if spec.get("window_days"):
+        if spec.get("window_days") or spec.get("window_attr"):
             raise MetricSpecError(
-                "window_days on an inferred metric is not applied — the "
-                "enriched population is selected by reading and vocabulary, "
-                "not by date, and the receipt would claim a window that never "
-                "ran. Drop the window, or measure the canonical side."
+                "a window on an inferred metric is not applied — the enriched "
+                "population is selected by reading and vocabulary, not by "
+                "date, and the receipt would claim a window that never ran. "
+                "Drop window_days and window_attr, or measure the canonical "
+                "side."
             )
         population = str(spec.get("population") or "read")
         if population not in ("read", "all"):
@@ -259,6 +260,7 @@ def parse_spec(spec) -> dict:
             raise MetricSpecError(f"grain {grain!r} must be one of {list(GRAINS)}")
 
     window = None
+    range_attr = None
     window_days = spec.get("window_days")
     direction = spec.get("window_direction")
     if window_days is not None:
@@ -289,6 +291,8 @@ def parse_spec(spec) -> dict:
             "window_direction without window_days — a direction with no span "
             "does not describe a window"
         )
+    elif spec.get("window_attr"):
+        range_attr = str(spec["window_attr"])
 
     return {
         "terms": terms,
@@ -297,6 +301,7 @@ def parse_spec(spec) -> dict:
         "group_by": str(group_by) if group_by is not None else None,
         "grain": str(grain) if grain is not None else None,
         "window": window,
+        "range_attr": range_attr,
     }
 
 
@@ -757,6 +762,77 @@ async def _breakdown(session, onto, spec, parsed, money, window, term_ids) -> di
     return out
 
 
+def _range_window(range_attr, bounds) -> dict:
+    low, high = bounds
+    days = (date.fromisoformat(high) - date.fromisoformat(low)).days + 1
+    return {"attr": range_attr, "from": low, "to": high, "days": days}
+
+
+def _window_for(parsed, now, bounds) -> tuple:
+    window = parsed["window"]
+    if window:
+        low, high = window_bounds(window["days"], window["direction"], now)
+        return {**window, "from": low, "to": high}, {
+            "window_days": window["days"],
+            "window_direction": window["direction"],
+            "window_from": low,
+            "window_to": high,
+        }
+    if bounds:
+        window = _range_window(parsed["range_attr"], bounds)
+        return window, {f"window_{key}": value for key, value in window.items()}
+    return None, {}
+
+
+def _preceding(bounds) -> tuple:
+    low, high = (date.fromisoformat(edge) for edge in bounds)
+    end = low - timedelta(days=1)
+    return (end - (high - low)).isoformat(), end.isoformat()
+
+
+async def _previous(session, spec, parsed, money, bounds) -> dict:
+    window = _range_window(parsed["range_attr"], _preceding(bounds))
+    earlier = await _measure(
+        session, spec, parsed["terms"], parsed["op"], money, window
+    )
+    return {
+        "value": earlier["value"],
+        "entities": earlier["entities"],
+        "window_from": window["from"],
+        "window_to": window["to"],
+    }
+
+
+async def _evaluate(
+    session, onto, money, spec, label, now, bounds=None, compare=None
+) -> dict:
+    try:
+        parsed = parse_spec(spec)
+        window, stamp = _window_for(parsed, now, bounds)
+        result = await _measure(
+            session, spec, parsed["terms"], parsed["op"], money, window
+        )
+        term_ids = result.pop("_term_ids")
+        result["label"] = label
+        result["entity"] = spec.get("entity")
+        result.update(stamp)
+        if parsed["group_by"]:
+            result.update(
+                await _breakdown(session, onto, spec, parsed, money, window, term_ids)
+            )
+        if compare:
+            result["previous"] = await _previous(session, spec, parsed, money, bounds)
+        return result
+    except MetricSpecError as e:
+        return {"error": str(e), "label": label}
+    except Exception as e:
+        try:
+            await session.rollback()
+        except Exception:
+            pass
+        return {"error": f"{type(e).__name__}: {e}", "label": label}
+
+
 async def evaluate_definitions(session, defs: dict, now=None) -> dict:
     onto = ontology.load()
     money = transforms.money_labels()
@@ -764,39 +840,33 @@ async def evaluate_definitions(session, defs: dict, now=None) -> dict:
     out: dict = {}
     for name, spec in defs.items():
         label = spec.get("label", name) if isinstance(spec, dict) else name
-        try:
-            parsed = parse_spec(spec)
-            window = parsed["window"]
-            if window:
-                low, high = window_bounds(window["days"], window["direction"], now)
-                window = {**window, "from": low, "to": high}
-            result = await _measure(
-                session, spec, parsed["terms"], parsed["op"], money, window
-            )
-            term_ids = result.pop("_term_ids")
-            result["label"] = label
-            result["entity"] = spec.get("entity")
-            if window:
-                result["window_days"] = window["days"]
-                result["window_direction"] = window["direction"]
-                result["window_from"] = window["from"]
-                result["window_to"] = window["to"]
-            if parsed["group_by"]:
-                result.update(
-                    await _breakdown(
-                        session, onto, spec, parsed, money, window, term_ids
-                    )
-                )
-            out[name] = result
-        except MetricSpecError as e:
-            out[name] = {"error": str(e), "label": label}
-        except Exception as e:
-            out[name] = {"error": f"{type(e).__name__}: {e}", "label": label}
-            try:
-                await session.rollback()
-            except Exception:
-                pass
+        out[name] = await _evaluate(session, onto, money, spec, label, now)
     return out
+
+
+async def evaluate_one(session, name, spec, *, now, bounds=None, compare=None) -> dict:
+    if bounds:
+        parsed = parse_spec(spec)
+        if parsed["window"]:
+            raise MetricSpecError(
+                "this metric fixes its own window_days — a range cannot "
+                "narrow a window the definition already set"
+            )
+        if parsed["range_attr"] is None:
+            raise MetricSpecError(
+                "this metric declares no window_attr — there is no "
+                "business-time attr to range on"
+            )
+    return await _evaluate(
+        session,
+        ontology.load(),
+        transforms.money_labels(),
+        spec,
+        spec.get("label", name),
+        now,
+        bounds,
+        compare,
+    )
 
 
 async def evaluate(session, now=None) -> dict:
@@ -931,6 +1001,8 @@ def provenance(defs: dict, lines) -> dict:
                 wanted.add((entity, str(attr)))
         if parsed["window"]:
             wanted.add((spec.get("entity"), parsed["window"]["attr"]))
+        if parsed["range_attr"]:
+            wanted.add((spec.get("entity"), parsed["range_attr"]))
         if parsed["group_by"]:
             path = PATH_RE.match(parsed["group_by"])
             if path:

@@ -42,12 +42,12 @@ async def test_the_sync_stores_the_whole_twenty_source_estate(
 ):
     result = await sync.run_all(sessionmaker_for_test, SOURCES)
     assert result["failed"] == 0, result
-    assert result["rows_written"] == 338
+    assert result["rows_written"] == 1554
 
     total = (
         await session.execute(select(func.count()).select_from(RawEvent))
     ).scalar_one()
-    assert total == 338
+    assert total == 1554
 
 
 async def test_the_rebuild_resolves_the_batch_three_entities(
@@ -79,7 +79,9 @@ async def test_the_rebuild_resolves_the_batch_three_entities(
         "meeting": 11,
         "audience": 6,
         "campaign": 8,
-        "traffic_report": 6,
+        "campaign_report": 622,
+        "social_post": 60,
+        "traffic_report": 540,
         "data_source": 3,
     }
 
@@ -109,12 +111,12 @@ async def test_the_estate_is_clean_apart_from_its_counted_clears(
     assert report["counts"]["observed_at_fallback/mailchimp"] == 10
     assert report["counts"]["observed_at_fallback/google_sheets"] == 8
     assert report["counts"]["observed_at_fallback/woocommerce"] == 4
-    assert report["counts"]["observed_at_fallback/meta"] == 4
-    assert report["counts"]["observed_at_fallback/google_ads"] == 4
-    assert report["counts"]["observed_at_fallback/google_analytics"] == 6
+    assert report["counts"]["observed_at_fallback/meta"] == 392
+    assert report["counts"]["observed_at_fallback/google_ads"] == 298
+    assert report["counts"]["observed_at_fallback/google_analytics"] == 540
     assert report["counts"]["multi_object_entity/meta/campaign"] == 4
-    assert report["counts"]["account_currency/meta"] == 4
-    assert report["counts"]["account_currency/google_ads"] == 4
+    assert report["counts"]["account_currency/meta"] == 332
+    assert report["counts"]["account_currency/google_ads"] == 298
 
 
 async def test_the_batch_three_links_land_with_no_quarantines(
@@ -127,6 +129,8 @@ async def test_the_batch_three_links_land_with_no_quarantines(
     assert rates["deal belongs_to company"]["match_rate"] == 1.0
     assert rates["order placed_by person"]["edges"] == 4
     assert rates["message sent_to person"]["edges"] == 3
+    assert rates["campaign_report belongs_to campaign"]["edges"] == 622
+    assert rates["campaign_report belongs_to campaign"]["match_rate"] == 1.0
     assert result["report"]["quarantines"] == []
 
     by_rel = dict(
@@ -137,7 +141,7 @@ async def test_the_batch_three_links_land_with_no_quarantines(
         ).all()
     )
     assert by_rel == {
-        "belongs_to": 30,
+        "belongs_to": 652,
         "raised_by": 20,
         "performed_by": 10,
         "attended_by": 11,

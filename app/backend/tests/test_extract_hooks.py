@@ -312,6 +312,8 @@ class TestDiscovery:
             "google_analytics",
             "activecampaign",
             "zoom",
+            "meta",
+            "google_ads",
         }
 
     def test_a_package_without_an_extract_module_contributes_no_hook(self, monkeypatch):
@@ -451,6 +453,66 @@ class TestBatchTwoCompositeNames:
             {"id": 727, "billing": {"first_name": "Jane", "last_name": "Smith"}},
         )
         assert out[0]["_full_name"] == "Jane Smith"
+
+
+class TestMetaPlatformStamp:
+    def test_a_page_post_is_stamped_facebook(self):
+        from app.sources.meta import extract
+
+        out = extract.reshape("page_posts", {"id": "page_001_20260901"})
+        assert out[0]["_platform"] == "facebook"
+
+    def test_an_instagram_media_item_is_stamped_instagram(self):
+        from app.sources.meta import extract
+
+        out = extract.reshape("ig_media", {"id": "media_20260901"})
+        assert out[0]["_platform"] == "instagram"
+
+    def test_the_stamp_does_not_touch_the_stored_payload(self):
+        from app.sources.meta import extract
+
+        payload = {"id": "media_20260901"}
+        extract.reshape("ig_media", payload)
+        assert payload == {"id": "media_20260901"}
+
+    def test_other_object_types_pass_through(self):
+        from app.sources.meta import extract
+
+        payload = {"id": "ad3", "name": "Retargeting"}
+        assert extract.reshape("campaigns", payload) == [payload]
+
+
+class TestGoogleAdsCampaignRef:
+    def test_a_daily_row_carries_its_campaign_as_a_reference(self):
+        from app.sources.google_ads import extract
+
+        out = extract.reshape(
+            "daily_campaigns",
+            {"campaign": {"id": "ad1"}, "segments": {"date": "2026-09-01"}},
+        )
+        assert out[0]["_campaign_ref"] == "ad1"
+
+    def test_a_daily_row_with_no_campaign_composes_nothing(self):
+        from app.sources.google_ads import extract
+
+        out = extract.reshape("daily_campaigns", {"segments": {"date": "2026-09-01"}})
+        assert "_campaign_ref" not in out[0]
+
+    def test_the_reference_does_not_touch_the_stored_payload(self):
+        from app.sources.google_ads import extract
+
+        payload = {"campaign": {"id": "ad1"}, "segments": {"date": "2026-09-01"}}
+        extract.reshape("daily_campaigns", payload)
+        assert payload == {
+            "campaign": {"id": "ad1"},
+            "segments": {"date": "2026-09-01"},
+        }
+
+    def test_other_object_types_pass_through(self):
+        from app.sources.google_ads import extract
+
+        payload = {"campaign": {"id": "ad3", "name": "Retargeting"}}
+        assert extract.reshape("campaigns", payload) == [payload]
 
 
 class TestGoogleSheetsHook:

@@ -117,6 +117,12 @@ test('enrichment', async ({ page }) => {
   await snap(page, 'definitions-enrichment')
 })
 
+test('dashboards', async ({ page }) => {
+  await openTab(page, 'dashboards')
+  await expect(counted(table(page, 'definitions-dashboards'), 'Page')).toBeVisible()
+  await snap(page, 'definitions-dashboards')
+})
+
 test('error', async ({ page }) => {
   await mockJson(page, '**/api/definitions/*', { detail: 'definitions unavailable' }, 500)
   await visit(page, '/definitions')

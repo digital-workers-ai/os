@@ -1,0 +1,53 @@
+overview:
+  label: Overview
+  range: true
+  sections:
+    - label: Traffic
+      cards: [sessions, users, sessions_by_day]
+    - label: Revenue
+      cards: [won_value]
+    - label: Ads
+      cards: [ad_spend, ad_conversions]
+    - label: Email
+      cards: [emails_sent, open_rate]
+    - label: Social
+      cards: [posts, post_likes]
+website:
+  label: Website
+  range: true
+  sections:
+    - label: Visitors
+      cards: [sessions, users, sessions_by_day, users_by_day]
+    - label: Channels
+      cards: [sessions_by_channel]
+pipeline:
+  label: Pipeline
+  sections:
+    - label: Deals
+      cards: [deal_count, won_value, avg_deal_size, deals_by_status]
+    - label: Subscriptions
+      cards: [mrr, active_subscriptions, churned_subscriptions, mrr_by_industry]
+ads:
+  label: Ads
+  range: true
+  sections:
+    - label: Spend
+      cards: [ad_spend, ad_conversions, cost_per_conversion, ad_spend_by_day]
+    - label: Reach
+      cards: [ad_clicks, ad_impressions, ad_spend_by_campaign]
+email:
+  label: Email
+  range: true
+  sections:
+    - label: Volume
+      cards: [emails_sent, campaigns_sent, sends_by_day]
+    - label: Engagement
+      cards: [email_opens, email_clicks, open_rate, click_rate]
+social:
+  label: Social
+  range: true
+  sections:
+    - label: Activity
+      cards: [posts, post_likes, posts_by_day]
+    - label: Engagement
+      cards: [post_comments, post_shares, posts_by_platform, likes_by_platform]

@@ -19,6 +19,7 @@ ALL_FILES = (
     "rules.yaml",
     "goals.yaml",
     "enrichment.yaml",
+    "dashboards.yaml",
 )
 OPTIONAL_FILES = ("derived.yaml",)
 
@@ -48,6 +49,7 @@ def files(tmp_path):
                 "metrics_path": tmp_path / "metrics.yaml",
                 "rules_path": tmp_path / "rules.yaml",
                 "goals_path": tmp_path / "goals.yaml",
+                "dashboards_path": tmp_path / "dashboards.yaml",
             }
             if "derived.yaml" in optional:
                 kwargs["derived_path"] = tmp_path / "derived.yaml"
@@ -527,3 +529,30 @@ class TestGlossaryTypesAndCollisions:
         files.edit("ontology.yaml", lambda d: d.update({"attribtues": {}}))
         problems = files.problems()
         assert any("unknown key" in p for p in problems), problems
+
+
+class TestDashboardsAreChecked:
+    def test_the_shipped_dashboards_are_clean(self, files):
+        assert files.problems() == []
+
+    def test_a_card_naming_no_metric(self, files):
+        def rename(doc):
+            doc["overview"]["sections"][0]["cards"][0] = "nope"
+
+        files.edit("dashboards.yaml", rename)
+        problems = files.problems()
+        assert any("nope" in p and "overview" in p for p in problems), problems
+
+    def test_a_card_that_cannot_be_ranged_on_a_range_page(self, files):
+        files.edit(
+            "dashboards.yaml",
+            lambda d: d["overview"]["sections"][0]["cards"].append("mrr"),
+        )
+        problems = files.problems()
+        assert any("mrr" in p and "window_attr" in p for p in problems), problems
+
+    def test_a_dashboards_file_that_is_not_a_mapping_is_one_problem(self, files):
+        (files.root / "dashboards.yaml").write_text("- a\n")
+        problems = files.problems()
+        assert len(problems) == 1, problems
+        assert "dashboards.yaml" in problems[0]

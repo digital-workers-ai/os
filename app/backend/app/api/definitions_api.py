@@ -1,6 +1,14 @@
 from app.api.insights_api import rule_definitions
 from app.api.routers import definitions as router
-from app.engine import derived, goals, mappings, metrics, ontology, transforms
+from app.engine import (
+    dashboards,
+    derived,
+    goals,
+    mappings,
+    metrics,
+    ontology,
+    transforms,
+)
 from app.sources import hooks
 
 
@@ -121,5 +129,35 @@ async def get_goals():
                 "params": spec.get("params") or {},
             }
             for name, spec in sorted(goals.definitions().items())
+        }
+    }
+
+
+def _card(name, metric_defs) -> dict:
+    spec = metric_defs[name]
+    return {
+        "metric": name,
+        "label": spec.get("label", name),
+        "shape": dashboards.shape(metrics.parse_spec(spec)),
+    }
+
+
+@router.get("/dashboards")
+async def get_dashboards():
+    metric_defs = metrics.load_definitions()
+    return {
+        "dashboards": {
+            page.name: {
+                "label": page.label,
+                "range": page.range,
+                "sections": [
+                    {
+                        "label": section.label,
+                        "cards": [_card(card, metric_defs) for card in section.cards],
+                    }
+                    for section in page.sections
+                ],
+            }
+            for page in dashboards.pages(dashboards.definitions())
         }
     }

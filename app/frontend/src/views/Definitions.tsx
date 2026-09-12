@@ -145,6 +145,27 @@ interface Derived {
   derived: Record<string, Record<string, DerivedSpec>>
 }
 
+interface DashboardCard {
+  metric: string
+  label: string
+  shape: string
+}
+
+interface DashboardSection {
+  label: string
+  cards: DashboardCard[]
+}
+
+interface DashboardPage {
+  label: string
+  range: boolean
+  sections: DashboardSection[]
+}
+
+interface Dashboards {
+  dashboards: Record<string, DashboardPage>
+}
+
 const keyCol = 'font-medium text-dbb-charcoal'
 const PAGE_FILL = 'lg:flex lg:flex-col lg:h-[calc(100vh-11.25rem-1px)]'
 const TAB_FILL = 'lg:min-h-0 lg:flex-1 lg:overflow-y-auto'
@@ -719,6 +740,46 @@ function EnrichmentTab({ v }: { v: Vocabulary }) {
   )
 }
 
+function DashboardsTab({ d }: { d: Dashboards }) {
+  const pages = Object.entries(d.dashboards)
+  return (
+    <SectionCard className={FILL} bodyClassName={BODY} testId="definitions-dashboards">
+      <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="definitions-dashboards-table">
+        <TableHeader className={STICKY_HEAD}>
+          <TableRow>
+            <TableHead className="w-40" hint="The page's internal key">Page ({num(pages.length)})</TableHead>
+            <TableHead className="w-40" hint="A titled group of cards on the page">Section</TableHead>
+            <TableHead hint="The metric the card shows, and its display name">Card</TableHead>
+            <TableHead className="w-32" hint="How the card draws: one number, a ratio, a breakdown, or a series">Shape</TableHead>
+            <TableHead className="w-24" hint="Whether the page takes a date range and applies it to every card">Range</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {pages.flatMap(([name, page]) =>
+            page.sections.flatMap((section) =>
+              section.cards.map((card) => (
+                <TableRow key={`${name}/${section.label}/${card.metric}`}>
+                  <TableCell className="align-top">
+                    <Mono>{name}</Mono>
+                  </TableCell>
+                  <TableCell className="align-top">{section.label}</TableCell>
+                  <TableCell className="align-top">
+                    <Mono>{card.metric}</Mono> <span className="text-muted-foreground">{card.label}</span>
+                  </TableCell>
+                  <TableCell className="align-top">
+                    <Chip>{card.shape}</Chip>
+                  </TableCell>
+                  <TableCell className="align-top">{page.range ? 'yes' : '—'}</TableCell>
+                </TableRow>
+              )),
+            ),
+          )}
+        </TableBody>
+      </Table>
+    </SectionCard>
+  )
+}
+
 export function Definitions() {
   const ontology = useLoad(() => get<Ontology>('/api/definitions/ontology'), [])
   const mappings = useLoad(() => get<Mappings>('/api/definitions/mappings'), [])
@@ -728,6 +789,7 @@ export function Definitions() {
   const rules = useLoad(() => get<Rules>('/api/definitions/rules'), [])
   const goals = useLoad(() => get<Goals>('/api/definitions/goals'), [])
   const vocabulary = useLoad(() => get<Vocabulary>('/api/enrichment/vocabulary'), [])
+  const dashboards = useLoad(() => get<Dashboards>('/api/definitions/dashboards'), [])
   const [tab, setTab] = useTab(DEFINITIONS_ROUTE)
 
   return (
@@ -757,6 +819,9 @@ export function Definitions() {
         <TabsTrigger value="enrichment" data-testid="tab-enrichment">
           Enrichment
         </TabsTrigger>
+        <TabsTrigger value="dashboards" data-testid="tab-dashboards">
+          Dashboards
+        </TabsTrigger>
       </TabsList>
       <TabsContent value="ontology" className={TAB_FILL} data-testid="tabpanel-ontology">
         <Loaded got={ontology}>{(o) => <OntologyTab o={o} />}</Loaded>
@@ -781,6 +846,9 @@ export function Definitions() {
       </TabsContent>
       <TabsContent value="enrichment" className={TAB_FILL} data-testid="tabpanel-enrichment">
         <Loaded got={vocabulary}>{(v) => <EnrichmentTab v={v} />}</Loaded>
+      </TabsContent>
+      <TabsContent value="dashboards" className={TAB_FILL} data-testid="tabpanel-dashboards">
+        <Loaded got={dashboards}>{(d) => <DashboardsTab d={d} />}</Loaded>
       </TabsContent>
     </Tabs>
   )

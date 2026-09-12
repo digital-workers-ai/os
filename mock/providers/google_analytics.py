@@ -5,9 +5,11 @@ Contract: seeds/docs/08-google-analytics.md
 Single POST runReport endpoint. Offset pagination via request body.
 """
 
+from datetime import date
+
 from fastapi import APIRouter, Request
 from pydantic import BaseModel
-from seeds.helpers import require_bearer
+from seeds.helpers import require_bearer, day_factor, days_between
 
 router = APIRouter()
 
@@ -113,6 +115,13 @@ async def run_report(request: Request, property_id: str, body: RunReportRequest)
     }
 
 
+def _report_days(date_ranges):
+    if not date_ranges:
+        return [date(2026, 7, 1)]
+    first = date_ranges[0]
+    return days_between(date.fromisoformat(first.startDate), date.fromisoformat(first.endDate))
+
+
 def _generate_rows(dim_names, metric_names, date_ranges):
     date_str = date_ranges[0].startDate.replace("-", "") if date_ranges else "20260701"
 
@@ -126,12 +135,17 @@ def _generate_rows(dim_names, metric_names, date_ranges):
 
     if has_channel:
         all_metrics = ["sessions", "newUsers", "activeUsers", "screenPageViews", "engagementRate", "averageSessionDuration"]
-        for channel_row in _CHANNEL_DATA:
-            channel = channel_row[0]
-            metric_map = dict(zip(all_metrics, channel_row[1:]))
-            dims = [date_str, channel]
-            mets = [metric_map.get(m, "0") for m in metric_names]
-            rows.append(_make_row(dims, mets))
+        counted = {"sessions", "newUsers", "activeUsers", "screenPageViews"}
+        for day in _report_days(date_ranges):
+            factor = day_factor(day)
+            for channel_row in _CHANNEL_DATA:
+                channel = channel_row[0]
+                metric_map = dict(zip(all_metrics, channel_row[1:]))
+                for name in counted:
+                    metric_map[name] = str(round(int(metric_map[name]) * factor))
+                dims = [day.strftime("%Y%m%d"), channel]
+                mets = [metric_map.get(m, "0") for m in metric_names]
+                rows.append(_make_row(dims, mets))
     elif has_landing:
         all_metrics = ["sessions", "keyEvents", "engagementRate"]
         for lp_row in _LANDING_PAGES:

@@ -175,6 +175,35 @@ campaign:
   meta.insights.clicks: clicks
   meta.insights.impressions: impressions
 
+campaign_report:
+  meta.daily_insights.campaign_id: campaign_ref
+  meta.daily_insights.date_start: report_date
+  meta.daily_insights.spend: spend
+  meta.daily_insights.clicks: clicks
+  meta.daily_insights.impressions: impressions
+  meta.daily_insights.conversions: conversions
+  google_ads.daily_campaigns._campaign_ref: campaign_ref
+  google_ads.daily_campaigns.segments.date: report_date
+  google_ads.daily_campaigns.metrics.costMicros: spend
+  google_ads.daily_campaigns.metrics.clicks: clicks
+  google_ads.daily_campaigns.metrics.impressions: impressions
+  google_ads.daily_campaigns.metrics.conversions: conversions
+
+social_post:
+  meta.page_posts.message: name
+  meta.page_posts.created_time: posted_at
+  meta.page_posts.type: category
+  meta.page_posts.likes.summary.total_count: likes
+  meta.page_posts.comments.summary.total_count: comments
+  meta.page_posts.shares.count: shares
+  meta.page_posts._platform: platform
+  meta.ig_media.caption: name
+  meta.ig_media.timestamp: posted_at
+  meta.ig_media.media_type: category
+  meta.ig_media.like_count: likes
+  meta.ig_media.comments_count: comments
+  meta.ig_media._platform: platform
+
 traffic_report:
   google_analytics.report_rows._report_date: report_date
   google_analytics.report_rows._channel: channel

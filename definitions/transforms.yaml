@@ -41,3 +41,9 @@ budget: normalize_money
 sessions: normalize_number
 users: normalize_number
 pageviews: normalize_number
+campaign_ref: normalize_ref
+platform: normalize_status
+posted_at: normalize_date
+likes: normalize_number
+comments: normalize_number
+shares: normalize_number
