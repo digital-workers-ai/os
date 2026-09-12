@@ -150,6 +150,8 @@ async def get_dashboards():
             page.name: {
                 "label": page.label,
                 "range": page.range,
+                "goals": page.goals,
+                "findings": page.findings,
                 "sections": [
                     {
                         "label": section.label,

@@ -1,6 +1,8 @@
 overview:
   label: Overview
   range: true
+  goals: true
+  findings: true
   sections:
     - label: Traffic
       cards: [sessions, users, sessions_by_day]

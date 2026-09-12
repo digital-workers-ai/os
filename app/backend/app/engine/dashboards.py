@@ -5,7 +5,7 @@ from app.engine import metrics
 
 DEFAULT_DASHBOARDS = caches.DEFINITIONS_DIR / "dashboards.yaml"
 
-PAGE_KEYS = frozenset({"label", "range", "sections"})
+PAGE_KEYS = frozenset({"label", "range", "goals", "findings", "sections"})
 SECTION_KEYS = frozenset({"label", "cards"})
 
 
@@ -31,6 +31,8 @@ class Page:
     name: str
     label: str
     range: bool
+    goals: bool
+    findings: bool
     sections: tuple[Section, ...]
 
 
@@ -43,6 +45,13 @@ def _label(name, spec, what):
     if not isinstance(label, str):
         _refuse(name, f"{what} is missing a string `label`")
     return label
+
+
+def _flag(name, spec, key) -> bool:
+    value = spec.get(key, False)
+    if not isinstance(value, bool):
+        _refuse(name, f"{key} {value!r} must be true or false")
+    return value
 
 
 def _section(name, spec) -> Section:
@@ -71,14 +80,19 @@ def parse(name, spec) -> Page:
     if unknown:
         _refuse(name, f"unknown key {unknown[0]!r} — known: {sorted(PAGE_KEYS)}")
     label = _label(name, spec, "page")
-    ranged = spec.get("range", False)
-    if not isinstance(ranged, bool):
-        _refuse(name, f"range {ranged!r} must be true or false")
+    ranged = _flag(name, spec, "range")
+    goals = _flag(name, spec, "goals")
+    findings = _flag(name, spec, "findings")
     sections = spec.get("sections")
     if not isinstance(sections, list) or not sections:
         _refuse(name, "needs `sections`: a non-empty list")
     return Page(
-        str(name), label, ranged, tuple(_section(name, entry) for entry in sections)
+        str(name),
+        label,
+        ranged,
+        goals,
+        findings,
+        tuple(_section(name, entry) for entry in sections),
     )
 
 
