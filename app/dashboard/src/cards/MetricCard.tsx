@@ -43,7 +43,7 @@ function Body({ shape, query }: { shape: Shape; query: UseQueryResult<MetricResp
 
 export function MetricCard({ card, query, onDefinition }: { card: CardSpec; query: UseQueryResult<MetricResponse>; onDefinition: () => void }) {
   return (
-    <Card className={cn('flex flex-col', WIDE.includes(card.shape) && 'col-span-2')} data-testid={`card-${card.metric}`} data-shape={card.shape}>
+    <Card className={cn('flex flex-col', WIDE.includes(card.shape) && 'col-span-2')} data-testid={`card-${card.metric}`} data-shape={card.shape} data-state={query.isPending ? 'loading' : query.error ? 'error' : 'ready'}>
       <CardHeader className="mb-3 items-center">
         <CardTitle className="text-sm font-medium text-muted">{card.label}</CardTitle>
         <Button

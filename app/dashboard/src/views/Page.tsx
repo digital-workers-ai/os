@@ -5,6 +5,8 @@ import { asApiError, getMetric, type PageSpec } from '@/api'
 import { MetricCard } from '@/cards/MetricCard'
 import { Definition } from '@/components/Definition'
 import { EmptyPage } from '@/components/EmptyPage'
+import { Findings } from '@/components/Findings'
+import { Goals } from '@/components/Goals'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Loading } from '@/components/ui/loading'
 import { bounds, type Range } from '@/lib/range'
@@ -36,7 +38,14 @@ export function Page({
   })
 
   if (!spec) return <Navigate to={`/${first}`} replace />
-  if (spec.range && !today) return todayError ? <ErrorBanner error={asApiError(todayError)} /> : <Loading />
+  if (spec.range && !today) {
+    if (todayError) return <ErrorBanner error={asApiError(todayError)} />
+    return (
+      <div data-state="loading">
+        <Loading />
+      </div>
+    )
+  }
 
   const byMetric = new Map(cards.map((card, i) => [card.metric, results[i]]))
   const allEmpty = results.length > 0 && results.every((r) => r.data?.entities === 0)
@@ -44,6 +53,8 @@ export function Page({
   return (
     <>
       {allEmpty && <EmptyPage />}
+      {spec.goals && <Goals />}
+      {spec.findings && <Findings />}
       {spec.sections.map((section) => (
         <section key={section.label} className="mt-8 first:mt-0" data-testid="section">
           <h2 className="mb-3 border-b border-line pb-2 text-xs font-medium uppercase tracking-wide text-muted">{section.label}</h2>

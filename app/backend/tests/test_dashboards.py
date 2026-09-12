@@ -55,6 +55,18 @@ class TestAPageParses:
     def test_range_defaults_to_false(self):
         assert dashboards.parse("overview", _without("range")).range is False
 
+    def test_goals_parses_true_when_declared(self):
+        assert dashboards.parse("overview", _page(goals=True)).goals is True
+
+    def test_findings_parses_true_when_declared(self):
+        assert dashboards.parse("overview", _page(findings=True)).findings is True
+
+    def test_goals_defaults_to_false(self):
+        assert dashboards.parse("overview", OVERVIEW).goals is False
+
+    def test_findings_defaults_to_false(self):
+        assert dashboards.parse("overview", OVERVIEW).findings is False
+
     def test_sections_keep_file_order(self):
         spec = _page(sections=list(reversed(OVERVIEW["sections"])))
         page = dashboards.parse("overview", spec)
@@ -77,6 +89,8 @@ class TestTheBuildRefusesAMalformedPage:
             (_without("label"), "label"),
             (_page(label=7), "label"),
             (_page(range="yes"), "range"),
+            (_page(goals="yes"), "goals 'yes' must be true or false"),
+            (_page(findings="yes"), "findings 'yes' must be true or false"),
             (_without("sections"), "sections"),
             (_page(sections={"label": "Traffic"}), "sections"),
             (_page(sections=[]), "sections"),
@@ -94,6 +108,8 @@ class TestTheBuildRefusesAMalformedPage:
             "missing_label",
             "label_not_a_string",
             "range_not_a_bool",
+            "goals_not_a_bool",
+            "findings_not_a_bool",
             "missing_sections",
             "sections_not_a_list",
             "empty_sections",
