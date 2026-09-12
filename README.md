@@ -70,7 +70,7 @@ curl -X POST localhost:8092/api/rebuild
 open http://localhost:3092
 ```
 
-The two `curl` commands pull from every stand-in tool and then build every record out of what arrived; the last command opens the console on your home page.
+The two `curl` commands pull from every stand-in tool and then build every record out of what arrived; the last command opens the console on your home page; the dashboard is at http://localhost:3093.
 
 ## Connectors
 
@@ -182,6 +182,7 @@ flowchart TD
 **Surfaces:**
 
 21. **Console:** The web app: a home page with goals and findings, plus pages for activity, metrics, records, the AI parts, definitions, settings, and search.
+22. **Dashboard:** A second web app for readers: the pages `dashboards.yaml` declares, one card per metric, over any date range.
 22. **Search:** One search box over everything stored: names, emails, ids, statuses, transcript passages, briefings, and the definitions themselves.
 23. **MCP:** The door for AI assistants. Any assistant on your machine can read the same numbers, definitions, and briefing prompts as the console, and every call is logged.
 
