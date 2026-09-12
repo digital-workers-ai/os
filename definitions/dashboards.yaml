@@ -1,8 +1,6 @@
 overview:
   label: Overview
   range: true
-  goals: true
-  findings: true
   sections:
     - label: Traffic
       cards: [sessions, users, sessions_by_day]
@@ -14,6 +12,10 @@ overview:
       cards: [emails_sent, open_rate]
     - label: Social
       cards: [posts, post_likes]
+attention:
+  label: Attention
+  goals: true
+  findings: true
 website:
   label: Website
   range: true
