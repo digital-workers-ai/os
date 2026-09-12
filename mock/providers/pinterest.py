@@ -6,7 +6,14 @@ Bearer auth. Bookmark-based cursor pagination.
 """
 
 from fastapi import APIRouter, Request, Query
-from seeds.helpers import require_bearer, bookmark_paginate
+from seeds.helpers import (
+    bookmark_paginate,
+    day_factor,
+    item_factor,
+    post_days,
+    require_bearer,
+    window_days,
+)
 from seeds.world import AD_CAMPAIGNS
 
 router = APIRouter()
@@ -158,3 +165,90 @@ async def account_analytics(
         {"DATE": "2026-06-01", "IMPRESSION": 45000, "CLICKTHROUGH": 620, "SPEND_IN_MICRO_DOLLAR": 125000000, "CTR": 0.01378},
         {"DATE": "2026-06-02", "IMPRESSION": 42000, "CLICKTHROUGH": 580, "SPEND_IN_MICRO_DOLLAR": 118000000, "CTR": 0.01381},
     ]
+
+
+_PIN_TITLES = [
+    "Summer workspace ideas",
+    "Five-minute desk stretches",
+    "Our favourite reading nooks",
+    "Colour palettes for a calmer office",
+    "Weekend project: a standing desk",
+]
+_MEDIA_TYPES = ["image", "video"]
+_ACCOUNT_DAILY = {
+    "IMPRESSION": 2600,
+    "ENGAGEMENT": 190,
+    "TOTAL_AUDIENCE": 1500,
+    "PIN_CLICK": 70,
+    "SAVE": 45,
+    "OUTBOUND_CLICK": 30,
+    "ENGAGEMENT_RATE": 0.07,
+}
+
+
+def _pin(day, with_metrics):
+    ordinal = day.toordinal() // 3
+    stamp = day.strftime("%Y%m%d")
+    pin_id = f"pin_{stamp}"
+    factor = item_factor(pin_id)
+    pin = {
+        "id": pin_id,
+        "created_at": f"{day.isoformat()}T16:00:00",
+        "link": f"https://acme.example.com/blog/{stamp}",
+        "title": _PIN_TITLES[ordinal % len(_PIN_TITLES)],
+        "description": "From the team at Acme.",
+        "board_id": "549764905678001",
+        "media": {"media_type": _MEDIA_TYPES[ordinal % len(_MEDIA_TYPES)]},
+        "is_owner": True,
+    }
+    if with_metrics:
+        pin["pin_metrics"] = {
+            "all_time": {
+                "IMPRESSION": round(900 * factor),
+                "SAVE": round(35 * factor),
+                "PIN_CLICK": round(28 * factor),
+                "OUTBOUND_CLICK": round(14 * factor),
+            }
+        }
+    return pin
+
+
+@router.get("/pins")
+async def list_pins(
+    request: Request,
+    page_size: int = Query(25, ge=1, le=250),
+    bookmark: str = Query(None),
+    pin_metrics: bool = Query(False),
+):
+    require_bearer(request)
+    pins = [_pin(day, pin_metrics) for day in reversed(post_days())]
+    page, next_bm = bookmark_paginate(pins, bookmark, page_size)
+    return {"items": page, "bookmark": next_bm}
+
+
+@router.get("/user_account/analytics")
+async def user_account_analytics(
+    request: Request,
+    start_date: str = Query(None),
+    end_date: str = Query(None),
+    metric_types: str = Query("IMPRESSION,ENGAGEMENT,TOTAL_AUDIENCE,PIN_CLICK,SAVE"),
+    from_claimed_content: str = Query("BOTH"),
+    pin_format: str = Query("ALL"),
+    app_types: str = Query("ALL"),
+):
+    require_bearer(request)
+    requested = [m.strip() for m in metric_types.split(",") if m.strip() in _ACCOUNT_DAILY]
+    days = window_days(start_date, end_date)
+    daily = [
+        {
+            "date": day.isoformat(),
+            "data_status": "READY",
+            "metrics": {
+                m: (round(_ACCOUNT_DAILY[m] * day_factor(day), 4) if m == "ENGAGEMENT_RATE" else round(_ACCOUNT_DAILY[m] * day_factor(day)))
+                for m in requested
+            },
+        }
+        for day in days
+    ]
+    summary = {m: sum(row["metrics"][m] for row in daily) for m in requested if m != "ENGAGEMENT_RATE"}
+    return {"all": {"daily_metrics": daily, "summary_metrics": summary}}

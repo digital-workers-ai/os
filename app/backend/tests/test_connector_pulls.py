@@ -1138,11 +1138,12 @@ class TestBatchFourShapes:
         notes, stored = await pull(connector("smartlook"), "not a collection")
         assert stored == [] and notes is None
 
-    async def test_twitter_stores_the_accounts_it_is_given(self, pull):
+    async def test_twitter_stores_the_accounts_and_tweets_it_is_given(self, pull):
         notes, stored = await pull(connector("twitter"), {"data": [{"id": "a1"}]})
         assert notes is None
         assert [(s["object_type"], s["source_id"]) for s in stored] == [
-            ("accounts", "a1")
+            ("accounts", "a1"),
+            ("tweets", "a1"),
         ]
 
 
@@ -1179,13 +1180,15 @@ class TestWhatTheBatchFourConnectorsAskFor:
         notes = await connector("pinterest").pull(None, store)
 
         assert notes is None
-        assert [r.url.path for r in seen] == ["/ad_accounts", "/ad_accounts"]
-        assert all(r.url.params.get("page_size") == "1" for r in seen)
-        assert seen[1].url.params.get("bookmark") == "b2"
-        assert [(s["object_type"], s["source_id"]) for s in stored] == [
-            ("ad_accounts", "aa1"),
-            ("ad_accounts", "aa2"),
-        ]
+        accounts = [r for r in seen if r.url.path == "/ad_accounts"]
+        assert len(accounts) == 2
+        assert all(r.url.params.get("page_size") == "1" for r in accounts)
+        assert accounts[1].url.params.get("bookmark") == "b2"
+        assert [
+            (s["object_type"], s["source_id"])
+            for s in stored
+            if s["object_type"] == "ad_accounts"
+        ] == [("ad_accounts", "aa1"), ("ad_accounts", "aa2")]
 
     async def test_linkedin_walks_the_page_token_with_its_three_headers(self, capture):
         def body(request):
@@ -1199,21 +1202,22 @@ class TestWhatTheBatchFourConnectorsAskFor:
         async def store(session, **kwargs):
             stored.append(kwargs)
 
-        notes = await connector("linkedin").pull(None, store)
+        await connector("linkedin").pull(None, store)
 
-        assert notes is None
-        assert [r.url.path for r in seen] == ["/adAccounts", "/adAccounts"]
-        assert all(r.url.params.get("q") == "search" for r in seen)
-        assert all(r.url.params.get("pageSize") == "1" for r in seen)
-        assert seen[1].url.params.get("pageToken") == "t1"
+        accounts = [r for r in seen if r.url.path == "/adAccounts"]
+        assert len(accounts) == 2
+        assert all(r.url.params.get("q") == "search" for r in accounts)
+        assert all(r.url.params.get("pageSize") == "1" for r in accounts)
+        assert accounts[1].url.params.get("pageToken") == "t1"
         for request in seen:
             assert request.headers.get("Authorization") == "Bearer mock_linkedin_token"
             assert request.headers.get("linkedin-version") == "202401"
             assert request.headers.get("x-restli-protocol-version") == "2.0.0"
-        assert [(s["object_type"], s["source_id"]) for s in stored] == [
-            ("ad_accounts", "101"),
-            ("ad_accounts", "102"),
-        ]
+        assert [
+            (s["object_type"], s["source_id"])
+            for s in stored
+            if s["object_type"] == "ad_accounts"
+        ] == [("ad_accounts", "101"), ("ad_accounts", "102")]
 
 
 class TestCatalog:
@@ -1347,7 +1351,7 @@ class TestWhatMetaAsksForItsPagesAndPosts(_SocialCapture):
         assert rows["page_001|2026-09-01"] == {
             "node": "page_001",
             "date": "2026-09-01",
-            "values": {name: 10 for name in PAGE_METRICS.split(",")},
+            "values": dict.fromkeys(PAGE_METRICS.split(","), 10),
         }
 
     async def test_meta_asks_each_instagram_account_for_its_daily_insights(
@@ -1373,14 +1377,14 @@ class TestWhatMetaAsksForItsPagesAndPosts(_SocialCapture):
 
         assert ("ig_insights", "ig_001|2026-09-01") in self._keys(stored)
 
-    async def test_meta_asks_each_post_for_its_lifetime_insights(
-        self, capture, store
-    ):
+    async def test_meta_asks_each_post_for_its_lifetime_insights(self, capture, store):
         seen = capture(self._body)
 
         await connector("meta").pull(None, store)
 
-        per_post = [r for r in seen if r.url.path == "/v25.0/page_001_20260901/insights"]
+        per_post = [
+            r for r in seen if r.url.path == "/v25.0/page_001_20260901/insights"
+        ]
         assert len(per_post) == 1
         assert per_post[0].url.params.get("metric") == POST_METRICS
 
@@ -1399,7 +1403,7 @@ class TestWhatMetaAsksForItsPagesAndPosts(_SocialCapture):
         assert rows == {
             "page_001_20260901": {
                 "id": "page_001_20260901",
-                "values": {name: 5 for name in POST_METRICS.split(",")},
+                "values": dict.fromkeys(POST_METRICS.split(","), 5),
             }
         }
 
@@ -1429,7 +1433,7 @@ class TestWhatMetaAsksForItsPagesAndPosts(_SocialCapture):
         assert rows == {
             "media_20260901": {
                 "id": "media_20260901",
-                "values": {name: 4 for name in MEDIA_METRICS.split(",")},
+                "values": dict.fromkeys(MEDIA_METRICS.split(","), 4),
             }
         }
 
@@ -1480,7 +1484,9 @@ class TestWhatMetaAsksForItsPagesAndPosts(_SocialCapture):
 
 
 ORGANIZATION = "urn:li:organization:1"
-INTERVALS = "(timeRange:(start:1780790400000,end:1788566400000),timeGranularityType:DAY)"
+INTERVALS = (
+    "(timeRange:(start:1780790400000,end:1788566400000),timeGranularityType:DAY)"
+)
 
 
 class TestWhatLinkedinAsksForItsOrganization(_SocialCapture):
@@ -1507,7 +1513,10 @@ class TestWhatLinkedinAsksForItsOrganization(_SocialCapture):
                     }
                 ]
             }
-        if path in ("/organizationalEntityFollowerStatistics", "/organizationPageStatistics"):
+        if path in (
+            "/organizationalEntityFollowerStatistics",
+            "/organizationPageStatistics",
+        ):
             return {
                 "elements": [
                     {"timeRange": {"start": 1788220800000, "end": 1788307200000}}
@@ -1545,7 +1554,9 @@ class TestWhatLinkedinAsksForItsOrganization(_SocialCapture):
 
         await connector("linkedin").pull(None, store)
 
-        stats = [r for r in seen if r.url.path == "/organizationalEntityShareStatistics"]
+        stats = [
+            r for r in seen if r.url.path == "/organizationalEntityShareStatistics"
+        ]
         assert len(stats) == 1
         assert stats[0].url.params.get("q") == "organizationalEntity"
         assert stats[0].url.params.get("organizationalEntity") == ORGANIZATION
@@ -1556,7 +1567,10 @@ class TestWhatLinkedinAsksForItsOrganization(_SocialCapture):
     ):
         def body(request):
             if request.url.path == "/posts":
-                return {"elements": [], "paging": {"start": 0, "count": 100, "total": 0}}
+                return {
+                    "elements": [],
+                    "paging": {"start": 0, "count": 100, "total": 0},
+                }
             return self._body(request)
 
         seen = capture(body)
@@ -1581,7 +1595,9 @@ class TestWhatLinkedinAsksForItsOrganization(_SocialCapture):
 
         await connector("linkedin").pull(None, store)
 
-        rows = [r for r in seen if r.url.path == "/organizationalEntityFollowerStatistics"]
+        rows = [
+            r for r in seen if r.url.path == "/organizationalEntityFollowerStatistics"
+        ]
         assert len(rows) == 1
         assert rows[0].url.params.get("q") == "organizationalEntity"
         assert rows[0].url.params.get("organizationalEntity") == ORGANIZATION
@@ -1748,9 +1764,7 @@ class TestWhatPinterestAsksForItsPinsAndAccount(_SocialCapture):
     def _keys(self, stored):
         return {(s["object_type"], s["source_id"]) for s in stored}
 
-    async def test_pinterest_asks_for_its_pins_with_their_metrics(
-        self, capture, store
-    ):
+    async def test_pinterest_asks_for_its_pins_with_their_metrics(self, capture, store):
         seen = capture(self._body)
 
         await connector("pinterest").pull(None, store)

@@ -168,6 +168,23 @@ entities:
       likes: number
       comments: number
       shares: number
+      reach: number
+      impressions: number
+      clicks: number
+      views: number
+      saves: number
+      interactions: number
+  social_report:
+    description: "One day of one social page or profile: who it reached and who followed."
+    attrs:
+      platform: string
+      report_date: date
+      reach: number
+      impressions: number
+      engaged: number
+      follows: number
+      unfollows: number
+      profile_views: number
   data_source:
     description: An upstream system feeding the estate.
     attrs:
@@ -217,7 +234,7 @@ attributes:
   conversions:
     description: Actions the campaign counts as a result.
   impressions:
-    description: How many times the campaign's ads were shown.
+    description: How many times the post, the page or the campaign's ads were shown.
   priority:
     description: How urgent the ticket is, as support graded it.
   sku:
@@ -233,7 +250,7 @@ attributes:
   campaign_ref:
     description: The provider's id for the campaign a daily report belongs to.
   platform:
-    description: The social network the post was published on.
+    description: The social network the post or the page lives on.
   posted_at:
     description: When the post went live.
   likes:
@@ -242,6 +259,24 @@ attributes:
     description: How many comments the post drew.
   shares:
     description: How many times the post was shared.
+  reach:
+    description: How many distinct accounts the post or the page reached.
+  clicks:
+    description: How many clicks the post or the campaign's ads drew.
+  views:
+    description: How many times the post's video was watched.
+  saves:
+    description: How many people saved the post.
+  interactions:
+    description: Likes, comments and shares on the post, added up.
+  engaged:
+    description: Accounts that interacted with the page on the reporting day.
+  follows:
+    description: New followers gained on the reporting day.
+  unfollows:
+    description: Followers lost on the reporting day.
+  profile_views:
+    description: Visits to the page or profile on the reporting day.
 
 source_priority:
   - salesforce

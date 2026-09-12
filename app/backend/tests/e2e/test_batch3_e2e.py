@@ -42,12 +42,12 @@ async def test_the_sync_stores_the_whole_twenty_source_estate(
 ):
     result = await sync.run_all(sessionmaker_for_test, SOURCES)
     assert result["failed"] == 0, result
-    assert result["rows_written"] == 1554
+    assert result["rows_written"] == 1794
 
     total = (
         await session.execute(select(func.count()).select_from(RawEvent))
     ).scalar_one()
-    assert total == 1554
+    assert total == 1794
 
 
 async def test_the_rebuild_resolves_the_batch_three_entities(
@@ -81,6 +81,7 @@ async def test_the_rebuild_resolves_the_batch_three_entities(
         "campaign": 8,
         "campaign_report": 622,
         "social_post": 60,
+        "social_report": 180,
         "traffic_report": 540,
         "data_source": 3,
     }
@@ -111,10 +112,11 @@ async def test_the_estate_is_clean_apart_from_its_counted_clears(
     assert report["counts"]["observed_at_fallback/mailchimp"] == 10
     assert report["counts"]["observed_at_fallback/google_sheets"] == 8
     assert report["counts"]["observed_at_fallback/woocommerce"] == 4
-    assert report["counts"]["observed_at_fallback/meta"] == 392
+    assert report["counts"]["observed_at_fallback/meta"] == 632
     assert report["counts"]["observed_at_fallback/google_ads"] == 298
     assert report["counts"]["observed_at_fallback/google_analytics"] == 540
     assert report["counts"]["multi_object_entity/meta/campaign"] == 4
+    assert report["counts"]["multi_object_entity/meta/social_post"] == 60
     assert report["counts"]["account_currency/meta"] == 332
     assert report["counts"]["account_currency/google_ads"] == 298
 

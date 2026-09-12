@@ -939,7 +939,9 @@ class TestMetaDailyInsightsFlatten:
     def test_a_row_with_no_values_still_carries_its_platform_and_day(self):
         from app.sources.meta import extract
 
-        out = extract.reshape("page_insights", {"node": "page_001", "date": "2026-09-01"})
+        out = extract.reshape(
+            "page_insights", {"node": "page_001", "date": "2026-09-01"}
+        )
         assert out[0]["_platform"] == "facebook"
         assert out[0]["_report_date"] == "2026-09-01"
         assert "_reach" not in out[0]
@@ -993,7 +995,9 @@ class TestMetaLifetimeInsightsFlatten:
     def test_a_metric_the_row_lacks_is_not_stamped(self):
         from app.sources.meta import extract
 
-        out = extract.reshape("post_insights", {"id": "p", "values": {"post_clicks": 3}})
+        out = extract.reshape(
+            "post_insights", {"id": "p", "values": {"post_clicks": 3}}
+        )
         assert out[0]["_clicks"] == 3
         assert "_reach" not in out[0]
 
@@ -1182,7 +1186,9 @@ class TestTwitterHook:
     def test_a_tweet_with_only_likes_counts_them_as_its_interactions(self):
         from app.sources.twitter import extract
 
-        out = extract.reshape("tweets", {"id": "1", "public_metrics": {"like_count": 5}})
+        out = extract.reshape(
+            "tweets", {"id": "1", "public_metrics": {"like_count": 5}}
+        )
         assert out[0]["_likes"] == 5
         assert out[0]["_interactions"] == 5
         assert "_shares" not in out[0]

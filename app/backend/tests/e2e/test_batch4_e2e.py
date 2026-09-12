@@ -44,13 +44,13 @@ async def test_the_sync_stores_the_whole_twenty_seven_source_estate(
 ):
     result = await sync.run_all(sessionmaker_for_test, SOURCES)
     assert result["failed"] == 0, result
-    assert result["rows_written"] == 1598
+    assert result["rows_written"] == 2228
     assert all(r["truncated"] is False for r in result["results"]), result
 
     total = (
         await session.execute(select(func.count()).select_from(RawEvent))
     ).scalar_one()
-    assert total == 1598
+    assert total == 2228
 
 
 async def test_the_rebuild_resolves_the_batch_four_entities(
@@ -85,11 +85,12 @@ async def test_the_rebuild_resolves_the_batch_four_entities(
         "audience": 6,
         "campaign": 8,
         "campaign_report": 622,
-        "social_post": 60,
+        "social_post": 150,
+        "social_report": 360,
         "traffic_report": 540,
         "data_source": 3,
     }
-    assert sum(canonical_by_type.values()) == 1441
+    assert sum(canonical_by_type.values()) == 1891
 
 
 async def test_the_estate_is_clean_apart_from_its_counted_clears(
@@ -118,11 +119,17 @@ async def test_the_estate_is_clean_apart_from_its_counted_clears(
     assert report["counts"]["observed_at_fallback/mailchimp"] == 10
     assert report["counts"]["observed_at_fallback/google_sheets"] == 8
     assert report["counts"]["observed_at_fallback/woocommerce"] == 4
-    assert report["counts"]["observed_at_fallback/meta"] == 392
+    assert report["counts"]["observed_at_fallback/meta"] == 632
     assert report["counts"]["observed_at_fallback/google_ads"] == 298
     assert report["counts"]["observed_at_fallback/google_analytics"] == 540
     assert report["counts"]["observed_at_fallback/smartlook"] == 4
+    assert report["counts"]["observed_at_fallback/linkedin"] == 240
+    assert report["counts"]["observed_at_fallback/twitter"] == 30
+    assert report["counts"]["observed_at_fallback/pinterest"] == 120
     assert report["counts"]["multi_object_entity/meta/campaign"] == 4
+    assert report["counts"]["multi_object_entity/meta/social_post"] == 60
+    assert report["counts"]["multi_object_entity/linkedin/social_post"] == 30
+    assert report["counts"]["multi_object_entity/linkedin/social_report"] == 90
     assert report["counts"]["account_currency/meta"] == 332
     assert report["counts"]["account_currency/google_ads"] == 298
 

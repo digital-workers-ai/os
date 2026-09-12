@@ -1,0 +1,32 @@
+[
+  {
+    "payload": {
+      "date": "2026-09-01",
+      "node": "page_001",
+      "values": {
+        "page_fan_adds": 5,
+        "page_fan_removes": 2,
+        "page_impressions": 1440,
+        "page_impressions_unique": 960,
+        "page_post_engagements": 72,
+        "page_views_total": 32
+      }
+    },
+    "source_id": "page_001|2026-09-01"
+  },
+  {
+    "payload": {
+      "date": "2026-09-02",
+      "node": "page_001",
+      "values": {
+        "page_fan_adds": 5,
+        "page_fan_removes": 2,
+        "page_impressions": 1520,
+        "page_impressions_unique": 1013,
+        "page_post_engagements": 76,
+        "page_views_total": 34
+      }
+    },
+    "source_id": "page_001|2026-09-02"
+  }
+]
