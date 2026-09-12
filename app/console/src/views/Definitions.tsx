@@ -166,7 +166,7 @@ interface Dashboards {
   dashboards: Record<string, DashboardPage>
 }
 
-const keyCol = 'font-medium text-dbb-charcoal'
+const keyCol = 'font-medium text-ink'
 const PAGE_FILL = 'lg:flex lg:flex-col lg:h-[calc(100vh-11.25rem-1px)]'
 const TAB_FILL = 'lg:min-h-0 lg:flex-1 lg:overflow-y-auto'
 const FILL = 'min-w-0 lg:flex lg:h-full lg:flex-col lg:min-h-0'
@@ -311,7 +311,7 @@ function OntologyTab({ o }: { o: Ontology }) {
               return (
                 <TableRow key={name} {...marked(name, selected)}>
                   <TableCell className={cn(keyCol, 'whitespace-nowrap align-top')}>
-                    <Pill>{name}</Pill> <span className="font-normal text-dbb-muted">{num(attrs.length)}</span>
+                    <Pill>{name}</Pill> <span className="font-normal text-muted">{num(attrs.length)}</span>
                   </TableCell>
                   <TableCell className="align-top">
                     <Meaning gloss={spec} />
@@ -538,7 +538,7 @@ function MetricsTab({ m }: { m: MetricDefinitions }) {
             return (
               <TableRow key={name} {...marked(name, selected)}>
                 <TableCell className="align-top">
-                  <span className="block font-medium text-dbb-charcoal">{d.label}</span>
+                  <span className="block font-medium text-ink">{d.label}</span>
                   <Mono className="block">{name}</Mono>
                 </TableCell>
                 <TableCell className="align-top">
@@ -650,7 +650,7 @@ function RulesTab({ r }: { r: Rules }) {
           {rules.map(([name, rule]) => (
             <TableRow key={name} {...marked(name, selected)}>
               <TableCell className="align-top">
-                <span className="block font-medium text-dbb-charcoal">{rule.label}</span>
+                <span className="block font-medium text-ink">{rule.label}</span>
                 <Mono className="block">{name}</Mono>
               </TableCell>
               <TableCell className="align-top">
@@ -764,7 +764,7 @@ function DashboardsTab({ d }: { d: Dashboards }) {
                   </TableCell>
                   <TableCell className="align-top">{section.label}</TableCell>
                   <TableCell className="align-top">
-                    <Mono>{card.metric}</Mono> <span className="text-muted-foreground">{card.label}</span>
+                    <Mono>{card.metric}</Mono> <span className="text-muted">{card.label}</span>
                   </TableCell>
                   <TableCell className="align-top">
                     <Chip>{card.shape}</Chip>

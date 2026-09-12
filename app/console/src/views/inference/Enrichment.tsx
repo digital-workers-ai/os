@@ -34,7 +34,7 @@ interface FactsResponse {
 
 const PAGE_SIZE = 50
 const UNVERIFIED = 'unverified'
-const KEY = 'font-medium text-dbb-charcoal'
+const KEY = 'font-medium text-ink'
 
 const sum = (ns: number[]) => ns.reduce((a, b) => a + b, 0)
 

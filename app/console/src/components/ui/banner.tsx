@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 
 const TONES = {
   warn: 'border-amber-200 bg-amber-50 text-amber-800',
-  err: 'border-dbb-clay/30 bg-dbb-clay/5 text-dbb-clay',
+  err: 'border-err/30 bg-err/5 text-err',
 }
 
 export function Banner({

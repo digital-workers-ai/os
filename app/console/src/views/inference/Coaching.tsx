@@ -81,7 +81,7 @@ function Journal({ entries, fresh, to, selected }: { entries: Briefing[]; fresh:
             aria-selected={marked(b)}
           >
             <TableCell className="align-top">
-              <span className="block font-medium text-dbb-charcoal" title={b.generated_at}>
+              <span className="block font-medium text-ink" title={b.generated_at}>
                 {relTime(b.generated_at)}
               </span>
               <span className="block">{day(b.generated_at)}</span>
@@ -92,7 +92,7 @@ function Journal({ entries, fresh, to, selected }: { entries: Briefing[]; fresh:
               )}
             </TableCell>
             <TableCell className="align-top">
-              <p className="max-w-prose whitespace-pre-wrap text-sm leading-relaxed text-dbb-charcoal">{b.briefing}</p>
+              <p className="max-w-prose whitespace-pre-wrap text-sm leading-relaxed text-ink">{b.briefing}</p>
             </TableCell>
             <TableCell className="align-top">
               {to.length === 0 ? (

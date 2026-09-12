@@ -65,7 +65,7 @@ export function Readings({
               {i === 0 && (
                 <>
                   <TableCell rowSpan={r.fields.length} className="align-top">
-                    <span className="block font-medium text-dbb-charcoal">{name}</span>
+                    <span className="block font-medium text-ink">{name}</span>
                     <Mono className="block">
                       {r.entity}.{r.input}
                     </Mono>
@@ -76,7 +76,7 @@ export function Readings({
                   </TableCell>
                 </>
               )}
-              <TableCell className="align-top font-mono text-xs text-dbb-charcoal">{f.name}</TableCell>
+              <TableCell className="align-top font-mono text-xs text-ink">{f.name}</TableCell>
               <TableCell className="align-top">
                 <Pill>{f.type}</Pill>
               </TableCell>
@@ -85,7 +85,7 @@ export function Readings({
                 <dl className="space-y-2">
                   {f.labels.map((g) => (
                     <div key={g.label}>
-                      <dt className="font-mono text-xs text-dbb-charcoal">{g.label}</dt>
+                      <dt className="font-mono text-xs text-ink">{g.label}</dt>
                       <dd>{g.means}</dd>
                     </div>
                   ))}

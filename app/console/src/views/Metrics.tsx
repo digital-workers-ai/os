@@ -179,13 +179,13 @@ function Breakdown({ m }: { m: MetricRow }) {
         <TableBody>
           {buckets.map(([bucket, value]) => (
             <TableRow key={bucket}>
-              <TableCell className="break-words text-dbb-charcoal">{bucket}</TableCell>
+              <TableCell className="break-words text-ink">{bucket}</TableCell>
               <TableCell className="text-right">
                 <span className="inline-flex items-center gap-2">
-                  <span className="block h-1.5 w-16 rounded-full bg-dbb-sand">
-                    <span className="block h-full rounded-full bg-dbb-charcoal" style={{ width: `${top > 0 ? ((value ?? 0) / top) * 100 : 0}%` }} />
+                  <span className="block h-1.5 w-16 rounded-full bg-wash">
+                    <span className="block h-full rounded-full bg-ink" style={{ width: `${top > 0 ? ((value ?? 0) / top) * 100 : 0}%` }} />
                   </span>
-                  <span className="tabular-nums text-dbb-charcoal">
+                  <span className="tabular-nums text-ink">
                     <Value value={value} />
                   </span>
                 </span>
@@ -194,7 +194,7 @@ function Breakdown({ m }: { m: MetricRow }) {
           ))}
         </TableBody>
       </Table>
-      {notes.length > 0 && <p className="mt-3 text-xs text-dbb-muted">{notes.join(' · ')}</p>}
+      {notes.length > 0 && <p className="mt-3 text-xs text-muted">{notes.join(' · ')}</p>}
     </Section>
   )
 }
@@ -217,7 +217,7 @@ function RunSection({ run }: { run: Run }) {
             <TableBody>
               {run.points.map((p) => (
                 <TableRow key={p.recorded_at}>
-                  <TableCell className="text-right tabular-nums text-dbb-charcoal">
+                  <TableCell className="text-right tabular-nums text-ink">
                     <Value value={p.value} />
                   </TableCell>
                   <TableCell className="text-right tabular-nums">{num(p.entities)}</TableCell>
@@ -280,7 +280,7 @@ export function Metrics() {
         ) : (
           <>
             <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="metrics-table">
-              <TableHeader className="[&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-card [&_th]:shadow-[inset_0_-1px_0_theme(colors.dbb.warm)]">
+              <TableHeader className="[&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-card [&_th]:shadow-[inset_0_-1px_0_theme(colors.line)]">
                 <TableRow>
                   <TableHead className="w-64" hint="The metric's name, with its id below">Metric ({num(rows.length)})</TableHead>
                   <TableHead className="w-32" hint="What kind of thing the metric measures">Entity</TableHead>
@@ -315,12 +315,12 @@ export function Metrics() {
                               ⚠️
                             </button>
                           )}
-                          <span className="font-medium text-dbb-charcoal">{m.label}</span>
+                          <span className="font-medium text-ink">{m.label}</span>
                         </span>
                         <Mono className="block">{name}</Mono>
                       </TableCell>
                       <TableCell>{m.entity && <Pill>{m.entity}</Pill>}</TableCell>
-                      <TableCell className="text-right tabular-nums text-dbb-charcoal">
+                      <TableCell className="text-right tabular-nums text-ink">
                         <Value value={m.value} />
                       </TableCell>
                       <TableCell className="text-right tabular-nums">{m.entities === undefined ? '—' : num(m.entities)}</TableCell>
@@ -363,10 +363,10 @@ export function Metrics() {
           <Breakdown m={seriesRow} />
           {series.runs.map((run, i) => <RunSection key={i} run={run} />)}
           <Section title="Receipts" testId="series-receipts">
-            <p className="mb-3 text-sm text-dbb-muted">
+            <p className="mb-3 text-sm text-muted">
               How this number was produced: what was counted, which fields were read, and whether it was inferred.
             </p>
-            <pre className="overflow-auto rounded-lg bg-dbb-surface p-3 font-mono text-xs">{JSON.stringify(seriesRow, null, 2)}</pre>
+            <pre className="overflow-auto rounded-lg bg-surface p-3 font-mono text-xs">{JSON.stringify(seriesRow, null, 2)}</pre>
           </Section>
         </SectionCard>
       ) : (

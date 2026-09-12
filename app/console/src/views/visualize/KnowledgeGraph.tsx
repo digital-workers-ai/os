@@ -386,7 +386,7 @@ export function Canvas({
   return (
     <div
       ref={rootRef}
-      className="relative h-96 overflow-hidden rounded-lg border border-dbb-warm bg-white lg:h-auto lg:min-h-0 lg:flex-1"
+      className="relative h-96 overflow-hidden rounded-lg border border-line bg-white lg:h-auto lg:min-h-0 lg:flex-1"
       data-testid="visualize-canvas"
     >
       <svg
@@ -410,7 +410,7 @@ export function Canvas({
                 <text
                   y={-sun.radius - 8}
                   textAnchor="middle"
-                  className="cursor-pointer fill-dbb-charcoal text-[11px] font-medium"
+                  className="cursor-pointer fill-ink text-[11px] font-medium"
                   onClick={() => pick(sun.hub.canonical_id)}
                 >
                   {sun.heading}
@@ -472,7 +472,7 @@ export function Canvas({
                     stroke="#FFFFFF"
                     strokeWidth={3}
                     strokeLinejoin="round"
-                    className="pointer-events-none fill-dbb-muted text-[10px]"
+                    className="pointer-events-none fill-muted text-[10px]"
                   >
                     {l.text}
                   </text>

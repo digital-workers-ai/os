@@ -14,8 +14,8 @@ import { ANCHOR_ATTR, DEFAULT_LIMIT, EVIDENCE_SEP, LABEL_SEP, MIN_QUERY_CHARS, P
 
 const MAX_RECENT = 5
 const DEBOUNCE_MS = 150
-const ROW = 'block w-full px-3 py-2 text-left text-sm text-dbb-charcoal hover:bg-black/[0.04]'
-const HEADING = 'px-3 pb-1 pt-2 text-[11px] uppercase tracking-wide text-dbb-muted'
+const ROW = 'block w-full px-3 py-2 text-left text-sm text-ink hover:bg-black/[0.04]'
+const HEADING = 'px-3 pb-1 pt-2 text-[11px] uppercase tracking-wide text-muted'
 
 const GOTO = ROUTES.filter((route) => route !== SEARCH_ROUTE).flatMap((route) => [
   { label: route.label, to: route.to },
@@ -159,7 +159,7 @@ function Palette({ close }: { close: () => void }) {
               onClick={() => go(hrefFor(hit.kind, hit.id))}
             >
               <span className="max-w-[60%] shrink-0 truncate">{anchorText(hit.label)}</span>
-              <span className="min-w-0 flex-1 truncate text-dbb-muted">{evidenceText(hit.evidence)}</span>
+              <span className="min-w-0 flex-1 truncate text-muted">{evidenceText(hit.evidence)}</span>
             </div>
           </Fragment>
         ))}
@@ -168,8 +168,8 @@ function Palette({ close }: { close: () => void }) {
 
   return (
     <>
-      <div className="flex items-center gap-2 border-b border-dbb-warm px-3">
-        <SearchIcon size={16} className="shrink-0 text-dbb-muted" />
+      <div className="flex items-center gap-2 border-b border-line px-3">
+        <SearchIcon size={16} className="shrink-0 text-muted" />
         <input
           data-testid="search-input"
           autoFocus
@@ -179,18 +179,18 @@ function Palette({ close }: { close: () => void }) {
           placeholder="Search everything…"
           aria-controls="search-listbox"
           aria-activedescendant={active >= 0 ? `search-option-${active}` : undefined}
-          className="h-11 w-full bg-transparent text-sm text-dbb-charcoal placeholder:text-dbb-muted focus:outline-none"
+          className="h-11 w-full bg-transparent text-sm text-ink placeholder:text-muted focus:outline-none"
         />
-        <kbd className="rounded border border-dbb-warm px-1.5 py-0.5 text-[10px] text-dbb-muted">Esc</kbd>
+        <kbd className="rounded border border-line px-1.5 py-0.5 text-[10px] text-muted">Esc</kbd>
       </div>
       <div className="max-h-[60vh] overflow-y-auto py-1">{body}</div>
-      <div className="flex items-center justify-between border-t border-dbb-warm px-3 py-2 text-[11px] text-dbb-muted">
+      <div className="flex items-center justify-between border-t border-line px-3 py-2 text-[11px] text-muted">
         <span>↑↓ move · ↵ open</span>
         {res && res.total > 0 && (
           <Link
             to={allHref}
             data-testid="search-all"
-            className="hover:text-dbb-charcoal"
+            className="hover:text-ink"
             onClick={() => {
               remember(q)
               close()

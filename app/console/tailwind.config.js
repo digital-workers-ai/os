@@ -6,21 +6,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        dbb: {
-          sage: '#807F74',
-          warm: '#E0DCC1',
-          blush: '#D4A5A0',
-          sand: '#F5F3EB',
-          forest: '#FD4E00',
-          'forest-hover': '#E04500',
-          clay: '#C62828',
-          cream: '#FFFFFF',
-          charcoal: '#1A1A1A',
-          muted: '#807F74',
-          surface: '#F8F7F4',
-          up: '#5D8A5D',
-          down: '#C0625A',
-        },
+        ink: '#1A1A1A',
+        muted: '#807F74',
+        line: '#E0DCC1',
+        wash: '#F5F3EB',
+        err: '#C62828',
+        surface: '#F8F7F4',
+        ok: '#5D8A5D',
+        brand: '#FD4E00',
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
@@ -37,10 +30,6 @@ export default {
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
-        },
-        muted: {
-          DEFAULT: 'hsl(var(--muted))',
-          foreground: 'hsl(var(--muted-foreground))',
         },
         accent: {
           DEFAULT: 'hsl(var(--accent))',

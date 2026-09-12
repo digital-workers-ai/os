@@ -40,7 +40,7 @@ interface CandidatesResponse {
 
 const STATUSES: Status[] = ['pending', 'confirmed', 'rejected']
 const TONE: Record<Status, Tone> = { pending: 'neutral', confirmed: 'ok', rejected: 'err' }
-const KEY = 'font-medium text-dbb-charcoal'
+const KEY = 'font-medium text-ink'
 const NUM = 'text-right tabular-nums'
 const TOP = 'align-top'
 const NOTICE = 'mt-2 -mb-1'

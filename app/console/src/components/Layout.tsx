@@ -45,7 +45,7 @@ export function Layout() {
   const tint = { backgroundColor: reached('color') ? undefined : reached('all') ? GRAY : WHITE, transition: EASE }
 
   return (
-    <div className="min-h-screen bg-dbb-surface" style={tint}>
+    <div className="min-h-screen bg-surface" style={tint}>
       {!reached('header') && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"
@@ -60,7 +60,7 @@ export function Layout() {
           <div className="flex items-center gap-1">
             <DigitalWorkersMark size="lg" phase={phase} />
             <span
-              className="text-[28px] font-medium text-dbb-charcoal leading-none transition-opacity duration-300"
+              className="text-[28px] font-medium text-ink leading-none transition-opacity duration-300"
               style={{ opacity: phase === 'done' ? 1 : 0 }}
             >
               {PRODUCT}
@@ -75,7 +75,7 @@ export function Layout() {
         data-testid="page-main"
       >
         <div className="mb-6 md:mb-8 h-7 flex items-center gap-3" data-testid="page-heading-row">
-          <h1 className="min-w-0 text-lg sm:text-xl font-medium text-dbb-charcoal truncate" data-testid="page-heading">
+          <h1 className="min-w-0 text-lg sm:text-xl font-medium text-ink truncate" data-testid="page-heading">
             {pageTitle}
           </h1>
           {badge}

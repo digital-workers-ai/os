@@ -132,7 +132,7 @@ export function Activity() {
           <TableBody>
             {page.map((r, i) => (
               <TableRow key={`${r.canonical_id}|${r.source}|${r.observed_at}|${i}`}>
-                <TableCell className="align-top font-medium text-dbb-charcoal">{r.label}</TableCell>
+                <TableCell className="align-top font-medium text-ink">{r.label}</TableCell>
                 <TableCell className="align-top">
                   <Pill>{r.entity_type}</Pill>
                 </TableCell>

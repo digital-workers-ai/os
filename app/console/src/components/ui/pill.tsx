@@ -6,11 +6,11 @@ export type Tone = 'ok' | 'warn' | 'err' | 'unknown' | 'neutral'
 type Marked = { 'data-testid'?: string }
 
 const TONES: Record<Tone, string> = {
-  ok: 'bg-dbb-up/10 text-dbb-up',
+  ok: 'bg-ok/10 text-ok',
   warn: 'bg-amber-50 text-amber-800',
-  err: 'bg-dbb-clay/10 text-dbb-clay',
-  unknown: 'border border-dashed border-dbb-warm text-dbb-muted',
-  neutral: 'bg-dbb-sand text-dbb-charcoal',
+  err: 'bg-err/10 text-err',
+  unknown: 'border border-dashed border-line text-muted',
+  neutral: 'bg-wash text-ink',
 }
 
 export function Pill({
@@ -41,7 +41,7 @@ export function Chip({ title, className, children, ...rest }: { title?: string; 
     <span
       title={title}
       className={cn(
-        'inline-block break-all rounded-full border border-dbb-warm px-2 py-0.5 text-[11px] text-dbb-muted [&_strong]:font-medium [&_strong]:text-dbb-charcoal',
+        'inline-block break-all rounded-full border border-line px-2 py-0.5 text-[11px] text-muted [&_strong]:font-medium [&_strong]:text-ink',
         className,
       )}
       {...rest}
@@ -59,7 +59,7 @@ export function FilterChip({ on, onClick, children, ...rest }: { on: boolean; on
       onClick={onClick}
       className={cn(
         'rounded-full border px-2.5 py-1 text-xs font-medium transition-colors',
-        on ? 'border-dbb-warm bg-dbb-sand text-dbb-charcoal' : 'border-dbb-warm/50 text-dbb-muted hover:border-dbb-warm',
+        on ? 'border-line bg-wash text-ink' : 'border-line/50 text-muted hover:border-line',
       )}
       {...rest}
     >

@@ -47,7 +47,7 @@ export function HoverTip({ hover, width }: { hover: Hover | null; width: number 
   if (!hover) return null
   return (
     <div
-      className="pointer-events-none absolute z-10 rounded-md bg-dbb-charcoal px-2.5 py-1 text-[11px] text-white shadow-lg"
+      className="pointer-events-none absolute z-10 rounded-md bg-ink px-2.5 py-1 text-[11px] text-white shadow-lg"
       style={{ left: Math.min(hover.x + 12, Math.max(0, width - 240)), top: Math.max(hover.y - 8, 0) }}
     >
       <div className="font-medium">{hover.title}</div>
@@ -66,11 +66,11 @@ export function TypeChip({ type, color, onClick, children }: { type: string; col
     <Tag
       type={onClick ? 'button' : undefined}
       onClick={onClick}
-      className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-dbb-warm bg-white px-2.5 py-0.5 text-xs text-dbb-charcoal ${onClick ? 'hover:bg-dbb-sand' : ''}`}
+      className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-line bg-white px-2.5 py-0.5 text-xs text-ink ${onClick ? 'hover:bg-wash' : ''}`}
     >
       <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: color }} />
       <span className="font-mono">{type}</span>
-      {children && <span className="text-dbb-muted">{children}</span>}
+      {children && <span className="text-muted">{children}</span>}
     </Tag>
   )
 }

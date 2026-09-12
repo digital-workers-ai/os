@@ -4,7 +4,7 @@ import { Info } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
-const STICKY_HEAD = "[&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-card [&_th]:shadow-[inset_0_-1px_0_theme(colors.dbb.warm)]"
+const STICKY_HEAD = "[&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-card [&_th]:shadow-[inset_0_-1px_0_theme(colors.line)]"
 
 const Table = React.forwardRef<
   HTMLTableElement,
@@ -26,7 +26,7 @@ const TableHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <thead
     ref={ref}
-    className={cn("text-left text-dbb-muted [&_tr]:border-b [&_tr]:border-dbb-warm", className)}
+    className={cn("text-left text-muted [&_tr]:border-b [&_tr]:border-line", className)}
     {...props}
   />
 ))
@@ -51,7 +51,7 @@ const TableFooter = React.forwardRef<
   <tfoot
     ref={ref}
     className={cn(
-      "border-t border-dbb-warm bg-dbb-sand/50 font-medium [&>tr]:last:border-b-0",
+      "border-t border-line bg-wash/50 font-medium [&>tr]:last:border-b-0",
       className
     )}
     {...props}
@@ -66,7 +66,7 @@ const TableRow = React.forwardRef<
   <tr
     ref={ref}
     className={cn(
-      "border-b border-dbb-warm/30 transition-colors data-[state=selected]:bg-dbb-sand",
+      "border-b border-line/30 transition-colors data-[state=selected]:bg-wash",
       className
     )}
     {...props}
@@ -81,7 +81,7 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      "whitespace-nowrap pb-2 pr-4 text-left align-middle font-medium text-dbb-muted",
+      "whitespace-nowrap pb-2 pr-4 text-left align-middle font-medium text-muted",
       className
     )}
     {...props}
@@ -94,7 +94,7 @@ const TableHead = React.forwardRef<
             type="button"
             aria-label={hint}
             data-testid="hint"
-            className="ml-1 inline-flex align-[-2px] text-dbb-muted/60 hover:text-dbb-charcoal focus-visible:text-dbb-charcoal focus-visible:outline-none"
+            className="ml-1 inline-flex align-[-2px] text-muted/60 hover:text-ink focus-visible:text-ink focus-visible:outline-none"
           >
             <Info size={12} strokeWidth={2} />
           </button>
@@ -114,7 +114,7 @@ const TableCell = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <td
     ref={ref}
-    className={cn("py-2 pr-4 align-middle text-dbb-muted break-words", className)}
+    className={cn("py-2 pr-4 align-middle text-muted break-words", className)}
     {...props}
   />
 ))
@@ -126,7 +126,7 @@ const TableCaption = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <caption
     ref={ref}
-    className={cn("mt-4 text-sm text-dbb-muted", className)}
+    className={cn("mt-4 text-sm text-muted", className)}
     {...props}
   />
 ))

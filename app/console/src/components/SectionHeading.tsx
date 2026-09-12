@@ -3,8 +3,8 @@ import { cn } from '@/lib/utils'
 
 export function SectionHeading({ right, className, children }: { right?: ReactNode; className?: string; children: ReactNode }) {
   return (
-    <div className={cn('mb-3 flex items-center justify-between gap-3 border-b border-dbb-warm pb-2', className)}>
-      <h4 className="min-w-0 text-xs font-medium uppercase tracking-wide text-dbb-muted">{children}</h4>
+    <div className={cn('mb-3 flex items-center justify-between gap-3 border-b border-line pb-2', className)}>
+      <h4 className="min-w-0 text-xs font-medium uppercase tracking-wide text-muted">{children}</h4>
       {right && <div className="shrink-0">{right}</div>}
     </div>
   )

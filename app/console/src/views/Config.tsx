@@ -37,12 +37,12 @@ type Ran = Extract<ReportResponse, { ran: true }>
 
 const MONO = 'font-mono text-xs'
 const NUM = 'text-right tabular-nums'
-const KEY = 'font-medium text-dbb-charcoal'
+const KEY = 'font-medium text-ink'
 const TOP = 'align-top'
 const TAB = 'lg:min-h-0 lg:flex-1'
 const TAB_SCROLL = 'lg:min-h-0 lg:flex-1 lg:overflow-y-auto'
 const NARROW = 'w-px whitespace-nowrap'
-const PRE = 'overflow-auto rounded-lg bg-dbb-surface p-3 font-mono text-xs'
+const PRE = 'overflow-auto rounded-lg bg-surface p-3 font-mono text-xs'
 const SPLIT = 'grid items-start gap-6 lg:h-full lg:grid-cols-[0.45fr_0.55fr] lg:grid-rows-[minmax(0,1fr)]'
 const NOTICES = 'mt-2 -mb-1 flex flex-col gap-3 [&>*]:mb-0'
 
@@ -237,7 +237,7 @@ function Report({ report }: { report: Ran }) {
         </SectionCard>
       )}
       <SectionCard title="Receipts" testId="rebuild-receipts">
-        <p className="mb-3 text-sm text-dbb-muted">The full report of this rebuild, exactly as the engine produced it.</p>
+        <p className="mb-3 text-sm text-muted">The full report of this rebuild, exactly as the engine produced it.</p>
         <pre className={PRE}>{JSON.stringify(r, null, 2)}</pre>
       </SectionCard>
     </>
@@ -297,7 +297,7 @@ function Rebuilds({ rebuilds }: { rebuilds: number }) {
                     <TableCell className={cn(NUM, TOP)}>{num(run.duration_ms)} ms</TableCell>
                     <TableCell className={TOP}>
                       {!run.ok ? (
-                        <span className="text-xs text-dbb-clay">{run.error}</span>
+                        <span className="text-xs text-err">{run.error}</span>
                       ) : issues.length === 0 ? (
                         '—'
                       ) : (
@@ -429,7 +429,7 @@ function Mcp() {
             )}
           </SectionCard>
           <SectionCard title="Client config" testId="mcp-client">
-            <p className="mb-3 text-sm text-dbb-muted">One line for Claude Code, or the JSON for Claude Desktop and Cursor.</p>
+            <p className="mb-3 text-sm text-muted">One line for Claude Code, or the JSON for Claude Desktop and Cursor.</p>
             <div className="space-y-3">
               <pre className={PRE}>{`claude mcp add --transport http os ${endpoint}`}</pre>
               <pre className={PRE}>{JSON.stringify({ mcpServers: { os: { type: 'http', url: endpoint } } }, null, 2)}</pre>
@@ -629,7 +629,7 @@ export function Config() {
                             <Pill tone={lastOk ? 'ok' : 'err'}>{lastOk ? 'ok' : 'failed'}</Pill> {relTime(r.last_attempt)}
                           </span>
                         )}
-                        {r.detail && <span className="block text-xs text-dbb-clay">{r.detail}</span>}
+                        {r.detail && <span className="block text-xs text-err">{r.detail}</span>}
                       </TableCell>
                       <TableCell className={TOP}>
                         {last ? (

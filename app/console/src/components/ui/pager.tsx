@@ -28,7 +28,7 @@ export function Pager({
   if (total <= pageSize) return null
   return (
     <div
-      className={cn('mt-3 flex items-center justify-between gap-1 border-t border-dbb-warm/50 pt-2 text-sm text-dbb-muted', className)}
+      className={cn('mt-3 flex items-center justify-between gap-1 border-t border-line/50 pt-2 text-sm text-muted', className)}
       data-testid="pager"
     >
       <div className="flex items-center gap-1">

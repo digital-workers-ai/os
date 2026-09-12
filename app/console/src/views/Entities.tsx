@@ -129,10 +129,10 @@ const recordKey = (r: { source: string; object_type: string; source_id: string }
 
 const MONO = 'font-mono text-xs'
 const NUM = 'text-right tabular-nums'
-const KEY = 'font-medium text-dbb-charcoal'
-const LINK = 'text-dbb-charcoal underline decoration-dotted decoration-dbb-muted underline-offset-2 hover:decoration-solid'
-const ROW = 'cursor-pointer hover:bg-dbb-sand/50'
-const PRE = 'mt-4 max-h-[480px] overflow-auto rounded-lg bg-dbb-surface p-3 font-mono text-xs'
+const KEY = 'font-medium text-ink'
+const LINK = 'text-ink underline decoration-dotted decoration-muted underline-offset-2 hover:decoration-solid'
+const ROW = 'cursor-pointer hover:bg-wash/50'
+const PRE = 'mt-4 max-h-[480px] overflow-auto rounded-lg bg-surface p-3 font-mono text-xs'
 const WRAP = 'break-words'
 const PAGE_FILL = 'lg:flex lg:flex-col lg:h-[calc(100vh-11.25rem-1px)]'
 const SPLIT_FILL = 'grid items-start gap-6 lg:grid-cols-[1.02fr_1.18fr] lg:grid-rows-[minmax(0,1fr)] lg:h-full'
@@ -157,7 +157,7 @@ function Id({ id, full = false }: { id: string; full?: boolean }) {
   return (
     <button
       type="button"
-      className={cn(MONO, 'whitespace-nowrap text-dbb-muted hover:text-dbb-charcoal')}
+      className={cn(MONO, 'whitespace-nowrap text-muted hover:text-ink')}
       title={`${id} — click to copy`}
       onClick={copy}
     >
@@ -252,7 +252,7 @@ function RawTrace({ trace }: { trace: Trace }) {
   const filter = query({ source: trace.source, object_type: trace.objectType })
   return (
     <Section title="Raw event">
-      <p className={cn('mb-3 text-sm text-dbb-muted', WRAP)}>
+      <p className={cn('mb-3 text-sm text-muted', WRAP)}>
         <Mono>{trace.id}</Mono> looked up by scanning <Mono>/api/raw?{filter}</Mono>
       </p>
       <ErrorBanner error={done?.error ?? null} className="mb-3" />
@@ -314,14 +314,14 @@ function Detail({
       <ErrorBanner error={detail.error} className="mb-3" />
       {detail.loading && !detail.data && <Loading />}
       {retired && (
-        <p className="text-sm text-dbb-muted">
+        <p className="text-sm text-muted">
           <Pill tone="warn">retired</Pill> {retired.detail}
         </p>
       )}
       {d && (
         <>
           {(d.resolved_from_alias || d.aliases.length > 0) && (
-            <div className="space-y-1 text-sm text-dbb-muted">
+            <div className="space-y-1 text-sm text-muted">
               {d.resolved_from_alias && (
                 <p>
                   <Pill tone="warn">alias</Pill> resolved from <Mono>{d.resolved_from_alias}</Mono>
@@ -548,7 +548,7 @@ function Canonical() {
                     </TableCell>
                     <TableCell className={KEY}>
                       {labelText(r.label, r.anchor)}
-                      {r.label !== r.anchor ? <span className={cn(MONO, 'block font-normal text-dbb-muted')}>{anchorText(r.anchor)}</span> : null}
+                      {r.label !== r.anchor ? <span className={cn(MONO, 'block font-normal text-muted')}>{anchorText(r.anchor)}</span> : null}
                     </TableCell>
                     <TableCell className={NUM}>{num(r.members)}</TableCell>
                   </TableRow>
@@ -558,12 +558,12 @@ function Canonical() {
           </Table>
         )}
         {loaded && selected && !found && !type && (
-          <p className="mt-3 text-sm text-dbb-muted" data-testid="entities-selected-hidden">
+          <p className="mt-3 text-sm text-muted" data-testid="entities-selected-hidden">
             the selected entity is beyond the first {num(SCAN)} rows
           </p>
         )}
         {list.data && list.data.total > rows.length && (
-          <p className="mt-3 text-sm text-dbb-muted">
+          <p className="mt-3 text-sm text-muted">
             showing the first {num(rows.length)} of {num(list.data.total)}
           </p>
         )}
@@ -674,7 +674,7 @@ function RecordDetail({ record, eventId }: { record: RecordRow; eventId: string 
       </div>
       {picked && (
         <Section title="Payload">
-          <p className="mb-3 text-sm text-dbb-muted">The event exactly as the source delivered it, before any mapping, transform, or merge.</p>
+          <p className="mb-3 text-sm text-muted">The event exactly as the source delivered it, before any mapping, transform, or merge.</p>
           <pre className={cn(PRE, 'mt-0')} data-testid="record-payload">
             {JSON.stringify(picked.raw_payload, null, 2)}
           </pre>
@@ -810,7 +810,7 @@ function RawSide() {
           </Table>
         )}
         {records.data && records.data.total > rows.length && (
-          <p className="mt-3 text-sm text-dbb-muted">
+          <p className="mt-3 text-sm text-muted">
             showing the first {num(rows.length)} of {num(records.data.total)}
           </p>
         )}

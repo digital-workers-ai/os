@@ -23,10 +23,10 @@ const name = (label: string) => (label.includes(ANCHOR_SEP) ? anchorText(label) 
 function Evidence({ text }: { text: string }) {
   if (text.includes(MARK_OPEN)) {
     return (
-      <span className="text-dbb-muted">
+      <span className="text-muted">
         {text.split(MARKED).map((part, i) =>
           i % 2 ? (
-            <mark key={i} className="bg-transparent font-medium text-dbb-charcoal">
+            <mark key={i} className="bg-transparent font-medium text-ink">
               {part}
             </mark>
           ) : (
@@ -99,7 +99,7 @@ export function Search() {
         headerRight={
           <div className="flex items-center gap-2">
             <input
-              className="h-6 w-72 rounded-md border border-dbb-warm bg-white px-2 text-sm"
+              className="h-6 w-72 rounded-md border border-line bg-white px-2 text-sm"
               placeholder="Search everything…"
               autoFocus
               value={text}
@@ -162,7 +162,7 @@ export function Search() {
                     <TableCell className="align-top">
                       <Pill>{hit.kind}</Pill>
                     </TableCell>
-                    <TableCell className="align-top font-medium text-dbb-charcoal">{name(hit.label)}</TableCell>
+                    <TableCell className="align-top font-medium text-ink">{name(hit.label)}</TableCell>
                     <TableCell className="align-top">
                       <Evidence text={hit.evidence} />
                     </TableCell>

@@ -6,9 +6,9 @@ export function Inferred({ reading, sha, producedBy }: { reading?: string; sha?:
   return (
     <span className="inline-flex flex-wrap items-center gap-1.5">
       <Pill tone="warn">inferred</Pill>
-      {reading && <Mono className="text-dbb-charcoal">{reading}</Mono>}
-      {sha && <Mono className="text-dbb-muted">{short(sha, 12)}</Mono>}
-      {producedBy && <Mono className="text-dbb-muted">{producedBy}</Mono>}
+      {reading && <Mono className="text-ink">{reading}</Mono>}
+      {sha && <Mono className="text-muted">{short(sha, 12)}</Mono>}
+      {producedBy && <Mono className="text-muted">{producedBy}</Mono>}
     </span>
   )
 }

@@ -20,8 +20,8 @@ type HubType = (typeof HUBS)[number][0]
 
 const MONO = 'font-mono text-xs'
 const NUM = 'text-right tabular-nums'
-const KEY = 'font-medium text-dbb-charcoal'
-const ROW = 'cursor-pointer hover:bg-dbb-sand/50'
+const KEY = 'font-medium text-ink'
+const ROW = 'cursor-pointer hover:bg-wash/50'
 const SPLIT_FILL = 'grid items-start gap-6 lg:grid-cols-[0.8fr_1.4fr] lg:grid-rows-[minmax(0,1fr)] lg:h-full'
 const FILL = 'min-w-0 lg:flex lg:flex-col lg:h-full'
 const BODY = 'lg:min-h-0 lg:overflow-y-auto lg:-mx-6 lg:px-6 lg:-mb-6 lg:pb-6 lg:rounded-b-xl'
@@ -111,7 +111,7 @@ function Graph({ data }: { data: GraphResponse }) {
                 >
                   <TableCell className={KEY}>
                     {labelText(c.hub.label, c.hub.anchor)}
-                    {c.hub.label !== c.hub.anchor ? <span className={cn(MONO, 'block font-normal text-dbb-muted')}>{anchorText(c.hub.anchor)}</span> : null}
+                    {c.hub.label !== c.hub.anchor ? <span className={cn(MONO, 'block font-normal text-muted')}>{anchorText(c.hub.anchor)}</span> : null}
                   </TableCell>
                   <TableCell className={NUM}>{num(c.edges.length)}</TableCell>
                 </TableRow>

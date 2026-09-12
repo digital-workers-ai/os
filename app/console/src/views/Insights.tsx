@@ -123,7 +123,7 @@ function GoalsTable({ goals }: { goals: Goal[] }) {
             return (
               <TableRow key={g.goal}>
                 <TableCell>
-                  <span className="block font-medium text-dbb-charcoal">{g.label}</span>
+                  <span className="block font-medium text-ink">{g.label}</span>
                   <Mono className="block">{g.goal}</Mono>
                 </TableCell>
                 <TableCell className="whitespace-nowrap">
@@ -140,8 +140,8 @@ function GoalsTable({ goals }: { goals: Goal[] }) {
                 <TableCell>
                   {typeof g.progress === 'number' && (
                     <span className="inline-flex items-center gap-2">
-                      <span className="block h-1.5 w-24 rounded-full bg-dbb-sand">
-                        <span className="block h-full rounded-full bg-dbb-charcoal" style={{ width: `${Math.max(0, Math.min(100, g.progress))}%` }} />
+                      <span className="block h-1.5 w-24 rounded-full bg-wash">
+                        <span className="block h-full rounded-full bg-ink" style={{ width: `${Math.max(0, Math.min(100, g.progress))}%` }} />
                       </span>
                       <span className="text-xs tabular-nums">{num(g.progress)}%</span>
                     </span>
@@ -151,7 +151,7 @@ function GoalsTable({ goals }: { goals: Goal[] }) {
                   <span className="inline-flex flex-wrap items-center gap-1.5">
                     {detail.length > 0 && <Chips entries={detail} stack />}
                     {g.unknown && <span className="text-xs">{g.unknown}</span>}
-                    {g.error && <span className="text-xs text-dbb-clay">{g.error}</span>}
+                    {g.error && <span className="text-xs text-err">{g.error}</span>}
                     {g.inferred && <Inferred reading={g.reading} sha={g.vocabulary_sha} producedBy={g.produced_by?.join(', ')} />}
                   </span>
                 </TableCell>
@@ -247,7 +247,7 @@ export function Insights() {
         <ErrorBanner error={rulesError} className="mb-3" />
         {rules && unreadable.length > 0 && (
           <div className="mb-3 flex flex-wrap items-center gap-1.5" data-testid="findings-unreadable">
-            <span className="text-sm text-dbb-muted">{num(unreadableTotal)} values unreadable</span>
+            <span className="text-sm text-muted">{num(unreadableTotal)} values unreadable</span>
             {unreadable.map(([key, n]) => (
               <Chip key={key} className="border-amber-200 bg-amber-50 text-amber-800">
                 {num(n)} × {key}
@@ -276,7 +276,7 @@ export function Insights() {
                       <Pill tone={severityTone(f.severity)}>{f.severity}</Pill>
                     </TableCell>
                     <TableCell>
-                      <span className="block font-medium text-dbb-charcoal">{f.label}</span>
+                      <span className="block font-medium text-ink">{f.label}</span>
                       <Mono className="block">{f.rule}</Mono>
                     </TableCell>
                     <TableCell>
