@@ -1816,6 +1816,19 @@ class TestDefinitions:
         }
         assert social["posts_by_platform"]["shape"] == "breakdown"
 
+    async def test_pages_say_whether_they_carry_goals_and_findings(self, api):
+        response = await api.get("/api/definitions/dashboards")
+        assert response.status_code == 200, response.text
+        body = response.json()
+        overview = body["dashboards"]["overview"]
+        assert overview["goals"] is True
+        assert overview["findings"] is True
+        pipeline = body["dashboards"]["pipeline"]
+        assert pipeline["goals"] is False
+        assert pipeline["findings"] is False
+        for page in body["dashboards"].values():
+            assert {"goals", "findings"} <= set(page)
+
     async def test_there_is_no_checks_endpoint(self, api):
         assert (await api.get("/api/definitions/checks")).status_code == 404
 
