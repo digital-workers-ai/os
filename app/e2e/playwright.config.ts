@@ -1,14 +1,17 @@
 import { defineConfig, devices } from '@playwright/test'
 
+const ignored = ['node_modules/**', 'results/**', 'report/**']
+
 export default defineConfig({
-  testDir: 'e2e',
-  outputDir: 'e2e/results',
+  testDir: '.',
+  outputDir: 'results',
+  testIgnore: ignored,
   snapshotPathTemplate: '{testDir}/__screenshots__/{testFilePath}/{arg}{ext}',
   fullyParallel: true,
   timeout: 60_000,
   workers: 2,
   retries: 0,
-  reporter: [['list'], ['html', { outputFolder: 'e2e/report', open: 'never' }]],
+  reporter: [['list'], ['html', { outputFolder: 'report', open: 'never' }]],
   use: {
     ...devices['Desktop Chrome'],
     baseURL: process.env.BASE_URL ?? 'http://localhost:3092',
@@ -25,7 +28,7 @@ export default defineConfig({
     toHaveScreenshot: { animations: 'disabled', caret: 'hide', maxDiffPixels: 0 },
   },
   projects: [
-    { name: 'chromium', testIgnore: 'dashboard/**' },
+    { name: 'chromium', testIgnore: [...ignored, 'dashboard/**'] },
     { name: 'dashboard', testMatch: 'dashboard/**', use: { baseURL: process.env.DASHBOARD_URL ?? 'http://localhost:3093' } },
   ],
 })

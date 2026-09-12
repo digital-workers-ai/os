@@ -55,7 +55,7 @@ Test what `$ARGUMENTS` names, or what the conversation just changed.
 
 ## Frontend
 
-`app/frontend/` has no unit runner. It is covered by the Playwright snapshot suite: `./test.sh snap` builds a fresh stack, syncs, rebuilds, seeds, and compares every page against the committed baselines with zero pixel tolerance; `./test.sh snap-update` rewrites the baselines. Run it alone, never overlapping the unit suite, and never inside a tool's 10-minute timeout: it takes about nine minutes on a fresh stack, so run it detached (`nohup ./test.sh snap > snap.log 2>&1 &`) and read the log. A console change ships with its updated baselines in the same PR.
+`app/frontend/` has no unit runner. It is covered by the Playwright snapshot suite, which lives at `app/e2e/` and covers `app/frontend/` and `app/dashboard/`: `./test.sh snap` builds a fresh stack, syncs, rebuilds, seeds, and compares every page against the committed baselines with zero pixel tolerance; `./test.sh snap-update` rewrites the baselines. Run it alone, never overlapping the unit suite, and never inside a tool's 10-minute timeout: it takes about nine minutes on a fresh stack, so run it detached (`nohup ./test.sh snap > snap.log 2>&1 &`) and read the log. A console change ships with its updated baselines in the same PR.
 
 ## Report
 

@@ -1,7 +1,7 @@
 import type { Locator, Page } from '@playwright/test'
 import { expect, header, mockJson, NOW, openFilter, pickOption, settle, snap, test, visit } from './fixtures'
-import { PATH, TAB, tabPath } from '../src/paths'
-import { BRIEFING_REF_SEP, KIND, LINK, MODES, PARAM, RAW_API } from '../src/search/vocab'
+import { PATH, TAB, tabPath } from '../frontend/src/paths'
+import { BRIEFING_REF_SEP, KIND, LINK, MODES, PARAM, RAW_API } from '../frontend/src/search/vocab'
 
 const Q = 'wayne'
 const TYPO = 'acme corpp'
