@@ -1744,6 +1744,35 @@ class TestDefinitions:
             assert "met" not in goal
             assert "verdict" not in goal
 
+    async def test_dashboards_serve_pages_with_card_labels_and_shapes(self, api):
+        response = await api.get("/api/definitions/dashboards")
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert list(body["dashboards"]) == ["overview", "pipeline"]
+        overview = body["dashboards"]["overview"]
+        assert overview["label"] == "Overview"
+        assert overview["range"] is True
+        traffic = overview["sections"][0]
+        assert traffic["label"] == "Traffic"
+        assert [card["metric"] for card in traffic["cards"]] == [
+            "sessions",
+            "users",
+            "sessions_by_day",
+        ]
+        for card in traffic["cards"]:
+            assert set(card) == {"metric", "label", "shape"}
+        by_day = traffic["cards"][2]
+        assert by_day["label"] == "Sessions by Day"
+        assert by_day["shape"] == "series"
+        pipeline = body["dashboards"]["pipeline"]
+        assert pipeline["range"] is False
+        cards = {
+            card["metric"]: card
+            for section in pipeline["sections"]
+            for card in section["cards"]
+        }
+        assert cards["deals_by_status"]["shape"] == "breakdown"
+
     async def test_there_is_no_checks_endpoint(self, api):
         assert (await api.get("/api/definitions/checks")).status_code == 404
 
