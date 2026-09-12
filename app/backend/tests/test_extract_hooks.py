@@ -453,6 +453,33 @@ class TestBatchTwoCompositeNames:
         assert out[0]["_full_name"] == "Jane Smith"
 
 
+class TestMetaPlatformStamp:
+    def test_a_page_post_is_stamped_facebook(self):
+        from app.sources.meta import extract
+
+        out = extract.reshape("page_posts", {"id": "page_001_20260901"})
+        assert out[0]["_platform"] == "facebook"
+
+    def test_an_instagram_media_item_is_stamped_instagram(self):
+        from app.sources.meta import extract
+
+        out = extract.reshape("ig_media", {"id": "media_20260901"})
+        assert out[0]["_platform"] == "instagram"
+
+    def test_the_stamp_does_not_touch_the_stored_payload(self):
+        from app.sources.meta import extract
+
+        payload = {"id": "media_20260901"}
+        extract.reshape("ig_media", payload)
+        assert payload == {"id": "media_20260901"}
+
+    def test_other_object_types_pass_through(self):
+        from app.sources.meta import extract
+
+        payload = {"id": "ad3", "name": "Retargeting"}
+        assert extract.reshape("campaigns", payload) == [payload]
+
+
 class TestGoogleSheetsHook:
     def test_the_money_columns_are_declared_not_sniffed(self):
         from app.sources.google_sheets import extract

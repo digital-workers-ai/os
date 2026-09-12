@@ -260,6 +260,17 @@ class TestPickId:
     def test_the_first_field_that_carries_a_value_wins(self):
         assert util.pick_id({"uuid": "u1"}, "id", "uuid") == "u1"
 
+
+class TestWindow:
+    def test_ninety_days_end_on_the_pinned_clock(self):
+        assert util.window(90) == ("2026-06-07", "2026-09-04")
+
+    def test_a_single_day_window_is_today_alone(self):
+        assert util.window(1) == ("2026-09-04", "2026-09-04")
+
+    def test_the_default_is_ninety_days(self):
+        assert util.window() == util.window(90)
+
     async def test_store_all_counts_the_records_it_could_not_key(self):
         stored = []
 
@@ -810,6 +821,206 @@ class TestWhatTheBatchThreeConnectorsAskFor:
         assert {(s["object_type"], s["source_id"]) for s in stored} == {
             ("contacts", "10"),
             ("campaigns", "20"),
+        }
+
+
+class TestWhatTheNinetyDayConnectorsAskFor:
+    @pytest.fixture
+    def capture(self, monkeypatch):
+        seen = []
+
+        def _install(handler_or_body):
+            def handler(request):
+                seen.append(request)
+                if callable(handler_or_body):
+                    return httpx.Response(200, json=handler_or_body(request))
+                return httpx.Response(200, json=handler_or_body)
+
+            monkeypatch.setattr(client, "_transport", httpx.MockTransport(handler))
+            return seen
+
+        yield _install
+        monkeypatch.setattr(client, "_transport", None)
+
+    @pytest.fixture
+    def stored(self):
+        return []
+
+    @pytest.fixture
+    def store(self, stored):
+        async def _store(session, **kwargs):
+            stored.append(kwargs)
+
+        return _store
+
+    @staticmethod
+    def _meta_body(request):
+        path = request.url.path
+        if path.endswith("/me/accounts"):
+            return {
+                "data": [
+                    {"id": "page_001", "instagram_business_account": {"id": "ig_001"}}
+                ]
+            }
+        if path.endswith("/insights") and request.url.params.get("time_increment"):
+            return {
+                "data": [
+                    {"campaign_id": "ad3", "date_start": "2026-09-01", "spend": "1.00"}
+                ]
+            }
+        if path.endswith("/posts"):
+            return {"data": [{"id": "page_001_20260901", "message": "hello"}]}
+        if path.endswith("/media"):
+            return {"data": [{"id": "media_20260901", "caption": "hi"}]}
+        return {"data": [], "paging": {}}
+
+    @staticmethod
+    def _google_ads_body(request):
+        if "BETWEEN" in json.loads(request.content)["query"]:
+            return [
+                {
+                    "results": [
+                        {
+                            "campaign": {"id": "ad1"},
+                            "segments": {"date": "2026-09-01"},
+                            "metrics": {"costMicros": "1000000"},
+                        }
+                    ]
+                }
+            ]
+        return [{"results": []}]
+
+    async def test_google_analytics_asks_for_the_ninety_days_ending_on_the_clock(
+        self, capture, store
+    ):
+        seen = capture({"rows": []})
+
+        await connector("google_analytics").pull(None, store)
+
+        body = json.loads(seen[0].content)
+        assert body["dateRanges"] == [
+            {"startDate": "2026-06-07", "endDate": "2026-09-04"}
+        ]
+
+    async def test_google_analytics_reads_pages_of_a_hundred(self, capture, store):
+        seen = capture({"rows": []})
+
+        await connector("google_analytics").pull(None, store)
+
+        assert json.loads(seen[0].content)["limit"] == 100
+
+    async def test_meta_asks_every_account_for_daily_insights_over_the_window(
+        self, capture, store
+    ):
+        seen = capture(self._meta_body)
+
+        await connector("meta").pull(None, store)
+
+        daily = [
+            r
+            for r in seen
+            if r.url.path.endswith("/insights")
+            and r.url.params.get("time_increment") == "1"
+        ]
+        assert len(daily) == len(connector("meta").ACCOUNT_IDS)
+        assert all(r.url.params.get("level") == "campaign" for r in daily)
+        assert all(
+            r.url.params.get("time_range")
+            == json.dumps({"since": "2026-06-07", "until": "2026-09-04"})
+            for r in daily
+        )
+
+    async def test_meta_stores_a_daily_insight_under_its_campaign_and_day(
+        self, capture, store, stored
+    ):
+        capture(self._meta_body)
+
+        await connector("meta").pull(None, store)
+
+        assert ("daily_insights", "ad3|2026-09-01") in {
+            (s["object_type"], s["source_id"]) for s in stored
+        }
+
+    async def test_meta_asks_each_page_for_its_posts_over_the_window(
+        self, capture, store
+    ):
+        seen = capture(self._meta_body)
+
+        await connector("meta").pull(None, store)
+
+        posts = [r for r in seen if r.url.path == "/v25.0/page_001/posts"]
+        assert len(posts) == 1
+        assert posts[0].url.params.get("since") == "2026-06-07"
+        assert posts[0].url.params.get("until") == "2026-09-04"
+        assert posts[0].url.params.get("fields") == (
+            "id,message,created_time,type,shares,likes.summary(true),"
+            "comments.summary(true)"
+        )
+
+    async def test_meta_stores_a_page_post_under_its_own_id(
+        self, capture, store, stored
+    ):
+        capture(self._meta_body)
+
+        await connector("meta").pull(None, store)
+
+        assert ("page_posts", "page_001_20260901") in {
+            (s["object_type"], s["source_id"]) for s in stored
+        }
+
+    async def test_meta_asks_each_instagram_account_for_its_media_over_the_window(
+        self, capture, store
+    ):
+        seen = capture(self._meta_body)
+
+        await connector("meta").pull(None, store)
+
+        media = [r for r in seen if r.url.path == "/v25.0/ig_001/media"]
+        assert len(media) == 1
+        assert media[0].url.params.get("since") == "2026-06-07"
+        assert media[0].url.params.get("until") == "2026-09-04"
+        assert media[0].url.params.get("fields") == (
+            "id,caption,timestamp,media_type,permalink,like_count,comments_count"
+        )
+
+    async def test_meta_stores_an_instagram_media_item_under_its_own_id(
+        self, capture, store, stored
+    ):
+        capture(self._meta_body)
+
+        await connector("meta").pull(None, store)
+
+        assert ("ig_media", "media_20260901") in {
+            (s["object_type"], s["source_id"]) for s in stored
+        }
+
+    async def test_google_ads_asks_for_one_row_per_campaign_day_over_the_window(
+        self, capture, store
+    ):
+        seen = capture(self._google_ads_body)
+
+        await connector("google_ads").pull(None, store)
+
+        daily = [
+            q
+            for q in (json.loads(r.content)["query"] for r in seen)
+            if "segments.date BETWEEN '2026-06-07' AND '2026-09-04'" in q
+        ]
+        assert len(daily) == 1
+        assert daily[0].startswith(
+            "SELECT campaign.id, segments.date, metrics.costMicros, metrics.clicks, "
+            "metrics.impressions, metrics.conversions FROM campaign"
+        )
+
+    async def test_google_ads_stores_a_daily_row_under_its_campaign_and_day(
+        self, capture, store, stored
+    ):
+        capture(self._google_ads_body)
+
+        await connector("google_ads").pull(None, store)
+
+        assert ("daily_campaigns", "ad1|2026-09-01") in {
+            (s["object_type"], s["source_id"]) for s in stored
         }
 
 
