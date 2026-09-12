@@ -1025,7 +1025,8 @@ class TestWhatTheNinetyDayConnectorsAskFor:
         assert len(daily) == 1
         assert daily[0].startswith(
             "SELECT campaign.id, segments.date, metrics.costMicros, metrics.clicks, "
-            "metrics.impressions, metrics.conversions FROM campaign"
+            "metrics.impressions, metrics.conversions, metrics.conversionsValue "
+            "FROM campaign"
         )
 
     async def test_google_ads_stores_a_daily_row_under_its_campaign_and_day(

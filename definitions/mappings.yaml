@@ -182,12 +182,16 @@ campaign_report:
   meta.daily_insights.clicks: clicks
   meta.daily_insights.impressions: impressions
   meta.daily_insights.conversions: conversions
+  meta.daily_insights._platform: platform
+  meta.daily_insights._landing_page_views: landing_page_views
   google_ads.daily_campaigns._campaign_ref: campaign_ref
   google_ads.daily_campaigns.segments.date: report_date
   google_ads.daily_campaigns.metrics.costMicros: spend
   google_ads.daily_campaigns.metrics.clicks: clicks
   google_ads.daily_campaigns.metrics.impressions: impressions
   google_ads.daily_campaigns.metrics.conversions: conversions
+  google_ads.daily_campaigns.metrics.conversionsValue: conversion_value
+  google_ads.daily_campaigns._platform: platform
 
 social_post:
   meta.page_posts.message: name

@@ -7,6 +7,7 @@ _PLATFORMS = {
     "ig_media": "instagram",
     "ig_insights": "instagram",
     "media_insights": "instagram",
+    "daily_insights": "meta",
 }
 
 _METRICS = {
@@ -36,6 +37,7 @@ _METRICS = {
         "views": "_views",
         "saved": "_saves",
     },
+    "daily_insights": {"landing_page_view": "_landing_page_views"},
 }
 
 _DAILY = {"page_insights", "ig_insights"}
@@ -52,6 +54,15 @@ _INTERACTION_PARTS = {
 
 def _dict(value):
     return value if isinstance(value, dict) else {}
+
+
+def _values(payload):
+    actions = payload.get("actions")
+    named = {
+        _dict(action).get("action_type"): _dict(action).get("value")
+        for action in (actions if isinstance(actions, list) else ())
+    }
+    return {**_dict(payload.get("values")), **named}
 
 
 def _dig(payload, path):
@@ -80,7 +91,7 @@ def reshape(object_type: str, payload: dict) -> list[dict]:
     if platform is None:
         return [payload]
     record = {**payload, "_platform": platform}
-    values = _dict(payload.get("values"))
+    values = _values(payload)
     labels = _METRICS.get(object_type, {})
     record.update(
         {label: values[name] for name, label in labels.items() if name in values}

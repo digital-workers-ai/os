@@ -157,6 +157,9 @@ entities:
       impressions: number
       conversions: number
       currency: string
+      platform: string
+      conversion_value: number
+      landing_page_views: number
   social_post:
     description: One post on a social page or profile, with the engagement it drew.
     synonyms: [post]
@@ -249,8 +252,12 @@ attributes:
     description: When the person last attended a meeting.
   campaign_ref:
     description: The provider's id for the campaign a daily report belongs to.
+  conversion_value:
+    description: What the reporting day's conversions were worth, as the ad platform valued them.
+  landing_page_views:
+    description: How many ad clicks went on to load the landing page.
   platform:
-    description: The social network the post or the page lives on.
+    description: The network the post, the page or the campaign's ads live on.
   posted_at:
     description: When the post went live.
   likes:

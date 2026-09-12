@@ -111,6 +111,7 @@ def _daily_result(ac, day, until):
             "clicks": str(daily_share(ac.clicks, ac, day, until)),
             "impressions": str(daily_share(ac.impressions, ac, day, until)),
             "conversions": f"{daily_share(ac.conversions, ac, day, until)}.0",
+            "conversionsValue": f"{daily_share(ac.conversions, ac, day, until) * 140:.2f}",
         },
         "segments": {"date": day.isoformat()},
     }

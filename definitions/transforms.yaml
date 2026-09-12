@@ -55,3 +55,5 @@ engaged: normalize_number
 follows: normalize_number
 unfollows: normalize_number
 profile_views: normalize_number
+conversion_value: normalize_number
+landing_page_views: normalize_number
