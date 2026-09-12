@@ -54,6 +54,8 @@ export interface SectionSpec {
 export interface PageSpec {
   label: string
   range: boolean
+  goals: boolean
+  findings: boolean
   sections: SectionSpec[]
 }
 
@@ -137,3 +139,48 @@ export const getMetric = (name: string, window?: MetricWindow) => {
 }
 
 export const getMetricDefinitions = () => get<MetricDefinitionsResponse>('/api/definitions/metrics')
+
+export interface Goal {
+  goal: string
+  label: string
+  metric: string
+  target?: number
+  strategy?: string
+  current: number | null
+  met: boolean | null
+  progress?: number | null
+  entities: number
+  trend?: string
+}
+
+export interface GoalsResponse {
+  goals: Goal[]
+  met: number
+  missed: number
+  unknown: number
+}
+
+export type Severity = 'high' | 'medium' | 'low'
+
+export interface Finding {
+  rule: string
+  label: string
+  severity: Severity
+  entity_type: string
+  canonical_id: string
+  anchor: string
+  company: string | null
+  evidence: Record<string, string>
+}
+
+export interface FindingsResponse {
+  as_of: string
+  rules: number
+  findings: Finding[]
+  by_severity: Record<Severity, number>
+  report: { evaluated: number; unreadable: Record<string, number> }
+}
+
+export const getGoals = () => get<GoalsResponse>('/api/insights/goals')
+
+export const getFindings = () => get<FindingsResponse>('/api/insights/rules')

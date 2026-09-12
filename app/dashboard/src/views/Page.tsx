@@ -5,6 +5,8 @@ import { asApiError, getMetric, type PageSpec } from '@/api'
 import { MetricCard } from '@/cards/MetricCard'
 import { Definition } from '@/components/Definition'
 import { EmptyPage } from '@/components/EmptyPage'
+import { Findings } from '@/components/Findings'
+import { Goals } from '@/components/Goals'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Loading } from '@/components/ui/loading'
 import { bounds, type Range } from '@/lib/range'
@@ -44,6 +46,8 @@ export function Page({
   return (
     <>
       {allEmpty && <EmptyPage />}
+      {spec.goals && <Goals />}
+      {spec.findings && <Findings />}
       {spec.sections.map((section) => (
         <section key={section.label} className="mt-8 first:mt-0" data-testid="section">
           <h2 className="mb-3 border-b border-line pb-2 text-xs font-medium uppercase tracking-wide text-muted">{section.label}</h2>

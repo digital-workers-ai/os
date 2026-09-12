@@ -159,6 +159,8 @@ interface DashboardSection {
 interface DashboardPage {
   label: string
   range: boolean
+  goals: boolean
+  findings: boolean
   sections: DashboardSection[]
 }
 
@@ -752,6 +754,8 @@ function DashboardsTab({ d }: { d: Dashboards }) {
             <TableHead hint="The metric the card shows, and its display name">Card</TableHead>
             <TableHead className="w-32" hint="How the card draws: one number, a ratio, a breakdown, or a series">Shape</TableHead>
             <TableHead className="w-24" hint="Whether the page takes a date range and applies it to every card">Range</TableHead>
+            <TableHead className="w-24" hint="Whether the page shows the goals with their verdicts">Goals</TableHead>
+            <TableHead className="w-24" hint="Whether the page shows the findings the rules raised">Findings</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -770,6 +774,8 @@ function DashboardsTab({ d }: { d: Dashboards }) {
                     <Chip>{card.shape}</Chip>
                   </TableCell>
                   <TableCell className="align-top">{page.range ? 'yes' : '—'}</TableCell>
+                  <TableCell className="align-top">{page.goals ? 'yes' : '—'}</TableCell>
+                  <TableCell className="align-top">{page.findings ? 'yes' : '—'}</TableCell>
                 </TableRow>
               )),
             ),
