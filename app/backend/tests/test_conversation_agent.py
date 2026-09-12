@@ -43,9 +43,9 @@ class TestEveryToolIsReadOnly:
             with statements() as seen:
                 await handler(session, **SAMPLE_INPUT.get(name, {}))
             for sql in seen:
-                assert sql.lstrip().upper().startswith(("SELECT", "WITH")), (
-                    f"{name} issued: {sql[:120]}"
-                )
+                assert (
+                    sql.lstrip().upper().startswith(("SELECT", "WITH"))
+                ), f"{name} issued: {sql[:120]}"
 
     async def test_a_handler_that_is_given_a_bad_id_fails_soft(self, session):
         result = await agent.HANDLERS["get_entity"](session, canonical_id="not-a-uuid")
@@ -98,6 +98,32 @@ class TestTheMetricsToolFitsInsideItsOwnCap:
             f"{settings.CONVERSATION_MAX_TOOL_RESULT_CHARS} cap"
         )
 
+    async def test_the_default_listing_leaves_room_for_the_next_batch_of_metrics(
+        self, session
+    ):
+        from app.config import settings
+
+        rendered = agent.render_tool_result(
+            "get_metrics", await agent.get_metrics(session)
+        )
+        cap = settings.CONVERSATION_MAX_TOOL_RESULT_CHARS
+        assert (
+            len(rendered) < cap * 3 // 4
+        ), f"{len(rendered)} chars, past three quarters of a {cap} cap"
+
+    async def test_the_default_listing_carries_values_and_caveats_not_meanings(
+        self, session
+    ):
+        payload = await agent.get_metrics(session)
+        for name, row in payload["metrics"].items():
+            assert not set(agent.GLOSS_KEYS) & set(row), name
+
+    async def test_the_default_listing_tells_the_model_both_narrowings(self, session):
+        payload = await agent.get_metrics(session)
+        assert "`entity`" in payload["detail"]
+        assert "`name`" in payload["detail"]
+        assert "slice_metric" in payload["detail"]
+
     async def test_every_metric_is_still_named(self, session):
         from app.engine import metrics
 
@@ -114,9 +140,41 @@ class TestTheMetricsToolFitsInsideItsOwnCap:
         assert "error" in payload
         assert "available" in payload
 
-    def test_the_tool_declares_the_parameter_it_needs(self):
+    async def test_an_entity_narrows_the_listing_to_its_metrics_with_meanings(
+        self, session
+    ):
+        from app.engine import metrics
+
+        payload = await agent.get_metrics(session, entity="campaign_report")
+        expected = {
+            name
+            for name, spec in metrics.load_definitions().items()
+            if spec["entity"] == "campaign_report"
+        }
+        assert set(payload["metrics"]) == expected
+        for name, row in payload["metrics"].items():
+            assert row["description"], name
+            assert "value" in row, name
+
+    async def test_an_unknown_entity_says_so_and_names_the_ones_with_metrics(
+        self, session
+    ):
+        from app.engine import metrics
+
+        payload = await agent.get_metrics(session, entity="no_such_entity")
+        assert payload["error"] == "no entity named 'no_such_entity'"
+        assert payload["available"] == sorted(
+            {spec["entity"] for spec in metrics.load_definitions().values()}
+        )
+
+    async def test_a_name_wins_when_both_narrowings_are_given(self, session):
+        payload = await agent.get_metrics(session, name="mrr", entity="campaign_report")
+        assert set(payload["metrics"]) == {"mrr"}
+        assert "raw_fields" in payload["metrics"]["mrr"]
+
+    def test_the_tool_declares_the_parameters_it_needs(self):
         tool = next(t for t in agent.TOOLS if t["name"] == "get_metrics")
-        assert "name" in tool["input_schema"]["properties"]
+        assert {"name", "entity"} <= set(tool["input_schema"]["properties"])
 
 
 class TestBadToolArgumentsAreReportedNotRaised:
@@ -167,8 +225,8 @@ class TestTheGlossaryReachesTheModel:
         assert "order" not in result["glossary"]
         assert result["glossary"]["company"]["synonyms"]
 
-    async def test_a_declared_meaning_reaches_the_metrics_listing(self, session):
-        payload = await agent.get_metrics(session)
+    async def test_a_declared_meaning_reaches_the_entity_listing(self, session):
+        payload = await agent.get_metrics(session, entity="subscription")
         assert payload["metrics"]["mrr"]["description"]
         assert "revenue" in payload["metrics"]["mrr"]["synonyms"]
         assert "synonyms" not in payload["metrics"]["avg_mrr"]

@@ -80,7 +80,7 @@ def _summary(row: dict) -> dict:
     return out
 
 
-async def get_metrics(session, name: str = "") -> dict:
+async def get_metrics(session, name: str = "", entity: str = "") -> dict:
     values = await metrics.evaluate(session)
     if name:
         row = values.get(str(name))
@@ -89,14 +89,26 @@ async def get_metrics(session, name: str = "") -> dict:
         provenance = metrics.provenance(metrics.load_definitions(), mappings.load())
         raw_fields = provenance.get(str(name), {}).get("raw_fields", [])
         return {"metrics": {str(name): {**row, "raw_fields": raw_fields}}}
-    defs = metrics.load_definitions()
-    return {
-        "metrics": {
+    if entity:
+        defs = metrics.load_definitions()
+        listing = {
             metric: _summary({**row, **_gloss(defs[metric])})
             for metric, row in values.items()
-        },
-        "detail": "values and caveats only — call get_metrics with a `name` for "
-        "one metric's label, receipts, breakdown and raw provider fields, or "
+            if str(defs[metric].get("entity")) == str(entity)
+        }
+        if not listing:
+            return {
+                "error": f"no entity named {entity!r}",
+                "available": sorted(
+                    {str(spec.get("entity")) for spec in defs.values()}
+                ),
+            }
+        return {"metrics": listing}
+    return {
+        "metrics": {metric: _summary(row) for metric, row in values.items()},
+        "detail": "values and caveats only — call get_metrics with an `entity` for "
+        "one entity's metrics with their descriptions, with a `name` for one "
+        "metric's label, receipts, breakdown and raw provider fields, or "
         "slice_metric to split one by a dimension, a window or a filter",
     }
 
@@ -363,9 +375,24 @@ TOOLS = [
         "name": "get_metrics",
         "description": "Every reviewed metric, evaluated live. The only correct "
         "source for a business number. Called with no argument it lists every "
-        "metric with its value; called with `name` it returns that one metric's "
-        "receipts, breakdown and the raw provider fields feeding it.",
-        "input_schema": {"type": "object", "properties": {"name": {"type": "string"}}},
+        "metric with its value; called with `entity` it lists that entity's "
+        "metrics with their descriptions; called with `name` it returns that "
+        "one metric's receipts, breakdown and the raw provider fields feeding it.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "one metric in full: label, receipts, breakdown "
+                    "and raw provider fields",
+                },
+                "entity": {
+                    "type": "string",
+                    "description": "one entity's metrics, each with its value, "
+                    "description and synonyms",
+                },
+            },
+        },
     },
     {
         "name": "slice_metric",
