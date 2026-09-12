@@ -1,4 +1,4 @@
-import { expect, snap, test, visit } from '../fixtures'
+import { expect, test, visit } from '../fixtures'
 import { cardId, ready } from './ready'
 
 interface Card {
@@ -35,5 +35,5 @@ test('table card', async ({ page }) => {
   expect(await rows.count()).toBeLessThanOrEqual(card.limit)
   await expect(rows.first().locator(`td[data-attr="${card.rank}"]`)).toHaveText(/\S/)
   await ready(page)
-  await snap(page, 'dashboard-table')
+  await expect(table).toHaveScreenshot('dashboard-table.png')
 })
