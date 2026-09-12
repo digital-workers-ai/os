@@ -59,6 +59,7 @@ won_value:
   expression: SUM(amount)
   filter:
     status: closed_won
+  window_attr: closed_at
 
 company_count:
   label: Companies
@@ -175,3 +176,28 @@ avg_mrr_per_company:
   description: Mean active monthly recurring revenue per company, from the derived fact.
   entity: company
   expression: AVG(mrr)
+
+sessions:
+  label: Sessions
+  description: Visits to the website, summed over the reporting days.
+  synonyms: [visits, traffic]
+  entity: traffic_report
+  expression: SUM(sessions)
+  window_attr: report_date
+
+users:
+  label: Website Users
+  description: Distinct daily visitors to the website, summed over the reporting days.
+  synonyms: [visitors]
+  entity: traffic_report
+  expression: SUM(users)
+  window_attr: report_date
+
+sessions_by_day:
+  label: Sessions by Day
+  description: Visits to the website, one bucket per reporting day.
+  entity: traffic_report
+  expression: SUM(sessions)
+  group_by: report_date
+  grain: day
+  window_attr: report_date

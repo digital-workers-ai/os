@@ -1,4 +1,7 @@
-from fastapi import Depends, Query
+from datetime import date
+from typing import Literal
+
+from fastapi import Depends, HTTPException, Query
 from sqlalchemy import select
 
 from app import clock
@@ -66,3 +69,41 @@ async def get_series(
     session=Depends(get_session),
 ):
     return await metrics.history(session, metric, limit=limit)
+
+
+@router.get("/{name}", responses={404: {"description": "no such metric"}})
+async def get_metric(
+    name: str,
+    from_: date | None = Query(None, alias="from"),
+    to: date | None = Query(None),
+    compare: Literal["previous"] | None = Query(None),
+    session=Depends(get_session),
+):
+    defs = metrics.load_definitions()
+    if name not in defs:
+        raise HTTPException(404, "no such metric")
+    if (from_ is None) != (to is None):
+        raise HTTPException(422, "from and to travel together")
+    bounds = None
+    if from_ is not None:
+        if from_ > to:
+            raise HTTPException(422, "from must not be after to")
+        bounds = (from_.isoformat(), to.isoformat())
+    if compare and bounds is None:
+        raise HTTPException(422, "compare needs from and to")
+    spec = defs[name]
+    now = clock.now()
+    try:
+        row = await metrics.evaluate_one(
+            session, name, spec, now=now, bounds=bounds, compare=compare
+        )
+    except metrics.MetricSpecError as e:
+        raise HTTPException(422, str(e)) from e
+    lineage = metrics.provenance(defs, mappings.load())
+    return {
+        "as_of": now.isoformat(),
+        "metric": name,
+        **row,
+        **lineage.get(name, {}),
+        **{key: spec[key] for key in GLOSS_KEYS if key in spec},
+    }

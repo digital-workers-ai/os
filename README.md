@@ -167,7 +167,7 @@ flowchart TD
 10. **Links:** The connections the definitions declare, such as a subscription belonging to a company, drawn only between records that exist after resolution.
 11. **Derived facts:** Roll-ups across one connection—one link, one calculation, an optional filter—like a company's revenue from its subscriptions. They sit next to ordinary facts but are marked as calculated, with no tool or raw record behind them.
 12. **Canonical entities:** One record per real-world thing, with an id worked out from its content, so the same thing gets the same id on every rebuild.
-13. **Metrics:** The numbers your business runs on, defined once and calculated on request: monthly revenue, deal count, churned subscriptions, and so on.
+13. **Metrics:** The numbers your business runs on, defined once and calculated on request, over any date range: monthly revenue, deal count, churned subscriptions, and so on.
 14. **Rules:** The things worth a person's attention, written as conditions on a single record (e.g., a subscription past due, a deal past its close date, a paying customer with open tickets). Each rule carries a severity that says how quickly someone wants to know.
 15. **Goals:** A metric, a target a person chose, and a way to judge it: at least, at most, rising over the recorded history (which needs at least two points), or within a band around the target.
 16. **Snapshots:** The system's memory of its numbers. Each snapshot writes down every metric's value with a timestamp, and the series they form is what charts draw and trend goals judge. Nothing else writes history, and it is never deleted.
