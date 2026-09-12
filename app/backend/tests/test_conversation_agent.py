@@ -43,9 +43,9 @@ class TestEveryToolIsReadOnly:
             with statements() as seen:
                 await handler(session, **SAMPLE_INPUT.get(name, {}))
             for sql in seen:
-                assert (
-                    sql.lstrip().upper().startswith(("SELECT", "WITH"))
-                ), f"{name} issued: {sql[:120]}"
+                assert sql.lstrip().upper().startswith(("SELECT", "WITH")), (
+                    f"{name} issued: {sql[:120]}"
+                )
 
     async def test_a_handler_that_is_given_a_bad_id_fails_soft(self, session):
         result = await agent.HANDLERS["get_entity"](session, canonical_id="not-a-uuid")
@@ -107,9 +107,9 @@ class TestTheMetricsToolFitsInsideItsOwnCap:
             "get_metrics", await agent.get_metrics(session)
         )
         cap = settings.CONVERSATION_MAX_TOOL_RESULT_CHARS
-        assert (
-            len(rendered) < cap * 3 // 4
-        ), f"{len(rendered)} chars, past three quarters of a {cap} cap"
+        assert len(rendered) < cap * 3 // 4, (
+            f"{len(rendered)} chars, past three quarters of a {cap} cap"
+        )
 
     async def test_the_default_listing_carries_values_and_caveats_not_meanings(
         self, session
