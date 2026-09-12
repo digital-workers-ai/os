@@ -313,6 +313,7 @@ class TestDiscovery:
             "activecampaign",
             "zoom",
             "meta",
+            "google_ads",
         }
 
     def test_a_package_without_an_extract_module_contributes_no_hook(self, monkeypatch):
@@ -478,6 +479,39 @@ class TestMetaPlatformStamp:
         from app.sources.meta import extract
 
         payload = {"id": "ad3", "name": "Retargeting"}
+        assert extract.reshape("campaigns", payload) == [payload]
+
+
+class TestGoogleAdsCampaignRef:
+    def test_a_daily_row_carries_its_campaign_as_a_reference(self):
+        from app.sources.google_ads import extract
+
+        out = extract.reshape(
+            "daily_campaigns",
+            {"campaign": {"id": "ad1"}, "segments": {"date": "2026-09-01"}},
+        )
+        assert out[0]["_campaign_ref"] == "ad1"
+
+    def test_a_daily_row_with_no_campaign_composes_nothing(self):
+        from app.sources.google_ads import extract
+
+        out = extract.reshape("daily_campaigns", {"segments": {"date": "2026-09-01"}})
+        assert "_campaign_ref" not in out[0]
+
+    def test_the_reference_does_not_touch_the_stored_payload(self):
+        from app.sources.google_ads import extract
+
+        payload = {"campaign": {"id": "ad1"}, "segments": {"date": "2026-09-01"}}
+        extract.reshape("daily_campaigns", payload)
+        assert payload == {
+            "campaign": {"id": "ad1"},
+            "segments": {"date": "2026-09-01"},
+        }
+
+    def test_other_object_types_pass_through(self):
+        from app.sources.google_ads import extract
+
+        payload = {"campaign": {"id": "ad3", "name": "Retargeting"}}
         assert extract.reshape("campaigns", payload) == [payload]
 
 
