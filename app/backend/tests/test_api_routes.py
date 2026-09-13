@@ -1750,6 +1750,7 @@ class TestDefinitions:
         body = response.json()
         assert list(body["dashboards"]) == [
             "overview",
+            "attention",
             "website",
             "pipeline",
             "ads",
@@ -1780,7 +1781,7 @@ class TestDefinitions:
         }
         assert cards["deals_by_status"]["shape"] == "breakdown"
 
-    async def test_the_six_pages_serve_in_order_and_every_ranged_card_can_be_ranged(
+    async def test_the_seven_pages_serve_in_order_and_every_ranged_card_can_be_ranged(
         self, api
     ):
         response = await api.get("/api/definitions/dashboards")
@@ -1788,6 +1789,7 @@ class TestDefinitions:
         body = response.json()
         assert list(body["dashboards"]) == [
             "overview",
+            "attention",
             "website",
             "pipeline",
             "ads",
@@ -1820,14 +1822,21 @@ class TestDefinitions:
         response = await api.get("/api/definitions/dashboards")
         assert response.status_code == 200, response.text
         body = response.json()
+        attention = body["dashboards"]["attention"]
+        assert attention["goals"] is True
+        assert attention["findings"] is True
         overview = body["dashboards"]["overview"]
-        assert overview["goals"] is True
-        assert overview["findings"] is True
-        pipeline = body["dashboards"]["pipeline"]
-        assert pipeline["goals"] is False
-        assert pipeline["findings"] is False
+        assert overview["goals"] is False
+        assert overview["findings"] is False
         for page in body["dashboards"].values():
             assert {"goals", "findings"} <= set(page)
+
+    async def test_the_attention_page_has_no_sections_and_no_range(self, api):
+        response = await api.get("/api/definitions/dashboards")
+        assert response.status_code == 200, response.text
+        attention = response.json()["dashboards"]["attention"]
+        assert attention["sections"] == []
+        assert attention["range"] is False
 
     async def test_there_is_no_checks_endpoint(self, api):
         assert (await api.get("/api/definitions/checks")).status_code == 404
