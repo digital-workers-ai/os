@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from app import clock
+from app.caches import BACKEND_DIR
 from app.engine import checks, mappings, ontology, pipeline, transforms
 from app.engine.report import SyncReport
 from app.sources import registry
@@ -14,6 +15,7 @@ from app.sources.client import collect_stats, redact_url
 from app.sources.creds import credentials_for
 
 MOCK_FIXTURES = checks.REAL_FIXTURES.parent / "mock"
+CAPTURES = BACKEND_DIR / "captures"
 
 
 @dataclass
@@ -185,7 +187,7 @@ def parse(argv) -> argparse.Namespace:
     parser = argparse.ArgumentParser(prog="python -m tools.pull_source")
     parser.add_argument("source", choices=sorted(registry.discover()))
     parser.add_argument("--compare", action="store_true")
-    parser.add_argument("--capture", nargs="?", const=checks.REAL_FIXTURES, type=Path)
+    parser.add_argument("--capture", nargs="?", const=CAPTURES, type=Path)
     return parser.parse_args(argv)
 
 
