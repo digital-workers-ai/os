@@ -9,7 +9,7 @@ Monetary values in micro-currency. Stats as arrays.
 
 from fastapi import APIRouter, Request, Query
 from fastapi.responses import JSONResponse
-from seeds.helpers import require_header
+from seeds.helpers import day_factor, post_days, require_header, token_paginate
 
 router = APIRouter()
 
@@ -192,3 +192,57 @@ async def account_stats(
             },
         },
     }
+
+
+_TWEET_TEXTS = [
+    "We just shipped a faster sync. Details in the thread.",
+    "What our customers taught us this quarter.",
+    "Live now: our webinar on AI in 2026.",
+    "Hiring engineers who like hard problems.",
+    "A small change that halved our support queue.",
+]
+
+
+def _tweet(day):
+    ordinal = day.toordinal() // 3
+    factor = day_factor(day)
+    stamp = day.strftime("%Y%m%d")
+    return {
+        "id": f"tweet_{stamp}",
+        "text": _TWEET_TEXTS[ordinal % len(_TWEET_TEXTS)],
+        "created_at": f"{day.isoformat()}T15:00:00.000Z",
+        "edit_history_tweet_ids": [f"tweet_{stamp}"],
+        "public_metrics": {
+            "retweet_count": round(18 * factor),
+            "reply_count": round(7 * factor),
+            "like_count": round(120 * factor),
+            "quote_count": round(3 * factor),
+            "bookmark_count": round(11 * factor),
+            "impression_count": round(4200 * factor),
+        },
+    }
+
+
+@router.get("/2/users/{user_id}/tweets")
+async def user_tweets(
+    request: Request,
+    user_id: str,
+    start_time: str = Query(None),
+    end_time: str = Query(None),
+    max_results: int = Query(10, ge=5, le=100),
+    pagination_token: str = Query(None),
+    tweet_fields: str = Query(None, alias="tweet.fields"),
+):
+    _tw_auth(request)
+    tweets = [_tweet(day) for day in reversed(post_days(start_time, end_time))]
+    page, next_token = token_paginate(tweets, pagination_token, max_results)
+    meta = {"result_count": len(page)}
+    if page:
+        meta["newest_id"] = page[0]["id"]
+        meta["oldest_id"] = page[-1]["id"]
+    if next_token:
+        meta["next_token"] = next_token
+    body = {"meta": meta}
+    if page:
+        body["data"] = page
+    return body

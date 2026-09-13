@@ -266,7 +266,7 @@ class TestOneFailedMetricDoesNotPoisonTheRest:
 
 class TestTheBindParameterCeiling:
     async def test_a_set_past_the_wire_limit_does_not_raise(self, session):
-        rows = await m._in_chunks(
+        rows = await m.in_chunks(
             session,
             {uuid.uuid4() for _ in range(40_000)},
             lambda chunk: select(FactCurrent.canonical_id).where(
@@ -717,3 +717,116 @@ class TestRangeableMetrics:
         )
         assert "error" in result
         assert result["label"] == "Started"
+
+
+class TestARuntimeFilterNarrowsAMetric:
+    SPEC = {"entity": "subscription", "expression": "SUM(mrr)"}
+
+    async def _seed(self, canonical):
+        await canonical("subscription", {"mrr": 100, "status": "active"})
+        await canonical("subscription", {"mrr": 50, "status": "cancelled"})
+
+    async def test_the_filter_narrows_the_population(self, session, canonical):
+        await self._seed(canonical)
+        result = await m.evaluate_one(
+            session, "m", self.SPEC, now=NOW, filt={"status": "active"}
+        )
+        assert result["value"] == 100
+
+    async def test_the_receipt_carries_the_applied_filter(self, session, canonical):
+        await self._seed(canonical)
+        result = await m.evaluate_one(
+            session, "m", self.SPEC, now=NOW, filt={"status": "active"}
+        )
+        assert result["applied_filter"] == {"status": "active"}
+
+    async def test_no_filter_leaves_no_applied_filter_on_the_receipt(
+        self, session, canonical
+    ):
+        await self._seed(canonical)
+        result = await m.evaluate_one(session, "m", self.SPEC, now=NOW)
+        assert "applied_filter" not in result
+
+    async def test_the_filter_merges_with_one_the_spec_already_fixes(
+        self, session, canonical
+    ):
+        await canonical(
+            "subscription", {"mrr": 100, "status": "active", "currency": "usd"}
+        )
+        await canonical(
+            "subscription", {"mrr": 70, "status": "active", "currency": "eur"}
+        )
+        await canonical(
+            "subscription", {"mrr": 50, "status": "cancelled", "currency": "usd"}
+        )
+        spec = {**self.SPEC, "filter": {"status": "active"}}
+        result = await m.evaluate_one(
+            session, "m", spec, now=NOW, filt={"currency": "usd"}
+        )
+        assert result["value"] == 100
+
+    async def test_a_ratio_applies_the_filter_to_both_terms(self, session, canonical):
+        await canonical("deal", {"status": "closed_won", "owner": "ann"})
+        await canonical("deal", {"status": "closed_lost", "owner": "ann"})
+        await canonical("deal", {"status": "closed_won", "owner": "bob"})
+        await canonical("deal", {"status": "closed_won", "owner": "bob"})
+        spec = {
+            "entity": "deal",
+            "op": "/",
+            "terms": [
+                {"expression": "COUNT(entity)", "filter": {"status": "closed_won"}},
+                {"expression": "COUNT(entity)", "filter": {}},
+            ],
+        }
+        result = await m.evaluate_one(
+            session, "m", spec, now=NOW, filt={"owner": "ann"}
+        )
+        assert result["value"] == 0.5
+
+    async def test_a_term_without_its_own_filter_inherits_the_specs_before_merging(
+        self, session, canonical
+    ):
+        won = {"status": "closed_won", "owner": "ann", "currency": "usd"}
+        await canonical("deal", {**won, "amount": 100})
+        await canonical("deal", {**won, "amount": 300})
+        await canonical("deal", {**won, "status": "closed_lost", "amount": 1000})
+        await canonical("deal", {**won, "owner": "bob", "amount": 500})
+        spec = {
+            "entity": "deal",
+            "filter": {"status": "closed_won"},
+            "op": "/",
+            "terms": [{"expression": "SUM(amount)"}, {"expression": "COUNT(entity)"}],
+        }
+        result = await m.evaluate_one(
+            session, "m", spec, now=NOW, filt={"owner": "ann"}
+        )
+        assert result["value"] == 200
+
+    async def test_a_filter_and_a_range_narrow_together(self, session, canonical):
+        inside = {"started_at": "2026-08-20T00:00:00Z"}
+        await canonical("subscription", {**inside, "status": "active"})
+        await canonical("subscription", {**inside, "status": "cancelled"})
+        await canonical(
+            "subscription", {"started_at": "2020-01-01", "status": "active"}
+        )
+        spec = {
+            "entity": "subscription",
+            "expression": "COUNT(entity)",
+            "window_attr": "started_at",
+        }
+        result = await m.evaluate_one(
+            session, "m", spec, now=NOW, bounds=AUGUST, filt={"status": "active"}
+        )
+        assert result["value"] == 1
+
+    async def test_a_filter_on_an_attr_the_entity_lacks_is_refused_naming_it(
+        self, session
+    ):
+        with pytest.raises(m.MetricSpecError, match="nope"):
+            await m.evaluate_one(session, "m", self.SPEC, now=NOW, filt={"nope": "x"})
+
+    async def test_the_filter_leaves_the_definition_untouched(self, session, canonical):
+        await self._seed(canonical)
+        spec = dict(self.SPEC)
+        await m.evaluate_one(session, "m", spec, now=NOW, filt={"status": "active"})
+        assert spec == self.SPEC

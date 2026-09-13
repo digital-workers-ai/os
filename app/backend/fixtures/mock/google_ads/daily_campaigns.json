@@ -7,6 +7,7 @@
       "metrics": {
         "clicks": "11",
         "conversions": "1.0",
+        "conversionsValue": "140.00",
         "costMicros": "397860000",
         "impressions": "249"
       },
@@ -24,6 +25,7 @@
       "metrics": {
         "clicks": "12",
         "conversions": "1.0",
+        "conversionsValue": "140.00",
         "costMicros": "418800000",
         "impressions": "262"
       },
@@ -41,6 +43,7 @@
       "metrics": {
         "clicks": "12",
         "conversions": "1.0",
+        "conversionsValue": "140.00",
         "costMicros": "439740000",
         "impressions": "276"
       },
@@ -58,6 +61,7 @@
       "metrics": {
         "clicks": "19",
         "conversions": "0.0",
+        "conversionsValue": "0.00",
         "costMicros": "784630000",
         "impressions": "398"
       },
@@ -75,6 +79,7 @@
       "metrics": {
         "clicks": "20",
         "conversions": "0.0",
+        "conversionsValue": "0.00",
         "costMicros": "825930000",
         "impressions": "419"
       },
@@ -92,6 +97,7 @@
       "metrics": {
         "clicks": "21",
         "conversions": "0.0",
+        "conversionsValue": "0.00",
         "costMicros": "867220000",
         "impressions": "439"
       },

@@ -1,0 +1,34 @@
+[
+  {
+    "payload": {
+      "organizationalEntity": "urn:li:organization:1",
+      "share": "urn:li:share:20260901",
+      "totalShareStatistics": {
+        "clickCount": 97,
+        "commentCount": 9,
+        "engagement": 0.0613,
+        "impressionCount": 2655,
+        "likeCount": 71,
+        "shareCount": 14,
+        "uniqueImpressionsCount": 1940
+      }
+    },
+    "source_id": "urn:li:share:20260901"
+  },
+  {
+    "payload": {
+      "organizationalEntity": "urn:li:organization:1",
+      "share": "urn:li:share:20260904",
+      "totalShareStatistics": {
+        "clickCount": 114,
+        "commentCount": 11,
+        "engagement": 0.0722,
+        "impressionCount": 3128,
+        "likeCount": 84,
+        "shareCount": 17,
+        "uniqueImpressionsCount": 2286
+      }
+    },
+    "source_id": "urn:li:share:20260904"
+  }
+]

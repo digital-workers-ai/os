@@ -149,3 +149,25 @@ class TestTheLabelIsLoadBearing:
         )
         if not real:
             print("  every number this project produces is mock-validated only")
+
+
+class TestPaidPlatformFacts:
+    def _facts(self, source, object_type, source_id):
+        extracted, _report = replay(source, FIXTURES / "mock" / source)
+        return extracted[object_type]["campaign_report"][source_id]
+
+    def test_a_google_ads_day_is_platform_google(self):
+        facts = self._facts("google_ads", "daily_campaigns", "ad1|2026-09-02")
+        assert facts["platform"] == "google"
+
+    def test_a_google_ads_day_carries_its_conversion_value(self):
+        facts = self._facts("google_ads", "daily_campaigns", "ad1|2026-09-02")
+        assert "conversion_value" in facts
+
+    def test_a_meta_day_is_platform_meta(self):
+        facts = self._facts("meta", "daily_insights", "ad3|2026-09-02")
+        assert facts["platform"] == "meta"
+
+    def test_a_meta_day_carries_its_landing_page_views(self):
+        facts = self._facts("meta", "daily_insights", "ad3|2026-09-02")
+        assert facts["landing_page_views"] == "9.0"

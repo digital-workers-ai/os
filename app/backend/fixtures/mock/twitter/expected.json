@@ -16,6 +16,30 @@
           "status": "active"
         }
       }
+    },
+    "tweets": {
+      "social_post": {
+        "tweet_20260901": {
+          "comments": "6.0",
+          "impressions": "3360.0",
+          "interactions": "116.0",
+          "likes": "96.0",
+          "name": "We just shipped a faster sync. Details in the thread.",
+          "platform": "x",
+          "posted_at": "2026-09-01T15:00:00Z",
+          "shares": "14.0"
+        },
+        "tweet_20260904": {
+          "comments": "7.0",
+          "impressions": "3920.0",
+          "interactions": "136.0",
+          "likes": "112.0",
+          "name": "What our customers taught us this quarter.",
+          "platform": "x",
+          "posted_at": "2026-09-04T15:00:00Z",
+          "shares": "17.0"
+        }
+      }
     }
   },
   "skips": {},

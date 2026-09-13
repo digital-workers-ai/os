@@ -1,0 +1,64 @@
+[
+  {
+    "payload": {
+      "organization": "urn:li:organization:1",
+      "timeRange": {
+        "end": 1788307200000,
+        "start": 1788220800000
+      },
+      "totalPageStatistics": {
+        "clicks": {
+          "careersPageClicks": {
+            "careersPageBannerPromoClicks": 0,
+            "careersPageEmployeesClicks": 0,
+            "careersPageJobsClicks": 0,
+            "careersPagePromoLinksClicks": 0
+          }
+        },
+        "views": {
+          "allPageViews": {
+            "pageViews": 112
+          },
+          "careersPageViews": {
+            "pageViews": 24
+          },
+          "overviewPageViews": {
+            "pageViews": 72
+          }
+        }
+      }
+    },
+    "source_id": "urn:li:organization:1|2026-09-01"
+  },
+  {
+    "payload": {
+      "organization": "urn:li:organization:1",
+      "timeRange": {
+        "end": 1788393600000,
+        "start": 1788307200000
+      },
+      "totalPageStatistics": {
+        "clicks": {
+          "careersPageClicks": {
+            "careersPageBannerPromoClicks": 0,
+            "careersPageEmployeesClicks": 0,
+            "careersPageJobsClicks": 0,
+            "careersPagePromoLinksClicks": 0
+          }
+        },
+        "views": {
+          "allPageViews": {
+            "pageViews": 118
+          },
+          "careersPageViews": {
+            "pageViews": 25
+          },
+          "overviewPageViews": {
+            "pageViews": 76
+          }
+        }
+      }
+    },
+    "source_id": "urn:li:organization:1|2026-09-02"
+  }
+]

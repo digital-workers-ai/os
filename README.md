@@ -336,7 +336,7 @@ Everything is read from the environment, and `app/.env` is loaded first. Every s
 | `CONVERSATION_MODEL`       | `claude-sonnet-5`                               | Model for the ask agent                                                |
 | `CONVERSATION_MAX_TOKENS`  | `8000`                                          | Output cap per turn                                                    |
 | `CONVERSATION_MAX_TURNS`   | `8`                                             | Tool-call rounds per question                                          |
-| `CONVERSATION_MAX_TOOL_RESULT_CHARS` | `12000`                             | A tool result is truncated beyond this                                 |
+| `CONVERSATION_MAX_TOOL_RESULT_CHARS` | `16000`                             | A tool result is truncated beyond this                                 |
 | `CONVERSATION_MAX_HISTORY_TURNS`   | `12`                                  | Earlier turns replayed to the model                                    |
 | `CONVERSATION_MAX_TURN_CHARS`      | `4000`                                 | A stored turn is truncated beyond this                                 |
 | `EMBEDDINGS_ENABLED`       | `false`                                         | Meaning search over transcript chunks                                  |

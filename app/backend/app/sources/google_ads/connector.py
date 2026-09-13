@@ -14,7 +14,7 @@ _QUERY = (
 
 _DAILY_QUERY = (
     "SELECT campaign.id, segments.date, metrics.costMicros, metrics.clicks, "
-    "metrics.impressions, metrics.conversions "
+    "metrics.impressions, metrics.conversions, metrics.conversionsValue "
     "FROM campaign WHERE segments.date BETWEEN '{since}' AND '{until}'"
 )
 

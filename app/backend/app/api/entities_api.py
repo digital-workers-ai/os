@@ -1,13 +1,15 @@
 import uuid
 from collections import Counter
+from datetime import date
 
 from fastapi import Depends, HTTPException, Query
 from sqlalchemy import func, select
 
+from app.api.metrics_api import filter_pairs
 from app.api.routers import entities as router
 from app.caches import MAX_OFFSET
 from app.db import async_session, get_session
-from app.engine import run
+from app.engine import derived, metrics, ontology, run
 from app.models import (
     CanonicalAlias,
     CanonicalLink,
@@ -148,6 +150,88 @@ async def list_entities(
             for r in rows
         ],
     }
+
+
+def _rank_key(fact, canonical_id) -> tuple:
+    number = fact[1] if fact else None
+    if number is None:
+        return (1, 0.0, str(canonical_id))
+    return (0, -number, str(canonical_id))
+
+
+@router.get("/entities/top", responses={404: {"description": "no such entity type"}})
+async def top_entities(
+    entity: str,
+    rank: str,
+    columns: list[str] = Query([]),
+    limit: int = Query(10, ge=1, le=50),
+    from_: date | None = Query(None, alias="from"),
+    to: date | None = Query(None),
+    window_attr: str | None = None,
+    filter_: list[str] = Query([], alias="filter"),
+    session=Depends(get_session),
+):
+    onto = ontology.load()
+    if entity not in onto.entities:
+        raise HTTPException(404, "no such entity type")
+    attrs = derived.attrs_of(onto)(entity)
+    filt = filter_pairs(filter_)
+    named = [rank, *columns, *filt]
+    if window_attr:
+        named.append(window_attr)
+    for attr in named:
+        if attr not in attrs:
+            raise HTTPException(422, f"{attr!r} is not an attr of {entity}")
+    if attrs[rank] != "number":
+        raise HTTPException(422, f"rank {rank!r} is {attrs[rank]}, not a number")
+    if window_attr and attrs[window_attr] != "date":
+        raise HTTPException(
+            422, f"window_attr {window_attr!r} is {attrs[window_attr]}, not a date"
+        )
+    if (from_ is None) != (to is None):
+        raise HTTPException(422, "from and to travel together")
+    window = None
+    if from_ is not None:
+        if from_ > to:
+            raise HTTPException(422, "from must not be after to")
+        if not window_attr:
+            raise HTTPException(422, "a window needs window_attr to range over")
+        window = {"attr": window_attr, "from": from_.isoformat(), "to": to.isoformat()}
+    ids = await metrics.ids_for(session, entity, filt, window)
+    wanted = list(dict.fromkeys([*columns, rank]))
+    facts: dict = {}
+    for canonical_id, attr, value, value_num in await metrics.in_chunks(
+        session,
+        ids,
+        lambda chunk: select(
+            FactCurrent.canonical_id,
+            FactCurrent.attr,
+            FactCurrent.value,
+            FactCurrent.value_num,
+        ).where(FactCurrent.canonical_id.in_(chunk), FactCurrent.attr.in_(wanted)),
+    ):
+        facts.setdefault(canonical_id, {})[attr] = (value, value_num)
+    ranked = sorted(ids, key=lambda cid: _rank_key(facts.get(cid, {}).get(rank), cid))
+    body = {
+        "entity": entity,
+        "rank": rank,
+        "columns": [{"attr": attr, "type": attrs[attr]} for attr in columns],
+        "rows": [
+            {
+                "canonical_id": str(cid),
+                "values": {
+                    attr: facts.get(cid, {}).get(attr, (None, None))[0]
+                    for attr in wanted
+                },
+            }
+            for cid in ranked[:limit]
+        ],
+        "entities": len(ids),
+    }
+    if window:
+        body["window_from"] = window["from"]
+        body["window_to"] = window["to"]
+    return body
 
 
 @router.get(

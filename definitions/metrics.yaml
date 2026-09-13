@@ -259,6 +259,87 @@ ad_spend_by_campaign:
   group_by: campaign.name
   window_attr: report_date
 
+ad_ctr:
+  label: Ad Click-through Rate
+  description: Ad clicks divided by ad impressions over the reporting days.
+  synonyms: [ctr]
+  entity: campaign_report
+  op: "/"
+  terms:
+    - expression: SUM(clicks)
+    - expression: SUM(impressions)
+  window_attr: report_date
+
+ad_cpc:
+  label: Cost per Click
+  description: Ad spend divided by ad clicks over the reporting days.
+  synonyms: [cpc]
+  entity: campaign_report
+  op: "/"
+  terms:
+    - expression: SUM(spend)
+    - expression: SUM(clicks)
+  window_attr: report_date
+
+ad_clicks_by_day:
+  label: Ad Clicks by Day
+  description: Clicks the paid campaigns drew, one bucket per reporting day.
+  entity: campaign_report
+  expression: SUM(clicks)
+  group_by: report_date
+  grain: day
+  window_attr: report_date
+
+ad_conversions_by_day:
+  label: Ad Conversions by Day
+  description: Actions the paid campaigns counted as results, one bucket per reporting day.
+  entity: campaign_report
+  expression: SUM(conversions)
+  group_by: report_date
+  grain: day
+  window_attr: report_date
+
+ad_conversions_by_campaign:
+  label: Ad Conversions by Campaign
+  description: Actions each paid campaign counted as results over the reporting days.
+  entity: campaign_report
+  expression: SUM(conversions)
+  group_by: campaign.name
+  window_attr: report_date
+
+ad_spend_by_platform:
+  label: Ad Spend by Platform
+  description: What the paid campaigns spent on each ad network over the reporting days.
+  entity: campaign_report
+  expression: SUM(spend)
+  group_by: platform
+  window_attr: report_date
+
+ad_conversion_value:
+  label: Ad Conversion Value
+  description: Value the paid campaigns attributed to their conversions, summed over the reporting days.
+  entity: campaign_report
+  expression: SUM(conversion_value)
+  window_attr: report_date
+
+ad_roas:
+  label: Return on Ad Spend
+  description: Ad conversion value divided by ad spend over the reporting days.
+  synonyms: [roas]
+  entity: campaign_report
+  op: "/"
+  terms:
+    - expression: SUM(conversion_value)
+    - expression: SUM(spend)
+  window_attr: report_date
+
+ad_landing_page_views:
+  label: Ad Landing Page Views
+  description: Times the paid campaigns' ads led to a landing page view, summed over the reporting days.
+  entity: campaign_report
+  expression: SUM(landing_page_views)
+  window_attr: report_date
+
 posts:
   label: Posts
   description: How many social posts went live in the window.
@@ -311,6 +392,172 @@ likes_by_platform:
   entity: social_post
   expression: SUM(likes)
   group_by: platform
+  window_attr: posted_at
+
+social_reach:
+  label: Social Reach
+  description: Distinct accounts the social pages reached, summed over the reporting days.
+  entity: social_report
+  expression: SUM(reach)
+  window_attr: report_date
+
+social_impressions:
+  label: Social Impressions
+  description: Times the social pages' content was shown, summed over the reporting days.
+  entity: social_report
+  expression: SUM(impressions)
+  window_attr: report_date
+
+social_engaged:
+  label: Social Engaged
+  description: Accounts that interacted with the social pages, summed over the reporting days.
+  entity: social_report
+  expression: SUM(engaged)
+  window_attr: report_date
+
+social_follows:
+  label: Social Follows
+  description: New followers the social pages gained, summed over the reporting days.
+  synonyms: [new followers]
+  entity: social_report
+  expression: SUM(follows)
+  window_attr: report_date
+
+social_unfollows:
+  label: Social Unfollows
+  description: Followers the social pages lost, summed over the reporting days.
+  entity: social_report
+  expression: SUM(unfollows)
+  window_attr: report_date
+
+social_profile_views:
+  label: Social Profile Views
+  description: Visits to the social pages' profiles, summed over the reporting days.
+  entity: social_report
+  expression: SUM(profile_views)
+  window_attr: report_date
+
+social_reach_by_day:
+  label: Social Reach by Day
+  description: Distinct accounts the social pages reached, one bucket per reporting day.
+  entity: social_report
+  expression: SUM(reach)
+  group_by: report_date
+  grain: day
+  window_attr: report_date
+
+social_impressions_by_day:
+  label: Social Impressions by Day
+  description: Times the social pages' content was shown, one bucket per reporting day.
+  entity: social_report
+  expression: SUM(impressions)
+  group_by: report_date
+  grain: day
+  window_attr: report_date
+
+social_follows_by_day:
+  label: Social Follows by Day
+  description: New followers the social pages gained, one bucket per reporting day.
+  entity: social_report
+  expression: SUM(follows)
+  group_by: report_date
+  grain: day
+  window_attr: report_date
+
+social_engaged_by_day:
+  label: Social Engaged by Day
+  description: Accounts that interacted with the social pages, one bucket per reporting day.
+  entity: social_report
+  expression: SUM(engaged)
+  group_by: report_date
+  grain: day
+  window_attr: report_date
+
+post_reach:
+  label: Post Reach
+  description: Distinct accounts the social posts reached, summed over the window.
+  entity: social_post
+  expression: SUM(reach)
+  window_attr: posted_at
+
+post_impressions:
+  label: Post Impressions
+  description: Times the social posts were shown, summed over the window.
+  entity: social_post
+  expression: SUM(impressions)
+  window_attr: posted_at
+
+post_clicks:
+  label: Post Clicks
+  description: Clicks the social posts drew, summed over the window.
+  entity: social_post
+  expression: SUM(clicks)
+  window_attr: posted_at
+
+post_views:
+  label: Post Views
+  description: Times the social posts' video was watched, summed over the window.
+  entity: social_post
+  expression: SUM(views)
+  window_attr: posted_at
+
+post_saves:
+  label: Post Saves
+  description: Times the social posts were saved, summed over the window.
+  entity: social_post
+  expression: SUM(saves)
+  window_attr: posted_at
+
+post_interactions:
+  label: Post Interactions
+  description: Likes, comments and shares the social posts drew, summed over the window.
+  synonyms: [engagements]
+  entity: social_post
+  expression: SUM(interactions)
+  window_attr: posted_at
+
+post_interactions_by_day:
+  label: Post Interactions by Day
+  description: Likes, comments and shares the social posts drew, one bucket per day.
+  entity: social_post
+  expression: SUM(interactions)
+  group_by: posted_at
+  grain: day
+  window_attr: posted_at
+
+post_engagement_rate:
+  label: Post Engagement Rate
+  description: Post interactions divided by post impressions over the window.
+  synonyms: [engagement rate]
+  entity: social_post
+  op: "/"
+  terms:
+    - expression: SUM(interactions)
+    - expression: SUM(impressions)
+  window_attr: posted_at
+
+likes_by_post_type:
+  label: Likes by Post Type
+  description: Likes the social posts drew, split by the kind of post.
+  entity: social_post
+  expression: SUM(likes)
+  group_by: category
+  window_attr: posted_at
+
+reach_by_post_type:
+  label: Reach by Post Type
+  description: Distinct accounts the social posts reached, split by the kind of post.
+  entity: social_post
+  expression: SUM(reach)
+  group_by: category
+  window_attr: posted_at
+
+posts_by_post_type:
+  label: Posts by Post Type
+  description: How many social posts went live, split by the kind of post.
+  entity: social_post
+  expression: COUNT(entity)
+  group_by: category
   window_attr: posted_at
 
 users_by_day:

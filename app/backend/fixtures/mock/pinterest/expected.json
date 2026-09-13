@@ -1,6 +1,24 @@
 {
   "clears": {},
   "extracted": {
+    "account_analytics": {
+      "social_report": {
+        "user_account|2026-09-01": {
+          "engaged": "152.0",
+          "impressions": "2080.0",
+          "platform": "pinterest",
+          "reach": "1200.0",
+          "report_date": "2026-09-01T00:00:00Z"
+        },
+        "user_account|2026-09-02": {
+          "engaged": "160.0",
+          "impressions": "2196.0",
+          "platform": "pinterest",
+          "reach": "1267.0",
+          "report_date": "2026-09-02T00:00:00Z"
+        }
+      }
+    },
     "ad_accounts": {
       "ad_account": {
         "549764905678": {
@@ -14,6 +32,28 @@
           "currency": "usd",
           "name": "Globex Marketing",
           "status": "active"
+        }
+      }
+    },
+    "pins": {
+      "social_post": {
+        "pin_20260901": {
+          "category": "image",
+          "clicks": "44.0",
+          "impressions": "941.0",
+          "name": "Summer workspace ideas",
+          "platform": "pinterest",
+          "posted_at": "2026-09-01T16:00:00Z",
+          "saves": "37.0"
+        },
+        "pin_20260904": {
+          "category": "video",
+          "clicks": "52.0",
+          "impressions": "1110.0",
+          "name": "Five-minute desk stretches",
+          "platform": "pinterest",
+          "posted_at": "2026-09-04T16:00:00Z",
+          "saves": "43.0"
         }
       }
     }

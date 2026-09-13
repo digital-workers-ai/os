@@ -13,6 +13,16 @@ from app.models import MetricSnapshot
 GLOSS_KEYS = ("description", "synonyms")
 
 
+def filter_pairs(items) -> dict:
+    pairs: dict = {}
+    for item in items:
+        attr, _, value = item.partition(":")
+        if not attr or not value:
+            raise HTTPException(422, "filter must be attr:value")
+        pairs[attr] = value
+    return pairs
+
+
 @router.get("")
 async def get_metrics(session=Depends(get_session)):
     now = clock.now()
@@ -77,11 +87,13 @@ async def get_metric(
     from_: date | None = Query(None, alias="from"),
     to: date | None = Query(None),
     compare: Literal["previous"] | None = Query(None),
+    filter_: list[str] = Query([], alias="filter"),
     session=Depends(get_session),
 ):
     defs = metrics.load_definitions()
     if name not in defs:
         raise HTTPException(404, "no such metric")
+    filt = filter_pairs(filter_)
     if (from_ is None) != (to is None):
         raise HTTPException(422, "from and to travel together")
     bounds = None
@@ -95,7 +107,7 @@ async def get_metric(
     now = clock.now()
     try:
         row = await metrics.evaluate_one(
-            session, name, spec, now=now, bounds=bounds, compare=compare
+            session, name, spec, now=now, bounds=bounds, compare=compare, filt=filt
         )
     except metrics.MetricSpecError as e:
         raise HTTPException(422, str(e)) from e

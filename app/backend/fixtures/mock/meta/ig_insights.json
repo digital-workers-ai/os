@@ -1,0 +1,30 @@
+[
+  {
+    "payload": {
+      "date": "2026-09-01",
+      "node": "ig_001",
+      "values": {
+        "accounts_engaged": 240,
+        "follower_count": 10,
+        "impressions": 4000,
+        "profile_views": 64,
+        "reach": 2720
+      }
+    },
+    "source_id": "ig_001|2026-09-01"
+  },
+  {
+    "payload": {
+      "date": "2026-09-02",
+      "node": "ig_001",
+      "values": {
+        "accounts_engaged": 253,
+        "follower_count": 10,
+        "impressions": 4222,
+        "profile_views": 68,
+        "reach": 2871
+      }
+    },
+    "source_id": "ig_001|2026-09-02"
+  }
+]

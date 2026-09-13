@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
-import { asApiError, getDashboards, getMetric } from '@/api'
+import { asApiError, getDashboards, getMetric, isTable, type MetricCardSpec } from '@/api'
 import { Layout } from '@/components/Layout'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Empty } from '@/components/ui/empty'
@@ -13,7 +13,9 @@ export default function App() {
   const dashboards = useQuery({ queryKey: ['dashboards'], queryFn: getDashboards })
   const pages = dashboards.data?.dashboards ?? {}
   const first = Object.keys(pages)[0]
-  const firstMetric = first ? pages[first].sections[0]?.cards[0]?.metric : undefined
+  const firstMetric = Object.values(pages)
+    .flatMap((page) => page.sections.flatMap((section) => section.cards))
+    .find((card): card is MetricCardSpec => !isTable(card))?.metric
   const today = useQuery({
     queryKey: ['metric', firstMetric, null],
     queryFn: () => getMetric(firstMetric!),
@@ -39,7 +41,7 @@ export default function App() {
         <Route path="/" element={<Layout pages={pages} today={today.data ?? null} range={range} onRange={setRange} />}>
           <Route index element={<Navigate to={`/${first}`} replace />} />
           <Route
-            path=":page"
+            path=":parent?/:page"
             element={<Page pages={pages} first={first} today={today.data ?? null} todayError={today.error} range={range} />}
           />
           <Route path="*" element={<Navigate to={`/${first}`} replace />} />

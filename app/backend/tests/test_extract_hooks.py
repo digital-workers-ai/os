@@ -314,6 +314,9 @@ class TestDiscovery:
             "zoom",
             "meta",
             "google_ads",
+            "linkedin",
+            "twitter",
+            "pinterest",
         }
 
     def test_a_package_without_an_extract_module_contributes_no_hook(self, monkeypatch):
@@ -491,6 +494,15 @@ class TestGoogleAdsCampaignRef:
             {"campaign": {"id": "ad1"}, "segments": {"date": "2026-09-01"}},
         )
         assert out[0]["_campaign_ref"] == "ad1"
+
+    def test_a_daily_row_is_stamped_google(self):
+        from app.sources.google_ads import extract
+
+        out = extract.reshape(
+            "daily_campaigns",
+            {"campaign": {"id": "ad1"}, "segments": {"date": "2026-09-01"}},
+        )
+        assert out[0]["_platform"] == "google"
 
     def test_a_daily_row_with_no_campaign_composes_nothing(self):
         from app.sources.google_ads import extract
@@ -868,3 +880,463 @@ class TestZoomCueParsing:
         )
         utterances, _ = self._parse(vtt)
         assert utterances == [("Jane Smith", "part one part two")]
+
+
+class TestMetaDailyInsightsFlatten:
+    def _row(self, node, values):
+        return {"node": node, "date": "2026-09-01", "values": values}
+
+    def test_a_page_day_is_flattened_to_the_report_labels(self):
+        from app.sources.meta import extract
+
+        out = extract.reshape(
+            "page_insights",
+            self._row(
+                "page_001",
+                {
+                    "page_impressions_unique": 10,
+                    "page_impressions": 20,
+                    "page_post_engagements": 3,
+                    "page_fan_adds": 2,
+                    "page_fan_removes": 1,
+                    "page_views_total": 5,
+                },
+            ),
+        )
+        assert out[0]["_platform"] == "facebook"
+        assert out[0]["_report_date"] == "2026-09-01"
+        assert out[0]["_reach"] == 10
+        assert out[0]["_impressions"] == 20
+        assert out[0]["_engaged"] == 3
+        assert out[0]["_follows"] == 2
+        assert out[0]["_unfollows"] == 1
+        assert out[0]["_profile_views"] == 5
+
+    def test_an_instagram_day_is_flattened_with_no_unfollows(self):
+        from app.sources.meta import extract
+
+        out = extract.reshape(
+            "ig_insights",
+            self._row(
+                "ig_001",
+                {
+                    "reach": 10,
+                    "impressions": 20,
+                    "accounts_engaged": 3,
+                    "follower_count": 2,
+                    "profile_views": 5,
+                },
+            ),
+        )
+        assert out[0]["_platform"] == "instagram"
+        assert out[0]["_report_date"] == "2026-09-01"
+        assert out[0]["_reach"] == 10
+        assert out[0]["_impressions"] == 20
+        assert out[0]["_engaged"] == 3
+        assert out[0]["_follows"] == 2
+        assert out[0]["_profile_views"] == 5
+        assert "_unfollows" not in out[0]
+
+    def test_a_metric_the_row_lacks_is_not_stamped(self):
+        from app.sources.meta import extract
+
+        out = extract.reshape("ig_insights", self._row("ig_001", {"reach": 10}))
+        assert out[0]["_reach"] == 10
+        assert "_impressions" not in out[0]
+        assert "_engaged" not in out[0]
+
+    def test_a_row_with_no_values_still_carries_its_platform_and_day(self):
+        from app.sources.meta import extract
+
+        out = extract.reshape(
+            "page_insights", {"node": "page_001", "date": "2026-09-01"}
+        )
+        assert out[0]["_platform"] == "facebook"
+        assert out[0]["_report_date"] == "2026-09-01"
+        assert "_reach" not in out[0]
+
+    def test_the_stamp_does_not_touch_the_stored_row(self):
+        from app.sources.meta import extract
+
+        row = self._row("page_001", {"page_impressions": 20})
+        extract.reshape("page_insights", row)
+        assert row == self._row("page_001", {"page_impressions": 20})
+
+
+class TestMetaLifetimeInsightsFlatten:
+    def test_post_insights_become_reach_impressions_and_clicks(self):
+        from app.sources.meta import extract
+
+        out = extract.reshape(
+            "post_insights",
+            {
+                "id": "page_001_20260901",
+                "values": {
+                    "post_impressions_unique": 10,
+                    "post_impressions": 20,
+                    "post_clicks": 3,
+                },
+            },
+        )
+        assert out[0]["_platform"] == "facebook"
+        assert out[0]["_reach"] == 10
+        assert out[0]["_impressions"] == 20
+        assert out[0]["_clicks"] == 3
+        assert "_report_date" not in out[0]
+
+    def test_media_insights_become_reach_impressions_views_and_saves(self):
+        from app.sources.meta import extract
+
+        out = extract.reshape(
+            "media_insights",
+            {
+                "id": "media_20260901",
+                "values": {"reach": 10, "impressions": 20, "views": 30, "saved": 4},
+            },
+        )
+        assert out[0]["_platform"] == "instagram"
+        assert out[0]["_reach"] == 10
+        assert out[0]["_impressions"] == 20
+        assert out[0]["_views"] == 30
+        assert out[0]["_saves"] == 4
+        assert "_report_date" not in out[0]
+
+    def test_a_metric_the_row_lacks_is_not_stamped(self):
+        from app.sources.meta import extract
+
+        out = extract.reshape(
+            "post_insights", {"id": "p", "values": {"post_clicks": 3}}
+        )
+        assert out[0]["_clicks"] == 3
+        assert "_reach" not in out[0]
+
+
+class TestMetaInteractions:
+    def test_a_page_post_adds_likes_comments_and_shares(self):
+        from app.sources.meta import extract
+
+        out = extract.reshape(
+            "page_posts",
+            {
+                "id": "page_001_20260901",
+                "likes": {"summary": {"total_count": 3}},
+                "comments": {"summary": {"total_count": 2}},
+                "shares": {"count": 1},
+            },
+        )
+        assert out[0]["_interactions"] == 6
+
+    def test_a_missing_part_counts_as_zero(self):
+        from app.sources.meta import extract
+
+        out = extract.reshape(
+            "page_posts",
+            {"id": "page_001_20260901", "likes": {"summary": {"total_count": 3}}},
+        )
+        assert out[0]["_interactions"] == 3
+
+    def test_a_post_with_no_parts_at_all_is_not_stamped(self):
+        from app.sources.meta import extract
+
+        out = extract.reshape("page_posts", {"id": "page_001_20260901"})
+        assert "_interactions" not in out[0]
+
+    def test_a_part_that_is_not_a_number_counts_as_missing(self):
+        from app.sources.meta import extract
+
+        out = extract.reshape(
+            "page_posts",
+            {
+                "id": "page_001_20260901",
+                "likes": {"summary": {"total_count": "many"}},
+                "shares": {"count": True},
+                "comments": "none",
+            },
+        )
+        assert "_interactions" not in out[0]
+
+    def test_an_instagram_item_adds_likes_and_comments(self):
+        from app.sources.meta import extract
+
+        out = extract.reshape(
+            "ig_media", {"id": "media_20260901", "like_count": 3, "comments_count": 2}
+        )
+        assert out[0]["_interactions"] == 5
+        assert out[0]["_platform"] == "instagram"
+
+
+class TestMetaAdInsights:
+    _ACTIONS = [
+        {"action_type": "link_click", "value": "19"},
+        {"action_type": "landing_page_view", "value": "9"},
+        {"action_type": "offsite_conversion", "value": "1"},
+    ]
+
+    def test_a_campaign_day_is_stamped_meta(self):
+        from app.sources.meta import extract
+
+        out = extract.reshape("daily_insights", {"campaign_id": "ad3"})
+        assert out[0]["_platform"] == "meta"
+
+    def test_landing_page_views_are_lifted_out_of_the_actions(self):
+        from app.sources.meta import extract
+
+        out = extract.reshape(
+            "daily_insights", {"campaign_id": "ad3", "actions": self._ACTIONS}
+        )
+        assert out[0]["_landing_page_views"] == "9"
+
+    def test_a_day_without_that_action_is_not_stamped(self):
+        from app.sources.meta import extract
+
+        out = extract.reshape(
+            "daily_insights",
+            {"campaign_id": "ad3", "actions": [self._ACTIONS[0]]},
+        )
+        assert "_landing_page_views" not in out[0]
+
+    def test_a_day_with_no_actions_still_carries_its_platform(self):
+        from app.sources.meta import extract
+
+        out = extract.reshape("daily_insights", {"campaign_id": "ad3"})
+        assert out[0]["_platform"] == "meta"
+        assert "_landing_page_views" not in out[0]
+
+    def test_actions_that_are_not_a_list_are_ignored(self):
+        from app.sources.meta import extract
+
+        out = extract.reshape(
+            "daily_insights", {"campaign_id": "ad3", "actions": "none"}
+        )
+        assert "_landing_page_views" not in out[0]
+
+    def test_the_stamp_does_not_touch_the_stored_row(self):
+        from app.sources.meta import extract
+
+        row = {"campaign_id": "ad3", "actions": list(self._ACTIONS)}
+        extract.reshape("daily_insights", row)
+        assert row == {"campaign_id": "ad3", "actions": self._ACTIONS}
+
+
+class TestLinkedinHook:
+    def test_a_post_is_stamped_linkedin_with_its_publish_time_as_iso(self):
+        from app.sources.linkedin import extract
+
+        out = extract.reshape(
+            "posts",
+            {"id": "urn:li:share:1", "commentary": "hi", "publishedAt": 1788271200000},
+        )
+        assert out[0]["_platform"] == "linkedin"
+        assert out[0]["_posted_at"] == "2026-09-01T14:00:00Z"
+
+    def test_a_post_with_no_publish_time_carries_no_posted_at(self):
+        from app.sources.linkedin import extract
+
+        out = extract.reshape("posts", {"id": "urn:li:share:1", "publishedAt": "soon"})
+        assert out[0]["_platform"] == "linkedin"
+        assert "_posted_at" not in out[0]
+
+    def test_share_statistics_are_flattened_with_their_interactions(self):
+        from app.sources.linkedin import extract
+
+        out = extract.reshape(
+            "post_stats",
+            {
+                "share": "urn:li:share:1",
+                "totalShareStatistics": {
+                    "impressionCount": 100,
+                    "likeCount": 5,
+                    "commentCount": 2,
+                    "shareCount": 1,
+                    "clickCount": 9,
+                },
+            },
+        )
+        assert out[0]["_platform"] == "linkedin"
+        assert out[0]["_impressions"] == 100
+        assert out[0]["_likes"] == 5
+        assert out[0]["_comments"] == 2
+        assert out[0]["_shares"] == 1
+        assert out[0]["_clicks"] == 9
+        assert out[0]["_interactions"] == 8
+
+    def test_share_statistics_with_no_totals_carry_only_the_platform(self):
+        from app.sources.linkedin import extract
+
+        out = extract.reshape("post_stats", {"share": "urn:li:share:1"})
+        assert out[0] == {"share": "urn:li:share:1", "_platform": "linkedin"}
+
+    def test_a_follower_day_sums_organic_and_paid_gains(self):
+        from app.sources.linkedin import extract
+
+        out = extract.reshape(
+            "follower_stats",
+            {
+                "timeRange": {"start": 1788220800000, "end": 1788307200000},
+                "followerGains": {"organicFollowerGain": 3, "paidFollowerGain": 1},
+            },
+        )
+        assert out[0]["_platform"] == "linkedin"
+        assert out[0]["_report_date"] == "2026-09-01"
+        assert out[0]["_follows"] == 4
+
+    def test_a_follower_day_with_no_gains_carries_no_follows(self):
+        from app.sources.linkedin import extract
+
+        out = extract.reshape("follower_stats", {"timeRange": {"start": 1788220800000}})
+        assert out[0]["_report_date"] == "2026-09-01"
+        assert "_follows" not in out[0]
+
+    def test_a_page_day_reads_its_page_views(self):
+        from app.sources.linkedin import extract
+
+        out = extract.reshape(
+            "page_stats",
+            {
+                "timeRange": {"start": 1788220800000, "end": 1788307200000},
+                "totalPageStatistics": {"views": {"allPageViews": {"pageViews": 40}}},
+            },
+        )
+        assert out[0]["_platform"] == "linkedin"
+        assert out[0]["_report_date"] == "2026-09-01"
+        assert out[0]["_profile_views"] == 40
+
+    def test_a_day_with_no_time_range_carries_no_report_date(self):
+        from app.sources.linkedin import extract
+
+        out = extract.reshape("page_stats", {"totalPageStatistics": {}})
+        assert out[0] == {"totalPageStatistics": {}, "_platform": "linkedin"}
+
+    def test_other_object_types_pass_through(self):
+        from app.sources.linkedin import extract
+
+        payload = {"id": 512345678, "name": "Marketing"}
+        assert extract.reshape("ad_accounts", payload) == [payload]
+
+
+class TestTwitterHook:
+    def test_a_tweet_is_stamped_x_with_its_metrics_flattened(self):
+        from app.sources.twitter import extract
+
+        out = extract.reshape(
+            "tweets",
+            {
+                "id": "1",
+                "text": "hello",
+                "public_metrics": {
+                    "impression_count": 100,
+                    "like_count": 5,
+                    "retweet_count": 2,
+                    "reply_count": 1,
+                    "quote_count": 7,
+                },
+            },
+        )
+        assert out[0]["_platform"] == "x"
+        assert out[0]["_impressions"] == 100
+        assert out[0]["_likes"] == 5
+        assert out[0]["_shares"] == 2
+        assert out[0]["_comments"] == 1
+        assert out[0]["_interactions"] == 8
+
+    def test_a_tweet_with_no_metrics_carries_only_the_platform(self):
+        from app.sources.twitter import extract
+
+        out = extract.reshape("tweets", {"id": "1", "text": "hello"})
+        assert out[0] == {"id": "1", "text": "hello", "_platform": "x"}
+
+    def test_a_tweet_with_only_likes_counts_them_as_its_interactions(self):
+        from app.sources.twitter import extract
+
+        out = extract.reshape(
+            "tweets", {"id": "1", "public_metrics": {"like_count": 5}}
+        )
+        assert out[0]["_likes"] == 5
+        assert out[0]["_interactions"] == 5
+        assert "_shares" not in out[0]
+
+    def test_other_object_types_pass_through(self):
+        from app.sources.twitter import extract
+
+        payload = {"id": "twacct_1", "name": "Ads"}
+        assert extract.reshape("accounts", payload) == [payload]
+
+
+class TestPinterestHook:
+    def test_a_pin_is_stamped_pinterest_with_its_all_time_metrics(self):
+        from app.sources.pinterest import extract
+
+        out = extract.reshape(
+            "pins",
+            {
+                "id": "pin_1",
+                "pin_metrics": {
+                    "all_time": {
+                        "IMPRESSION": 100,
+                        "SAVE": 4,
+                        "PIN_CLICK": 3,
+                        "OUTBOUND_CLICK": 2,
+                    }
+                },
+            },
+        )
+        assert out[0]["_platform"] == "pinterest"
+        assert out[0]["_impressions"] == 100
+        assert out[0]["_saves"] == 4
+        assert out[0]["_clicks"] == 5
+        assert "_interactions" not in out[0]
+
+    def test_a_pin_with_only_pin_clicks_counts_them_alone(self):
+        from app.sources.pinterest import extract
+
+        out = extract.reshape(
+            "pins", {"id": "pin_1", "pin_metrics": {"all_time": {"PIN_CLICK": 3}}}
+        )
+        assert out[0]["_clicks"] == 3
+        assert "_impressions" not in out[0]
+
+    def test_a_pin_with_no_metrics_carries_only_the_platform(self):
+        from app.sources.pinterest import extract
+
+        out = extract.reshape("pins", {"id": "pin_1"})
+        assert out[0] == {"id": "pin_1", "_platform": "pinterest"}
+
+    def test_an_account_day_is_flattened_to_the_report_labels(self):
+        from app.sources.pinterest import extract
+
+        out = extract.reshape(
+            "account_analytics",
+            {
+                "date": "2026-09-01",
+                "data_status": "READY",
+                "metrics": {
+                    "IMPRESSION": 10,
+                    "ENGAGEMENT": 3,
+                    "TOTAL_AUDIENCE": 8,
+                    "PIN_CLICK": 1,
+                    "SAVE": 2,
+                },
+            },
+        )
+        assert out[0]["_platform"] == "pinterest"
+        assert out[0]["_report_date"] == "2026-09-01"
+        assert out[0]["_impressions"] == 10
+        assert out[0]["_engaged"] == 3
+        assert out[0]["_reach"] == 8
+        assert "_clicks" not in out[0]
+
+    def test_an_account_day_with_no_metrics_carries_its_day_and_platform(self):
+        from app.sources.pinterest import extract
+
+        out = extract.reshape("account_analytics", {"date": "2026-09-01"})
+        assert out[0] == {
+            "date": "2026-09-01",
+            "_platform": "pinterest",
+            "_report_date": "2026-09-01",
+        }
+
+    def test_other_object_types_pass_through(self):
+        from app.sources.pinterest import extract
+
+        payload = {"id": "549764905678", "name": "Acme"}
+        assert extract.reshape("ad_accounts", payload) == [payload]

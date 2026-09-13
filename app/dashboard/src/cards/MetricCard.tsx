@@ -1,7 +1,7 @@
-import type { ComponentType } from 'react'
+import type { ComponentType, ReactNode } from 'react'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { Info } from 'lucide-react'
-import { asApiError, type CardSpec, type MetricResponse, type Shape } from '@/api'
+import { asApiError, type MetricCardSpec, type MetricResponse, type Shape } from '@/api'
 import { Breakdown } from '@/cards/Breakdown'
 import { Kpi } from '@/cards/Kpi'
 import { Ratio } from '@/cards/Ratio'
@@ -16,6 +16,47 @@ import { cn } from '@/lib/utils'
 const BODIES: Record<Shape, ComponentType<{ data: MetricResponse }>> = { kpi: Kpi, ratio: Ratio, breakdown: Breakdown, series: Series }
 
 const WIDE: Shape[] = ['breakdown', 'series']
+
+type QueryState = { isPending: boolean; error: unknown }
+
+const state = (query: QueryState) => (query.isPending ? 'loading' : query.error ? 'error' : 'ready')
+
+export function CardShell({
+  id,
+  shape,
+  label,
+  wide,
+  query,
+  onDefinition,
+  children,
+}: {
+  id: string
+  shape: string
+  label: string
+  wide: boolean
+  query: QueryState
+  onDefinition: () => void
+  children: ReactNode
+}) {
+  return (
+    <Card className={cn('flex flex-col', wide && 'col-span-2')} data-testid={`card-${id}`} data-shape={shape} data-state={state(query)}>
+      <CardHeader className="mb-3 items-center">
+        <CardTitle className="text-sm font-medium text-muted">{label}</CardTitle>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="-mr-2 -mt-1 h-7 w-7 text-muted hover:text-ink"
+          aria-label={`definition of ${label}`}
+          onClick={onDefinition}
+          data-testid={`definition-${id}`}
+        >
+          <Info size={14} />
+        </Button>
+      </CardHeader>
+      <CardContent className="min-w-0 flex-1">{children}</CardContent>
+    </Card>
+  )
+}
 
 function Body({ shape, query }: { shape: Shape; query: UseQueryResult<MetricResponse> }) {
   if (query.error) return <ErrorBanner error={asApiError(query.error)} />
@@ -41,25 +82,10 @@ function Body({ shape, query }: { shape: Shape; query: UseQueryResult<MetricResp
   )
 }
 
-export function MetricCard({ card, query, onDefinition }: { card: CardSpec; query: UseQueryResult<MetricResponse>; onDefinition: () => void }) {
+export function MetricCard({ card, query, onDefinition }: { card: MetricCardSpec; query: UseQueryResult<MetricResponse>; onDefinition: () => void }) {
   return (
-    <Card className={cn('flex flex-col', WIDE.includes(card.shape) && 'col-span-2')} data-testid={`card-${card.metric}`} data-shape={card.shape} data-state={query.isPending ? 'loading' : query.error ? 'error' : 'ready'}>
-      <CardHeader className="mb-3 items-center">
-        <CardTitle className="text-sm font-medium text-muted">{card.label}</CardTitle>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="-mr-2 -mt-1 h-7 w-7 text-muted hover:text-ink"
-          aria-label={`definition of ${card.label}`}
-          onClick={onDefinition}
-          data-testid={`definition-${card.metric}`}
-        >
-          <Info size={14} />
-        </Button>
-      </CardHeader>
-      <CardContent className="min-w-0 flex-1">
-        <Body shape={card.shape} query={query} />
-      </CardContent>
-    </Card>
+    <CardShell id={card.metric} shape={card.shape} label={card.label} wide={WIDE.includes(card.shape)} query={query} onDefinition={onDefinition}>
+      <Body shape={card.shape} query={query} />
+    </CardShell>
   )
 }

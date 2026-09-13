@@ -133,11 +133,23 @@ async def get_goals():
     }
 
 
-def _card(name, metric_defs) -> dict:
-    spec = metric_defs[name]
+def _card(card, metric_defs, attrs_of) -> dict:
+    if isinstance(card, dashboards.TableCard):
+        attrs = attrs_of(card.entity)
+        return {
+            "shape": "table",
+            "label": card.label,
+            "entity": card.entity,
+            "rank": card.rank,
+            "columns": [{"attr": attr, "type": attrs[attr]} for attr in card.columns],
+            "window_attr": card.window_attr,
+            "limit": card.limit,
+            "filter": card.filter,
+        }
+    spec = metric_defs[card]
     return {
-        "metric": name,
-        "label": spec.get("label", name),
+        "metric": card,
+        "label": spec.get("label", card),
         "shape": dashboards.shape(metrics.parse_spec(spec)),
     }
 
@@ -145,17 +157,22 @@ def _card(name, metric_defs) -> dict:
 @router.get("/dashboards")
 async def get_dashboards():
     metric_defs = metrics.load_definitions()
+    attrs_of = derived.attrs_of(ontology.load())
     return {
         "dashboards": {
             page.name: {
                 "label": page.label,
+                "parent": page.parent,
                 "range": page.range,
                 "goals": page.goals,
                 "findings": page.findings,
+                "filter": page.filter,
                 "sections": [
                     {
                         "label": section.label,
-                        "cards": [_card(card, metric_defs) for card in section.cards],
+                        "cards": [
+                            _card(card, metric_defs, attrs_of) for card in section.cards
+                        ],
                     }
                     for section in page.sections
                 ],

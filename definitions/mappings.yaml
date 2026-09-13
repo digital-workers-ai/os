@@ -182,12 +182,16 @@ campaign_report:
   meta.daily_insights.clicks: clicks
   meta.daily_insights.impressions: impressions
   meta.daily_insights.conversions: conversions
+  meta.daily_insights._platform: platform
+  meta.daily_insights._landing_page_views: landing_page_views
   google_ads.daily_campaigns._campaign_ref: campaign_ref
   google_ads.daily_campaigns.segments.date: report_date
   google_ads.daily_campaigns.metrics.costMicros: spend
   google_ads.daily_campaigns.metrics.clicks: clicks
   google_ads.daily_campaigns.metrics.impressions: impressions
   google_ads.daily_campaigns.metrics.conversions: conversions
+  google_ads.daily_campaigns.metrics.conversionsValue: conversion_value
+  google_ads.daily_campaigns._platform: platform
 
 social_post:
   meta.page_posts.message: name
@@ -203,6 +207,71 @@ social_post:
   meta.ig_media.like_count: likes
   meta.ig_media.comments_count: comments
   meta.ig_media._platform: platform
+  meta.page_posts._interactions: interactions
+  meta.ig_media._interactions: interactions
+  meta.post_insights._platform: platform
+  meta.post_insights._reach: reach
+  meta.post_insights._impressions: impressions
+  meta.post_insights._clicks: clicks
+  meta.media_insights._platform: platform
+  meta.media_insights._reach: reach
+  meta.media_insights._impressions: impressions
+  meta.media_insights._views: views
+  meta.media_insights._saves: saves
+  linkedin.posts.commentary: name
+  linkedin.posts._posted_at: posted_at
+  linkedin.posts.contentType: category
+  linkedin.posts._platform: platform
+  linkedin.post_stats._platform: platform
+  linkedin.post_stats._impressions: impressions
+  linkedin.post_stats._likes: likes
+  linkedin.post_stats._comments: comments
+  linkedin.post_stats._shares: shares
+  linkedin.post_stats._clicks: clicks
+  linkedin.post_stats._interactions: interactions
+  twitter.tweets.text: name
+  twitter.tweets.created_at: posted_at
+  twitter.tweets._platform: platform
+  twitter.tweets._impressions: impressions
+  twitter.tweets._likes: likes
+  twitter.tweets._shares: shares
+  twitter.tweets._comments: comments
+  twitter.tweets._interactions: interactions
+  pinterest.pins.title: name
+  pinterest.pins.created_at: posted_at
+  pinterest.pins.media.media_type: category
+  pinterest.pins._platform: platform
+  pinterest.pins._impressions: impressions
+  pinterest.pins._saves: saves
+  pinterest.pins._clicks: clicks
+
+social_report:
+  meta.page_insights._platform: platform
+  meta.page_insights._report_date: report_date
+  meta.page_insights._reach: reach
+  meta.page_insights._impressions: impressions
+  meta.page_insights._engaged: engaged
+  meta.page_insights._follows: follows
+  meta.page_insights._unfollows: unfollows
+  meta.page_insights._profile_views: profile_views
+  meta.ig_insights._platform: platform
+  meta.ig_insights._report_date: report_date
+  meta.ig_insights._reach: reach
+  meta.ig_insights._impressions: impressions
+  meta.ig_insights._engaged: engaged
+  meta.ig_insights._follows: follows
+  meta.ig_insights._profile_views: profile_views
+  linkedin.follower_stats._platform: platform
+  linkedin.follower_stats._report_date: report_date
+  linkedin.follower_stats._follows: follows
+  linkedin.page_stats._platform: platform
+  linkedin.page_stats._report_date: report_date
+  linkedin.page_stats._profile_views: profile_views
+  pinterest.account_analytics._platform: platform
+  pinterest.account_analytics._report_date: report_date
+  pinterest.account_analytics._impressions: impressions
+  pinterest.account_analytics._engaged: engaged
+  pinterest.account_analytics._reach: reach
 
 traffic_report:
   google_analytics.report_rows._report_date: report_date

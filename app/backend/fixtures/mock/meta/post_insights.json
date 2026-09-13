@@ -1,0 +1,24 @@
+[
+  {
+    "payload": {
+      "id": "page_001_20260901",
+      "values": {
+        "post_clicks": 362,
+        "post_impressions": 9914,
+        "post_impressions_unique": 7080
+      }
+    },
+    "source_id": "page_001_20260901"
+  },
+  {
+    "payload": {
+      "id": "page_001_20260904",
+      "values": {
+        "post_clicks": 273,
+        "post_impressions": 7481,
+        "post_impressions_unique": 5342
+      }
+    },
+    "source_id": "page_001_20260904"
+  }
+]

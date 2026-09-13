@@ -145,11 +145,24 @@ interface Derived {
   derived: Record<string, Record<string, DerivedSpec>>
 }
 
-interface DashboardCard {
+interface DashboardMetricCard {
   metric: string
   label: string
-  shape: string
+  shape: 'kpi' | 'ratio' | 'breakdown' | 'series'
 }
+
+interface DashboardTableCard {
+  shape: 'table'
+  label: string
+  entity: string
+  rank: string
+  columns: { attr: string; type: string }[]
+  window_attr: string | null
+  limit: number
+  filter: Record<string, string>
+}
+
+type DashboardCard = DashboardMetricCard | DashboardTableCard
 
 interface DashboardSection {
   label: string
@@ -161,6 +174,8 @@ interface DashboardPage {
   range: boolean
   goals: boolean
   findings: boolean
+  filter: Record<string, string>
+  parent: string | null
   sections: DashboardSection[]
 }
 
@@ -742,6 +757,15 @@ function EnrichmentTab({ v }: { v: Vocabulary }) {
   )
 }
 
+const pageName = (name: string, page: DashboardPage) => (page.parent ? `${page.parent} › ${name}` : name)
+
+const cardName = (card: DashboardCard) => (card.shape === 'table' ? `table · ${card.entity} by ${card.rank}` : card.metric)
+
+const cardFilter = (page: DashboardPage, card: DashboardCard) =>
+  Object.entries({ ...page.filter, ...(card.shape === 'table' ? card.filter : {}) })
+    .map(([attr, value]) => `${attr}: ${value}`)
+    .join(', ')
+
 function DashboardsTab({ d }: { d: Dashboards }) {
   const pages = Object.entries(d.dashboards)
   return (
@@ -751,9 +775,10 @@ function DashboardsTab({ d }: { d: Dashboards }) {
           <TableRow>
             <TableHead className="w-40" hint="The page's internal key">Page ({num(pages.length)})</TableHead>
             <TableHead className="w-40" hint="A titled group of cards on the page">Section</TableHead>
-            <TableHead hint="The metric the card shows, and its display name">Card</TableHead>
-            <TableHead className="w-32" hint="How the card draws: one number, a ratio, a breakdown, or a series">Shape</TableHead>
+            <TableHead hint="The metric the card shows, or the records it ranks, and its display name">Card</TableHead>
+            <TableHead className="w-32" hint="How the card draws: one number, a ratio, a breakdown, a series, or a table">Shape</TableHead>
             <TableHead className="w-24" hint="Whether the page takes a date range and applies it to every card">Range</TableHead>
+            <TableHead className="w-40" hint="Only records matching these values feed the card">Filter</TableHead>
             <TableHead className="w-24" hint="Whether the page shows the goals with their verdicts">Goals</TableHead>
             <TableHead className="w-24" hint="Whether the page shows the findings the rules raised">Findings</TableHead>
           </TableRow>
@@ -761,19 +786,20 @@ function DashboardsTab({ d }: { d: Dashboards }) {
         <TableBody>
           {pages.flatMap(([name, page]) =>
             page.sections.flatMap((section) =>
-              section.cards.map((card) => (
-                <TableRow key={`${name}/${section.label}/${card.metric}`}>
+              section.cards.map((card, i) => (
+                <TableRow key={`${name}/${section.label}/${i}`}>
                   <TableCell className="align-top">
-                    <Mono>{name}</Mono>
+                    <Mono>{pageName(name, page)}</Mono>
                   </TableCell>
                   <TableCell className="align-top">{section.label}</TableCell>
                   <TableCell className="align-top">
-                    <Mono>{card.metric}</Mono> <span className="text-muted">{card.label}</span>
+                    <Mono>{cardName(card)}</Mono> <span className="text-muted">{card.label}</span>
                   </TableCell>
                   <TableCell className="align-top">
                     <Chip>{card.shape}</Chip>
                   </TableCell>
                   <TableCell className="align-top">{page.range ? 'yes' : '—'}</TableCell>
+                  <TableCell className="align-top">{cardFilter(page, card) || '—'}</TableCell>
                   <TableCell className="align-top">{page.goals ? 'yes' : '—'}</TableCell>
                   <TableCell className="align-top">{page.findings ? 'yes' : '—'}</TableCell>
                 </TableRow>

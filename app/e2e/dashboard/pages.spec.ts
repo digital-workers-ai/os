@@ -1,17 +1,23 @@
 import { expect, snap, test, visit } from '../fixtures'
-import { ready } from './ready'
+import { cardId, pagePath, ready, type CardSpec } from './ready'
 
 interface PageSpec {
+  parent: string | null
   range: boolean
-  sections: { cards: { metric: string }[] }[]
+  sections: { cards: CardSpec[] }[]
 }
 
 test('each page', async ({ page }) => {
+  test.slow()
   const { dashboards } = await (await page.request.get('/api/definitions/dashboards')).json()
-  for (const [name, spec] of Object.entries<PageSpec>(dashboards)) {
-    await visit(page, `/${name}`)
-    await expect(page.getByTestId(`nav-${name}`)).toHaveAttribute('aria-current', 'page')
-    for (const card of spec.sections.flatMap((s) => s.cards)) await expect(page.getByTestId(`card-${card.metric}`)).toBeVisible()
+  const pages = Object.entries<PageSpec>(dashboards)
+  for (const [name, spec] of pages) {
+    await visit(page, pagePath(name, spec))
+    await expect(page.getByTestId(`nav-${spec.parent ?? name}`)).toHaveAttribute('aria-current', 'page')
+    if (spec.parent) await expect(page.getByTestId(`subnav-${name}`)).toHaveAttribute('aria-current', 'page')
+    else if (pages.some(([, other]) => other.parent === name)) await expect(page.getByTestId('subnav-all')).toHaveAttribute('aria-current', 'page')
+    else await expect(page.getByTestId('sub-nav')).toHaveCount(0)
+    for (const card of spec.sections.flatMap((s) => s.cards)) await expect(page.getByTestId(cardId(card))).toBeVisible()
     await expect(page.getByTestId('range-picker')).toHaveCount(spec.range ? 1 : 0)
     await ready(page)
     await snap(page, `dashboard-${name}`)

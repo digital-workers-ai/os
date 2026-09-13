@@ -6,8 +6,22 @@ Bearer auth + required Linkedin-Version header.
 Cursor pagination (pageSize/pageToken) on adAccounts and adCampaigns.
 """
 
+import re
+from datetime import date, datetime, timezone
+
 from fastapi import APIRouter, Request, Query
-from seeds.helpers import require_bearer, require_header, token_paginate
+from seeds.helpers import (
+    day_factor,
+    day_ms,
+    days_between,
+    item_factor,
+    offset_paginate,
+    post_days,
+    require_bearer,
+    require_header,
+    token_paginate,
+    window_days,
+)
 from seeds.world import AD_CAMPAIGNS
 
 router = APIRouter()
@@ -151,3 +165,141 @@ async def ad_analytics(
         "elements": elements,
         "paging": {"start": start, "count": count, "total": len(elements)},
     }
+
+
+ORGANIZATION = "urn:li:organization:1"
+
+_COMMENTARY = [
+    "Three lessons from a year of shipping weekly.",
+    "We are hiring: come build with us.",
+    "How our customers cut onboarding time in half.",
+    "A look inside our engineering culture.",
+    "Announcing our summer product update.",
+]
+_CONTENT_TYPES = ["ARTICLE", "IMAGE", "VIDEO"]
+
+
+def _post(day):
+    ordinal = day.toordinal() // 3
+    stamp = day.strftime("%Y%m%d")
+    return {
+        "id": f"urn:li:share:{stamp}",
+        "author": ORGANIZATION,
+        "commentary": _COMMENTARY[ordinal % len(_COMMENTARY)],
+        "contentType": _CONTENT_TYPES[ordinal % len(_CONTENT_TYPES)],
+        "visibility": "PUBLIC",
+        "lifecycleState": "PUBLISHED",
+        "publishedAt": day_ms(day) + 14 * 3600 * 1000,
+        "createdAt": day_ms(day) + 14 * 3600 * 1000,
+        "lastModifiedAt": day_ms(day) + 14 * 3600 * 1000,
+    }
+
+
+def _share_statistics(urn):
+    factor = item_factor(urn)
+    return {
+        "organizationalEntity": ORGANIZATION,
+        "share": urn,
+        "totalShareStatistics": {
+            "uniqueImpressionsCount": round(1900 * factor),
+            "impressionCount": round(2600 * factor),
+            "clickCount": round(95 * factor),
+            "likeCount": round(70 * factor),
+            "commentCount": round(9 * factor),
+            "shareCount": round(14 * factor),
+            "engagement": round(0.06 * factor, 4),
+        },
+    }
+
+
+def _interval_days(time_intervals):
+    match = re.search(r"start:(\d+),end:(\d+)", time_intervals or "")
+    if not match:
+        return window_days()
+    start = datetime.fromtimestamp(int(match.group(1)) / 1000, timezone.utc).date()
+    end = datetime.fromtimestamp((int(match.group(2)) - 1) / 1000, timezone.utc).date()
+    return days_between(start, end)
+
+
+def _time_range(day):
+    return {"start": day_ms(day), "end": day_ms(day) + 86_400_000}
+
+
+def _shares_of(shares):
+    inner = shares[5:-1] if shares and shares.startswith("List(") and shares.endswith(")") else (shares or "")
+    return [urn for urn in inner.split(",") if urn]
+
+
+@router.get("/posts")
+async def list_posts(
+    request: Request,
+    author: str = Query(ORGANIZATION),
+    q: str = Query("author"),
+    start: int = Query(0, ge=0),
+    count: int = Query(10, ge=1, le=100),
+):
+    _li_auth(request)
+    posts = [_post(day) for day in post_days()]
+    page, total = offset_paginate(posts, start, count)
+    return {"elements": page, "paging": {"start": start, "count": count, "total": total, "links": []}}
+
+
+@router.get("/organizationalEntityShareStatistics")
+async def share_statistics(
+    request: Request,
+    q: str = Query("organizationalEntity"),
+    organizationalEntity: str = Query(ORGANIZATION),
+    shares: str = Query(None),
+):
+    _li_auth(request)
+    urns = _shares_of(shares) or [post["id"] for post in (_post(day) for day in post_days())]
+    elements = [_share_statistics(urn) for urn in urns]
+    return {"elements": elements, "paging": {"start": 0, "count": len(elements), "total": len(elements), "links": []}}
+
+
+@router.get("/organizationalEntityFollowerStatistics")
+async def follower_statistics(
+    request: Request,
+    q: str = Query("organizationalEntity"),
+    organizationalEntity: str = Query(ORGANIZATION),
+    timeIntervals: str = Query(None),
+):
+    _li_auth(request)
+    elements = [
+        {
+            "organizationalEntity": organizationalEntity,
+            "timeRange": _time_range(day),
+            "followerGains": {
+                "organicFollowerGain": round(9 * day_factor(day)),
+                "paidFollowerGain": round(3 * day_factor(day)),
+            },
+        }
+        for day in _interval_days(timeIntervals)
+    ]
+    return {"elements": elements, "paging": {"start": 0, "count": len(elements), "total": len(elements), "links": []}}
+
+
+@router.get("/organizationPageStatistics")
+async def page_statistics(
+    request: Request,
+    q: str = Query("organization"),
+    organization: str = Query(ORGANIZATION),
+    timeIntervals: str = Query(None),
+):
+    _li_auth(request)
+    elements = [
+        {
+            "organization": organization,
+            "timeRange": _time_range(day),
+            "totalPageStatistics": {
+                "views": {
+                    "allPageViews": {"pageViews": round(140 * day_factor(day))},
+                    "overviewPageViews": {"pageViews": round(90 * day_factor(day))},
+                    "careersPageViews": {"pageViews": round(30 * day_factor(day))},
+                },
+                "clicks": {"careersPageClicks": {"careersPageBannerPromoClicks": 0, "careersPageEmployeesClicks": 0, "careersPageJobsClicks": 0, "careersPagePromoLinksClicks": 0}},
+            },
+        }
+        for day in _interval_days(timeIntervals)
+    ]
+    return {"elements": elements, "paging": {"start": 0, "count": len(elements), "total": len(elements), "links": []}}

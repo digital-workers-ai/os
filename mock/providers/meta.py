@@ -16,8 +16,10 @@ from seeds.helpers import (
     cursor_paginate,
     daily_share,
     day_factor,
-    days_between,
+    item_factor,
+    post_days,
     require_query_token,
+    window_days,
 )
 from seeds.world import AD_CAMPAIGNS
 
@@ -82,9 +84,63 @@ _MEDIA_CAPTIONS = [
 _MEDIA_TYPES = ["IMAGE", "VIDEO", "CAROUSEL_ALBUM"]
 
 
-def _post_days(since, until):
-    days = days_between(date.fromisoformat(since), date.fromisoformat(until))
-    return [day for day in days if day.toordinal() % 3 == 0]
+_PAGE_DAILY = {
+    "page_impressions_unique": 1200,
+    "page_impressions": 1800,
+    "page_post_engagements": 90,
+    "page_fan_adds": 6,
+    "page_fan_removes": 2,
+    "page_views_total": 40,
+}
+_IG_DAILY = {
+    "reach": 3400,
+    "impressions": 5000,
+    "accounts_engaged": 300,
+    "follower_count": 12,
+    "profile_views": 80,
+}
+_POST_LIFETIME = {
+    "post_impressions": 8542, "post_impressions_unique": 6100, "post_engaged_users": 423,
+    "post_clicks": 312, "post_reactions_by_type_total": 289, "post_activity": 735,
+}
+_MEDIA_LIFETIME = {
+    "views": 8542, "reach": 6230, "impressions": 7800, "total_interactions": 423, "saved": 87,
+    "likes": 312, "comments": 28, "shares": 45, "reposts": 12,
+    "ig_reels_avg_watch_time": 18.5, "ig_reels_video_view_total_time": 42350,
+    "follows": 15, "profile_visits": 67, "replies": 8, "navigation": 23,
+}
+
+
+def _daily_series(node_id, metric, period, bases, since, until):
+    requested = [m.strip() for m in metric.split(",") if m.strip() in bases]
+    days = window_days(since, until)
+    return {
+        "data": [
+            {
+                "name": m,
+                "period": period,
+                "values": [
+                    {"value": round(bases[m] * day_factor(day)), "end_time": f"{day.isoformat()}T07:00:00+0000"}
+                    for day in days
+                ],
+                "title": m.replace("_", " ").title(),
+                "id": f"{node_id}/insights/{m}/{period}",
+            }
+            for m in requested
+        ]
+    }
+
+
+def _lifetime_series(node_id, metric, bases):
+    factor = item_factor(node_id)
+    requested = [m.strip() for m in metric.split(",")] if metric else list(bases)
+    return {
+        "data": [
+            {"name": m, "period": "lifetime", "values": [{"value": round(bases[m] * factor)}],
+             "title": m.replace("_", " ").title(), "id": f"{node_id}/insights/{m}/lifetime"}
+            for m in requested if m in bases
+        ]
+    }
 
 
 def _page_post(page_id, day):
@@ -150,8 +206,8 @@ async def insights(
     breakdown: str = Query(None),
     time_range: str = Query(None),
     time_increment: str = Query(None),
-    since: int = Query(None),
-    until: int = Query(None),
+    since: str = Query(None),
+    until: str = Query(None),
     limit: int = Query(25, ge=1, le=200),
     after: str = Query(None),
 ):
@@ -162,9 +218,9 @@ async def insights(
     elif node_id.startswith("page_") and node_id.count("_") > 1:
         return _handle_post_insights(node_id, metric)
     elif node_id.startswith("page_"):
-        return _handle_page_insights(node_id, metric, period)
+        return _handle_page_insights(node_id, metric, period, since, until)
     elif node_id.startswith("ig_"):
-        return _handle_ig_insights(node_id, metric, period, metric_type, breakdown)
+        return _handle_ig_insights(node_id, metric, period, metric_type, breakdown, since, until)
     elif node_id.startswith("media_"):
         return _handle_media_insights(node_id, metric)
 
@@ -196,7 +252,9 @@ def _handle_ad_insights(account_id, limit, after, time_range=None, time_incremen
     return result
 
 
-def _handle_page_insights(page_id, metric, period):
+def _handle_page_insights(page_id, metric, period, since=None, until=None):
+    if since and until:
+        return _daily_series(page_id, metric, period, _PAGE_DAILY, since, until)
     return {
         "data": [
             {
@@ -220,35 +278,14 @@ def _handle_page_insights(page_id, metric, period):
 
 
 def _handle_post_insights(post_id, metric):
-    _post_metrics = {
-        "post_impressions": 8542, "post_engaged_users": 423, "post_clicks": 312,
-        "post_reactions_by_type_total": 289, "post_activity": 735,
-    }
-    requested = [m.strip() for m in metric.split(",")] if metric else list(_post_metrics.keys())
-    data = [
-        {"name": m, "period": "lifetime", "values": [{"value": _post_metrics.get(m, 0)}],
-         "title": m.replace("_", " ").title(), "id": f"{post_id}/insights/{m}/lifetime"}
-        for m in requested if m in _post_metrics
-    ]
-    return {"data": data}
+    return _lifetime_series(post_id, metric, _POST_LIFETIME)
 
 
-def _handle_media_insights(media_id, fields):
-    _metrics = {
-        "views": 8542, "reach": 6230, "total_interactions": 423, "saved": 87,
-        "likes": 312, "comments": 28, "shares": 45, "reposts": 12,
-        "ig_reels_avg_watch_time": 18.5, "ig_reels_video_view_total_time": 42350,
-        "follows": 15, "profile_visits": 67, "replies": 8, "navigation": 23,
-    }
-    requested = [m.strip() for m in fields.split(",")] if fields else ["views", "reach", "total_interactions"]
-    data = [
-        {"name": m, "period": "lifetime", "values": [{"value": _metrics.get(m, 0)}], "id": f"{media_id}/insights/{m}/lifetime"}
-        for m in requested if m in _metrics
-    ]
-    return {"data": data}
+def _handle_media_insights(media_id, metric):
+    return _lifetime_series(media_id, metric or "views,reach,total_interactions", _MEDIA_LIFETIME)
 
 
-def _handle_ig_insights(ig_id, metric, period, metric_type, breakdown):
+def _handle_ig_insights(ig_id, metric, period, metric_type, breakdown, since=None, until=None):
     if metric == "follower_demographics" and metric_type == "total_value" and breakdown:
         dim_key = breakdown
         _breakdowns = {
@@ -270,6 +307,8 @@ def _handle_ig_insights(ig_id, metric, period, metric_type, breakdown):
         _tv = {"accounts_engaged": 892, "total_interactions": 1456, "likes": 823, "comments": 156, "shares": 234, "saves": 189, "replies": 52}
         data = [{"name": m, "period": period, "total_value": {"value": _tv.get(m, 100)}, "title": m.replace("_", " ").title(), "id": f"{ig_id}/insights/{m}/{period}"} for m in metrics_requested]
         return {"data": data}
+    if since and until:
+        return _daily_series(ig_id, metric, period, _IG_DAILY, since, until)
     return {
         "data": [
             {
@@ -329,7 +368,7 @@ async def page_posts(
 ):
     require_query_token(request)
     if since and until:
-        posts = [_page_post(page_id, day) for day in _post_days(since, until)]
+        posts = [_page_post(page_id, day) for day in post_days(since, until)]
     else:
         posts = _fixed_posts(page_id)
     page, next_cursor = cursor_paginate(posts, after, limit)
@@ -398,7 +437,7 @@ async def ig_media(
 ):
     require_query_token(request)
     if since and until:
-        media = [_ig_media_item(day) for day in _post_days(since, until)]
+        media = [_ig_media_item(day) for day in post_days(since, until)]
     else:
         media = _fixed_media()
     page, next_cursor = cursor_paginate(media, after, limit)

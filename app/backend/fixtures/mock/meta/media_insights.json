@@ -1,0 +1,26 @@
+[
+  {
+    "payload": {
+      "id": "media_20260901",
+      "values": {
+        "impressions": 5555,
+        "reach": 4437,
+        "saved": 62,
+        "views": 6083
+      }
+    },
+    "source_id": "media_20260901"
+  },
+  {
+    "payload": {
+      "id": "media_20260904",
+      "values": {
+        "impressions": 6122,
+        "reach": 4890,
+        "saved": 68,
+        "views": 6704
+      }
+    },
+    "source_id": "media_20260904"
+  }
+]
