@@ -1,3 +1,5 @@
+import os
+from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from app.config import settings
@@ -10,6 +12,18 @@ class Credentials:
     auth: tuple | None = None
     params: dict = field(default_factory=dict)
 
+
+class CredentialsError(RuntimeError):
+    pass
+
+
+def _bearer(token: str) -> tuple[dict, tuple | None, dict]:
+    return {"Authorization": f"Bearer {token}"}, None, {}
+
+
+_REAL: dict[str, tuple[str, tuple[str, ...], Callable]] = {
+    "hubspot": ("https://api.hubapi.com", ("HUBSPOT_ACCESS_TOKEN",), _bearer),
+}
 
 _MOCK: dict[str, tuple[str, dict, tuple | None, dict]] = {
     "hubspot": ("/hubspot", {"Authorization": "Bearer mock_hs_token"}, None, {}),
@@ -141,9 +155,35 @@ _MOCK: dict[str, tuple[str, dict, tuple | None, dict]] = {
 }
 
 
+def _real(source: str) -> Credentials | None:
+    if source not in _REAL:
+        return None
+    base_url, names, build = _REAL[source]
+    values = [os.environ.get(name, "") for name in names]
+    missing = [name for name, value in zip(names, values, strict=True) if not value]
+    if len(missing) == len(names):
+        return None
+    if missing:
+        raise CredentialsError(
+            f"{source}: {', '.join(missing)} unset while the rest of "
+            f"{', '.join(names)} is set — set all of them for the real API, "
+            "or none for the mock"
+        )
+    headers, auth, params = build(*values)
+    return Credentials(
+        base_url=os.environ.get(f"{source.upper()}_BASE_URL") or base_url,
+        headers=headers,
+        auth=auth,
+        params=params,
+    )
+
+
 def credentials_for(source: str) -> Credentials:
     if source not in _MOCK:
         raise KeyError(f"no credentials configured for source {source!r}")
+    real = _real(source)
+    if real is not None:
+        return real
     prefix, headers, auth, params = _MOCK[source]
     return Credentials(
         base_url=f"{settings.MOCK_BASE_URL}{prefix}",
