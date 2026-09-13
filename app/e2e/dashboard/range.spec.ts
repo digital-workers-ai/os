@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test'
 import { expect, settle, snap, test, visit } from '../fixtures'
-import { ready } from './ready'
+import { ready, type CardSpec } from './ready'
 
 const DAY = 86400000
 const shift = (iso: string, days: number) => new Date(Date.parse(iso) + days * DAY).toISOString().slice(0, 10)
@@ -10,10 +10,10 @@ const metricsWith = (page: Page, metrics: string[], param: string) =>
 
 test('presets and custom bounds', async ({ page }) => {
   const { dashboards } = await (await page.request.get('/api/definitions/dashboards')).json()
-  const ranged = Object.entries<{ range: boolean; sections: { cards: { metric: string }[] }[] }>(dashboards).find(([, spec]) => spec.range)
+  const ranged = Object.entries<{ range: boolean; sections: { cards: CardSpec[] }[] }>(dashboards).find(([, spec]) => spec.range)
   test.skip(!ranged, 'no ranged page declared')
   const [name, spec] = ranged!
-  const metrics = spec.sections.flatMap((s) => s.cards.map((c) => c.metric))
+  const metrics = spec.sections.flatMap((s) => s.cards.flatMap((c) => (c.shape === 'table' || !c.metric ? [] : [c.metric])))
   await visit(page, `/${name}`)
   const bounds = page.getByTestId('range-bounds')
   const before = await bounds.textContent()

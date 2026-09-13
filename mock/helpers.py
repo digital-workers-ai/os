@@ -4,7 +4,7 @@ Shared auth decorators and pagination helpers for the mock server.
 
 import base64
 import hashlib
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from functools import wraps
 from typing import Any, Optional
 
@@ -205,8 +205,30 @@ def day_factor(day: date) -> float:
     return weekday * sawtooth
 
 
+def item_factor(key: str) -> float:
+    digest = int(hashlib.md5(key.encode()).hexdigest()[:8], 16)
+    return 0.7 + 0.6 * (digest % 100) / 99
+
+
 def days_between(start: date, end: date) -> list[date]:
     return [start + timedelta(days=i) for i in range((end - start).days + 1)]
+
+
+WINDOWLESS_SPAN = (date(2026, 6, 7), date(2026, 9, 4))
+
+
+def window_days(since: Optional[str] = None, until: Optional[str] = None) -> list[date]:
+    start = date.fromisoformat(since[:10]) if since else WINDOWLESS_SPAN[0]
+    end = date.fromisoformat(until[:10]) if until else WINDOWLESS_SPAN[1]
+    return days_between(start, end)
+
+
+def post_days(since: Optional[str] = None, until: Optional[str] = None) -> list[date]:
+    return [day for day in window_days(since, until) if day.toordinal() % 3 == 0]
+
+
+def day_ms(day: date) -> int:
+    return int(datetime(day.year, day.month, day.day, tzinfo=timezone.utc).timestamp() * 1000)
 
 
 def campaign_days(ac, since: date, until: date) -> list[date]:

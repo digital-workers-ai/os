@@ -37,6 +37,8 @@
           "conversions": "1.0",
           "currency": "usd",
           "impressions": "1236.0",
+          "landing_page_views": "9.0",
+          "platform": "meta",
           "report_date": "2026-09-02T00:00:00Z",
           "spend": "638.48"
         },
@@ -46,6 +48,8 @@
           "conversions": "1.0",
           "currency": "usd",
           "impressions": "1301.0",
+          "landing_page_views": "10.0",
+          "platform": "meta",
           "report_date": "2026-09-03T00:00:00Z",
           "spend": "672.09"
         },
@@ -55,6 +59,8 @@
           "conversions": "1.0",
           "currency": "usd",
           "impressions": "1366.0",
+          "landing_page_views": "10.0",
+          "platform": "meta",
           "report_date": "2026-09-04T00:00:00Z",
           "spend": "705.69"
         },
@@ -64,6 +70,8 @@
           "conversions": "1.0",
           "currency": "usd",
           "impressions": "3958.0",
+          "landing_page_views": "23.0",
+          "platform": "meta",
           "report_date": "2026-09-02T00:00:00Z",
           "spend": "1055.56"
         },
@@ -73,6 +81,8 @@
           "conversions": "1.0",
           "currency": "usd",
           "impressions": "4167.0",
+          "landing_page_views": "24.0",
+          "platform": "meta",
           "report_date": "2026-09-03T00:00:00Z",
           "spend": "1111.11"
         },
@@ -82,8 +92,32 @@
           "conversions": "1.0",
           "currency": "usd",
           "impressions": "4375.0",
+          "landing_page_views": "25.0",
+          "platform": "meta",
           "report_date": "2026-09-04T00:00:00Z",
           "spend": "1166.67"
+        }
+      }
+    },
+    "ig_insights": {
+      "social_report": {
+        "ig_001|2026-09-01": {
+          "engaged": "240.0",
+          "follows": "10.0",
+          "impressions": "4000.0",
+          "platform": "instagram",
+          "profile_views": "64.0",
+          "reach": "2720.0",
+          "report_date": "2026-09-01T00:00:00Z"
+        },
+        "ig_001|2026-09-02": {
+          "engaged": "253.0",
+          "follows": "10.0",
+          "impressions": "4222.0",
+          "platform": "instagram",
+          "profile_views": "68.0",
+          "reach": "2871.0",
+          "report_date": "2026-09-02T00:00:00Z"
         }
       }
     },
@@ -92,6 +126,7 @@
         "media_20260901": {
           "category": "carousel_album",
           "comments": "24.0",
+          "interactions": "304.0",
           "likes": "280.0",
           "name": "New product launch!",
           "platform": "instagram",
@@ -100,6 +135,7 @@
         "media_20260904": {
           "category": "image",
           "comments": "28.0",
+          "interactions": "355.0",
           "likes": "327.0",
           "name": "Behind the scenes",
           "platform": "instagram",
@@ -139,11 +175,54 @@
         }
       }
     },
+    "media_insights": {
+      "social_post": {
+        "media_20260901": {
+          "impressions": "5555.0",
+          "platform": "instagram",
+          "reach": "4437.0",
+          "saves": "62.0",
+          "views": "6083.0"
+        },
+        "media_20260904": {
+          "impressions": "6122.0",
+          "platform": "instagram",
+          "reach": "4890.0",
+          "saves": "68.0",
+          "views": "6704.0"
+        }
+      }
+    },
+    "page_insights": {
+      "social_report": {
+        "page_001|2026-09-01": {
+          "engaged": "72.0",
+          "follows": "5.0",
+          "impressions": "1440.0",
+          "platform": "facebook",
+          "profile_views": "32.0",
+          "reach": "960.0",
+          "report_date": "2026-09-01T00:00:00Z",
+          "unfollows": "2.0"
+        },
+        "page_001|2026-09-02": {
+          "engaged": "76.0",
+          "follows": "5.0",
+          "impressions": "1520.0",
+          "platform": "facebook",
+          "profile_views": "34.0",
+          "reach": "1013.0",
+          "report_date": "2026-09-02T00:00:00Z",
+          "unfollows": "2.0"
+        }
+      }
+    },
     "page_posts": {
       "social_post": {
         "page_001_20260901": {
           "category": "video",
           "comments": "20.0",
+          "interactions": "292.0",
           "likes": "240.0",
           "name": "Exciting news! We just launched our new feature.",
           "platform": "facebook",
@@ -153,11 +232,28 @@
         "page_001_20260904": {
           "category": "link",
           "comments": "23.0",
+          "interactions": "340.0",
           "likes": "280.0",
           "name": "Join our upcoming webinar on AI in 2026.",
           "platform": "facebook",
           "posted_at": "2026-09-04T14:00:00Z",
           "shares": "37.0"
+        }
+      }
+    },
+    "post_insights": {
+      "social_post": {
+        "page_001_20260901": {
+          "clicks": "362.0",
+          "impressions": "9914.0",
+          "platform": "facebook",
+          "reach": "7080.0"
+        },
+        "page_001_20260904": {
+          "clicks": "273.0",
+          "impressions": "7481.0",
+          "platform": "facebook",
+          "reach": "5342.0"
         }
       }
     }

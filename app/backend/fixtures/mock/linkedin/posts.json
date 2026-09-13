@@ -1,0 +1,30 @@
+[
+  {
+    "payload": {
+      "author": "urn:li:organization:1",
+      "commentary": "Three lessons from a year of shipping weekly.",
+      "contentType": "VIDEO",
+      "createdAt": 1788271200000,
+      "id": "urn:li:share:20260901",
+      "lastModifiedAt": 1788271200000,
+      "lifecycleState": "PUBLISHED",
+      "publishedAt": 1788271200000,
+      "visibility": "PUBLIC"
+    },
+    "source_id": "urn:li:share:20260901"
+  },
+  {
+    "payload": {
+      "author": "urn:li:organization:1",
+      "commentary": "We are hiring: come build with us.",
+      "contentType": "ARTICLE",
+      "createdAt": 1788530400000,
+      "id": "urn:li:share:20260904",
+      "lastModifiedAt": 1788530400000,
+      "lifecycleState": "PUBLISHED",
+      "publishedAt": 1788530400000,
+      "visibility": "PUBLIC"
+    },
+    "source_id": "urn:li:share:20260904"
+  }
+]

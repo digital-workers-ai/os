@@ -22,6 +22,72 @@
           "status": "active"
         }
       }
+    },
+    "follower_stats": {
+      "social_report": {
+        "urn:li:organization:1|2026-09-01": {
+          "follows": "9.0",
+          "platform": "linkedin",
+          "report_date": "2026-09-01T00:00:00Z"
+        },
+        "urn:li:organization:1|2026-09-02": {
+          "follows": "11.0",
+          "platform": "linkedin",
+          "report_date": "2026-09-02T00:00:00Z"
+        }
+      }
+    },
+    "page_stats": {
+      "social_report": {
+        "urn:li:organization:1|2026-09-01": {
+          "platform": "linkedin",
+          "profile_views": "112.0",
+          "report_date": "2026-09-01T00:00:00Z"
+        },
+        "urn:li:organization:1|2026-09-02": {
+          "platform": "linkedin",
+          "profile_views": "118.0",
+          "report_date": "2026-09-02T00:00:00Z"
+        }
+      }
+    },
+    "post_stats": {
+      "social_post": {
+        "urn:li:share:20260901": {
+          "clicks": "97.0",
+          "comments": "9.0",
+          "impressions": "2655.0",
+          "interactions": "94.0",
+          "likes": "71.0",
+          "platform": "linkedin",
+          "shares": "14.0"
+        },
+        "urn:li:share:20260904": {
+          "clicks": "114.0",
+          "comments": "11.0",
+          "impressions": "3128.0",
+          "interactions": "112.0",
+          "likes": "84.0",
+          "platform": "linkedin",
+          "shares": "17.0"
+        }
+      }
+    },
+    "posts": {
+      "social_post": {
+        "urn:li:share:20260901": {
+          "category": "video",
+          "name": "Three lessons from a year of shipping weekly.",
+          "platform": "linkedin",
+          "posted_at": "2026-09-01T14:00:00Z"
+        },
+        "urn:li:share:20260904": {
+          "category": "article",
+          "name": "We are hiring: come build with us.",
+          "platform": "linkedin",
+          "posted_at": "2026-09-04T14:00:00Z"
+        }
+      }
     }
   },
   "skips": {},

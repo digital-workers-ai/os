@@ -1,5 +1,6 @@
 import math
 import re
+from copy import deepcopy
 from datetime import date, timedelta
 
 from sqlalchemy import func, select
@@ -385,7 +386,7 @@ def validate_dimensions(spec, onto, attrs_of) -> list[str]:
     return problems
 
 
-async def _in_chunks(session, ids, build) -> list:
+async def in_chunks(session, ids, build) -> list:
     ordered = list(ids)
     rows: list = []
     for start in range(0, len(ordered), ID_CHUNK):
@@ -439,8 +440,12 @@ async def _ids_for(session, entity_type: str, filt, window) -> tuple:
                 FactCurrent.canonical_id.in_(chunk),
             )
 
-        ids &= {r[0] for r in await _in_chunks(session, ids, build)}
+        ids &= {r[0] for r in await in_chunks(session, ids, build)}
     return ids, notes
+
+
+async def ids_for(session, entity_type: str, filt, window) -> set:
+    return (await _ids_for(session, entity_type, filt, window))[0]
 
 
 async def _enriched_ids(session, entity_type, filt, reading, population) -> tuple:
@@ -495,7 +500,7 @@ async def _enriched_ids(session, entity_type, filt, reading, population) -> tupl
                 EnrichedFact.canonical_id.in_(chunk),
             )
 
-        hits = {r[0] for r in await _in_chunks(session, ids, build)}
+        hits = {r[0] for r in await in_chunks(session, ids, build)}
         ids = (ids - hits) if negated else (ids & hits)
     return ids, notes
 
@@ -503,7 +508,7 @@ async def _enriched_ids(session, entity_type, filt, reading, population) -> tupl
 async def _currencies(session, ids: set) -> set:
     if not ids:
         return set()
-    rows = await _in_chunks(
+    rows = await in_chunks(
         session,
         ids,
         lambda chunk: (
@@ -534,7 +539,7 @@ async def _aggregate(session, ids: set, agg: str, operand: str, money: set) -> t
             return None, notes
 
     if agg == "COUNT":
-        rows = await _in_chunks(
+        rows = await in_chunks(
             session,
             ids,
             lambda chunk: select(FactCurrent.canonical_id).where(
@@ -545,7 +550,7 @@ async def _aggregate(session, ids: set, agg: str, operand: str, money: set) -> t
             notes["entities_without_attr"] = len(ids) - len(rows)
         return len(rows), notes
 
-    rows = await _in_chunks(
+    rows = await in_chunks(
         session,
         ids,
         lambda chunk: select(FactCurrent.value_num).where(
@@ -572,7 +577,7 @@ async def _aggregate_enriched(session, ids, agg, operand, reading) -> tuple:
     if operand == "entity":
         return len(ids), notes
 
-    rows = await _in_chunks(
+    rows = await in_chunks(
         session,
         ids,
         lambda chunk: select(
@@ -599,7 +604,7 @@ def _combine(left, right):
 
 
 async def _producers(session, reading, counted) -> list:
-    stamps = await _in_chunks(
+    stamps = await in_chunks(
         session,
         counted,
         lambda chunk: (
@@ -844,7 +849,19 @@ async def evaluate_definitions(session, defs: dict, now=None) -> dict:
     return out
 
 
-async def evaluate_one(session, name, spec, *, now, bounds=None, compare=None) -> dict:
+def _composed(spec, filt) -> dict:
+    composed = deepcopy(spec)
+    for term in composed.get("terms") or [composed]:
+        fixed = (
+            term.get("filter") if "filter" in term else composed.get("filter")
+        ) or {}
+        term["filter"] = {**fixed, **filt}
+    return composed
+
+
+async def evaluate_one(
+    session, name, spec, *, now, bounds=None, compare=None, filt=None
+) -> dict:
     if bounds:
         parsed = parse_spec(spec)
         if parsed["window"]:
@@ -857,9 +874,19 @@ async def evaluate_one(session, name, spec, *, now, bounds=None, compare=None) -
                 "this metric declares no window_attr — there is no "
                 "business-time attr to range on"
             )
-    return await _evaluate(
+    onto = ontology.load()
+    if filt:
+        entity = str(spec.get("entity"))
+        attrs = derived.attrs_of(onto)(entity)
+        for attr in filt:
+            if str(attr) not in attrs:
+                raise MetricSpecError(
+                    f"filter attr {attr!r} is not an attr of {entity}"
+                )
+        spec = _composed(spec, filt)
+    result = await _evaluate(
         session,
-        ontology.load(),
+        onto,
         transforms.money_labels(),
         spec,
         spec.get("label", name),
@@ -867,6 +894,9 @@ async def evaluate_one(session, name, spec, *, now, bounds=None, compare=None) -
         bounds,
         compare,
     )
+    if filt:
+        result["applied_filter"] = dict(filt)
+    return result
 
 
 async def evaluate(session, now=None) -> dict:

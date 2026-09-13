@@ -1,0 +1,48 @@
+[
+  {
+    "payload": {
+      "board_id": "549764905678001",
+      "created_at": "2026-09-01T16:00:00",
+      "description": "From the team at Acme.",
+      "id": "pin_20260901",
+      "is_owner": true,
+      "link": "https://acme.example.com/blog/20260901",
+      "media": {
+        "media_type": "image"
+      },
+      "pin_metrics": {
+        "all_time": {
+          "IMPRESSION": 941,
+          "OUTBOUND_CLICK": 15,
+          "PIN_CLICK": 29,
+          "SAVE": 37
+        }
+      },
+      "title": "Summer workspace ideas"
+    },
+    "source_id": "pin_20260901"
+  },
+  {
+    "payload": {
+      "board_id": "549764905678001",
+      "created_at": "2026-09-04T16:00:00",
+      "description": "From the team at Acme.",
+      "id": "pin_20260904",
+      "is_owner": true,
+      "link": "https://acme.example.com/blog/20260904",
+      "media": {
+        "media_type": "video"
+      },
+      "pin_metrics": {
+        "all_time": {
+          "IMPRESSION": 1110,
+          "OUTBOUND_CLICK": 17,
+          "PIN_CLICK": 35,
+          "SAVE": 43
+        }
+      },
+      "title": "Five-minute desk stretches"
+    },
+    "source_id": "pin_20260904"
+  }
+]

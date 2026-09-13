@@ -38,13 +38,48 @@ async function request<T>(path: string): Promise<T> {
 
 export const get = <T>(path: string) => request<T>(path)
 
+export type Filter = Record<string, string>
+
+type Param = [string, string | undefined]
+
+const filterParams = (filter: Filter = {}): Param[] => Object.entries(filter).map(([attr, value]) => ['filter', `${attr}:${value}`])
+
+const query = (params: Param[]) => {
+  const search = new URLSearchParams()
+  for (const [key, value] of params) if (value !== undefined) search.append(key, value)
+  const text = search.toString()
+  return text ? `?${text}` : ''
+}
+
 export type Shape = 'kpi' | 'ratio' | 'breakdown' | 'series'
 
-export interface CardSpec {
+export interface MetricCardSpec {
   metric: string
   label: string
   shape: Shape
 }
+
+export type ColumnType = 'string' | 'number' | 'date'
+
+export interface Column {
+  attr: string
+  type: ColumnType
+}
+
+export interface TableCardSpec {
+  shape: 'table'
+  label: string
+  entity: string
+  rank: string
+  columns: Column[]
+  window_attr: string | null
+  limit: number
+  filter: Filter
+}
+
+export type CardSpec = MetricCardSpec | TableCardSpec
+
+export const isTable = (card: CardSpec): card is TableCardSpec => card.shape === 'table'
 
 export interface SectionSpec {
   label: string
@@ -56,12 +91,17 @@ export interface PageSpec {
   range: boolean
   goals: boolean
   findings: boolean
+  filter: Filter
+  parent: string | null
   sections: SectionSpec[]
 }
 
 export interface DashboardsResponse {
   dashboards: Record<string, PageSpec>
 }
+
+export const pageAt = (pages: Record<string, PageSpec>, name = '', parent: string | null = null): PageSpec | undefined =>
+  pages[name]?.parent === parent ? pages[name] : undefined
 
 export interface Previous {
   value: number | null
@@ -92,13 +132,15 @@ export interface MetricResponse {
   window_to?: string
   window_days?: number
   window_bad_values?: number
+  applied_filter?: Filter
   previous?: Previous
 }
 
-export type MetricWindow = {
-  from: string
-  to: string
-  compare: 'previous'
+export interface MetricQuery {
+  from?: string
+  to?: string
+  compare?: 'previous'
+  filter?: Filter
 }
 
 export interface Term {
@@ -133,12 +175,45 @@ export interface MetricDefinitionsResponse {
 
 export const getDashboards = () => get<DashboardsResponse>('/api/definitions/dashboards')
 
-export const getMetric = (name: string, window?: MetricWindow) => {
-  const query = window ? `?${new URLSearchParams(window)}` : ''
-  return get<MetricResponse>(`/api/metrics/${encodeURIComponent(name)}${query}`)
-}
+export const getMetric = (name: string, { from, to, compare, filter }: MetricQuery = {}) =>
+  get<MetricResponse>(`/api/metrics/${encodeURIComponent(name)}${query([['from', from], ['to', to], ['compare', compare], ...filterParams(filter)])}`)
 
 export const getMetricDefinitions = () => get<MetricDefinitionsResponse>('/api/definitions/metrics')
+
+export interface TopRow {
+  canonical_id: string
+  values: Record<string, string | null>
+}
+
+export interface TopResponse {
+  entity: string
+  rank: string
+  columns: Column[]
+  rows: TopRow[]
+  entities: number
+  window_from?: string
+  window_to?: string
+}
+
+export interface TopQuery {
+  from?: string
+  to?: string
+  filter?: Filter
+}
+
+export const getTop = (spec: TableCardSpec, { from, to, filter }: TopQuery = {}) => {
+  const windowed: Param[] = from && to && spec.window_attr ? [['from', from], ['to', to], ['window_attr', spec.window_attr]] : []
+  return get<TopResponse>(
+    `/api/entities/top${query([
+      ['entity', spec.entity],
+      ['rank', spec.rank],
+      ...spec.columns.map((column): Param => ['columns', column.attr]),
+      ['limit', String(spec.limit)],
+      ...windowed,
+      ...filterParams({ ...filter, ...spec.filter }),
+    ])}`,
+  )
+}
 
 export interface Goal {
   goal: string

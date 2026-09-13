@@ -47,3 +47,13 @@ posted_at: normalize_date
 likes: normalize_number
 comments: normalize_number
 shares: normalize_number
+reach: normalize_number
+views: normalize_number
+saves: normalize_number
+interactions: normalize_number
+engaged: normalize_number
+follows: normalize_number
+unfollows: normalize_number
+profile_views: normalize_number
+conversion_value: normalize_number
+landing_page_views: normalize_number

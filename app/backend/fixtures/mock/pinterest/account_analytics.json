@@ -1,0 +1,30 @@
+[
+  {
+    "payload": {
+      "data_status": "READY",
+      "date": "2026-09-01",
+      "metrics": {
+        "ENGAGEMENT": 152,
+        "IMPRESSION": 2080,
+        "PIN_CLICK": 56,
+        "SAVE": 36,
+        "TOTAL_AUDIENCE": 1200
+      }
+    },
+    "source_id": "user_account|2026-09-01"
+  },
+  {
+    "payload": {
+      "data_status": "READY",
+      "date": "2026-09-02",
+      "metrics": {
+        "ENGAGEMENT": 160,
+        "IMPRESSION": 2196,
+        "PIN_CLICK": 59,
+        "SAVE": 38,
+        "TOTAL_AUDIENCE": 1267
+      }
+    },
+    "source_id": "user_account|2026-09-02"
+  }
+]

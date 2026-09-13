@@ -1,6 +1,6 @@
 import pytest
 
-from app.engine import dashboards, metrics
+from app.engine import dashboards, derived, metrics, ontology
 
 OVERVIEW = {
     "label": "Overview",
@@ -29,6 +29,28 @@ RATIO = {
 }
 RANGEABLE = {"entity": "deal", "expression": "SUM(amount)", "window_attr": "closed_at"}
 
+TABLE = {
+    "table": "social_post",
+    "label": "Top posts",
+    "rank": "likes",
+    "columns": ["name", "likes"],
+}
+
+ATTRS = {
+    "subscription": {"mrr": "number", "status": "string", "started_at": "date"},
+    "deal": {"amount": "number", "status": "string", "closed_at": "date"},
+    "social_post": {
+        "name": "string",
+        "platform": "string",
+        "likes": "number",
+        "posted_at": "date",
+    },
+}
+
+
+def attrs_of(entity):
+    return ATTRS[entity]
+
 
 def _page(**overrides):
     return {**OVERVIEW, **overrides}
@@ -40,6 +62,26 @@ def _without(key):
 
 def _section(**overrides):
     return _page(sections=[{"label": "Traffic", "cards": ["mrr"], **overrides}])
+
+
+def _table(**overrides):
+    return {**TABLE, **overrides}
+
+
+def _table_without(key):
+    return {k: v for k, v in TABLE.items() if k != key}
+
+
+def _tabled(card, **overrides):
+    return _page(sections=[{"label": "Top", "cards": [card]}], **overrides)
+
+
+def _filtered(filt, cards):
+    return _page(range=False, filter=filt, sections=[{"label": "X", "cards": cards}])
+
+
+def _under(parent):
+    return {**_filtered({}, ["mrr"]), "parent": parent}
 
 
 class TestAPageParses:
@@ -85,6 +127,32 @@ class TestAPageParses:
         ]
 
 
+class TestAPageFilterParses:
+    def test_a_page_filter_parses_to_its_mapping(self):
+        page = dashboards.parse("facebook", _page(filter={"platform": "facebook"}))
+        assert page.filter == {"platform": "facebook"}
+
+    def test_filter_defaults_to_empty(self):
+        assert dashboards.parse("overview", OVERVIEW).filter == {}
+
+    def test_a_numeric_filter_value_is_kept_as_given(self):
+        assert dashboards.parse("tier", _page(filter={"tier": 2})).filter == {"tier": 2}
+
+    def test_the_page_key_set_names_filter(self):
+        assert "filter" in dashboards.PAGE_KEYS
+
+
+class TestAPageParentParses:
+    def test_a_parent_parses_to_the_named_page(self):
+        assert dashboards.parse("facebook", _page(parent="social")).parent == "social"
+
+    def test_parent_defaults_to_none(self):
+        assert dashboards.parse("overview", OVERVIEW).parent is None
+
+    def test_the_page_key_set_names_parent(self):
+        assert "parent" in dashboards.PAGE_KEYS
+
+
 class TestTheBuildRefusesAMalformedPage:
     @pytest.mark.parametrize(
         "spec,reason",
@@ -96,6 +164,7 @@ class TestTheBuildRefusesAMalformedPage:
             (_page(range="yes"), "range"),
             (_page(goals="yes"), "goals 'yes' must be true or false"),
             (_page(findings="yes"), "findings 'yes' must be true or false"),
+            (_page(parent=7), "parent 7 must be a page name"),
             (_without("sections"), "sections"),
             ({"label": "Overview"}, "needs `sections`"),
             (_page(sections={"label": "Traffic"}), "sections"),
@@ -107,6 +176,11 @@ class TestTheBuildRefusesAMalformedPage:
             (_section(cards="mrr"), "cards"),
             (_section(cards=[]), "cards"),
             (_section(cards=["mrr", 7]), "cards"),
+            (_page(filter="facebook"), "filter must be a mapping"),
+            (_page(filter={"a.b": "x"}), "filter attr 'a.b'"),
+            (_page(filter={"platform": True}), "filter value"),
+            (_page(filter={"platform": None}), "filter value"),
+            (_page(filter={"platform": ["facebook"]}), "filter value"),
         ],
         ids=[
             "page_not_a_mapping",
@@ -116,6 +190,7 @@ class TestTheBuildRefusesAMalformedPage:
             "range_not_a_bool",
             "goals_not_a_bool",
             "findings_not_a_bool",
+            "parent_not_a_string",
             "missing_sections",
             "only_a_label",
             "sections_not_a_list",
@@ -126,7 +201,12 @@ class TestTheBuildRefusesAMalformedPage:
             "missing_cards",
             "cards_not_a_list",
             "empty_cards",
-            "card_not_a_string",
+            "card_not_a_name_or_a_table",
+            "filter_not_a_mapping",
+            "filter_attr_not_plain",
+            "filter_value_a_bool",
+            "filter_value_none",
+            "filter_value_a_list",
         ],
     )
     def test_a_malformed_page_is_refused_naming_the_page(self, spec, reason):
@@ -139,6 +219,91 @@ class TestTheBuildRefusesAMalformedPage:
         path.write_text("- a\n")
         with pytest.raises(dashboards.DashboardError, match="top level"):
             dashboards.load(path)
+
+
+class TestATableCardParses:
+    def test_a_table_card_parses_with_its_defaults(self):
+        page = dashboards.parse("social", _tabled(TABLE))
+        assert page.sections[0].cards == (
+            dashboards.TableCard(
+                "social_post", "Top posts", "likes", ("name", "likes"), None, 10, {}
+            ),
+        )
+
+    def test_a_table_card_carries_its_window_attr_limit_and_filter(self):
+        card = _table(window_attr="posted_at", limit=5, filter={"platform": "x"})
+        page = dashboards.parse("social", _tabled(card))
+        assert page.sections[0].cards[0] == dashboards.TableCard(
+            "social_post",
+            "Top posts",
+            "likes",
+            ("name", "likes"),
+            "posted_at",
+            5,
+            {"platform": "x"},
+        )
+
+    def test_a_metric_card_beside_a_table_card_stays_a_name(self):
+        spec = _page(sections=[{"label": "Top", "cards": ["posts", TABLE]}])
+        page = dashboards.parse("social", spec)
+        assert page.sections[0].cards[0] == "posts"
+
+    def test_a_table_card_is_frozen(self):
+        card = dashboards.parse("social", _tabled(TABLE)).sections[0].cards[0]
+        with pytest.raises(AttributeError):
+            card.limit = 3
+
+
+class TestTheBuildRefusesAMalformedTableCard:
+    @pytest.mark.parametrize(
+        "card,reason",
+        [
+            (_table(icon="x"), "icon"),
+            (_table_without("table"), "table"),
+            (_table(table=7), "table"),
+            (_table_without("label"), "label"),
+            (_table(label=7), "label"),
+            (_table_without("rank"), "rank"),
+            (_table(rank=7), "rank"),
+            (_table_without("columns"), "columns"),
+            (_table(columns=[]), "columns"),
+            (_table(columns="name"), "columns"),
+            (_table(columns=["name", 7]), "columns"),
+            (_table(window_attr=7), "window_attr"),
+            (_table(limit=0), "limit"),
+            (_table(limit=51), "limit"),
+            (_table(limit=True), "limit"),
+            (_table(limit="10"), "limit"),
+            (_table(filter="x"), "filter must be a mapping"),
+            (_table(filter={"a.b": "x"}), "filter attr 'a.b'"),
+            (_table(filter={"platform": True}), "filter value"),
+        ],
+        ids=[
+            "unknown_key",
+            "missing_table",
+            "table_not_a_string",
+            "missing_label",
+            "label_not_a_string",
+            "missing_rank",
+            "rank_not_a_string",
+            "missing_columns",
+            "empty_columns",
+            "columns_not_a_list",
+            "column_not_a_string",
+            "window_attr_not_a_string",
+            "limit_zero",
+            "limit_past_fifty",
+            "limit_a_bool",
+            "limit_a_string",
+            "filter_not_a_mapping",
+            "filter_attr_not_plain",
+            "filter_value_a_bool",
+        ],
+    )
+    def test_a_malformed_table_card_is_refused_naming_the_page(self, card, reason):
+        with pytest.raises(dashboards.DashboardError, match="social") as caught:
+            dashboards.parse("social", _tabled(card))
+        assert reason in str(caught.value)
 
 
 class TestShapeIsDerivedFromTheMetric:
@@ -159,7 +324,7 @@ class TestShapeIsDerivedFromTheMetric:
 class TestCheckNamesWhatIsWrong:
     def test_a_card_naming_no_metric(self):
         defs = {"overview": _section(cards=["nope"])}
-        problems = dashboards.check(defs, {"mrr": KPI})
+        problems = dashboards.check(defs, {"mrr": KPI}, attrs_of)
         assert len(problems) == 1, problems
         assert "overview" in problems[0]
         assert "nope" in problems[0]
@@ -174,14 +339,14 @@ class TestCheckNamesWhatIsWrong:
                 ],
             }
         }
-        problems = dashboards.check(defs, {"mrr": KPI})
+        problems = dashboards.check(defs, {"mrr": KPI}, attrs_of)
         assert len(problems) == 1, problems
         assert "pipeline" in problems[0]
         assert "mrr" in problems[0]
 
     def test_a_card_that_cannot_be_ranged_on_a_range_page(self):
         defs = {"overview": _section(cards=["mrr"])}
-        problems = dashboards.check(defs, {"mrr": KPI})
+        problems = dashboards.check(defs, {"mrr": KPI}, attrs_of)
         assert len(problems) == 1, problems
         assert "overview" in problems[0]
         assert "mrr" in problems[0]
@@ -189,17 +354,163 @@ class TestCheckNamesWhatIsWrong:
 
     def test_a_rangeable_card_on_a_range_page_passes(self):
         defs = {"overview": _section(cards=["won"])}
-        assert dashboards.check(defs, {"won": RANGEABLE}) == []
+        assert dashboards.check(defs, {"won": RANGEABLE}, attrs_of) == []
 
     def test_a_malformed_page_is_one_problem(self):
-        problems = dashboards.check({"overview": _page(sections=[])}, {"mrr": KPI})
+        problems = dashboards.check(
+            {"overview": _page(sections=[])}, {"mrr": KPI}, attrs_of
+        )
         assert len(problems) == 1, problems
         assert "overview" in problems[0]
 
     def test_a_card_whose_metric_does_not_parse_is_left_to_the_metrics_check(self):
         defs = {"overview": _section(cards=["broken"])}
         broken = {"entity": "deal", "expression": "COUNT(entity)", "bogus": 1}
-        assert dashboards.check(defs, {"broken": broken}) == []
+        assert dashboards.check(defs, {"broken": broken}, attrs_of) == []
+
+    def test_a_card_whose_metric_is_not_a_mapping_is_left_to_the_metrics_check(
+        self,
+    ):
+        defs = {
+            "pipeline": _page(range=False, sections=[{"label": "X", "cards": ["mrr"]}])
+        }
+        assert dashboards.check(defs, {"mrr": "SUM(mrr)"}, attrs_of) == []
 
     def test_the_shipped_dashboards_pass_against_the_shipped_metrics(self):
-        assert dashboards.check(dashboards.load(), metrics.load_definitions()) == []
+        problems = dashboards.check(
+            dashboards.load(),
+            metrics.load_definitions(),
+            derived.attrs_of(ontology.load()),
+        )
+        assert problems == []
+
+
+class TestCheckHoldsAPageFilterToEveryCard:
+    def test_a_filter_attr_the_metric_cards_entity_lacks(self):
+        defs = {"facebook": _filtered({"platform": "facebook"}, ["mrr"])}
+        problems = dashboards.check(defs, {"mrr": KPI}, attrs_of)
+        assert len(problems) == 1, problems
+        assert "facebook" in problems[0]
+        assert "mrr" in problems[0]
+        assert "platform" in problems[0]
+
+    def test_a_filter_attr_every_card_declares_passes(self):
+        defs = {"active": _filtered({"status": "active"}, ["mrr"])}
+        assert dashboards.check(defs, {"mrr": KPI}, attrs_of) == []
+
+    def test_a_metric_on_an_undeclared_entity_is_left_to_the_metrics_check(self):
+        defs = {"facebook": _filtered({"platform": "facebook"}, ["ghost"])}
+        ghost = {"entity": "ghost", "expression": "COUNT(entity)"}
+        assert dashboards.check(defs, {"ghost": ghost}, attrs_of) == []
+
+    def test_a_filter_attr_the_table_cards_entity_lacks(self):
+        deals = _table(
+            table="deal", label="Top deals", rank="amount", columns=["status"]
+        )
+        defs = {"facebook": _filtered({"platform": "facebook"}, [deals])}
+        problems = dashboards.check(defs, {}, attrs_of)
+        assert len(problems) == 1, problems
+        assert "facebook" in problems[0]
+        assert "Top deals" in problems[0]
+        assert "platform" in problems[0]
+
+    def test_a_filter_attr_the_table_cards_entity_declares_passes(self):
+        defs = {"facebook": _filtered({"platform": "facebook"}, [TABLE])}
+        assert dashboards.check(defs, {}, attrs_of) == []
+
+
+class TestCheckHoldsAParentToATopLevelPage:
+    def test_a_parent_that_is_not_a_declared_page(self):
+        defs = {"facebook": _under("social")}
+        problems = dashboards.check(defs, {"mrr": KPI}, attrs_of)
+        assert len(problems) == 1, problems
+        assert "facebook" in problems[0]
+        assert "social" in problems[0]
+
+    def test_a_parent_that_itself_has_a_parent(self):
+        defs = {
+            "overview": _filtered({}, ["mrr"]),
+            "social": _under("overview"),
+            "facebook": _under("social"),
+        }
+        problems = dashboards.check(defs, {"mrr": KPI}, attrs_of)
+        assert len(problems) == 1, problems
+        assert "facebook" in problems[0]
+        assert "social" in problems[0]
+
+    def test_a_page_naming_itself_as_parent(self):
+        defs = {"social": _under("social")}
+        problems = dashboards.check(defs, {"mrr": KPI}, attrs_of)
+        assert len(problems) == 1, problems
+        assert "social" in problems[0]
+        assert "itself" in problems[0]
+
+    def test_a_page_can_name_a_parent_that_is_top_level(self):
+        defs = {"social": _filtered({}, ["mrr"]), "facebook": _under("social")}
+        assert dashboards.check(defs, {"mrr": KPI}, attrs_of) == []
+
+    def test_a_malformed_parent_is_only_its_own_problem(self):
+        defs = {"social": _page(sections=[]), "facebook": _under("social")}
+        problems = dashboards.check(defs, {"mrr": KPI}, attrs_of)
+        assert len(problems) == 1, problems
+        assert "facebook" not in problems[0]
+
+
+class TestCheckHoldsATableToItsEntity:
+    def _problems(self, card, **page):
+        defs = {"social": _tabled(card, range=False, **page)}
+        return dashboards.check(defs, {}, attrs_of)
+
+    def test_a_table_on_an_undeclared_entity(self):
+        problems = self._problems(_table(table="ghost"))
+        assert len(problems) == 1, problems
+        assert "social" in problems[0]
+        assert "ghost" in problems[0]
+
+    def test_a_rank_the_entity_lacks(self):
+        problems = self._problems(_table(rank="nope"))
+        assert len(problems) == 1, problems
+        assert "Top posts" in problems[0]
+        assert "nope" in problems[0]
+
+    def test_a_rank_that_is_not_a_number(self):
+        problems = self._problems(_table(rank="platform"))
+        assert len(problems) == 1, problems
+        assert "platform" in problems[0]
+        assert "number" in problems[0]
+
+    def test_a_column_the_entity_lacks(self):
+        problems = self._problems(_table(columns=["name", "nope"]))
+        assert len(problems) == 1, problems
+        assert "nope" in problems[0]
+
+    def test_a_window_attr_the_entity_lacks(self):
+        problems = self._problems(_table(window_attr="nope"))
+        assert len(problems) == 1, problems
+        assert "nope" in problems[0]
+
+    def test_a_window_attr_that_is_not_a_date(self):
+        problems = self._problems(_table(window_attr="platform"))
+        assert len(problems) == 1, problems
+        assert "platform" in problems[0]
+        assert "date" in problems[0]
+
+    def test_a_table_on_a_range_page_needs_a_window_attr(self):
+        problems = dashboards.check({"social": _tabled(TABLE)}, {}, attrs_of)
+        assert len(problems) == 1, problems
+        assert "social" in problems[0]
+        assert "Top posts" in problems[0]
+        assert "window_attr" in problems[0]
+
+    def test_a_filter_attr_the_entity_lacks(self):
+        problems = self._problems(_table(filter={"nope": "x"}))
+        assert len(problems) == 1, problems
+        assert "nope" in problems[0]
+
+    def test_a_clean_table_on_a_range_page_passes(self):
+        card = _table(window_attr="posted_at", filter={"platform": "facebook"})
+        assert dashboards.check({"social": _tabled(card)}, {}, attrs_of) == []
+
+    def test_two_alike_tables_on_one_page_are_not_duplicates(self):
+        spec = _page(range=False, sections=[{"label": "Top", "cards": [TABLE, TABLE]}])
+        assert dashboards.check({"social": spec}, {}, attrs_of) == []

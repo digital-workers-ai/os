@@ -388,7 +388,7 @@ def run(
     except (goals.GoalError, yaml.YAMLError) as e:
         problems.append(f"goals.yaml: {e}")
     try:
-        problems += dashboards.check(dashboards.load(dashboards_path), defs)
+        problems += dashboards.check(dashboards.load(dashboards_path), defs, attrs_of)
     except (dashboards.DashboardError, yaml.YAMLError) as e:
         problems.append(f"dashboards.yaml: {e}")
 

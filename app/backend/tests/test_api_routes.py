@@ -16,7 +16,7 @@ from app.api import (
     sources_api,
 )
 from app.db import get_session
-from app.engine import goals, mappings, metrics, ontology, rules, run
+from app.engine import dashboards, goals, mappings, metrics, ontology, rules, run
 from app.engine.transforms import TRANSFORM_TYPES, TRANSFORMS
 from app.main import app
 from app.models import (
@@ -492,6 +492,174 @@ class TestEntitiesList:
         assert (await api.get(f"/api/entities?{query}")).status_code == 422
 
 
+TOP = "/api/entities/top?entity=deal&rank=amount"
+AUGUST_WINDOW = "from=2026-08-01&to=2026-08-31&window_attr=closed_at"
+
+
+async def _deals(canonical):
+    won = {"status": "closed_won", "closed_at": "2026-08-15T00:00:00Z"}
+    await canonical("deal", {**won, "name": "Small", "amount": 100})
+    await canonical(
+        "deal",
+        {
+            "name": "Big",
+            "amount": 900,
+            "status": "open",
+            "closed_at": "2026-07-15T00:00:00Z",
+        },
+    )
+    await canonical(
+        "deal",
+        {**won, "name": "Mid", "amount": 500, "closed_at": "2026-08-20T00:00:00Z"},
+    )
+    await canonical("deal", {"name": "Unpriced", "status": "closed_won"})
+
+
+def _names(body):
+    return [row["values"]["name"] for row in body["rows"]]
+
+
+class TestEntitiesTop:
+    async def test_rows_come_ranked_descending_by_the_rank_attr(self, api, canonical):
+        await _deals(canonical)
+        response = await api.get(f"{TOP}&columns=name")
+        assert response.status_code == 200, response.text
+        assert _names(response.json()) == ["Big", "Mid", "Small", "Unpriced"]
+
+    async def test_a_row_without_a_rank_value_comes_last_with_none(
+        self, api, canonical
+    ):
+        await _deals(canonical)
+        body = (await api.get(f"{TOP}&columns=name")).json()
+        assert body["rows"][-1]["values"] == {"name": "Unpriced", "amount": None}
+
+    async def test_each_row_carries_its_canonical_id(self, api, canonical):
+        canonical_id = await canonical("deal", {"name": "Only", "amount": 1})
+        body = (await api.get(f"{TOP}&columns=name")).json()
+        assert body["rows"][0]["canonical_id"] == str(canonical_id)
+
+    async def test_the_rank_value_travels_even_when_not_a_column(self, api, canonical):
+        await _deals(canonical)
+        body = (await api.get(f"{TOP}&columns=name")).json()
+        assert body["rows"][0]["values"]["amount"] == "900"
+
+    async def test_a_column_the_row_lacks_reads_as_none(self, api, canonical):
+        await canonical("deal", {"name": "Bare", "amount": 5})
+        body = (await api.get(f"{TOP}&columns=name&columns=status")).json()
+        assert body["rows"][0]["values"]["status"] is None
+
+    async def test_limit_caps_the_rows_but_the_count_is_of_every_match(
+        self, api, canonical
+    ):
+        await _deals(canonical)
+        body = (await api.get(f"{TOP}&columns=name&limit=2")).json()
+        assert _names(body) == ["Big", "Mid"]
+        assert body["entities"] == 4
+
+    async def test_limit_defaults_to_ten(self, api, canonical):
+        for n in range(12):
+            await canonical("deal", {"name": f"d{n}", "amount": n})
+        body = (await api.get(f"{TOP}&columns=name")).json()
+        assert len(body["rows"]) == 10
+
+    async def test_columns_serve_typed_in_the_requested_order(self, api):
+        body = (await api.get(f"{TOP}&columns=status&columns=name")).json()
+        assert body["columns"] == [
+            {"attr": "status", "type": "string"},
+            {"attr": "name", "type": "string"},
+        ]
+
+    async def test_the_response_names_the_entity_and_the_rank(self, api):
+        body = (await api.get(TOP)).json()
+        assert body["entity"] == "deal"
+        assert body["rank"] == "amount"
+
+    async def test_an_empty_estate_is_zero_rows_not_an_error(self, api):
+        response = await api.get(TOP)
+        assert response.status_code == 200, response.text
+        assert response.json()["rows"] == []
+        assert response.json()["entities"] == 0
+
+    async def test_a_filter_narrows_the_rows_and_the_count(self, api, canonical):
+        await _deals(canonical)
+        body = (await api.get(f"{TOP}&columns=name&filter=status:closed_won")).json()
+        assert _names(body) == ["Mid", "Small", "Unpriced"]
+        assert body["entities"] == 3
+
+    async def test_a_window_narrows_to_the_records_inside_it(self, api, canonical):
+        await _deals(canonical)
+        body = (await api.get(f"{TOP}&columns=name&{AUGUST_WINDOW}")).json()
+        assert _names(body) == ["Mid", "Small"]
+        assert body["entities"] == 2
+
+    async def test_a_window_is_stamped_on_the_response(self, api):
+        body = (await api.get(f"{TOP}&{AUGUST_WINDOW}")).json()
+        assert body["window_from"] == "2026-08-01"
+        assert body["window_to"] == "2026-08-31"
+
+    async def test_no_window_stamps_no_bounds(self, api):
+        response = await api.get(TOP)
+        assert response.status_code == 200, response.text
+        assert "window_from" not in response.json()
+        assert "window_to" not in response.json()
+
+    async def test_an_unknown_entity_is_a_404(self, api):
+        response = await api.get("/api/entities/top?entity=nope&rank=amount")
+        assert response.status_code == 404
+        assert response.json()["detail"] == "no such entity type"
+
+    @pytest.mark.parametrize(
+        "query,reason",
+        [
+            ("rank=nope", "nope"),
+            ("rank=status", "number"),
+            ("rank=amount&columns=nope", "nope"),
+            ("rank=amount&from=2026-08-01&to=2026-08-31&window_attr=nope", "nope"),
+            ("rank=amount&from=2026-08-01&to=2026-08-31&window_attr=status", "date"),
+            ("rank=amount&filter=nope:x", "nope"),
+            ("rank=amount&filter=nonsense", "attr:value"),
+            ("rank=amount&from=2026-08-01&window_attr=closed_at", "to"),
+            ("rank=amount&to=2026-08-31&window_attr=closed_at", "from"),
+            (
+                "rank=amount&from=2026-08-31&to=2026-08-01&window_attr=closed_at",
+                "after",
+            ),
+            ("rank=amount&from=2026-08-01&to=2026-08-31", "window_attr"),
+        ],
+        ids=[
+            "rank_not_an_attr",
+            "rank_not_a_number",
+            "column_not_an_attr",
+            "window_attr_not_an_attr",
+            "window_attr_not_a_date",
+            "filter_attr_not_an_attr",
+            "filter_not_attr_value",
+            "from_without_to",
+            "to_without_from",
+            "from_after_to",
+            "window_without_window_attr",
+        ],
+    )
+    async def test_a_bad_request_is_refused_naming_what_is_wrong(
+        self, api, query, reason
+    ):
+        response = await api.get(f"/api/entities/top?entity=deal&{query}")
+        assert response.status_code == 422, response.text
+        assert reason in response.json()["detail"]
+
+    @pytest.mark.parametrize(
+        "query",
+        [
+            "entity=deal&rank=amount&limit=0",
+            "entity=deal&rank=amount&limit=51",
+            "rank=amount",
+            "entity=deal",
+        ],
+    )
+    async def test_out_of_range_or_missing_params_are_refused(self, api, query):
+        assert (await api.get(f"/api/entities/top?{query}")).status_code == 422
+
+
 class TestEntityDetail:
     async def test_an_unknown_id_is_a_404(self, api):
         response = await api.get(f"/api/entities/{uuid.uuid4()}")
@@ -854,6 +1022,46 @@ class TestMetrics:
     async def test_a_metric_with_no_window_attr_refuses_a_range(self, api):
         response = await api.get("/api/metrics/mrr?from=2026-08-01&to=2026-08-31")
         assert response.status_code == 422
+
+    async def test_a_filter_travels_on_the_receipt(self, api):
+        response = await api.get("/api/metrics/mrr?filter=status:active")
+        assert response.status_code == 200, response.text
+        assert response.json()["applied_filter"] == {"status": "active"}
+
+    async def test_a_filter_narrows_the_value(self, api, canonical):
+        await canonical("subscription", {"mrr": 100, "status": "active"})
+        await canonical("subscription", {"mrr": 50, "status": "cancelled"})
+        response = await api.get(
+            "/api/metrics/subscription_count?filter=status:cancelled"
+        )
+        assert response.status_code == 200, response.text
+        assert response.json()["value"] == 1
+
+    async def test_a_filter_value_keeps_every_colon_after_the_first(self, api):
+        response = await api.get("/api/metrics/won_value?filter=name:a:b")
+        assert response.status_code == 200, response.text
+        assert response.json()["applied_filter"] == {"name": "a:b"}
+
+    async def test_a_filter_and_a_range_travel_together(self, api, canonical):
+        won = {"status": "closed_won", "closed_at": "2026-08-15T00:00:00Z"}
+        await canonical("deal", {**won, "amount": 100, "currency": "usd"})
+        await canonical("deal", {**won, "amount": 250, "currency": "eur"})
+        response = await api.get(
+            "/api/metrics/won_value?from=2026-08-01&to=2026-08-31&filter=currency:eur"
+        )
+        assert response.status_code == 200, response.text
+        assert response.json()["value"] == 250
+
+    @pytest.mark.parametrize("item", ["nonsense", "status:", ":active"])
+    async def test_a_filter_that_is_not_attr_value_is_refused(self, api, item):
+        response = await api.get(f"/api/metrics/mrr?filter={item}")
+        assert response.status_code == 422
+        assert response.json()["detail"] == "filter must be attr:value"
+
+    async def test_a_filter_on_an_attr_the_entity_lacks_is_refused(self, api):
+        response = await api.get("/api/metrics/mrr?filter=nope:x")
+        assert response.status_code == 422
+        assert "nope" in response.json()["detail"]
 
     async def test_a_range_narrows_a_rangeable_metric(self, api, canonical):
         await canonical(
@@ -1587,6 +1795,7 @@ class TestNullBytesInQueryParameters:
         "/api/sync/runs?source=%00",
         "/api/search?q=%00",
         "/api/metrics/won_value?from=%00",
+        "/api/entities/top?entity=%00",
     ]
 
     @pytest.mark.parametrize("route", ROUTES)
@@ -1643,6 +1852,62 @@ class TestDocumentedResponses:
         ):
             documented = spec["paths"][path]["get"]["responses"]
             assert "404" in documented, f"{path} can 404 and does not say so"
+
+
+NETWORKS = ("facebook", "instagram", "linkedin", "x", "pinterest")
+AD_NETWORKS = {"google_ads": "google", "meta_ads": "meta"}
+PAGES = ["overview", "attention", "website", "pipeline", "ads", *AD_NETWORKS]
+PAGES += ["email", "social", *NETWORKS]
+RANGE = {"from": "2026-08-06", "to": "2026-09-04"}
+FACEBOOK = {
+    "facebook": {
+        "label": "Facebook",
+        "range": True,
+        "filter": {"platform": "facebook"},
+        "sections": [
+            {
+                "label": "Top",
+                "cards": [
+                    "posts",
+                    {
+                        "table": "social_post",
+                        "label": "Top posts",
+                        "rank": "likes",
+                        "columns": ["name", "likes", "posted_at"],
+                        "window_attr": "posted_at",
+                        "limit": 5,
+                        "filter": {"category": "video"},
+                    },
+                ],
+            }
+        ],
+    }
+}
+
+
+SOCIAL_FAMILY = {
+    "social": {"label": "Social", "sections": [{"label": "Top", "cards": ["posts"]}]},
+    "facebook": {**FACEBOOK["facebook"], "parent": "social"},
+}
+
+
+async def _ranged(api, card, filters):
+    if card["shape"] == "table":
+        return await api.get(
+            "/api/entities/top",
+            params={
+                **RANGE,
+                "entity": card["entity"],
+                "rank": card["rank"],
+                "columns": [column["attr"] for column in card["columns"]],
+                "window_attr": card["window_attr"],
+                "limit": card["limit"],
+                "filter": filters,
+            },
+        )
+    return await api.get(
+        f"/api/metrics/{card['metric']}", params={**RANGE, "filter": filters}
+    )
 
 
 class TestDefinitions:
@@ -1748,15 +2013,7 @@ class TestDefinitions:
         response = await api.get("/api/definitions/dashboards")
         assert response.status_code == 200, response.text
         body = response.json()
-        assert list(body["dashboards"]) == [
-            "overview",
-            "attention",
-            "website",
-            "pipeline",
-            "ads",
-            "email",
-            "social",
-        ]
+        assert list(body["dashboards"]) == PAGES
         overview = body["dashboards"]["overview"]
         assert overview["label"] == "Overview"
         assert overview["range"] is True
@@ -1781,30 +2038,21 @@ class TestDefinitions:
         }
         assert cards["deals_by_status"]["shape"] == "breakdown"
 
-    async def test_the_seven_pages_serve_in_order_and_every_ranged_card_can_be_ranged(
+    async def test_the_fourteen_pages_serve_in_order_and_every_card_can_be_ranged(
         self, api
     ):
         response = await api.get("/api/definitions/dashboards")
         assert response.status_code == 200, response.text
         body = response.json()
-        assert list(body["dashboards"]) == [
-            "overview",
-            "attention",
-            "website",
-            "pipeline",
-            "ads",
-            "email",
-            "social",
-        ]
+        assert list(body["dashboards"]) == PAGES
         for page in body["dashboards"].values():
             if not page["range"]:
                 continue
+            filters = [f"{attr}:{value}" for attr, value in page["filter"].items()]
             for section in page["sections"]:
                 for card in section["cards"]:
-                    ranged = await api.get(
-                        f"/api/metrics/{card['metric']}?from=2026-08-06&to=2026-09-04"
-                    )
-                    assert ranged.status_code == 200, (card["metric"], ranged.text)
+                    ranged = await _ranged(api, card, filters)
+                    assert ranged.status_code == 200, (card["label"], ranged.text)
         email = {
             card["metric"]: card
             for section in body["dashboards"]["email"]["sections"]
@@ -1817,6 +2065,38 @@ class TestDefinitions:
             for card in section["cards"]
         }
         assert social["posts_by_platform"]["shape"] == "breakdown"
+        facebook = body["dashboards"]["facebook"]
+        assert facebook["filter"] == {"platform": "facebook"}
+        tables = [
+            card
+            for section in facebook["sections"]
+            for card in section["cards"]
+            if card["shape"] == "table"
+        ]
+        assert tables[0] == {
+            "shape": "table",
+            "label": "Top Posts by Reach",
+            "entity": "social_post",
+            "rank": "reach",
+            "columns": [
+                {"attr": "name", "type": "string"},
+                {"attr": "category", "type": "string"},
+                {"attr": "posted_at", "type": "date"},
+                {"attr": "reach", "type": "number"},
+                {"attr": "interactions", "type": "number"},
+            ],
+            "window_attr": "posted_at",
+            "limit": 10,
+            "filter": {},
+        }
+
+    async def test_a_shipped_page_filter_reaches_the_metric(self, api):
+        response = await api.get(
+            "/api/metrics/post_likes?filter=platform:instagram"
+            "&from=2026-08-06&to=2026-09-04"
+        )
+        assert response.status_code == 200, response.text
+        assert response.json()["applied_filter"] == {"platform": "instagram"}
 
     async def test_pages_say_whether_they_carry_goals_and_findings(self, api):
         response = await api.get("/api/definitions/dashboards")
@@ -1837,6 +2117,79 @@ class TestDefinitions:
         attention = response.json()["dashboards"]["attention"]
         assert attention["sections"] == []
         assert attention["range"] is False
+
+    async def test_the_network_pages_filter_on_their_platform_and_the_rest_do_not(
+        self, api
+    ):
+        body = (await api.get("/api/definitions/dashboards")).json()
+        platforms = {name: name for name in NETWORKS} | AD_NETWORKS
+        for name, page in body["dashboards"].items():
+            expected = {"platform": platforms[name]} if name in platforms else {}
+            assert page["filter"] == expected, name
+        assert body["dashboards"]["google_ads"]["filter"] == {"platform": "google"}
+
+    async def test_a_filtered_page_serves_its_filter(self, api, monkeypatch):
+        monkeypatch.setattr(dashboards, "definitions", lambda: FACEBOOK)
+        response = await api.get("/api/definitions/dashboards")
+        assert response.status_code == 200, response.text
+        facebook = response.json()["dashboards"]["facebook"]
+        assert facebook["filter"] == {"platform": "facebook"}
+
+    async def test_a_metric_card_beside_a_table_keeps_its_shape(self, api, monkeypatch):
+        monkeypatch.setattr(dashboards, "definitions", lambda: FACEBOOK)
+        body = (await api.get("/api/definitions/dashboards")).json()
+        card = body["dashboards"]["facebook"]["sections"][0]["cards"][0]
+        assert card == {"metric": "posts", "label": "Posts", "shape": "kpi"}
+
+    async def test_a_table_card_serves_its_shape_with_typed_columns(
+        self, api, monkeypatch
+    ):
+        monkeypatch.setattr(dashboards, "definitions", lambda: FACEBOOK)
+        body = (await api.get("/api/definitions/dashboards")).json()
+        card = body["dashboards"]["facebook"]["sections"][0]["cards"][1]
+        assert card == {
+            "shape": "table",
+            "label": "Top posts",
+            "entity": "social_post",
+            "rank": "likes",
+            "columns": [
+                {"attr": "name", "type": "string"},
+                {"attr": "likes", "type": "number"},
+                {"attr": "posted_at", "type": "date"},
+            ],
+            "window_attr": "posted_at",
+            "limit": 5,
+            "filter": {"category": "video"},
+        }
+
+    async def test_every_page_carries_its_parent_or_none(self, api):
+        response = await api.get("/api/definitions/dashboards")
+        assert response.status_code == 200, response.text
+        body = response.json()
+        parents = {name: page["parent"] for name, page in body["dashboards"].items()}
+        assert parents == {
+            **dict.fromkeys(PAGES),
+            **dict.fromkeys(NETWORKS, "social"),
+            **dict.fromkeys(AD_NETWORKS, "ads"),
+        }
+
+    async def test_an_ad_network_page_filter_reaches_its_own_metrics(self, api):
+        for metric, platform in (
+            ("ad_roas", "google"),
+            ("ad_landing_page_views", "meta"),
+        ):
+            response = await api.get(
+                f"/api/metrics/{metric}?filter=platform:{platform}"
+                "&from=2026-08-06&to=2026-09-04"
+            )
+            assert response.status_code == 200, response.text
+            assert response.json()["applied_filter"] == {"platform": platform}
+
+    async def test_a_child_page_serves_its_parents_name(self, api, monkeypatch):
+        monkeypatch.setattr(dashboards, "definitions", lambda: SOCIAL_FAMILY)
+        body = (await api.get("/api/definitions/dashboards")).json()
+        assert body["dashboards"]["social"]["parent"] is None
+        assert body["dashboards"]["facebook"]["parent"] == "social"
 
     async def test_there_is_no_checks_endpoint(self, api):
         assert (await api.get("/api/definitions/checks")).status_code == 404
