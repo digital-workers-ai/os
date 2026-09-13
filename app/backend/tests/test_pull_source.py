@@ -3,6 +3,7 @@ import json
 import httpx
 import pytest
 
+from app.caches import BACKEND_DIR
 from app.config import settings
 from app.engine import checks
 from app.sources import client
@@ -124,14 +125,18 @@ class TestCapture:
         await pull_source.report("hubspot", capture=tmp_path)
         assert json.loads((tmp_path / "hubspot" / "deals.json").read_text()) == []
 
-    def test_the_flag_alone_targets_the_real_fixture_dir(
+    def test_the_flag_alone_targets_the_captures_dir(
         self, served, tmp_path, monkeypatch, capsys
     ):
-        monkeypatch.setattr(checks, "REAL_FIXTURES", tmp_path / "real")
+        monkeypatch.setattr(pull_source, "CAPTURES", tmp_path / "captures")
         code = pull_source.main(["hubspot", "--capture"])
-        assert (tmp_path / "real" / "hubspot" / "contacts.json").exists()
+        assert (tmp_path / "captures" / "hubspot" / "contacts.json").exists()
         assert "contacts: requests=2 records=4 accepted=4" in capsys.readouterr().out
         assert code == 0
+
+    def test_raw_captures_land_beside_fixtures_never_inside_fixtures_real(self):
+        assert pull_source.CAPTURES == BACKEND_DIR / "captures"
+        assert checks.REAL_FIXTURES not in pull_source.CAPTURES.parents
 
 
 class TestCompare:
