@@ -161,6 +161,19 @@ class TestTheContactLinks:
                 assert target == f"{prefix}{name}"
 
 
+class TestTheCampaignLinks:
+    def test_each_link_is_an_absolute_url_on_the_account_host(self):
+        for payload in payloads("campaigns"):
+            for target in payload["links"].values():
+                assert target.startswith(f"{ACCOUNT_HOST}/api/3/campaigns/")
+
+    def test_each_link_names_the_campaign_it_belongs_to(self):
+        for payload in payloads("campaigns"):
+            prefix = f"{ACCOUNT_HOST}/api/3/campaigns/{payload['id']}/"
+            for name, target in payload["links"].items():
+                assert target == f"{prefix}{name}"
+
+
 class TestTheFieldsTheConnectorObserves:
     def test_a_contact_carries_the_udate_the_connector_reads(self):
         for payload in payloads("contacts"):
