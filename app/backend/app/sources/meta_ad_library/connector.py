@@ -21,7 +21,7 @@ COUNTRIES = json.dumps(["US"])
 async def pull(session, store):
     api = client_for(SOURCE)
     notes: dict = {}
-    for spec in competitors.definitions().values():
+    for spec in competitors.tracked().values():
         page_id = str(spec["meta_page_id"])
         page = await api.get(f"/v25.0/{page_id}", params={"fields": PAGE_FIELDS})
         await store_all(

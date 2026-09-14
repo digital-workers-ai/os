@@ -60,3 +60,13 @@ landing_page_views: normalize_number
 first_seen: normalize_date
 last_seen: normalize_date
 competitor_ref: normalize_ref
+keyword: normalize_text
+engine: normalize_text
+brand: normalize_text
+prompt: normalize_text
+mentioned: normalize_status
+position: normalize_number
+rank: normalize_number
+word_count: normalize_number
+checked_on: normalize_date
+fetched_on: normalize_date

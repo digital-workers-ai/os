@@ -22,7 +22,7 @@ def _advertiser(advertiser_id, creatives):
 async def pull(session, store):
     api = client_for(SOURCE)
     notes: dict = {}
-    for spec in competitors.definitions().values():
+    for spec in competitors.tracked().values():
         advertiser_id = str(spec["google_advertiser_id"])
         creatives = await api.get(
             "/search",
