@@ -306,7 +306,6 @@ class TestDiscovery:
             "klaviyo",
             "sendgrid",
             "salesforce",
-            "shopify",
             "woocommerce",
             "google_sheets",
             "google_analytics",
@@ -406,25 +405,18 @@ class TestBatchTwoCompositeNames:
         payload = {"Id": "001", "Name": "Acme"}
         assert extract.reshape("accounts", payload) == [payload]
 
-    def test_shopify_products_pass_through(self):
-        from app.sources.shopify import extract
-
-        payload = {"id": 1, "title": "Widget"}
-        assert extract.reshape("products", payload) == [payload]
-
     def test_woocommerce_products_pass_through(self):
         from app.sources.woocommerce import extract
 
         payload = {"id": 1, "name": "Widget"}
         assert extract.reshape("products", payload) == [payload]
 
-    def test_the_seven_composite_name_hooks_agree(self):
+    def test_the_six_composite_name_hooks_agree(self):
         from app.sources.activecampaign import extract as activecampaign
         from app.sources.hubspot import extract as hubspot
         from app.sources.klaviyo import extract as klaviyo
         from app.sources.salesforce import extract as salesforce
         from app.sources.sendgrid import extract as sendgrid
-        from app.sources.shopify import extract as shopify
         from app.sources.woocommerce import extract as woocommerce
 
         cases = [
@@ -434,7 +426,6 @@ class TestBatchTwoCompositeNames:
                 {"properties": {"firstname": "Jane", "lastname": "Smith"}},
             ),
             (salesforce, "contacts", {"FirstName": "Jane", "LastName": "Smith"}),
-            (shopify, "customers", {"first_name": "Jane", "last_name": "Smith"}),
             (woocommerce, "customers", {"first_name": "Jane", "last_name": "Smith"}),
             (
                 klaviyo,
