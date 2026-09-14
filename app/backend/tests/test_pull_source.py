@@ -102,19 +102,25 @@ class TestTheReport:
         assert "contacts: requests=2 records=4 accepted=3" in text
         assert code == 0
 
-    async def test_a_pull_that_returns_nothing_lists_every_mapped_path_as_dead(
-        self, served
-    ):
+    async def test_a_pull_that_returns_nothing_evaluates_no_dead_path(self, served):
         payloads, _seen = served
         for name in PULLS:
             payloads[name].clear()
         text, code = await pull_source.report("hubspot")
         assert "contacts: requests=0 records=0 accepted=0" in text
-        assert (
-            "  dead paths: person:hubspot.contacts._full_name, "
-            "person:hubspot.contacts.properties.email" in text
-        )
+        assert text.count("  dead paths: no records, dead paths not evaluated") == 3
+        assert "person:hubspot.contacts.properties.email" not in text
         assert "unattributed requests: 4" in text
+        assert code == 0
+
+    async def test_an_empty_pull_never_masks_a_dead_path_in_another_pull(self, served):
+        payloads, _seen = served
+        payloads["contacts"].clear()
+        for row in payloads["companies"]:
+            del row["properties"]["industry"]
+        text, code = await pull_source.report("hubspot")
+        assert "  dead paths: no records, dead paths not evaluated" in text
+        assert "  dead paths: company:hubspot.companies.properties.industry" in text
         assert code == 1
 
     async def test_records_the_connector_could_not_key_appear_as_notes(self, served):
@@ -214,6 +220,16 @@ class TestCompare:
             "associations.companies[].id, associations.companies[].type, "
             "associations.count;" in text
         )
+
+    async def test_an_empty_pull_compares_nothing_instead_of_missing_every_field(
+        self, served
+    ):
+        payloads, _seen = served
+        payloads["deals"].clear()
+        text, code = await pull_source.report("hubspot", compare=True)
+        assert "  compare: no records, shape not compared" in text
+        assert "only in mock: properties" not in text
+        assert code == 0
 
     async def test_a_pull_with_no_mock_fixture_is_a_difference(
         self, served, monkeypatch, tmp_path
