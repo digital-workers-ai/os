@@ -1,6 +1,7 @@
 {
   "clears": {
-    "phone/klaviyo": 1
+    "phone/klaviyo": 5,
+    "title/klaviyo": 6
   },
   "extracted": {
     "flows": {
@@ -24,26 +25,38 @@
         "kl_prof_p1": {
           "email": "jane@acme.io",
           "name": "Jane Smith",
-          "phone": "+14155550101",
-          "title": "VP Sales"
+          "phone": null,
+          "title": null
         },
         "kl_prof_p2": {
           "email": "john.doe@acme.io",
           "name": "John Doe",
-          "phone": "+14155550102",
-          "title": "CTO"
+          "phone": null,
+          "title": null
         },
         "kl_prof_p3": {
           "email": "sarah@acme.io",
-          "name": "Sarah Johnson",
+          "name": "Sarah",
           "phone": null,
-          "title": "Marketing Director"
+          "title": null
         },
         "kl_prof_p4": {
           "email": "mike@globex.com",
-          "name": "Mike Chen",
-          "phone": "+15125550201",
-          "title": "CEO"
+          "name": "Mike",
+          "phone": null,
+          "title": null
+        },
+        "kl_prof_p5": {
+          "email": "lisa.park@globex.com",
+          "name": "Lisa Park",
+          "phone": null,
+          "title": null
+        },
+        "kl_prof_p6": {
+          "email": "david@globex.com",
+          "name": "David Kim",
+          "phone": "+15125550203",
+          "title": null
         }
       }
     }
