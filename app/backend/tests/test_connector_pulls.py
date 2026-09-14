@@ -1856,7 +1856,7 @@ class TestCompetitorConnectors(_SocialCapture):
     def _competitors():
         from app.engine import competitors
 
-        return competitors.load()
+        return competitors.tracked()
 
     def _page_ids(self):
         return {str(spec["meta_page_id"]) for spec in self._competitors().values()}
@@ -2085,6 +2085,6 @@ class TestGoogleAdsTransparencyWithNoCreatives(_SocialCapture):
         assert [s for s in stored if s["object_type"] == "creatives"] == []
         advertisers = [s for s in stored if s["object_type"] == "advertisers"]
         assert {s["source_id"] for s in advertisers} == {
-            str(spec["google_advertiser_id"]) for spec in competitors.load().values()
+            str(spec["google_advertiser_id"]) for spec in competitors.tracked().values()
         }
         assert all(s["raw_payload"] == {"id": s["source_id"]} for s in advertisers)

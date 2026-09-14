@@ -558,78 +558,46 @@ class TestDashboardsAreChecked:
         assert "dashboards.yaml" in problems[0]
 
 
-def _competitor(domain="acme.io", **fields):
-    return {
-        "domain": domain,
-        "meta_page_id": "100",
-        "google_advertiser_id": "AR100",
-        **fields,
-    }
-
-
-def _competitors_file(root, doc):
+def _competitors_file(root):
     path = root / "competitors.yaml"
-    path.write_text(yaml.safe_dump(doc, sort_keys=False))
+    path.write_text(
+        yaml.safe_dump(
+            {
+                "us": {"name": "Digital Workers", "domain": "hiredigitalworkers.com"},
+                "competitors": {"acme": {"meta_page_id": "100"}},
+                "keywords": ["ai ugc ads"],
+                "prompts": ["best ai ugc ad tool"],
+                "engines": ["chatgpt"],
+            },
+            sort_keys=False,
+        )
+    )
     return path
 
 
-class TestCompetitorsAreChecked:
-    @staticmethod
-    def _check(path):
-        from app.engine import competitors
+def _brand_dir(root):
+    directory = root / "brand"
+    directory.mkdir()
+    return directory
 
-        return competitors.check(path)
 
-    def test_a_well_formed_file_has_no_problems(self, tmp_path):
-        path = _competitors_file(
-            tmp_path,
-            {
-                "acme": _competitor(),
-                "globex": _competitor(
-                    "globex.com", meta_page_id="200", google_advertiser_id="AR200"
-                ),
-            },
-        )
-        assert self._check(path) == []
+def _calendar_file(root):
+    path = root / "calendar.yaml"
+    path.write_text(
+        yaml.safe_dump({"slots": {"a_slot": {"kind": "hologram"}}}, sort_keys=False)
+    )
+    return path
 
-    def test_a_competitor_without_a_domain_is_refused_and_named(self, tmp_path):
-        doc = {"acme": {"meta_page_id": "100", "google_advertiser_id": "AR100"}}
-        problems = self._check(_competitors_file(tmp_path, doc))
-        assert any("acme" in p and "domain" in p for p in problems), problems
 
-    def test_two_competitors_sharing_a_domain_are_refused(self, tmp_path):
-        doc = {
-            "acme": _competitor("acme.io"),
-            "globex": _competitor(
-                "acme.io", meta_page_id="200", google_advertiser_id="AR200"
-            ),
-        }
-        problems = self._check(_competitors_file(tmp_path, doc))
-        assert any("acme.io" in p and "globex" in p for p in problems), problems
-
-    @pytest.mark.parametrize("key", ["meta_page_id", "google_advertiser_id"])
-    def test_a_competitor_missing_a_platform_id_names_the_key(self, tmp_path, key):
-        spec = _competitor()
-        spec.pop(key)
-        problems = self._check(_competitors_file(tmp_path, {"acme": spec}))
-        assert any("acme" in p and key in p for p in problems), problems
-
-    def test_a_file_that_is_not_a_mapping_is_one_problem(self, tmp_path):
-        path = tmp_path / "competitors.yaml"
-        path.write_text("- a\n")
-        problems = self._check(path)
-        assert len(problems) == 1, problems
-        assert "competitors.yaml" in problems[0]
-
+class TestTheStudioFilesAreChecked:
     def test_the_build_checks_read_a_competitors_path(self, files):
-        doc = {"acme": {"meta_page_id": "100", "google_advertiser_id": "AR100"}}
-        problems = files.problems(competitors_path=_competitors_file(files.root, doc))
+        problems = files.problems(competitors_path=_competitors_file(files.root))
         assert any("acme" in p and "domain" in p for p in problems), problems
 
+    def test_the_build_checks_read_a_brand_dir(self, files):
+        problems = files.problems(brand_dir=_brand_dir(files.root))
+        assert any("brand-brain" in p for p in problems), problems
 
-class TestACompetitorMustBeAMapping:
-    def test_a_competitor_that_is_not_a_mapping_is_refused_and_named(self, tmp_path):
-        from app.engine import competitors
-
-        problems = competitors.check(_competitors_file(tmp_path, {"acme": "acme.io"}))
-        assert problems == ["competitor 'acme' must be a mapping"]
+    def test_the_build_checks_read_a_calendar_path(self, files):
+        problems = files.problems(calendar_path=_calendar_file(files.root))
+        assert any("hologram" in p for p in problems), problems
