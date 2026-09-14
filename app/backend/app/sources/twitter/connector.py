@@ -1,13 +1,7 @@
-import os
-
 from app.sources.paginators import Paginator
 from app.sources.util import client_for, store_all, window
 
 SOURCE = "twitter"
-
-USER_ID_VAR = "TWITTER_USER_ID"
-
-SELF = "me"
 
 TWEET_FIELDS = "created_at,public_metrics"
 
@@ -26,16 +20,12 @@ class _NextToken(Paginator):
 _TWEETS = _NextToken()
 
 
-def _user_id() -> str:
-    return os.environ.get(USER_ID_VAR, "").strip() or SELF
-
-
 async def pull(session, store):
     api = client_for(SOURCE)
     notes: dict = {}
     since, until = window()
     tweets = await api.get(
-        f"/2/users/{_user_id()}/tweets",
+        f"/2/users/{api.values['user_id']}/tweets",
         params={
             "start_time": f"{since}T00:00:00Z",
             "end_time": f"{until}T23:59:59Z",

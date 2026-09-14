@@ -303,6 +303,7 @@ MIXPANEL_PROJECT = "7654321"
 ACTIVECAMPAIGN_BASE = "https://account-test.api-us1.test"
 ACTIVECAMPAIGN_KEY = "activecampaign-key-test-0000"
 TWITTER_TOKEN = "twitter-bearer-test-0000"
+TWITTER_USER = "4030300010"
 
 
 @pytest.fixture
@@ -353,7 +354,7 @@ def clean_activecampaign(monkeypatch):
 
 @pytest.fixture
 def clean_twitter(monkeypatch):
-    for name in ("TWITTER_BEARER_TOKEN", "TWITTER_BASE_URL"):
+    for name in ("TWITTER_BEARER_TOKEN", "TWITTER_USER_ID", "TWITTER_BASE_URL"):
         monkeypatch.delenv(name, raising=False)
 
 
@@ -371,7 +372,7 @@ class TestKlaviyoCarriesItsOwnKeyScheme:
         assert found.base_url == "https://a.klaviyo.com"
         assert found.headers == {
             "Authorization": f"Klaviyo-API-Key {KLAVIYO_KEY}",
-            "revision": "2024-10-15",
+            "revision": "2026-07-15",
         }
         assert found.auth is None
         assert found.params == {}
@@ -626,28 +627,81 @@ class TestActivecampaignIsHostedPerAccount:
             creds.credentials_for("activecampaign")
 
 
-class TestTwitterReadsABearerToken:
+class TestTwitterReadsABearerTokenAndPathsByUser:
     def test_no_variable_set_means_the_mock(self, clean_twitter):
         found = creds.credentials_for("twitter")
         assert found.base_url == f"{settings.MOCK_BASE_URL}/twitter"
         assert found.headers == {"Authorization": "Bearer mock_twitter_token"}
+        assert found.values == {"user_id": "me"}
 
-    def test_the_token_becomes_a_bearer_header_on_the_real_api(
+    def test_the_token_becomes_a_bearer_header_and_the_user_stays_a_path_value(
         self, clean_twitter, monkeypatch
     ):
         monkeypatch.setenv("TWITTER_BEARER_TOKEN", TWITTER_TOKEN)
+        monkeypatch.setenv("TWITTER_USER_ID", TWITTER_USER)
         found = creds.credentials_for("twitter")
         assert found.base_url == "https://api.x.com"
         assert found.headers == {"Authorization": f"Bearer {TWITTER_TOKEN}"}
         assert found.auth is None
         assert found.params == {}
+        assert found.values == {"user_id": TWITTER_USER}
+
+    def test_the_user_is_never_sent_as_a_credential(self, clean_twitter, monkeypatch):
+        monkeypatch.setenv("TWITTER_BEARER_TOKEN", TWITTER_TOKEN)
+        monkeypatch.setenv("TWITTER_USER_ID", TWITTER_USER)
+        found = creds.credentials_for("twitter")
+        assert TWITTER_USER not in found.headers["Authorization"]
+
+    def test_the_token_alone_names_the_missing_user(self, clean_twitter, monkeypatch):
+        monkeypatch.setenv("TWITTER_BEARER_TOKEN", TWITTER_TOKEN)
+        with pytest.raises(creds.CredentialsError, match="TWITTER_USER_ID"):
+            creds.credentials_for("twitter")
+
+    def test_the_user_alone_names_the_missing_token(self, clean_twitter, monkeypatch):
+        monkeypatch.setenv("TWITTER_USER_ID", TWITTER_USER)
+        with pytest.raises(creds.CredentialsError, match="TWITTER_BEARER_TOKEN"):
+            creds.credentials_for("twitter")
 
     def test_the_base_url_can_be_overridden(self, clean_twitter, monkeypatch):
         monkeypatch.setenv("TWITTER_BEARER_TOKEN", TWITTER_TOKEN)
+        monkeypatch.setenv("TWITTER_USER_ID", TWITTER_USER)
         monkeypatch.setenv("TWITTER_BASE_URL", "https://twitter.example.test")
         assert (
             creds.credentials_for("twitter").base_url == "https://twitter.example.test"
         )
+
+
+class TestTheStandInSuppliesEveryIdAPathNames:
+    @pytest.mark.parametrize(
+        "source,values",
+        [
+            ("twilio", {"account_sid": "mock_account_sid"}),
+            ("google_sheets", {"spreadsheet_id": "mock_spreadsheet_id"}),
+            ("google_analytics", {"property_id": "123456789"}),
+            ("google_ads", {"customer_id": "1234567890"}),
+            ("twitter", {"user_id": "me"}),
+            ("linkedin", {"organization": "urn:li:organization:1"}),
+            (
+                "meta",
+                {
+                    "account_ids": [
+                        "act_000001",
+                        "act_000002",
+                        "act_000006",
+                        "act_000007",
+                    ]
+                },
+            ),
+        ],
+    )
+    def test_the_stand_in_carries_the_id_its_paths_name(self, source, values):
+        assert creds.credentials_for(source).values == values
+
+    def test_every_source_with_stand_in_values_has_a_stand_in(self):
+        assert set(creds._MOCK_VALUES) <= set(creds._MOCK)
+
+    def test_a_source_whose_paths_name_no_id_carries_none(self):
+        assert creds.credentials_for("stripe").values == {}
 
 
 class TestEverySourceWithRealCredentialsStillHasAStandIn:

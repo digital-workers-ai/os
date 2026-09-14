@@ -41,7 +41,7 @@ def _intercom(token: str) -> tuple[dict, tuple | None, dict, dict]:
 
 def _klaviyo(key: str) -> tuple[dict, tuple | None, dict, dict]:
     return (
-        {"Authorization": f"Klaviyo-API-Key {key}", "revision": "2024-10-15"},
+        {"Authorization": f"Klaviyo-API-Key {key}", "revision": "2026-07-15"},
         None,
         {},
         {},
@@ -81,6 +81,10 @@ def _activecampaign(base_url: str, key: str) -> tuple[dict, tuple | None, dict, 
         {},
         {"base": base_url.rstrip("/").removesuffix("/api/3")},
     )
+
+
+def _twitter(token: str, user_id: str) -> tuple[dict, tuple | None, dict, dict]:
+    return {"Authorization": f"Bearer {token}"}, None, {}, {"user_id": user_id}
 
 
 def _shopify(domain: str, token: str) -> tuple[dict, tuple | None, dict, dict]:
@@ -126,7 +130,11 @@ _REAL: dict[str, tuple[str, tuple[str, ...], Callable]] = {
         ("ACTIVECAMPAIGN_BASE_URL", "ACTIVECAMPAIGN_API_KEY"),
         _activecampaign,
     ),
-    "twitter": ("https://api.x.com", ("TWITTER_BEARER_TOKEN",), _bearer),
+    "twitter": (
+        "https://api.x.com",
+        ("TWITTER_BEARER_TOKEN", "TWITTER_USER_ID"),
+        _twitter,
+    ),
     "shopify": (
         "https://{domain}",
         ("SHOPIFY_STORE_DOMAIN", "SHOPIFY_ACCESS_TOKEN"),
@@ -157,7 +165,7 @@ _MOCK: dict[str, tuple[str, dict, tuple | None, dict]] = {
         "/klaviyo",
         {
             "Authorization": "Klaviyo-API-Key mock_klaviyo_key",
-            "revision": "2024-10-15",
+            "revision": "2026-07-15",
         },
         None,
         {},
@@ -264,7 +272,15 @@ _MOCK: dict[str, tuple[str, dict, tuple | None, dict]] = {
 }
 
 
-_MOCK_VALUES: dict[str, dict] = {"twilio": {"account_sid": "mock_account_sid"}}
+_MOCK_VALUES: dict[str, dict] = {
+    "twilio": {"account_sid": "mock_account_sid"},
+    "google_sheets": {"spreadsheet_id": "mock_spreadsheet_id"},
+    "google_analytics": {"property_id": "123456789"},
+    "google_ads": {"customer_id": "1234567890"},
+    "twitter": {"user_id": "me"},
+    "linkedin": {"organization": "urn:li:organization:1"},
+    "meta": {"account_ids": ["act_000001", "act_000002", "act_000006", "act_000007"]},
+}
 
 
 def _base_url_override(source: str, names: tuple[str, ...]) -> str:

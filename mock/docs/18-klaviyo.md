@@ -16,7 +16,7 @@ API key via custom header. Also requires a revision header for API versioning.
 
 ```
 Authorization: Klaviyo-API-Key {api_key}
-revision: 2024-10-15
+revision: 2026-07-15
 Content-Type: application/json
 Accept: application/json
 ```
@@ -41,14 +41,18 @@ Returns 401 without a valid key:
 
 ## Revisions
 
-The `revision` header pins the response shape. Requests here send `2024-10-15`,
-which Klaviyo retires on **2026-10-15** — after that date a pinned request stops
-being served and the header has to move forward.
+The `revision` header pins the response shape. Requests here send `2026-07-15`,
+the latest revision Klaviyo had released as of 2026-09-14.
 
-Pulled live against both endpoints, `revision: 2026-01-15` returns the same key
-set and the same types as `2024-10-15`, so moving the pin changes nothing that
-the profile and flow mappings read. A revision dated in the future is refused
-with `404 not_found` and `"Unable to specify a future revision date."`
+The pin used to be `2024-10-15`, which Klaviyo retires on **2026-10-15**. Pulled
+live against both endpoints, every revision from `2024-10-15` through
+`2026-07-15` returns the same key set and the same types, so moving the pin
+changed nothing the profile and flow mappings read.
+
+Klaviyo validates the header rather than ignoring it: a future date is refused
+with `404 not_found` and `"Unable to specify a future revision date."`, a date
+before `2022-10-17` with `"Revision date requested is before the earliest
+available."`, and a non-date with `400 invalid_revision`.
 
 ## Rate Limits
 
@@ -88,7 +92,7 @@ Returns all profiles (contacts). JSON:API format.
 **Example Request:**
 ```bash
 curl -H "Authorization: Klaviyo-API-Key kl_mock_apikey_001" \
-  -H "revision: 2024-10-15" \
+  -H "revision: 2026-07-15" \
   "https://a.klaviyo.com/api/profiles?page[size]=2"
 ```
 
@@ -256,7 +260,7 @@ Returns all flows (automations).
 **Example Request:**
 ```bash
 curl -H "Authorization: Klaviyo-API-Key kl_mock_apikey_001" \
-  -H "revision: 2024-10-15" \
+  -H "revision: 2026-07-15" \
   "https://a.klaviyo.com/api/flows?page[size]=2"
 ```
 
@@ -349,7 +353,7 @@ Returns all campaigns.
 **Example Request:**
 ```bash
 curl -H "Authorization: Klaviyo-API-Key kl_mock_apikey_001" \
-  -H "revision: 2024-10-15" \
+  -H "revision: 2026-07-15" \
   "https://a.klaviyo.com/api/campaigns?filter=equals(messages.channel,\"email\")"
 ```
 
@@ -431,7 +435,7 @@ Returns all metrics (event types) tracked.
 **Example Request:**
 ```bash
 curl -H "Authorization: Klaviyo-API-Key kl_mock_apikey_001" \
-  -H "revision: 2024-10-15" \
+  -H "revision: 2026-07-15" \
   "https://a.klaviyo.com/api/metrics?page[size]=5"
 ```
 
@@ -558,7 +562,7 @@ JSON:API error format:
 ## Notes
 
 - **JSON:API format** — all responses follow the JSON:API spec with `type`, `id`, `attributes`, `relationships`, `links`
-- **Revision header** is required — `revision: 2024-10-15` (or latest). Without it, you get older response shapes
+- **Revision header** is required — `revision: 2026-07-15` (or latest). Without it, you get older response shapes
 - **Filter syntax** uses Klaviyo's filter language: `equals(field,"value")`, `greater-than(created,"2026-01-01")`, `any(list_id,["id1","id2"])`
 - **Sparse fieldsets** via `fields[resource_type]` — reduces response payload
 - **Relationships** are lazy-loaded — use `include` param to sideload related resources
