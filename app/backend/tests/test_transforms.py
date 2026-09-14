@@ -138,8 +138,8 @@ class TestStatus:
         assert t.normalize_status("mailchimp", "lists", "save") == "save"
         assert t.normalize_status("hubspot", "campaigns", "save") == "save"
 
-    def test_a_twitter_accepted_account_is_active(self):
-        assert t.normalize_status("twitter", "accounts", "ACCEPTED") == "active"
+    def test_an_unlisted_status_is_left_alone(self):
+        assert t.normalize_status("twitter", "tweets", "accepted") == "accepted"
         assert t.normalize_status("hubspot", "deals", "accepted") == "accepted"
 
 

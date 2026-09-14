@@ -1,0 +1,249 @@
+import importlib
+import json
+import sys
+from pathlib import Path
+
+import pytest
+from starlette.requests import Request
+
+from app.engine import checks
+from app.sources.paginators import Offset
+from tools.pull_source import json_type
+
+FIXTURES = checks.REAL_FIXTURES.parent / "mock" / "activecampaign"
+SEEDS_ROOT = "/adversarial"
+ACCOUNT_HOST = "https://acme.api-us1.com"
+
+LIVE_CONTACT = {
+    "accountContacts": "list",
+    "adate": "null",
+    "anonymized": "string",
+    "best_send_hour": "null",
+    "bounced_date": "null",
+    "bounced_hard": "string",
+    "bounced_soft": "string",
+    "cdate": "string",
+    "created_by": "null",
+    "created_timestamp": "string",
+    "created_utc_timestamp": "string",
+    "deleted": "string",
+    "deleted_at": "null",
+    "edate": "null",
+    "email": "string",
+    "email_domain": "string",
+    "email_local": "string",
+    "firstName": "string",
+    "gravatar": "string",
+    "hash": "string",
+    "id": "string",
+    "ip": "string",
+    "lastName": "string",
+    "last_click_date": "null",
+    "last_mpp_open_date": "null",
+    "last_open_date": "null",
+    "links": "object",
+    "mpp_tracking": "string",
+    "organization": "null",
+    "orgid": "string",
+    "orgname": "string",
+    "phone": "string",
+    "rating_tstamp": "null",
+    "scoreValues": "list",
+    "segmentio_id": "string",
+    "sentcnt": "string",
+    "sms_consent": "null",
+    "sms_consent_updated_at": "null",
+    "socialdata_lastcheck": "null",
+    "ua": "null",
+    "udate": "string",
+    "updated_by": "null",
+    "updated_timestamp": "string",
+    "updated_utc_timestamp": "string",
+    "whatsapp_id": "null",
+    "whatsapp_username": "null",
+}
+
+LIVE_CONTACT_LINKS = (
+    "accountContacts",
+    "automationEntryCounts",
+    "bounceLogs",
+    "contactAutomations",
+    "contactData",
+    "contactDeals",
+    "contactGoals",
+    "contactLists",
+    "contactLogs",
+    "contactTags",
+    "deals",
+    "fieldValues",
+    "geoIps",
+    "notes",
+    "organization",
+    "plusAppend",
+    "scoreValues",
+    "trackingLogs",
+)
+
+LIVE_CONTACTS_ENVELOPE = ("contacts", "meta", "scoreValues")
+
+
+def payloads(name: str) -> list[dict]:
+    return [
+        row["payload"] for row in json.loads((FIXTURES / f"{name}.json").read_text())
+    ]
+
+
+def shape(payload: dict) -> dict:
+    return {key: json_type(value) for key, value in payload.items()}
+
+
+def provider():
+    if not Path(f"{SEEDS_ROOT}/seeds/providers/activecampaign.py").is_file():
+        pytest.skip(f"mock provider not mounted at {SEEDS_ROOT}")
+    if SEEDS_ROOT not in sys.path:
+        sys.path.insert(0, SEEDS_ROOT)
+    return importlib.import_module("seeds.providers.activecampaign")
+
+
+def a_request() -> Request:
+    return Request(
+        {
+            "type": "http",
+            "method": "GET",
+            "path": "/api/3/contacts",
+            "query_string": b"",
+            "headers": [(b"api-token", b"mock_ac_token")],
+        }
+    )
+
+
+@pytest.fixture
+def mock_provider():
+    return provider()
+
+
+@pytest.fixture
+def a_mock_contact(mock_provider):
+    return mock_provider._ac_contact(mock_provider.PEOPLE[0], 0)
+
+
+class TestTheContactFixtureCarriesTheShapeTheAccountReturns:
+    def test_every_field_the_account_returns_is_present(self):
+        for payload in payloads("contacts"):
+            assert set(LIVE_CONTACT) <= set(payload), payload["id"]
+
+    def test_no_field_the_account_never_returned_is_invented(self):
+        for payload in payloads("contacts"):
+            assert set(payload) <= set(LIVE_CONTACT), payload["id"]
+
+    def test_every_field_has_the_type_the_account_returned(self):
+        for payload in payloads("contacts"):
+            assert shape(payload) == LIVE_CONTACT, payload["id"]
+
+    def test_the_records_agree_on_one_field_set(self):
+        assert len({tuple(sorted(p)) for p in payloads("contacts")}) == 1
+
+
+class TestTheContactLinks:
+    def test_every_sub_resource_the_account_links_is_linked(self):
+        for payload in payloads("contacts"):
+            assert tuple(sorted(payload["links"])) == LIVE_CONTACT_LINKS
+
+    def test_each_link_is_an_absolute_url_on_the_account_host(self):
+        for payload in payloads("contacts"):
+            for target in payload["links"].values():
+                assert target.startswith(f"{ACCOUNT_HOST}/api/3/contacts/")
+
+    def test_each_link_names_the_contact_it_belongs_to(self):
+        for payload in payloads("contacts"):
+            prefix = f"{ACCOUNT_HOST}/api/3/contacts/{payload['id']}/"
+            for name, target in payload["links"].items():
+                assert target == f"{prefix}{name}"
+
+
+class TestTheFieldsTheConnectorObserves:
+    def test_a_contact_carries_the_udate_the_connector_reads(self):
+        for payload in payloads("contacts"):
+            assert json_type(payload["udate"]) == "string"
+
+    def test_a_campaign_carries_the_mdate_the_connector_reads(self):
+        for payload in payloads("campaigns"):
+            assert json_type(payload["mdate"]) == "string"
+
+
+class TestTheContactsEnvelope:
+    def test_the_paginator_reads_contacts_past_the_third_key(self):
+        body = {
+            "scoreValues": [],
+            "contacts": [{"id": "1"}],
+            "meta": {"total": "1", "sortable": True},
+        }
+        assert Offset("contacts", count_param="limit").extract(body) == [{"id": "1"}]
+
+    def test_a_short_page_ends_the_walk_despite_the_nested_string_total(self):
+        body = {
+            "scoreValues": [],
+            "contacts": [{"id": "1"}],
+            "meta": {"total": "2450"},
+        }
+        paginator = Offset("contacts", count_param="limit")
+        assert paginator.next_params(body, {"limit": 8, "offset": 0}) is None
+
+    def test_a_full_page_walks_on_by_the_page_length(self):
+        body = {
+            "scoreValues": [],
+            "contacts": [{"id": str(n)} for n in range(8)],
+            "meta": {"total": "2450"},
+        }
+        paginator = Offset("contacts", count_param="limit")
+        assert paginator.next_params(body, {"limit": 8, "offset": 0}) == {
+            "limit": 8,
+            "offset": 8,
+        }
+
+
+class TestTheMockServesWhatTheFixtureRecords:
+    def test_a_contact_has_the_shape_the_account_returns(self, a_mock_contact):
+        assert shape(a_mock_contact) == LIVE_CONTACT
+
+    def test_a_contact_links_every_sub_resource(self, a_mock_contact):
+        assert tuple(sorted(a_mock_contact["links"])) == LIVE_CONTACT_LINKS
+
+    async def test_the_contacts_response_carries_the_third_top_level_key(
+        self, mock_provider
+    ):
+        body = await mock_provider.list_contacts(a_request(), limit=8, offset=0)
+        assert tuple(sorted(body)) == LIVE_CONTACTS_ENVELOPE
+
+    async def test_the_third_top_level_key_is_a_list(self, mock_provider):
+        body = await mock_provider.list_contacts(a_request(), limit=8, offset=0)
+        assert body["scoreValues"] == []
+
+    async def test_the_served_contacts_have_the_shape_the_account_returns(
+        self, mock_provider
+    ):
+        body = await mock_provider.list_contacts(a_request(), limit=8, offset=0)
+        assert body["contacts"]
+        for contact in body["contacts"]:
+            assert shape(contact) == LIVE_CONTACT
+
+
+class TestACampaignThatWasNeverSent:
+    def test_the_mock_sends_null_rather_than_an_empty_string(self, mock_provider):
+        unsent = [c for c in mock_provider.EMAIL_CAMPAIGNS if not c.sent_at]
+        assert unsent
+        for index, campaign in enumerate(unsent):
+            assert mock_provider._ac_campaign(campaign, index)["sdate"] is None
+
+    def test_the_fixture_records_a_campaign_that_was_never_sent(self):
+        assert any(p["sdate"] is None for p in payloads("campaigns"))
+
+    def test_a_sent_campaign_still_carries_its_send_date(self):
+        sent = [p for p in payloads("campaigns") if p["sdate"] is not None]
+        assert sent
+        for payload in sent:
+            assert json_type(payload["sdate"]) == "string"
+
+    def test_a_campaign_that_was_never_sent_still_carries_a_modified_date(self):
+        for payload in payloads("campaigns"):
+            assert json_type(payload["mdate"]) == "string"

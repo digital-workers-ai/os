@@ -219,6 +219,47 @@ class TestCompositeNames:
         payload = {"properties": {"name": "Acme"}}
         assert hubspot_hook.reshape("companies", payload) == [payload]
 
+    def test_a_payload_without_properties_still_reshapes(self):
+        assert hubspot_hook.reshape("contacts", {}) == [{}]
+
+
+class TestHubspotDealStatus:
+    @staticmethod
+    def _status(properties):
+        out = hubspot_hook.reshape("deals", {"properties": properties})
+        return out[0]["_status"]
+
+    def test_a_won_deal_reads_the_won_flag_not_the_stage_id(self):
+        assert (
+            self._status(
+                {
+                    "dealstage": "1118344091",
+                    "hs_is_closed": "true",
+                    "hs_is_closed_won": "true",
+                }
+            )
+            == "closed_won"
+        )
+
+    def test_a_closed_deal_that_was_not_won_is_lost(self):
+        assert (
+            self._status({"hs_is_closed": "true", "hs_is_closed_won": "false"})
+            == "closed_lost"
+        )
+
+    def test_a_deal_still_in_play_is_open(self):
+        assert (
+            self._status({"hs_is_closed": "false", "hs_is_closed_won": "false"})
+            == "open"
+        )
+
+    def test_flags_the_portal_never_returned_leave_the_deal_open(self):
+        assert self._status({}) == "open"
+
+    def test_the_rest_of_the_payload_survives(self):
+        payload = {"id": "348000000001", "properties": {"hs_is_closed": "false"}}
+        assert hubspot_hook.reshape("deals", payload)[0]["id"] == "348000000001"
+
 
 class TestCalendlyArrayHook:
     @staticmethod
@@ -1249,8 +1290,8 @@ class TestTwitterHook:
     def test_other_object_types_pass_through(self):
         from app.sources.twitter import extract
 
-        payload = {"id": "twacct_1", "name": "Ads"}
-        assert extract.reshape("accounts", payload) == [payload]
+        payload = {"id": "9001", "text": "hello"}
+        assert extract.reshape("mentions", payload) == [payload]
 
 
 class TestPinterestHook:

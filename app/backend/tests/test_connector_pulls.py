@@ -9,6 +9,7 @@ from app import sync
 from app.sources import catalog, client, creds, registry, util
 from app.sources.hubspot import connector as hubspot
 from app.sources.stripe import connector as stripe
+from app.sources.twitter import connector as twitter
 
 ALL_SOURCES = {
     "hubspot",
@@ -108,6 +109,64 @@ class TestWhatTheConnectorActuallyAsksFor:
         companies = next(v for k, v in asked.items() if k.endswith("companies"))
         assert "industry" in companies
         assert "domain" in companies and "name" in companies
+
+    async def test_hubspot_asks_the_closed_flags_not_the_stage_id(self, capture):
+        seen = capture({"results": [], "paging": {}})
+
+        async def store(session, **kwargs):
+            pass
+
+        await hubspot.pull(None, store)
+
+        asked = {r.url.path: r.url.params.get("properties") for r in seen}
+        deals = next(v for k, v in asked.items() if k.endswith("deals"))
+        assert "hs_is_closed_won" in deals and "hs_is_closed" in deals
+        assert "deal_currency_code" in deals
+        assert "dealstage" not in deals
+
+    async def test_hubspot_reads_full_pages_so_the_page_cap_is_far_away(
+        self, capture
+    ):
+        seen = capture({"results": [], "paging": {}})
+
+        async def store(session, **kwargs):
+            pass
+
+        await hubspot.pull(None, store)
+
+        assert {r.url.params.get("limit") for r in seen} == {"100"}
+
+    async def test_hubspot_follows_the_cursor_until_the_paging_key_is_gone(
+        self, monkeypatch
+    ):
+        seen = []
+
+        def handler(request):
+            seen.append(request)
+            if request.url.params.get("after"):
+                return httpx.Response(200, json={"results": [{"id": "2"}]})
+            return httpx.Response(
+                200,
+                json={
+                    "results": [{"id": "1"}],
+                    "paging": {"next": {"after": "1", "link": "https://x/y?after=1"}},
+                },
+            )
+
+        monkeypatch.setattr(client, "_transport", httpx.MockTransport(handler))
+        stored = []
+
+        async def store(session, **kwargs):
+            stored.append(kwargs["source_id"])
+
+        await hubspot.pull(None, store)
+        monkeypatch.setattr(client, "_transport", None)
+
+        assert len(seen) == 6
+        assert stored.count("1") == 3 and stored.count("2") == 3
+
+    async def test_hubspot_declares_no_account_wide_currency(self):
+        assert not hasattr(hubspot, "ACCOUNT_CURRENCY")
 
     async def test_stripe_walks_customers_then_subscriptions(self, capture):
         seen = capture({"data": [{"id": "x_1"}], "has_more": False})
@@ -1147,12 +1206,11 @@ class TestBatchFourShapes:
         notes, stored = await pull(connector("smartlook"), "not a collection")
         assert stored == [] and notes is None
 
-    async def test_twitter_stores_the_accounts_and_tweets_it_is_given(self, pull):
+    async def test_twitter_stores_the_tweets_it_is_given(self, pull):
         notes, stored = await pull(connector("twitter"), {"data": [{"id": "a1"}]})
         assert notes is None
         assert [(s["object_type"], s["source_id"]) for s in stored] == [
-            ("accounts", "a1"),
-            ("tweets", "a1"),
+            ("tweets", "a1")
         ]
 
 
@@ -1659,7 +1717,15 @@ class TestWhatLinkedinAsksForItsOrganization(_SocialCapture):
         assert notes == {"missing_id": 2}
 
 
+TWITTER_USER = "4030300010"
+TWITTER_TWEETS = f"/2/users/{TWITTER_USER}/tweets"
+
+
 class TestWhatTwitterAsksForItsTweets(_SocialCapture):
+    @pytest.fixture(autouse=True)
+    def configured_user(self, monkeypatch):
+        monkeypatch.setenv(twitter.USER_ID_VAR, TWITTER_USER)
+
     @staticmethod
     def _tweet(tweet_id):
         return {
@@ -1670,7 +1736,7 @@ class TestWhatTwitterAsksForItsTweets(_SocialCapture):
         }
 
     def _body(self, request):
-        if request.url.path == "/2/users/1/tweets":
+        if request.url.path == TWITTER_TWEETS:
             return {"data": [self._tweet("1")], "meta": {"result_count": 1}}
         return {"data": []}
 
@@ -1681,13 +1747,40 @@ class TestWhatTwitterAsksForItsTweets(_SocialCapture):
 
         await connector("twitter").pull(None, store)
 
-        tweets = [r for r in seen if r.url.path == "/2/users/1/tweets"]
+        tweets = [r for r in seen if r.url.path == TWITTER_TWEETS]
         assert len(tweets) == 1
         assert tweets[0].url.params.get("start_time") == "2026-06-07T00:00:00Z"
         assert tweets[0].url.params.get("end_time") == "2026-09-04T23:59:59Z"
         assert tweets[0].url.params.get("max_results") == "100"
         assert tweets[0].url.params.get("tweet.fields") == "created_at,public_metrics"
         assert tweets[0].headers["authorization"] == "Bearer mock_twitter_token"
+
+    async def test_twitter_asks_for_nothing_but_those_tweets(self, capture, store):
+        seen = capture(self._body)
+
+        await connector("twitter").pull(None, store)
+
+        assert [r.url.path for r in seen] == [TWITTER_TWEETS]
+
+    async def test_an_unset_user_id_asks_the_api_who_it_is_talking_to(
+        self, capture, store, monkeypatch
+    ):
+        monkeypatch.delenv(twitter.USER_ID_VAR)
+        seen = capture({"meta": {"result_count": 0}})
+
+        await connector("twitter").pull(None, store)
+
+        assert [r.url.path for r in seen] == ["/2/users/me/tweets"]
+
+    async def test_a_blank_user_id_names_no_user_either(
+        self, capture, store, monkeypatch
+    ):
+        monkeypatch.setenv(twitter.USER_ID_VAR, "   ")
+        seen = capture({"meta": {"result_count": 0}})
+
+        await connector("twitter").pull(None, store)
+
+        assert [r.url.path for r in seen] == ["/2/users/me/tweets"]
 
     async def test_twitter_stores_a_tweet_under_its_own_id(
         self, capture, store, stored
@@ -1702,7 +1795,7 @@ class TestWhatTwitterAsksForItsTweets(_SocialCapture):
         self, capture, store, stored
     ):
         def body(request):
-            if request.url.path != "/2/users/1/tweets":
+            if request.url.path != TWITTER_TWEETS:
                 return {"data": []}
             if request.url.params.get("pagination_token") == "tok":
                 return {"data": [self._tweet("2")], "meta": {"result_count": 1}}
@@ -1715,7 +1808,7 @@ class TestWhatTwitterAsksForItsTweets(_SocialCapture):
 
         await connector("twitter").pull(None, store)
 
-        pages = [r for r in seen if r.url.path == "/2/users/1/tweets"]
+        pages = [r for r in seen if r.url.path == TWITTER_TWEETS]
         assert [r.url.params.get("pagination_token") for r in pages] == [None, "tok"]
         assert {s["source_id"] for s in stored if s["object_type"] == "tweets"} == {
             "1",
@@ -1726,7 +1819,7 @@ class TestWhatTwitterAsksForItsTweets(_SocialCapture):
         self, capture, store, stored
     ):
         def body(request):
-            if request.url.path == "/2/users/1/tweets":
+            if request.url.path == TWITTER_TWEETS:
                 return {"meta": {"result_count": 0}}
             return {"data": []}
 
