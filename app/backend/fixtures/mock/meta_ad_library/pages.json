@@ -1,0 +1,26 @@
+[
+  {
+    "payload": {
+      "id": "204815000001",
+      "name": "Vidora",
+      "website": "https://vidora.ai"
+    },
+    "source_id": "204815000001"
+  },
+  {
+    "payload": {
+      "id": "204815000002",
+      "name": "Clipwise",
+      "website": "https://clipwise.io"
+    },
+    "source_id": "204815000002"
+  },
+  {
+    "payload": {
+      "id": "204815000003",
+      "name": "Avatarly",
+      "website": "https://avatarly.com"
+    },
+    "source_id": "204815000003"
+  }
+]

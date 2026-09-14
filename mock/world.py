@@ -461,3 +461,78 @@ SALES_CALLS = [
 ]
 
 SALES_CALLS_BY_ID = {c.id: c for c in SALES_CALLS}
+
+
+@dataclass
+class Competitor:
+    id: str
+    name: str
+    domain: str
+    meta_page_id: str
+    google_advertiser_id: str
+
+
+COMPETITORS = [
+    Competitor("k1", "Vidora", "vidora.ai", "204815000001", "AR11111111111111111111"),
+    Competitor("k2", "Clipwise", "clipwise.io", "204815000002", "AR22222222222222222222"),
+    Competitor("k3", "Avatarly", "avatarly.com", "204815000003", "AR33333333333333333333"),
+]
+
+COMPETITORS_BY_ID = {k.id: k for k in COMPETITORS}
+
+
+@dataclass
+class CompetitorAd:
+    id: str
+    competitor_id: str
+    platform: str
+    body: str
+    headline: str
+    format: str
+    started: str
+    stopped: Optional[str]
+    landing_path: str
+
+
+COMPETITOR_ADS = [
+    CompetitorAd("ka1", "k1", "meta",
+                 "Hiring a creator vs. typing a brief into Vidora: one takes three weeks and a contract, the other takes four minutes.",
+                 "Skip the creator brief", "video", "2026-06-12", None, "/vs-creators"),
+    CompetitorAd("ka2", "k1", "meta",
+                 "30 videos a month from one product page. Vidora reads the listing, writes the script and renders every cut in your brand font.",
+                 "30 ads. One afternoon.", "video", "2026-07-08", None, "/pricing"),
+    CompetitorAd("ka3", "k1", "meta",
+                 "\"We replaced a $9k monthly retainer with Vidora and our cost per purchase dropped 31%.\" A growth lead at a skincare brand, three months in.",
+                 "What a growth lead said", "image", "2026-08-19", "2026-08-30", "/customers"),
+    CompetitorAd("ka4", "k1", "google",
+                 "What if every product page came with its own video ad? Vidora turns a URL into a scripted, voiced, captioned ad in minutes.",
+                 "One URL, one ad", "text", "2026-07-22", None, "/"),
+    CompetitorAd("ka5", "k1", "google",
+                 "How to turn one customer review into five ad hooks: paste the review, pick a voice, and let Vidora storyboard the rest.",
+                 "From review to reel", "video", "2026-08-05", None, "/guides/review-to-ad"),
+    CompetitorAd("ka6", "k2", "meta",
+                 "Last spring a two-person candle shop shipped 40 ads in a week with Clipwise. By June, video was their cheapest channel.",
+                 "The candle shop that outshipped its agency", "video", "2026-07-01", None, "/stories/candle-shop"),
+    CompetitorAd("ka7", "k2", "meta",
+                 "Unlimited video ads for $149 a month. No per-render fees, no seat limits, cancel whenever.",
+                 "Flat fee, unlimited renders", "image", "2026-08-11", None, "/pricing"),
+    CompetitorAd("ka8", "k2", "google",
+                 "Not another avatar tool. Clipwise cuts real footage, your footage, into hook-first ads that look shot for the feed.",
+                 "Real footage, real fast", "text", "2026-07-15", "2026-08-15", "/"),
+    CompetitorAd("ka9", "k2", "google",
+                 "Three edits every winning ad shares: a hook in the first second, captions that carry the sound off, and a cut every three seconds. Clipwise does all three.",
+                 "Three cuts that convert", "image", "2026-08-27", None, "/features/auto-edit"),
+    CompetitorAd("ka10", "k3", "meta",
+                 "Your competitors test twenty hooks a week; you test two. Avatarly writes, voices and renders the other eighteen while you sleep.",
+                 "Eighteen more hooks", "video", "2026-07-29", "2026-08-24", "/hooks"),
+    CompetitorAd("ka11", "k3", "meta",
+                 "Your UGC creator ghosted again. Avatarly's presenters show up every time, speak twelve languages and never ask for a reshoot fee.",
+                 "Presenters who show up", "video", "2026-08-14", None, "/presenters"),
+    CompetitorAd("ka12", "k3", "google",
+                 "Spot the avatar. Ten ads, one made by a human crew, nine by Avatarly. Most people guess wrong.",
+                 "Can you tell?", "image", "2026-09-01", None, "/spot-the-avatar"),
+]
+
+COMPETITOR_ADS_BY_COMPETITOR = {}
+for ad in COMPETITOR_ADS:
+    COMPETITOR_ADS_BY_COMPETITOR.setdefault(ad.competitor_id, []).append(ad)

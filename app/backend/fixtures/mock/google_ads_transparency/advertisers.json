@@ -1,0 +1,26 @@
+[
+  {
+    "payload": {
+      "domain": "vidora.ai",
+      "id": "AR11111111111111111111",
+      "name": "Vidora"
+    },
+    "source_id": "AR11111111111111111111"
+  },
+  {
+    "payload": {
+      "domain": "clipwise.io",
+      "id": "AR22222222222222222222",
+      "name": "Clipwise"
+    },
+    "source_id": "AR22222222222222222222"
+  },
+  {
+    "payload": {
+      "domain": "avatarly.com",
+      "id": "AR33333333333333333333",
+      "name": "Avatarly"
+    },
+    "source_id": "AR33333333333333333333"
+  }
+]

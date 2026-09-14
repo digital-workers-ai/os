@@ -8,7 +8,7 @@ from seeds.providers import (
     salesforce, linkedin, pinterest, snapchat, twitter,
     mailchimp, klaviyo, activecampaign, sendgrid, twilio, shopify,
     woocommerce, mixpanel, amplitude, segment, intercom, zendesk,
-    zoom,
+    zoom, meta_ad_library, google_ads_transparency,
 )
 
 app = FastAPI(title="OS Mock Providers")
@@ -41,6 +41,8 @@ routers = {
     "/intercom": intercom,
     "/zendesk/api/v2": zendesk,
     "/zoom": zoom,
+    "/meta-ad-library": meta_ad_library,
+    "/serpapi": google_ads_transparency,
 }
 
 for prefix, mod in routers.items():

@@ -1,6 +1,6 @@
 # Seeds — Mock Provider Server
 
-> Faithful replicas of 29 third-party APIs on a single FastAPI process, backed by a shared ground-truth world.
+> Faithful replicas of 31 third-party APIs on a single FastAPI process, backed by a shared ground-truth world.
 
 ---
 
@@ -23,7 +23,7 @@ mock:8100/meta/v25.0/act_{id}/campaigns            → graph.facebook.com/v25.0/
 mock:8100/salesforce/services/data/v67.0/query      → {instance}.salesforce.com/services/data/v67.0/query
 ```
 
-All 27 provider modules share a single ground-truth dataset (`world.py`) and a shared library of auth decorators and pagination helpers (`helpers.py`). Each module renders the same underlying entities in its provider-specific response format.
+All 29 provider modules share a single ground-truth dataset (`world.py`) and a shared library of auth decorators and pagination helpers (`helpers.py`). Each module renders the same underlying entities in its provider-specific response format.
 
 ---
 
@@ -66,13 +66,17 @@ mock/
 │   ├── segment.py               # Sources, destinations, profiles, tracking plans
 │   ├── intercom.py              # Contacts, conversations, companies, notes
 │   ├── zendesk.py               # Tickets, users, organizations, search
-│   └── zoom.py                  # Meetings, recordings, VTT transcripts (no numbered doc)
+│   ├── zoom.py                  # Meetings, recordings, VTT transcripts (no numbered doc)
+│   ├── meta_ad_library.py       # Ad Library: ads_archive + page lookup (Graph API)
+│   └── google_ads_transparency.py  # SerpApi's google_ads_transparency_center engine
 │
 └── docs/                        # API contracts (the source of truth)
     ├── 01-hubspot.md
     ├── 02-stripe.md
     ├── ...
-    └── 28-zendesk.md
+    ├── 28-zendesk.md
+    ├── 29-meta-ad-library.md
+    └── 30-google-ads-transparency.md
 ```
 
 ---
@@ -93,6 +97,8 @@ All providers render the same canonical dataset. The entities are defined as Pyt
 | Support tickets | 10 | Clustered to create churn and billing signals |
 | Analytics events | 16 | Product usage events for Mixpanel/Amplitude/Segment |
 | Sales calls | 6 | Zoom transcripts with expected labels for enrichment |
+| Competitors | 3 | Fictional AI video-ad tools whose public ads form the swipe file |
+| Competitor ads | 12 | 7 in Meta's Ad Library, 5 in Google's transparency center; 3 stopped |
 
 ### 4.2 Company Scenarios
 
@@ -133,7 +139,7 @@ All auth is permissive — any non-empty credential in the correct format passes
 |-----------|---------|---------|
 | `require_bearer` | `Authorization: Bearer <token>` | HubSpot, Customer.io, Calendly, GA4, Sheets, Smartlook, LinkedIn, Pinterest, Snapchat, SendGrid, Segment, Intercom, Zendesk, Zoom |
 | `require_basic_auth` | `Authorization: Basic <base64>` | Stripe, Twilio, WooCommerce, Mixpanel, Amplitude, Zendesk |
-| `require_query_token` | `?access_token=<token>` | Meta (Graph API) |
+| `require_query_token` | `?access_token=<token>` | Meta (Graph API), Meta Ad Library |
 | `require_header` | Custom header check | Klaviyo (`Authorization: Klaviyo-API-Key`), ActiveCampaign (`Api-Token`), Shopify (`X-Shopify-Access-Token`), Google Ads (`developer-token`), LinkedIn (`Linkedin-Version`, `X-Restli-Protocol-Version`), Intercom (`Intercom-Version`) |
 
 ### 5.2 Pagination Helpers
@@ -142,9 +148,9 @@ Seven pagination patterns cover every provider:
 
 | Helper | Style | Returns | Used by |
 |--------|-------|---------|---------|
-| `cursor_paginate` | Cursor-based (`after` param) | `(page, next_cursor)` | HubSpot, Stripe, Customer.io, Meta, Smartlook, Zendesk |
+| `cursor_paginate` | Cursor-based (`after` param) | `(page, next_cursor)` | HubSpot, Stripe, Customer.io, Meta, Meta Ad Library, Smartlook, Zendesk |
 | `offset_paginate` | Offset + limit | `(page, total)` | Mailchimp, ActiveCampaign |
-| `token_paginate` | Opaque page token (base64 offset) | `(page, next_token)` | SendGrid, Calendly, Klaviyo, LinkedIn, Segment |
+| `token_paginate` | Opaque page token (base64 offset) | `(page, next_token)` | SendGrid, Calendly, Klaviyo, LinkedIn, Segment, SerpApi |
 | `bookmark_paginate` | Bookmark string (base64 offset) | `(page, next_bookmark)` | Pinterest |
 | `page_paginate` | Page number + page size | `(page, total)` | Twilio, WooCommerce |
 | `session_paginate` | Session ID + page number | `(page, session_id, total)` | Mixpanel engage |
@@ -187,8 +193,10 @@ The server mounts each provider's router with a prefix that absorbs the API vers
 | 27 | Intercom | `/intercom` | Bearer + `Intercom-Version` | `27-intercom.md` |
 | 28 | Zendesk | `/zendesk/api/v2` | Bearer or Basic Auth | `28-zendesk.md` |
 | 29 | Zoom | `/zoom` | Bearer | — |
+| 30 | Meta Ad Library | `/meta-ad-library` | Query param | `29-meta-ad-library.md` |
+| 31 | Google Ads Transparency (SerpApi) | `/serpapi` | `api_key` query param | `30-google-ads-transparency.md` |
 
-28 numbered contracts plus Zoom, 27 modules — Meta Ads, FB Organic, and IG Organic share one module (`meta.py`) because they share the Graph API. Route conflicts (e.g., `/{id}/insights` matching ads, pages, and IG accounts) are resolved by dispatching on ID prefix (`act_`, `page_`, `ig_`).
+30 numbered contracts plus Zoom, 29 modules — Meta Ads, FB Organic, and IG Organic share one module (`meta.py`) because they share the Graph API. Route conflicts (e.g., `/{id}/insights` matching ads, pages, and IG accounts) are resolved by dispatching on ID prefix (`act_`, `page_`, `ig_`).
 
 ---
 
