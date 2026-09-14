@@ -1,10 +1,9 @@
 [
   {
     "payload": {
+      "$insert_id": "evt_ev1",
       "amplitude_id": 9876543210,
       "app": 12345,
-      "browser": "Chrome",
-      "browser_version": "126",
       "city": "San Francisco",
       "country": "United States",
       "device_id": "device_ev1",
@@ -15,7 +14,6 @@
       },
       "event_time": "2026-07-14 10:00:00.000000",
       "event_type": "page_view",
-      "insert_id": "evt_ev1",
       "ip_address": "203.0.113.42",
       "library": "amplitude-js/8.21.0",
       "os_name": "Mac OS X",
@@ -28,16 +26,16 @@
         "email": "jane@acme.io",
         "name": "Jane Smith",
         "plan": "professional"
-      }
+      },
+      "uuid": "721e5863-0b2f-56fe-b27d-a2071c432ab4"
     },
     "source_id": "evt_ev1"
   },
   {
     "payload": {
+      "$insert_id": "evt_ev2",
       "amplitude_id": 9876543211,
       "app": 12345,
-      "browser": "Chrome",
-      "browser_version": "126",
       "city": "San Francisco",
       "country": "United States",
       "device_id": "device_ev2",
@@ -48,7 +46,6 @@
       },
       "event_time": "2026-07-14 10:05:00.000000",
       "event_type": "feature_used",
-      "insert_id": "evt_ev2",
       "ip_address": "203.0.113.42",
       "library": "amplitude-js/8.21.0",
       "os_name": "Mac OS X",
@@ -61,16 +58,16 @@
         "email": "jane@acme.io",
         "name": "Jane Smith",
         "plan": "professional"
-      }
+      },
+      "uuid": "eb09bfce-6fad-5a4f-bdb5-080e73f12f49"
     },
     "source_id": "evt_ev2"
   },
   {
     "payload": {
+      "$insert_id": "evt_ev3",
       "amplitude_id": 9876543212,
       "app": 12345,
-      "browser": "Chrome",
-      "browser_version": "126",
       "city": "San Francisco",
       "country": "United States",
       "device_id": "device_ev3",
@@ -81,7 +78,6 @@
       },
       "event_time": "2026-07-14 09:00:00.000000",
       "event_type": "page_view",
-      "insert_id": "evt_ev3",
       "ip_address": "203.0.113.42",
       "library": "amplitude-js/8.21.0",
       "os_name": "Mac OS X",
@@ -94,16 +90,16 @@
         "email": "john.doe@acme.io",
         "name": "John Doe",
         "plan": "professional"
-      }
+      },
+      "uuid": "f2bcb333-5940-5d17-b505-8ffff3193aff"
     },
     "source_id": "evt_ev3"
   },
   {
     "payload": {
+      "$insert_id": "evt_ev4",
       "amplitude_id": 9876543213,
       "app": 12345,
-      "browser": "Chrome",
-      "browser_version": "126",
       "city": "San Francisco",
       "country": "United States",
       "device_id": "device_ev4",
@@ -114,7 +110,6 @@
       },
       "event_time": "2026-07-14 09:10:00.000000",
       "event_type": "api_call",
-      "insert_id": "evt_ev4",
       "ip_address": "203.0.113.42",
       "library": "amplitude-js/8.21.0",
       "os_name": "Mac OS X",
@@ -127,7 +122,8 @@
         "email": "john.doe@acme.io",
         "name": "John Doe",
         "plan": "professional"
-      }
+      },
+      "uuid": "1f0bb234-f8cd-5421-871f-fbee64bded76"
     },
     "source_id": "evt_ev4"
   }

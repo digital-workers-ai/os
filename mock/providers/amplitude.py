@@ -3,14 +3,20 @@ Amplitude API mock provider.
 Contract: seeds/docs/25-amplitude.md
 
 Basic Auth. No pagination on any endpoint.
-Export returns NDJSON (mock: plain text, not actually zipped).
+Export returns a zip archive of gzipped NDJSON files, one JSON object per line.
 """
 
+PROJECT_ID = 12345
+
 from fastapi import APIRouter, Request, Query
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import Response
 from seeds.helpers import require_basic_auth
 from seeds.world import PEOPLE, COMPANIES_BY_ID, ANALYTICS_EVENTS, SUBSCRIPTIONS_BY_COMPANY
+import gzip
+import io
 import json
+import uuid
+import zipfile
 
 router = APIRouter()
 
@@ -26,7 +32,8 @@ def _amp_event(ev, idx):
         "user_id": f"user_{p.first_name.lower()}_{co.domain.split('.')[0]}" if p and co else ev.distinct_id,
         "device_id": f"device_{ev.id}",
         "session_id": int(ev.properties.get("session_id", "sess_000").replace("sess_", "")) * 1000000000 + 1719835200000,
-        "insert_id": f"evt_{ev.id}",
+        "$insert_id": f"evt_{ev.id}",
+        "uuid": str(uuid.uuid5(uuid.NAMESPACE_URL, f"amplitude/{ev.id}")),
         "event_properties": ev.properties,
         "user_properties": {
             "email": p.email if p else ev.distinct_id,
@@ -36,7 +43,6 @@ def _amp_event(ev, idx):
         },
         "ip_address": "203.0.113.42",
         "platform": "Web", "os_name": "Mac OS X",
-        "browser": "Chrome", "browser_version": "126",
         "country": "United States",
         "region": co.state if co else "CA",
         "city": co.city if co else "San Francisco",
@@ -54,8 +60,12 @@ async def export_events(
 ):
     require_basic_auth(request)
     events = [_amp_event(ev, i) for i, ev in enumerate(ANALYTICS_EVENTS)]
-    lines = [json.dumps(e) for e in events]
-    return PlainTextResponse("\n".join(lines), media_type="application/x-ndjson")
+    lines = "\n".join(json.dumps(e) for e in events)
+    member = f"{PROJECT_ID}/{PROJECT_ID}_{start[0:4]}-{start[4:6]}-{start[6:8]}_{start[9:11]}#0.json.gz"
+    archive = io.BytesIO()
+    with zipfile.ZipFile(archive, "w") as bundle:
+        bundle.writestr(member, gzip.compress(lines.encode()))
+    return Response(content=archive.getvalue(), media_type="application/zip")
 
 
 @router.get("/api/3/cohorts")
