@@ -124,9 +124,7 @@ class TestWhatTheConnectorActuallyAsksFor:
         assert "deal_currency_code" in deals
         assert "dealstage" not in deals
 
-    async def test_hubspot_reads_full_pages_so_the_page_cap_is_far_away(
-        self, capture
-    ):
+    async def test_hubspot_reads_full_pages_so_the_page_cap_is_far_away(self, capture):
         seen = capture({"results": [], "paging": {}})
 
         async def store(session, **kwargs):
@@ -264,8 +262,12 @@ class TestWhatTheConnectorActuallyAsksFor:
         notes = await connector("calendly").pull(None, store)
 
         assert notes is None
-        assert [r.url.path for r in seen] == ["/scheduled_events"]
-        assert seen[0].url.params.get("count") == "2"
+        assert [r.url.path for r in seen] == [
+            "/users/me",
+            "/scheduled_events",
+            "/scheduled_events/evt_1/invitees",
+        ]
+        assert seen[1].url.params.get("count") == "2"
         assert [(s["object_type"], s["source_id"]) for s in stored] == [
             ("scheduled_events", "evt_1")
         ]
@@ -2020,9 +2022,9 @@ class TestWhatTheConfiguredValuesDoToTheRequest:
         assert seen[0].url.params.get("user") == CALENDLY_USER
         assert seen[0].url.params.get("count") == "2"
 
-    async def test_calendly_asks_for_no_user_without_credentials(self, capture):
+    async def test_calendly_resolves_the_user_without_credentials(self, capture):
         seen = await self._pull("calendly", capture({"collection": []}))
-        assert seen[0].url.params.get("user") is None
+        assert [r.url.path for r in seen] == ["/users/me", "/scheduled_events"]
 
     async def test_mixpanel_exports_the_configured_project(self, capture, monkeypatch):
         self._mixpanel_environment(monkeypatch)
