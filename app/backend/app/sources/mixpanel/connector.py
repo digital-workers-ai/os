@@ -1,16 +1,23 @@
-from app.sources.util import client_for, store_ndjson
+from app.sources.util import client_for, store_ndjson, window
 
 SOURCE = "mixpanel"
 
 OBSERVED_AT = {"events": "properties.time"}
 
+ENDED_EARLY = "terminated early"
+
 
 async def pull(session, store):
     api = client_for(SOURCE)
+    since, until = window()
     text = await api.get_text(
         "/api/2.0/export",
-        params={"from_date": "2026-07-01", "to_date": "2026-07-15"},
+        params={"from_date": since, "to_date": until},
     )
+    lines = text.strip().split("\n")
+    if lines[-1].strip() == ENDED_EARLY:
+        api.truncate("mixpanel ended the export early; the tail was not read")
+        text = "\n".join(lines[:-1])
     return await store_ndjson(
         session,
         store,
