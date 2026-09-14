@@ -1,6 +1,9 @@
+import gzip
 import importlib
+import io
 import json
 import pkgutil
+import zipfile
 
 import httpx
 import pytest
@@ -46,12 +49,29 @@ def connector(name):
     return importlib.import_module(f"app.sources.{name}.connector")
 
 
+def zipped_ndjson(text: str) -> bytes:
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w") as bundle:
+        bundle.writestr(
+            "863002/863002_2026-09-04_0#0.json.gz", gzip.compress(text.encode())
+        )
+    return buffer.getvalue()
+
+
+EXPORT_BODIES = [
+    ("amplitude", lambda text: {"content": zipped_ndjson(text)}),
+    ("mixpanel", lambda text: {"text": text}),
+]
+
+
 @pytest.fixture
 def pull(monkeypatch):
-    def _run(module, body, *, text=None):
+    def _run(module, body, *, text=None, content=None):
         stored = []
 
         def handler(request):
+            if content is not None:
+                return httpx.Response(200, content=content)
             if text is not None:
                 return httpx.Response(200, text=text)
             return httpx.Response(200, json=body)
@@ -1170,37 +1190,105 @@ class TestSheetRowsSharingACompanyAreACountedCollision:
 
 
 class TestExportStreams:
-    @pytest.mark.parametrize("name", ["amplitude", "mixpanel"])
-    async def test_a_blank_line_is_skipped_silently(self, pull, name):
+    @pytest.mark.parametrize("name,body", EXPORT_BODIES, ids=[n for n, _ in EXPORT_BODIES])
+    async def test_a_blank_line_is_skipped_silently(self, pull, name, body):
         notes, stored = await pull(
-            connector(name), None, text='{"a":1}\n\n   \n{"a":2}'
+            connector(name), None, **body('{"a":1}\n\n   \n{"a":2}')
         )
         assert len(stored) == 2
         assert notes is None
 
-    @pytest.mark.parametrize("name", ["amplitude", "mixpanel"])
-    async def test_a_malformed_line_is_counted_not_fatal(self, pull, name):
+    @pytest.mark.parametrize("name,body", EXPORT_BODIES, ids=[n for n, _ in EXPORT_BODIES])
+    async def test_a_malformed_line_is_counted_not_fatal(self, pull, name, body):
         notes, stored = await pull(
-            connector(name), None, text='{"a":1}\nnot json at all\n{"a":2}'
+            connector(name), None, **body('{"a":1}\nnot json at all\n{"a":2}')
         )
         assert len(stored) == 2
         assert notes == {"malformed_lines": 1}
 
-    @pytest.mark.parametrize("name", ["amplitude", "mixpanel"])
-    async def test_a_line_with_no_vendor_id_is_keyed_by_its_content(self, pull, name):
-        _notes, stored = await pull(connector(name), None, text='{"no_id_here":1}')
+    @pytest.mark.parametrize("name,body", EXPORT_BODIES, ids=[n for n, _ in EXPORT_BODIES])
+    async def test_a_line_with_no_vendor_id_is_keyed_by_its_content(
+        self, pull, name, body
+    ):
+        _notes, stored = await pull(connector(name), None, **body('{"no_id_here":1}'))
         assert len(stored[0]["source_id"]) == 32
         assert stored[0]["object_type"] == "events"
 
+    async def test_amplitude_reads_the_zipped_archive_the_export_returns(self, pull):
+        _notes, stored = await pull(
+            connector("amplitude"),
+            None,
+            content=zipped_ndjson('{"$insert_id":"a"}\n{"$insert_id":"b"}'),
+        )
+        assert [s["source_id"] for s in stored] == ["a", "b"]
+
+    async def test_a_plain_text_body_is_not_silently_read_as_zero_events(self, pull):
+        with pytest.raises(client.ConnectorError):
+            await pull(
+                connector("amplitude"), None, text='{"$insert_id":"a"}'
+            )
+
     async def test_amplitude_prefers_the_vendor_insert_id(self, pull):
         _notes, stored = await pull(
-            connector("amplitude"), None, text='{"insert_id":"abc","uuid":"z"}'
+            connector("amplitude"),
+            None,
+            content=zipped_ndjson('{"$insert_id":"abc","uuid":"z"}'),
         )
         assert stored[0]["source_id"] == "abc"
 
-    async def test_amplitude_falls_back_to_the_uuid(self, pull):
-        _notes, stored = await pull(connector("amplitude"), None, text='{"uuid":"z"}')
+    async def test_amplitude_reads_no_undollared_insert_id(self, pull):
+        _notes, stored = await pull(
+            connector("amplitude"),
+            None,
+            content=zipped_ndjson('{"insert_id":"abc","uuid":"z"}'),
+        )
         assert stored[0]["source_id"] == "z"
+
+    async def test_amplitude_falls_back_to_the_uuid(self, pull):
+        _notes, stored = await pull(
+            connector("amplitude"), None, content=zipped_ndjson('{"uuid":"z"}')
+        )
+        assert stored[0]["source_id"] == "z"
+
+    async def test_amplitude_asks_for_a_rolling_window(self, monkeypatch):
+        seen = []
+
+        def handler(request):
+            seen.append(request)
+            return httpx.Response(200, content=zipped_ndjson(""))
+
+        monkeypatch.setattr(client, "_transport", httpx.MockTransport(handler))
+
+        async def store(session, **kwargs):
+            pass
+
+        await connector("amplitude").pull(None, store)
+        monkeypatch.setattr(client, "_transport", None)
+
+        since, until = util.window()
+        assert seen[0].url.params["start"] == f"{since.replace('-', '')}T00"
+        assert seen[0].url.params["end"] == f"{until.replace('-', '')}T23"
+
+    async def test_the_amplitude_window_is_hours_not_iso_dates(self, monkeypatch):
+        seen = []
+
+        def handler(request):
+            seen.append(request)
+            return httpx.Response(200, content=zipped_ndjson(""))
+
+        monkeypatch.setattr(client, "_transport", httpx.MockTransport(handler))
+
+        async def store(session, **kwargs):
+            pass
+
+        await connector("amplitude").pull(None, store)
+        monkeypatch.setattr(client, "_transport", None)
+
+        assert seen[0].url.params["start"] == "20260607T00"
+        assert seen[0].url.params["end"] == "20260904T23"
+
+    async def test_amplitude_observes_events_by_the_export_timestamp(self):
+        assert connector("amplitude").OBSERVED_AT == {"events": "event_time"}
 
     async def test_mixpanel_reads_its_id_out_of_properties(self, pull):
         _notes, stored = await pull(
@@ -2065,7 +2153,8 @@ class TestWhatTheConfiguredValuesDoToTheRequest:
         seen = await self._pull("mixpanel", capture({}))
         assert [r.url.path for r in seen] == ["/api/2.0/export"]
         assert seen[0].url.params.get("project_id") == MIXPANEL_PROJECT
-        assert seen[0].url.params.get("from_date") == "2026-07-01"
+        assert seen[0].url.params.get("from_date") == "2026-06-07"
+        assert seen[0].url.params.get("to_date") == "2026-09-04"
 
     async def test_mixpanel_names_no_project_without_credentials(self, capture):
         seen = await self._pull("mixpanel", capture({}))
