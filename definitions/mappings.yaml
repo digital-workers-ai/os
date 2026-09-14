@@ -295,10 +295,6 @@ ad_account:
   snapchat.organizations.state: status
   snapchat.organizations.currency: currency
   snapchat.organizations.country: country
-  twitter.accounts.name: name
-  twitter.accounts.approval_status: status
-  twitter.accounts.currency: currency
-  twitter.accounts.country_code: country
 
 audience:
   mailchimp.lists.name: name

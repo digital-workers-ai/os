@@ -1,11 +1,13 @@
+import os
+
 from app.sources.paginators import Paginator
-from app.sources.util import client_for, declare_page_complete, store_all, window
+from app.sources.util import client_for, store_all, window
 
 SOURCE = "twitter"
 
-OBSERVED_AT = {"accounts": "updated_at"}
+USER_ID_VAR = "TWITTER_USER_ID"
 
-USER_ID = "1"
+SELF = "me"
 
 TWEET_FIELDS = "created_at,public_metrics"
 
@@ -24,19 +26,16 @@ class _NextToken(Paginator):
 _TWEETS = _NextToken()
 
 
+def _user_id() -> str:
+    return os.environ.get(USER_ID_VAR, "").strip() or SELF
+
+
 async def pull(session, store):
     api = client_for(SOURCE)
     notes: dict = {}
     since, until = window()
-    data = await api.get("/12/accounts", params={"count": 100})
-    accounts = data.get("data", data) if isinstance(data, dict) else data
-    if isinstance(accounts, list):
-        declare_page_complete(api, accounts, 100, "accounts")
-        await store_all(
-            session, store, accounts, source=SOURCE, object_type="accounts", notes=notes
-        )
     tweets = await api.get(
-        f"/2/users/{USER_ID}/tweets",
+        f"/2/users/{_user_id()}/tweets",
         params={
             "start_time": f"{since}T00:00:00Z",
             "end_time": f"{until}T23:59:59Z",
