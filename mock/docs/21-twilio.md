@@ -256,7 +256,12 @@ curl -u "AC_mock_sid_001:mock_auth_token_001" \
 
 ## Pagination
 
-Page-based with `PageToken` for navigation.
+Page-based, navigated by following `next_page_uri`.
+
+The envelope around a list carries exactly these keys, and no others:
+`end`, `first_page_uri`, `next_page_uri`, `page`, `page_size`,
+`previous_page_uri`, `start`, `uri`, plus the record list itself
+(`messages`, `calls`, ...).
 
 ```json
 {
@@ -272,10 +277,13 @@ Page-based with `PageToken` for navigation.
 }
 ```
 
+- There is **no `next_page_token` field**. The token lives only inside the query string of `next_page_uri`
+- The next request is the query of `next_page_uri`: take `PageSize`, `Page` and `PageToken` from it rather than incrementing `page` yourself
 - `PageSize`: items per page (default 50, max 1000)
 - `Page`: zero-based page number
-- `PageToken`: opaque token for next/prev page navigation — follow `next_page_uri` for reliability
+- `PageToken`: opaque token for next/prev page navigation
 - Done when `next_page_uri` is `null` or empty string `""`
+- An account with no records still answers the whole envelope: `"messages": []` with `"next_page_uri": null`
 - `start` and `end` give the item index range for the current page
 
 ## Error Responses
@@ -301,7 +309,8 @@ Page-based with `PageToken` for navigation.
 ## Notes
 
 - **SID prefixes** identify resource types: `AC` = Account, `SM` = Message, `CA` = Call, `MG` = Messaging Service, `PN` = Phone Number
-- `price` is a **negative string** representing cost to you (e.g., `"-0.0075"`)
+- `price` is a **negative string** representing cost to you (e.g., `"-0.0075"`); the live API writes five decimal places (`"-0.00750"`)
+- `price_unit` is the **uppercase** ISO currency code (`"USD"`)
 - `duration` on calls is a **string** in seconds
 - Dates are **RFC 2822** format (e.g., `"Wed, 10 Jul 2026 14:00:00 +0000"`), not ISO 8601
 - Message `status` lifecycle: `queued` → `sending` → `sent` → `delivered` (or `failed`/`undelivered`)
