@@ -44,13 +44,13 @@ async def test_the_sync_stores_the_whole_twenty_seven_source_estate(
 ):
     result = await sync.run_all(sessionmaker_for_test, SOURCES)
     assert result["failed"] == 0, result
-    assert result["rows_written"] == 2226
+    assert result["rows_written"] == 2227
     assert all(r["truncated"] is False for r in result["results"]), result
 
     total = (
         await session.execute(select(func.count()).select_from(RawEvent))
     ).scalar_one()
-    assert total == 2226
+    assert total == 2227
 
 
 async def test_the_rebuild_resolves_the_batch_four_entities(
