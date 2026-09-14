@@ -3,76 +3,84 @@
     "payload": {
       "archived": false,
       "createdAt": "2025-03-15T00:00:00.000Z",
-      "id": "hs_deal_001",
+      "id": "348000000001",
       "properties": {
         "amount": "21600",
         "closedate": "2025-03-15T00:00:00.000Z",
         "createdate": "2025-03-15T00:00:00.000Z",
+        "deal_currency_code": null,
         "dealname": "Acme Corp - Professional Plan",
-        "dealstage": "closedwon",
+        "hs_is_closed": "true",
+        "hs_is_closed_won": "true",
         "hs_lastmodifieddate": "2026-07-01T10:00:00.000Z",
-        "hs_object_id": "hs_deal_001",
-        "pipeline": "default"
+        "hs_object_id": "348000000001"
       },
-      "updatedAt": "2026-07-01T10:00:00.000Z"
+      "updatedAt": "2026-07-01T10:00:00.000Z",
+      "url": "https://app-na2.hubspot.com/contacts/12345678/record/0-3/348000000001"
     },
-    "source_id": "hs_deal_001"
+    "source_id": "348000000001"
   },
   {
     "payload": {
       "archived": false,
       "createdAt": "2025-02-01T00:00:00.000Z",
-      "id": "hs_deal_002",
+      "id": "348000000002",
       "properties": {
         "amount": "28800",
         "closedate": "2025-02-01T00:00:00.000Z",
         "createdate": "2025-02-01T00:00:00.000Z",
+        "deal_currency_code": null,
         "dealname": "Globex Inc - Professional Plan",
-        "dealstage": "closedwon",
+        "hs_is_closed": "true",
+        "hs_is_closed_won": "true",
         "hs_lastmodifieddate": "2026-07-01T10:00:00.000Z",
-        "hs_object_id": "hs_deal_002",
-        "pipeline": "default"
+        "hs_object_id": "348000000002"
       },
-      "updatedAt": "2026-07-01T10:00:00.000Z"
+      "updatedAt": "2026-07-01T10:00:00.000Z",
+      "url": "https://app-na2.hubspot.com/contacts/12345678/record/0-3/348000000002"
     },
-    "source_id": "hs_deal_002"
-  },
-  {
-    "payload": {
-      "archived": false,
-      "createdAt": "2025-01-10T00:00:00.000Z",
-      "id": "hs_deal_003",
-      "properties": {
-        "amount": "57600",
-        "closedate": "2025-01-10T00:00:00.000Z",
-        "createdate": "2025-01-10T00:00:00.000Z",
-        "dealname": "Initech LLC - Enterprise Plan",
-        "dealstage": "closedwon",
-        "hs_lastmodifieddate": "2026-07-01T10:00:00.000Z",
-        "hs_object_id": "hs_deal_003",
-        "pipeline": "default"
-      },
-      "updatedAt": "2026-07-01T10:00:00.000Z"
-    },
-    "source_id": "hs_deal_003"
+    "source_id": "348000000002"
   },
   {
     "payload": {
       "archived": false,
       "createdAt": "2025-02-15T00:00:00.000Z",
-      "id": "hs_deal_004",
+      "id": "348000000004",
       "properties": {
         "amount": "588",
         "closedate": "2025-02-15T00:00:00.000Z",
         "createdate": "2025-02-15T00:00:00.000Z",
+        "deal_currency_code": null,
         "dealname": "Umbrella Systems - Starter Plan",
-        "dealstage": "closedlost",
+        "hs_is_closed": "true",
+        "hs_is_closed_won": "false",
         "hs_lastmodifieddate": "2026-07-01T10:00:00.000Z",
-        "hs_object_id": "hs_deal_004",
-        "pipeline": "default"
+        "hs_object_id": "348000000004"
       },
-      "updatedAt": "2026-07-01T10:00:00.000Z"
+      "updatedAt": "2026-07-01T10:00:00.000Z",
+      "url": "https://app-na2.hubspot.com/contacts/12345678/record/0-3/348000000004"
     },
-    "source_id": "hs_deal_004"
+    "source_id": "348000000004"
+  },
+  {
+    "payload": {
+      "archived": false,
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "id": "348000000005",
+      "properties": {
+        "amount": "21600",
+        "closedate": "2026-07-01T00:00:00.000Z",
+        "createdate": "2026-07-01T00:00:00.000Z",
+        "deal_currency_code": null,
+        "dealname": "Wayne Enterprises - Professional Plan",
+        "hs_is_closed": "false",
+        "hs_is_closed_won": "false",
+        "hs_lastmodifieddate": "2026-07-01T10:00:00.000Z",
+        "hs_object_id": "348000000005"
+      },
+      "updatedAt": "2026-07-01T10:00:00.000Z",
+      "url": "https://app-na2.hubspot.com/contacts/12345678/record/0-3/348000000005"
+    },
+    "source_id": "348000000005"
   }
 ]

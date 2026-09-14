@@ -101,7 +101,7 @@ curl -H "Authorization: Bearer CKn2p5KdLhICAQEYs..." \
 {
   "results": [
     {
-      "id": "hs_contact_001",
+      "id": "550000000001",
       "properties": {
         "firstname": "Jane",
         "lastname": "Smith",
@@ -110,14 +110,15 @@ curl -H "Authorization: Bearer CKn2p5KdLhICAQEYs..." \
         "lastmodifieddate": "2026-06-01T14:22:00.000Z",
         "lifecyclestage": "customer",
         "company": "Acme Corp",
-        "hs_object_id": "hs_contact_001"
+        "hs_object_id": "550000000001"
       },
       "createdAt": "2025-03-15T10:30:00.000Z",
       "updatedAt": "2026-06-01T14:22:00.000Z",
-      "archived": false
+      "archived": false,
+      "url": "https://app-na2.hubspot.com/contacts/12345678/record/0-1/550000000001"
     },
     {
-      "id": "hs_contact_002",
+      "id": "550000000021",
       "properties": {
         "firstname": "Bob",
         "lastname": "Smith",
@@ -126,17 +127,18 @@ curl -H "Authorization: Bearer CKn2p5KdLhICAQEYs..." \
         "lastmodifieddate": "2026-05-10T11:00:00.000Z",
         "lifecyclestage": "lead",
         "company": "Soylent Corp",
-        "hs_object_id": "hs_contact_002"
+        "hs_object_id": "550000000021"
       },
       "createdAt": "2025-04-20T08:15:00.000Z",
       "updatedAt": "2026-05-10T11:00:00.000Z",
-      "archived": false
+      "archived": false,
+      "url": "https://app-na2.hubspot.com/contacts/12345678/record/0-1/550000000021"
     }
   ],
   "paging": {
     "next": {
-      "after": "hs_contact_003",
-      "link": "/crm/v3/objects/contacts?after=hs_contact_003"
+      "after": "550000000021",
+      "link": "https://api.hubapi.com/crm/v3/objects/contacts?limit=2&properties=firstname,lastname,email,lifecyclestage,company&after=550000000021"
     }
   }
 }
@@ -148,20 +150,21 @@ curl -H "Authorization: Bearer CKn2p5KdLhICAQEYs..." \
 {
   "results": [
     {
-      "id": "hs_contact_010",
+      "id": "550000000020",
       "properties": {
-        "firstname": "Sarah",
-        "lastname": "Connor",
-        "email": "sarah@cyberdyne.ai",
+        "firstname": "Miles",
+        "lastname": "Dyson",
+        "email": "miles@cyberdyne.ai",
         "createdate": "2026-01-10T16:45:00.000Z",
         "lastmodifieddate": "2026-07-01T09:30:00.000Z",
         "lifecyclestage": "customer",
         "company": "Cyberdyne Systems",
-        "hs_object_id": "hs_contact_010"
+        "hs_object_id": "550000000020"
       },
       "createdAt": "2026-01-10T16:45:00.000Z",
       "updatedAt": "2026-07-01T09:30:00.000Z",
-      "archived": false
+      "archived": false,
+      "url": "https://app-na2.hubspot.com/contacts/12345678/record/0-1/550000000020"
     }
   ]
 }
@@ -192,50 +195,54 @@ curl -H "Authorization: Bearer CKn2p5KdLhICAQEYs..." \
 {
   "results": [
     {
-      "id": "hs_company_001",
+      "id": "346000000001",
       "properties": {
         "name": "Acme Corp",
         "domain": "acme.io",
-        "industry": "Technology",
+        "industry": "COMPUTER_SOFTWARE",
         "numberofemployees": "150",
         "city": "San Francisco",
         "state": "CA",
         "country": "United States",
         "createdate": "2025-01-10T09:00:00.000Z",
         "hs_lastmodifieddate": "2026-06-15T12:00:00.000Z",
-        "hs_object_id": "hs_company_001"
+        "hs_object_id": "346000000001"
       },
       "createdAt": "2025-01-10T09:00:00.000Z",
       "updatedAt": "2026-06-15T12:00:00.000Z",
-      "archived": false
+      "archived": false,
+      "url": "https://app-na2.hubspot.com/contacts/12345678/record/0-2/346000000001"
     },
     {
-      "id": "hs_company_002",
+      "id": "346000000009",
       "properties": {
-        "name": "Globex Inc",
-        "domain": "globex.com",
-        "industry": "SaaS",
-        "numberofemployees": "85",
-        "city": "Austin",
-        "state": "TX",
+        "name": null,
+        "domain": "cyberdyne.ai",
+        "industry": null,
+        "numberofemployees": null,
+        "city": "Denver",
+        "state": "CO",
         "country": "United States",
         "createdate": "2025-02-05T14:30:00.000Z",
         "hs_lastmodifieddate": "2026-07-01T10:15:00.000Z",
-        "hs_object_id": "hs_company_002"
+        "hs_object_id": "346000000009"
       },
       "createdAt": "2025-02-05T14:30:00.000Z",
       "updatedAt": "2026-07-01T10:15:00.000Z",
-      "archived": false
+      "archived": false,
+      "url": "https://app-na2.hubspot.com/contacts/12345678/record/0-2/346000000009"
     }
   ],
   "paging": {
     "next": {
-      "after": "hs_company_003",
-      "link": "/crm/v3/objects/companies?after=hs_company_003"
+      "after": "346000000009",
+      "link": "https://api.hubapi.com/crm/v3/objects/companies?limit=2&properties=name,domain,industry,numberofemployees,city,state,country&after=346000000009"
     }
   }
 }
 ```
+
+`industry` is an enumeration: the API returns the internal value (`COMPUTER_SOFTWARE`), not the label the app shows (`Computer Software`). A property a record never had comes back as `null`, never as `""` — `name` included, because HubSpot creates a company from a contact's email domain before anyone names it.
 
 ---
 
@@ -251,7 +258,7 @@ GET /crm/v3/objects/deals
 
 ```bash
 curl -H "Authorization: Bearer CKn2p5KdLhICAQEYs..." \
-  "https://api.hubapi.com/crm/v3/objects/deals?limit=2&properties=dealname,amount,dealstage,pipeline,closedate"
+  "https://api.hubapi.com/crm/v3/objects/deals?limit=2&properties=dealname,amount,closedate,deal_currency_code,hs_is_closed,hs_is_closed_won"
 ```
 
 **Example response (200):**
@@ -260,46 +267,52 @@ curl -H "Authorization: Bearer CKn2p5KdLhICAQEYs..." \
 {
   "results": [
     {
-      "id": "hs_deal_001",
+      "id": "348000000001",
       "properties": {
         "dealname": "Acme Corp - Growth Plan",
         "amount": "57600",
-        "dealstage": "closedwon",
-        "pipeline": "default",
+        "deal_currency_code": null,
+        "hs_is_closed": "true",
+        "hs_is_closed_won": "true",
         "closedate": "2025-06-01T00:00:00.000Z",
         "createdate": "2025-03-01T10:00:00.000Z",
         "hs_lastmodifieddate": "2025-06-01T15:30:00.000Z",
-        "hs_object_id": "hs_deal_001"
+        "hs_object_id": "348000000001"
       },
       "createdAt": "2025-03-01T10:00:00.000Z",
       "updatedAt": "2025-06-01T15:30:00.000Z",
-      "archived": false
+      "archived": false,
+      "url": "https://app-na2.hubspot.com/contacts/12345678/record/0-3/348000000001"
     },
     {
-      "id": "hs_deal_002",
+      "id": "348000000005",
       "properties": {
-        "dealname": "Hooli Technologies - Enterprise",
-        "amount": "96000",
-        "dealstage": "closedwon",
-        "pipeline": "default",
-        "closedate": "2025-04-15T00:00:00.000Z",
-        "createdate": "2025-02-10T09:00:00.000Z",
-        "hs_lastmodifieddate": "2025-04-15T16:45:00.000Z",
-        "hs_object_id": "hs_deal_002"
+        "dealname": "Wayne Enterprises - Professional Plan",
+        "amount": "21600",
+        "deal_currency_code": null,
+        "hs_is_closed": "false",
+        "hs_is_closed_won": "false",
+        "closedate": "2026-07-15T00:00:00.000Z",
+        "createdate": "2026-07-01T09:00:00.000Z",
+        "hs_lastmodifieddate": "2026-07-01T16:45:00.000Z",
+        "hs_object_id": "348000000005"
       },
-      "createdAt": "2025-02-10T09:00:00.000Z",
-      "updatedAt": "2025-04-15T16:45:00.000Z",
-      "archived": false
+      "createdAt": "2026-07-01T09:00:00.000Z",
+      "updatedAt": "2026-07-01T16:45:00.000Z",
+      "archived": false,
+      "url": "https://app-na2.hubspot.com/contacts/12345678/record/0-3/348000000005"
     }
   ],
   "paging": {
     "next": {
-      "after": "hs_deal_003",
-      "link": "/crm/v3/objects/deals?after=hs_deal_003"
+      "after": "348000000005",
+      "link": "https://api.hubapi.com/crm/v3/objects/deals?limit=2&properties=dealname,amount,closedate,deal_currency_code,hs_is_closed,hs_is_closed_won&after=348000000005"
     }
   }
 }
 ```
+
+`dealstage` and `pipeline` are ids, and a portal may rename or replace both, so a reader that spells out `closedwon` counts nothing in a custom pipeline. `hs_is_closed_won` and `hs_is_closed` are the pipeline-independent answer; both arrive as the strings `"true"` and `"false"`. `deal_currency_code` is what the amount is denominated in, and it is `null` on a deal that never carried a currency of its own.
 
 ---
 
@@ -315,9 +328,9 @@ HubSpot uses **cursor-based pagination** across all CRM v3 list endpoints.
 
 ### Rules
 
-- `limit` range: 1–100 (default 100)
+- `limit` range: 1–100 (default 100); a `limit` below the maximum only buys more round trips and hits the page cap sooner
 - `after` is the ID of the last object on the current page
-- The `paging.next.link` field is a convenience URL but should not be used directly (it's a relative path)
+- The `paging.next.link` field is an absolute URL that repeats the current query with `after` applied
 - When there are no more results, the entire `paging` key is omitted (not set to null)
 
 ### Pseudocode
@@ -378,8 +391,11 @@ while True:
 
 ## Notes
 
-- All property values are strings in HubSpot (even numeric fields like `numberofemployees` and `amount`)
-- The `properties` query parameter filters which properties are returned; omitting it returns default properties only
+- All property values are strings in HubSpot (even numeric fields like `numberofemployees` and `amount`, and boolean fields like `hs_is_closed`)
+- The `properties` query parameter is the whole list of extra properties returned: anything not asked for is absent from the response, whatever the record holds
+- `hs_object_id`, `createdate` and the last-modified stamp (`lastmodifieddate` on contacts, `hs_lastmodifieddate` on companies and deals) come back whether or not they were asked for
+- A property with no value is `null`, not an empty string
+- Object ids are numeric strings assigned by HubSpot, and every record carries a top-level `url` pointing at its record page in the portal
 - `createdate` inside `properties` and `createdAt` at the top level are the same timestamp in different formats
 - HubSpot has an OpenAPI spec available at `github.com/HubSpot/HubSpot-public-api-spec-collection` for additional endpoint details
 - Webhook subscriptions (up to 1,000 per app) are exempt from rate limits when triggered via workflows

@@ -45,8 +45,9 @@ person:
 deal:
   hubspot.deals.properties.dealname: name
   hubspot.deals.properties.amount: amount
-  hubspot.deals.properties.dealstage: status
+  hubspot.deals._status: status
   hubspot.deals.properties.closedate: closed_at
+  hubspot.deals.properties.deal_currency_code: currency
   salesforce.opportunities.Name: name
   salesforce.opportunities.Amount: amount
   salesforce.opportunities.StageName: status

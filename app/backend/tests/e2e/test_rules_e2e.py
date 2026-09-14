@@ -70,7 +70,7 @@ async def test_revenue_at_risk_names_the_companies_worth_saving(rules_body):
 
 async def test_the_stalled_deal_is_anchored_but_unlinked(rules_body):
     finding = next(f for f in rules_body["findings"] if f["rule"] == "stalled_deal")
-    assert finding["anchor"] == "hubspot|deal|hs_deal_005"
+    assert finding["anchor"] == "hubspot|deal|348000000005"
     assert finding["company"] is None
 
 
@@ -78,7 +78,7 @@ async def test_absence_is_the_evidence_for_a_missing_industry(rules_body):
     finding = next(
         f for f in rules_body["findings"] if f["rule"] == "company_without_industry"
     )
-    assert finding["anchor"] == "hubspot|company|hs_company_009"
+    assert finding["anchor"] == "hubspot|company|346000000009"
     assert finding["evidence"] == {"industry": None}
 
 
