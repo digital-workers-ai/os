@@ -38,6 +38,8 @@ ALL_SOURCES = {
     "twitter",
     "pinterest",
     "linkedin",
+    "meta_ad_library",
+    "google_ads_transparency",
 }
 
 
@@ -351,7 +353,7 @@ class TestCredentials:
 
 class TestRegistry:
     def test_every_connector_module_is_discovered(self):
-        assert len(ALL_SOURCES) == 27
+        assert len(ALL_SOURCES) == 29
         assert set(registry.discover()) == ALL_SOURCES
 
     def test_discovery_is_cached(self):
@@ -1847,3 +1849,223 @@ class TestWhatPinterestAsksForItsPinsAndAccount(_SocialCapture):
 
         assert [s for s in stored if s["object_type"] == "account_analytics"] == []
         assert notes is None
+
+
+class TestCompetitorConnectors(_SocialCapture):
+    @staticmethod
+    def _competitors():
+        from app.engine import competitors
+
+        return competitors.load()
+
+    def _page_ids(self):
+        return {str(spec["meta_page_id"]) for spec in self._competitors().values()}
+
+    def _advertiser_ids(self):
+        return {
+            str(spec["google_advertiser_id"]) for spec in self._competitors().values()
+        }
+
+    @staticmethod
+    def _meta_body(request):
+        path = request.url.path
+        if path == "/v25.0/ads_archive":
+            page_id = request.url.params.get("search_page_ids")
+            return {
+                "data": [
+                    {
+                        "id": f"ad_{page_id}",
+                        "page_id": page_id,
+                        "ad_creative_bodies": ["Stop scrolling"],
+                        "ad_delivery_start_time": "2026-06-15",
+                        "ad_snapshot_url": "https://facebook.test/ads/1",
+                    }
+                ],
+                "paging": {},
+            }
+        page_id = path.rsplit("/", 1)[-1]
+        return {
+            "id": page_id,
+            "name": f"Page {page_id}",
+            "website": f"https://{page_id}.test",
+        }
+
+    @staticmethod
+    def _creative(advertiser_id, n):
+        return {
+            "ad_id": f"CR{advertiser_id}_{n}",
+            "advertiser_id": advertiser_id,
+            "advertiser": f"Advertiser {advertiser_id}",
+            "target_domain": f"{advertiser_id.lower()}.test",
+            "format": "text",
+            "text": "Stop scrolling",
+            "first_shown": 1781515800,
+            "last_shown": 1788271200,
+        }
+
+    def _google_body(self, request):
+        advertiser_id = request.url.params.get("advertiser_id")
+        return {
+            "ad_creatives": [
+                self._creative(advertiser_id, 1),
+                self._creative(advertiser_id, 2),
+            ],
+            "serpapi_pagination": {},
+        }
+
+    def _keys(self, stored):
+        return {(s["object_type"], s["source_id"]) for s in stored}
+
+    async def test_meta_ad_library_asks_each_competitor_page_for_its_website(
+        self, capture, store
+    ):
+        seen = capture(self._meta_body)
+
+        await connector("meta_ad_library").pull(None, store)
+
+        pages = [r for r in seen if r.url.path != "/v25.0/ads_archive"]
+        assert {r.url.path for r in pages} == {
+            f"/v25.0/{page_id}" for page_id in self._page_ids()
+        }
+        for request in pages:
+            fields = set(request.url.params.get("fields", "").split(","))
+            assert {"id", "name", "website"} <= fields
+            assert request.url.params.get("access_token")
+
+    async def test_meta_ad_library_asks_the_archive_for_each_pages_ads(
+        self, capture, store
+    ):
+        seen = capture(self._meta_body)
+
+        await connector("meta_ad_library").pull(None, store)
+
+        archive = [r for r in seen if r.url.path == "/v25.0/ads_archive"]
+        assert len(archive) == len(self._page_ids())
+        assert {r.url.params.get("search_page_ids") for r in archive} == (
+            self._page_ids()
+        )
+        for request in archive:
+            params = request.url.params
+            assert params.get("ad_active_status") == "ALL"
+            assert params.get("ad_reached_countries")
+            assert params.get("access_token")
+            assert {
+                "ad_creative_bodies",
+                "ad_delivery_start_time",
+                "ad_delivery_stop_time",
+                "ad_snapshot_url",
+                "page_id",
+            } <= set(params.get("fields", "").split(","))
+
+    async def test_meta_ad_library_stores_each_page_and_its_ads_as_they_arrived(
+        self, capture, store, stored
+    ):
+        capture(self._meta_body)
+
+        notes = await connector("meta_ad_library").pull(None, store)
+
+        assert notes is None
+        assert {s["source"] for s in stored} == {"meta_ad_library"}
+        page_ids = self._page_ids()
+        assert self._keys(stored) == {("pages", p) for p in page_ids} | {
+            ("ads", f"ad_{p}") for p in page_ids
+        }
+        ads = {
+            s["source_id"]: s["raw_payload"]
+            for s in stored
+            if s["object_type"] == "ads"
+        }
+        pages = {
+            s["source_id"]: s["raw_payload"]
+            for s in stored
+            if s["object_type"] == "pages"
+        }
+        for page_id in page_ids:
+            assert pages[page_id]["website"] == f"https://{page_id}.test"
+            assert ads[f"ad_{page_id}"]["ad_creative_bodies"] == ["Stop scrolling"]
+
+    async def test_google_ads_transparency_asks_the_center_for_each_advertiser(
+        self, capture, store
+    ):
+        seen = capture(self._google_body)
+
+        await connector("google_ads_transparency").pull(None, store)
+
+        assert {r.url.path for r in seen} == {"/search"}
+        assert len(seen) == len(self._advertiser_ids())
+        assert {r.url.params.get("advertiser_id") for r in seen} == (
+            self._advertiser_ids()
+        )
+        for request in seen:
+            assert request.url.params.get("engine") == "google_ads_transparency_center"
+            assert request.url.params.get("api_key")
+
+    async def test_google_ads_transparency_stores_each_creative_under_its_ad_id(
+        self, capture, store, stored
+    ):
+        capture(self._google_body)
+
+        notes = await connector("google_ads_transparency").pull(None, store)
+
+        assert notes is None
+        assert {s["source"] for s in stored} == {"google_ads_transparency"}
+        creatives = {
+            s["source_id"]: s["raw_payload"]
+            for s in stored
+            if s["object_type"] == "creatives"
+        }
+        assert set(creatives) == {
+            f"CR{advertiser_id}_{n}"
+            for advertiser_id in self._advertiser_ids()
+            for n in (1, 2)
+        }
+        for advertiser_id in self._advertiser_ids():
+            assert creatives[f"CR{advertiser_id}_1"] == self._creative(advertiser_id, 1)
+
+    async def test_google_ads_transparency_builds_one_advertiser_from_its_creatives(
+        self, capture, store, stored
+    ):
+        capture(self._google_body)
+
+        await connector("google_ads_transparency").pull(None, store)
+
+        advertisers = [s for s in stored if s["object_type"] == "advertisers"]
+        assert sorted(s["source_id"] for s in advertisers) == sorted(
+            self._advertiser_ids()
+        )
+        for row in advertisers:
+            advertiser_id = row["source_id"]
+            assert row["raw_payload"]["id"] == advertiser_id
+            assert row["raw_payload"]["name"] == f"Advertiser {advertiser_id}"
+            assert row["raw_payload"]["domain"] == f"{advertiser_id.lower()}.test"
+
+    async def test_google_ads_transparency_walks_the_page_token_to_its_end(
+        self, capture, store, stored
+    ):
+        def body(request):
+            advertiser_id = request.url.params.get("advertiser_id")
+            if request.url.params.get("next_page_token") == "tok":
+                return {
+                    "ad_creatives": [self._creative(advertiser_id, 2)],
+                    "serpapi_pagination": {},
+                }
+            return {
+                "ad_creatives": [self._creative(advertiser_id, 1)],
+                "serpapi_pagination": {"next_page_token": "tok"},
+            }
+
+        seen = capture(body)
+
+        await connector("google_ads_transparency").pull(None, store)
+
+        for advertiser_id in self._advertiser_ids():
+            pages = [
+                r for r in seen if r.url.params.get("advertiser_id") == advertiser_id
+            ]
+            assert [r.url.params.get("next_page_token") for r in pages] == [None, "tok"]
+        creatives = {s["source_id"] for s in stored if s["object_type"] == "creatives"}
+        assert creatives == {
+            f"CR{advertiser_id}_{n}"
+            for advertiser_id in self._advertiser_ids()
+            for n in (1, 2)
+        }

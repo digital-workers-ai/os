@@ -142,7 +142,7 @@ class TestSources:
 
     async def test_the_catalog_lists_every_source_in_order(self, api):
         rows = (await api.get("/api/sources")).json()["sources"]
-        assert len(rows) == 27
+        assert len(rows) == 29
         assert [r["source"] for r in rows] == sorted(r["source"] for r in rows)
 
     async def test_every_row_carries_its_metadata_and_status(self, api):
@@ -174,8 +174,8 @@ class TestSources:
     async def test_the_validation_coverage_summary_counts_every_source(self, api):
         body = (await api.get("/api/sources")).json()
         coverage = body["validation_coverage"]
-        assert coverage["total"] == 27
-        assert sum(coverage["by_status"].values()) == 27
+        assert coverage["total"] == 29
+        assert sum(coverage["by_status"].values()) == 29
         assert coverage["provider_validated"] == sum(
             1 for r in body["sources"] if r["validation"] == "provider-validated"
         )

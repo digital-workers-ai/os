@@ -317,6 +317,8 @@ class TestDiscovery:
             "linkedin",
             "twitter",
             "pinterest",
+            "meta_ad_library",
+            "google_ads_transparency",
         }
 
     def test_a_package_without_an_extract_module_contributes_no_hook(self, monkeypatch):
@@ -1340,3 +1342,94 @@ class TestPinterestHook:
 
         payload = {"id": "549764905678", "name": "Acme"}
         assert extract.reshape("ad_accounts", payload) == [payload]
+
+
+class TestMetaAdLibraryHook:
+    def test_an_ad_is_named_by_its_first_creative_body_and_stamped_meta(self):
+        from app.sources.meta_ad_library import extract
+
+        out = extract.reshape(
+            "ads",
+            {"id": "ad_1", "ad_creative_bodies": ["Stop scrolling", "Second body"]},
+        )
+        assert out[0]["_name"] == "Stop scrolling"
+        assert out[0]["_platform"] == "meta"
+
+    def test_an_ad_with_no_bodies_carries_only_the_platform(self):
+        from app.sources.meta_ad_library import extract
+
+        out = extract.reshape("ads", {"id": "ad_1"})
+        assert out[0] == {"id": "ad_1", "_platform": "meta"}
+
+    def test_an_ad_with_an_empty_body_list_carries_no_name(self):
+        from app.sources.meta_ad_library import extract
+
+        out = extract.reshape("ads", {"id": "ad_1", "ad_creative_bodies": []})
+        assert "_name" not in out[0]
+        assert out[0]["_platform"] == "meta"
+
+    def test_the_stamp_does_not_touch_the_stored_payload(self):
+        from app.sources.meta_ad_library import extract
+
+        payload = {"id": "ad_1", "ad_creative_bodies": ["Stop scrolling"]}
+        extract.reshape("ads", payload)
+        assert payload == {"id": "ad_1", "ad_creative_bodies": ["Stop scrolling"]}
+
+    def test_other_object_types_pass_through(self):
+        from app.sources.meta_ad_library import extract
+
+        payload = {"id": "100", "name": "Acme", "website": "https://acme.io"}
+        assert extract.reshape("pages", payload) == [payload]
+
+
+class TestGoogleAdsTransparencyHook:
+    @staticmethod
+    def _creative(**extra):
+        return {
+            "ad_id": "CR1",
+            "advertiser_id": "AR1",
+            "format": "text",
+            "first_shown": 1781515800,
+            **extra,
+        }
+
+    def test_a_creative_is_stamped_google_with_its_seen_window_as_iso(self):
+        from app.sources.google_ads_transparency import extract
+
+        out = extract.reshape("creatives", self._creative(last_shown=1788271200))
+        assert out[0]["_platform"] == "google"
+        assert out[0]["_first_seen"] == "2026-06-15T09:30:00Z"
+        assert out[0]["_last_seen"] == "2026-09-01T14:00:00Z"
+
+    def test_a_running_creative_has_no_last_seen(self):
+        from app.sources.google_ads_transparency import extract
+
+        out = extract.reshape("creatives", self._creative())
+        assert out[0]["_first_seen"] == "2026-06-15T09:30:00Z"
+        assert "_last_seen" not in out[0]
+
+    def test_a_text_creative_is_named_by_its_text(self):
+        from app.sources.google_ads_transparency import extract
+
+        out = extract.reshape("creatives", self._creative(text="Stop scrolling"))
+        assert out[0]["_name"] == "Stop scrolling"
+
+    def test_an_image_creative_with_no_text_carries_no_name(self):
+        from app.sources.google_ads_transparency import extract
+
+        out = extract.reshape("creatives", self._creative(format="image"))
+        assert "_name" not in out[0]
+        assert out[0]["_platform"] == "google"
+
+    def test_the_stamp_does_not_touch_the_stored_payload(self):
+        from app.sources.google_ads_transparency import extract
+
+        payload = self._creative(last_shown=1788271200, text="hi")
+        extract.reshape("creatives", payload)
+        assert payload == self._creative(last_shown=1788271200, text="hi")
+
+    def test_other_object_types_pass_through(self):
+        from app.sources.google_ads_transparency import extract
+
+        payload = {"id": "AR1", "name": "Acme", "domain": "acme.io"}
+        assert extract.reshape("advertisers", payload) == [payload]
