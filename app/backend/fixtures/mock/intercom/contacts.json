@@ -1,210 +1,422 @@
 [
   {
     "payload": {
-      "browser": "Chrome",
-      "browser_version": "126.0.0",
+      "android_app_name": null,
+      "android_app_version": null,
+      "android_device": null,
+      "android_last_seen_at": null,
+      "android_os_version": null,
+      "android_sdk_version": null,
+      "avatar": null,
+      "browser": null,
+      "browser_language": null,
+      "browser_version": null,
       "companies": {
         "data": [
           {
-            "company_id": "acme.io",
             "id": "comp_c1",
-            "name": "Acme Corp",
-            "type": "company"
+            "type": "company",
+            "url": "/companies/comp_c1"
           }
         ],
         "has_more": false,
         "total_count": 1,
-        "type": "list"
-      },
-      "created_at": 1710500000,
-      "custom_attributes": {
-        "company": "Acme Corp",
-        "company_domain": "acme.io",
-        "mrr": 1800.0,
-        "plan": "professional"
-      },
-      "email": "jane@acme.io",
-      "external_id": "user_jane_acme",
-      "id": "con_p1",
-      "last_seen_at": 1720454400,
-      "location": {
-        "city": "San Francisco",
-        "country": "United States",
-        "country_code": "US",
-        "region": "CA",
-        "type": "location"
-      },
-      "name": "Jane Smith",
-      "os": "Mac OS X 14.5",
-      "phone": "+14155550101",
-      "role": "user",
-      "signed_up_at": 1710500000,
-      "tags": {
-        "data": [],
-        "has_more": false,
-        "total_count": 0,
-        "type": "list"
-      },
-      "type": "contact",
-      "updated_at": 1720454400,
-      "workspace_id": "ws_mock_001"
-    },
-    "source_id": "con_p1"
-  },
-  {
-    "payload": {
-      "browser": "Chrome",
-      "browser_version": "126.0.0",
-      "companies": {
-        "data": [
-          {
-            "company_id": "acme.io",
-            "id": "comp_c1",
-            "name": "Acme Corp",
-            "type": "company"
-          }
-        ],
-        "has_more": false,
-        "total_count": 1,
-        "type": "list"
-      },
-      "created_at": 1710586400,
-      "custom_attributes": {
-        "company": "Acme Corp",
-        "company_domain": "acme.io",
-        "mrr": 1800.0,
-        "plan": "professional"
-      },
-      "email": "john.doe@acme.io",
-      "external_id": "user_john_acme",
-      "id": "con_p2",
-      "last_seen_at": 1720454400,
-      "location": {
-        "city": "San Francisco",
-        "country": "United States",
-        "country_code": "US",
-        "region": "CA",
-        "type": "location"
-      },
-      "name": "John Doe",
-      "os": "Mac OS X 14.5",
-      "phone": "+14155550102",
-      "role": "user",
-      "signed_up_at": 1710586400,
-      "tags": {
-        "data": [],
-        "has_more": false,
-        "total_count": 0,
-        "type": "list"
-      },
-      "type": "contact",
-      "updated_at": 1720454400,
-      "workspace_id": "ws_mock_001"
-    },
-    "source_id": "con_p2"
-  },
-  {
-    "payload": {
-      "browser": "Chrome",
-      "browser_version": "126.0.0",
-      "companies": {
-        "data": [
-          {
-            "company_id": "acme.io",
-            "id": "comp_c1",
-            "name": "Acme Corp",
-            "type": "company"
-          }
-        ],
-        "has_more": false,
-        "total_count": 1,
-        "type": "list"
+        "type": "list",
+        "url": "/contacts/con_p3/companies"
       },
       "created_at": 1710672800,
-      "custom_attributes": {
-        "company": "Acme Corp",
-        "company_domain": "acme.io",
-        "mrr": 1800.0,
-        "plan": "professional"
-      },
+      "custom_attributes": {},
       "email": "sarah@acme.io",
       "external_id": "user_sarah_acme",
+      "has_hard_bounced": false,
       "id": "con_p3",
+      "ios_app_name": null,
+      "ios_app_version": null,
+      "ios_device": null,
+      "ios_last_seen_at": null,
+      "ios_os_version": null,
+      "ios_sdk_version": null,
+      "language_override": null,
+      "last_contacted_at": null,
+      "last_email_clicked_at": null,
+      "last_email_opened_at": null,
+      "last_replied_at": null,
       "last_seen_at": 1720454400,
       "location": {
-        "city": "San Francisco",
-        "country": "United States",
-        "country_code": "US",
-        "region": "CA",
+        "city": null,
+        "continent_code": null,
+        "country": null,
+        "country_code": null,
+        "region": null,
         "type": "location"
       },
+      "marked_email_as_spam": false,
       "name": "Sarah Johnson",
-      "os": "Mac OS X 14.5",
+      "notes": {
+        "data": [],
+        "has_more": false,
+        "total_count": 0,
+        "type": "list",
+        "url": "/contacts/con_p3/notes"
+      },
+      "opted_in_subscription_types": {
+        "data": [],
+        "has_more": false,
+        "total_count": 0,
+        "type": "list",
+        "url": "/contacts/con_p3/subscriptions"
+      },
+      "opted_out_subscription_types": {
+        "data": [],
+        "has_more": false,
+        "total_count": 0,
+        "type": "list",
+        "url": "/contacts/con_p3/subscriptions"
+      },
+      "os": null,
+      "owner_id": null,
       "phone": null,
+      "referrer": null,
       "role": "user",
       "signed_up_at": 1710672800,
+      "sms_consent": false,
+      "social_profiles": {
+        "data": [],
+        "type": "list"
+      },
       "tags": {
         "data": [],
         "has_more": false,
         "total_count": 0,
-        "type": "list"
+        "type": "list",
+        "url": "/contacts/con_p3/tags"
       },
       "type": "contact",
+      "unsubscribed_from_emails": false,
+      "unsubscribed_from_sms": false,
       "updated_at": 1720454400,
+      "utm_campaign": null,
+      "utm_content": null,
+      "utm_medium": null,
+      "utm_source": null,
+      "utm_term": null,
       "workspace_id": "ws_mock_001"
     },
     "source_id": "con_p3"
   },
   {
     "payload": {
-      "browser": "Chrome",
-      "browser_version": "126.0.0",
+      "android_app_name": null,
+      "android_app_version": null,
+      "android_device": null,
+      "android_last_seen_at": null,
+      "android_os_version": null,
+      "android_sdk_version": null,
+      "avatar": null,
+      "browser": null,
+      "browser_language": null,
+      "browser_version": null,
       "companies": {
         "data": [
           {
-            "company_id": "globex.com",
             "id": "comp_c2",
-            "name": "Globex Inc",
-            "type": "company"
+            "type": "company",
+            "url": "/companies/comp_c2"
           }
         ],
         "has_more": false,
         "total_count": 1,
-        "type": "list"
+        "type": "list",
+        "url": "/contacts/con_p6/companies"
       },
-      "created_at": 1710759200,
-      "custom_attributes": {
-        "company": "Globex Inc",
-        "company_domain": "globex.com",
-        "mrr": 2400.0,
-        "plan": "professional"
-      },
-      "email": "mike@globex.com",
-      "external_id": "user_mike_globex",
-      "id": "con_p4",
+      "created_at": 1710932000,
+      "custom_attributes": {},
+      "email": "david@globex.com",
+      "external_id": "user_david_globex",
+      "has_hard_bounced": false,
+      "id": "con_p6",
+      "ios_app_name": null,
+      "ios_app_version": null,
+      "ios_device": null,
+      "ios_last_seen_at": null,
+      "ios_os_version": null,
+      "ios_sdk_version": null,
+      "language_override": null,
+      "last_contacted_at": null,
+      "last_email_clicked_at": null,
+      "last_email_opened_at": null,
+      "last_replied_at": null,
       "last_seen_at": 1720454400,
       "location": {
-        "city": "Austin",
-        "country": "United States",
-        "country_code": "US",
-        "region": "TX",
+        "city": null,
+        "continent_code": null,
+        "country": null,
+        "country_code": null,
+        "region": null,
         "type": "location"
       },
-      "name": "Mike Chen",
-      "os": "Mac OS X 14.5",
-      "phone": "+15125550201",
+      "marked_email_as_spam": false,
+      "name": "David Kim",
+      "notes": {
+        "data": [],
+        "has_more": false,
+        "total_count": 0,
+        "type": "list",
+        "url": "/contacts/con_p6/notes"
+      },
+      "opted_in_subscription_types": {
+        "data": [],
+        "has_more": false,
+        "total_count": 0,
+        "type": "list",
+        "url": "/contacts/con_p6/subscriptions"
+      },
+      "opted_out_subscription_types": {
+        "data": [],
+        "has_more": false,
+        "total_count": 0,
+        "type": "list",
+        "url": "/contacts/con_p6/subscriptions"
+      },
+      "os": null,
+      "owner_id": null,
+      "phone": null,
+      "referrer": null,
       "role": "user",
-      "signed_up_at": 1710759200,
+      "signed_up_at": 1710932000,
+      "sms_consent": false,
+      "social_profiles": {
+        "data": [],
+        "type": "list"
+      },
       "tags": {
         "data": [],
         "has_more": false,
         "total_count": 0,
-        "type": "list"
+        "type": "list",
+        "url": "/contacts/con_p6/tags"
       },
       "type": "contact",
+      "unsubscribed_from_emails": false,
+      "unsubscribed_from_sms": false,
       "updated_at": 1720454400,
+      "utm_campaign": null,
+      "utm_content": null,
+      "utm_medium": null,
+      "utm_source": null,
+      "utm_term": null,
       "workspace_id": "ws_mock_001"
     },
-    "source_id": "con_p4"
+    "source_id": "con_p6"
+  },
+  {
+    "payload": {
+      "android_app_name": null,
+      "android_app_version": null,
+      "android_device": null,
+      "android_last_seen_at": null,
+      "android_os_version": null,
+      "android_sdk_version": null,
+      "avatar": null,
+      "browser": null,
+      "browser_language": null,
+      "browser_version": null,
+      "companies": {
+        "data": [
+          {
+            "id": "comp_c3",
+            "type": "company",
+            "url": "/companies/comp_c3"
+          }
+        ],
+        "has_more": false,
+        "total_count": 1,
+        "type": "list",
+        "url": "/contacts/con_p9/companies"
+      },
+      "created_at": 1711191200,
+      "custom_attributes": {},
+      "email": "chris@initech.io",
+      "external_id": "user_chris_initech",
+      "has_hard_bounced": false,
+      "id": "con_p9",
+      "ios_app_name": null,
+      "ios_app_version": null,
+      "ios_device": null,
+      "ios_last_seen_at": null,
+      "ios_os_version": null,
+      "ios_sdk_version": null,
+      "language_override": null,
+      "last_contacted_at": null,
+      "last_email_clicked_at": null,
+      "last_email_opened_at": null,
+      "last_replied_at": null,
+      "last_seen_at": 1720454400,
+      "location": {
+        "city": null,
+        "continent_code": null,
+        "country": null,
+        "country_code": null,
+        "region": null,
+        "type": "location"
+      },
+      "marked_email_as_spam": false,
+      "name": "Chris Taylor",
+      "notes": {
+        "data": [],
+        "has_more": false,
+        "total_count": 0,
+        "type": "list",
+        "url": "/contacts/con_p9/notes"
+      },
+      "opted_in_subscription_types": {
+        "data": [],
+        "has_more": false,
+        "total_count": 0,
+        "type": "list",
+        "url": "/contacts/con_p9/subscriptions"
+      },
+      "opted_out_subscription_types": {
+        "data": [],
+        "has_more": false,
+        "total_count": 0,
+        "type": "list",
+        "url": "/contacts/con_p9/subscriptions"
+      },
+      "os": null,
+      "owner_id": null,
+      "phone": null,
+      "referrer": null,
+      "role": "user",
+      "signed_up_at": 1711191200,
+      "sms_consent": false,
+      "social_profiles": {
+        "data": [],
+        "type": "list"
+      },
+      "tags": {
+        "data": [],
+        "has_more": false,
+        "total_count": 0,
+        "type": "list",
+        "url": "/contacts/con_p9/tags"
+      },
+      "type": "contact",
+      "unsubscribed_from_emails": false,
+      "unsubscribed_from_sms": false,
+      "updated_at": 1720454400,
+      "utm_campaign": null,
+      "utm_content": null,
+      "utm_medium": null,
+      "utm_source": null,
+      "utm_term": null,
+      "workspace_id": "ws_mock_001"
+    },
+    "source_id": "con_p9"
+  },
+  {
+    "payload": {
+      "android_app_name": null,
+      "android_app_version": null,
+      "android_device": null,
+      "android_last_seen_at": null,
+      "android_os_version": null,
+      "android_sdk_version": null,
+      "avatar": null,
+      "browser": null,
+      "browser_language": null,
+      "browser_version": null,
+      "companies": {
+        "data": [
+          {
+            "id": "comp_c7",
+            "type": "company",
+            "url": "/companies/comp_c7"
+          }
+        ],
+        "has_more": false,
+        "total_count": 1,
+        "type": "list",
+        "url": "/contacts/con_p16/companies"
+      },
+      "created_at": 1711796000,
+      "custom_attributes": {},
+      "email": "dinesh@piedpiper.com",
+      "external_id": "user_dinesh_piedpiper",
+      "has_hard_bounced": false,
+      "id": "con_p16",
+      "ios_app_name": null,
+      "ios_app_version": null,
+      "ios_device": null,
+      "ios_last_seen_at": null,
+      "ios_os_version": null,
+      "ios_sdk_version": null,
+      "language_override": null,
+      "last_contacted_at": null,
+      "last_email_clicked_at": null,
+      "last_email_opened_at": null,
+      "last_replied_at": null,
+      "last_seen_at": 1720454400,
+      "location": {
+        "city": null,
+        "continent_code": null,
+        "country": null,
+        "country_code": null,
+        "region": null,
+        "type": "location"
+      },
+      "marked_email_as_spam": false,
+      "name": "Dinesh Chugtai",
+      "notes": {
+        "data": [],
+        "has_more": false,
+        "total_count": 0,
+        "type": "list",
+        "url": "/contacts/con_p16/notes"
+      },
+      "opted_in_subscription_types": {
+        "data": [],
+        "has_more": false,
+        "total_count": 0,
+        "type": "list",
+        "url": "/contacts/con_p16/subscriptions"
+      },
+      "opted_out_subscription_types": {
+        "data": [],
+        "has_more": false,
+        "total_count": 0,
+        "type": "list",
+        "url": "/contacts/con_p16/subscriptions"
+      },
+      "os": null,
+      "owner_id": null,
+      "phone": null,
+      "referrer": null,
+      "role": "user",
+      "signed_up_at": 1711796000,
+      "sms_consent": false,
+      "social_profiles": {
+        "data": [],
+        "type": "list"
+      },
+      "tags": {
+        "data": [],
+        "has_more": false,
+        "total_count": 0,
+        "type": "list",
+        "url": "/contacts/con_p16/tags"
+      },
+      "type": "contact",
+      "unsubscribed_from_emails": false,
+      "unsubscribed_from_sms": false,
+      "updated_at": 1720454400,
+      "utm_campaign": null,
+      "utm_content": null,
+      "utm_medium": null,
+      "utm_source": null,
+      "utm_term": null,
+      "workspace_id": "ws_mock_001"
+    },
+    "source_id": "con_p16"
   }
 ]
