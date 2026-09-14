@@ -1,6 +1,40 @@
 [
   {
     "payload": {
+      "_invitees": [
+        {
+          "created_at": "2026-06-03T09:15:00.000000Z",
+          "email": "mike@globex.com",
+          "event": "https://api.calendly.com/scheduled_events/evt_001",
+          "first_name": "Mike",
+          "last_name": "Chen",
+          "name": "Mike Chen",
+          "no_show": null,
+          "payment": null,
+          "questions_and_answers": [
+            {
+              "answer": "Globex Inc",
+              "position": 0,
+              "question": "Company name"
+            }
+          ],
+          "rescheduled": false,
+          "routing_form_submission": null,
+          "status": "active",
+          "text_reminder_number": null,
+          "timezone": "America/Chicago",
+          "tracking": {
+            "salesforce_uuid": null,
+            "utm_campaign": null,
+            "utm_content": null,
+            "utm_medium": null,
+            "utm_source": null,
+            "utm_term": null
+          },
+          "updated_at": "2026-06-03T09:15:00.000000Z",
+          "uri": "https://api.calendly.com/scheduled_events/evt_001/invitees/inv_001"
+        }
+      ],
       "calendar_event": {
         "external_id": "google_cal_abc123",
         "kind": "google"
@@ -35,6 +69,71 @@
   },
   {
     "payload": {
+      "_invitees": [
+        {
+          "created_at": "2026-06-08T11:30:00.000000Z",
+          "email": "bob@soylent.co",
+          "event": "https://api.calendly.com/scheduled_events/evt_002",
+          "first_name": "Bob",
+          "last_name": "Smith",
+          "name": "Bob Smith",
+          "no_show": null,
+          "payment": null,
+          "questions_and_answers": [
+            {
+              "answer": "Soylent Corp",
+              "position": 0,
+              "question": "Company name"
+            },
+            {
+              "answer": "Interested in the Enterprise plan",
+              "position": 1,
+              "question": "What would you like to discuss?"
+            }
+          ],
+          "rescheduled": false,
+          "routing_form_submission": null,
+          "status": "active",
+          "text_reminder_number": null,
+          "timezone": "America/Los_Angeles",
+          "tracking": {
+            "salesforce_uuid": null,
+            "utm_campaign": "summer_promo",
+            "utm_content": null,
+            "utm_medium": "paid_social",
+            "utm_source": "linkedin",
+            "utm_term": null
+          },
+          "updated_at": "2026-06-08T11:30:00.000000Z",
+          "uri": "https://api.calendly.com/scheduled_events/evt_002/invitees/inv_002"
+        },
+        {
+          "created_at": "2026-06-08T12:00:00.000000Z",
+          "email": "alice@soylent.co",
+          "event": "https://api.calendly.com/scheduled_events/evt_002",
+          "first_name": "Alice",
+          "last_name": "Martinez",
+          "name": "Alice Martinez",
+          "no_show": null,
+          "payment": null,
+          "questions_and_answers": [],
+          "rescheduled": false,
+          "routing_form_submission": null,
+          "status": "active",
+          "text_reminder_number": null,
+          "timezone": "America/Los_Angeles",
+          "tracking": {
+            "salesforce_uuid": null,
+            "utm_campaign": null,
+            "utm_content": null,
+            "utm_medium": null,
+            "utm_source": null,
+            "utm_term": null
+          },
+          "updated_at": "2026-06-08T12:00:00.000000Z",
+          "uri": "https://api.calendly.com/scheduled_events/evt_002/invitees/inv_003"
+        }
+      ],
       "calendar_event": {
         "external_id": "google_cal_def456",
         "kind": "google"
@@ -69,6 +168,44 @@
   },
   {
     "payload": {
+      "_invitees": [
+        {
+          "cancellation": {
+            "canceled_by": "Invitee",
+            "reason": "Schedule conflict"
+          },
+          "created_at": "2026-06-12T08:45:00.000000Z",
+          "email": "tom@initech.io",
+          "event": "https://api.calendly.com/scheduled_events/evt_003",
+          "first_name": "Tom",
+          "last_name": "Williams",
+          "name": "Tom Williams",
+          "no_show": null,
+          "payment": null,
+          "questions_and_answers": [
+            {
+              "answer": "Initech LLC",
+              "position": 0,
+              "question": "Company name"
+            }
+          ],
+          "rescheduled": false,
+          "routing_form_submission": null,
+          "status": "canceled",
+          "text_reminder_number": null,
+          "timezone": "America/Chicago",
+          "tracking": {
+            "salesforce_uuid": null,
+            "utm_campaign": null,
+            "utm_content": null,
+            "utm_medium": null,
+            "utm_source": null,
+            "utm_term": null
+          },
+          "updated_at": "2026-06-14T16:00:00.000000Z",
+          "uri": "https://api.calendly.com/scheduled_events/evt_003/invitees/inv_004"
+        }
+      ],
       "calendar_event": {
         "external_id": "google_cal_ghi789",
         "kind": "google"
@@ -107,6 +244,40 @@
   },
   {
     "payload": {
+      "_invitees": [
+        {
+          "created_at": "2026-06-18T14:00:00.000000Z",
+          "email": "lisa.park@globex.com",
+          "event": "https://api.calendly.com/scheduled_events/evt_004",
+          "first_name": "Lisa",
+          "last_name": "Park",
+          "name": "Lisa Park",
+          "no_show": null,
+          "payment": null,
+          "questions_and_answers": [
+            {
+              "answer": "Globex Inc",
+              "position": 0,
+              "question": "Company name"
+            }
+          ],
+          "rescheduled": false,
+          "routing_form_submission": null,
+          "status": "active",
+          "text_reminder_number": null,
+          "timezone": "America/Chicago",
+          "tracking": {
+            "salesforce_uuid": null,
+            "utm_campaign": null,
+            "utm_content": null,
+            "utm_medium": null,
+            "utm_source": null,
+            "utm_term": null
+          },
+          "updated_at": "2026-06-18T14:00:00.000000Z",
+          "uri": "https://api.calendly.com/scheduled_events/evt_004/invitees/inv_005"
+        }
+      ],
       "calendar_event": {
         "external_id": "google_cal_jkl012",
         "kind": "google"
@@ -138,5 +309,125 @@
       "uri": "https://api.calendly.com/scheduled_events/evt_004"
     },
     "source_id": "evt_004"
+  },
+  {
+    "payload": {
+      "_invitees": [
+        {
+          "created_at": "2026-06-25T09:00:00.000000Z",
+          "email": "tom@initech.io",
+          "event": "https://api.calendly.com/scheduled_events/evt_005",
+          "first_name": "Tom",
+          "last_name": "Williams",
+          "name": "Tom Williams",
+          "no_show": null,
+          "payment": null,
+          "questions_and_answers": [
+            {
+              "answer": "Initech LLC",
+              "position": 0,
+              "question": "Company name"
+            }
+          ],
+          "rescheduled": false,
+          "routing_form_submission": null,
+          "status": "active",
+          "text_reminder_number": null,
+          "timezone": "America/Chicago",
+          "tracking": {
+            "salesforce_uuid": null,
+            "utm_campaign": null,
+            "utm_content": null,
+            "utm_medium": null,
+            "utm_source": null,
+            "utm_term": null
+          },
+          "updated_at": "2026-06-25T09:00:00.000000Z",
+          "uri": "https://api.calendly.com/scheduled_events/evt_005/invitees/inv_006"
+        },
+        {
+          "created_at": "2026-06-25T09:05:00.000000Z",
+          "email": "amy.brown@initech.io",
+          "event": "https://api.calendly.com/scheduled_events/evt_005",
+          "first_name": "Amy",
+          "last_name": "Brown",
+          "name": "Amy Brown",
+          "no_show": null,
+          "payment": null,
+          "questions_and_answers": [],
+          "rescheduled": false,
+          "routing_form_submission": null,
+          "status": "active",
+          "text_reminder_number": null,
+          "timezone": "America/Chicago",
+          "tracking": {
+            "salesforce_uuid": null,
+            "utm_campaign": null,
+            "utm_content": null,
+            "utm_medium": null,
+            "utm_source": null,
+            "utm_term": null
+          },
+          "updated_at": "2026-06-25T09:05:00.000000Z",
+          "uri": "https://api.calendly.com/scheduled_events/evt_005/invitees/inv_007"
+        },
+        {
+          "created_at": "2026-06-25T09:10:00.000000Z",
+          "email": "chris@initech.io",
+          "event": "https://api.calendly.com/scheduled_events/evt_005",
+          "first_name": "Chris",
+          "last_name": "Taylor",
+          "name": "Chris Taylor",
+          "no_show": null,
+          "payment": null,
+          "questions_and_answers": [],
+          "rescheduled": false,
+          "routing_form_submission": null,
+          "status": "active",
+          "text_reminder_number": null,
+          "timezone": "America/Chicago",
+          "tracking": {
+            "salesforce_uuid": null,
+            "utm_campaign": null,
+            "utm_content": null,
+            "utm_medium": null,
+            "utm_source": null,
+            "utm_term": null
+          },
+          "updated_at": "2026-06-25T09:10:00.000000Z",
+          "uri": "https://api.calendly.com/scheduled_events/evt_005/invitees/inv_008"
+        }
+      ],
+      "calendar_event": {
+        "external_id": "google_cal_mno345",
+        "kind": "google"
+      },
+      "created_at": "2026-06-25T09:00:00.000000Z",
+      "end_time": "2026-07-01T16:00:00.000000Z",
+      "event_memberships": [
+        {
+          "user": "https://api.calendly.com/users/abc123def456",
+          "user_email": "jane@acme.io",
+          "user_name": "Jane Smith"
+        }
+      ],
+      "event_type": "https://api.calendly.com/event_types/et_review",
+      "invitees_counter": {
+        "active": 3,
+        "limit": 5,
+        "total": 3
+      },
+      "location": {
+        "join_url": "https://meet.google.com/mno-pqrs-tuv",
+        "status": "pushed",
+        "type": "google_conference"
+      },
+      "name": "Quarterly Review",
+      "start_time": "2026-07-01T15:00:00.000000Z",
+      "status": "active",
+      "updated_at": "2026-06-25T09:00:00.000000Z",
+      "uri": "https://api.calendly.com/scheduled_events/evt_005"
+    },
+    "source_id": "evt_005"
   }
 ]

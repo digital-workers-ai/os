@@ -2,12 +2,12 @@ def reshape(object_type: str, payload: dict) -> list[dict]:
     if object_type != "scheduled_events":
         return [payload]
     record = dict(payload)
-    memberships = payload.get("event_memberships") or []
-    if not isinstance(memberships, list) or not memberships:
-        record["_hook_skips"] = [["_host_email", "no_event_memberships"]]
+    invitees = payload.get("_invitees") or []
+    if not isinstance(invitees, list) or not invitees:
+        record["_hook_skips"] = [["_invitee_email", "no_invitees"]]
         return [record]
-    first = memberships[0] if isinstance(memberships[0], dict) else {}
-    record["_host_email"] = str(first.get("user_email") or "").strip()
-    if len(memberships) > 1:
-        record["_hook_skips"] = [["_host_email", "multi_host_meeting"]]
+    first = invitees[0] if isinstance(invitees[0], dict) else {}
+    record["_invitee_email"] = str(first.get("email") or "").strip()
+    if len(invitees) > 1:
+        record["_hook_skips"] = [["_invitee_email", "multi_invitee_meeting"]]
     return [record]

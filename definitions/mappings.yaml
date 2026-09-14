@@ -112,7 +112,7 @@ meeting:
   calendly.scheduled_events.status: status
   calendly.scheduled_events.start_time: started_at
   calendly.scheduled_events.end_time: ended_at
-  calendly.scheduled_events._host_email: email
+  calendly.scheduled_events._invitee_email: email
   zoom.meetings.topic: name
   zoom.meetings.start_time: started_at
   zoom.meetings._ended_at: ended_at
