@@ -174,6 +174,12 @@ Every unset date comes back as `null`, never as an empty string: `adate`,
 `lastName`, `phone`, `orgname`, `email_local`, `segmentio_id` were all empty on
 the account this was captured from.
 
+A contact can therefore carry no name at all, and both name fields still arrive:
+`""` is the account saying this contact was never named, which is not the same
+answer as the field being absent. A reader that composes one name out of the
+pair has to keep those two apart, or it will report its own mapping dead on a
+record the account answered in full.
+
 `meta.total` is a string nested under `meta`, so an offset walk cannot read it
 as a top-level count; it ends on a page shorter than the requested `limit`.
 
@@ -485,7 +491,9 @@ Or for validation errors:
 ## What this was checked against
 
 The contacts shape above was captured from a live account on 2026-09-14: one
-contact, 200 OK, every field and link name as listed. The campaigns endpoint on
+contact, 200 OK, every field and link name as listed. That contact is unnamed —
+`firstName` and `lastName` both came back `""` — so the empty-string case above
+is what the account answered, not a case invented for the stand-in. The campaigns endpoint on
 that account answers 200 with zero campaigns, so the campaign shape here comes
 from the vendor reference below and has not been seen on the wire.
 
