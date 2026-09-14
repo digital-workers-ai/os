@@ -82,9 +82,8 @@ class TestEveryValueIsLeftBlank:
             "Leave the value blank and let the comment above it explain"
         )
 
-
     def test_the_stand_in_switch_carries_a_boolean_pydantic_can_read(self):
-        value = dict((k, v) for _n, k, v in documented())[STAND_INS_ONLY]
+        value = {k: v for _n, k, v in documented()}[STAND_INS_ONLY]
         assert value in {"true", "false"}, (
             f"app/.env.example gives {STAND_INS_ONLY} the value {value!r}. It is "
             "typed bool on Settings, and pydantic refuses an empty string, so a "
