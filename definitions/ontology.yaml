@@ -193,6 +193,23 @@ entities:
     attrs:
       name: string
       category: string
+  competitor:
+    description: A company whose marketing this business watches.
+    attrs:
+      name: string
+      domain: string
+    identity:
+      - domain
+  competitor_ad:
+    description: One ad a competitor ran, as the platform's public library shows it.
+    attrs:
+      name: string
+      platform: string
+      category: string
+      competitor_ref: string
+      first_seen: date
+      last_seen: date
+      url: string
 
 attributes:
   external_ref:
@@ -284,6 +301,14 @@ attributes:
     description: Followers lost on the reporting day.
   profile_views:
     description: Visits to the page or profile on the reporting day.
+  competitor_ref:
+    description: The provider's id for the competitor an ad belongs to.
+  first_seen:
+    description: When the ad library first showed the ad running.
+  last_seen:
+    description: When the ad library last showed the ad running; empty while it still runs.
+  url:
+    description: Where the ad's creative can be viewed in the platform's public library.
 
 source_priority:
   - salesforce
@@ -312,6 +337,8 @@ source_priority:
   - smartlook
   - google_analytics
   - google_sheets
+  - meta_ad_library
+  - google_ads_transparency
 
 relationships:
   - rel: belongs_to
@@ -364,3 +391,8 @@ relationships:
     to: campaign
     cardinality: many_to_one
     via: campaign_ref
+  - rel: belongs_to
+    from: competitor_ad
+    to: competitor
+    cardinality: many_to_one
+    via: competitor_ref

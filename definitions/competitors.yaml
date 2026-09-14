@@ -1,0 +1,15 @@
+vidora:
+  name: Vidora
+  domain: vidora.ai
+  meta_page_id: "204815000001"
+  google_advertiser_id: AR11111111111111111111
+clipwise:
+  name: Clipwise
+  domain: clipwise.io
+  meta_page_id: "204815000002"
+  google_advertiser_id: AR22222222222222222222
+avatarly:
+  name: Avatarly
+  domain: avatarly.com
+  meta_page_id: "204815000003"
+  google_advertiser_id: AR33333333333333333333

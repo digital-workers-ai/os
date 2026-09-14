@@ -2069,3 +2069,22 @@ class TestCompetitorConnectors(_SocialCapture):
             for advertiser_id in self._advertiser_ids()
             for n in (1, 2)
         }
+
+
+class TestGoogleAdsTransparencyWithNoCreatives(_SocialCapture):
+    async def test_an_advertiser_with_no_creatives_is_stored_by_id_alone(
+        self, capture, store, stored
+    ):
+        from app.engine import competitors
+
+        capture({"ad_creatives": [], "serpapi_pagination": {}})
+
+        notes = await connector("google_ads_transparency").pull(None, store)
+
+        assert notes is None
+        assert [s for s in stored if s["object_type"] == "creatives"] == []
+        advertisers = [s for s in stored if s["object_type"] == "advertisers"]
+        assert {s["source_id"] for s in advertisers} == {
+            str(spec["google_advertiser_id"]) for spec in competitors.load().values()
+        }
+        assert all(s["raw_payload"] == {"id": s["source_id"]} for s in advertisers)

@@ -625,3 +625,11 @@ class TestCompetitorsAreChecked:
         doc = {"acme": {"meta_page_id": "100", "google_advertiser_id": "AR100"}}
         problems = files.problems(competitors_path=_competitors_file(files.root, doc))
         assert any("acme" in p and "domain" in p for p in problems), problems
+
+
+class TestACompetitorMustBeAMapping:
+    def test_a_competitor_that_is_not_a_mapping_is_refused_and_named(self, tmp_path):
+        from app.engine import competitors
+
+        problems = competitors.check(_competitors_file(tmp_path, {"acme": "acme.io"}))
+        assert problems == ["competitor 'acme' must be a mapping"]

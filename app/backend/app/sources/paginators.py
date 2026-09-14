@@ -178,6 +178,15 @@ class LinkedinToken(Paginator):
         return {**params, "pageToken": token} if token else None
 
 
+class SerpapiToken(Paginator):
+    def extract(self, data):
+        return self._require_list(data, "ad_creatives")
+
+    def next_params(self, data, params):
+        token = (data.get("serpapi_pagination") or {}).get("next_page_token")
+        return {**params, "next_page_token": token} if token else None
+
+
 class Offset(Paginator):
     TOTAL_KEYS = ("total_count", "total_items", "total")
 
@@ -258,6 +267,7 @@ PAGINATORS: dict[str, Paginator] = {
     "page_twilio": TwilioPage(),
     "token_calendly": CalendlyToken(),
     "token_linkedin": LinkedinToken(),
+    "token_serpapi": SerpapiToken(),
 }
 
 

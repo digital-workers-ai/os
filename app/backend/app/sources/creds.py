@@ -138,6 +138,13 @@ _MOCK: dict[str, tuple[str, dict, tuple | None, dict]] = {
         {},
     ),
     "segment": ("/segment", {"Authorization": "Bearer mock_segment_token"}, None, {}),
+    "meta_ad_library": (
+        "/meta-ad-library",
+        {},
+        None,
+        {"access_token": "mock_meta_library_token"},
+    ),
+    "google_ads_transparency": ("/serpapi", {}, None, {"api_key": "mock_serpapi_key"}),
 }
 
 

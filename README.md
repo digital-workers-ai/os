@@ -2,7 +2,7 @@
 
 **An AI Operating System for small businesses, built as code your company owns and evolves.**
 
-- Connects 27 sales, billing, support, marketing and analytics tools
+- Connects 29 sales, billing, support, marketing and analytics tools
 - Raw data kept as it arrived; everything rebuilt from it
 - Joins the same customer across tools, with a review queue
 - Every number traces to its tool, records and missing fields
@@ -86,6 +86,7 @@ In this repository, all of them are answered by stand-ins rather than the real p
 | Support                | Zendesk, Intercom                                       | Tickets, organisations, people        |
 | Email and lifecycle    | Mailchimp, Klaviyo, ActiveCampaign, SendGrid, Customer.io | Campaigns, audiences, profiles, activity |
 | Advertising            | Meta, Google Ads, LinkedIn, Pinterest, Snapchat, Twitter | Ad accounts, campaigns, spend, conversions |
+| Competitors            | Meta Ad Library, Google Ads Transparency                | Competitors' ads, formats, run dates  |
 | Analytics and product  | Google Analytics, Mixpanel, Amplitude, Segment, Smartlook | Traffic, events, event definitions    |
 | Meetings and messaging | Calendly, Zoom, Twilio                                  | Meetings, call transcripts, messages  |
 
@@ -96,7 +97,7 @@ Adding a tool is one package under `app/backend/app/sources/`, its lines in `def
 ```mermaid
 flowchart TD
 
-    SRC["1 · 27 connectors"]
+    SRC["1 · 29 connectors"]
     RAW["2 · Raw store<br/>every event as it arrived"]
     QUEUE["8 · Review queue<br/>look-alike pairs, a person confirms or rejects"]
 
