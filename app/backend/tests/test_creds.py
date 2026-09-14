@@ -1,6 +1,8 @@
+import os
+
 import pytest
 
-from app.config import settings
+from app.config import Settings, settings
 from app.sources import creds
 
 TOKEN = "pat-test-0000"
@@ -723,3 +725,79 @@ class TestEverySourceWithRealCredentialsStillHasAStandIn:
             "activecampaign",
             "twitter",
         }
+
+
+def real_value(source: str, name: str) -> str:
+    if name.endswith("_BASE_URL"):
+        return f"https://{source}.example.test"
+    return f"{name.lower()}-test-0000"
+
+
+def sources_with_more_than_one_variable() -> list[str]:
+    return sorted(source for source, entry in creds._REAL.items() if len(entry[1]) > 1)
+
+
+@pytest.fixture
+def every_real_credential(monkeypatch):
+    for source, (_base, names, _build) in creds._REAL.items():
+        for name in (*names, f"{source.upper()}_BASE_URL"):
+            monkeypatch.setenv(name, real_value(source, name))
+
+
+@pytest.fixture
+def stand_ins_only(monkeypatch):
+    monkeypatch.setattr(settings, "STAND_INS_ONLY", True)
+
+
+class TestStandInsOnlyOutranksTheEnvironment:
+    def test_the_setting_ships_off(self):
+        assert Settings.model_fields["STAND_INS_ONLY"].default is False
+
+    def test_the_environment_is_fully_populated_first(self, every_real_credential):
+        for source, (_base, names, _build) in creds._REAL.items():
+            assert os.environ[f"{source.upper()}_BASE_URL"]
+            for name in names:
+                assert os.environ[name]
+
+    @pytest.mark.parametrize("source", sorted(creds._MOCK))
+    def test_every_source_answers_with_its_stand_in(
+        self, source, every_real_credential, stand_ins_only
+    ):
+        prefix, headers, auth, params = creds._MOCK[source]
+        found = creds.credentials_for(source)
+        assert found.base_url == f"{settings.MOCK_BASE_URL}{prefix}"
+        assert found.headers == headers
+        assert found.auth == auth
+        assert found.params == params
+        assert found.values == creds._MOCK_VALUES.get(source, {})
+
+    @pytest.mark.parametrize("source", sorted(creds._REAL))
+    def test_no_credential_and_no_override_reaches_the_result(
+        self, source, every_real_credential, stand_ins_only
+    ):
+        _base, names, _build = creds._REAL[source]
+        rendered = repr(creds.credentials_for(source))
+        assert "example.test" not in rendered
+        for name in names:
+            assert real_value(source, name) not in rendered
+
+    @pytest.mark.parametrize("source", sources_with_more_than_one_variable())
+    def test_a_half_set_environment_raises_nothing(
+        self, source, stand_ins_only, monkeypatch
+    ):
+        first = creds._REAL[source][1][0]
+        monkeypatch.setenv(first, real_value(source, first))
+        found = creds.credentials_for(source)
+        assert found.base_url == f"{settings.MOCK_BASE_URL}{creds._MOCK[source][0]}"
+
+    def test_an_unknown_source_still_names_itself(self, stand_ins_only):
+        with pytest.raises(KeyError, match="nope"):
+            creds.credentials_for("nope")
+
+    @pytest.mark.parametrize("source", sorted(creds._REAL))
+    def test_switched_off_the_environment_is_in_charge_again(
+        self, source, every_real_credential
+    ):
+        found = creds.credentials_for(source)
+        assert found.base_url == f"https://{source}.example.test"
+        assert not found.base_url.startswith(settings.MOCK_BASE_URL)

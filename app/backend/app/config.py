@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     SYNC_RUN_RETENTION_DAYS: int = 30
     ENGINE_RUN_RETENTION: int = 200
     MOCK_BASE_URL: str = "http://localhost:8192"
+    STAND_INS_ONLY: bool = False
     CONNECTOR_MAX_PAGES: int = 500
     ER_BUCKET_CAP: int = 50
     ER_ONE_RECORD_PER_SOURCE: bool = True

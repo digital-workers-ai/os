@@ -289,6 +289,8 @@ def _base_url_override(source: str, names: tuple[str, ...]) -> str:
 
 
 def _real(source: str) -> Credentials | None:
+    if settings.STAND_INS_ONLY:
+        return None
     if source not in _REAL:
         return None
     base_url, names, build = _REAL[source]
