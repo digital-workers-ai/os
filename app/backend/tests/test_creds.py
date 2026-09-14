@@ -61,7 +61,7 @@ class TestAPartialEnvironmentIsRefused:
             (
                 "https://twilio.example.test",
                 self.NAMES,
-                lambda sid, token: ({}, (sid, token), {}),
+                lambda sid, token: ({}, (sid, token), {}, {}),
             ),
         )
         for name in self.NAMES:
@@ -288,3 +288,384 @@ class TestShopifyBuildsItsBaseUrlFromTheStoreDomain:
         monkeypatch.setenv("SHOPIFY_BASE_URL", "https://shopify.example.test")
         found = creds.credentials_for("shopify")
         assert found.base_url == f"{settings.MOCK_BASE_URL}/shopify"
+
+
+KLAVIYO_KEY = "klaviyo-key-test-0000"
+CALENDLY_TOKEN = "calendly-token-test-0000"
+CALENDLY_USER = "https://api.calendly.com/users/USER-TEST-0000"
+MAILCHIMP_KEY = "mailchimp-key-test-us42"
+TWILIO_ACCOUNT = "AC-account-test-0000"
+TWILIO_KEY_SID = "SK-key-test-0000"
+TWILIO_KEY_SECRET = "twilio-secret-test-0000"
+MIXPANEL_USERNAME = "mixpanel-user-test-0000"
+MIXPANEL_SECRET = "mixpanel-secret-test-0000"
+MIXPANEL_PROJECT = "7654321"
+ACTIVECAMPAIGN_BASE = "https://account-test.api-us1.test"
+ACTIVECAMPAIGN_KEY = "activecampaign-key-test-0000"
+TWITTER_TOKEN = "twitter-bearer-test-0000"
+
+
+@pytest.fixture
+def clean_klaviyo(monkeypatch):
+    for name in ("KLAVIYO_API_KEY", "KLAVIYO_BASE_URL"):
+        monkeypatch.delenv(name, raising=False)
+
+
+@pytest.fixture
+def clean_calendly(monkeypatch):
+    for name in ("CALENDLY_ACCESS_TOKEN", "CALENDLY_USER_URI", "CALENDLY_BASE_URL"):
+        monkeypatch.delenv(name, raising=False)
+
+
+@pytest.fixture
+def clean_mailchimp(monkeypatch):
+    for name in ("MAILCHIMP_API_KEY", "MAILCHIMP_BASE_URL"):
+        monkeypatch.delenv(name, raising=False)
+
+
+@pytest.fixture
+def clean_twilio(monkeypatch):
+    for name in (
+        "TWILIO_ACCOUNT_SID",
+        "TWILIO_API_KEY_SID",
+        "TWILIO_API_KEY_SECRET",
+        "TWILIO_BASE_URL",
+    ):
+        monkeypatch.delenv(name, raising=False)
+
+
+@pytest.fixture
+def clean_mixpanel(monkeypatch):
+    for name in (
+        "MIXPANEL_SERVICE_ACCOUNT_USERNAME",
+        "MIXPANEL_SERVICE_ACCOUNT_SECRET",
+        "MIXPANEL_PROJECT_ID",
+        "MIXPANEL_BASE_URL",
+    ):
+        monkeypatch.delenv(name, raising=False)
+
+
+@pytest.fixture
+def clean_activecampaign(monkeypatch):
+    for name in ("ACTIVECAMPAIGN_BASE_URL", "ACTIVECAMPAIGN_API_KEY"):
+        monkeypatch.delenv(name, raising=False)
+
+
+@pytest.fixture
+def clean_twitter(monkeypatch):
+    for name in ("TWITTER_BEARER_TOKEN", "TWITTER_BASE_URL"):
+        monkeypatch.delenv(name, raising=False)
+
+
+class TestKlaviyoCarriesItsOwnKeyScheme:
+    def test_no_variable_set_means_the_mock(self, clean_klaviyo):
+        found = creds.credentials_for("klaviyo")
+        assert found.base_url == f"{settings.MOCK_BASE_URL}/klaviyo"
+        assert found.headers["Authorization"] == "Klaviyo-API-Key mock_klaviyo_key"
+
+    def test_the_key_and_the_revision_reach_the_real_api(
+        self, clean_klaviyo, monkeypatch
+    ):
+        monkeypatch.setenv("KLAVIYO_API_KEY", KLAVIYO_KEY)
+        found = creds.credentials_for("klaviyo")
+        assert found.base_url == "https://a.klaviyo.com"
+        assert found.headers == {
+            "Authorization": f"Klaviyo-API-Key {KLAVIYO_KEY}",
+            "revision": "2024-10-15",
+        }
+        assert found.auth is None
+        assert found.params == {}
+        assert found.values == {}
+
+    def test_the_revision_matches_the_stand_in(self, clean_klaviyo, monkeypatch):
+        monkeypatch.setenv("KLAVIYO_API_KEY", KLAVIYO_KEY)
+        found = creds.credentials_for("klaviyo")
+        assert found.headers["revision"] == creds._MOCK["klaviyo"][1]["revision"]
+
+    def test_the_base_url_can_be_overridden(self, clean_klaviyo, monkeypatch):
+        monkeypatch.setenv("KLAVIYO_API_KEY", KLAVIYO_KEY)
+        monkeypatch.setenv("KLAVIYO_BASE_URL", "https://klaviyo.example.test")
+        assert (
+            creds.credentials_for("klaviyo").base_url == "https://klaviyo.example.test"
+        )
+
+
+class TestCalendlyCarriesTheUserItPullsFor:
+    def test_no_variable_set_means_the_mock(self, clean_calendly):
+        found = creds.credentials_for("calendly")
+        assert found.base_url == f"{settings.MOCK_BASE_URL}/calendly"
+        assert found.params == {}
+
+    def test_the_token_authenticates_and_the_uri_becomes_a_query_parameter(
+        self, clean_calendly, monkeypatch
+    ):
+        monkeypatch.setenv("CALENDLY_ACCESS_TOKEN", CALENDLY_TOKEN)
+        monkeypatch.setenv("CALENDLY_USER_URI", CALENDLY_USER)
+        found = creds.credentials_for("calendly")
+        assert found.base_url == "https://api.calendly.com"
+        assert found.headers == {"Authorization": f"Bearer {CALENDLY_TOKEN}"}
+        assert found.auth is None
+        assert found.params == {"user": CALENDLY_USER}
+
+    def test_the_uri_is_never_sent_as_a_credential(self, clean_calendly, monkeypatch):
+        monkeypatch.setenv("CALENDLY_ACCESS_TOKEN", CALENDLY_TOKEN)
+        monkeypatch.setenv("CALENDLY_USER_URI", CALENDLY_USER)
+        found = creds.credentials_for("calendly")
+        assert CALENDLY_USER not in found.headers["Authorization"]
+
+    def test_the_token_alone_names_the_missing_uri(self, clean_calendly, monkeypatch):
+        monkeypatch.setenv("CALENDLY_ACCESS_TOKEN", CALENDLY_TOKEN)
+        with pytest.raises(creds.CredentialsError, match="CALENDLY_USER_URI"):
+            creds.credentials_for("calendly")
+
+    def test_the_uri_alone_names_the_missing_token(self, clean_calendly, monkeypatch):
+        monkeypatch.setenv("CALENDLY_USER_URI", CALENDLY_USER)
+        with pytest.raises(creds.CredentialsError, match="CALENDLY_ACCESS_TOKEN"):
+            creds.credentials_for("calendly")
+
+    def test_the_base_url_can_be_overridden(self, clean_calendly, monkeypatch):
+        monkeypatch.setenv("CALENDLY_ACCESS_TOKEN", CALENDLY_TOKEN)
+        monkeypatch.setenv("CALENDLY_USER_URI", CALENDLY_USER)
+        monkeypatch.setenv("CALENDLY_BASE_URL", "https://calendly.example.test")
+        found = creds.credentials_for("calendly")
+        assert found.base_url == "https://calendly.example.test"
+        assert found.params == {"user": CALENDLY_USER}
+
+
+class TestMailchimpFindsItsDataCentreInTheKey:
+    def test_no_variable_set_means_the_mock(self, clean_mailchimp):
+        found = creds.credentials_for("mailchimp")
+        assert found.base_url == f"{settings.MOCK_BASE_URL}/mailchimp"
+        assert found.auth == ("anystring", "mock_mailchimp_key")
+
+    def test_the_suffix_after_the_last_dash_becomes_the_host(
+        self, clean_mailchimp, monkeypatch
+    ):
+        monkeypatch.setenv("MAILCHIMP_API_KEY", MAILCHIMP_KEY)
+        found = creds.credentials_for("mailchimp")
+        assert found.base_url == "https://us42.api.mailchimp.com"
+        assert found.auth == ("anystring", MAILCHIMP_KEY)
+        assert found.headers == {}
+        assert found.values == {"dc": "us42"}
+
+    def test_another_key_moves_to_another_data_centre(
+        self, clean_mailchimp, monkeypatch
+    ):
+        monkeypatch.setenv("MAILCHIMP_API_KEY", "mailchimp-key-test-eu7")
+        found = creds.credentials_for("mailchimp")
+        assert found.base_url == "https://eu7.api.mailchimp.com"
+
+    def test_the_base_does_not_repeat_the_version_the_paths_carry(
+        self, clean_mailchimp, monkeypatch
+    ):
+        monkeypatch.setenv("MAILCHIMP_API_KEY", MAILCHIMP_KEY)
+        found = creds.credentials_for("mailchimp")
+        assert "/3.0" not in found.base_url
+        assert (
+            f"{found.base_url}/3.0/lists" == "https://us42.api.mailchimp.com/3.0/lists"
+        )
+
+    def test_a_key_with_no_data_centre_is_refused_without_echoing_it(
+        self, clean_mailchimp, monkeypatch
+    ):
+        monkeypatch.setenv("MAILCHIMP_API_KEY", "keywithnodatacentre")
+        with pytest.raises(creds.CredentialsError) as caught:
+            creds.credentials_for("mailchimp")
+        assert "MAILCHIMP_API_KEY" in str(caught.value)
+        assert "keywithnodatacentre" not in str(caught.value)
+
+    def test_the_base_url_can_be_overridden(self, clean_mailchimp, monkeypatch):
+        monkeypatch.setenv("MAILCHIMP_API_KEY", MAILCHIMP_KEY)
+        monkeypatch.setenv("MAILCHIMP_BASE_URL", "https://mailchimp.example.test")
+        found = creds.credentials_for("mailchimp")
+        assert found.base_url == "https://mailchimp.example.test"
+
+
+class TestTwilioSignsWithAnApiKeyAndPathsByAccount:
+    def test_no_variable_set_means_the_mock(self, clean_twilio):
+        found = creds.credentials_for("twilio")
+        assert found.base_url == f"{settings.MOCK_BASE_URL}/twilio"
+        assert found.auth == ("mock_account_sid", "mock_auth_token")
+        assert found.values == {"account_sid": "mock_account_sid"}
+
+    def test_the_api_key_pair_signs_and_the_account_stays_a_path_value(
+        self, clean_twilio, monkeypatch
+    ):
+        monkeypatch.setenv("TWILIO_ACCOUNT_SID", TWILIO_ACCOUNT)
+        monkeypatch.setenv("TWILIO_API_KEY_SID", TWILIO_KEY_SID)
+        monkeypatch.setenv("TWILIO_API_KEY_SECRET", TWILIO_KEY_SECRET)
+        found = creds.credentials_for("twilio")
+        assert found.base_url == "https://api.twilio.com"
+        assert found.auth == (TWILIO_KEY_SID, TWILIO_KEY_SECRET)
+        assert found.headers == {}
+        assert found.params == {}
+        assert found.values == {"account_sid": TWILIO_ACCOUNT}
+
+    @pytest.mark.parametrize(
+        "missing",
+        ["TWILIO_ACCOUNT_SID", "TWILIO_API_KEY_SID", "TWILIO_API_KEY_SECRET"],
+    )
+    def test_any_one_missing_is_named(self, clean_twilio, monkeypatch, missing):
+        for name, value in (
+            ("TWILIO_ACCOUNT_SID", TWILIO_ACCOUNT),
+            ("TWILIO_API_KEY_SID", TWILIO_KEY_SID),
+            ("TWILIO_API_KEY_SECRET", TWILIO_KEY_SECRET),
+        ):
+            if name != missing:
+                monkeypatch.setenv(name, value)
+        with pytest.raises(creds.CredentialsError, match=missing):
+            creds.credentials_for("twilio")
+
+    def test_the_base_url_can_be_overridden(self, clean_twilio, monkeypatch):
+        monkeypatch.setenv("TWILIO_ACCOUNT_SID", TWILIO_ACCOUNT)
+        monkeypatch.setenv("TWILIO_API_KEY_SID", TWILIO_KEY_SID)
+        monkeypatch.setenv("TWILIO_API_KEY_SECRET", TWILIO_KEY_SECRET)
+        monkeypatch.setenv("TWILIO_BASE_URL", "https://twilio.example.test")
+        assert creds.credentials_for("twilio").base_url == "https://twilio.example.test"
+
+
+class TestMixpanelCarriesItsProjectOnEveryRequest:
+    def test_no_variable_set_means_the_mock(self, clean_mixpanel):
+        found = creds.credentials_for("mixpanel")
+        assert found.base_url == f"{settings.MOCK_BASE_URL}/mixpanel"
+        assert found.auth == ("mock_mixpanel_secret", "")
+        assert found.params == {}
+
+    def test_the_service_account_signs_and_the_project_is_a_query_parameter(
+        self, clean_mixpanel, monkeypatch
+    ):
+        monkeypatch.setenv("MIXPANEL_SERVICE_ACCOUNT_USERNAME", MIXPANEL_USERNAME)
+        monkeypatch.setenv("MIXPANEL_SERVICE_ACCOUNT_SECRET", MIXPANEL_SECRET)
+        monkeypatch.setenv("MIXPANEL_PROJECT_ID", MIXPANEL_PROJECT)
+        found = creds.credentials_for("mixpanel")
+        assert found.base_url == "https://data.mixpanel.com"
+        assert found.auth == (MIXPANEL_USERNAME, MIXPANEL_SECRET)
+        assert found.headers == {}
+        assert found.params == {"project_id": MIXPANEL_PROJECT}
+
+    @pytest.mark.parametrize(
+        "missing",
+        [
+            "MIXPANEL_SERVICE_ACCOUNT_USERNAME",
+            "MIXPANEL_SERVICE_ACCOUNT_SECRET",
+            "MIXPANEL_PROJECT_ID",
+        ],
+    )
+    def test_any_one_missing_is_named(self, clean_mixpanel, monkeypatch, missing):
+        for name, value in (
+            ("MIXPANEL_SERVICE_ACCOUNT_USERNAME", MIXPANEL_USERNAME),
+            ("MIXPANEL_SERVICE_ACCOUNT_SECRET", MIXPANEL_SECRET),
+            ("MIXPANEL_PROJECT_ID", MIXPANEL_PROJECT),
+        ):
+            if name != missing:
+                monkeypatch.setenv(name, value)
+        with pytest.raises(creds.CredentialsError, match=missing):
+            creds.credentials_for("mixpanel")
+
+    def test_the_base_url_reaches_the_export_endpoint(
+        self, clean_mixpanel, monkeypatch
+    ):
+        monkeypatch.setenv("MIXPANEL_SERVICE_ACCOUNT_USERNAME", MIXPANEL_USERNAME)
+        monkeypatch.setenv("MIXPANEL_SERVICE_ACCOUNT_SECRET", MIXPANEL_SECRET)
+        monkeypatch.setenv("MIXPANEL_PROJECT_ID", MIXPANEL_PROJECT)
+        found = creds.credentials_for("mixpanel")
+        assert (
+            f"{found.base_url}/api/2.0/export"
+            == "https://data.mixpanel.com/api/2.0/export"
+        )
+
+    def test_the_base_url_can_be_overridden(self, clean_mixpanel, monkeypatch):
+        monkeypatch.setenv("MIXPANEL_SERVICE_ACCOUNT_USERNAME", MIXPANEL_USERNAME)
+        monkeypatch.setenv("MIXPANEL_SERVICE_ACCOUNT_SECRET", MIXPANEL_SECRET)
+        monkeypatch.setenv("MIXPANEL_PROJECT_ID", MIXPANEL_PROJECT)
+        monkeypatch.setenv("MIXPANEL_BASE_URL", "https://mixpanel.example.test")
+        found = creds.credentials_for("mixpanel")
+        assert found.base_url == "https://mixpanel.example.test"
+        assert found.params == {"project_id": MIXPANEL_PROJECT}
+
+
+class TestActivecampaignIsHostedPerAccount:
+    def test_no_variable_set_means_the_mock(self, clean_activecampaign):
+        found = creds.credentials_for("activecampaign")
+        assert found.base_url == f"{settings.MOCK_BASE_URL}/activecampaign"
+        assert found.headers == {"Api-Token": "mock_ac_token"}
+
+    def test_the_account_url_becomes_the_base_and_the_key_a_header(
+        self, clean_activecampaign, monkeypatch
+    ):
+        monkeypatch.setenv("ACTIVECAMPAIGN_BASE_URL", ACTIVECAMPAIGN_BASE)
+        monkeypatch.setenv("ACTIVECAMPAIGN_API_KEY", ACTIVECAMPAIGN_KEY)
+        found = creds.credentials_for("activecampaign")
+        assert found.base_url == ACTIVECAMPAIGN_BASE
+        assert found.headers == {"Api-Token": ACTIVECAMPAIGN_KEY}
+        assert found.auth is None
+        assert found.params == {}
+
+    @pytest.mark.parametrize("suffix", ["/", "/api/3", "/api/3/"])
+    def test_what_the_paths_already_carry_is_stripped(
+        self, clean_activecampaign, monkeypatch, suffix
+    ):
+        monkeypatch.setenv("ACTIVECAMPAIGN_BASE_URL", f"{ACTIVECAMPAIGN_BASE}{suffix}")
+        monkeypatch.setenv("ACTIVECAMPAIGN_API_KEY", ACTIVECAMPAIGN_KEY)
+        found = creds.credentials_for("activecampaign")
+        assert found.base_url == ACTIVECAMPAIGN_BASE
+        assert f"{found.base_url}/api/3/contacts".count("/api/3") == 1
+
+    def test_the_url_alone_names_the_missing_key(
+        self, clean_activecampaign, monkeypatch
+    ):
+        monkeypatch.setenv("ACTIVECAMPAIGN_BASE_URL", ACTIVECAMPAIGN_BASE)
+        with pytest.raises(creds.CredentialsError, match="ACTIVECAMPAIGN_API_KEY"):
+            creds.credentials_for("activecampaign")
+
+    def test_the_key_alone_names_the_missing_url(
+        self, clean_activecampaign, monkeypatch
+    ):
+        monkeypatch.setenv("ACTIVECAMPAIGN_API_KEY", ACTIVECAMPAIGN_KEY)
+        with pytest.raises(creds.CredentialsError, match="ACTIVECAMPAIGN_BASE_URL"):
+            creds.credentials_for("activecampaign")
+
+
+class TestTwitterReadsABearerToken:
+    def test_no_variable_set_means_the_mock(self, clean_twitter):
+        found = creds.credentials_for("twitter")
+        assert found.base_url == f"{settings.MOCK_BASE_URL}/twitter"
+        assert found.headers == {"Authorization": "Bearer mock_twitter_token"}
+
+    def test_the_token_becomes_a_bearer_header_on_the_real_api(
+        self, clean_twitter, monkeypatch
+    ):
+        monkeypatch.setenv("TWITTER_BEARER_TOKEN", TWITTER_TOKEN)
+        found = creds.credentials_for("twitter")
+        assert found.base_url == "https://api.x.com"
+        assert found.headers == {"Authorization": f"Bearer {TWITTER_TOKEN}"}
+        assert found.auth is None
+        assert found.params == {}
+
+    def test_the_base_url_can_be_overridden(self, clean_twitter, monkeypatch):
+        monkeypatch.setenv("TWITTER_BEARER_TOKEN", TWITTER_TOKEN)
+        monkeypatch.setenv("TWITTER_BASE_URL", "https://twitter.example.test")
+        assert (
+            creds.credentials_for("twitter").base_url == "https://twitter.example.test"
+        )
+
+
+class TestEverySourceWithRealCredentialsStillHasAStandIn:
+    def test_each_real_entry_names_a_mock_entry(self):
+        assert set(creds._REAL) <= set(creds._MOCK)
+
+    def test_the_twelve_configured_sources_are_the_ones_the_environment_names(self):
+        assert set(creds._REAL) == {
+            "hubspot",
+            "stripe",
+            "intercom",
+            "amplitude",
+            "shopify",
+            "klaviyo",
+            "calendly",
+            "mailchimp",
+            "twilio",
+            "mixpanel",
+            "activecampaign",
+            "twitter",
+        }

@@ -45,6 +45,14 @@ def connector(name):
     return importlib.import_module(f"app.sources.{name}.connector")
 
 
+@pytest.fixture(autouse=True)
+def only_the_stand_ins(monkeypatch):
+    for source, (_base, names, _build) in creds._REAL.items():
+        monkeypatch.delenv(f"{source.upper()}_BASE_URL", raising=False)
+        for name in names:
+            monkeypatch.delenv(name, raising=False)
+
+
 @pytest.fixture
 def pull(monkeypatch):
     def _run(module, body, *, text=None):
@@ -1847,3 +1855,89 @@ class TestWhatPinterestAsksForItsPinsAndAccount(_SocialCapture):
 
         assert [s for s in stored if s["object_type"] == "account_analytics"] == []
         assert notes is None
+
+
+TWILIO_ACCOUNT = "AC-account-test-0000"
+TWILIO_KEY_SID = "SK-key-test-0000"
+TWILIO_KEY_SECRET = "twilio-secret-test-0000"
+CALENDLY_TOKEN = "calendly-token-test-0000"
+CALENDLY_USER = "https://api.calendly.com/users/USER-TEST-0000"
+MIXPANEL_USERNAME = "mixpanel-user-test-0000"
+MIXPANEL_SECRET = "mixpanel-secret-test-0000"
+MIXPANEL_PROJECT = "7654321"
+
+
+class TestWhatTheConfiguredValuesDoToTheRequest:
+    @pytest.fixture
+    def capture(self, monkeypatch):
+        seen = []
+
+        def _install(body):
+            def handler(request):
+                seen.append(request)
+                return httpx.Response(200, json=body)
+
+            monkeypatch.setattr(client, "_transport", httpx.MockTransport(handler))
+            return seen
+
+        yield _install
+        monkeypatch.setattr(client, "_transport", None)
+
+    @staticmethod
+    async def _pull(name, seen):
+        async def store(session, **kwargs):
+            pass
+
+        await connector(name).pull(None, store)
+        return seen
+
+    def _twilio_environment(self, monkeypatch):
+        monkeypatch.setenv("TWILIO_ACCOUNT_SID", TWILIO_ACCOUNT)
+        monkeypatch.setenv("TWILIO_API_KEY_SID", TWILIO_KEY_SID)
+        monkeypatch.setenv("TWILIO_API_KEY_SECRET", TWILIO_KEY_SECRET)
+
+    def _mixpanel_environment(self, monkeypatch):
+        monkeypatch.setenv("MIXPANEL_SERVICE_ACCOUNT_USERNAME", MIXPANEL_USERNAME)
+        monkeypatch.setenv("MIXPANEL_SERVICE_ACCOUNT_SECRET", MIXPANEL_SECRET)
+        monkeypatch.setenv("MIXPANEL_PROJECT_ID", MIXPANEL_PROJECT)
+
+    async def test_twilio_paths_by_the_configured_account(self, capture, monkeypatch):
+        self._twilio_environment(monkeypatch)
+        seen = await self._pull("twilio", capture({"messages": [{"sid": "SM1"}]}))
+        assert [r.url.path for r in seen] == [
+            f"/2010-04-01/Accounts/{TWILIO_ACCOUNT}/Messages.json"
+        ]
+        assert TWILIO_KEY_SECRET not in str(seen[0].url)
+
+    async def test_twilio_paths_by_the_stand_in_account_without_credentials(
+        self, capture
+    ):
+        seen = await self._pull("twilio", capture({"messages": [{"sid": "SM1"}]}))
+        assert [r.url.path for r in seen] == [
+            "/2010-04-01/Accounts/mock_account_sid/Messages.json"
+        ]
+
+    async def test_calendly_asks_for_the_configured_users_events(
+        self, capture, monkeypatch
+    ):
+        monkeypatch.setenv("CALENDLY_ACCESS_TOKEN", CALENDLY_TOKEN)
+        monkeypatch.setenv("CALENDLY_USER_URI", CALENDLY_USER)
+        seen = await self._pull("calendly", capture({"collection": []}))
+        assert [r.url.path for r in seen] == ["/scheduled_events"]
+        assert seen[0].url.params.get("user") == CALENDLY_USER
+        assert seen[0].url.params.get("count") == "2"
+
+    async def test_calendly_asks_for_no_user_without_credentials(self, capture):
+        seen = await self._pull("calendly", capture({"collection": []}))
+        assert seen[0].url.params.get("user") is None
+
+    async def test_mixpanel_exports_the_configured_project(self, capture, monkeypatch):
+        self._mixpanel_environment(monkeypatch)
+        seen = await self._pull("mixpanel", capture({}))
+        assert [r.url.path for r in seen] == ["/api/2.0/export"]
+        assert seen[0].url.params.get("project_id") == MIXPANEL_PROJECT
+        assert seen[0].url.params.get("from_date") == "2026-07-01"
+
+    async def test_mixpanel_names_no_project_without_credentials(self, capture):
+        seen = await self._pull("mixpanel", capture({}))
+        assert seen[0].url.params.get("project_id") is None
