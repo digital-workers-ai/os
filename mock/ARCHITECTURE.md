@@ -8,7 +8,7 @@
 
 OS's connectors will pull from external APIs and dump raw payloads into `raw_event`. To develop and test the full pipeline (mapping, ER, enrichment, rules, goals, coaching) without real API credentials, `mock/` (mounted into its container as the `seeds` package) provides a mock server that replicates each provider's API contract — auth mechanism, pagination style, response schema, error format.
 
-The mock server runs as a Docker Compose service (`mock`, project `os`) alongside `postgres` and `backend`. It listens on `:8100` in the container, published to the host as `:8192`. Connectors reach it through a single env var, `MOCK_BASE_URL` (`http://mock:8100` in compose, `http://localhost:8192` from the host); each source appends its own path prefix, declared in `app/connectors/creds.py` — e.g. hubspot resolves to `{MOCK_BASE_URL}/hubspot`.
+The mock server runs as a Docker Compose service (`mock`, project `os_studio`) alongside `postgres` and `backend`. It listens on `:8100` in the container, published to the host as `:9192`. Connectors reach it through a single env var, `MOCK_BASE_URL` (`http://mock:8100` in compose, `http://localhost:9192` from the host); each source appends its own path prefix, declared in `app/connectors/creds.py` — e.g. hubspot resolves to `{MOCK_BASE_URL}/hubspot`.
 
 ---
 
@@ -212,11 +212,11 @@ The docs are research artifacts — they capture the real provider's API behavio
 docker compose -f app/docker-compose.yml up -d --wait mock
 # → Uvicorn running on :8100 inside the container
 
-curl http://localhost:8192/health
+curl http://localhost:9192/health
 # → {"status": "ok", "providers": ["/hubspot", "/stripe", ...]}
 ```
 
-In Docker Compose, the mock server runs as the `mock` service — reachable at `http://mock:8100` from other containers, and at `http://localhost:8192` from the host.
+In Docker Compose, the mock server runs as the `mock` service — reachable at `http://mock:8100` from other containers, and at `http://localhost:9192` from the host.
 
 ---
 

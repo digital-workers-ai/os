@@ -66,12 +66,12 @@ Docker is all you need.
 git clone https://github.com/digital-workers-ai/os.git && cd os
 cp app/.env.example app/.env
 docker compose -f app/docker-compose.yml up -d --build --wait
-curl -X POST localhost:8092/api/sync
-curl -X POST localhost:8092/api/rebuild
-open http://localhost:3092
+curl -X POST localhost:9092/api/sync
+curl -X POST localhost:9092/api/rebuild
+open http://localhost:4092
 ```
 
-The two `curl` commands pull from every stand-in tool and then build every record out of what arrived; the last command opens the console on your home page; the dashboard is at http://localhost:3093.
+The two `curl` commands pull from every stand-in tool and then build every record out of what arrived; the last command opens the console on your home page; the dashboard is at http://localhost:4093.
 
 ## Connectors
 
@@ -280,7 +280,7 @@ It installs as an app on an iPhone, an Android phone or a desktop: the shell is 
 Any AI assistant can use DW-OS as a tool. It gets read-only access to the same reviewed numbers the console shows, so when you ask your assistant about revenue it reports the number your system agreed on rather than guessing over raw tables. It can also read the definition files, so it can check what a number means before quoting it.
 
 ```
-claude mcp add --transport http os http://localhost:3092/mcp
+claude mcp add --transport http os http://localhost:4092/mcp
 ```
 
 ## The Nightly AI Engineer Agent
