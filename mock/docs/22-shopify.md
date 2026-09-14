@@ -24,55 +24,6 @@ Returns `401 Unauthorized` without valid token.
 
 ---
 
-## Protected customer data
-
-Every field that identifies a shopper is **protected customer data**, and an app
-Shopify has not approved for it never receives those fields — they are absent
-from the JSON, not null. A pull from a live dev store on 2024-01 returned three
-customers, none of which carried `email`, `first_name`, `last_name` or `phone`,
-and whose addresses carried only `id`, `customer_id`, `company`, `country`,
-`country_code`, `country_name`, `province`, `province_code` and `default`, with
-both province fields null on every record.
-
-What a customer does carry without approval: `addresses`,
-`admin_graphql_api_id`, `created_at`, `currency`, `default_address` (absent
-entirely when the customer has no address), `email_marketing_consent`, `id`,
-`last_order_id`, `last_order_name`, `multipass_identifier`, `note`,
-`orders_count`, `sms_marketing_consent`, `state`, `tags`, `tax_exempt`,
-`tax_exemptions`, `total_spent`, `updated_at` and `verified_email`.
-
-This stand-in withholds the same fields, so a mapping that would die against the
-live store dies here too. The consequence for the estate: a gated customer holds
-nothing a person is made of — no email, no name, no phone — and a record id is
-not an attribute, so **no mapping line reads a Shopify customer** and no person
-comes out of one. The records are still pulled and still stored raw; the
-connector counts the ones that arrived without personal data and the sync run's
-detail says so (`customers_without_personal_data=3`), so the gap is a number on
-every run rather than three records quietly becoming nothing. Approval is
-requested per app in the Partner dashboard under **Protected customer data
-access**; once it is granted, the four fields come back and with them the
-`email`, `_full_name` and `phone` mappings, and that count falls to zero.
-
-The same gate covers `email`, `phone`, `customer`, `billing_address` and
-`shipping_address` on an order. The store used for the pull had no orders, so
-what an order carries without approval is **unverified** here, and the order
-records below are what the contract promises rather than what was observed.
-
-`pull_source shopify --compare` against that store still reports differences,
-and every one of them is now the stand-in holding a value an empty store never
-set: a consent timestamp, a consent source, a variant `barcode` and a variant
-`image_id`. The stand-in carries the union of what the API can return, so
-`null` on one side and `null|string` on the other is the expected reading; a
-key present on one side and missing on the other is not.
-
-The differences that ran the other way — where the live store produced a `null`
-the stand-in could not — were closed by widening the stand-in rather than by
-explaining them away. `addresses[].company`, `default_address.company`,
-`last_order_id` and `last_order_name` each arrive both ways across the seeded
-customers, so the null branch is a path a test can take.
-
----
-
 ## Endpoints
 
 ### GET /orders.json
