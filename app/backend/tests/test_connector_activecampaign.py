@@ -247,3 +247,24 @@ class TestACampaignThatWasNeverSent:
     def test_a_campaign_that_was_never_sent_still_carries_a_modified_date(self):
         for payload in payloads("campaigns"):
             assert json_type(payload["mdate"]) == "string"
+
+
+class TestWhatAnUnsentCampaignProjectsTo:
+    def expected(self) -> dict:
+        return json.loads((FIXTURES / "expected.json").read_text())
+
+    def test_the_send_date_is_cleared_rather_than_left_off(self):
+        campaigns = self.expected()["extracted"]["campaigns"]["email_campaign"]
+        unsent = [c for c in campaigns.values() if c.get("sent_at", "") is None]
+        assert len(unsent) == 1
+
+    def test_the_cleared_send_date_is_counted_as_a_clear(self):
+        assert self.expected()["clears"]["sent_at/activecampaign"] == 1
+
+    def test_the_unsent_campaign_still_projects_its_name_and_its_counts(self):
+        campaigns = self.expected()["extracted"]["campaigns"]["email_campaign"]
+        unsent = next(c for c in campaigns.values() if c.get("sent_at", "") is None)
+        assert set(unsent) == {"clicks", "name", "opens", "sends", "sent_at"}
+
+    def test_no_campaign_is_skipped(self):
+        assert self.expected()["skips"] == {}
