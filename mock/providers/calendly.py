@@ -261,7 +261,7 @@ async def list_events(
 async def list_invitees(
     request: Request,
     event_uuid: str,
-    count: int = Query(10, ge=1, le=100),
+    count: int = Query(20, ge=1, le=100),
     page_token: str = Query(None),
     status: str = Query(None),
 ):

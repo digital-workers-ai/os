@@ -196,7 +196,7 @@ GET /calendly/scheduled_events?user=https://api.calendly.com/users/abc123def456&
 Get invitees for a specific event.
 
 **Query parameters:**
-- `count` — items per page (default 10)
+- `count` — items per page (default 20, max 100)
 - `page_token` — pagination token
 - `status` — `active` or `canceled`
 

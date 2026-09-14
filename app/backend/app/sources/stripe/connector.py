@@ -4,6 +4,8 @@ SOURCE = "stripe"
 
 API_VERSION = "2025-03-31.basil"
 
+PAGE_SIZE = 100
+
 OBSERVED_AT = {"customers": "created", "subscriptions": "created"}
 
 ENDPOINTS = (
@@ -19,7 +21,7 @@ async def pull(session, store):
     for endpoint, filters in ENDPOINTS:
         kind = endpoint.rsplit("/", 1)[-1]
         records = await api.get(
-            endpoint, params={"limit": 6, **filters}, paginate="cursor_stripe"
+            endpoint, params={"limit": PAGE_SIZE, **filters}, paginate="cursor_stripe"
         )
         await store_all(
             session, store, records, source=SOURCE, object_type=kind, notes=notes

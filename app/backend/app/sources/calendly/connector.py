@@ -3,6 +3,8 @@ from app.sources.util import client_for, pick_id, store_all
 
 SOURCE = "calendly"
 
+PAGE_SIZE = 100
+
 OBSERVED_AT = {"scheduled_events": "updated_at"}
 
 
@@ -22,7 +24,7 @@ async def pull(session, store):
     api = client_for(SOURCE)
     events = await api.get(
         "/scheduled_events",
-        params={"user": await _user_uri(api), "count": 2},
+        params={"user": await _user_uri(api), "count": PAGE_SIZE},
         paginate="token_calendly",
     )
     notes: dict = {}
@@ -34,7 +36,7 @@ async def pull(session, store):
             try:
                 record["_invitees"] = await api.get(
                     f"/scheduled_events/{uuid}/invitees",
-                    params={"count": 10},
+                    params={"count": PAGE_SIZE},
                     paginate="token_calendly",
                 )
             except ConnectorError:
