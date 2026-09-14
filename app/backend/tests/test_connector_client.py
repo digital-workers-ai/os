@@ -49,7 +49,7 @@ def zipped(*members: str) -> bytes:
     with zipfile.ZipFile(buffer, "w") as bundle:
         for index, text in enumerate(members):
             bundle.writestr(
-                f"863002/863002_2026-09-04_{index}#0.json.gz",
+                f"12345/12345_2026-09-04_{index}#0.json.gz",
                 gzip.compress(text.encode()),
             )
     return buffer.getvalue()

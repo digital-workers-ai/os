@@ -53,7 +53,7 @@ def zipped_ndjson(text: str) -> bytes:
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w") as bundle:
         bundle.writestr(
-            "863002/863002_2026-09-04_0#0.json.gz", gzip.compress(text.encode())
+            "12345/12345_2026-09-04_0#0.json.gz", gzip.compress(text.encode())
         )
     return buffer.getvalue()
 
