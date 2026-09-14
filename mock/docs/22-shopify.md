@@ -59,12 +59,17 @@ what an order carries without approval is **unverified** here, and the order
 records below are what the contract promises rather than what was observed.
 
 `pull_source shopify --compare` against that store still reports differences,
-and every one of them is the stand-in holding a value the store never set:
-`last_order_id` and `last_order_name` (its customers have never ordered), a
-consent timestamp, an address `company`, a variant `barcode` and a variant
+and every one of them is now the stand-in holding a value an empty store never
+set: a consent timestamp, a consent source, a variant `barcode` and a variant
 `image_id`. The stand-in carries the union of what the API can return, so
 `null` on one side and `null|string` on the other is the expected reading; a
 key present on one side and missing on the other is not.
+
+The differences that ran the other way — where the live store produced a `null`
+the stand-in could not — were closed by widening the stand-in rather than by
+explaining them away. `addresses[].company`, `default_address.company`,
+`last_order_id` and `last_order_name` each arrive both ways across the seeded
+customers, so the null branch is a path a test can take.
 
 ---
 
@@ -316,15 +321,91 @@ curl -H "X-Shopify-Access-Token: shpat_mock_xxxxxxxxxxxx" \
           "default": true
         }
       ]
+    },
+    {
+      "id": 1234567891,
+      "created_at": "2026-09-10T09:15:00-04:00",
+      "updated_at": "2026-09-10T09:15:00-04:00",
+      "orders_count": 0,
+      "state": "disabled",
+      "total_spent": "0.00",
+      "last_order_id": null,
+      "last_order_name": null,
+      "note": null,
+      "verified_email": true,
+      "multipass_identifier": null,
+      "tax_exempt": false,
+      "tags": "",
+      "currency": "USD",
+      "email_marketing_consent": {
+        "state": "not_subscribed",
+        "opt_in_level": "single_opt_in",
+        "consent_updated_at": null
+      },
+      "sms_marketing_consent": {
+        "state": "not_subscribed",
+        "opt_in_level": "single_opt_in",
+        "consent_collected_from": null,
+        "consent_updated_at": null
+      },
+      "admin_graphql_api_id": "gid://shopify/Customer/1234567891",
+      "tax_exemptions": [],
+      "default_address": {
+        "id": 9876543211,
+        "customer_id": 1234567891,
+        "company": null,
+        "province": null,
+        "province_code": null,
+        "country": "United States",
+        "country_code": "US",
+        "country_name": "United States",
+        "default": true
+      },
+      "addresses": [
+        {
+          "id": 9876543211,
+          "customer_id": 1234567891,
+          "company": null,
+          "province": null,
+          "province_code": null,
+          "country": "United States",
+          "country_code": "US",
+          "country_name": "United States",
+          "default": true
+        }
+      ]
     }
   ]
 }
 ```
 
 An unapproved app sees the record above: no `email`, no `first_name`, no
-`last_name`, no `phone`, and an address with nothing below country level. A
-customer with no address at all carries `"addresses": []` and no
-`default_address` key.
+`last_name`, no `phone`, and an address with nothing below country level.
+
+Three customer shapes come back from a live store, and the stand-in seeds one
+of each:
+
+| Shape | `last_order_id` / `last_order_name` | `addresses` | `default_address` |
+|-------|-------------------------------------|-------------|-------------------|
+| Has ordered | the id and name of the last order | one entry | present |
+| Never ordered | `null` and `null` | one entry | present |
+| No address at all | either | `[]` | **key absent**, not null |
+
+A customer who has never ordered carries `null` in both order fields alongside
+`"orders_count": 0` and `"total_spent": "0.00"` — the shape of every customer
+from the moment it is created until its first order, and the shape of all three
+customers on the store that was pulled.
+
+`company` is the one address field below the shop's own level that an
+unapproved app still sees, and it is optional on the shopper's side: a string
+when they filled it in, `null` when they did not, in `default_address` and in
+the matching `addresses[]` entry alike. A customer with no address at all has
+no `default_address` key to read through, so a reader must reach for it with
+`.get`, never `[...]`.
+
+None of these nulls reaches a mapping — no mapping line reads a Shopify
+customer at all. They are here so the connector and the replayed fixtures meet
+the shapes the store actually sends.
 
 ---
 
@@ -595,6 +676,7 @@ X-Shopify-Shop-Api-Call-Limit: 32/40
 
 - All monetary values are strings (e.g., `"299.97"`, not `299.97`) — `total_price`, `subtotal_price`, `total_tax`, a line item's `price` and a variant's `price` and `compare_at_price` all arrive as decimal text.
 - A live product is mostly nulls: `body_html`, `published_at`, `image`, `template_suffix` and a variant's `sku`, `barcode`, `compare_at_price`, `image_id` and `inventory_management` are each null on real records, `images` is `[]` when there is no image, and `product_type` and `tags` come back as empty strings rather than absent.
+- The connector asks every endpoint for `limit=250`, the documented maximum for these REST resources, and walks on from the `Link` header. The bucket leaks at 2 requests/second on a standard plan, so a page per 250 records is the difference between a 5,000-product catalogue costing 20 requests and costing 5,000.
 - Timestamps are ISO 8601 with timezone offset.
 - The `admin_graphql_api_id` field is the GraphQL global ID for the resource.
 - `since_id` is the older pagination method — Link header cursor pagination is preferred.

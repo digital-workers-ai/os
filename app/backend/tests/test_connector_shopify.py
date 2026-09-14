@@ -169,6 +169,30 @@ class TestProtectedCustomerData:
 
         assert await shopify.pull(None, store) is None
 
+    async def test_a_customer_with_no_default_address_is_stored_not_raised(
+        self, shopify, route
+    ):
+        addressless = a_gated_customer(9100000004)
+        assert "default_address" not in addressless
+
+        def handler(request):
+            name = request.url.path.rsplit("/", 1)[-1].removesuffix(".json")
+            rows = [addressless] if name == "customers" else []
+            return httpx.Response(200, json={name: rows})
+
+        route(handler)
+        stored = []
+
+        async def store(session, **kwargs):
+            stored.append(kwargs)
+
+        await shopify.pull(None, store)
+
+        assert [s["source_id"] for s in stored] == ["9100000004"]
+        entities, report = project(shopify, "customers", "9100000004", addressless)
+        assert entities == []
+        assert dict(report.skips) == {}
+
     def test_a_stand_in_customer_projects_nothing_at_all(self, shopify):
         for payload in payloads("customers"):
             entities, report = project(
@@ -212,10 +236,71 @@ class TestWhatTheConnectorAsksFor:
             for r in seen
         }
         assert asked == {
-            "products": {"limit": "1"},
-            "orders": {"limit": "1", "status": "any"},
-            "customers": {"limit": "1"},
+            "products": {"limit": "250"},
+            "orders": {"limit": "250", "status": "any"},
+            "customers": {"limit": "250"},
         }
+
+    async def test_a_full_page_is_followed_by_the_link_header_cursor(
+        self, shopify, route
+    ):
+        seen: list[httpx.Request] = []
+
+        def handler(request):
+            seen.append(request)
+            name = request.url.path.rsplit("/", 1)[-1].removesuffix(".json")
+            if name != "products" or request.url.params.get("page_info"):
+                return httpx.Response(200, json={name: [{"id": 2}]})
+            link = (
+                f"<https://mystore.myshopify.com{request.url.path}"
+                f'?page_info=cursor-two&limit={shopify.PAGE_SIZE}>; rel="next"'
+            )
+            return httpx.Response(
+                200, json={"products": [{"id": 1}]}, headers={"Link": link}
+            )
+
+        route(handler)
+        stored = []
+
+        async def store(session, **kwargs):
+            stored.append(kwargs)
+
+        await shopify.pull(None, store)
+
+        walked = [
+            dict(r.url.params) for r in seen if r.url.path.endswith("products.json")
+        ]
+        assert walked == [
+            {"limit": "250"},
+            {"limit": "250", "page_info": "cursor-two"},
+        ]
+        assert [s["source_id"] for s in stored if s["object_type"] == "products"] == [
+            "1",
+            "2",
+        ]
+
+    async def test_a_page_without_a_next_link_ends_the_walk(self, shopify, route):
+        seen: list[httpx.Request] = []
+
+        def handler(request):
+            seen.append(request)
+            name = request.url.path.rsplit("/", 1)[-1].removesuffix(".json")
+            previous = (
+                f"<https://mystore.myshopify.com{request.url.path}"
+                '?page_info=cursor-one&limit=250>; rel="previous"'
+            )
+            return httpx.Response(
+                200, json={name: [{"id": 1}]}, headers={"Link": previous}
+            )
+
+        route(handler)
+
+        async def store(session, **kwargs):
+            return None
+
+        await shopify.pull(None, store)
+
+        assert len(seen) == 3
 
 
 class TestMoneyArrivesAsStrings:
@@ -262,6 +347,42 @@ class TestTheStandInKeepsTheLiveShape:
         addressless = [p for p in payloads("customers") if p["addresses"] == []]
         assert len(addressless) == 1
         assert "default_address" not in addressless[0]
+
+    def test_a_customer_who_has_never_ordered_carries_no_last_order(self):
+        customers = payloads("customers")
+        never_ordered = [c for c in customers if c["last_order_id"] is None]
+        ordered = [c for c in customers if c["last_order_id"] is not None]
+        assert never_ordered
+        assert ordered
+        for customer in never_ordered:
+            assert customer["last_order_name"] is None
+            assert customer["orders_count"] == 0
+            assert customer["total_spent"] == "0.00"
+        for customer in ordered:
+            assert customer["last_order_name"] is not None
+            assert customer["orders_count"] > 0
+
+    def test_an_address_company_is_a_name_on_one_customer_and_null_on_another(self):
+        companies = [
+            block["company"]
+            for payload in payloads("customers")
+            for block in payload["addresses"]
+        ]
+        assert None in companies
+        assert [c for c in companies if isinstance(c, str)]
+
+    def test_a_default_address_repeats_an_entry_from_addresses_company_and_all(self):
+        defaulted = [
+            payload
+            for payload in payloads("customers")
+            if payload.get("default_address") is not None
+        ]
+        assert len(defaulted) == 2
+        for payload in defaulted:
+            assert payload["default_address"] in payload["addresses"]
+        companies = [p["default_address"]["company"] for p in defaulted]
+        assert None in companies
+        assert [c for c in companies if isinstance(c, str)]
 
     def test_sms_consent_is_an_object_on_every_customer(self):
         for payload in payloads("customers"):

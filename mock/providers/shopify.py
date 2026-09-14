@@ -97,6 +97,20 @@ _CUSTOMERS = [
         "sms_marketing_consent": {"state": "not_subscribed", "opt_in_level": "single_opt_in", "consent_collected_from": None, "consent_updated_at": None},
         "addresses": [],
     },
+    {
+        "id": 7000000003,
+        "created_at": "2026-09-10T09:15:00-04:00", "updated_at": "2026-09-10T09:15:00-04:00",
+        "orders_count": 0, "total_spent": "0.00", "currency": "USD",
+        "state": "disabled", "verified_email": True, "tax_exempt": False,
+        "tags": "",
+        "admin_graphql_api_id": "gid://shopify/Customer/7000000003",
+        "last_order_id": None, "last_order_name": None, "note": None,
+        "multipass_identifier": None, "tax_exemptions": [],
+        "email_marketing_consent": {"state": "not_subscribed", "opt_in_level": "single_opt_in", "consent_updated_at": None},
+        "sms_marketing_consent": {"state": "not_subscribed", "opt_in_level": "single_opt_in", "consent_collected_from": None, "consent_updated_at": None},
+        "default_address": {"id": 8003, "customer_id": 7000000003, "company": None, "province": None, "province_code": None, "country": "United States", "country_code": "US", "country_name": "United States", "default": True},
+        "addresses": [{"id": 8003, "customer_id": 7000000003, "company": None, "province": None, "province_code": None, "country": "United States", "country_code": "US", "country_name": "United States", "default": True}],
+    },
 ]
 
 _PRODUCTS = [

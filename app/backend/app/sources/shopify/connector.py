@@ -11,12 +11,14 @@ OBSERVED_AT = {
 
 PROTECTED_CUSTOMER_FIELDS = ("email", "first_name", "last_name", "phone")
 
+PAGE_SIZE = 250
+
 
 async def pull(session, store):
     api = client_for(SOURCE)
     notes: dict = {}
     for kind in ("products", "orders", "customers"):
-        params = {"limit": 1}
+        params = {"limit": PAGE_SIZE}
         if kind == "orders":
             params["status"] = "any"
         items = await api.get(

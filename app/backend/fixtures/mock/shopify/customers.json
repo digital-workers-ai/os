@@ -87,5 +87,61 @@
       "verified_email": true
     },
     "source_id": "7000000002"
+  },
+  {
+    "payload": {
+      "addresses": [
+        {
+          "company": null,
+          "country": "United States",
+          "country_code": "US",
+          "country_name": "United States",
+          "customer_id": 7000000003,
+          "default": true,
+          "id": 8003,
+          "province": null,
+          "province_code": null
+        }
+      ],
+      "admin_graphql_api_id": "gid://shopify/Customer/7000000003",
+      "created_at": "2026-09-10T09:15:00-04:00",
+      "currency": "USD",
+      "default_address": {
+        "company": null,
+        "country": "United States",
+        "country_code": "US",
+        "country_name": "United States",
+        "customer_id": 7000000003,
+        "default": true,
+        "id": 8003,
+        "province": null,
+        "province_code": null
+      },
+      "email_marketing_consent": {
+        "consent_updated_at": null,
+        "opt_in_level": "single_opt_in",
+        "state": "not_subscribed"
+      },
+      "id": 7000000003,
+      "last_order_id": null,
+      "last_order_name": null,
+      "multipass_identifier": null,
+      "note": null,
+      "orders_count": 0,
+      "sms_marketing_consent": {
+        "consent_collected_from": null,
+        "consent_updated_at": null,
+        "opt_in_level": "single_opt_in",
+        "state": "not_subscribed"
+      },
+      "state": "disabled",
+      "tags": "",
+      "tax_exempt": false,
+      "tax_exemptions": [],
+      "total_spent": "0.00",
+      "updated_at": "2026-09-10T09:15:00-04:00",
+      "verified_email": true
+    },
+    "source_id": "7000000003"
   }
 ]
