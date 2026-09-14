@@ -97,7 +97,7 @@ ticket:
   intercom.conversations.title: subject
   intercom.conversations.state: status
   intercom.conversations.priority: priority
-  intercom.conversations.source.author.email: email
+  intercom.conversations._author_email: email
   intercom.conversations.created_at: opened_at
 
 message:
