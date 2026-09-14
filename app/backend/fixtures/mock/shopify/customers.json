@@ -3,48 +3,59 @@
     "payload": {
       "addresses": [
         {
+          "address1": "123 Main St",
+          "city": "San Francisco",
           "company": "Acme Corp",
           "country": "United States",
           "country_code": "US",
-          "country_name": "United States",
           "customer_id": 7000000001,
           "default": true,
+          "first_name": "Jane",
           "id": 8001,
-          "province": null,
-          "province_code": null
+          "last_name": "Smith",
+          "name": "Jane Smith",
+          "phone": "+14155551234",
+          "province": "California",
+          "province_code": "CA",
+          "zip": "94105"
         }
       ],
       "admin_graphql_api_id": "gid://shopify/Customer/7000000001",
       "created_at": "2025-03-15T10:30:00-04:00",
       "currency": "USD",
       "default_address": {
+        "address1": "123 Main St",
+        "city": "San Francisco",
         "company": "Acme Corp",
         "country": "United States",
         "country_code": "US",
-        "country_name": "United States",
         "customer_id": 7000000001,
         "default": true,
+        "first_name": "Jane",
         "id": 8001,
-        "province": null,
-        "province_code": null
+        "last_name": "Smith",
+        "name": "Jane Smith",
+        "phone": "+14155551234",
+        "province": "California",
+        "province_code": "CA",
+        "zip": "94105"
       },
+      "email": "jane@acme.io",
       "email_marketing_consent": {
         "consent_updated_at": "2025-03-15T10:30:00-04:00",
         "opt_in_level": "single_opt_in",
         "state": "subscribed"
       },
+      "first_name": "Jane",
       "id": 7000000001,
+      "last_name": "Smith",
       "last_order_id": 5000000001,
       "last_order_name": "#1001",
       "multipass_identifier": null,
       "note": "VIP customer",
       "orders_count": 3,
-      "sms_marketing_consent": {
-        "consent_collected_from": "SHOP",
-        "consent_updated_at": "2025-03-15T10:30:00-04:00",
-        "opt_in_level": "single_opt_in",
-        "state": "subscribed"
-      },
+      "phone": "+14155551234",
+      "sms_marketing_consent": null,
       "state": "enabled",
       "tags": "vip, repeat-customer",
       "tax_exempt": false,
@@ -57,27 +68,61 @@
   },
   {
     "payload": {
-      "addresses": [],
+      "addresses": [
+        {
+          "address1": "456 Oak Ave",
+          "city": "Austin",
+          "company": "Globex Inc",
+          "country": "United States",
+          "country_code": "US",
+          "customer_id": 7000000002,
+          "default": true,
+          "first_name": "Mike",
+          "id": 8002,
+          "last_name": "Chen",
+          "name": "Mike Chen",
+          "phone": "+15125550201",
+          "province": "Texas",
+          "province_code": "TX",
+          "zip": "78701"
+        }
+      ],
       "admin_graphql_api_id": "gid://shopify/Customer/7000000002",
       "created_at": "2025-02-01T14:00:00-04:00",
       "currency": "USD",
-      "email_marketing_consent": {
-        "consent_updated_at": null,
-        "opt_in_level": "single_opt_in",
-        "state": "not_subscribed"
+      "default_address": {
+        "address1": "456 Oak Ave",
+        "city": "Austin",
+        "company": "Globex Inc",
+        "country": "United States",
+        "country_code": "US",
+        "customer_id": 7000000002,
+        "default": true,
+        "first_name": "Mike",
+        "id": 8002,
+        "last_name": "Chen",
+        "name": "Mike Chen",
+        "phone": "+15125550201",
+        "province": "Texas",
+        "province_code": "TX",
+        "zip": "78701"
       },
+      "email": "mike@globex.com",
+      "email_marketing_consent": {
+        "consent_updated_at": "2025-02-01T14:00:00-04:00",
+        "opt_in_level": "single_opt_in",
+        "state": "subscribed"
+      },
+      "first_name": "Mike",
       "id": 7000000002,
+      "last_name": "Chen",
       "last_order_id": 5000000002,
       "last_order_name": "#1002",
       "multipass_identifier": null,
       "note": null,
       "orders_count": 1,
-      "sms_marketing_consent": {
-        "consent_collected_from": null,
-        "consent_updated_at": null,
-        "opt_in_level": "single_opt_in",
-        "state": "not_subscribed"
-      },
+      "phone": "+15125550201",
+      "sms_marketing_consent": null,
       "state": "enabled",
       "tags": "new-customer",
       "tax_exempt": false,

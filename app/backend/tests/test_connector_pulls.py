@@ -175,6 +175,48 @@ class TestWhatTheConnectorActuallyAsksFor:
             ("stripe", "subscriptions"),
         }
 
+    async def test_stripe_asks_for_subscriptions_of_every_status(self, capture):
+        seen = capture({"data": [], "has_more": False})
+
+        async def store(session, **kwargs):
+            pass
+
+        await stripe.pull(None, store)
+
+        asked = {r.url.path: r.url.params.get("status") for r in seen}
+        assert asked["/v1/subscriptions"] == "all"
+
+    async def test_stripe_sends_no_status_where_the_endpoint_has_none(self, capture):
+        seen = capture({"data": [], "has_more": False})
+
+        async def store(session, **kwargs):
+            pass
+
+        await stripe.pull(None, store)
+
+        asked = {r.url.path: r.url.params.get("status") for r in seen}
+        assert asked["/v1/customers"] is None
+
+    async def test_stripe_pins_the_api_version_its_shapes_were_read_from(self, capture):
+        seen = capture({"data": [], "has_more": False})
+
+        async def store(session, **kwargs):
+            pass
+
+        await stripe.pull(None, store)
+
+        assert seen
+        assert {r.headers.get("stripe-version") for r in seen} == {stripe.API_VERSION}
+
+    async def test_the_pinned_stripe_version_is_the_one_the_docs_record(self):
+        assert stripe.API_VERSION == "2025-03-31.basil"
+
+    async def test_stripe_observes_customers_by_the_only_timestamp_stripe_has(self):
+        assert stripe.OBSERVED_AT == {
+            "customers": "created",
+            "subscriptions": "created",
+        }
+
     async def test_zendesk_walks_its_three_collections_with_a_page_size(self, capture):
         seen = capture({"tickets": [{"id": 1001}]})
         stored = []

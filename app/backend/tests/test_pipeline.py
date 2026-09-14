@@ -295,16 +295,6 @@ class TestEmptyRecords:
         assert report.records_skipped["hubspot/deals/no_facts/deal"] == 1
         assert report.skips["amount/hubspot/not_a_number"] == 1
 
-    def test_an_account_currency_skips_a_record_that_kept_no_fact(self, kit):
-        out, report = project(
-            kit,
-            "salesforce",
-            "opportunities",
-            {"Amount": "n/a", "CloseDate": "never"},
-        )
-        assert out == {}
-        assert report.records_skipped["salesforce/opportunities/no_facts/deal"] == 1
-
     def test_an_unmapped_object_type_produces_nothing(self, kit):
         out, _ = project(kit, "hubspot", "tickets", {"amount_due": 4900})
         assert out == {}

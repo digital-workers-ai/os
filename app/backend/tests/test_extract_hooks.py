@@ -253,9 +253,8 @@ class TestHubspotDealStatus:
             == "open"
         )
 
-    def test_a_deal_answered_without_the_flags_gets_no_status_at_all(self):
-        out = hubspot_hook.reshape("deals", {"properties": {"dealname": "Big"}})
-        assert "_status" not in out[0]
+    def test_flags_the_portal_never_returned_leave_the_deal_open(self):
+        assert self._status({}) == "open"
 
     def test_the_rest_of_the_payload_survives(self):
         payload = {"id": "348000000001", "properties": {"hs_is_closed": "false"}}

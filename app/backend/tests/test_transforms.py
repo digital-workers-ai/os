@@ -122,26 +122,16 @@ class TestStatus:
         assert t.normalize_status("hubspot", "deals", raw) == expected
 
     def test_near_synonyms_are_folded_per_source_and_object_type(self):
-        opportunities = "opportunities"
-        assert (
-            t.normalize_status("salesforce", opportunities, "closedwon") == "closed_won"
-        )
-        assert (
-            t.normalize_status("salesforce", opportunities, "closedlost")
-            == "closed_lost"
-        )
+        assert t.normalize_status("hubspot", "deals", "closedwon") == "closed_won"
+        assert t.normalize_status("hubspot", "deals", "closedlost") == "closed_lost"
 
     def test_the_synonym_table_is_scoped_not_global(self):
-        assert t.normalize_status("salesforce", "opportunities", "enabled") == "enabled"
-        assert t.normalize_status("salesforce", "contacts", "closedwon") == "closedwon"
-
-    def test_a_source_with_no_table_folds_nothing(self):
-        assert t.normalize_status("hubspot", "deals", "closedwon") == "closedwon"
-        assert t.normalize_status("hubspot", "deals", "closedlost") == "closedlost"
+        assert t.normalize_status("hubspot", "deals", "enabled") == "enabled"
+        assert t.normalize_status("hubspot", "contacts", "closedwon") == "closedwon"
 
     def test_folding_is_scoped_to_the_deal_object_types(self):
-        assert t.normalize_status("salesforce", "invoices", "closedwon") == "closedwon"
-        assert t.normalize_status("salesforce", "tickets", "Closed Won") == "closed_won"
+        assert t.normalize_status("hubspot", "invoices", "closedwon") == "closedwon"
+        assert t.normalize_status("hubspot", "tickets", "Closed Won") == "closed_won"
 
     def test_a_saved_mailchimp_campaign_is_a_draft(self):
         assert t.normalize_status("mailchimp", "campaigns", "save") == "draft"
@@ -156,7 +146,7 @@ class TestStatus:
 class TestSynonymsLoader:
     def test_the_shipped_file_loads_and_folds_closedwon(self):
         doc = t.load_synonyms()
-        assert doc["salesforce"]["opportunities"]["closedwon"] == "closed_won"
+        assert doc["hubspot"]["deals"]["closedwon"] == "closed_won"
 
     def test_the_default_load_is_memoized(self):
         assert t.load_synonyms() is t.load_synonyms()

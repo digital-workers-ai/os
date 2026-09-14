@@ -1,8 +1,20 @@
 {
-  "clears": {
-    "category/shopify": 1
-  },
+  "clears": {},
   "extracted": {
+    "customers": {
+      "person": {
+        "7000000001": {
+          "email": "jane@acme.io",
+          "name": "Jane Smith",
+          "phone": "+14155551234"
+        },
+        "7000000002": {
+          "email": "mike@globex.com",
+          "name": "Mike Chen",
+          "phone": "+15125550201"
+        }
+      }
+    },
     "orders": {
       "order": {
         "5000000001": {
@@ -25,11 +37,13 @@
       "product": {
         "30001": {
           "category": "widget",
+          "currency": "usd",
           "name": "Widget Pro",
           "status": "active"
         },
         "30002": {
-          "category": null,
+          "category": "gadget",
+          "currency": "usd",
           "name": "Gadget Lite",
           "status": "active"
         }
