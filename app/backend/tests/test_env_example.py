@@ -71,13 +71,25 @@ class TestEveryVariableASourceReadsIsDocumented:
 
 class TestEveryValueIsLeftBlank:
     @pytest.mark.parametrize("number, key, value", documented())
-    def test_no_key_carries_a_value(self, number, key, value):
+    def test_no_credential_carries_a_value(self, number, key, value):
+        if key == STAND_INS_ONLY:
+            return
         assert value == "", (
             f"app/.env.example:{number} gives {key} the value {value!r}. CI copies "
             "this file to app/.env verbatim, and creds._real() reads any non-empty "
             "value as a real credential — so a placeholder here points the "
             "connectors at live vendor hosts instead of the stand-ins. "
             "Leave the value blank and let the comment above it explain"
+        )
+
+
+    def test_the_stand_in_switch_carries_a_boolean_pydantic_can_read(self):
+        value = dict((k, v) for _n, k, v in documented())[STAND_INS_ONLY]
+        assert value in {"true", "false"}, (
+            f"app/.env.example gives {STAND_INS_ONLY} the value {value!r}. It is "
+            "typed bool on Settings, and pydantic refuses an empty string, so a "
+            "blank here stops the backend booting the moment CI copies this file "
+            "to app/.env"
         )
 
 
