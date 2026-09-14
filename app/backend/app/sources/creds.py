@@ -11,18 +11,127 @@ class Credentials:
     headers: dict = field(default_factory=dict)
     auth: tuple | None = None
     params: dict = field(default_factory=dict)
+    values: dict = field(default_factory=dict)
 
 
 class CredentialsError(RuntimeError):
     pass
 
 
-def _bearer(token: str) -> tuple[dict, tuple | None, dict]:
-    return {"Authorization": f"Bearer {token}"}, None, {}
+def _bearer(token: str) -> tuple[dict, tuple | None, dict, dict]:
+    return {"Authorization": f"Bearer {token}"}, None, {}, {}
+
+
+def _basic(key: str, secret: str) -> tuple[dict, tuple | None, dict, dict]:
+    return {}, (key, secret), {}, {}
+
+
+def _intercom(token: str) -> tuple[dict, tuple | None, dict, dict]:
+    return (
+        {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/json",
+            "intercom-version": "2.10",
+        },
+        None,
+        {},
+        {},
+    )
+
+
+def _klaviyo(key: str) -> tuple[dict, tuple | None, dict, dict]:
+    return (
+        {"Authorization": f"Klaviyo-API-Key {key}", "revision": "2024-10-15"},
+        None,
+        {},
+        {},
+    )
+
+
+def _calendly(token: str, user_uri: str) -> tuple[dict, tuple | None, dict, dict]:
+    return {"Authorization": f"Bearer {token}"}, None, {"user": user_uri}, {}
+
+
+def _mailchimp(key: str) -> tuple[dict, tuple | None, dict, dict]:
+    _prefix, dash, data_centre = key.rpartition("-")
+    if not dash:
+        raise CredentialsError(
+            "mailchimp: MAILCHIMP_API_KEY ends in no -<data centre>, so the host "
+            "that answers for it is unknown"
+        )
+    return {}, ("anystring", key), {}, {"dc": data_centre}
+
+
+def _twilio(
+    account_sid: str, key_sid: str, key_secret: str
+) -> tuple[dict, tuple | None, dict, dict]:
+    return {}, (key_sid, key_secret), {}, {"account_sid": account_sid}
+
+
+def _mixpanel(
+    username: str, secret: str, project_id: str
+) -> tuple[dict, tuple | None, dict, dict]:
+    return {}, (username, secret), {"project_id": project_id}, {}
+
+
+def _activecampaign(base_url: str, key: str) -> tuple[dict, tuple | None, dict, dict]:
+    return (
+        {"Api-Token": key},
+        None,
+        {},
+        {"base": base_url.rstrip("/").removesuffix("/api/3")},
+    )
+
+
+def _shopify(domain: str, token: str) -> tuple[dict, tuple | None, dict, dict]:
+    return {"X-Shopify-Access-Token": token}, None, {}, {"domain": domain}
 
 
 _REAL: dict[str, tuple[str, tuple[str, ...], Callable]] = {
     "hubspot": ("https://api.hubapi.com", ("HUBSPOT_ACCESS_TOKEN",), _bearer),
+    "stripe": ("https://api.stripe.com", ("STRIPE_API_KEY",), _bearer),
+    "intercom": ("https://api.intercom.io", ("INTERCOM_ACCESS_TOKEN",), _intercom),
+    "klaviyo": ("https://a.klaviyo.com", ("KLAVIYO_API_KEY",), _klaviyo),
+    "calendly": (
+        "https://api.calendly.com",
+        ("CALENDLY_ACCESS_TOKEN", "CALENDLY_USER_URI"),
+        _calendly,
+    ),
+    "mailchimp": (
+        "https://{dc}.api.mailchimp.com",
+        ("MAILCHIMP_API_KEY",),
+        _mailchimp,
+    ),
+    "twilio": (
+        "https://api.twilio.com",
+        ("TWILIO_ACCOUNT_SID", "TWILIO_API_KEY_SID", "TWILIO_API_KEY_SECRET"),
+        _twilio,
+    ),
+    "amplitude": (
+        "https://amplitude.com",
+        ("AMPLITUDE_API_KEY", "AMPLITUDE_SECRET_KEY"),
+        _basic,
+    ),
+    "mixpanel": (
+        "https://data.mixpanel.com",
+        (
+            "MIXPANEL_SERVICE_ACCOUNT_USERNAME",
+            "MIXPANEL_SERVICE_ACCOUNT_SECRET",
+            "MIXPANEL_PROJECT_ID",
+        ),
+        _mixpanel,
+    ),
+    "activecampaign": (
+        "{base}",
+        ("ACTIVECAMPAIGN_BASE_URL", "ACTIVECAMPAIGN_API_KEY"),
+        _activecampaign,
+    ),
+    "twitter": ("https://api.x.com", ("TWITTER_BEARER_TOKEN",), _bearer),
+    "shopify": (
+        "https://{domain}",
+        ("SHOPIFY_STORE_DOMAIN", "SHOPIFY_ACCESS_TOKEN"),
+        _shopify,
+    ),
 }
 
 _MOCK: dict[str, tuple[str, dict, tuple | None, dict]] = {
@@ -155,12 +264,20 @@ _MOCK: dict[str, tuple[str, dict, tuple | None, dict]] = {
 }
 
 
+_MOCK_VALUES: dict[str, dict] = {"twilio": {"account_sid": "mock_account_sid"}}
+
+
+def _base_url_override(source: str, names: tuple[str, ...]) -> str:
+    name = f"{source.upper()}_BASE_URL"
+    return "" if name in names else os.environ.get(name, "")
+
+
 def _real(source: str) -> Credentials | None:
     if source not in _REAL:
         return None
     base_url, names, build = _REAL[source]
-    values = [os.environ.get(name, "") for name in names]
-    missing = [name for name, value in zip(names, values, strict=True) if not value]
+    given = [os.environ.get(name, "") for name in names]
+    missing = [name for name, value in zip(names, given, strict=True) if not value]
     if len(missing) == len(names):
         return None
     if missing:
@@ -169,12 +286,13 @@ def _real(source: str) -> Credentials | None:
             f"{', '.join(names)} is set — set all of them for the real API, "
             "or none for the mock"
         )
-    headers, auth, params = build(*values)
+    headers, auth, params, values = build(*given)
     return Credentials(
-        base_url=os.environ.get(f"{source.upper()}_BASE_URL") or base_url,
+        base_url=_base_url_override(source, names) or base_url.format(**values),
         headers=headers,
         auth=auth,
         params=params,
+        values=values,
     )
 
 
@@ -190,4 +308,5 @@ def credentials_for(source: str) -> Credentials:
         headers=headers,
         auth=auth,
         params=params,
+        values=_MOCK_VALUES.get(source, {}),
     )

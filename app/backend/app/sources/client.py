@@ -64,6 +64,7 @@ class SourceClient:
         headers: dict | None = None,
         auth: tuple | None = None,
         params: dict | None = None,
+        values: dict | None = None,
     ):
         self.source = source
         self.base_url = base_url.rstrip("/")
@@ -72,6 +73,7 @@ class SourceClient:
         self.headers = headers or {}
         self.auth = auth
         self.default_params = params or {}
+        self.values = values or {}
         self.pages_read = 0
         self.truncated = False
         self.truncation_reasons: list[str] = []
