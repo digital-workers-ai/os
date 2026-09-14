@@ -1190,7 +1190,9 @@ class TestSheetRowsSharingACompanyAreACountedCollision:
 
 
 class TestExportStreams:
-    @pytest.mark.parametrize("name,body", EXPORT_BODIES, ids=[n for n, _ in EXPORT_BODIES])
+    @pytest.mark.parametrize(
+        "name,body", EXPORT_BODIES, ids=[n for n, _ in EXPORT_BODIES]
+    )
     async def test_a_blank_line_is_skipped_silently(self, pull, name, body):
         notes, stored = await pull(
             connector(name), None, **body('{"a":1}\n\n   \n{"a":2}')
@@ -1198,7 +1200,9 @@ class TestExportStreams:
         assert len(stored) == 2
         assert notes is None
 
-    @pytest.mark.parametrize("name,body", EXPORT_BODIES, ids=[n for n, _ in EXPORT_BODIES])
+    @pytest.mark.parametrize(
+        "name,body", EXPORT_BODIES, ids=[n for n, _ in EXPORT_BODIES]
+    )
     async def test_a_malformed_line_is_counted_not_fatal(self, pull, name, body):
         notes, stored = await pull(
             connector(name), None, **body('{"a":1}\nnot json at all\n{"a":2}')
@@ -1206,7 +1210,9 @@ class TestExportStreams:
         assert len(stored) == 2
         assert notes == {"malformed_lines": 1}
 
-    @pytest.mark.parametrize("name,body", EXPORT_BODIES, ids=[n for n, _ in EXPORT_BODIES])
+    @pytest.mark.parametrize(
+        "name,body", EXPORT_BODIES, ids=[n for n, _ in EXPORT_BODIES]
+    )
     async def test_a_line_with_no_vendor_id_is_keyed_by_its_content(
         self, pull, name, body
     ):
@@ -1224,9 +1230,7 @@ class TestExportStreams:
 
     async def test_a_plain_text_body_is_not_silently_read_as_zero_events(self, pull):
         with pytest.raises(client.ConnectorError):
-            await pull(
-                connector("amplitude"), None, text='{"$insert_id":"a"}'
-            )
+            await pull(connector("amplitude"), None, text='{"$insert_id":"a"}')
 
     async def test_amplitude_prefers_the_vendor_insert_id(self, pull):
         _notes, stored = await pull(
