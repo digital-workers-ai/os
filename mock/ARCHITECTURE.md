@@ -1,6 +1,6 @@
 # Seeds — Mock Provider Server
 
-> Faithful replicas of 31 third-party APIs on a single FastAPI process, backed by a shared ground-truth world.
+> Faithful replicas of 35 third-party APIs on a single FastAPI process, backed by a shared ground-truth world.
 
 ---
 
@@ -21,9 +21,10 @@ mock:8100/hubspot/crm/v3/objects/contacts          → api.hubapi.com/crm/v3/obj
 mock:8100/stripe/v1/customers                      → api.stripe.com/v1/customers
 mock:8100/meta/v25.0/act_{id}/campaigns            → graph.facebook.com/v25.0/act_{id}/campaigns
 mock:8100/salesforce/services/data/v67.0/query      → {instance}.salesforce.com/services/data/v67.0/query
+mock:8100/serp/search?engine=google                 → serpapi.com/search?engine=google
 ```
 
-All 29 provider modules share a single ground-truth dataset (`world.py`) and a shared library of auth decorators and pagination helpers (`helpers.py`). Each module renders the same underlying entities in its provider-specific response format.
+All 33 provider modules share a single ground-truth dataset (`world.py`) and a shared library of auth decorators and pagination helpers (`helpers.py`). Each module renders the same underlying entities in its provider-specific response format.
 
 ---
 
@@ -68,7 +69,11 @@ mock/
 │   ├── zendesk.py               # Tickets, users, organizations, search
 │   ├── zoom.py                  # Meetings, recordings, VTT transcripts (no numbered doc)
 │   ├── meta_ad_library.py       # Ad Library: ads_archive + page lookup (Graph API)
-│   └── google_ads_transparency.py  # SerpApi's google_ads_transparency_center engine
+│   ├── google_ads_transparency.py  # SerpApi's google_ads_transparency_center engine
+│   ├── serp.py                  # SerpApi's google engine: keyword rankings
+│   ├── ai_answers.py            # AI-visibility tracker: who each engine named
+│   ├── competitor_pages.py      # Crawl: sitemap, page text, change detection
+│   └── social_scrape.py         # Social scraper: a competitor's LinkedIn posts
 │
 └── docs/                        # API contracts (the source of truth)
     ├── 01-hubspot.md
@@ -76,7 +81,11 @@ mock/
     ├── ...
     ├── 28-zendesk.md
     ├── 29-meta-ad-library.md
-    └── 30-google-ads-transparency.md
+    ├── 30-google-ads-transparency.md
+    ├── 31-serp.md
+    ├── 32-ai-answers.md
+    ├── 33-competitor-pages.md
+    └── 34-social-scrape.md
 ```
 
 ---
@@ -99,6 +108,11 @@ All providers render the same canonical dataset. The entities are defined as Pyt
 | Sales calls | 6 | Zoom transcripts with expected labels for enrichment |
 | Competitors | 3 | Fictional AI video-ad tools whose public ads form the swipe file |
 | Competitor ads | 12 | 7 in Meta's Ad Library, 5 in Google's transparency center; 3 stopped |
+| Our brand | 1 | Digital Workers, hiredigitalworkers.com — the "us" row in rankings and answers |
+| Tracked keywords | 4 | Search terms the ranking view follows, one of which we win |
+| Tracked prompts | 3 | Questions put to four answer engines: chatgpt, perplexity, gemini, aio |
+| Competitor pages | 21 | Seven crawled pages each; Vidora's `/pricing` has a second version |
+| Competitor posts | 18 | Six LinkedIn posts each, spread over two months, one carousel apiece |
 
 ### 4.2 Company Scenarios
 
@@ -137,7 +151,7 @@ All auth is permissive — any non-empty credential in the correct format passes
 
 | Decorator | Pattern | Used by |
 |-----------|---------|---------|
-| `require_bearer` | `Authorization: Bearer <token>` | HubSpot, Customer.io, Calendly, GA4, Sheets, Smartlook, LinkedIn, Pinterest, Snapchat, SendGrid, Segment, Intercom, Zendesk, Zoom |
+| `require_bearer` | `Authorization: Bearer <token>` | HubSpot, Customer.io, Calendly, GA4, Sheets, Smartlook, LinkedIn, Pinterest, Snapchat, SendGrid, Segment, Intercom, Zendesk, Zoom, AI answers, Competitor pages, Social scrape |
 | `require_basic_auth` | `Authorization: Basic <base64>` | Stripe, Twilio, WooCommerce, Mixpanel, Amplitude, Zendesk |
 | `require_query_token` | `?access_token=<token>` | Meta (Graph API), Meta Ad Library |
 | `require_header` | Custom header check | Klaviyo (`Authorization: Klaviyo-API-Key`), ActiveCampaign (`Api-Token`), Shopify (`X-Shopify-Access-Token`), Google Ads (`developer-token`), LinkedIn (`Linkedin-Version`, `X-Restli-Protocol-Version`), Intercom (`Intercom-Version`) |
@@ -195,8 +209,12 @@ The server mounts each provider's router with a prefix that absorbs the API vers
 | 29 | Zoom | `/zoom` | Bearer | — |
 | 30 | Meta Ad Library | `/meta-ad-library` | Query param | `29-meta-ad-library.md` |
 | 31 | Google Ads Transparency (SerpApi) | `/serpapi` | `api_key` query param | `30-google-ads-transparency.md` |
+| 32 | SerpApi google engine | `/serp` | `api_key` query param | `31-serp.md` |
+| 33 | AI answers tracker | `/answers` | Bearer | `32-ai-answers.md` |
+| 34 | Competitor pages crawl | `/pages` | Bearer | `33-competitor-pages.md` |
+| 35 | Social scraper (LinkedIn) | `/social-scrape` | Bearer | `34-social-scrape.md` |
 
-30 numbered contracts plus Zoom, 29 modules — Meta Ads, FB Organic, and IG Organic share one module (`meta.py`) because they share the Graph API. Route conflicts (e.g., `/{id}/insights` matching ads, pages, and IG accounts) are resolved by dispatching on ID prefix (`act_`, `page_`, `ig_`).
+34 numbered contracts plus Zoom, 33 modules — Meta Ads, FB Organic, and IG Organic share one module (`meta.py`) because they share the Graph API. Route conflicts (e.g., `/{id}/insights` matching ads, pages, and IG accounts) are resolved by dispatching on ID prefix (`act_`, `page_`, `ig_`).
 
 ---
 
@@ -232,6 +250,7 @@ In Docker Compose, the mock server runs as the `mock` service — reachable at `
 
 - **Shared world, per-provider rendering.** A single `world.py` defines canonical entities. Each provider module transforms them into its own response format. This guarantees cross-source consistency — the same company appears in HubSpot, Stripe, and Salesforce with the same underlying data, just different field names and response shapes.
 - **Deliberate ER variations.** Name, email, and company name variations are explicit in `ER_COMPANY_NAMES`, `ER_PERSON_NAMES`, and `ER_PERSON_EMAILS` dicts. The ER pipeline must reconcile these — they're not bugs, they're test fixtures.
+- **Two SerpApi prefixes, not one.** `/serpapi` and `/serp` are the same vendor, but both engines answer on `/search`, and one FastAPI app cannot mount two routers on the same path. In production the two connectors differ only in their base URL, so the split costs nothing. Both check `api_key` inline rather than through a helper, because the body they answer with is SerpApi's, not Graph's.
 - **Permissive auth, strict mechanism.** The mock doesn't validate credential values — any non-empty token passes. But it enforces the correct auth mechanism (Bearer vs Basic vs header vs query param) and required companion headers (e.g., `developer-token` for Google Ads). This catches connector misconfiguration without requiring real credentials.
 - **One module per provider, not per endpoint.** Each provider file contains all endpoints for that provider. At ~60-370 lines per module, this keeps each provider self-contained without needing sub-packages.
 - **Mount prefix absorbs API versioning.** Version paths like `/v1beta` (GA4) or `/services/data/v67.0` (Salesforce) live in the server.py mount prefix, not in route decorators. Provider modules define routes relative to their API root.
