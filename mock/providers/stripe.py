@@ -85,8 +85,6 @@ def _stripe_subscription(sub, company):
         "ended_at": None,
         "start_date": created_ts,
         "billing_cycle_anchor": created_ts,
-        "current_period_start": period_start,
-        "current_period_end": period_end,
         "default_payment_method": "pm_mock_001",
         "items": {
             "object": "list",
@@ -124,14 +122,6 @@ def _stripe_subscription(sub, company):
         "latest_invoice": f"in_{sub.id[3:].zfill(6)}_latest",
         "livemode": False,
         "metadata": {},
-        "plan": {
-            "id": f"price_{sub.plan}",
-            "object": "plan",
-            "amount": price_cents,
-            "currency": sub.currency,
-            "interval": "month",
-            "product": f"prod_{sub.plan}",
-        },
         "trial_end": int(time.mktime(time.strptime(sub.trial_end, "%Y-%m-%d"))) if sub.trial_end else None,
         "trial_start": None,
     }
@@ -193,7 +183,9 @@ async def list_subscriptions(
 
     if customer:
         all_subs = [s for s in all_subs if s["customer"] == customer]
-    if status:
+    if status is None:
+        all_subs = [s for s in all_subs if s["status"] != "canceled"]
+    elif status != "all":
         all_subs = [s for s in all_subs if s["status"] == status]
 
     page, has_more = _cursor_paginate_stripe(all_subs, starting_after, limit)
