@@ -4,12 +4,6 @@ Contract: seeds/docs/27-intercom.md
 
 Bearer + Intercom-Version header. Cursor pagination (starting_after).
 Unix timestamps. Nested type/list structures.
-
-Contacts carry every key a live workspace returns; the ones a workspace
-only fills from the Messenger (browser, os, location, utm) come back null.
-Conversations come in two shapes: Messenger-originated ones have no source
-part, no title and no statistics durations, email-originated ones have all
-three.
 """
 
 from fastapi import APIRouter, Request, Query
