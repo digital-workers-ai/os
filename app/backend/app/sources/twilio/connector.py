@@ -8,7 +8,7 @@ OBSERVED_AT = {"messages": "date_updated"}
 async def pull(session, store):
     api = client_for(SOURCE)
     messages = await api.get(
-        "/2010-04-01/Accounts/mock_account_sid/Messages.json",
+        f"/2010-04-01/Accounts/{api.values['account_sid']}/Messages.json",
         params={"PageSize": 1},
         paginate="page_twilio",
     )

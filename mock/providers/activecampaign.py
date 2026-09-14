@@ -6,6 +6,8 @@ Api-Token header auth. Offset pagination. String number IDs.
 Campaign status: "0"=draft, "1"=scheduled, "2"=sending, "3"=paused, "4"=stopped, "5"=completed.
 """
 
+import hashlib
+
 from fastapi import APIRouter, Request, Query
 from seeds.helpers import require_header, offset_paginate
 from seeds.world import PEOPLE, COMPANIES_BY_ID, EMAIL_CAMPAIGNS, SUBSCRIPTIONS_BY_COMPANY
@@ -14,6 +16,17 @@ router = APIRouter()
 
 _STATUS_MAP = {"draft": "0", "scheduled": "1", "sending": "2", "sent": "5"}
 
+_ACCOUNT_BASE = "https://acme.api-us1.com"
+
+_ORG_IDS = {company_id: str(n + 1) for n, company_id in enumerate(COMPANIES_BY_ID)}
+
+_CONTACT_LINKS = (
+    "accountContacts", "automationEntryCounts", "bounceLogs", "contactAutomations",
+    "contactData", "contactDeals", "contactGoals", "contactLists", "contactLogs",
+    "contactTags", "deals", "fieldValues", "geoIps", "notes", "organization",
+    "plusAppend", "scoreValues", "trackingLogs",
+)
+
 
 def _ac_auth(request: Request):
     require_header(request, "api-token")
@@ -21,20 +34,58 @@ def _ac_auth(request: Request):
 
 def _ac_contact(p, idx):
     co = COMPANIES_BY_ID.get(p.company_id)
+    contact_id = str(idx + 1)
+    local, _, domain = p.email.partition("@")
+    updated = p.last_seen or p.created_at
     return {
-        "id": str(idx + 1), "email": p.email,
-        "firstName": p.first_name, "lastName": p.last_name,
+        "id": contact_id,
+        "email": p.email,
+        "email_local": local,
+        "email_domain": domain,
+        "firstName": p.first_name,
+        "lastName": p.last_name,
         "phone": p.phone or "",
+        "orgid": _ORG_IDS.get(p.company_id, "0"),
         "orgname": co.name if co else "",
+        "organization": None,
+        "segmentio_id": "",
+        "hash": hashlib.md5(p.email.encode()).hexdigest(),
+        "ip": "0",
+        "ua": None,
+        "gravatar": "0",
+        "deleted": "0",
+        "anonymized": "0",
+        "mpp_tracking": "0",
+        "sentcnt": "0",
+        "bounced_hard": "0",
+        "bounced_soft": "0",
+        "bounced_date": None,
+        "adate": None,
+        "edate": None,
         "cdate": f"{p.created_at}T00:00:00-05:00",
-        "udate": f"{p.last_seen}T00:00:00-05:00" if p.last_seen else f"{p.created_at}T00:00:00-05:00",
+        "udate": f"{updated}T00:00:00-05:00",
+        "deleted_at": None,
+        "created_by": None,
+        "updated_by": None,
+        "created_timestamp": f"{p.created_at} 00:00:00",
+        "created_utc_timestamp": f"{p.created_at} 05:00:00",
+        "updated_timestamp": f"{updated} 00:00:00",
+        "updated_utc_timestamp": f"{updated} 05:00:00",
+        "rating_tstamp": None,
+        "socialdata_lastcheck": None,
+        "best_send_hour": None,
+        "last_click_date": None,
+        "last_open_date": None,
+        "last_mpp_open_date": None,
+        "sms_consent": None,
+        "sms_consent_updated_at": None,
+        "whatsapp_id": None,
+        "whatsapp_username": None,
+        "accountContacts": [],
+        "scoreValues": [],
         "links": {
-            "bounceLogs": f"/api/3/contacts/{idx+1}/bounceLogs",
-            "contactAutomations": f"/api/3/contacts/{idx+1}/contactAutomations",
-            "contactData": f"/api/3/contacts/{idx+1}/contactData",
-            "contactDeals": f"/api/3/contacts/{idx+1}/contactDeals",
-            "contactLists": f"/api/3/contacts/{idx+1}/contactLists",
-            "contactTags": f"/api/3/contacts/{idx+1}/contactTags",
+            name: f"{_ACCOUNT_BASE}/api/3/contacts/{contact_id}/{name}"
+            for name in _CONTACT_LINKS
         },
     }
 
@@ -42,7 +93,7 @@ def _ac_contact(p, idx):
 def _ac_campaign(ec, idx):
     return {
         "id": str(idx + 1), "type": "single", "name": ec.name,
-        "sdate": ec.sent_at or "", "status": _STATUS_MAP.get(ec.status, "0"),
+        "sdate": ec.sent_at, "status": _STATUS_MAP.get(ec.status, "0"),
         "send_amt": str(ec.sends), "total_amt": str(ec.sends),
         "opens": str(ec.opens), "uniqueopens": str(int(ec.opens * 0.85)),
         "linkclicks": str(ec.clicks), "uniquelinkclicks": str(int(ec.clicks * 0.9)),
@@ -51,7 +102,11 @@ def _ac_campaign(ec, idx):
         "unsubscribes": str(ec.unsubscribes),
         "cdate": "2026-06-20T10:00:00-05:00",
         "mdate": ec.sent_at or "2026-06-20T10:00:00-05:00",
-        "links": {"campaignMessage": f"/api/3/campaigns/{idx+1}/campaignMessage"},
+        "links": {
+            "campaignMessage": (
+                f"{_ACCOUNT_BASE}/api/3/campaigns/{idx+1}/campaignMessage"
+            )
+        },
     }
 
 
@@ -60,7 +115,7 @@ async def list_contacts(request: Request, limit: int = Query(20, le=100), offset
     _ac_auth(request)
     contacts = [_ac_contact(p, i) for i, p in enumerate(PEOPLE)]
     page, total = offset_paginate(contacts, offset, limit)
-    return {"contacts": page, "meta": {"total": str(total)}}
+    return {"scoreValues": [], "contacts": page, "meta": {"total": str(total)}}
 
 
 @router.get("/api/3/automations")

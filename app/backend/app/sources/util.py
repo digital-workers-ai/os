@@ -15,6 +15,7 @@ def client_for(source: str) -> SourceClient:
         headers=creds.headers,
         auth=creds.auth,
         params=creds.params,
+        values=creds.values,
     )
 
 

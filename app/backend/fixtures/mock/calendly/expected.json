@@ -4,31 +4,38 @@
     "scheduled_events": {
       "meeting": {
         "evt_001": {
-          "email": "jane@acme.io",
+          "email": "mike@globex.com",
           "ended_at": "2026-06-05T14:30:00Z",
           "name": "30 Minute Demo",
           "started_at": "2026-06-05T14:00:00Z",
           "status": "active"
         },
         "evt_002": {
-          "email": "jane@acme.io",
+          "email": "bob@soylent.co",
           "ended_at": "2026-06-10T16:45:00Z",
           "name": "Discovery Call",
           "started_at": "2026-06-10T16:00:00Z",
           "status": "active"
         },
         "evt_003": {
-          "email": "jane@acme.io",
+          "email": "tom@initech.io",
           "ended_at": "2026-06-15T10:30:00Z",
           "name": "30 Minute Demo",
           "started_at": "2026-06-15T10:00:00Z",
           "status": "canceled"
         },
         "evt_004": {
-          "email": "jane@acme.io",
+          "email": "lisa.park@globex.com",
           "ended_at": "2026-06-20T11:45:00Z",
           "name": "Product Walkthrough",
           "started_at": "2026-06-20T11:00:00Z",
+          "status": "active"
+        },
+        "evt_005": {
+          "email": "tom@initech.io",
+          "ended_at": "2026-07-01T16:00:00Z",
+          "name": "Quarterly Review",
+          "started_at": "2026-07-01T15:00:00Z",
           "status": "active"
         }
       }

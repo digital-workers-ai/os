@@ -7,8 +7,9 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app import db
-from app.config import settings
+from app.config import CREDENTIALS, Settings, settings
 from app.models import Base, Entity
+from app.sources import creds
 
 TEST_DB_SUFFIX = "_test"
 FIXTURE_SEEN = datetime(2026, 8, 1, tzinfo=UTC)
@@ -211,3 +212,26 @@ def count_queries(db_engine):
 @pytest.fixture(autouse=True)
 def pinned_clock(monkeypatch):
     monkeypatch.setattr(settings, "CLOCK_PINNED_AT", NOW)
+
+
+@pytest.fixture(autouse=True)
+def only_the_stand_ins(monkeypatch):
+    for source, (_base, names, _build) in creds._REAL.items():
+        monkeypatch.delenv(f"{source.upper()}_BASE_URL", raising=False)
+        for name in names:
+            monkeypatch.delenv(name, raising=False)
+
+
+@pytest.fixture(autouse=True)
+def pinned_llm_flags(monkeypatch):
+    for flags in CREDENTIALS.values():
+        for flag in flags:
+            monkeypatch.setattr(settings, flag, Settings.model_fields[flag].default)
+
+
+@pytest.fixture(autouse=True)
+def no_vendor_credentials(request, monkeypatch):
+    if request.node.get_closest_marker("llm"):
+        return
+    for credential in CREDENTIALS:
+        monkeypatch.delenv(credential, raising=False)

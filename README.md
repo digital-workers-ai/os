@@ -318,6 +318,7 @@ Everything is read from the environment, and `app/.env` is loaded first. Every s
 |----------------------------|-------------------------------------------------|------------------------------------------------------------------------|
 | `DATABASE_URL`             | `postgresql+asyncpg://os:os@localhost:5442/os`  | Postgres connection; compose points it at the `postgres` service        |
 | `MOCK_BASE_URL`            | `http://localhost:8192`                         | Where the vendored mock providers answer                                |
+| `STAND_INS_ONLY`           | `false`                                         | Every source answers from its stand-in, whatever keys are set          |
 | `SYNC_RUN_RETENTION_DAYS`  | `30`                                            | Sync runs older than this are pruned                                   |
 | `ENGINE_RUN_RETENTION`     | `200`                                           | Rebuild receipts kept                                                  |
 | `CONNECTOR_MAX_PAGES`      | `500`                                           | Pages a connector pulls per object type before stopping                |
@@ -355,6 +356,23 @@ Everything is read from the environment, and `app/.env` is loaded first. Every s
 | `ANTHROPIC_API_KEY`   | Reading text, briefings, asking questions  |
 | `OPENAI_API_KEY`      | Meaning search                             |
 | `ZEROENTROPY_API_KEY` | Reranking                                  |
+
+A source reads its real API once every variable it names is set, and the stand-in when none is. A partial set is refused, naming what is missing. `<SOURCE>_BASE_URL` overrides the host.
+
+| Source         | Variables                                                                                     |
+|----------------|-----------------------------------------------------------------------------------------------|
+| ActiveCampaign | `ACTIVECAMPAIGN_BASE_URL`, `ACTIVECAMPAIGN_API_KEY`                                           |
+| Amplitude      | `AMPLITUDE_API_KEY`, `AMPLITUDE_SECRET_KEY`                                                   |
+| Calendly       | `CALENDLY_ACCESS_TOKEN`, `CALENDLY_USER_URI`                                                  |
+| HubSpot        | `HUBSPOT_ACCESS_TOKEN`                                                                        |
+| Intercom       | `INTERCOM_ACCESS_TOKEN`                                                                       |
+| Klaviyo        | `KLAVIYO_API_KEY`                                                                             |
+| Mailchimp      | `MAILCHIMP_API_KEY`                                                                           |
+| Mixpanel       | `MIXPANEL_SERVICE_ACCOUNT_USERNAME`, `MIXPANEL_SERVICE_ACCOUNT_SECRET`, `MIXPANEL_PROJECT_ID` |
+| Shopify        | `SHOPIFY_STORE_DOMAIN`, `SHOPIFY_ACCESS_TOKEN`                                                |
+| Stripe         | `STRIPE_API_KEY`                                                                              |
+| Twilio         | `TWILIO_ACCOUNT_SID`, `TWILIO_API_KEY_SID`, `TWILIO_API_KEY_SECRET`                           |
+| Twitter        | `TWITTER_BEARER_TOKEN`, `TWITTER_USER_ID`                                                     |
 
 ## Operator Variables
 

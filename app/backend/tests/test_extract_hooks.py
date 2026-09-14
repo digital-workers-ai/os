@@ -219,6 +219,48 @@ class TestCompositeNames:
         payload = {"properties": {"name": "Acme"}}
         assert hubspot_hook.reshape("companies", payload) == [payload]
 
+    def test_a_payload_without_properties_still_reshapes(self):
+        assert hubspot_hook.reshape("contacts", {}) == [{}]
+
+
+class TestHubspotDealStatus:
+    @staticmethod
+    def _status(properties):
+        out = hubspot_hook.reshape("deals", {"properties": properties})
+        return out[0]["_status"]
+
+    def test_a_won_deal_reads_the_won_flag_not_the_stage_id(self):
+        assert (
+            self._status(
+                {
+                    "dealstage": "1118344091",
+                    "hs_is_closed": "true",
+                    "hs_is_closed_won": "true",
+                }
+            )
+            == "closed_won"
+        )
+
+    def test_a_closed_deal_that_was_not_won_is_lost(self):
+        assert (
+            self._status({"hs_is_closed": "true", "hs_is_closed_won": "false"})
+            == "closed_lost"
+        )
+
+    def test_a_deal_still_in_play_is_open(self):
+        assert (
+            self._status({"hs_is_closed": "false", "hs_is_closed_won": "false"})
+            == "open"
+        )
+
+    def test_a_deal_answered_without_the_flags_gets_no_status_at_all(self):
+        out = hubspot_hook.reshape("deals", {"properties": {"dealname": "Big"}})
+        assert "_status" not in out[0]
+
+    def test_the_rest_of_the_payload_survives(self):
+        payload = {"id": "348000000001", "properties": {"hs_is_closed": "false"}}
+        assert hubspot_hook.reshape("deals", payload)[0]["id"] == "348000000001"
+
 
 class TestCalendlyArrayHook:
     @staticmethod
@@ -233,37 +275,52 @@ class TestCalendlyArrayHook:
         payload = {"uri": "https://api.calendly.com/x/1"}
         assert extract.reshape("invitees", payload) == [payload]
 
-    def test_the_first_membership_becomes_the_host(self):
+    def test_the_first_invitee_becomes_the_attendee(self):
         out = self._reshape(
             {
                 "name": "30 Minute Demo",
                 "event_memberships": [{"user_email": "jane@acme.io"}],
+                "_invitees": [{"email": "mike@globex.com"}],
             }
         )
-        assert out[0]["_host_email"] == "jane@acme.io"
+        assert out[0]["_invitee_email"] == "mike@globex.com"
         assert "_hook_skips" not in out[0]
 
-    def test_a_multi_host_meeting_counts_what_it_dropped(self):
+    def test_the_host_is_no_longer_offered_as_the_attendee(self):
         out = self._reshape(
             {
-                "event_memberships": [
-                    {"user_email": "jane@acme.io"},
-                    {"user_email": "mike@globex.com"},
+                "event_memberships": [{"user_email": "jane@acme.io"}],
+                "_invitees": [{"email": "mike@globex.com"}],
+            }
+        )
+        assert "_host_email" not in out[0]
+        assert out[0]["_invitee_email"] == "mike@globex.com"
+
+    def test_a_multi_invitee_meeting_counts_what_it_dropped(self):
+        out = self._reshape(
+            {
+                "_invitees": [
+                    {"email": "bob@soylent.co"},
+                    {"email": "alice@soylent.co"},
                 ]
             }
         )
-        assert out[0]["_host_email"] == "jane@acme.io"
-        assert out[0]["_hook_skips"] == [["_host_email", "multi_host_meeting"]]
+        assert out[0]["_invitee_email"] == "bob@soylent.co"
+        assert out[0]["_hook_skips"] == [["_invitee_email", "multi_invitee_meeting"]]
 
-    def test_no_memberships_is_a_counted_skip(self):
-        out = self._reshape({"event_memberships": []})
-        assert "_host_email" not in out[0]
-        assert out[0]["_hook_skips"] == [["_host_email", "no_event_memberships"]]
+    def test_no_invitees_is_a_counted_skip(self):
+        out = self._reshape({"_invitees": []})
+        assert "_invitee_email" not in out[0]
+        assert out[0]["_hook_skips"] == [["_invitee_email", "no_invitees"]]
 
-    def test_memberships_that_are_not_a_list_are_a_counted_skip(self):
-        out = self._reshape({"event_memberships": "oops"})
-        assert "_host_email" not in out[0]
-        assert out[0]["_hook_skips"] == [["_host_email", "no_event_memberships"]]
+    def test_invitees_that_are_not_a_list_are_a_counted_skip(self):
+        out = self._reshape({"_invitees": "oops"})
+        assert "_invitee_email" not in out[0]
+        assert out[0]["_hook_skips"] == [["_invitee_email", "no_invitees"]]
+
+    def test_an_invitee_that_is_not_an_object_is_an_empty_attendee(self):
+        out = self._reshape({"_invitees": ["oops"]})
+        assert out[0]["_invitee_email"] == ""
 
 
 class TestBatchOneCompositeNames:
@@ -306,7 +363,6 @@ class TestDiscovery:
             "klaviyo",
             "sendgrid",
             "salesforce",
-            "shopify",
             "woocommerce",
             "google_sheets",
             "google_analytics",
@@ -317,6 +373,7 @@ class TestDiscovery:
             "linkedin",
             "twitter",
             "pinterest",
+            "intercom",
         }
 
     def test_a_package_without_an_extract_module_contributes_no_hook(self, monkeypatch):
@@ -406,25 +463,18 @@ class TestBatchTwoCompositeNames:
         payload = {"Id": "001", "Name": "Acme"}
         assert extract.reshape("accounts", payload) == [payload]
 
-    def test_shopify_products_pass_through(self):
-        from app.sources.shopify import extract
-
-        payload = {"id": 1, "title": "Widget"}
-        assert extract.reshape("products", payload) == [payload]
-
     def test_woocommerce_products_pass_through(self):
         from app.sources.woocommerce import extract
 
         payload = {"id": 1, "name": "Widget"}
         assert extract.reshape("products", payload) == [payload]
 
-    def test_the_seven_composite_name_hooks_agree(self):
+    def test_the_six_composite_name_hooks_agree(self):
         from app.sources.activecampaign import extract as activecampaign
         from app.sources.hubspot import extract as hubspot
         from app.sources.klaviyo import extract as klaviyo
         from app.sources.salesforce import extract as salesforce
         from app.sources.sendgrid import extract as sendgrid
-        from app.sources.shopify import extract as shopify
         from app.sources.woocommerce import extract as woocommerce
 
         cases = [
@@ -434,7 +484,6 @@ class TestBatchTwoCompositeNames:
                 {"properties": {"firstname": "Jane", "lastname": "Smith"}},
             ),
             (salesforce, "contacts", {"FirstName": "Jane", "LastName": "Smith"}),
-            (shopify, "customers", {"first_name": "Jane", "last_name": "Smith"}),
             (woocommerce, "customers", {"first_name": "Jane", "last_name": "Smith"}),
             (
                 klaviyo,
@@ -1258,8 +1307,8 @@ class TestTwitterHook:
     def test_other_object_types_pass_through(self):
         from app.sources.twitter import extract
 
-        payload = {"id": "twacct_1", "name": "Ads"}
-        assert extract.reshape("accounts", payload) == [payload]
+        payload = {"id": "9001", "text": "hello"}
+        assert extract.reshape("mentions", payload) == [payload]
 
 
 class TestPinterestHook:
@@ -1340,3 +1389,48 @@ class TestPinterestHook:
 
         payload = {"id": "549764905678", "name": "Acme"}
         assert extract.reshape("ad_accounts", payload) == [payload]
+
+
+class TestIntercomConversationSource:
+    @staticmethod
+    def _reshape(payload):
+        from app.sources.intercom import extract
+
+        return extract.reshape("conversations", payload)
+
+    def test_contacts_pass_through(self):
+        from app.sources.intercom import extract
+
+        payload = {"id": "con_p3", "email": "sarah@acme.io"}
+        assert extract.reshape("contacts", payload) == [payload]
+
+    def test_a_contact_initiated_conversation_carries_its_author(self):
+        out = self._reshape(
+            {
+                "id": "conv_t9",
+                "source": {
+                    "type": "conversation",
+                    "author": {"type": "user", "email": "tom@initech.io"},
+                },
+            }
+        )
+        assert out[0]["_author_email"] == "tom@initech.io"
+
+    def test_a_null_source_clears_the_author_instead_of_going_missing(self):
+        out = self._reshape({"id": "conv_t1", "source": None})
+        assert out[0]["_author_email"] is None
+
+    def test_a_source_without_an_author_clears_the_author(self):
+        out = self._reshape({"id": "conv_t1", "source": {"type": "conversation"}})
+        assert out[0]["_author_email"] is None
+
+    def test_an_author_without_an_email_clears_the_author(self):
+        out = self._reshape(
+            {"id": "conv_t1", "source": {"author": {"type": "bot", "id": "1"}}}
+        )
+        assert out[0]["_author_email"] is None
+
+    def test_the_payload_is_not_mutated(self):
+        payload = {"id": "conv_t1", "source": None}
+        self._reshape(payload)
+        assert payload == {"id": "conv_t1", "source": None}

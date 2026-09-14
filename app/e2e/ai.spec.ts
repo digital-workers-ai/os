@@ -87,26 +87,26 @@ test('disabled', async ({ page }) => {
 test('enabled', async ({ page }) => {
   const facts = await openEnrichment(page)
   await expect(badge(page)).toHaveCount(0)
-  await expect(heads(facts.getByTestId('facts-table'))).toHaveText(['Name (42)', 'Entity', 'Fact', 'Value', 'Verified', 'Quote'])
-  await expectFilters(page, ['all entities (42)', 'all facts (42)', 'all values (42)', 'all quotes (42)'])
+  await expect(heads(facts.getByTestId('facts-table'))).toHaveText(['Name (38)', 'Entity', 'Fact', 'Value', 'Verified', 'Quote'])
+  await expectFilters(page, ['all entities (38)', 'all facts (38)', 'all values (38)', 'all quotes (38)'])
   await snap(page, 'ai-enrichment-default')
 })
 
 test('entity filter', async ({ page }) => {
   const facts = await openEnrichment(page)
   await pickOption(page, 'facts-entity-filter', 'ticket')
-  await expect(heads(facts.getByTestId('facts-table')).first()).toHaveText('Name (20)')
-  await expectFilters(page, ['ticket (20)', 'all facts (20)', 'all values (20)', 'all quotes (20)'])
-  await expect(column(facts.getByTestId('facts-row'), 2)).toHaveText(Array(20).fill('ticket'))
+  await expect(heads(facts.getByTestId('facts-table')).first()).toHaveText('Name (16)')
+  await expectFilters(page, ['ticket (16)', 'all facts (16)', 'all values (16)', 'all quotes (16)'])
+  await expect(column(facts.getByTestId('facts-row'), 2)).toHaveText(Array(16).fill('ticket'))
   await snap(page, 'ai-enrichment-ticket')
 })
 
 test('facts dropdown open on ticket', async ({ page }) => {
   await openEnrichment(page)
   await pickOption(page, 'facts-entity-filter', 'ticket')
-  await expect(page.getByTestId('facts-fact-filter')).toHaveText('all facts (20)')
+  await expect(page.getByTestId('facts-fact-filter')).toHaveText('all facts (16)')
   await openFilter(page, 'facts-fact-filter')
-  await expect(options(page, 'facts-fact-filter')).toHaveText(['all facts (20)', 'complaint (20)'])
+  await expect(options(page, 'facts-fact-filter')).toHaveText(['all facts (16)', 'complaint (16)'])
   await snap(page, 'ai-enrichment-facts-open')
   await page.keyboard.press('Escape')
   await expect(options(page, 'facts-fact-filter')).toHaveCount(0)
@@ -115,10 +115,10 @@ test('facts dropdown open on ticket', async ({ page }) => {
 test('value filter', async ({ page }) => {
   const facts = await openEnrichment(page)
   await pickOption(page, 'facts-fact-filter', 'complaint')
-  await expect(page.getByTestId('facts-value-filter')).toHaveText('all values (20)')
+  await expect(page.getByTestId('facts-value-filter')).toHaveText('all values (16)')
   await pickOption(page, 'facts-value-filter', 'billing')
-  await expect(heads(facts.getByTestId('facts-table')).first()).toHaveText('Name (6)')
-  await expect(column(facts.getByTestId('facts-row'), 4)).toHaveText(Array(6).fill('billing'))
+  await expect(heads(facts.getByTestId('facts-table')).first()).toHaveText('Name (5)')
+  await expect(column(facts.getByTestId('facts-row'), 4)).toHaveText(Array(5).fill('billing'))
   await snap(page, 'ai-enrichment-value')
 })
 

@@ -1,7 +1,3 @@
-hubspot:
-  deals:
-    closedwon: closed_won
-    closedlost: closed_lost
 salesforce:
   opportunities:
     negotiation/review: negotiation
@@ -17,9 +13,6 @@ google_ads:
   campaigns:
     enabled: active
     removed: archived
-twitter:
-  accounts:
-    accepted: active
 mailchimp:
   campaigns:
     save: draft

@@ -38,9 +38,6 @@ person:
   sendgrid.contacts._full_name: name
   sendgrid.contacts.phone_number: phone
   sendgrid.contacts.custom_fields.role: title
-  shopify.customers.email: email
-  shopify.customers._full_name: name
-  shopify.customers.phone: phone
   woocommerce.customers.email: email
   woocommerce.customers._full_name: name
   woocommerce.customers.billing.phone: phone
@@ -48,8 +45,9 @@ person:
 deal:
   hubspot.deals.properties.dealname: name
   hubspot.deals.properties.amount: amount
-  hubspot.deals.properties.dealstage: status
+  hubspot.deals._status: status
   hubspot.deals.properties.closedate: closed_at
+  hubspot.deals.properties.deal_currency_code: currency
   salesforce.opportunities.Name: name
   salesforce.opportunities.Amount: amount
   salesforce.opportunities.StageName: status
@@ -99,7 +97,7 @@ ticket:
   intercom.conversations.title: subject
   intercom.conversations.state: status
   intercom.conversations.priority: priority
-  intercom.conversations.source.author.email: email
+  intercom.conversations._author_email: email
   intercom.conversations.created_at: opened_at
 
 message:
@@ -114,7 +112,7 @@ meeting:
   calendly.scheduled_events.status: status
   calendly.scheduled_events.start_time: started_at
   calendly.scheduled_events.end_time: ended_at
-  calendly.scheduled_events._host_email: email
+  calendly.scheduled_events._invitee_email: email
   zoom.meetings.topic: name
   zoom.meetings.start_time: started_at
   zoom.meetings._ended_at: ended_at
@@ -297,10 +295,6 @@ ad_account:
   snapchat.organizations.state: status
   snapchat.organizations.currency: currency
   snapchat.organizations.country: country
-  twitter.accounts.name: name
-  twitter.accounts.approval_status: status
-  twitter.accounts.currency: currency
-  twitter.accounts.country_code: country
 
 audience:
   mailchimp.lists.name: name

@@ -17,11 +17,11 @@ Mock server prefix: `/calendly`
 Personal Access Token via Bearer header.
 
 ```
-Authorization: Bearer {CALENDLY_PERSONAL_ACCESS_TOKEN}
+Authorization: Bearer {CALENDLY_ACCESS_TOKEN}
 Content-Type: application/json
 ```
 
-Config key: `CALENDLY_PERSONAL_ACCESS_TOKEN`. Optionally `CALENDLY_USER_URI` (auto-resolved via `/users/me` if not set).
+Config key: `CALENDLY_ACCESS_TOKEN`. Optionally `CALENDLY_USER_URI` (auto-resolved via `/users/me` if not set).
 
 ## Endpoints
 
@@ -43,7 +43,10 @@ Get the authenticated user's information. Used to resolve the user URI for subse
     "avatar_url": "https://d3v0px0pttie1i.cloudfront.net/uploads/user/avatar/12345/avatar.png",
     "created_at": "2025-01-15T10:30:00.000000Z",
     "updated_at": "2026-06-01T14:22:00.000000Z",
-    "current_organization": "https://api.calendly.com/organizations/org789"
+    "current_organization": "https://api.calendly.com/organizations/org789",
+    "resource_type": "User",
+    "locale": "en",
+    "time_notation": "12h"
   }
 }
 ```
@@ -52,9 +55,15 @@ Get the authenticated user's information. Used to resolve the user URI for subse
 
 List scheduled events for a user.
 
+At least one of `user`, `organization` or `group` must be sent. A request that
+names none is refused with `400 Invalid Argument` — the live API does this even
+when the token identifies exactly one user, so a call without a scope never
+works.
+
 **Query parameters:**
-- `user` — user URI from `/users/me` response. Either `user` or `organization` is required.
-- `organization` — organization URI from `/users/me` response (`current_organization`). Requires admin/owner role. Either `user` or `organization` is required.
+- `user` — user URI from `/users/me` response. At least one of `user`, `organization` or `group` is required.
+- `organization` — organization URI from `/users/me` response (`current_organization`). Requires admin/owner role. At least one of `user`, `organization` or `group` is required.
+- `group` — group URI. At least one of `user`, `organization` or `group` is required.
 - `invitee_email` — filter by invitee email address
 - `count` — items per page (default 20, max 100)
 - `sort` — `start_time:asc` or `start_time:desc`
@@ -187,7 +196,7 @@ GET /calendly/scheduled_events?user=https://api.calendly.com/users/abc123def456&
 Get invitees for a specific event.
 
 **Query parameters:**
-- `count` — items per page (default 10)
+- `count` — items per page (default 20, max 100)
 - `page_token` — pagination token
 - `status` — `active` or `canceled`
 
@@ -285,15 +294,28 @@ GET /calendly/scheduled_events/evt_002/invitees?count=10
 - **Safety cap:** Max 50 pages in a single paginated fetch
 
 ```
-Page 1: GET /scheduled_events?count=20
+Page 1: GET /scheduled_events?user={uri}&count=20
          → pagination.next_page_token = "sEjwKmR2b3c"
-Page 2: GET /scheduled_events?count=20&page_token=sEjwKmR2b3c
+Page 2: GET /scheduled_events?user={uri}&count=20&page_token=sEjwKmR2b3c
          → pagination.next_page_token = "kLpQxY8nF1a"
-Page 3: GET /scheduled_events?count=20&page_token=kLpQxY8nF1a
+Page 3: GET /scheduled_events?user={uri}&count=20&page_token=kLpQxY8nF1a
          → pagination.next_page_token = null  (done)
 ```
 
 ## Error Responses
+
+**400 Invalid Argument** — `/scheduled_events` without `user`, `organization` or `group`:
+```json
+{
+  "title": "Invalid Argument",
+  "message": "The supplied parameters are invalid.",
+  "details": [
+    {"message": "At least one of organization, group or user must be filled", "parameter": "organization"},
+    {"message": "At least one of organization, group or user must be filled", "parameter": "user"},
+    {"message": "At least one of organization, group or user must be filled", "parameter": "group"}
+  ]
+}
+```
 
 **401 Unauthorized:**
 ```json
@@ -315,7 +337,7 @@ Page 3: GET /scheduled_events?count=20&page_token=kLpQxY8nF1a
 ```json
 {
   "title": "Resource Not Found",
-  "message": "The requested resource was not found"
+  "message": "The server could not find the requested resource."
 }
 ```
 

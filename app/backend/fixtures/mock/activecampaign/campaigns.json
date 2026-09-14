@@ -6,7 +6,7 @@
       "id": "1",
       "linkclicks": "342",
       "links": {
-        "campaignMessage": "/api/3/campaigns/1/campaignMessage"
+        "campaignMessage": "https://acme.api-us1.com/api/3/campaigns/1/campaignMessage"
       },
       "mdate": "2026-07-01T09:00:00Z",
       "name": "July Newsletter",
@@ -31,7 +31,7 @@
       "id": "2",
       "linkclicks": "580",
       "links": {
-        "campaignMessage": "/api/3/campaigns/2/campaignMessage"
+        "campaignMessage": "https://acme.api-us1.com/api/3/campaigns/2/campaignMessage"
       },
       "mdate": "2026-07-05T10:00:00Z",
       "name": "Product Launch Announcement",
@@ -56,7 +56,7 @@
       "id": "3",
       "linkclicks": "890",
       "links": {
-        "campaignMessage": "/api/3/campaigns/3/campaignMessage"
+        "campaignMessage": "https://acme.api-us1.com/api/3/campaigns/3/campaignMessage"
       },
       "mdate": "2026-07-08T08:00:00Z",
       "name": "Summer Sale",
@@ -81,7 +81,7 @@
       "id": "4",
       "linkclicks": "45",
       "links": {
-        "campaignMessage": "/api/3/campaigns/4/campaignMessage"
+        "campaignMessage": "https://acme.api-us1.com/api/3/campaigns/4/campaignMessage"
       },
       "mdate": "2026-07-10T14:00:00Z",
       "name": "Onboarding Welcome",
@@ -98,5 +98,30 @@
       "unsubscribes": "0"
     },
     "source_id": "4"
+  },
+  {
+    "payload": {
+      "cdate": "2026-06-20T10:00:00-05:00",
+      "hardbounces": "0",
+      "id": "5",
+      "linkclicks": "0",
+      "links": {
+        "campaignMessage": "https://acme.api-us1.com/api/3/campaigns/5/campaignMessage"
+      },
+      "mdate": "2026-06-20T10:00:00-05:00",
+      "name": "Q3 Webinar Invite",
+      "opens": "0",
+      "sdate": null,
+      "send_amt": "0",
+      "softbounces": "0",
+      "status": "1",
+      "subscriberclicks": "0",
+      "total_amt": "0",
+      "type": "single",
+      "uniquelinkclicks": "0",
+      "uniqueopens": "0",
+      "unsubscribes": "0"
+    },
+    "source_id": "5"
   }
 ]

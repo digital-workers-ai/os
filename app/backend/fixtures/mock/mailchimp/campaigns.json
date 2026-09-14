@@ -1,35 +1,86 @@
 [
   {
     "payload": {
-      "_links": [],
+      "_links": [
+        {
+          "href": "https://us21.api.mailchimp.com/3.0/campaigns/mc_camp_ec1",
+          "method": "GET",
+          "rel": "self",
+          "targetSchema": "https://us21.api.mailchimp.com/schema/3.0/Definitions/Campaigns/Response.json"
+        },
+        {
+          "href": "https://us21.api.mailchimp.com/3.0/campaigns",
+          "method": "GET",
+          "rel": "parent",
+          "schema": "https://us21.api.mailchimp.com/schema/3.0/Paths/Campaigns/Collection.json",
+          "targetSchema": "https://us21.api.mailchimp.com/schema/3.0/Definitions/Campaigns/CollectionResponse.json"
+        },
+        {
+          "href": "https://us21.api.mailchimp.com/3.0/campaigns/mc_camp_ec1",
+          "method": "DELETE",
+          "rel": "delete"
+        }
+      ],
       "archive_url": "https://mailchi.mp/mock/ec1",
       "content_type": "template",
       "create_time": "2026-06-20T10:00:00+00:00",
+      "delivery_status": {
+        "enabled": false
+      },
       "emails_sent": 4500,
       "id": "mc_camp_ec1",
-      "long_archive_url": "https://us1.campaign-archive.com/?u=mock&id=ec1",
+      "long_archive_url": "https://us21.campaign-archive.com/?u=mock&id=ec1",
+      "needs_block_refresh": false,
       "recipients": {
         "list_id": "mc_list_001",
         "list_is_active": true,
         "list_name": "Main Newsletter",
-        "recipient_count": 4500
+        "recipient_count": 4500,
+        "segment_text": ""
       },
       "report_summary": {
         "click_rate": 0.076,
         "clicks": 342,
+        "ecommerce": {
+          "total_orders": 0,
+          "total_revenue": 0,
+          "total_spent": 0
+        },
         "open_rate": 0.42,
         "opens": 1890,
         "subscriber_clicks": 307,
         "unique_opens": 1606
       },
-      "send_time": "2026-07-01T09:00:00Z",
+      "resendable": true,
+      "send_time": "2026-07-01T09:00:00+00:00",
       "settings": {
+        "authenticate": true,
+        "auto_footer": true,
+        "auto_tweet": false,
+        "drag_and_drop": true,
+        "fb_comments": false,
+        "folder_id": "",
         "from_name": "Acme Team",
+        "inline_css": false,
+        "preview_text": "",
         "reply_to": "hello@acme.io",
         "subject_line": "What's new in July",
-        "title": "July Newsletter"
+        "template_id": 12345,
+        "timewarp": false,
+        "title": "July Newsletter",
+        "to_name": "*|FNAME|*",
+        "use_conversation": false
       },
       "status": "sent",
+      "tracking": {
+        "clicktale": "",
+        "ecomm360": false,
+        "goal_tracking": false,
+        "google_analytics": "",
+        "html_clicks": true,
+        "opens": true,
+        "text_clicks": false
+      },
       "type": "regular",
       "web_id": 9001
     },
@@ -37,35 +88,86 @@
   },
   {
     "payload": {
-      "_links": [],
+      "_links": [
+        {
+          "href": "https://us21.api.mailchimp.com/3.0/campaigns/mc_camp_ec2",
+          "method": "GET",
+          "rel": "self",
+          "targetSchema": "https://us21.api.mailchimp.com/schema/3.0/Definitions/Campaigns/Response.json"
+        },
+        {
+          "href": "https://us21.api.mailchimp.com/3.0/campaigns",
+          "method": "GET",
+          "rel": "parent",
+          "schema": "https://us21.api.mailchimp.com/schema/3.0/Paths/Campaigns/Collection.json",
+          "targetSchema": "https://us21.api.mailchimp.com/schema/3.0/Definitions/Campaigns/CollectionResponse.json"
+        },
+        {
+          "href": "https://us21.api.mailchimp.com/3.0/campaigns/mc_camp_ec2",
+          "method": "DELETE",
+          "rel": "delete"
+        }
+      ],
       "archive_url": "https://mailchi.mp/mock/ec2",
       "content_type": "template",
       "create_time": "2026-06-20T10:00:00+00:00",
+      "delivery_status": {
+        "enabled": false
+      },
       "emails_sent": 4200,
       "id": "mc_camp_ec2",
-      "long_archive_url": "https://us1.campaign-archive.com/?u=mock&id=ec2",
+      "long_archive_url": "https://us21.campaign-archive.com/?u=mock&id=ec2",
+      "needs_block_refresh": false,
       "recipients": {
         "list_id": "mc_list_001",
         "list_is_active": true,
         "list_name": "Main Newsletter",
-        "recipient_count": 4200
+        "recipient_count": 4200,
+        "segment_text": ""
       },
       "report_summary": {
         "click_rate": 0.1380952380952381,
         "clicks": 580,
+        "ecommerce": {
+          "total_orders": 0,
+          "total_revenue": 0,
+          "total_spent": 0
+        },
         "open_rate": 0.5,
         "opens": 2100,
         "subscriber_clicks": 522,
         "unique_opens": 1785
       },
-      "send_time": "2026-07-05T10:00:00Z",
+      "resendable": true,
+      "send_time": "2026-07-05T10:00:00+00:00",
       "settings": {
+        "authenticate": true,
+        "auto_footer": true,
+        "auto_tweet": false,
+        "drag_and_drop": true,
+        "fb_comments": false,
+        "folder_id": "",
         "from_name": "Acme Team",
+        "inline_css": false,
+        "preview_text": "",
         "reply_to": "hello@acme.io",
         "subject_line": "Introducing our new feature",
-        "title": "Product Launch Announcement"
+        "template_id": 12345,
+        "timewarp": false,
+        "title": "Product Launch Announcement",
+        "to_name": "*|FNAME|*",
+        "use_conversation": false
       },
       "status": "sent",
+      "tracking": {
+        "clicktale": "",
+        "ecomm360": false,
+        "goal_tracking": false,
+        "google_analytics": "",
+        "html_clicks": true,
+        "opens": true,
+        "text_clicks": false
+      },
       "type": "regular",
       "web_id": 9002
     },
@@ -73,35 +175,86 @@
   },
   {
     "payload": {
-      "_links": [],
+      "_links": [
+        {
+          "href": "https://us21.api.mailchimp.com/3.0/campaigns/mc_camp_ec3",
+          "method": "GET",
+          "rel": "self",
+          "targetSchema": "https://us21.api.mailchimp.com/schema/3.0/Definitions/Campaigns/Response.json"
+        },
+        {
+          "href": "https://us21.api.mailchimp.com/3.0/campaigns",
+          "method": "GET",
+          "rel": "parent",
+          "schema": "https://us21.api.mailchimp.com/schema/3.0/Paths/Campaigns/Collection.json",
+          "targetSchema": "https://us21.api.mailchimp.com/schema/3.0/Definitions/Campaigns/CollectionResponse.json"
+        },
+        {
+          "href": "https://us21.api.mailchimp.com/3.0/campaigns/mc_camp_ec3",
+          "method": "DELETE",
+          "rel": "delete"
+        }
+      ],
       "archive_url": "https://mailchi.mp/mock/ec3",
       "content_type": "template",
       "create_time": "2026-06-20T10:00:00+00:00",
+      "delivery_status": {
+        "enabled": false
+      },
       "emails_sent": 3800,
       "id": "mc_camp_ec3",
-      "long_archive_url": "https://us1.campaign-archive.com/?u=mock&id=ec3",
+      "long_archive_url": "https://us21.campaign-archive.com/?u=mock&id=ec3",
+      "needs_block_refresh": false,
       "recipients": {
         "list_id": "mc_list_001",
         "list_is_active": true,
         "list_name": "Main Newsletter",
-        "recipient_count": 3800
+        "recipient_count": 3800,
+        "segment_text": ""
       },
       "report_summary": {
         "click_rate": 0.23421052631578948,
         "clicks": 890,
+        "ecommerce": {
+          "total_orders": 0,
+          "total_revenue": 0,
+          "total_spent": 0
+        },
         "open_rate": 0.4,
         "opens": 1520,
         "subscriber_clicks": 801,
         "unique_opens": 1292
       },
-      "send_time": "2026-07-08T08:00:00Z",
+      "resendable": true,
+      "send_time": "2026-07-08T08:00:00+00:00",
       "settings": {
+        "authenticate": true,
+        "auto_footer": true,
+        "auto_tweet": false,
+        "drag_and_drop": true,
+        "fb_comments": false,
+        "folder_id": "",
         "from_name": "Acme Team",
+        "inline_css": false,
+        "preview_text": "",
         "reply_to": "hello@acme.io",
         "subject_line": "Limited time: 30% off all plans",
-        "title": "Summer Sale"
+        "template_id": 12345,
+        "timewarp": false,
+        "title": "Summer Sale",
+        "to_name": "*|FNAME|*",
+        "use_conversation": false
       },
       "status": "sent",
+      "tracking": {
+        "clicktale": "",
+        "ecomm360": false,
+        "goal_tracking": false,
+        "google_analytics": "",
+        "html_clicks": true,
+        "opens": true,
+        "text_clicks": false
+      },
       "type": "regular",
       "web_id": 9003
     },
@@ -109,38 +262,411 @@
   },
   {
     "payload": {
-      "_links": [],
+      "_links": [
+        {
+          "href": "https://us21.api.mailchimp.com/3.0/campaigns/mc_camp_ec4",
+          "method": "GET",
+          "rel": "self",
+          "targetSchema": "https://us21.api.mailchimp.com/schema/3.0/Definitions/Campaigns/Response.json"
+        },
+        {
+          "href": "https://us21.api.mailchimp.com/3.0/campaigns",
+          "method": "GET",
+          "rel": "parent",
+          "schema": "https://us21.api.mailchimp.com/schema/3.0/Paths/Campaigns/Collection.json",
+          "targetSchema": "https://us21.api.mailchimp.com/schema/3.0/Definitions/Campaigns/CollectionResponse.json"
+        },
+        {
+          "href": "https://us21.api.mailchimp.com/3.0/campaigns/mc_camp_ec4",
+          "method": "DELETE",
+          "rel": "delete"
+        }
+      ],
       "archive_url": "https://mailchi.mp/mock/ec4",
       "content_type": "template",
       "create_time": "2026-06-20T10:00:00+00:00",
+      "delivery_status": {
+        "enabled": false
+      },
       "emails_sent": 120,
       "id": "mc_camp_ec4",
-      "long_archive_url": "https://us1.campaign-archive.com/?u=mock&id=ec4",
+      "long_archive_url": "https://us21.campaign-archive.com/?u=mock&id=ec4",
+      "needs_block_refresh": false,
       "recipients": {
         "list_id": "mc_list_001",
         "list_is_active": true,
         "list_name": "Main Newsletter",
-        "recipient_count": 120
+        "recipient_count": 120,
+        "segment_text": ""
       },
       "report_summary": {
         "click_rate": 0.375,
         "clicks": 45,
+        "ecommerce": {
+          "total_orders": 0,
+          "total_revenue": 0,
+          "total_spent": 0
+        },
         "open_rate": 0.8166666666666667,
         "opens": 98,
         "subscriber_clicks": 40,
         "unique_opens": 83
       },
-      "send_time": "2026-07-10T14:00:00Z",
+      "resendable": true,
+      "send_time": "2026-07-10T14:00:00+00:00",
       "settings": {
+        "authenticate": true,
+        "auto_footer": true,
+        "auto_tweet": false,
+        "drag_and_drop": true,
+        "fb_comments": false,
+        "folder_id": "",
         "from_name": "Acme Team",
+        "inline_css": false,
+        "preview_text": "",
         "reply_to": "hello@acme.io",
         "subject_line": "Welcome to Acme \u2014 getting started",
-        "title": "Onboarding Welcome"
+        "template_id": 12345,
+        "timewarp": false,
+        "title": "Onboarding Welcome",
+        "to_name": "*|FNAME|*",
+        "use_conversation": false
       },
       "status": "sent",
+      "tracking": {
+        "clicktale": "",
+        "ecomm360": false,
+        "goal_tracking": false,
+        "google_analytics": "",
+        "html_clicks": true,
+        "opens": true,
+        "text_clicks": false
+      },
       "type": "regular",
       "web_id": 9004
     },
     "source_id": "mc_camp_ec4"
+  },
+  {
+    "payload": {
+      "_links": [
+        {
+          "href": "https://us21.api.mailchimp.com/3.0/campaigns/mc_camp_ec5",
+          "method": "GET",
+          "rel": "self",
+          "targetSchema": "https://us21.api.mailchimp.com/schema/3.0/Definitions/Campaigns/Response.json"
+        },
+        {
+          "href": "https://us21.api.mailchimp.com/3.0/campaigns",
+          "method": "GET",
+          "rel": "parent",
+          "schema": "https://us21.api.mailchimp.com/schema/3.0/Paths/Campaigns/Collection.json",
+          "targetSchema": "https://us21.api.mailchimp.com/schema/3.0/Definitions/Campaigns/CollectionResponse.json"
+        },
+        {
+          "href": "https://us21.api.mailchimp.com/3.0/campaigns/mc_camp_ec5",
+          "method": "DELETE",
+          "rel": "delete"
+        }
+      ],
+      "archive_url": "https://mailchi.mp/mock/ec5",
+      "content_type": "template",
+      "create_time": "2026-06-20T10:00:00+00:00",
+      "delivery_status": {
+        "enabled": false
+      },
+      "emails_sent": 0,
+      "id": "mc_camp_ec5",
+      "long_archive_url": "https://us21.campaign-archive.com/?u=mock&id=ec5",
+      "needs_block_refresh": false,
+      "recipients": {
+        "list_id": "mc_list_001",
+        "list_is_active": true,
+        "list_name": "Main Newsletter",
+        "recipient_count": 4500,
+        "segment_text": ""
+      },
+      "resendable": false,
+      "send_time": "",
+      "settings": {
+        "authenticate": true,
+        "auto_footer": true,
+        "auto_tweet": false,
+        "drag_and_drop": true,
+        "fb_comments": false,
+        "folder_id": "",
+        "from_name": "Acme Team",
+        "inline_css": false,
+        "preview_text": "",
+        "reply_to": "hello@acme.io",
+        "subject_line": "Join us: AI in 2026",
+        "template_id": 12345,
+        "timewarp": false,
+        "title": "Q3 Webinar Invite",
+        "to_name": "*|FNAME|*",
+        "use_conversation": false
+      },
+      "status": "schedule",
+      "tracking": {
+        "clicktale": "",
+        "ecomm360": false,
+        "goal_tracking": false,
+        "google_analytics": "",
+        "html_clicks": true,
+        "opens": true,
+        "text_clicks": false
+      },
+      "type": "regular",
+      "web_id": 9005
+    },
+    "source_id": "mc_camp_ec5"
+  },
+  {
+    "payload": {
+      "_links": [
+        {
+          "href": "https://us21.api.mailchimp.com/3.0/campaigns/mc_camp_ec6",
+          "method": "GET",
+          "rel": "self",
+          "targetSchema": "https://us21.api.mailchimp.com/schema/3.0/Definitions/Campaigns/Response.json"
+        },
+        {
+          "href": "https://us21.api.mailchimp.com/3.0/campaigns",
+          "method": "GET",
+          "rel": "parent",
+          "schema": "https://us21.api.mailchimp.com/schema/3.0/Paths/Campaigns/Collection.json",
+          "targetSchema": "https://us21.api.mailchimp.com/schema/3.0/Definitions/Campaigns/CollectionResponse.json"
+        },
+        {
+          "href": "https://us21.api.mailchimp.com/3.0/campaigns/mc_camp_ec6",
+          "method": "DELETE",
+          "rel": "delete"
+        }
+      ],
+      "archive_url": "https://mailchi.mp/mock/ec6",
+      "content_type": "template",
+      "create_time": "2026-06-20T10:00:00+00:00",
+      "delivery_status": {
+        "enabled": false
+      },
+      "emails_sent": 0,
+      "id": "mc_camp_ec6",
+      "long_archive_url": "https://us21.campaign-archive.com/?u=mock&id=ec6",
+      "needs_block_refresh": false,
+      "recipients": {
+        "list_id": "mc_list_001",
+        "list_is_active": true,
+        "list_name": "Main Newsletter",
+        "recipient_count": 4500,
+        "segment_text": ""
+      },
+      "resendable": false,
+      "send_time": "",
+      "settings": {
+        "authenticate": true,
+        "auto_footer": true,
+        "auto_tweet": false,
+        "drag_and_drop": true,
+        "fb_comments": false,
+        "folder_id": "",
+        "from_name": "Acme Team",
+        "inline_css": false,
+        "preview_text": "",
+        "reply_to": "hello@acme.io",
+        "subject_line": "We miss you \u2014 here's what you missed",
+        "template_id": 12345,
+        "timewarp": false,
+        "title": "Re-engagement: Inactive Users",
+        "to_name": "*|FNAME|*",
+        "use_conversation": false
+      },
+      "status": "save",
+      "tracking": {
+        "clicktale": "",
+        "ecomm360": false,
+        "goal_tracking": false,
+        "google_analytics": "",
+        "html_clicks": true,
+        "opens": true,
+        "text_clicks": false
+      },
+      "type": "regular",
+      "web_id": 9006
+    },
+    "source_id": "mc_camp_ec6"
+  },
+  {
+    "payload": {
+      "_links": [
+        {
+          "href": "https://us21.api.mailchimp.com/3.0/campaigns/mc_camp_ec7",
+          "method": "GET",
+          "rel": "self",
+          "targetSchema": "https://us21.api.mailchimp.com/schema/3.0/Definitions/Campaigns/Response.json"
+        },
+        {
+          "href": "https://us21.api.mailchimp.com/3.0/campaigns",
+          "method": "GET",
+          "rel": "parent",
+          "schema": "https://us21.api.mailchimp.com/schema/3.0/Paths/Campaigns/Collection.json",
+          "targetSchema": "https://us21.api.mailchimp.com/schema/3.0/Definitions/Campaigns/CollectionResponse.json"
+        },
+        {
+          "href": "https://us21.api.mailchimp.com/3.0/campaigns/mc_camp_ec7",
+          "method": "DELETE",
+          "rel": "delete"
+        }
+      ],
+      "archive_url": "https://mailchi.mp/mock/ec7",
+      "content_type": "template",
+      "create_time": "2026-06-20T10:00:00+00:00",
+      "delivery_status": {
+        "enabled": false
+      },
+      "emails_sent": 3500,
+      "id": "mc_camp_ec7",
+      "long_archive_url": "https://us21.campaign-archive.com/?u=mock&id=ec7",
+      "needs_block_refresh": false,
+      "recipients": {
+        "list_id": "mc_list_001",
+        "list_is_active": true,
+        "list_name": "Main Newsletter",
+        "recipient_count": 3500,
+        "segment_text": ""
+      },
+      "report_summary": {
+        "click_rate": 0.08,
+        "clicks": 280,
+        "ecommerce": {
+          "total_orders": 0,
+          "total_revenue": 0,
+          "total_spent": 0
+        },
+        "open_rate": 0.4,
+        "opens": 1400,
+        "subscriber_clicks": 252,
+        "unique_opens": 1190
+      },
+      "resendable": true,
+      "send_time": "2026-06-25T11:00:00+00:00",
+      "settings": {
+        "authenticate": true,
+        "auto_footer": true,
+        "auto_tweet": false,
+        "drag_and_drop": true,
+        "fb_comments": false,
+        "folder_id": "",
+        "from_name": "Acme Team",
+        "inline_css": false,
+        "preview_text": "",
+        "reply_to": "hello@acme.io",
+        "subject_line": "How Globex grew 40% with us",
+        "template_id": 12345,
+        "timewarp": false,
+        "title": "Case Study: Globex Success",
+        "to_name": "*|FNAME|*",
+        "use_conversation": false
+      },
+      "status": "sent",
+      "tracking": {
+        "clicktale": "",
+        "ecomm360": false,
+        "goal_tracking": false,
+        "google_analytics": "",
+        "html_clicks": true,
+        "opens": true,
+        "text_clicks": false
+      },
+      "type": "regular",
+      "web_id": 9007
+    },
+    "source_id": "mc_camp_ec7"
+  },
+  {
+    "payload": {
+      "_links": [
+        {
+          "href": "https://us21.api.mailchimp.com/3.0/campaigns/mc_camp_ec8",
+          "method": "GET",
+          "rel": "self",
+          "targetSchema": "https://us21.api.mailchimp.com/schema/3.0/Definitions/Campaigns/Response.json"
+        },
+        {
+          "href": "https://us21.api.mailchimp.com/3.0/campaigns",
+          "method": "GET",
+          "rel": "parent",
+          "schema": "https://us21.api.mailchimp.com/schema/3.0/Paths/Campaigns/Collection.json",
+          "targetSchema": "https://us21.api.mailchimp.com/schema/3.0/Definitions/Campaigns/CollectionResponse.json"
+        },
+        {
+          "href": "https://us21.api.mailchimp.com/3.0/campaigns/mc_camp_ec8",
+          "method": "DELETE",
+          "rel": "delete"
+        }
+      ],
+      "archive_url": "https://mailchi.mp/mock/ec8",
+      "content_type": "template",
+      "create_time": "2026-06-20T10:00:00+00:00",
+      "delivery_status": {
+        "enabled": false
+      },
+      "emails_sent": 4100,
+      "id": "mc_camp_ec8",
+      "long_archive_url": "https://us21.campaign-archive.com/?u=mock&id=ec8",
+      "needs_block_refresh": false,
+      "recipients": {
+        "list_id": "mc_list_001",
+        "list_is_active": true,
+        "list_name": "Main Newsletter",
+        "recipient_count": 4100,
+        "segment_text": ""
+      },
+      "report_summary": {
+        "click_rate": 0.1,
+        "clicks": 410,
+        "ecommerce": {
+          "total_orders": 0,
+          "total_revenue": 0,
+          "total_spent": 0
+        },
+        "open_rate": 0.4268292682926829,
+        "opens": 1750,
+        "subscriber_clicks": 369,
+        "unique_opens": 1487
+      },
+      "resendable": true,
+      "send_time": "2026-06-15T09:30:00+00:00",
+      "settings": {
+        "authenticate": true,
+        "auto_footer": true,
+        "auto_tweet": false,
+        "drag_and_drop": true,
+        "fb_comments": false,
+        "folder_id": "",
+        "from_name": "Acme Team",
+        "inline_css": false,
+        "preview_text": "",
+        "reply_to": "hello@acme.io",
+        "subject_line": "Your new dashboard is here",
+        "template_id": 12345,
+        "timewarp": false,
+        "title": "Feature Update: Dashboard v2",
+        "to_name": "*|FNAME|*",
+        "use_conversation": false
+      },
+      "status": "sent",
+      "tracking": {
+        "clicktale": "",
+        "ecomm360": false,
+        "goal_tracking": false,
+        "google_analytics": "",
+        "html_clicks": true,
+        "opens": true,
+        "text_clicks": false
+      },
+      "type": "regular",
+      "web_id": 9008
+    },
+    "source_id": "mc_camp_ec8"
   }
 ]

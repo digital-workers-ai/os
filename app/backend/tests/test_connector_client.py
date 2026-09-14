@@ -1,3 +1,7 @@
+import gzip
+import io
+import zipfile
+
 import httpx
 import pytest
 
@@ -38,6 +42,17 @@ def responder(*responses):
 
 def json_page(payload, status=200):
     return httpx.Response(status, json=payload)
+
+
+def zipped(*members: str) -> bytes:
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w") as bundle:
+        for index, text in enumerate(members):
+            bundle.writestr(
+                f"12345/12345_2026-09-04_{index}#0.json.gz",
+                gzip.compress(text.encode()),
+            )
+    return buffer.getvalue()
 
 
 class TestRedaction:
@@ -218,6 +233,60 @@ class TestGetText:
         body = await source_client.get_text("/export")
         assert body.count("\n") == 1
         assert source_client.truncated is False
+
+
+class TestGetArchive:
+    async def test_a_zipped_gzipped_export_reads_back_as_ndjson(self, transport):
+        transport(responder(httpx.Response(200, content=zipped('{"a":1}\n{"a":2}'))))
+        body = await SourceClient("amplitude", "http://api").get_archive("/export")
+        assert [line for line in body.split("\n") if line] == ['{"a":1}', '{"a":2}']
+
+    async def test_every_member_of_the_archive_is_read_not_just_the_first(
+        self, transport
+    ):
+        transport(responder(httpx.Response(200, content=zipped('{"a":1}', '{"a":2}'))))
+        body = await SourceClient("amplitude", "http://api").get_archive("/export")
+        assert body.count('{"a":') == 2
+
+    async def test_an_oversized_archive_is_truncated_and_says_so(
+        self, transport, monkeypatch
+    ):
+        monkeypatch.setattr(settings, "CONNECTOR_MAX_BYTES", 64)
+        transport(responder(httpx.Response(200, content=zipped("x" * 5000))))
+        source_client = SourceClient("amplitude", "http://api")
+        body = await source_client.get_archive("/export")
+        assert len(body) <= 64
+        assert source_client.truncated is True
+        assert any("byte cap" in r for r in source_client.truncation_reasons)
+
+    async def test_an_archive_inside_the_cap_is_untouched(self, transport, monkeypatch):
+        monkeypatch.setattr(settings, "CONNECTOR_MAX_BYTES", 10_000)
+        transport(responder(httpx.Response(200, content=zipped('{"a":1}'))))
+        source_client = SourceClient("amplitude", "http://api")
+        body = await source_client.get_archive("/export")
+        assert body == '{"a":1}'
+        assert source_client.truncated is False
+
+    async def test_a_body_that_is_not_an_archive_is_a_connector_error(self, transport):
+        transport(responder(httpx.Response(200, text='{"a":1}')))
+        with pytest.raises(ConnectorError) as caught:
+            await SourceClient("amplitude", "http://api").get_archive("/export")
+        assert "archive" in str(caught.value)
+
+    async def test_the_token_never_reaches_an_archive_error(self, transport):
+        transport(responder(httpx.Response(200, text="not a zip")))
+        source_client = SourceClient(
+            "amplitude", "http://api", params={"secret": "SECRET"}
+        )
+        with pytest.raises(ConnectorError) as caught:
+            await source_client.get_archive("/export")
+        assert "SECRET" not in str(caught.value)
+
+    async def test_an_archive_read_counts_as_a_page(self, transport):
+        transport(responder(httpx.Response(200, content=zipped('{"a":1}'))))
+        source_client = SourceClient("amplitude", "http://api")
+        await source_client.get_archive("/export")
+        assert source_client.pages_read == 1
 
 
 class TestPagination:

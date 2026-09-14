@@ -2,7 +2,8 @@
 Mixpanel API mock provider.
 Contract: seeds/docs/24-mixpanel.md
 
-Basic Auth. NDJSON export. Session-based engage pagination.
+Service account Basic Auth with project_id. text/plain NDJSON export.
+Session-based engage pagination.
 """
 
 from fastapi import APIRouter, Request, Query
@@ -22,7 +23,7 @@ def _mp_event(ev):
         "distinct_id": f"user_{p.first_name.lower()}_{co.domain.split('.')[0]}" if p and co else ev.distinct_id,
         "$insert_id": f"mp_{ev.id}",
         "$browser": "Chrome", "$city": co.city if co else "San Francisco",
-        "$region": co.state if co else "CA", "$country_code": "US",
+        "$region": co.state if co else "CA", "mp_country_code": "US",
         "$os": "Mac OS X", "mp_lib": "web",
         "$current_url": f"https://app.acme.io{ev.properties.get('page', '/')}",
     }
@@ -70,7 +71,7 @@ async def export_events(
         except (json.JSONDecodeError, TypeError):
             pass
     lines = [json.dumps(e) for e in events]
-    return PlainTextResponse("\n".join(lines), media_type="application/x-ndjson")
+    return PlainTextResponse("\n".join(lines), media_type="text/plain")
 
 
 @router.post("/api/query/engage")

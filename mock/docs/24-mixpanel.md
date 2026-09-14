@@ -15,7 +15,7 @@
 
 ## Authentication
 
-**Service Account** (preferred) — Basic Auth with service account username and secret:
+**Service Account** (the only mechanism to build on) — Basic Auth with service account username and secret:
 
 ```
 Authorization: Basic base64(sa_username_mock:sa_secret_mock_xxxxxxxxxxxx)
@@ -27,9 +27,11 @@ Or equivalently:
 curl -u "sa_username_mock:sa_secret_mock_xxxxxxxxxxxx" https://data.mixpanel.com/api/2.0/export
 ```
 
-When using service account auth, `project_id` must be passed as a query parameter on all endpoints.
+When using service account auth, `project_id` must be passed as a query parameter on all endpoints. It is not optional: an export without it answers `401` with the plain-text body `Unable to authenticate request`, even when the username and secret are correct.
 
-**Project Secret** (legacy) — same Basic Auth format with project secret instead. Does not require `project_id` parameter.
+**Role.** The service account's project role gates the export. A **Consumer** is refused with `403` and the message `missing the download_events_csv permission`; **Analyst** or above is required to read raw events.
+
+**Project Secret** (legacy, retired 2027-03-03) — same Basic Auth format with the project secret as the username and an empty password. It does not require `project_id`. Mixpanel retires it on 3 March 2027, so nothing new should be built on it.
 
 Returns `401 Unauthorized` without valid credentials.
 
@@ -44,7 +46,7 @@ Accept: application/json
 
 ### GET /api/2.0/export
 
-Export raw event data. Returns **newline-delimited JSON** (NDJSON) — one JSON object per line.
+Export raw event data. Returns **newline-delimited JSON** (NDJSON) — one JSON object per line — served as `Content-Type: text/plain; charset=utf-8`, not as a JSON document. Read it as text and parse a line at a time.
 
 **Base URL:** `https://data.mixpanel.com`
 
@@ -70,10 +72,10 @@ curl -u "sa_username_mock:sa_secret_mock_xxxxxxxxxxxx" \
 Response is **NDJSON** (one JSON object per line, NOT a JSON array):
 
 ```
-{"event":"Signup","properties":{"time":1719835200,"distinct_id":"user_jane_acme","$insert_id":"abc123","$browser":"Chrome","$browser_version":"126","$city":"San Francisco","$region":"California","$country_code":"US","$os":"Mac OS X","$device":"Mac","mp_lib":"web","$current_url":"https://app.acme.io/signup","plan":"growth","company":"Acme Corp","$mp_api_endpoint":"api.mixpanel.com","$mp_api_timestamp_ms":1719835200000}}
-{"event":"Page View","properties":{"time":1719835260,"distinct_id":"user_jane_acme","$insert_id":"def456","$browser":"Chrome","$browser_version":"126","$city":"San Francisco","$region":"California","$country_code":"US","$os":"Mac OS X","page":"/dashboard","title":"Dashboard - Acme","$current_url":"https://app.acme.io/dashboard","$referrer":"https://app.acme.io/signup","mp_lib":"web"}}
-{"event":"Purchase","properties":{"time":1719921600,"distinct_id":"user_bob_globex","$insert_id":"ghi789","$browser":"Firefox","$browser_version":"128","$city":"New York","$region":"New York","$country_code":"US","$os":"Windows","amount":2400.00,"currency":"USD","plan":"professional","company":"Globex Inc","product_id":"prod_growth","mp_lib":"web"}}
-{"event":"Feature Used","properties":{"time":1719921660,"distinct_id":"user_bob_globex","$insert_id":"jkl012","$browser":"Firefox","$browser_version":"128","$city":"New York","$region":"New York","$country_code":"US","$os":"Windows","feature":"analytics_dashboard","duration_seconds":342,"mp_lib":"web"}}
+{"event":"Signup","properties":{"time":1719835200,"distinct_id":"user_jane_acme","$insert_id":"abc123","$browser":"Chrome","$browser_version":"126","$city":"San Francisco","$region":"California","mp_country_code":"US","$os":"Mac OS X","$device":"Mac","mp_lib":"web","$current_url":"https://app.acme.io/signup","plan":"growth","company":"Acme Corp","$mp_api_endpoint":"api.mixpanel.com","$mp_api_timestamp_ms":1719835200000}}
+{"event":"Page View","properties":{"time":1719835260,"distinct_id":"user_jane_acme","$insert_id":"def456","$browser":"Chrome","$browser_version":"126","$city":"San Francisco","$region":"California","mp_country_code":"US","$os":"Mac OS X","page":"/dashboard","title":"Dashboard - Acme","$current_url":"https://app.acme.io/dashboard","$referrer":"https://app.acme.io/signup","mp_lib":"web"}}
+{"event":"Purchase","properties":{"time":1719921600,"distinct_id":"user_bob_globex","$insert_id":"ghi789","$browser":"Firefox","$browser_version":"128","$city":"New York","$region":"New York","mp_country_code":"US","$os":"Windows","amount":2400.00,"currency":"USD","plan":"professional","company":"Globex Inc","product_id":"prod_growth","mp_lib":"web"}}
+{"event":"Feature Used","properties":{"time":1719921660,"distinct_id":"user_bob_globex","$insert_id":"jkl012","$browser":"Firefox","$browser_version":"128","$city":"New York","$region":"New York","mp_country_code":"US","$os":"Windows","feature":"analytics_dashboard","duration_seconds":342,"mp_lib":"web"}}
 ```
 
 ### Event Object Fields
@@ -87,7 +89,7 @@ Response is **NDJSON** (one JSON object per line, NOT a JSON array):
 | `properties.$browser` | string | Browser name |
 | `properties.$city` | string | GeoIP city |
 | `properties.$region` | string | GeoIP region |
-| `properties.$country_code` | string | GeoIP country |
+| `properties.mp_country_code` | string | GeoIP country — events spell it `mp_country_code`, **not** `$country_code` |
 | `properties.$os` | string | Operating system |
 | `properties.$current_url` | string | Page URL |
 | `properties.mp_lib` | string | SDK library (`web`, `python`, etc.) |
@@ -248,6 +250,8 @@ curl -u "sa_username_mock:sa_secret_mock_xxxxxxxxxxxx" \
 
 **No pagination.** Returns all matching events as a streaming NDJSON response. The client reads line by line. For large exports, Mixpanel streams the response — there is no page mechanism.
 
+Because the response is streamed, a cut-short export still answers `200`. Mixpanel says so in the body: the last line is the bare text `terminated early` rather than a JSON object. A window with nothing in it answers `200` with `terminated early` as the whole body. Treat that line as "the tail is missing", not as a malformed record.
+
 ### Engage Endpoint (`/api/query/engage`)
 
 **Session-based pagination:**
@@ -323,11 +327,14 @@ X-RateLimit-Reset: 1719838800
 
 ## Notes
 
-- Export data is NDJSON (newline-delimited JSON), not a JSON array. Each line is a standalone JSON object.
+- Export data is NDJSON (newline-delimited JSON), not a JSON array. Each line is a standalone JSON object, and the whole body is served as `text/plain`.
+- A trailing `terminated early` line means the stream was cut short — the events above it are still good.
+- Freshly ingested events do not appear in raw export immediately; the export lags behind live ingestion.
 - Mixpanel property names starting with `$` are reserved/special properties set by the SDK.
 - `distinct_id` is the primary user identifier — can be any string.
 - Times in export events are Unix timestamps (seconds), not milliseconds.
 - Engage profiles use `$distinct_id` (with prefix) at the top level and `$properties` as the nested property object.
+- Geolocation is spelled differently on each side: exported **events** carry `mp_country_code`, engage **profiles** carry `$country_code`. `$city` and `$region` keep the `$` prefix on both.
 - Export endpoint date range is inclusive on both ends.
 - Engage and Insights query APIs have a maximum of 5 concurrent queries (rate limits per plan — see table above).
 

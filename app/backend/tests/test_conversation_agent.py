@@ -296,7 +296,7 @@ class TestItIsOffUntilEnabled:
     def test_conversation_is_disabled_by_default(self):
         from app.config import Settings
 
-        assert Settings().CONVERSATION_ENABLED is False
+        assert Settings.model_fields["CONVERSATION_ENABLED"].default is False
 
     async def test_asking_while_disabled_refuses(self, session, monkeypatch):
         from app.config import settings

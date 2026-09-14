@@ -8,12 +8,20 @@ OBSERVED_AT = {
     "deals": "properties.hs_lastmodifieddate",
 }
 
-ACCOUNT_CURRENCY = "usd"
+PAGE_SIZE = 100
 
 PROPERTIES = {
     "contacts": ("email", "firstname", "lastname", "lastmodifieddate"),
     "companies": ("domain", "industry", "name", "hs_lastmodifieddate"),
-    "deals": ("dealname", "amount", "dealstage", "closedate", "hs_lastmodifieddate"),
+    "deals": (
+        "dealname",
+        "amount",
+        "closedate",
+        "deal_currency_code",
+        "hs_is_closed",
+        "hs_is_closed_won",
+        "hs_lastmodifieddate",
+    ),
 }
 
 
@@ -23,7 +31,7 @@ async def pull(session, store):
     for obj in ("contacts", "companies", "deals"):
         records = await api.get(
             f"/crm/v3/objects/{obj}",
-            params={"limit": 8, "properties": ",".join(PROPERTIES[obj])},
+            params={"limit": PAGE_SIZE, "properties": ",".join(PROPERTIES[obj])},
             paginate="cursor_hubspot",
         )
         await store_all(

@@ -8,8 +8,6 @@ OBSERVED_AT = {"campaigns": "updated_time"}
 
 ACCOUNT_CURRENCY = "usd"
 
-ACCOUNT_IDS = ["act_000001", "act_000002", "act_000006", "act_000007"]
-
 POST_FIELDS = (
     "id,message,created_time,type,shares,likes.summary(true),comments.summary(true)"
 )
@@ -97,7 +95,7 @@ async def pull(session, store):
     api = client_for(SOURCE)
     notes: dict = {}
     since, until = window()
-    for account_id in ACCOUNT_IDS:
+    for account_id in api.values["account_ids"]:
         campaigns = await api.get(
             f"/v25.0/{account_id}/campaigns",
             params={"limit": 2},

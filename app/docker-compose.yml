@@ -37,6 +37,7 @@ services:
       - ./backend:/app
       - ../definitions:/app/definitions
       - ../mock:/adversarial/seeds:ro
+      - ./.env.example:/.env.example:ro
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')\""]
       interval: 5s

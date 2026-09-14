@@ -28,7 +28,7 @@ async def pull(session, store):
     offset, limit = 0, 100
     while True:
         report = await api.post(
-            "/properties/123456789:runReport",
+            f"/properties/{api.values['property_id']}:runReport",
             json={
                 "dateRanges": [{"startDate": start, "endDate": end}],
                 "dimensions": _DIMENSIONS,

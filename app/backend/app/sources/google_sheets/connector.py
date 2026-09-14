@@ -11,7 +11,9 @@ ACCOUNT_CURRENCY = "usd"
 
 async def pull(session, store):
     api = client_for(SOURCE)
-    data = await api.get("/spreadsheets/mock_spreadsheet_id/values/Pipeline!A1:F20")
+    data = await api.get(
+        f"/spreadsheets/{api.values['spreadsheet_id']}/values/Pipeline!A1:F20"
+    )
     rows = data.get("values", [])
     if len(rows) <= 1:
         return None

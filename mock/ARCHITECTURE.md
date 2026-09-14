@@ -53,7 +53,7 @@ mock/
 │   ├── linkedin.py              # Ad accounts, campaigns, analytics, creatives
 │   ├── pinterest.py             # Ad accounts, campaigns, ad groups, ads, analytics
 │   ├── snapchat.py              # Organizations, accounts, campaigns, ad squads, ads
-│   ├── twitter.py               # Accounts, campaigns, line items, analytics
+│   ├── twitter.py               # User timeline posts with public metrics
 │   ├── mailchimp.py             # Lists, members, campaigns, reports
 │   ├── klaviyo.py               # Profiles, campaigns, flows, metrics (JSON:API)
 │   ├── activecampaign.py        # Contacts, deals, automations, accounts
@@ -173,7 +173,7 @@ The server mounts each provider's router with a prefix that absorbs the API vers
 | 13 | LinkedIn | `/linkedin/rest` | Bearer + `Linkedin-Version` | `13-linkedin-ads.md` |
 | 14 | Pinterest | `/pinterest/v5` | Bearer | `14-pinterest-ads.md` |
 | 15 | Snapchat | `/snapchat` | Bearer | `15-snapchat-ads.md` |
-| 16 | Twitter/X | `/twitter` | Bearer | `16-twitter-ads.md` |
+| 16 | X | `/twitter` | Bearer | `16-twitter-organic.md` |
 | 17 | Mailchimp | `/mailchimp` | Bearer or Basic Auth | `17-mailchimp.md` |
 | 18 | Klaviyo | `/klaviyo` | `Klaviyo-API-Key` header | `18-klaviyo.md` |
 | 19 | ActiveCampaign | `/activecampaign` | `Api-Token` header | `19-activecampaign.md` |
