@@ -48,6 +48,10 @@ class Settings(BaseSettings):
     RERANK_MODEL: str = "zerank-2"
     RERANK_TOP: int = 20
     SEARCH_CHUNK_CHARS: int = 1200
+    STUDIO_ENABLED: bool = False
+    MARKETER_MODEL: str = "claude-opus-5"
+    SKILL_MODEL: str = "claude-sonnet-5"
+    MEDIA_DIR: str = "/media"
     CLOCK_PINNED_AT: datetime | None = None
 
     model_config = {"env_file": ".env", "extra": "ignore"}

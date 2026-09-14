@@ -7,12 +7,14 @@ from sqlalchemy import (
     CheckConstraint,
     Column,
     Computed,
+    Date,
     DateTime,
     Float,
     ForeignKey,
     Identity,
     Index,
     Integer,
+    Numeric,
     String,
     Text,
     UniqueConstraint,
@@ -412,3 +414,157 @@ class EmbeddingRun(Base):
     truncated_at_cap = Column(Boolean, nullable=False, server_default=text("false"))  # stopped at call cap: true, false
     duration_ms = Column(Integer, nullable=False, server_default=text("0"))  # run wall time: 12, 3400
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # run timestamp: server now(), 2026-09-04T12:00:00Z
+
+
+class Proposal(Base):
+    __tablename__ = "proposal"
+
+    seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic proposal counter: 1, 2, 3
+    kind = Column(String(16), nullable=False)  # what is proposed: post, newsletter, video
+    title = Column(String(256), nullable=False)  # what a person reads first: "Why the pipeline stalls"
+    slot_date = Column(Date)  # calendar day, null when reactive: 2026-09-05, null
+    slot_name = Column(String(64))  # slot on that day: friday_post, weekly_newsletter, null
+    reactive = Column(Boolean, nullable=False, server_default=text("false"))  # answers something just noticed: true, false
+    skill = Column(String(64), nullable=False)  # skill that drafts and builds: dw-post, dw-video
+    skill_sha = Column(String(64), nullable=False)  # SKILL.md digest at draft: "a3f9…", "0c7a…"
+    status = Column(String(16), nullable=False, server_default=text("'open'"))  # review state: open, approved, rejected, built
+    reason = Column(Text)  # why a person rejected it: "off voice", null
+    note = Column(Text)  # redo instruction from a person: "shorter hook", null
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: server now(), 2026-09-04T12:00:00Z
+    decided_at = Column(DateTime(timezone=True))  # when approved or rejected: 2026-09-04T12:05:00Z, null
+
+    __table_args__ = (
+        Index("ix_proposal_status_seq", "status", text("seq DESC")),
+        Index("ix_proposal_slot_date", "slot_date"),
+    )
+
+
+class ProposalEvidence(Base):
+    __tablename__ = "proposal_evidence"
+
+    id = Column(BigInteger, Identity(), primary_key=True)  # monotonic evidence counter: 1, 2, 3
+    proposal_seq = Column(BigInteger, ForeignKey("proposal.seq", ondelete="CASCADE"), nullable=False)  # owning proposal: 1, 42
+    kind = Column(String(32), nullable=False)  # what was read: brand, transcript, competitor_ad, asset
+    ref = Column(String(512), nullable=False)  # what it points at: brand/voice.md, swipe/8821
+    detail = Column(Text, nullable=False)  # what it contributed: "the hook it answers"
+
+    __table_args__ = (Index("ix_proposal_evidence_proposal", "proposal_seq"),)
+
+
+class ProposalClaim(Base):
+    __tablename__ = "proposal_claim"
+
+    id = Column(BigInteger, Identity(), primary_key=True)  # monotonic claim counter: 1, 2, 3
+    proposal_seq = Column(BigInteger, ForeignKey("proposal.seq", ondelete="CASCADE"), nullable=False)  # owning proposal: 1, 42
+    text = Column(Text, nullable=False)  # statement made in the draft: "Reporting takes four hours"
+    source_kind = Column(String(16), nullable=False)  # where the claim came from: proof, transcript, competitor_ad
+    source_ref = Column(String(512))  # the file or item quoted: brand/proof.md, null
+    verified = Column(Boolean, nullable=False)  # source really says it: true, false
+
+    __table_args__ = (Index("ix_proposal_claim_proposal", "proposal_seq"),)
+
+
+class ProposalDraft(Base):
+    __tablename__ = "proposal_draft"
+
+    id = Column(BigInteger, Identity(), primary_key=True)  # monotonic draft file counter: 1, 2, 3
+    proposal_seq = Column(BigInteger, ForeignKey("proposal.seq", ondelete="CASCADE"), nullable=False)  # owning proposal: 1, 42
+    path = Column(String(512), nullable=False)  # path under the media volume: proposals/1/post.md
+    media_type = Column(String(128), nullable=False)  # what the file is: text/markdown, image/png
+    bytes = Column(Integer, nullable=False)  # file size in bytes: 412, 1048576
+
+    __table_args__ = (Index("ix_proposal_draft_proposal", "proposal_seq"),)
+
+
+class Asset(Base):
+    __tablename__ = "asset"
+
+    seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic asset counter: 1, 2, 3
+    name = Column(String(256), nullable=False)  # what a person calls it: "Why the pipeline stalls"
+    kind = Column(String(16), nullable=False)  # what was built: post, video, image, ad
+    look = Column(String(64))  # look it was rendered in: studio, plain, null
+    origin = Column(String(16), nullable=False)  # who asked for it: proposal, chat
+    proposal_seq = Column(BigInteger, ForeignKey("proposal.seq", ondelete="SET NULL"))  # proposal that made it: 1, null
+    ancestor_ref = Column(String(512))  # swipe item a remix copies: swipe/8821, null
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: server now(), 2026-09-04T12:00:00Z
+
+    __table_args__ = (Index("ix_asset_kind_seq", "kind", text("seq DESC")),)
+
+
+class AssetFile(Base):
+    __tablename__ = "asset_file"
+
+    id = Column(BigInteger, Identity(), primary_key=True)  # monotonic asset file counter: 1, 2, 3
+    asset_seq = Column(BigInteger, ForeignKey("asset.seq", ondelete="CASCADE"), nullable=False)  # owning asset: 1, 42
+    version = Column(Integer, nullable=False)  # rebuild number, first is one: 1, 2, 3
+    path = Column(String(512), nullable=False)  # path under the media volume: assets/1/out.mp4
+    media_type = Column(String(128), nullable=False)  # what the file is: video/mp4, image/png
+    bytes = Column(Integer, nullable=False)  # file size in bytes: 412, 1048576
+    note = Column(Text)  # why this version was rebuilt: "hook too slow", null
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: server now(), 2026-09-04T12:00:00Z
+
+    __table_args__ = (
+        UniqueConstraint("asset_seq", "version", "path", name="asset_file_version_path"),
+    )
+
+
+class SkillRun(Base):
+    __tablename__ = "skill_run"
+
+    seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic skill run counter: 1, 2, 3
+    skill = Column(String(64), nullable=False)  # skill that ran: dw-post, dw-video
+    skill_sha = Column(String(64), nullable=False)  # SKILL.md digest at run: "a3f9…", "0c7a…"
+    mode = Column(String(16), nullable=False)  # how it ran: draft, build, chat
+    caller = Column(String(16), nullable=False)  # who started it: marketer, studio, mcp
+    proposal_seq = Column(BigInteger, ForeignKey("proposal.seq", ondelete="SET NULL"))  # proposal it worked on: 1, null
+    asset_seq = Column(BigInteger, ForeignKey("asset.seq", ondelete="SET NULL"))  # asset it produced: 1, null
+    stage = Column(String(64))  # step it is on now: render, write, null
+    status = Column(String(16), nullable=False)  # run state: running, ok, failed
+    error = Column(Text)  # failure detail: "RuntimeError: renderer down", null
+    duration_ms = Column(Integer, nullable=False, server_default=text("0"))  # run wall time: 12, 3400
+    cost_usd = Column(Numeric(10, 4), nullable=False, server_default=text("0"))  # model spend this run: 0.0000, 1.2345
+    started_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # run start timestamp: server now(), 2026-09-04T12:00:00Z
+    finished_at = Column(DateTime(timezone=True))  # when it stopped: 2026-09-04T12:05:00Z, null
+
+    __table_args__ = (Index("ix_skill_run_status", "status"),)
+
+
+class SkillRunToolCall(Base):
+    __tablename__ = "skill_run_tool_call"
+
+    id = Column(BigInteger, Identity(), primary_key=True)  # monotonic tool call counter: 1, 2, 3
+    skill_run_seq = Column(BigInteger, ForeignKey("skill_run.seq", ondelete="CASCADE"), nullable=False)  # owning skill run: 1, 42
+    tool = Column(String(64), nullable=False)  # toolbelt name called: brand.read, image.render
+    ok = Column(Boolean, nullable=False)  # call succeeded: true, false
+    duration_ms = Column(Integer, nullable=False, server_default=text("0"))  # call wall time: 12, 3400
+    detail = Column(Text)  # what it asked or why it failed: "brand/voice.md", null
+
+    __table_args__ = (Index("ix_skill_run_tool_call_run", "skill_run_seq"),)
+
+
+class AgentRun(Base):
+    __tablename__ = "agent_run"
+
+    seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic agent run counter: 1, 2, 3
+    agent = Column(String(16), nullable=False)  # which agent ran: marketer, taste
+    trigger = Column(String(16), nullable=False)  # what started it: daily, manual
+    read_detail = Column(Text, nullable=False)  # what it read, one sentence: "four brand files, nine ads"
+    proposed = Column(Integer, nullable=False, server_default=text("0"))  # proposals it opened: 0, 3
+    duration_ms = Column(Integer, nullable=False, server_default=text("0"))  # run wall time: 12, 3400
+    cost_usd = Column(Numeric(10, 4), nullable=False, server_default=text("0"))  # model spend this run: 0.0000, 0.4212
+    ok = Column(Boolean, nullable=False)  # run succeeded: true, false
+    error = Column(Text)  # failure detail: "APIError: down", null
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # run timestamp: server now(), 2026-09-04T12:00:00Z
+
+
+class SlotSkip(Base):
+    __tablename__ = "slot_skip"
+
+    id = Column(BigInteger, Identity(), primary_key=True)  # monotonic slot skip counter: 1, 2, 3
+    slot_date = Column(Date, nullable=False)  # calendar day skipped: 2026-09-05
+    slot_name = Column(String(64), nullable=False)  # slot on that day: friday_post, weekly_newsletter
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: server now(), 2026-09-04T12:00:00Z
+
+    __table_args__ = (
+        UniqueConstraint("slot_date", "slot_name", name="slot_skip_slot"),
+    )

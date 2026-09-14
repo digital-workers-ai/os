@@ -24,13 +24,15 @@ SLOT = date(2026, 9, 5)
 
 async def a_proposal(session, **overrides):
     proposal = Proposal(
-        kind="post",
-        title="Why the pipeline stalls",
-        slot_date=SLOT,
-        slot_name="friday_post",
-        skill="dw-post",
-        skill_sha="a3f9",
-        **overrides,
+        **{
+            "kind": "post",
+            "title": "Why the pipeline stalls",
+            "slot_date": SLOT,
+            "slot_name": "friday_post",
+            "skill": "dw-post",
+            "skill_sha": "a3f9",
+        }
+        | overrides
     )
     session.add(proposal)
     await session.flush()
@@ -39,11 +41,13 @@ async def a_proposal(session, **overrides):
 
 async def an_asset(session, **overrides):
     asset = Asset(
-        name="Why the pipeline stalls",
-        kind="video",
-        look="studio",
-        origin="proposal",
-        **overrides,
+        **{
+            "name": "Why the pipeline stalls",
+            "kind": "video",
+            "look": "studio",
+            "origin": "proposal",
+        }
+        | overrides
     )
     session.add(asset)
     await session.flush()
@@ -52,12 +56,14 @@ async def an_asset(session, **overrides):
 
 async def a_skill_run(session, **overrides):
     run = SkillRun(
-        skill="dw-post",
-        skill_sha="a3f9",
-        mode="draft",
-        caller="marketer",
-        status="running",
-        **overrides,
+        **{
+            "skill": "dw-post",
+            "skill_sha": "a3f9",
+            "mode": "draft",
+            "caller": "marketer",
+            "status": "running",
+        }
+        | overrides
     )
     session.add(run)
     await session.flush()
