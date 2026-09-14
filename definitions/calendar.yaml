@@ -1,0 +1,32 @@
+slots:
+  newsletter_weekly:
+    kind: newsletter
+    when: weekly
+    day: mon
+    time: "06:00"
+    theme: brand
+  linkedin_post:
+    kind: post
+    when: weekly
+    days: [tue, fri]
+    time: "06:00"
+    theme: brand
+  blog_biweekly:
+    kind: blog
+    when: fortnightly
+    day: thu
+    time: "06:00"
+    theme: brand
+  video_monthly:
+    kind: video
+    when: monthly
+    day: 1
+    time: "06:00"
+    look: aios
+    theme: brand
+  counter_ad:
+    kind: ad
+    when: reactive
+    cap_per_week: 2
+    look: aios
+    theme: competitor

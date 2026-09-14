@@ -2,6 +2,8 @@ import yaml
 
 from app.caches import BACKEND_DIR
 from app.engine import (
+    brand,
+    calendar,
     candidates,
     competitors,
     dashboards,
@@ -102,6 +104,8 @@ def run(
     derived_path=None,
     dashboards_path=None,
     competitors_path=None,
+    brand_dir=None,
+    calendar_path=None,
 ) -> list[str]:
     problems: list[str] = []
 
@@ -123,6 +127,8 @@ def run(
     connectors = set(modules)
     problems += derived.check(onto, derived_path)
     problems += competitors.check(competitors_path)
+    problems += brand.check(brand_dir)
+    problems += calendar.check(calendar_path)
     attrs_of = derived.attrs_of(onto, derived_path)
 
     for source in sorted({line.source for line in lines}):
