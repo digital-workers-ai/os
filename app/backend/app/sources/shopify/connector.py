@@ -9,16 +9,17 @@ OBSERVED_AT = {
     "products": "updated_at",
 }
 
-ACCOUNT_CURRENCY = "usd"
-
 
 async def pull(session, store):
     api = client_for(SOURCE)
     notes: dict = {}
     for kind in ("products", "orders", "customers"):
+        params = {"limit": 1}
+        if kind == "orders":
+            params["status"] = "any"
         items = await api.get(
             f"/admin/api/2024-01/{kind}.json",
-            params={"limit": 1},
+            params=params,
             paginate=ShopifyLink(kind),
         )
         await store_all(

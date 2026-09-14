@@ -38,9 +38,7 @@ person:
   sendgrid.contacts._full_name: name
   sendgrid.contacts.phone_number: phone
   sendgrid.contacts.custom_fields.role: title
-  shopify.customers.email: email
-  shopify.customers._full_name: name
-  shopify.customers.phone: phone
+  shopify.customers.id: external_ref
   woocommerce.customers.email: email
   woocommerce.customers._full_name: name
   woocommerce.customers.billing.phone: phone

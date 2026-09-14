@@ -107,7 +107,8 @@ class TestProtectedCustomerData:
         blocks = [
             block
             for payload in payloads("customers")
-            for block in [*payload["addresses"], payload.get("default_address") or {}]
+            for block in [*payload["addresses"], payload.get("default_address")]
+            if block is not None
         ]
         assert blocks
         for block in blocks:
