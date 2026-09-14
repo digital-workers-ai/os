@@ -28,6 +28,10 @@ Returns 403 without a valid key:
 }
 ```
 
+The header name is the whole of it. Sending the same key as
+`Authorization: Bearer {api_key}` answers 403 as well — the key is not the
+problem, the scheme is.
+
 ## Rate Limits
 
 - **5 requests/second** per account (uniform across all endpoints)
@@ -60,7 +64,7 @@ Returns all contacts.
 **Example Request:**
 ```bash
 curl -H "Api-Token: ac_mock_apikey_001" \
-  "https://acme.api-us1.com/api/3/contacts?limit=2&offset=0"
+  "https://acme.api-us1.com/api/3/contacts?limit=1&offset=0"
 ```
 
 **Example Response:**
@@ -69,118 +73,82 @@ curl -H "Api-Token: ac_mock_apikey_001" \
   "scoreValues": [],
   "contacts": [
     {
-      "cdate": "2025-03-20T14:30:00-05:00",
+      "id": "1",
       "email": "jane@acme.io",
-      "phone": "+12125550100",
+      "email_local": "jane",
+      "email_domain": "acme.io",
       "firstName": "Jane",
       "lastName": "Smith",
-      "orgid": "ac_org_acme_001",
+      "phone": "+12125550100",
+      "orgid": "1",
       "orgname": "Acme Corp",
+      "organization": null,
       "segmentio_id": "",
+      "hash": "9d5ed678fe57bcca610140957afab571",
+      "ip": "0",
+      "ua": null,
+      "gravatar": "0",
+      "deleted": "0",
+      "anonymized": "0",
+      "mpp_tracking": "0",
+      "sentcnt": "0",
       "bounced_hard": "0",
       "bounced_soft": "0",
       "bounced_date": null,
-      "ip": "192.168.1.100",
-      "ua": "Mozilla/5.0",
-      "hash": "abc123def456",
-      "socialdata_lastcheck": null,
-      "email_local": "jane",
-      "email_domain": "acme.io",
-      "sentcnt": "45",
-      "rating_tstamp": "2026-07-10T09:00:00-05:00",
-      "gravatar": "1",
-      "deleted": "0",
-      "anonymized": "0",
-      "adate": "2026-07-14T16:22:00-05:00",
+      "adate": null,
+      "edate": null,
+      "cdate": "2025-03-20T14:30:00-05:00",
       "udate": "2026-07-10T09:00:00-05:00",
-      "edate": "2026-07-14T16:22:00-05:00",
       "deleted_at": null,
-      "created_utc_timestamp": "2025-03-20 19:30:00",
-      "updated_utc_timestamp": "2026-07-10 14:00:00",
+      "created_by": null,
+      "updated_by": null,
       "created_timestamp": "2025-03-20 14:30:00",
+      "created_utc_timestamp": "2025-03-20 19:30:00",
       "updated_timestamp": "2026-07-10 09:00:00",
+      "updated_utc_timestamp": "2026-07-10 14:00:00",
+      "rating_tstamp": null,
+      "socialdata_lastcheck": null,
+      "best_send_hour": null,
+      "last_click_date": null,
+      "last_open_date": null,
+      "last_mpp_open_date": null,
+      "sms_consent": null,
+      "sms_consent_updated_at": null,
+      "whatsapp_id": null,
+      "whatsapp_username": null,
+      "accountContacts": [],
+      "scoreValues": [],
       "links": {
+        "accountContacts": "https://acme.api-us1.com/api/3/contacts/1/accountContacts",
+        "automationEntryCounts": "https://acme.api-us1.com/api/3/contacts/1/automationEntryCounts",
         "bounceLogs": "https://acme.api-us1.com/api/3/contacts/1/bounceLogs",
         "contactAutomations": "https://acme.api-us1.com/api/3/contacts/1/contactAutomations",
         "contactData": "https://acme.api-us1.com/api/3/contacts/1/contactData",
+        "contactDeals": "https://acme.api-us1.com/api/3/contacts/1/contactDeals",
         "contactGoals": "https://acme.api-us1.com/api/3/contacts/1/contactGoals",
         "contactLists": "https://acme.api-us1.com/api/3/contacts/1/contactLists",
         "contactLogs": "https://acme.api-us1.com/api/3/contacts/1/contactLogs",
         "contactTags": "https://acme.api-us1.com/api/3/contacts/1/contactTags",
-        "contactDeals": "https://acme.api-us1.com/api/3/contacts/1/contactDeals",
         "deals": "https://acme.api-us1.com/api/3/contacts/1/deals",
         "fieldValues": "https://acme.api-us1.com/api/3/contacts/1/fieldValues",
         "geoIps": "https://acme.api-us1.com/api/3/contacts/1/geoIps",
         "notes": "https://acme.api-us1.com/api/3/contacts/1/notes",
         "organization": "https://acme.api-us1.com/api/3/contacts/1/organization",
         "plusAppend": "https://acme.api-us1.com/api/3/contacts/1/plusAppend",
-        "trackingLogs": "https://acme.api-us1.com/api/3/contacts/1/trackingLogs",
-        "scoreValues": "https://acme.api-us1.com/api/3/contacts/1/scoreValues"
-      },
-      "id": "1",
-      "organization": "ac_org_acme_001"
-    },
-    {
-      "cdate": "2025-06-10T09:00:00-05:00",
-      "email": "bob@soylent.co",
-      "phone": "",
-      "firstName": "Bob",
-      "lastName": "Smith",
-      "orgid": "ac_org_soylent_001",
-      "orgname": "Soylent Corp",
-      "segmentio_id": "",
-      "bounced_hard": "0",
-      "bounced_soft": "0",
-      "bounced_date": null,
-      "ip": "10.0.0.50",
-      "ua": "",
-      "hash": "ghi789jkl012",
-      "socialdata_lastcheck": null,
-      "email_local": "bob",
-      "email_domain": "soylent.co",
-      "sentcnt": "22",
-      "rating_tstamp": "2026-06-15T12:00:00-05:00",
-      "gravatar": "0",
-      "deleted": "0",
-      "anonymized": "0",
-      "adate": "2026-07-01T10:00:00-05:00",
-      "udate": "2026-06-15T12:00:00-05:00",
-      "edate": "2026-07-01T10:00:00-05:00",
-      "deleted_at": null,
-      "created_utc_timestamp": "2025-06-10 14:00:00",
-      "updated_utc_timestamp": "2026-06-15 17:00:00",
-      "created_timestamp": "2025-06-10 09:00:00",
-      "updated_timestamp": "2026-06-15 12:00:00",
-      "links": {
-        "bounceLogs": "https://acme.api-us1.com/api/3/contacts/2/bounceLogs",
-        "contactAutomations": "https://acme.api-us1.com/api/3/contacts/2/contactAutomations",
-        "contactData": "https://acme.api-us1.com/api/3/contacts/2/contactData",
-        "contactGoals": "https://acme.api-us1.com/api/3/contacts/2/contactGoals",
-        "contactLists": "https://acme.api-us1.com/api/3/contacts/2/contactLists",
-        "contactLogs": "https://acme.api-us1.com/api/3/contacts/2/contactLogs",
-        "contactTags": "https://acme.api-us1.com/api/3/contacts/2/contactTags",
-        "contactDeals": "https://acme.api-us1.com/api/3/contacts/2/contactDeals",
-        "deals": "https://acme.api-us1.com/api/3/contacts/2/deals",
-        "fieldValues": "https://acme.api-us1.com/api/3/contacts/2/fieldValues",
-        "geoIps": "https://acme.api-us1.com/api/3/contacts/2/geoIps",
-        "notes": "https://acme.api-us1.com/api/3/contacts/2/notes",
-        "organization": "https://acme.api-us1.com/api/3/contacts/2/organization",
-        "plusAppend": "https://acme.api-us1.com/api/3/contacts/2/plusAppend",
-        "trackingLogs": "https://acme.api-us1.com/api/3/contacts/2/trackingLogs",
-        "scoreValues": "https://acme.api-us1.com/api/3/contacts/2/scoreValues"
-      },
-      "id": "2",
-      "organization": "ac_org_soylent_001"
+        "scoreValues": "https://acme.api-us1.com/api/3/contacts/1/scoreValues",
+        "trackingLogs": "https://acme.api-us1.com/api/3/contacts/1/trackingLogs"
+      }
     }
   ],
   "meta": {
     "total": "2450",
+    "sortable": true,
     "page_input": {
-      "segmentid": 0,
+      "segmentid": null,
       "formid": 0,
       "listid": 0,
       "tagid": 0,
-      "limit": 2,
+      "limit": 20,
       "offset": 0,
       "search": null,
       "sort": null,
@@ -188,11 +156,26 @@ curl -H "Api-Token: ac_mock_apikey_001" \
       "waitid": 0,
       "status": -1,
       "forceQuery": 0,
-      "cacheid": "cache123"
+      "cacheid": "26f0b45d57322d46adb71f3c2bc3cd72"
     }
   }
 }
 ```
+
+The response carries three top-level keys, not two: `contacts`, `meta`, and
+`scoreValues`. `scoreValues` is a sibling of `contacts`, and each contact
+carries its own `scoreValues` list as well. A reader that expects exactly two
+keys, or that reads the list by position, will break here.
+
+Every unset date comes back as `null`, never as an empty string: `adate`,
+`edate`, `bounced_date`, `rating_tstamp`, `socialdata_lastcheck`, `deleted_at`,
+`best_send_hour`, `last_click_date`, `last_open_date`, `last_mpp_open_date`,
+`sms_consent_updated_at`. Unset *strings* do come back as `""` — `firstName`,
+`lastName`, `phone`, `orgname`, `email_local`, `segmentio_id` were all empty on
+the account this was captured from.
+
+`meta.total` is a string nested under `meta`, so an offset walk cannot read it
+as a top-level count; it ends on a page shorter than the requested `limit`.
 
 ---
 
@@ -427,6 +410,10 @@ curl -H "Api-Token: ac_mock_apikey_001" \
 }
 ```
 
+The example above is a campaign that has been sent. A campaign awaiting send
+answers `"sdate": null` and `"ldate": null` — not an empty string. `cdate` and
+`mdate` are always present, so `mdate` is the field to observe a campaign by.
+
 ---
 
 ## Pagination
@@ -485,13 +472,22 @@ Or for validation errors:
 - `status` on deals: `"0"` = open, `"1"` = won, `"2"` = lost
 - Deal `value` is in **cents** (5760000 = $57,600.00)
 - Dates use account timezone offset (e.g., `-05:00` for US/Eastern)
-- `links` on each entity provide sub-resource URLs
-- `meta.total` is a string, not an integer
+- `links` on each entity provide absolute URLs on the account host, not paths
+- `meta.total` is a string, and on contacts it is nested under `meta`
+- Unset dates are `null`; unset strings are `""`. The two are not interchangeable
+- The contacts response has a third top-level key, `scoreValues`, beside `contacts` and `meta`
 - Custom fields are accessed via `/api/3/contacts/{id}/fieldValues` endpoint
 - The `{account}` in the base URL must match your ActiveCampaign account subdomain
 - For bulk contacts pagination, use `id_greater` param with `orders[id]=ASC` for better performance than offset
 - `filters` query parameter uses array format: `filters[field]=value` (matching behavior varies by endpoint)
 - Version 1 API remains available with no sunset announced; a GraphQL API is also available
+
+## What this was checked against
+
+The contacts shape above was captured from a live account on 2026-09-14: one
+contact, 200 OK, every field and link name as listed. The campaigns endpoint on
+that account answers 200 with zero campaigns, so the campaign shape here comes
+from the vendor reference below and has not been seen on the wire.
 
 ## Reference
 
