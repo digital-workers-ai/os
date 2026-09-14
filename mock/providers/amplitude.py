@@ -8,6 +8,7 @@ Export returns a zip archive of gzipped NDJSON files, one JSON object per line.
 
 PROJECT_ID = 12345
 
+from datetime import datetime, timedelta
 from fastapi import APIRouter, Request, Query
 from fastapi.responses import Response
 from seeds.helpers import require_basic_auth
@@ -20,6 +21,17 @@ import zipfile
 
 router = APIRouter()
 
+EXPORT_TIME_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
+INGEST_PATH = "/2/httpapi"
+SECONDS_TO_UPLOAD = 2.0
+SECONDS_TO_SERVER_UPLOAD = 2.007
+SECONDS_TO_PROCESSED = 2.649
+
+
+def _amp_time(moment, lag=0.0):
+    at = datetime.fromisoformat(moment.replace("Z", "+00:00"))
+    return (at + timedelta(seconds=lag)).strftime(EXPORT_TIME_FORMAT)
+
 
 def _amp_event(ev, idx):
     p = next((pp for pp in PEOPLE if pp.email == ev.distinct_id), None)
@@ -27,12 +39,19 @@ def _amp_event(ev, idx):
     sub = SUBSCRIPTIONS_BY_COMPANY.get(co.id) if co else None
     return {
         "event_type": ev.event,
-        "event_time": ev.timestamp.replace("T", " ").replace("Z", ".000000"),
+        "event_time": _amp_time(ev.timestamp),
+        "client_event_time": _amp_time(ev.timestamp),
+        "client_upload_time": _amp_time(ev.timestamp, SECONDS_TO_UPLOAD),
+        "server_received_time": _amp_time(ev.timestamp, SECONDS_TO_UPLOAD),
+        "server_upload_time": _amp_time(ev.timestamp, SECONDS_TO_SERVER_UPLOAD),
+        "processed_time": _amp_time(ev.timestamp, SECONDS_TO_PROCESSED),
         "event_id": 1000 + idx,
         "user_id": f"user_{p.first_name.lower()}_{co.domain.split('.')[0]}" if p and co else ev.distinct_id,
         "device_id": f"device_{ev.id}",
         "session_id": int(ev.properties.get("session_id", "sess_000").replace("sess_", "")) * 1000000000 + 1719835200000,
         "$insert_id": f"evt_{ev.id}",
+        "$insert_key": None,
+        "$schema": None,
         "uuid": str(uuid.uuid5(uuid.NAMESPACE_URL, f"amplitude/{ev.id}")),
         "event_properties": ev.properties,
         "user_properties": {
@@ -41,12 +60,44 @@ def _amp_event(ev, idx):
             "company": co.name if co else "",
             "plan": sub.plan if sub else "free",
         },
+        "global_user_properties": None,
+        "group_properties": {},
+        "groups": {},
+        "plan": {},
+        "data": {
+            "group_first_event": {},
+            "group_ids": {},
+            "path": INGEST_PATH,
+            "user_properties_updated": True,
+        },
+        "data_type": "event",
         "ip_address": "203.0.113.42",
-        "platform": "Web", "os_name": "Mac OS X",
+        "platform": "Web", "os_name": "Mac OS X", "os_version": "14.5",
+        "device_family": "Mac", "device_type": "Mac",
+        "device_brand": None,
+        "device_carrier": None,
+        "device_manufacturer": None,
+        "device_model": None,
+        "language": "en-US",
         "country": "United States",
         "region": co.state if co else "CA",
         "city": co.city if co else "San Francisco",
+        "dma": None,
+        "location_lat": None,
+        "location_lng": None,
+        "adid": None,
+        "idfa": None,
         "amplitude_id": 9876543210 + idx,
+        "amplitude_attribution_ids": None,
+        "amplitude_event_type": None,
+        "is_attribution_event": None,
+        "partner_id": None,
+        "source_id": None,
+        "sample_rate": None,
+        "paying": sub is not None,
+        "user_creation_time": None,
+        "start_version": None,
+        "version_name": None,
         "app": 12345,
         "library": "amplitude-js/8.21.0",
     }
