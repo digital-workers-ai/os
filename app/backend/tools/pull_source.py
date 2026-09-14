@@ -16,6 +16,8 @@ from app.sources.creds import credentials_for
 
 MOCK_FIXTURES = checks.REAL_FIXTURES.parent / "mock"
 CAPTURES = BACKEND_DIR / "captures"
+NO_RECORDS_DEAD = "no records, dead paths not evaluated"
+NO_RECORDS_COMPARE = "no records, shape not compared"
 
 
 @dataclass
@@ -160,13 +162,18 @@ async def report(
             f"{name}: requests={pulled.requests[name]} "
             f"records={len(payloads)} accepted={accepted}"
         )
-        dead = found.dead_paths()
+        dead = found.dead_paths() if payloads else []
         failed = failed or bool(dead)
-        lines.append(f"  dead paths: {', '.join(dead) or 'none'}")
+        listed = (", ".join(dead) or "none") if payloads else NO_RECORDS_DEAD
+        lines.append(f"  dead paths: {listed}")
         skips = sorted({**found.skips, **found.records_skipped}.items())
         lines.append(f"  skips: {', '.join(f'{k}={v}' for k, v in skips) or 'none'}")
         if compare:
-            text, differs = mock_diff(source, name, payloads)
+            text, differs = (
+                mock_diff(source, name, payloads)
+                if payloads
+                else (NO_RECORDS_COMPARE, False)
+            )
             failed = failed or differs
             lines.append(f"  compare: {text}")
     if pulled.notes:

@@ -46,14 +46,6 @@ def connector(name):
     return importlib.import_module(f"app.sources.{name}.connector")
 
 
-@pytest.fixture(autouse=True)
-def only_the_stand_ins(monkeypatch):
-    for source, (_base, names, _build) in creds._REAL.items():
-        monkeypatch.delenv(f"{source.upper()}_BASE_URL", raising=False)
-        for name in names:
-            monkeypatch.delenv(name, raising=False)
-
-
 @pytest.fixture
 def pull(monkeypatch):
     def _run(module, body, *, text=None):

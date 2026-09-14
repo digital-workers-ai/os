@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from app import db
 from app.config import settings
 from app.models import Base, Entity
+from app.sources import creds
 
 TEST_DB_SUFFIX = "_test"
 FIXTURE_SEEN = datetime(2026, 8, 1, tzinfo=UTC)
@@ -211,3 +212,11 @@ def count_queries(db_engine):
 @pytest.fixture(autouse=True)
 def pinned_clock(monkeypatch):
     monkeypatch.setattr(settings, "CLOCK_PINNED_AT", NOW)
+
+
+@pytest.fixture(autouse=True)
+def only_the_stand_ins(monkeypatch):
+    for source, (_base, names, _build) in creds._REAL.items():
+        monkeypatch.delenv(f"{source.upper()}_BASE_URL", raising=False)
+        for name in names:
+            monkeypatch.delenv(name, raising=False)
