@@ -1,12 +1,17 @@
 import importlib
 import json
 import sys
+from dataclasses import replace
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
 from starlette.requests import Request
 
-from app.engine import checks
+from app.engine import checks, mappings, ontology, pipeline, transforms
+from app.engine.report import SyncReport
+from app.sources import registry
+from app.sources.activecampaign import extract
 from app.sources.paginators import Offset
 from tools.pull_source import json_type
 
@@ -97,6 +102,25 @@ def shape(payload: dict) -> dict:
     return {key: json_type(value) for key, value in payload.items()}
 
 
+def project(payload: dict):
+    report = SyncReport()
+    entities = pipeline.project_payload(
+        source="activecampaign",
+        object_type="contacts",
+        source_id=payload["id"],
+        payload=payload,
+        raw_event_id=None,
+        ingested_at=datetime(2026, 9, 14, tzinfo=UTC),
+        seq=1,
+        onto=ontology.load(),
+        line_index=mappings.by_object(mappings.load()),
+        transform_map=transforms.load_map(),
+        report=report,
+        connector_module=registry.get("activecampaign"),
+    )
+    return entities, report
+
+
 def provider():
     if not Path(f"{SEEDS_ROOT}/seeds/providers/activecampaign.py").is_file():
         pytest.skip(f"mock provider not mounted at {SEEDS_ROOT}")
@@ -125,6 +149,12 @@ def mock_provider():
 @pytest.fixture
 def a_mock_contact(mock_provider):
     return mock_provider._ac_contact(mock_provider.PEOPLE[0], 0)
+
+
+@pytest.fixture
+def a_nameless_mock_contact(mock_provider):
+    person = replace(mock_provider.PEOPLE[0], first_name="", last_name="")
+    return mock_provider._ac_contact(person, 0)
 
 
 class TestTheContactFixtureCarriesTheShapeTheAccountReturns:
@@ -281,3 +311,77 @@ class TestWhatAnUnsentCampaignProjectsTo:
 
     def test_no_campaign_is_skipped(self):
         assert self.expected()["skips"] == {}
+
+
+class TestTheNameTheHookComposes:
+    def test_both_parts_make_the_whole_name(self):
+        out = extract.reshape("contacts", {"firstName": "Jane", "lastName": "Smith"})
+        assert out[0]["_full_name"] == "Jane Smith"
+
+    def test_one_part_is_the_whole_name(self):
+        out = extract.reshape("contacts", {"firstName": "Jane", "lastName": ""})
+        assert out[0]["_full_name"] == "Jane"
+
+    def test_neither_part_leaves_the_key_present_with_nothing_in_it(self):
+        out = extract.reshape("contacts", {"firstName": "", "lastName": ""})
+        assert out[0]["_full_name"] is None
+
+    def test_the_stored_payload_is_not_touched(self):
+        payload = {"firstName": "", "lastName": ""}
+        extract.reshape("contacts", payload)
+        assert payload == {"firstName": "", "lastName": ""}
+
+    def test_a_campaign_passes_through(self):
+        payload = {"id": "1", "name": "July Newsletter"}
+        assert extract.reshape("campaigns", payload) == [payload]
+
+
+class TestAContactTheAccountNeverNamed:
+    def test_both_name_fields_come_back_empty_rather_than_absent(
+        self, a_nameless_mock_contact
+    ):
+        assert a_nameless_mock_contact["firstName"] == ""
+        assert a_nameless_mock_contact["lastName"] == ""
+
+    def test_such_a_contact_still_has_the_shape_the_account_returns(
+        self, a_nameless_mock_contact
+    ):
+        assert shape(a_nameless_mock_contact) == LIVE_CONTACT
+
+    def test_the_hook_carries_the_name_key_with_nothing_in_it(
+        self, a_nameless_mock_contact
+    ):
+        out = extract.reshape("contacts", a_nameless_mock_contact)
+        assert out[0]["_full_name"] is None
+
+    def test_the_name_mapping_is_hit_rather_than_dead(self, a_nameless_mock_contact):
+        _entities, report = project(a_nameless_mock_contact)
+        assert report.dead_paths() == []
+
+    def test_the_name_is_cleared_rather_than_left_off(self, a_nameless_mock_contact):
+        _entities, report = project(a_nameless_mock_contact)
+        assert report.clears["name/activecampaign"] == 1
+
+    def test_the_contact_is_still_accepted_with_the_rest_of_itself(
+        self, a_nameless_mock_contact
+    ):
+        entities, _report = project(a_nameless_mock_contact)
+        facts = {attr: fact.value for attr, fact in entities[0].facts.items()}
+        assert facts["name"] is None
+        assert facts["email"] == a_nameless_mock_contact["email"]
+
+    def test_half_a_name_is_the_whole_name(self, mock_provider):
+        person = replace(mock_provider.PEOPLE[0], last_name="")
+        out = extract.reshape("contacts", mock_provider._ac_contact(person, 0))
+        assert out[0]["_full_name"] == person.first_name
+
+    def test_a_named_contact_still_composes_both_parts(
+        self, mock_provider, a_mock_contact
+    ):
+        person = mock_provider.PEOPLE[0]
+        out = extract.reshape("contacts", a_mock_contact)
+        assert out[0]["_full_name"] == f"{person.first_name} {person.last_name}"
+
+    def test_a_named_contact_clears_nothing(self, a_mock_contact):
+        _entities, report = project(a_mock_contact)
+        assert "name/activecampaign" not in report.clears
