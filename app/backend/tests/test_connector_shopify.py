@@ -115,43 +115,68 @@ class TestProtectedCustomerData:
             assert not [f for f in GATED_ADDRESS_FIELDS if block.get(f) is not None]
             assert block["country_name"]
 
-    def test_a_customer_with_no_personal_data_still_becomes_a_person(self, shopify):
-        entities, _report = project(
-            shopify, "customers", "9100000001", a_gated_customer()
-        )
-        assert [(e.entity_type, e.source_id) for e in entities] == [
-            ("person", "9100000001")
-        ]
+    def test_a_customer_the_store_gated_carries_nothing_a_person_is_made_of(self):
+        payload = a_gated_customer()
+        onto = ontology.load()
+        person = onto.entities["person"]
+        assert not [attr for attr in person.attrs if attr in payload]
 
-    def test_that_person_is_the_shopify_id_and_nothing_else(self, shopify):
-        entities, _report = project(
-            shopify, "customers", "9100000001", a_gated_customer()
-        )
-        facts = {attr: fact.value for attr, fact in entities[0].facts.items()}
-        assert facts == {"external_ref": "9100000001"}
-
-    def test_a_gated_customer_is_neither_dropped_nor_skipped_in_silence(self, shopify):
-        entities, report = project(
-            shopify, "customers", "9100000001", a_gated_customer()
-        )
-        assert len(entities) == 1
-        assert dict(report.skips) == {}
-        assert dict(report.records_skipped) == {}
-
-    def test_no_mapping_line_reads_a_field_the_live_store_withholds(self):
+    def test_no_mapping_line_reads_a_shopify_customer(self):
         keys = [
             line.key
             for line in mappings.load()
             if line.source == "shopify" and line.object_type == "customers"
         ]
-        assert keys == ["shopify.customers.id"]
+        assert keys == []
 
-    def test_every_stand_in_customer_projects_a_person(self, shopify):
+    async def test_the_pull_counts_the_customers_that_arrived_without_a_person(
+        self, shopify, route
+    ):
+        gated = [a_gated_customer(9100000001), a_gated_customer(9100000002)]
+        named = {**a_gated_customer(9100000003), "email": "jane@example.test"}
+
+        def handler(request):
+            name = request.url.path.rsplit("/", 1)[-1].removesuffix(".json")
+            rows = [*gated, named] if name == "customers" else []
+            return httpx.Response(200, json={name: rows})
+
+        route(handler)
+        stored = []
+
+        async def store(session, **kwargs):
+            stored.append(kwargs)
+
+        notes = await shopify.pull(None, store)
+
+        assert notes == {"customers_without_personal_data": 2}
+        assert len(stored) == 3
+
+    async def test_a_store_that_hands_over_its_customers_is_noted_as_nothing(
+        self, shopify, route
+    ):
+        named = {**a_gated_customer(9100000003), "email": "jane@example.test"}
+
+        def handler(request):
+            name = request.url.path.rsplit("/", 1)[-1].removesuffix(".json")
+            return httpx.Response(
+                200, json={name: [named] if name == "customers" else []}
+            )
+
+        route(handler)
+
+        async def store(session, **kwargs):
+            return None
+
+        assert await shopify.pull(None, store) is None
+
+    def test_a_stand_in_customer_projects_nothing_at_all(self, shopify):
         for payload in payloads("customers"):
-            entities, _report = project(
+            entities, report = project(
                 shopify, "customers", str(payload["id"]), payload
             )
-            assert [e.entity_type for e in entities] == ["person"]
+            assert entities == []
+            assert dict(report.skips) == {}
+            assert dict(report.records_skipped) == {}
 
 
 class TestTheCurrencyIsTheOneTheRecordCarries:

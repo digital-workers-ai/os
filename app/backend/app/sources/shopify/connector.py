@@ -9,6 +9,8 @@ OBSERVED_AT = {
     "products": "updated_at",
 }
 
+PROTECTED_CUSTOMER_FIELDS = ("email", "first_name", "last_name", "phone")
+
 
 async def pull(session, store):
     api = client_for(SOURCE)
@@ -22,6 +24,14 @@ async def pull(session, store):
             params=params,
             paginate=ShopifyLink(kind),
         )
+        if kind == "customers":
+            withheld = sum(
+                1
+                for item in items
+                if not any(item.get(f) for f in PROTECTED_CUSTOMER_FIELDS)
+            )
+            if withheld:
+                notes["customers_without_personal_data"] = withheld
         await store_all(
             session, store, items, source=SOURCE, object_type=kind, notes=notes
         )

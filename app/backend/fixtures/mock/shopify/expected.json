@@ -3,16 +3,6 @@
     "category/shopify": 1
   },
   "extracted": {
-    "customers": {
-      "person": {
-        "7000000001": {
-          "external_ref": "7000000001"
-        },
-        "7000000002": {
-          "external_ref": "7000000002"
-        }
-      }
-    },
     "orders": {
       "order": {
         "5000000001": {

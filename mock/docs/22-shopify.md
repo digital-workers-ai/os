@@ -42,13 +42,16 @@ entirely when the customer has no address), `email_marketing_consent`, `id`,
 `tax_exemptions`, `total_spent`, `updated_at` and `verified_email`.
 
 This stand-in withholds the same fields, so a mapping that would die against the
-live store dies here too. The consequence for the estate: a Shopify customer
-becomes a person identified by its Shopify id (`shopify.customers.id` →
-`person.external_ref`) and carries no name, email or phone, so it cannot merge
-with a person another tool knows by email. Approval is requested per app in the
-Partner dashboard under **Protected customer data access**; once it is granted,
-the four fields return and the `email`, `_full_name` and `phone` mappings can
-come back with them.
+live store dies here too. The consequence for the estate: a gated customer holds
+nothing a person is made of — no email, no name, no phone — and a record id is
+not an attribute, so **no mapping line reads a Shopify customer** and no person
+comes out of one. The records are still pulled and still stored raw; the
+connector counts the ones that arrived without personal data and the sync run's
+detail says so (`customers_without_personal_data=3`), so the gap is a number on
+every run rather than three records quietly becoming nothing. Approval is
+requested per app in the Partner dashboard under **Protected customer data
+access**; once it is granted, the four fields come back and with them the
+`email`, `_full_name` and `phone` mappings, and that count falls to zero.
 
 The same gate covers `email`, `phone`, `customer`, `billing_address` and
 `shipping_address` on an order. The store used for the pull had no orders, so
