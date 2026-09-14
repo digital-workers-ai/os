@@ -24,6 +24,50 @@ Returns `401 Unauthorized` without valid token.
 
 ---
 
+## Protected customer data
+
+Every field that identifies a shopper is **protected customer data**, and an app
+Shopify has not approved for it never receives those fields — they are absent
+from the JSON, not null. A pull from a live dev store on 2024-01 returned three
+customers, none of which carried `email`, `first_name`, `last_name` or `phone`,
+and whose addresses carried only `id`, `customer_id`, `company`, `country`,
+`country_code`, `country_name`, `province`, `province_code` and `default`, with
+both province fields null on every record.
+
+What a customer does carry without approval: `addresses`,
+`admin_graphql_api_id`, `created_at`, `currency`, `default_address` (absent
+entirely when the customer has no address), `email_marketing_consent`, `id`,
+`last_order_id`, `last_order_name`, `multipass_identifier`, `note`,
+`orders_count`, `sms_marketing_consent`, `state`, `tags`, `tax_exempt`,
+`tax_exemptions`, `total_spent`, `updated_at` and `verified_email`.
+
+This stand-in withholds the same fields, so a mapping that would die against the
+live store dies here too. The consequence for the estate: a gated customer holds
+nothing a person is made of — no email, no name, no phone — and a record id is
+not an attribute, so **no mapping line reads a Shopify customer** and no person
+comes out of one. The records are still pulled and still stored raw; the
+connector counts the ones that arrived without personal data and the sync run's
+detail says so (`customers_without_personal_data=3`), so the gap is a number on
+every run rather than three records quietly becoming nothing. Approval is
+requested per app in the Partner dashboard under **Protected customer data
+access**; once it is granted, the four fields come back and with them the
+`email`, `_full_name` and `phone` mappings, and that count falls to zero.
+
+The same gate covers `email`, `phone`, `customer`, `billing_address` and
+`shipping_address` on an order. The store used for the pull had no orders, so
+what an order carries without approval is **unverified** here, and the order
+records below are what the contract promises rather than what was observed.
+
+`pull_source shopify --compare` against that store still reports differences,
+and every one of them is the stand-in holding a value the store never set:
+`last_order_id` and `last_order_name` (its customers have never ordered), a
+consent timestamp, an address `company`, a variant `barcode` and a variant
+`image_id`. The stand-in carries the union of what the API can return, so
+`null` on one side and `null|string` on the other is the expected reading; a
+key present on one side and missing on the other is not.
+
+---
+
 ## Endpoints
 
 ### GET /orders.json
@@ -34,7 +78,7 @@ List orders.
 
 | Param | Type | Default | Description |
 |-------|------|---------|-------------|
-| `status` | string | `open` | Filter by status: `open`, `closed`, `cancelled`, `any` |
+| `status` | string | `open` | Filter by status: `open`, `closed`, `cancelled`, `any` — the connector sends `any`, because the default hides every closed and cancelled order |
 | `created_at_min` | string | — | ISO 8601 minimum creation date |
 | `created_at_max` | string | — | ISO 8601 maximum creation date |
 | `updated_at_min` | string | — | ISO 8601 minimum update date |
@@ -222,9 +266,6 @@ curl -H "X-Shopify-Access-Token: shpat_mock_xxxxxxxxxxxx" \
   "customers": [
     {
       "id": 1234567890,
-      "email": "jane@acme.io",
-      "first_name": "Jane",
-      "last_name": "Smith",
       "created_at": "2025-03-15T10:30:00-04:00",
       "updated_at": "2026-06-01T14:22:00-04:00",
       "orders_count": 5,
@@ -238,50 +279,40 @@ curl -H "X-Shopify-Access-Token: shpat_mock_xxxxxxxxxxxx" \
       "tax_exempt": false,
       "tags": "vip, repeat-buyer",
       "currency": "USD",
-      "phone": "+14155551234",
       "email_marketing_consent": {
         "state": "subscribed",
         "opt_in_level": "single_opt_in",
         "consent_updated_at": "2025-03-15T10:30:00-04:00"
       },
-      "sms_marketing_consent": null,
+      "sms_marketing_consent": {
+        "state": "subscribed",
+        "opt_in_level": "single_opt_in",
+        "consent_collected_from": "SHOP",
+        "consent_updated_at": "2025-03-15T10:30:00-04:00"
+      },
       "admin_graphql_api_id": "gid://shopify/Customer/1234567890",
       "tax_exemptions": [],
       "default_address": {
         "id": 9876543210,
         "customer_id": 1234567890,
-        "first_name": "Jane",
-        "last_name": "Smith",
         "company": "Acme Corp",
-        "address1": "123 Main St",
-        "address2": "Suite 400",
-        "city": "San Francisco",
-        "province": "California",
-        "province_code": "CA",
+        "province": null,
+        "province_code": null,
         "country": "United States",
         "country_code": "US",
-        "zip": "94105",
-        "phone": "+14155551234",
-        "name": "Jane Smith",
+        "country_name": "United States",
         "default": true
       },
       "addresses": [
         {
           "id": 9876543210,
           "customer_id": 1234567890,
-          "first_name": "Jane",
-          "last_name": "Smith",
           "company": "Acme Corp",
-          "address1": "123 Main St",
-          "address2": "Suite 400",
-          "city": "San Francisco",
-          "province": "California",
-          "province_code": "CA",
+          "province": null,
+          "province_code": null,
           "country": "United States",
           "country_code": "US",
-          "zip": "94105",
-          "phone": "+14155551234",
-          "name": "Jane Smith",
+          "country_name": "United States",
           "default": true
         }
       ]
@@ -289,6 +320,11 @@ curl -H "X-Shopify-Access-Token: shpat_mock_xxxxxxxxxxxx" \
   ]
 }
 ```
+
+An unapproved app sees the record above: no `email`, no `first_name`, no
+`last_name`, no `phone`, and an address with nothing below country level. A
+customer with no address at all carries `"addresses": []` and no
+`default_address` key.
 
 ---
 
@@ -305,7 +341,7 @@ List products.
 | `product_type` | string | — | Filter by product type |
 | `vendor` | string | — | Filter by vendor |
 | `handle` | string | — | Filter by comma-separated list of product handles |
-| `status` | string | `active` | `active`, `archived`, `draft` |
+| `status` | string | — | `active`, `archived`, `draft`; unset returns all three, as the live pull confirmed |
 | `created_at_min` | string | — | ISO 8601 minimum creation date |
 | `created_at_max` | string | — | ISO 8601 maximum creation date |
 | `updated_at_min` | string | — | ISO 8601 minimum update date |
@@ -346,6 +382,7 @@ curl -H "X-Shopify-Access-Token: shpat_mock_xxxxxxxxxxxx" \
       "variants": [
         {
           "id": 22222221,
+          "admin_graphql_api_id": "gid://shopify/ProductVariant/22222221",
           "product_id": 33333333,
           "title": "Blue / Small",
           "price": "79.99",
@@ -365,6 +402,7 @@ curl -H "X-Shopify-Access-Token: shpat_mock_xxxxxxxxxxxx" \
           "grams": 400,
           "weight": 0.88,
           "weight_unit": "lb",
+          "image_id": 77777771,
           "inventory_item_id": 55555551,
           "inventory_quantity": 150,
           "old_inventory_quantity": 150,
@@ -372,6 +410,7 @@ curl -H "X-Shopify-Access-Token: shpat_mock_xxxxxxxxxxxx" \
         },
         {
           "id": 22222222,
+          "admin_graphql_api_id": "gid://shopify/ProductVariant/22222222",
           "product_id": 33333333,
           "title": "Blue / Large",
           "price": "89.99",
@@ -391,6 +430,7 @@ curl -H "X-Shopify-Access-Token: shpat_mock_xxxxxxxxxxxx" \
           "grams": 500,
           "weight": 1.1,
           "weight_unit": "lb",
+          "image_id": null,
           "inventory_item_id": 55555552,
           "inventory_quantity": 85,
           "old_inventory_quantity": 85,
@@ -416,6 +456,7 @@ curl -H "X-Shopify-Access-Token: shpat_mock_xxxxxxxxxxxx" \
       "images": [
         {
           "id": 77777771,
+          "admin_graphql_api_id": "gid://shopify/MediaImage/77777771",
           "product_id": 33333333,
           "position": 1,
           "created_at": "2025-01-10T09:00:00-05:00",
@@ -429,6 +470,7 @@ curl -H "X-Shopify-Access-Token: shpat_mock_xxxxxxxxxxxx" \
       ],
       "image": {
         "id": 77777771,
+        "admin_graphql_api_id": "gid://shopify/MediaImage/77777771",
         "product_id": 33333333,
         "position": 1,
         "created_at": "2025-01-10T09:00:00-05:00",
@@ -551,7 +593,8 @@ X-Shopify-Shop-Api-Call-Limit: 32/40
 
 ## Notes
 
-- All monetary values are strings (e.g., `"299.97"`, not `299.97`).
+- All monetary values are strings (e.g., `"299.97"`, not `299.97`) — `total_price`, `subtotal_price`, `total_tax`, a line item's `price` and a variant's `price` and `compare_at_price` all arrive as decimal text.
+- A live product is mostly nulls: `body_html`, `published_at`, `image`, `template_suffix` and a variant's `sku`, `barcode`, `compare_at_price`, `image_id` and `inventory_management` are each null on real records, `images` is `[]` when there is no image, and `product_type` and `tags` come back as empty strings rather than absent.
 - Timestamps are ISO 8601 with timezone offset.
 - The `admin_graphql_api_id` field is the GraphQL global ID for the resource.
 - `since_id` is the older pagination method — Link header cursor pagination is preferred.

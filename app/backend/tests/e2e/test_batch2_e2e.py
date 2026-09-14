@@ -61,7 +61,7 @@ async def test_the_rebuild_resolves_the_batch_two_entities(
     )
     assert canonical_by_type == {
         "company": 10,
-        "person": 25,
+        "person": 23,
         "deal": 28,
         "subscription": 10,
         "ticket": 20,
