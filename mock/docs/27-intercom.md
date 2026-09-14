@@ -192,10 +192,92 @@ curl -H "Authorization: Bearer int_mock_xxxxxxxxxxxx" \
 
 **Example Response:**
 
+Two conversations are shown rather than one page: `conv_t1`, Messenger-originated, from page 1, and `conv_t5`, email-originated, from a later page.
+
 ```json
 {
   "type": "conversation.list",
   "conversations": [
+    {
+      "type": "conversation",
+      "id": "conv_t1",
+      "created_at": 1720108800,
+      "updated_at": 1720368000,
+      "waiting_since": null,
+      "snoozed_until": null,
+      "title": null,
+      "state": "open",
+      "open": true,
+      "read": false,
+      "priority": "priority",
+      "admin_assignee_id": null,
+      "team_assignee_id": null,
+      "source": null,
+      "contacts": {
+        "type": "contact.list",
+        "contacts": [
+          {
+            "type": "contact",
+            "id": "con_p7",
+            "external_id": "user_tom_initech"
+          }
+        ]
+      },
+      "teammates": {
+        "type": "admin.list",
+        "admins": []
+      },
+      "first_contact_reply": null,
+      "conversation_rating": null,
+      "sla_applied": null,
+      "ticket": null,
+      "tags": {
+        "type": "tag.list",
+        "tags": []
+      },
+      "topics": {
+        "type": "topic.list",
+        "topics": [],
+        "total_count": 0
+      },
+      "linked_objects": {
+        "type": "list",
+        "data": [],
+        "total_count": 0,
+        "has_more": false
+      },
+      "custom_attributes": {
+        "Auto-translated": false,
+        "Copilot used": false,
+        "Fin AI Agent: Image used in reply": false,
+        "Fin AI Agent: Preview": false,
+        "Fin awaiting teammate input": false,
+        "Has attachments": false,
+        "Imported via standalone": false,
+        "SDR Success Counted": false
+      },
+      "statistics": {
+        "type": "conversation_statistics",
+        "time_to_assignment": null,
+        "time_to_admin_reply": null,
+        "time_to_first_close": null,
+        "time_to_last_close": null,
+        "median_time_to_reply": null,
+        "first_contact_reply_at": null,
+        "first_assignment_at": null,
+        "first_admin_reply_at": null,
+        "first_close_at": null,
+        "last_assignment_at": null,
+        "last_assignment_admin_reply_at": null,
+        "last_admin_reply_at": null,
+        "last_close_at": null,
+        "last_closed_by_id": null,
+        "last_contact_reply_at": null,
+        "count_reopens": 0,
+        "count_assignments": 0,
+        "count_conversation_parts": 2
+      }
+    },
     {
       "type": "conversation",
       "id": "conv_t5",
@@ -292,86 +374,6 @@ curl -H "Authorization: Bearer int_mock_xxxxxxxxxxxx" \
         "count_reopens": 0,
         "count_assignments": 1,
         "count_conversation_parts": 4
-      }
-    },
-    {
-      "type": "conversation",
-      "id": "conv_t1",
-      "created_at": 1720108800,
-      "updated_at": 1720368000,
-      "waiting_since": null,
-      "snoozed_until": null,
-      "title": null,
-      "state": "open",
-      "open": true,
-      "read": false,
-      "priority": "priority",
-      "admin_assignee_id": null,
-      "team_assignee_id": null,
-      "source": null,
-      "contacts": {
-        "type": "contact.list",
-        "contacts": [
-          {
-            "type": "contact",
-            "id": "con_p7",
-            "external_id": "user_tom_initech"
-          }
-        ]
-      },
-      "teammates": {
-        "type": "admin.list",
-        "admins": []
-      },
-      "first_contact_reply": null,
-      "conversation_rating": null,
-      "sla_applied": null,
-      "ticket": null,
-      "tags": {
-        "type": "tag.list",
-        "tags": []
-      },
-      "topics": {
-        "type": "topic.list",
-        "topics": [],
-        "total_count": 0
-      },
-      "linked_objects": {
-        "type": "list",
-        "data": [],
-        "total_count": 0,
-        "has_more": false
-      },
-      "custom_attributes": {
-        "Auto-translated": false,
-        "Copilot used": false,
-        "Fin AI Agent: Image used in reply": false,
-        "Fin AI Agent: Preview": false,
-        "Fin awaiting teammate input": false,
-        "Has attachments": false,
-        "Imported via standalone": false,
-        "SDR Success Counted": false
-      },
-      "statistics": {
-        "type": "conversation_statistics",
-        "time_to_assignment": null,
-        "time_to_admin_reply": null,
-        "time_to_first_close": null,
-        "time_to_last_close": null,
-        "median_time_to_reply": null,
-        "first_contact_reply_at": null,
-        "first_assignment_at": null,
-        "first_admin_reply_at": null,
-        "first_close_at": null,
-        "last_assignment_at": null,
-        "last_assignment_admin_reply_at": null,
-        "last_admin_reply_at": null,
-        "last_close_at": null,
-        "last_closed_by_id": null,
-        "last_contact_reply_at": null,
-        "count_reopens": 0,
-        "count_assignments": 0,
-        "count_conversation_parts": 2
       }
     }
   ],
