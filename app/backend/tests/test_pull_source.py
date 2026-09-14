@@ -61,6 +61,21 @@ class TestTheReport:
         assert "compare:" not in text
         assert code == 0
 
+    async def test_a_deal_currency_the_records_carry_is_never_dead(self, served):
+        text, code = await pull_source.report("hubspot")
+        assert "deal:hubspot.deals.properties.deal_currency_code" not in text
+        assert "deal:hubspot.deals._status" not in text
+        assert code == 0
+
+    async def test_a_deal_answered_without_the_closed_flags_still_lands(self, served):
+        payloads, _seen = served
+        del payloads["deals"][0]["properties"]["hs_is_closed"]
+        del payloads["deals"][0]["properties"]["hs_is_closed_won"]
+        text, code = await pull_source.report("hubspot")
+        assert "deals: requests=1 records=4 accepted=4" in text
+        assert text.count("  dead paths: none") == 3
+        assert code == 0
+
     async def test_a_path_no_record_carries_is_dead_and_fails_the_run(self, served):
         payloads, _seen = served
         for row in payloads["companies"]:
@@ -155,22 +170,37 @@ class TestCompare:
         payloads, _seen = served
         for row in payloads["contacts"]:
             row["properties"]["extra"] = "x"
-            del row["properties"]["company"]
-            row["properties"]["lifecyclestage"] = 3
+            del row["properties"]["lastname"]
+            row["properties"]["firstname"] = 3
         text, code = await pull_source.report("hubspot", compare=True)
         assert (
             "  compare: only in real: properties.extra; "
-            "only in mock: properties.company; "
-            "type mismatches: properties.lifecyclestage real=number mock=string" in text
+            "only in mock: properties.lastname; "
+            "type mismatches: properties.firstname real=number mock=string" in text
         )
         assert code == 1
 
     async def test_a_null_in_one_record_widens_the_real_type(self, served):
         payloads, _seen = served
-        payloads["companies"][0]["properties"]["industry"] = None
+        payloads["companies"][0]["properties"]["domain"] = None
         text, code = await pull_source.report("hubspot", compare=True)
-        assert "properties.industry real=null|string mock=string" in text
+        assert "properties.domain real=null|string mock=string" in text
         assert code == 1
+
+    async def test_the_fields_a_real_record_leaves_empty_are_already_null_in_the_mock(
+        self, served
+    ):
+        payloads, _seen = served
+        blanks = [
+            row
+            for row in payloads["companies"]
+            if row["properties"]["name"] is None
+            and row["properties"]["industry"] is None
+        ]
+        assert blanks
+        text, code = await pull_source.report("hubspot", compare=True)
+        assert "type mismatches: none" in text
+        assert code == 0
 
     async def test_nested_objects_and_lists_of_objects_are_walked(self, served):
         payloads, _seen = served

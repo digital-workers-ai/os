@@ -352,22 +352,33 @@ class TestInferredMetricsPassTheBuild:
         assert files.problems() == []
 
 
+def drop_hubspot_deal_currency(doc):
+    doc["deal"].pop("hubspot.deals.properties.deal_currency_code")
+
+
 class TestAccountCurrencyExemption:
     def test_a_money_mapping_source_must_declare_or_map_its_currency(
         self, files, monkeypatch
     ):
-        monkeypatch.setattr(hubspot_connector, "ACCOUNT_CURRENCY", None)
+        monkeypatch.setattr(salesforce_connector, "ACCOUNT_CURRENCY", None)
+        assert any(
+            "salesforce" in p and "ACCOUNT_CURRENCY" in p for p in files.problems()
+        )
+
+    def test_a_source_that_maps_its_own_currency_needs_no_account_default(self, files):
+        assert not hasattr(hubspot_connector, "ACCOUNT_CURRENCY")
+        assert not any("hubspot" in p and "currency" in p for p in files.problems())
+
+    def test_dropping_that_mapping_leaves_hubspot_money_undenominated(self, files):
+        files.edit("mappings.yaml", drop_hubspot_deal_currency)
         assert any("hubspot" in p and "ACCOUNT_CURRENCY" in p for p in files.problems())
 
     def test_an_unmapped_currency_attr_is_exempt_only_while_a_connector_declares_it(
         self, files, monkeypatch
     ):
         assert not any("deal.currency" in p for p in files.problems())
-        for module in (
-            hubspot_connector,
-            salesforce_connector,
-            google_sheets_connector,
-        ):
+        files.edit("mappings.yaml", drop_hubspot_deal_currency)
+        for module in (salesforce_connector, google_sheets_connector):
             monkeypatch.setattr(module, "ACCOUNT_CURRENCY", None)
         assert any(
             "deal.currency" in p and "no mapping line produces it" in p
