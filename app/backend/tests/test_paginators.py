@@ -375,27 +375,37 @@ class TestShopifyLinkHeader:
 
 
 class TestTwilioPage:
-    def test_twilio_increments_the_page_number_and_carries_its_token(self):
+    def test_twilio_follows_the_query_the_vendor_put_on_next_page_uri(self):
         body = {
             "messages": [],
-            "next_page_uri": "/x?Page=2",
+            "next_page_uri": "/Messages.json?PageSize=1&Page=2&PageToken=PASM0002",
             "page": 1,
-            "next_page_token": "t1",
         }
-        assert paginator("page_twilio").next_params(body, {}) == {
-            "Page": 2,
-            "PageToken": "t1",
+        assert paginator("page_twilio").next_params(body, {"PageSize": 1}) == {
+            "PageSize": "1",
+            "Page": "2",
+            "PageToken": "PASM0002",
         }
 
-    def test_twilio_sends_an_empty_token_when_the_vendor_omits_one(self):
-        body = {"messages": [], "next_page_uri": "/x?Page=2", "page": 0}
-        assert paginator("page_twilio").next_params(body, {})["PageToken"] == ""
+    def test_twilio_reads_no_token_the_envelope_never_carries(self):
+        body = {"messages": [], "next_page_uri": "/Messages.json?Page=2", "page": 1}
+        assert paginator("page_twilio").next_params(body, {}) == {"Page": "2"}
+
+    def test_a_stale_page_number_loses_to_the_uri_the_vendor_sent(self):
+        body = {
+            "messages": [],
+            "next_page_uri": "/Messages.json?Page=7&PageToken=PASM0007",
+            "page": 1,
+        }
+        assert paginator("page_twilio").next_params(body, {"Page": 2})["Page"] == "7"
 
     @pytest.mark.parametrize(
         "body",
         [
             {"messages": []},
             {"messages": [], "next_page_uri": ""},
+            {"messages": [], "next_page_uri": None},
+            {"messages": [], "next_page_uri": "/Messages.json"},
         ],
     )
     def test_the_walk_ends(self, body):
