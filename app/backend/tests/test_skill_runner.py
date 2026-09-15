@@ -229,8 +229,12 @@ class TestTheToolbeltReads:
             "id": "8821",
             "headline": "theirs",
         }
-        found = await toolbelt.call(bench, "swipe.search", {"competitor": "acme"})
-        assert found["items"] == [{"id": "1", "competitor": "acme"}]
+        found = await toolbelt.call(
+            bench, "swipe.search", {"competitor": "acme", "sort": "days_running"}
+        )
+        assert found["items"] == [
+            {"id": "1", "competitor": "acme", "sort": "days_running"}
+        ]
 
     async def test_assets_read_returns_an_asset_and_its_text(
         self, bench, skill_run, session
@@ -253,6 +257,52 @@ class TestTheToolbeltReads:
         payload = await toolbelt.call(bench, "assets.read", {"seq": asset.seq})
         assert payload["asset"]["name"] == "Older post"
         assert payload["text"] == {"post.md": "the older words"}
+
+    async def test_assets_read_leaves_the_bytes_of_a_rendered_file_alone(
+        self, bench, skill_run, session
+    ):
+        bench.run_seq = skill_run.seq
+        asset = Asset(name="Older image", kind="image", origin="chat")
+        session.add(asset)
+        await session.flush()
+        media.write("assets", asset.seq, 1, "v1.png", b"pixels")
+        payload = await toolbelt.call(bench, "assets.read", {"seq": asset.seq})
+        assert payload["files"] == [
+            {"path": "v1.png", "media_type": "image/png", "bytes": 6}
+        ]
+        assert payload["text"] == {}
+
+    async def test_a_call_with_no_transcript_is_refused(
+        self, bench, skill_run, session
+    ):
+        bench.run_seq = skill_run.seq
+        canonical_id = uuid.uuid5(uuid.NAMESPACE_URL, "meeting|silent")
+        session.add(
+            EntityCanonical(
+                canonical_id=canonical_id,
+                entity_type="meeting",
+                anchor_key="zoom|meeting|silent",
+                minted_seq=1,
+                member_count=1,
+            )
+        )
+        session.add(
+            FactCurrent(
+                id=uuid.uuid5(uuid.NAMESPACE_URL, "silent|name"),
+                canonical_id=canonical_id,
+                entity_type="meeting",
+                attr="name",
+                value="Silent call",
+                observed_at=SEEN,
+            )
+        )
+        await session.flush()
+        assert (
+            "carries no transcript"
+            in (await toolbelt.call(bench, "transcript.read", {"ref": "Silent call"}))[
+                "error"
+            ]
+        )
 
     async def test_assets_read_of_an_asset_that_is_not_there_is_refused(
         self, bench, skill_run
@@ -848,6 +898,32 @@ class TestABuildRun:
         assert [(row.kind, row.ref) for row in evidence] == [
             ("competitor_ad", "swipe/8821")
         ]
+
+    async def test_an_ask_with_no_words_is_named_after_the_skill(self, session, studio):
+        result = await runner.run(
+            session,
+            skill="dw-post",
+            mode="chat",
+            caller="mcp",
+            input="   ",
+            model_client=writes(("post.md", "w")),
+        )
+        row = await session.get(SkillRun, result["skill_run"])
+        assert (await session.get(Asset, row.asset_seq)).name == "dw-post chat"
+
+    async def test_a_skill_that_makes_no_kind_of_asset_is_refused(
+        self, session, studio
+    ):
+        (studio / "dw-oddity").mkdir()
+        (studio / "dw-oddity" / "SKILL.md").write_text(SKILL)
+        with pytest.raises(runner.SkillError, match="no kind of asset"):
+            await runner.run(
+                session,
+                skill="dw-oddity",
+                mode="chat",
+                caller="mcp",
+                input="an idea",
+            )
 
     async def test_a_build_on_a_proposal_that_is_not_there_is_refused(
         self, session, studio
