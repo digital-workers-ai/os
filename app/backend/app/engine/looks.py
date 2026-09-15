@@ -180,8 +180,7 @@ def _image_sample_problems(name, path) -> list[str]:
             )
     declared = set(limits(name, path))
     problems += [
-        f"look {name!r}: {SAMPLE} fills {extra!r}, which is not a slot this "
-        "look draws"
+        f"look {name!r}: {SAMPLE} fills {extra!r}, which is not a slot this look draws"
         for extra in sorted(set(content) - declared)
     ]
     return problems
@@ -215,8 +214,7 @@ def _video_problems(name, manifest, path) -> list[str]:
         )
     except ValidationError as error:
         problems.append(
-            f"look {name!r}: {SAMPLE} does not validate against its own "
-            f"schema: {error}"
+            f"look {name!r}: {SAMPLE} does not validate against its own schema: {error}"
         )
     else:
         shape = resolution(name, path)

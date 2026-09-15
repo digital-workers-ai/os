@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import StrEnum
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -56,7 +56,7 @@ def shows_avatar(scene) -> bool:
     return getattr(scene, "background", "video") == "video"
 
 
-class SceneStatus(str, Enum):
+class SceneStatus(StrEnum):
     pending = "pending"
     rendering = "rendering"
     rendered = "rendered"
