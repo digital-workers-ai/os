@@ -710,7 +710,7 @@ class TestEverySourceWithRealCredentialsStillHasAStandIn:
     def test_each_real_entry_names_a_mock_entry(self):
         assert set(creds._REAL) <= set(creds._MOCK)
 
-    def test_the_fifteen_configured_sources_are_the_ones_the_environment_names(
+    def test_the_seventeen_configured_sources_are_the_ones_the_environment_names(
         self,
     ):
         assert set(creds._REAL) == {
@@ -729,6 +729,8 @@ class TestEverySourceWithRealCredentialsStillHasAStandIn:
             "meta_ad_library",
             "google_ads_transparency",
             "serp",
+            "competitor_pages",
+            "linkedin_posts",
         }
 
 
@@ -942,3 +944,105 @@ class TestGoogleAdsTransparencyAndSerpShareOneSerpapiKey:
         assert SERPAPI_KEY not in repr(found)
         monkeypatch.setattr(settings, "STAND_INS_ONLY", False)
         assert creds.credentials_for(source).base_url == SERPAPI
+
+
+FIRECRAWL_KEY = "firecrawl-key-test-0000"
+FIRECRAWL = "https://api.firecrawl.dev"
+BRIGHTDATA_KEY = "brightdata-key-test-0000"
+BRIGHTDATA = "https://api.brightdata.com"
+
+
+@pytest.fixture
+def clean_firecrawl(monkeypatch):
+    for name in ("FIRECRAWL_API_KEY", "COMPETITOR_PAGES_BASE_URL"):
+        monkeypatch.delenv(name, raising=False)
+
+
+@pytest.fixture
+def clean_brightdata(monkeypatch):
+    for name in ("BRIGHTDATA_API_KEY", "LINKEDIN_POSTS_BASE_URL"):
+        monkeypatch.delenv(name, raising=False)
+
+
+class TestCompetitorPagesReadsAFirecrawlKey:
+    def test_no_variable_set_means_the_mock(self, clean_firecrawl):
+        found = creds.credentials_for("competitor_pages")
+        assert found.base_url == f"{settings.MOCK_BASE_URL}/pages"
+        assert found.headers == {"Authorization": "Bearer mock_competitor_pages_token"}
+
+    def test_the_key_becomes_a_bearer_header_on_firecrawl(
+        self, clean_firecrawl, monkeypatch
+    ):
+        monkeypatch.setenv("FIRECRAWL_API_KEY", FIRECRAWL_KEY)
+        found = creds.credentials_for("competitor_pages")
+        assert found.base_url == FIRECRAWL
+        assert found.headers == {"Authorization": f"Bearer {FIRECRAWL_KEY}"}
+        assert found.auth is None
+        assert found.params == {}
+        assert found.values == {}
+
+    def test_the_base_url_can_be_overridden(self, clean_firecrawl, monkeypatch):
+        monkeypatch.setenv("FIRECRAWL_API_KEY", FIRECRAWL_KEY)
+        monkeypatch.setenv("COMPETITOR_PAGES_BASE_URL", "https://crawl.example.test")
+        found = creds.credentials_for("competitor_pages")
+        assert found.base_url == "https://crawl.example.test"
+        assert found.headers == {"Authorization": f"Bearer {FIRECRAWL_KEY}"}
+
+    def test_a_base_url_override_alone_does_not_leave_the_mock(
+        self, clean_firecrawl, monkeypatch
+    ):
+        monkeypatch.setenv("COMPETITOR_PAGES_BASE_URL", "https://crawl.example.test")
+        found = creds.credentials_for("competitor_pages")
+        assert found.base_url == f"{settings.MOCK_BASE_URL}/pages"
+
+    def test_the_switch_holds_it_to_the_stand_in(
+        self, clean_firecrawl, stand_ins_only, monkeypatch
+    ):
+        monkeypatch.setenv("FIRECRAWL_API_KEY", FIRECRAWL_KEY)
+        found = creds.credentials_for("competitor_pages")
+        assert found.base_url == f"{settings.MOCK_BASE_URL}/pages"
+        assert FIRECRAWL_KEY not in repr(found)
+        monkeypatch.setattr(settings, "STAND_INS_ONLY", False)
+        assert creds.credentials_for("competitor_pages").base_url == FIRECRAWL
+
+
+class TestLinkedinPostsReadsABrightdataKey:
+    def test_no_variable_set_means_the_mock(self, clean_brightdata):
+        found = creds.credentials_for("linkedin_posts")
+        assert found.base_url == f"{settings.MOCK_BASE_URL}/social-scrape"
+        assert found.headers == {"Authorization": "Bearer mock_linkedin_posts_token"}
+
+    def test_the_key_becomes_a_bearer_header_on_brightdata(
+        self, clean_brightdata, monkeypatch
+    ):
+        monkeypatch.setenv("BRIGHTDATA_API_KEY", BRIGHTDATA_KEY)
+        found = creds.credentials_for("linkedin_posts")
+        assert found.base_url == BRIGHTDATA
+        assert found.headers == {"Authorization": f"Bearer {BRIGHTDATA_KEY}"}
+        assert found.auth is None
+        assert found.params == {}
+        assert found.values == {}
+
+    def test_the_base_url_can_be_overridden(self, clean_brightdata, monkeypatch):
+        monkeypatch.setenv("BRIGHTDATA_API_KEY", BRIGHTDATA_KEY)
+        monkeypatch.setenv("LINKEDIN_POSTS_BASE_URL", "https://scrape.example.test")
+        found = creds.credentials_for("linkedin_posts")
+        assert found.base_url == "https://scrape.example.test"
+        assert found.headers == {"Authorization": f"Bearer {BRIGHTDATA_KEY}"}
+
+    def test_a_base_url_override_alone_does_not_leave_the_mock(
+        self, clean_brightdata, monkeypatch
+    ):
+        monkeypatch.setenv("LINKEDIN_POSTS_BASE_URL", "https://scrape.example.test")
+        found = creds.credentials_for("linkedin_posts")
+        assert found.base_url == f"{settings.MOCK_BASE_URL}/social-scrape"
+
+    def test_the_switch_holds_it_to_the_stand_in(
+        self, clean_brightdata, stand_ins_only, monkeypatch
+    ):
+        monkeypatch.setenv("BRIGHTDATA_API_KEY", BRIGHTDATA_KEY)
+        found = creds.credentials_for("linkedin_posts")
+        assert found.base_url == f"{settings.MOCK_BASE_URL}/social-scrape"
+        assert BRIGHTDATA_KEY not in repr(found)
+        monkeypatch.setattr(settings, "STAND_INS_ONLY", False)
+        assert creds.credentials_for("linkedin_posts").base_url == BRIGHTDATA

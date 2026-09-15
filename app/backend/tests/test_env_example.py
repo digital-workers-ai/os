@@ -8,7 +8,12 @@ from app.sources import creds
 ENV_EXAMPLE = BACKEND_DIR.parent / ".env.example"
 ASSIGNMENT = re.compile(r"^([A-Z][A-Z0-9_]*)=(\S*)$")
 STAND_INS_ONLY = "STAND_INS_ONLY"
-COMPETITOR_CREDENTIALS = ("META_AD_LIBRARY_ACCESS_TOKEN", "SERPAPI_API_KEY")
+COMPETITOR_CREDENTIALS = (
+    "META_AD_LIBRARY_ACCESS_TOKEN",
+    "SERPAPI_API_KEY",
+    "FIRECRAWL_API_KEY",
+    "BRIGHTDATA_API_KEY",
+)
 SERPAPI_KEY = "SERPAPI_API_KEY"
 SERPAPI_SOURCES = ("google_ads_transparency", "serp")
 
