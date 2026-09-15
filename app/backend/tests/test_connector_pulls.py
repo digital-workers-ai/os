@@ -2784,15 +2784,27 @@ class TestLinkedinPostsCollectsEachCompetitor(_CompetitorWatchers):
             "url": f"https://www.linkedin.com/posts/{slug}_activity-7241-{slug}",
             "user_id": company_url,
             "post_text": "Boring is a strategy.",
-            "date_posted": "2026-09-11T13:25:00.000Z",
+            "date_posted": "2026-09-11T13:25:00.539Z",
             "num_likes": 372,
             "num_comments": 45,
-            "num_shares": 12,
             "post_type": "post",
+            "account_type": "Organization",
+            "user_followers": 18400,
             "hashtags": ["#ads"],
+            "repost": {},
+            "timestamp": "2026-09-15T19:12:08.000Z",
         }
 
-    def _vendor(self, statuses=("ready",), strip=()):
+    @staticmethod
+    def _dead_page(company_url):
+        return {
+            "timestamp": "2026-09-15T19:12:08.000Z",
+            "input": {"url": company_url},
+            "error": "Activities are not found",
+            "error_code": "dead_page",
+        }
+
+    def _vendor(self, statuses=("ready",), strip=(), dead=False, records=None):
         companies: dict = {}
         polls: dict = {}
 
@@ -2809,10 +2821,13 @@ class TestLinkedinPostsCollectsEachCompetitor(_CompetitorWatchers):
                 polls[snapshot] = seen + 1
                 return {"status": statuses[min(seen, len(statuses) - 1)]}
             if path == f"/datasets/v3/snapshot/{snapshot}" and snapshot in companies:
-                post = self._post(companies[snapshot])
+                company = companies[snapshot]
+                if records is not None:
+                    return records(company)
+                post = self._post(company)
                 for key in strip:
                     post.pop(key)
-                return [post]
+                return [self._dead_page(company)] if dead else [post]
             raise AssertionError(f"unexpected {request.method} {path}")
 
         return handler
@@ -2912,6 +2927,45 @@ class TestLinkedinPostsCollectsEachCompetitor(_CompetitorWatchers):
 
         assert stored == []
         assert notes == {"missing_id": len(self._companies())}
+
+    async def test_a_company_page_the_vendor_could_not_read_is_counted_not_stored(
+        self, capture, store, stored
+    ):
+        capture(self._vendor(dead=True))
+
+        notes = await connector("linkedin_posts").pull(None, store)
+
+        assert stored == []
+        assert notes == {"dead_pages": len(self._companies())}
+
+    async def test_a_dead_page_is_not_a_post_missing_its_id(
+        self, capture, store, stored
+    ):
+        def records(company):
+            orphan = self._post(company)
+            orphan.pop("id")
+            orphan.pop("url")
+            return [self._dead_page(company), orphan, self._post(company)]
+
+        capture(self._vendor(records=records))
+
+        notes = await connector("linkedin_posts").pull(None, store)
+
+        companies = len(self._companies())
+        assert notes == {"dead_pages": companies, "missing_id": companies}
+        assert set(self._payloads(stored, "posts")) == {
+            self._post(company)["id"] for company in self._companies()
+        }
+
+    def test_linkedin_posts_read_no_share_count(self):
+        labels = {
+            line.key: line.label
+            for line in mappings.load()
+            if line.source == "linkedin_posts" and line.object_type == "posts"
+        }
+        assert labels["linkedin_posts.posts.num_likes"] == "likes"
+        assert "shares" not in labels.values()
+        assert not [key for key in labels if key.endswith(".num_shares")]
 
     async def test_a_snapshot_that_failed_leaves_a_note_and_stores_nothing(
         self, capture, store, stored
