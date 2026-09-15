@@ -46,7 +46,8 @@ Starts a snapshot for the companies in the body and answers at once with its id.
 | `type` | string | `discover_new` | The only collection type this dataset runs |
 | `discover_by` | string | **required** | `company_url`: find the posts from the company page |
 | `format` | string | `json` | The only format served |
-| `include_errors` | boolean | false | Accepted and ignored; the mock has no per-row errors |
+| `include_errors` | boolean | false | Accepted and ignored; error rows are always included |
+| `limit_per_input` | integer | — | Most posts returned per input row, newest first by `date_posted`; all of them when absent |
 
 **Request body:** a list of inputs, one per company.
 
@@ -57,7 +58,7 @@ Starts a snapshot for the companies in the body and answers at once with its id.
 **Example request:**
 
 ```bash
-curl -X POST "http://localhost:8192/social-scrape/datasets/v3/trigger?dataset_id=gd_lyy3tktm25m4avu764&type=discover_new&discover_by=company_url&format=json&include_errors=true" \
+curl -X POST "http://localhost:8192/social-scrape/datasets/v3/trigger?dataset_id=gd_lyy3tktm25m4avu764&type=discover_new&discover_by=company_url&format=json&include_errors=true&limit_per_input=50" \
   -H "Authorization: Bearer mock_linkedin_posts_token" \
   -H "Content-Type: application/json" \
   -d '[{"url": "https://www.linkedin.com/company/vidora"}]'
@@ -220,13 +221,13 @@ None. A snapshot is one array. BrightData pages large snapshots with `batch_size
 
 ## What the connector stores
 
-One trigger per tracked competitor, with the company page from `competitors.yaml` as the single input; then progress polled up to `MAX_POLLS` times with a sleep between polls and none before the first; then, on `ready`, the snapshot read as json. A post row does not name the company it came from, so the connector carries the competitor's domain down as `_competitor_ref`, under the same leading-underscore convention as the other competitor sources. The stored `source_id` is the post `id`, or its `url` when the id is absent. An error row is never stored: it is counted under `dead_pages`, a bare count with the `error_code` left out, separately from `missing_id`. A snapshot that reports `failed` is counted under `failed_snapshots`; one that never reaches `ready` within the poll budget is counted under `unfinished_snapshots`; neither stores anything. Captured in `app/backend/fixtures/mock/linkedin_posts/posts.json`: one collection per competitor, eighteen rows.
+One trigger per tracked competitor, with the company page from `competitors.yaml` as the single input and `limit_per_input` set to `POSTS_PER_COMPANY`, 50, because a discovery on a large page would otherwise return its whole history and the vendor bills per record; then progress polled up to `MAX_POLLS` times with a sleep between polls and none before the first; then, on `ready`, the snapshot read as json. A post row does not name the company it came from, so the connector carries the competitor's domain down as `_competitor_ref`, under the same leading-underscore convention as the other competitor sources. The stored `source_id` is the post `id`, or its `url` when the id is absent. An error row is never stored: it is counted under `dead_pages`, a bare count with the `error_code` left out, separately from `missing_id`. A snapshot that reports `failed` is counted under `failed_snapshots`; one that never reaches `ready` within the poll budget is counted under `unfinished_snapshots`; neither stores anything. Captured in `app/backend/fixtures/mock/linkedin_posts/posts.json`: one collection per competitor, eighteen rows.
 
 ---
 
 ## What the mock simplifies
 
-- Three company pages, six posts each, spread across 16 July to 11 September 2026. Any other company page is accepted at the trigger and comes back as one `dead_page` error row in the snapshot, the way the real collector reports a page it cannot read.
+- Three company pages, six posts each, spread across 16 July to 11 September 2026, so the connector's `limit_per_input` of 50 never truncates anything here; a smaller limit does, newest first. Any other company page is accepted at the trigger and comes back as one `dead_page` error row in the snapshot, the way the real collector reports a page it cannot read.
 - Every company has one carousel among its six, marked `post_type: document`, and it is the one that did well — Vidora's nine-hook carousel at 1,180 reactions against a median of about 365.
 - The lifecycle is real but short: one `running` poll, then `ready`, then the download. No `failed`, no partial snapshots, no `batch_size`, no delivery to storage, no webhooks and no cost accounting.
 - Snapshot state lives in the mock process, so a restart forgets every snapshot id it issued.

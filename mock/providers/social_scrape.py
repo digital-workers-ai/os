@@ -81,6 +81,7 @@ async def trigger(
     discover_by: str = Query(...),
     fmt: str = Query("json", alias="format"),
     include_errors: bool = Query(False),
+    limit_per_input: int = Query(None, ge=1),
 ):
     require_bearer(request)
     if dataset_id != DATASET:
@@ -93,7 +94,7 @@ async def trigger(
     if urls is None:
         return _error(400, "Input must be a non-empty list of objects with a url")
     snapshot_id = f"s_{len(_SNAPSHOTS) + 1:06d}"
-    _SNAPSHOTS[snapshot_id] = urls
+    _SNAPSHOTS[snapshot_id] = {"urls": urls, "limit": limit_per_input}
     return {"snapshot_id": snapshot_id}
 
 
@@ -112,8 +113,8 @@ async def snapshot(
     request: Request, snapshot_id: str, fmt: str = Query("json", alias="format")
 ):
     require_bearer(request)
-    urls = _SNAPSHOTS.get(snapshot_id)
-    if urls is None:
+    asked = _SNAPSHOTS.get(snapshot_id)
+    if asked is None:
         return _error(404, f"Snapshot {snapshot_id} not found")
     if fmt != "json":
         return _error(400, "Only format=json is served")
@@ -126,7 +127,7 @@ async def snapshot(
             },
         )
     rows = []
-    for url in urls:
+    for url in asked["urls"]:
         competitor = _COMPANIES.get(url.rstrip("/"))
         if competitor is None:
             rows.append(_dead_page(url))
@@ -136,5 +137,5 @@ async def snapshot(
             key=lambda p: p.posted_at,
             reverse=True,
         )
-        rows += [_post(competitor, post) for post in newest_first]
+        rows += [_post(competitor, post) for post in newest_first[: asked["limit"]]]
     return rows

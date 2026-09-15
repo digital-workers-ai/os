@@ -8,12 +8,15 @@ OBSERVED_AT = {"posts": "date_posted"}
 
 DATASET = "gd_lyy3tktm25m4avu764"
 
+POSTS_PER_COMPANY = 50
+
 TRIGGER = {
     "dataset_id": DATASET,
     "type": "discover_new",
     "discover_by": "company_url",
     "format": "json",
     "include_errors": "true",
+    "limit_per_input": POSTS_PER_COMPANY,
 }
 
 MAX_POLLS = 30
