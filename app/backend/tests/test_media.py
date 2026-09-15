@@ -26,9 +26,10 @@ class TestWhereFilesLand:
         assert media.read("proposals", 1, 1, "post.md") == b"a caf\xc3\xa9 opened"
 
     def test_path_for_composes_the_absolute_path(self, store):
-        assert media.path_for("assets", 1, 1, "out.mp4") == (
-            store / "assets" / "1" / "1" / "out.mp4"
-        ).resolve()
+        assert (
+            media.path_for("assets", 1, 1, "out.mp4")
+            == (store / "assets" / "1" / "1" / "out.mp4").resolve()
+        )
 
     def test_a_second_write_replaces_the_first(self, store):
         media.write("assets", 1, 1, "post.md", "first")
