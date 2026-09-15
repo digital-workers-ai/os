@@ -1,0 +1,179 @@
+{
+  "clears": {},
+  "extracted": {
+    "pages": {
+      "competitor_page": {
+        "https://avatarly.com/": {
+          "body_sha": "ec703d7fa7d010fefa341ee76d7996ea059e96a637fe85acd86a19202a36c9d1",
+          "competitor_ref": "avatarly.com",
+          "fetched_on": "2026-09-14T05:50:00Z",
+          "name": "Avatarly \u2014 presenters who show up",
+          "url": "https://avatarly.com/",
+          "word_count": "206.0"
+        },
+        "https://avatarly.com/about": {
+          "body_sha": "177c06ee23a97ff16686df6edce569043431a09990a6ea23e60f17b89d852436",
+          "competitor_ref": "avatarly.com",
+          "fetched_on": "2026-09-14T05:50:00Z",
+          "name": "About Avatarly",
+          "url": "https://avatarly.com/about",
+          "word_count": "193.0"
+        },
+        "https://avatarly.com/blog": {
+          "body_sha": "678966da25809b134f252232611e1046148b49dc0d09983fe34c3f347b0df110",
+          "competitor_ref": "avatarly.com",
+          "fetched_on": "2026-09-14T05:50:00Z",
+          "name": "Blog \u2014 Avatarly",
+          "url": "https://avatarly.com/blog",
+          "word_count": "116.0"
+        },
+        "https://avatarly.com/blog/spot-the-avatar-results": {
+          "body_sha": "9d1a9a68eb14f225d4be3616f873b349782d1340961bad6abfa6d4d30d5c55c1",
+          "competitor_ref": "avatarly.com",
+          "fetched_on": "2026-09-14T05:50:00Z",
+          "name": "We showed ten ads to two thousand people \u2014 Avatarly",
+          "url": "https://avatarly.com/blog/spot-the-avatar-results",
+          "word_count": "299.0"
+        },
+        "https://avatarly.com/blog/twelve-languages-one-take": {
+          "body_sha": "9ce71909ae1bf4187225e30ffc37c6114b835acfcaecbb071535ba19196db491",
+          "competitor_ref": "avatarly.com",
+          "fetched_on": "2026-09-14T05:50:00Z",
+          "name": "Twelve languages, one take \u2014 Avatarly",
+          "url": "https://avatarly.com/blog/twelve-languages-one-take",
+          "word_count": "254.0"
+        },
+        "https://avatarly.com/how-it-works": {
+          "body_sha": "55ffb2d3e6f2653c0f48f3582589a6071d4c5f6af08978b3c23acba95fa83801",
+          "competitor_ref": "avatarly.com",
+          "fetched_on": "2026-09-14T05:50:00Z",
+          "name": "How Avatarly works",
+          "url": "https://avatarly.com/how-it-works",
+          "word_count": "235.0"
+        },
+        "https://avatarly.com/pricing": {
+          "body_sha": "023edab273907eabe32b2c0346772599aafd26e8fd3d9fc8fee9865578f1cc5c",
+          "competitor_ref": "avatarly.com",
+          "fetched_on": "2026-09-14T05:50:00Z",
+          "name": "Pricing \u2014 Avatarly",
+          "url": "https://avatarly.com/pricing",
+          "word_count": "176.0"
+        },
+        "https://clipwise.io/": {
+          "body_sha": "d037944a265bfdd616f993ccc05878a9cb3ba785f200dfd01abd20143cf9eb16",
+          "competitor_ref": "clipwise.io",
+          "fetched_on": "2026-09-14T05:50:00Z",
+          "name": "Clipwise \u2014 your footage, cut for the feed",
+          "url": "https://clipwise.io/",
+          "word_count": "229.0"
+        },
+        "https://clipwise.io/about": {
+          "body_sha": "2671b9971da54df11dd5f6394dce122b1acf983b0f9b5bce366f9b0e75f5b32b",
+          "competitor_ref": "clipwise.io",
+          "fetched_on": "2026-09-14T05:50:00Z",
+          "name": "About Clipwise",
+          "url": "https://clipwise.io/about",
+          "word_count": "173.0"
+        },
+        "https://clipwise.io/blog": {
+          "body_sha": "f493b7bd4095b1bc1041c227a992b62ba5572aa56c14397bb8f7f8e3d02889ad",
+          "competitor_ref": "clipwise.io",
+          "fetched_on": "2026-09-14T05:50:00Z",
+          "name": "Blog \u2014 Clipwise",
+          "url": "https://clipwise.io/blog",
+          "word_count": "112.0"
+        },
+        "https://clipwise.io/blog/the-candle-shop-week": {
+          "body_sha": "6af240091f1d0613eb1a646494aca1465d8dceb6389f5a49de6647e545a868c4",
+          "competitor_ref": "clipwise.io",
+          "fetched_on": "2026-09-14T05:50:00Z",
+          "name": "The candle shop that outshipped its agency \u2014 Clipwise",
+          "url": "https://clipwise.io/blog/the-candle-shop-week",
+          "word_count": "270.0"
+        },
+        "https://clipwise.io/blog/three-cuts-that-convert": {
+          "body_sha": "8e3be549afbc1bb883e608d7651bce6e282022c70afd3a93afe665c37adddcfc",
+          "competitor_ref": "clipwise.io",
+          "fetched_on": "2026-09-14T05:50:00Z",
+          "name": "Three cuts that convert \u2014 Clipwise",
+          "url": "https://clipwise.io/blog/three-cuts-that-convert",
+          "word_count": "303.0"
+        },
+        "https://clipwise.io/how-it-works": {
+          "body_sha": "f407c6e7cb11a9b90d6a55bff09a2b5aee09c09bc8bb2da88bb0982574c519aa",
+          "competitor_ref": "clipwise.io",
+          "fetched_on": "2026-09-14T05:50:00Z",
+          "name": "How Clipwise works",
+          "url": "https://clipwise.io/how-it-works",
+          "word_count": "233.0"
+        },
+        "https://clipwise.io/pricing": {
+          "body_sha": "bddafa4c91195e13fb1033c9d3e33e68bf5dcaac569d4367cbd7e7f361f46fc9",
+          "competitor_ref": "clipwise.io",
+          "fetched_on": "2026-09-14T05:50:00Z",
+          "name": "Pricing \u2014 Clipwise",
+          "url": "https://clipwise.io/pricing",
+          "word_count": "182.0"
+        },
+        "https://vidora.ai/": {
+          "body_sha": "3e5a49d549f6e9e3a1db9ca3f528f9cc8598a8303a99e147189e2f2a3d8b3b1c",
+          "competitor_ref": "vidora.ai",
+          "fetched_on": "2026-09-14T05:50:00Z",
+          "name": "Vidora \u2014 video ads from a product URL",
+          "url": "https://vidora.ai/",
+          "word_count": "262.0"
+        },
+        "https://vidora.ai/about": {
+          "body_sha": "1856feafea6ae3cd4d8280820d8031fa408b57a6b0441384915f8f310cfac4fa",
+          "competitor_ref": "vidora.ai",
+          "fetched_on": "2026-09-14T05:50:00Z",
+          "name": "About Vidora",
+          "url": "https://vidora.ai/about",
+          "word_count": "192.0"
+        },
+        "https://vidora.ai/blog": {
+          "body_sha": "d7f2c8c45e099930fcf608c2475a7d6f33215540f6bbf736d937a9206730e2f8",
+          "competitor_ref": "vidora.ai",
+          "fetched_on": "2026-09-14T05:50:00Z",
+          "name": "Blog \u2014 Vidora",
+          "url": "https://vidora.ai/blog",
+          "word_count": "125.0"
+        },
+        "https://vidora.ai/blog/one-url-thirty-ads": {
+          "body_sha": "3f6cfd0dbf3e86f8b6aa788d68de9e60756739f576bd5c9fec61cdfbaaf6e8f9",
+          "competitor_ref": "vidora.ai",
+          "fetched_on": "2026-09-14T05:50:00Z",
+          "name": "One URL, thirty ads \u2014 Vidora",
+          "url": "https://vidora.ai/blog/one-url-thirty-ads",
+          "word_count": "320.0"
+        },
+        "https://vidora.ai/blog/what-a-creator-brief-costs": {
+          "body_sha": "35f2b472af3ce7b32f5f76918e8d40b62d20da4ebf626507209902fa3772e880",
+          "competitor_ref": "vidora.ai",
+          "fetched_on": "2026-09-14T05:50:00Z",
+          "name": "What a creator brief actually costs \u2014 Vidora",
+          "url": "https://vidora.ai/blog/what-a-creator-brief-costs",
+          "word_count": "292.0"
+        },
+        "https://vidora.ai/how-it-works": {
+          "body_sha": "95332f272a636f2cda698219b0ccf1a6b41aebebd76ac00694ca4d03a8e73f54",
+          "competitor_ref": "vidora.ai",
+          "fetched_on": "2026-09-14T05:50:00Z",
+          "name": "How Vidora works",
+          "url": "https://vidora.ai/how-it-works",
+          "word_count": "259.0"
+        },
+        "https://vidora.ai/pricing": {
+          "body_sha": "d9f5d1353c6ae4c330321caa2ea915d89a5a0c85dad2b20e23f24aa4afdfb2c3",
+          "competitor_ref": "vidora.ai",
+          "fetched_on": "2026-09-14T05:50:00Z",
+          "name": "Pricing \u2014 Vidora",
+          "url": "https://vidora.ai/pricing",
+          "word_count": "194.0"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "competitor_pages"
+}

@@ -1,0 +1,69 @@
+{
+  "clears": {},
+  "extracted": {
+    "advertisers": {
+      "competitor": {
+        "AR11111111111111111111": {
+          "domain": "vidora.ai",
+          "name": "Vidora"
+        },
+        "AR22222222222222222222": {
+          "domain": "clipwise.io",
+          "name": "Clipwise"
+        },
+        "AR33333333333333333333": {
+          "domain": "avatarly.com",
+          "name": "Avatarly"
+        }
+      }
+    },
+    "creatives": {
+      "competitor_ad": {
+        "CR30410000000000000004": {
+          "category": "text",
+          "competitor_ref": "AR11111111111111111111",
+          "first_seen": "2026-07-22T00:00:00Z",
+          "last_seen": "2026-09-03T00:00:00Z",
+          "name": "What if every product page came with its own video ad? Vidora turns a URL into a scripted, voiced, captioned ad in minutes.",
+          "platform": "google",
+          "url": "https://adstransparency.google.com/advertiser/AR11111111111111111111/creative/CR30410000000000000004"
+        },
+        "CR30410000000000000005": {
+          "category": "video",
+          "competitor_ref": "AR11111111111111111111",
+          "first_seen": "2026-08-05T00:00:00Z",
+          "last_seen": "2026-09-03T00:00:00Z",
+          "platform": "google",
+          "url": "https://adstransparency.google.com/advertiser/AR11111111111111111111/creative/CR30410000000000000005"
+        },
+        "CR30410000000000000008": {
+          "category": "text",
+          "competitor_ref": "AR22222222222222222222",
+          "first_seen": "2026-07-15T00:00:00Z",
+          "last_seen": "2026-08-15T00:00:00Z",
+          "name": "Not another avatar tool. Clipwise cuts real footage, your footage, into hook-first ads that look shot for the feed.",
+          "platform": "google",
+          "url": "https://adstransparency.google.com/advertiser/AR22222222222222222222/creative/CR30410000000000000008"
+        },
+        "CR30410000000000000009": {
+          "category": "image",
+          "competitor_ref": "AR22222222222222222222",
+          "first_seen": "2026-08-27T00:00:00Z",
+          "last_seen": "2026-09-03T00:00:00Z",
+          "platform": "google",
+          "url": "https://adstransparency.google.com/advertiser/AR22222222222222222222/creative/CR30410000000000000009"
+        },
+        "CR30410000000000000012": {
+          "category": "image",
+          "competitor_ref": "AR33333333333333333333",
+          "first_seen": "2026-09-01T00:00:00Z",
+          "last_seen": "2026-09-03T00:00:00Z",
+          "platform": "google",
+          "url": "https://adstransparency.google.com/advertiser/AR33333333333333333333/creative/CR30410000000000000012"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "google_ads_transparency"
+}

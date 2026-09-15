@@ -1,0 +1,78 @@
+{
+  "clears": {},
+  "extracted": {
+    "ads": {
+      "competitor_ad": {
+        "304100000000001": {
+          "competitor_ref": "204815000001",
+          "first_seen": "2026-06-12T00:00:00Z",
+          "name": "Hiring a creator vs. typing a brief into Vidora: one takes three weeks and a contract, the other takes four minutes.",
+          "platform": "meta",
+          "url": "https://www.facebook.com/ads/archive/render_ad/?id=304100000000001&access_token=mock_meta_library_token"
+        },
+        "304100000000002": {
+          "competitor_ref": "204815000001",
+          "first_seen": "2026-07-08T00:00:00Z",
+          "name": "30 videos a month from one product page. Vidora reads the listing, writes the script and renders every cut in your brand font.",
+          "platform": "meta",
+          "url": "https://www.facebook.com/ads/archive/render_ad/?id=304100000000002&access_token=mock_meta_library_token"
+        },
+        "304100000000003": {
+          "competitor_ref": "204815000001",
+          "first_seen": "2026-08-19T00:00:00Z",
+          "last_seen": "2026-08-30T00:00:00Z",
+          "name": "\"We replaced a $9k monthly retainer with Vidora and our cost per purchase dropped 31%.\" A growth lead at a skincare brand, three months in.",
+          "platform": "meta",
+          "url": "https://www.facebook.com/ads/archive/render_ad/?id=304100000000003&access_token=mock_meta_library_token"
+        },
+        "304100000000006": {
+          "competitor_ref": "204815000002",
+          "first_seen": "2026-07-01T00:00:00Z",
+          "name": "Last spring a two-person candle shop shipped 40 ads in a week with Clipwise. By June, video was their cheapest channel.",
+          "platform": "meta",
+          "url": "https://www.facebook.com/ads/archive/render_ad/?id=304100000000006&access_token=mock_meta_library_token"
+        },
+        "304100000000007": {
+          "competitor_ref": "204815000002",
+          "first_seen": "2026-08-11T00:00:00Z",
+          "name": "Unlimited video ads for $149 a month. No per-render fees, no seat limits, cancel whenever.",
+          "platform": "meta",
+          "url": "https://www.facebook.com/ads/archive/render_ad/?id=304100000000007&access_token=mock_meta_library_token"
+        },
+        "304100000000010": {
+          "competitor_ref": "204815000003",
+          "first_seen": "2026-07-29T00:00:00Z",
+          "last_seen": "2026-08-24T00:00:00Z",
+          "name": "Your competitors test twenty hooks a week; you test two. Avatarly writes, voices and renders the other eighteen while you sleep.",
+          "platform": "meta",
+          "url": "https://www.facebook.com/ads/archive/render_ad/?id=304100000000010&access_token=mock_meta_library_token"
+        },
+        "304100000000011": {
+          "competitor_ref": "204815000003",
+          "first_seen": "2026-08-14T00:00:00Z",
+          "name": "Your UGC creator ghosted again. Avatarly's presenters show up every time, speak twelve languages and never ask for a reshoot fee.",
+          "platform": "meta",
+          "url": "https://www.facebook.com/ads/archive/render_ad/?id=304100000000011&access_token=mock_meta_library_token"
+        }
+      }
+    },
+    "pages": {
+      "competitor": {
+        "204815000001": {
+          "domain": "vidora.ai",
+          "name": "Vidora"
+        },
+        "204815000002": {
+          "domain": "clipwise.io",
+          "name": "Clipwise"
+        },
+        "204815000003": {
+          "domain": "avatarly.com",
+          "name": "Avatarly"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "meta_ad_library"
+}

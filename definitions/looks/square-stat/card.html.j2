@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{{ slots.label }}</title>
+    <style>
+      :root {
+        --ink: #1a1a1a;
+        --paper: #ffffff;
+        --wash: #f5f3eb;
+        --line: #e0dcc1;
+        --muted: #807f74;
+        --brand: #fd4e00;
+        --frame: {{ width }}px;
+        --gutter: calc(var(--frame) * 0.074);
+      }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      html, body {
+        width: {{ width }}px;
+        height: {{ height }}px;
+        overflow: hidden;
+      }
+
+      body {
+        background: var(--wash);
+        font-family: 'Space Grotesk', 'Helvetica Neue', Arial, sans-serif;
+        color: var(--ink);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .ground {
+        position: absolute;
+        inset: 0;
+        background: var(--wash);
+      }
+
+      .ground--generated {
+        background-image: url('{{ background }}');
+        background-size: cover;
+        background-position: center;
+      }
+
+      .card {
+        position: absolute;
+        inset: var(--gutter);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: calc(var(--frame) * 0.083);
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: calc(var(--frame) * 0.028);
+      }
+
+      .stat {
+        font-size: calc(var(--frame) * 0.30);
+        line-height: 0.86;
+        font-weight: 500;
+        letter-spacing: -0.03em;
+        color: var(--brand);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .label {
+        margin-top: calc(var(--frame) * 0.028);
+        font-size: calc(var(--frame) * 0.046);
+        line-height: 1.15;
+        font-weight: 500;
+        letter-spacing: 0.01em;
+        max-width: 84%;
+      }
+
+      .support {
+        font-size: calc(var(--frame) * 0.029);
+        line-height: 1.45;
+        color: var(--muted);
+        max-width: 88%;
+      }
+
+      .foot {
+        display: flex;
+        align-items: center;
+        gap: calc(var(--frame) * 0.018);
+        padding-top: calc(var(--frame) * 0.032);
+        border-top: 1px solid var(--line);
+      }
+
+      .pip {
+        width: calc(var(--frame) * 0.020);
+        height: calc(var(--frame) * 0.020);
+        border-radius: 50%;
+        background: var(--brand);
+      }
+
+      .mark {
+        font-size: calc(var(--frame) * 0.024);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="ground{% if background %} ground--generated{% endif %}"></div>
+    <div class="card">
+      <div class="head">
+        <div class="stat">{{ slots.stat }}</div>
+        <div class="label">{{ slots.label }}</div>
+      </div>
+      <div class="support">{{ slots.support }}</div>
+      <div class="foot">
+        <span class="pip"></span>
+        <span class="mark">{{ slots.mark }}</span>
+      </div>
+    </div>
+  </body>
+</html>

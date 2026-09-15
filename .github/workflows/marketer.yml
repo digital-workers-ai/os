@@ -1,0 +1,143 @@
+name: marketer
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+    inputs:
+      focus:
+        type: string
+        default: ""
+
+jobs:
+  gate:
+    if: vars.STUDIO_AGENTS_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      allowed: ${{ steps.permission.outputs.allowed }}
+    steps:
+      - name: Admit only the repository owner or an admin
+        id: permission
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ACTOR: ${{ github.event.sender.login || github.actor }}
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "allowed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          permission=$(gh api "repos/${{ github.repository }}/collaborators/$ACTOR/permission" --jq .permission 2>/dev/null || echo none)
+          echo "actor=$ACTOR permission=$permission"
+          if [ "$permission" = "admin" ]; then
+            echo "allowed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "allowed=false" >> "$GITHUB_OUTPUT"
+          fi
+  marketer:
+    needs: gate
+    if: needs.gate.outputs.allowed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    concurrency:
+      group: marketer-daily
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+      actions: read
+    env:
+      MARKETER_DATABASE_URL: postgresql://os:os@localhost:6442/os
+      MARKETER_API: http://localhost:9092
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+      - name: Copy the example env
+        run: cp app/.env.example app/.env
+      - name: Read the marketer's model
+        id: agent
+        run: echo "model=$(yq -r .model agents/marketer.yaml)" >> "$GITHUB_OUTPUT"
+      - name: Refuse two snapshot sources
+        if: vars.OPERATOR_SNAPSHOT_S3 != '' && vars.OPERATOR_SNAPSHOT_GCS != ''
+        run: |
+          echo "::error::OPERATOR_SNAPSHOT_S3 and OPERATOR_SNAPSHOT_GCS are both set; the run restores from one cloud, unset the other"
+          exit 1
+      - name: Start postgres on 6442
+        run: docker compose -f app/docker-compose.yml up -d --build --wait postgres
+      - name: Assume the AWS role
+        if: vars.OPERATOR_SNAPSHOT_S3 != ''
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.OPERATOR_AWS_ROLE_ARN }}
+          aws-region: us-east-1
+      - name: Fetch the dump from S3
+        if: vars.OPERATOR_SNAPSHOT_S3 != ''
+        run: aws s3 cp "s3://${{ vars.OPERATOR_SNAPSHOT_S3 }}" os.dump
+      - name: Authenticate to Google Cloud
+        if: vars.OPERATOR_SNAPSHOT_GCS != ''
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.OPERATOR_GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.OPERATOR_GCP_SERVICE_ACCOUNT }}
+      - name: Fetch the dump from Cloud Storage
+        if: vars.OPERATOR_SNAPSHOT_GCS != ''
+        run: gcloud storage cp "gs://${{ vars.OPERATOR_SNAPSHOT_GCS }}" os.dump
+      - name: Restore the dump into the copy
+        if: vars.OPERATOR_SNAPSHOT_S3 != '' || vars.OPERATOR_SNAPSHOT_GCS != ''
+        run: docker compose -f app/docker-compose.yml exec -T postgres pg_restore -U os -d os --no-owner --no-privileges --exit-on-error < os.dump
+      - name: Sync and rebuild the mock estate when no snapshot is configured
+        if: vars.OPERATOR_SNAPSHOT_S3 == '' && vars.OPERATOR_SNAPSHOT_GCS == ''
+        run: |
+          docker compose -f app/docker-compose.yml up -d --build --wait mock backend
+          post_api() {
+            for _ in $(seq 5); do
+              code=$(curl -sS -o /dev/null -w '%{http_code}' -X POST "$MARKETER_API/api/$1")
+              echo "POST /api/$1 -> $code"
+              case "$code" in
+                2*) return 0 ;;
+                409) sleep 3 ;;
+                *) return 1 ;;
+              esac
+            done
+            return 1
+          }
+          post_api sync
+          post_api rebuild
+      - name: Boot the backend on 9092 against the copy
+        run: docker compose -f app/docker-compose.yml up -d --build --wait backend
+      - name: Report a backend that would not boot
+        if: failure()
+        run: |
+          {
+            echo "## backend logs"
+            echo '```'
+            docker compose -f app/docker-compose.yml logs --tail 60 backend
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Run the marketer
+        id: claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ github.token }}
+          show_full_output: true
+          prompt: |
+            Read agents/marketer.yaml and run the routine in its brief key.
+            The estate is the restored copy beside you: query it with psql "$MARKETER_DATABASE_URL",
+            and reach Studio through the backend at $MARKETER_API. Run a skill in draft
+            mode with POST $MARKETER_API/api/skills/<name>/run; every proposal lands there.
+            You never build, render or publish, and you never write to the repository.
+            Event: ${{ github.event_name }}.
+            Focus: ${{ inputs.focus || 'none' }}.
+          claude_args: |
+            --model ${{ steps.agent.outputs.model }}
+            --max-turns 200
+            --allowedTools "Read,Grep,Glob,Bash(psql:*),Bash(curl:*),Bash(docker compose:*),Bash(git log:*),Bash(git diff:*)"
+      - name: Report cost and the run summary
+        if: always() && steps.claude.outputs.execution_file != ''
+        env:
+          EXEC_FILE: ${{ steps.claude.outputs.execution_file }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          [ -f "$EXEC_FILE" ] || exit 0
+          BODY=$(python3 .github/scripts/report_run.py "Marketer run")
+          [ -n "$BODY" ] && echo "$BODY" >> "$GITHUB_STEP_SUMMARY" || true

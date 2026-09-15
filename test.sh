@@ -5,7 +5,7 @@ set -euo pipefail
 cd "$(dirname "$0")/app"
 
 compose() { docker compose -f docker-compose.yml "$@"; }
-compose_snap() { docker compose -p os_snap -f docker-compose.yml -f docker-compose.snap.yml "$@"; }
+compose_snap() { docker compose -p os_studio_snap -f docker-compose.yml -f docker-compose.snap.yml "$@"; }
 
 mode="${1:-unit}"
 [ $# -gt 0 ] && shift
@@ -60,7 +60,7 @@ except urllib.error.HTTPError as e:
 
 if [ -n "${snap_script:-}" ]; then
   echo "==> fresh snap stack (postgres, mock, backend, console)"
-  docker volume create os_console_node_modules >/dev/null
+  docker volume create os_studio_console_node_modules >/dev/null
   compose_snap down -v --remove-orphans
   compose_snap up -d --build --wait postgres mock backend
   compose_snap up -d --build console

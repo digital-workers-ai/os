@@ -28,4 +28,4 @@ services:
 volumes:
   console_node_modules:
     external: true
-    name: os_console_node_modules
+    name: os_studio_console_node_modules

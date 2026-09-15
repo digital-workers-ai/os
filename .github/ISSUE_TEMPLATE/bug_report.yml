@@ -17,9 +17,9 @@ body:
     attributes:
       label: Steps to reproduce
       placeholder: |
-        curl -X POST localhost:8092/api/sync
-        curl -X POST localhost:8092/api/rebuild
-        curl localhost:8092/api/...
+        curl -X POST localhost:9092/api/sync
+        curl -X POST localhost:9092/api/rebuild
+        curl localhost:9092/api/...
     validations:
       required: true
   - type: input

@@ -269,6 +269,32 @@ _MOCK: dict[str, tuple[str, dict, tuple | None, dict]] = {
         {},
     ),
     "segment": ("/segment", {"Authorization": "Bearer mock_segment_token"}, None, {}),
+    "meta_ad_library": (
+        "/meta-ad-library",
+        {},
+        None,
+        {"access_token": "mock_meta_library_token"},
+    ),
+    "google_ads_transparency": ("/serpapi", {}, None, {"api_key": "mock_serpapi_key"}),
+    "serp": ("/serp", {}, None, {"api_key": "mock_serpapi_key"}),
+    "ai_answers": (
+        "/answers",
+        {"Authorization": "Bearer mock_ai_answers_token"},
+        None,
+        {},
+    ),
+    "competitor_pages": (
+        "/pages",
+        {"Authorization": "Bearer mock_competitor_pages_token"},
+        None,
+        {},
+    ),
+    "linkedin_posts": (
+        "/social-scrape",
+        {"Authorization": "Bearer mock_linkedin_posts_token"},
+        None,
+        {},
+    ),
 }
 
 

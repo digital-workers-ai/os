@@ -15,6 +15,13 @@ activity = APIRouter(prefix="/api/activity", tags=["activity"])
 mcp = APIRouter(prefix="/api/mcp", tags=["mcp"])
 resolution = APIRouter(prefix="/api/resolution", tags=["resolution"])
 search = APIRouter(prefix="/api/search", tags=["search"])
+looks = APIRouter(prefix="/api", tags=["looks"])
+skills = APIRouter(prefix="/api", tags=["skills"])
+studio = APIRouter(prefix="/api/studio", tags=["studio"])
+assets = APIRouter(prefix="/api", tags=["assets"])
+competitors = APIRouter(prefix="/api", tags=["competitors"])
+brand = APIRouter(prefix="/api", tags=["brand"])
+runs = APIRouter(prefix="/api", tags=["runs"])
 
 ROUTERS = (
     sources,
@@ -30,6 +37,13 @@ ROUTERS = (
     mcp,
     resolution,
     search,
+    looks,
+    skills,
+    studio,
+    assets,
+    competitors,
+    brand,
+    runs,
 )
 HANDLER_MODULES = (
     "app.api.raw_api",
@@ -45,6 +59,13 @@ HANDLER_MODULES = (
     "app.api.mcp_api",
     "app.api.resolution_api",
     "app.api.search_api",
+    "app.api.looks_api",
+    "app.api.skills_api",
+    "app.api.studio_api",
+    "app.api.assets_api",
+    "app.api.competitors_api",
+    "app.api.brand_api",
+    "app.api.runs_api",
 )
 
 

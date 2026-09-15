@@ -1,0 +1,148 @@
+name: taste
+
+on:
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+    inputs:
+      focus:
+        type: string
+        default: ""
+
+jobs:
+  gate:
+    if: vars.STUDIO_AGENTS_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      allowed: ${{ steps.permission.outputs.allowed }}
+    steps:
+      - name: Admit only the repository owner or an admin
+        id: permission
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ACTOR: ${{ github.event.sender.login || github.actor }}
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "allowed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          permission=$(gh api "repos/${{ github.repository }}/collaborators/$ACTOR/permission" --jq .permission 2>/dev/null || echo none)
+          echo "actor=$ACTOR permission=$permission"
+          if [ "$permission" = "admin" ]; then
+            echo "allowed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "allowed=false" >> "$GITHUB_OUTPUT"
+          fi
+  taste:
+    needs: gate
+    if: needs.gate.outputs.allowed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    concurrency:
+      group: taste-nightly
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+      actions: read
+    env:
+      TASTE_DATABASE_URL: postgresql://os:os@localhost:6442/os
+      TASTE_API: http://localhost:9092
+    steps:
+      - name: Check out with full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Copy the example env
+        run: cp app/.env.example app/.env
+      - name: Read the taste agent's model
+        id: agent
+        run: echo "model=$(yq -r .model agents/taste.yaml)" >> "$GITHUB_OUTPUT"
+      - name: Refuse two snapshot sources
+        if: vars.OPERATOR_SNAPSHOT_S3 != '' && vars.OPERATOR_SNAPSHOT_GCS != ''
+        run: |
+          echo "::error::OPERATOR_SNAPSHOT_S3 and OPERATOR_SNAPSHOT_GCS are both set; the run restores from one cloud, unset the other"
+          exit 1
+      - name: Start postgres on 6442
+        run: docker compose -f app/docker-compose.yml up -d --build --wait postgres
+      - name: Assume the AWS role
+        if: vars.OPERATOR_SNAPSHOT_S3 != ''
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.OPERATOR_AWS_ROLE_ARN }}
+          aws-region: us-east-1
+      - name: Fetch the dump from S3
+        if: vars.OPERATOR_SNAPSHOT_S3 != ''
+        run: aws s3 cp "s3://${{ vars.OPERATOR_SNAPSHOT_S3 }}" os.dump
+      - name: Authenticate to Google Cloud
+        if: vars.OPERATOR_SNAPSHOT_GCS != ''
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.OPERATOR_GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.OPERATOR_GCP_SERVICE_ACCOUNT }}
+      - name: Fetch the dump from Cloud Storage
+        if: vars.OPERATOR_SNAPSHOT_GCS != ''
+        run: gcloud storage cp "gs://${{ vars.OPERATOR_SNAPSHOT_GCS }}" os.dump
+      - name: Restore the dump into the copy
+        if: vars.OPERATOR_SNAPSHOT_S3 != '' || vars.OPERATOR_SNAPSHOT_GCS != ''
+        run: docker compose -f app/docker-compose.yml exec -T postgres pg_restore -U os -d os --no-owner --no-privileges --exit-on-error < os.dump
+      - name: Sync and rebuild the mock estate when no snapshot is configured
+        if: vars.OPERATOR_SNAPSHOT_S3 == '' && vars.OPERATOR_SNAPSHOT_GCS == ''
+        run: |
+          docker compose -f app/docker-compose.yml up -d --build --wait mock backend
+          post_api() {
+            for _ in $(seq 5); do
+              code=$(curl -sS -o /dev/null -w '%{http_code}' -X POST "$TASTE_API/api/$1")
+              echo "POST /api/$1 -> $code"
+              case "$code" in
+                2*) return 0 ;;
+                409) sleep 3 ;;
+                *) return 1 ;;
+              esac
+            done
+            return 1
+          }
+          post_api sync
+          post_api rebuild
+      - name: Boot the backend on 9092 against the copy
+        run: docker compose -f app/docker-compose.yml up -d --build --wait backend
+      - name: Report a backend that would not boot
+        if: failure()
+        run: |
+          {
+            echo "## backend logs"
+            echo '```'
+            docker compose -f app/docker-compose.yml logs --tail 60 backend
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Run the taste agent
+        id: claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.OPERATOR_GITHUB_PAT }}
+          branch_prefix: "taste/"
+          show_full_output: true
+          prompt: |
+            Read agents/taste.yaml and run the routine in its brief key.
+            The rejections, edits and feedback are in the restored copy beside you:
+            query it with psql "$TASTE_DATABASE_URL", and read skills and run stats
+            through the backend at $TASTE_API. The only file you may edit is the
+            `## Lessons` section of a .claude/skills/dw-*/SKILL.md, and the only way
+            it lands is a pull request a person merges.
+            Event: ${{ github.event_name }}.
+            Focus: ${{ inputs.focus || 'none' }}.
+          claude_args: |
+            --model ${{ steps.agent.outputs.model }}
+            --max-turns 150
+            --allowedTools "Read,Grep,Glob,Edit,Bash(psql:*),Bash(curl:*),Bash(docker compose:*),Bash(git status),Bash(git diff:*),Bash(git log:*),Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git config:*),Bash(git fetch:*),Bash(git push:*),Bash(gh pr list:*),Bash(gh pr view:*),Bash(gh pr create:*),Bash(gh pr comment:*)"
+      - name: Report cost and the run summary
+        if: always() && steps.claude.outputs.execution_file != ''
+        env:
+          EXEC_FILE: ${{ steps.claude.outputs.execution_file }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          [ -f "$EXEC_FILE" ] || exit 0
+          BODY=$(python3 .github/scripts/report_run.py "Taste run")
+          [ -n "$BODY" ] && echo "$BODY" >> "$GITHUB_STEP_SUMMARY" || true

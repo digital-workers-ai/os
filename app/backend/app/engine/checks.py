@@ -2,10 +2,14 @@ import yaml
 
 from app.caches import BACKEND_DIR
 from app.engine import (
+    brand,
+    calendar,
     candidates,
+    competitors,
     dashboards,
     derived,
     goals,
+    looks,
     mappings,
     metrics,
     ontology,
@@ -100,6 +104,10 @@ def run(
     enrichment_paths=None,
     derived_path=None,
     dashboards_path=None,
+    competitors_path=None,
+    brand_dir=None,
+    calendar_path=None,
+    looks_dir=None,
 ) -> list[str]:
     problems: list[str] = []
 
@@ -120,6 +128,10 @@ def run(
     modules = registry.discover()
     connectors = set(modules)
     problems += derived.check(onto, derived_path)
+    problems += competitors.check(competitors_path)
+    problems += brand.check(brand_dir)
+    problems += calendar.check(calendar_path)
+    problems += looks.check(looks_dir)
     attrs_of = derived.attrs_of(onto, derived_path)
 
     for source in sorted({line.source for line in lines}):

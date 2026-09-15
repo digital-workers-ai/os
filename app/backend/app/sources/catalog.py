@@ -22,6 +22,36 @@ _META: dict[str, tuple[str, str, str]] = {
     "pinterest": ("Pinterest Ads", "Advertising", "Ad spend, engagement"),
     "snapchat": ("Snapchat Ads", "Advertising", "Ad spend, reach"),
     "twitter": ("X Ads", "Advertising", "Ad spend, engagement"),
+    "meta_ad_library": (
+        "Meta Ad Library",
+        "Competitors",
+        "Competitors' ads and how long they ran",
+    ),
+    "google_ads_transparency": (
+        "Google Ads Transparency",
+        "Competitors",
+        "Competitors' Google ads and their formats",
+    ),
+    "serp": (
+        "SerpApi",
+        "Competitors",
+        "Where we and our competitors sit for tracked keywords",
+    ),
+    "ai_answers": (
+        "AI Answers",
+        "Competitors",
+        "Which brands answer engines name, and what they cite",
+    ),
+    "competitor_pages": (
+        "Competitor Pages",
+        "Competitors",
+        "Competitors' page copy, and the day it changed",
+    ),
+    "linkedin_posts": (
+        "LinkedIn Posts",
+        "Competitors",
+        "Competitors' posts and the engagement they drew",
+    ),
     "google_analytics": ("Google Analytics", "Analytics", "Traffic, events"),
     "amplitude": ("Amplitude", "Analytics", "Product events, funnels"),
     "mixpanel": ("Mixpanel", "Analytics", "Product events, funnels"),
