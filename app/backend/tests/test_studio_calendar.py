@@ -208,6 +208,16 @@ async def test_the_furthest_proposal_wins_a_slot_two_of_them_claim(session, decl
     assert (rows[0]["state"], rows[0]["proposal_seq"]) == ("built", built.seq)
 
 
+async def test_a_later_proposal_does_not_take_a_slot_already_built(session, declared):
+    declared(linkedin_post=weekly())
+    built = await proposal(
+        session, slot_date=date(2026, 9, 8), slot_name="linkedin_post", status="built"
+    )
+    await proposal(session, slot_date=date(2026, 9, 8), slot_name="linkedin_post")
+    rows = await calendar.slots(session, WEEK_FROM, WEEK_TO)
+    assert (rows[0]["state"], rows[0]["proposal_seq"]) == ("built", built.seq)
+
+
 async def test_the_later_proposal_wins_when_two_share_a_status(session, declared):
     declared(linkedin_post=weekly())
     await proposal(session, slot_date=date(2026, 9, 8), slot_name="linkedin_post")
