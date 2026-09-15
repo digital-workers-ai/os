@@ -4,9 +4,6 @@ import { asApiError, type Source } from '@/api'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Empty } from '@/components/ui/empty'
 import { Loading } from '@/components/ui/loading'
-import { relative } from '@/lib/format'
-
-const synced = ({ last_sync, ok }: Source) => (last_sync === null ? 'never synced' : `synced ${relative(last_sync)} ${ok ? '✓' : '✗'}`)
 
 export function Synced<T extends { source: Source }>({
   slug,
@@ -34,7 +31,7 @@ export function Synced<T extends { source: Source }>({
         <>
           <header className="mb-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-line pb-2 text-sm">
             <p className="font-medium text-ink" data-testid="source-line">
-              {data.source.source} · {synced(data.source)}
+              {data.source.source}
             </p>
             <p className="tabular-nums text-muted" data-testid="count-line">
               {count(data)}

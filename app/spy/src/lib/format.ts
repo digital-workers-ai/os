@@ -11,18 +11,6 @@ export function shortDate(iso: string): string {
   return day ? `${name} ${Number(day)}` : `${name} ${year}`
 }
 
-const UNITS: [string, number][] = [
-  ['d', 86_400_000],
-  ['h', 3_600_000],
-  ['min', 60_000],
-]
-
-export function relative(iso: string, now = Date.now()): string {
-  const elapsed = now - Date.parse(iso)
-  for (const [unit, ms] of UNITS) if (elapsed >= ms) return `${Math.floor(elapsed / ms)} ${unit} ago`
-  return 'just now'
-}
-
 const plural = (n: number, unit: string) => `${n} ${unit}${n === 1 ? '' : 's'} ago`
 
 export function timeAgo(iso: string, now = Date.now()): string {

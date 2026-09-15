@@ -10,7 +10,7 @@ const TABS = [
   ['linkedin', 'LinkedIn'],
 ] as const
 
-const SOURCE_LINE = /^.+ · (synced .+ [✓✗]|never synced)$/
+const SOURCE_LINE = /^[a-z_]+$/
 
 test('nav tabs', async ({ page }) => {
   await visit(page, '/')
