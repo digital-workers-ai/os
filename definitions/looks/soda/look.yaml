@@ -1,9 +1,0 @@
-name: soda
-medium: video
-ratio: "9:16"
-scenes: [title, stat-block, pros-cons, caption, data-table, hero, cta]
-heygen_template: 1d13879ecba7459eac21fa2da3673b86
-voice: 25a40947b46942c1a8e5bd329074bba2
-voice_confirmed: false
-limits_measured: 2026-08-18
-build: 8 HeyGen renders
