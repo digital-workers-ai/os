@@ -1,5 +1,6 @@
 import gzip
 import io
+import json
 import zipfile
 
 import httpx
@@ -164,6 +165,24 @@ class TestPost:
             await SourceClient("intercom", "http://api").post(
                 "/search", json={"query": "x"}
             )
+
+    async def test_a_post_merges_its_params_with_the_defaults(self, transport):
+        seen = {}
+
+        def handler(request):
+            seen["params"] = dict(request.url.params)
+            seen["body"] = json.loads(request.content)
+            return json_page({"snapshot_id": "s_1"})
+
+        transport(handler)
+        source_client = SourceClient("linkedin_posts", "http://api", params={"k": "T"})
+        await source_client.post(
+            "/trigger",
+            params={"dataset_id": "gd_1", "format": "json"},
+            json=[{"url": "x"}],
+        )
+        assert seen["params"] == {"k": "T", "dataset_id": "gd_1", "format": "json"}
+        assert seen["body"] == [{"url": "x"}]
 
 
 class TestConstructorParams:

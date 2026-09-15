@@ -17,6 +17,7 @@ def _competitor(domain="acme.io", **fields):
         "domain": domain,
         "meta_page_id": "100",
         "google_advertiser_id": "AR100",
+        "linkedin_url": "https://www.linkedin.com/company/acme",
         **fields,
     }
 
@@ -67,6 +68,12 @@ class TestTheShippedFile:
     def test_every_tracked_competitor_carries_both_platform_ids(self, competitors):
         for spec in competitors.tracked().values():
             assert all(spec[key] for key in competitors.PLATFORM_IDS)
+
+    def test_every_tracked_competitor_names_its_linkedin_company_page(
+        self, competitors
+    ):
+        for spec in competitors.tracked().values():
+            assert "linkedin.com/company/" in spec["linkedin_url"]
 
     def test_the_three_original_competitors_kept_their_ids(self, competitors):
         tracked = competitors.tracked()
@@ -184,7 +191,9 @@ class TestEachCompetitorIsChecked:
         )
         assert any("acme.io" in p and "globex" in p for p in problems), problems
 
-    @pytest.mark.parametrize("key", ["meta_page_id", "google_advertiser_id"])
+    @pytest.mark.parametrize(
+        "key", ["meta_page_id", "google_advertiser_id", "linkedin_url"]
+    )
     def test_a_competitor_missing_a_platform_id_names_the_key(
         self, competitors, tmp_path, key
     ):

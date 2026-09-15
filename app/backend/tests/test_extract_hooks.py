@@ -1,3 +1,4 @@
+import hashlib
 import pkgutil
 
 import pytest
@@ -1559,92 +1560,93 @@ class TestAiAnswersHook:
 
 
 class TestCompetitorPagesHook:
-    @staticmethod
-    def _page(**extra):
-        return {"title": "Pricing", "content_sha": "abc", **extra}
+    MARKDOWN = "Three plans, no  per-render fees.\nNo studio."
 
-    def test_a_page_belongs_to_the_competitor_whose_site_it_is_on(self):
-        from app.sources.competitor_pages import extract
+    @classmethod
+    def _page(cls, **extra):
+        return {
+            "markdown": cls.MARKDOWN,
+            "metadata": {"title": "Pricing", "sourceURL": "https://vidora.ai/pricing"},
+            "_fetched_at": "2026-09-04T12:00:00+00:00",
+            "_competitor_ref": "vidora.ai",
+            **extra,
+        }
 
-        out = extract.reshape("pages", self._page(url="https://vidora.ai/pricing"))
-        assert out[0]["_competitor_ref"] == "vidora.ai"
-
-    def test_the_www_prefix_is_not_a_different_competitor(self):
-        from app.sources.competitor_pages import extract
-
-        out = extract.reshape("pages", self._page(url="https://www.vidora.ai/pricing"))
-        assert out[0]["_competitor_ref"] == "vidora.ai"
-
-    def test_a_page_with_no_url_belongs_to_nobody(self):
+    def test_the_words_of_the_markdown_are_counted(self):
         from app.sources.competitor_pages import extract
 
         out = extract.reshape("pages", self._page())
-        assert "_competitor_ref" not in out[0]
+        assert out[0]["_word_count"] == 7
 
-    def test_the_words_are_counted_in_the_text_that_was_stored(self):
+    def test_the_body_sha_is_the_sha256_of_the_markdown(self):
         from app.sources.competitor_pages import extract
 
-        out = extract.reshape(
-            "pages", self._page(url="https://vidora.ai/", text="one two  three\nfour")
-        )
-        assert out[0]["_word_count"] == 4
+        out = extract.reshape("pages", self._page())
+        digest = hashlib.sha256(self.MARKDOWN.encode()).hexdigest()
+        assert out[0]["_body_sha"] == digest
 
-    def test_a_page_with_no_text_counts_no_words(self):
+    def test_everything_else_is_left_as_it_arrived(self):
         from app.sources.competitor_pages import extract
 
-        out = extract.reshape("pages", self._page(url="https://vidora.ai/"))
-        assert "_word_count" not in out[0]
+        out = extract.reshape("pages", self._page())
+        stamped = {"_word_count", "_body_sha"}
+        assert {k: v for k, v in out[0].items() if k not in stamped} == self._page()
+
+    def test_a_page_with_no_markdown_has_no_count_and_no_sha(self):
+        from app.sources.competitor_pages import extract
+
+        page = self._page()
+        page.pop("markdown")
+        assert extract.reshape("pages", page) == [page]
 
     def test_the_stamp_does_not_touch_the_stored_payload(self):
         from app.sources.competitor_pages import extract
 
-        payload = self._page(url="https://vidora.ai/", text="one two")
+        payload = self._page()
         extract.reshape("pages", payload)
-        assert payload == self._page(url="https://vidora.ai/", text="one two")
+        assert payload == self._page()
 
     def test_other_object_types_pass_through(self):
         from app.sources.competitor_pages import extract
 
-        payload = {"domain": "vidora.ai", "urls": []}
-        assert extract.reshape("sitemaps", payload) == [payload]
+        payload = {"url": "https://vidora.ai/", "title": "Vidora"}
+        assert extract.reshape("links", payload) == [payload]
 
 
 class TestLinkedinPostsHook:
     @staticmethod
     def _post(**extra):
-        return {"id": "7241000000000000006", "reactions": 372, **extra}
+        return {
+            "id": "7241000000000000006",
+            "num_likes": 372,
+            "_competitor_ref": "vidora.ai",
+            **extra,
+        }
 
     def test_a_post_is_stamped_linkedin(self):
         from app.sources.linkedin_posts import extract
 
-        out = extract.reshape("posts", self._post(_domain="vidora.ai"))
+        out = extract.reshape("posts", self._post())
         assert out[0]["_platform"] == "linkedin"
 
-    def test_a_post_belongs_to_the_company_it_was_collected_for(self):
-        from app.sources.linkedin_posts import extract
-
-        out = extract.reshape("posts", self._post(_domain="vidora.ai"))
-        assert out[0]["_competitor_ref"] == "vidora.ai"
-
-    def test_a_post_with_no_company_belongs_to_nobody(self):
+    def test_everything_else_is_left_as_it_arrived(self):
         from app.sources.linkedin_posts import extract
 
         out = extract.reshape("posts", self._post())
-        assert "_competitor_ref" not in out[0]
-        assert out[0]["_platform"] == "linkedin"
+        assert {k: v for k, v in out[0].items() if k != "_platform"} == self._post()
 
     def test_the_stamp_does_not_touch_the_stored_payload(self):
         from app.sources.linkedin_posts import extract
 
-        payload = self._post(_domain="vidora.ai")
+        payload = self._post()
         extract.reshape("posts", payload)
-        assert payload == self._post(_domain="vidora.ai")
+        assert payload == self._post()
 
     def test_other_object_types_pass_through(self):
         from app.sources.linkedin_posts import extract
 
-        payload = {"cursor": None}
-        assert extract.reshape("collections", payload) == [payload]
+        payload = {"status": "ready"}
+        assert extract.reshape("progress", payload) == [payload]
 
 
 class TestIntercomConversationSource:

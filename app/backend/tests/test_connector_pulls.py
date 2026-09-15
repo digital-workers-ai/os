@@ -8,7 +8,7 @@ import zipfile
 import httpx
 import pytest
 
-from app import sync
+from app import clock, sync
 from app.sources import catalog, client, creds, registry, util
 from app.sources.hubspot import connector as hubspot
 from app.sources.stripe import connector as stripe
@@ -2521,46 +2521,70 @@ class TestAiAnswersAsksEveryPromptOfEveryEngine(_CompetitorWatchers):
         assert notes == {"missing_id": len(self._pairs())}
 
 
-class TestCompetitorPagesCrawlsEachCompetitor(_CompetitorWatchers):
-    def _body(self, request):
-        if request.url.path.endswith("/sitemap"):
-            domain = request.url.params.get("domain")
-            return {
-                "domain": domain,
-                "urls": [f"https://{domain}/", f"https://{domain}/pricing"],
-            }
-        url = request.url.params.get("url")
+class TestCompetitorPagesScrapesEachCompetitor(_CompetitorWatchers):
+    PATHS = ("/", "/pricing")
+
+    @staticmethod
+    def _scrape(url):
         return {
-            "url": url,
-            "title": f"Title for {url}",
-            "text": "Three plans, no per-render fees.",
-            "fetched_at": "2026-09-14T05:50:00Z",
-            "content_sha": "d9f5d1353c6ae4c3",
-            "word_count": 5,
+            "success": True,
+            "data": {
+                "markdown": "# Pricing\n\nThree plans, no per-render fees.",
+                "metadata": {
+                    "title": f"Title for {url}",
+                    "description": "Plans and prices",
+                    "sourceURL": url,
+                    "url": url,
+                    "statusCode": 200,
+                },
+            },
         }
 
-    async def test_it_asks_for_a_sitemap_before_fetching_a_page(self, capture, store):
-        seen = capture(self._body)
+    def _body(self, request):
+        body = json.loads(request.content)
+        if request.url.path == "/v2/map":
+            return {
+                "success": True,
+                "links": [
+                    {"url": f"{body['url']}{path}", "title": path, "description": ""}
+                    for path in self.PATHS
+                ],
+            }
+        if request.url.path == "/v2/scrape":
+            return self._scrape(body["url"])
+        raise AssertionError(f"unexpected {request.method} {request.url.path}")
 
-        await connector("competitor_pages").pull(None, store)
-
-        sitemaps = [r for r in seen if r.url.path == "/v1/sitemap"]
-        assert {r.url.params.get("domain") for r in sitemaps} == set(self._domains())
-        fetches = [r for r in seen if r.url.path == "/v1/fetch"]
-        assert {r.url.params.get("url") for r in fetches} == {
+    def _links(self):
+        return [
             f"https://{domain}{path}"
             for domain in self._domains()
-            for path in ("/", "/pricing")
-        }
+            for path in self.PATHS
+        ]
 
-    async def test_it_never_asks_for_a_day_other_than_today(self, capture, store):
+    async def test_it_maps_each_site_then_scrapes_every_link_it_was_given(
+        self, capture, store
+    ):
         seen = capture(self._body)
 
         await connector("competitor_pages").pull(None, store)
 
-        assert all(r.url.params.get("as_of") is None for r in seen)
+        module = connector("competitor_pages")
+        assert {r.method for r in seen} == {"POST"}
+        assert [r.url.path for r in seen] == ["/v2/map", "/v2/scrape", "/v2/scrape"] * (
+            len(self._domains())
+        )
+        maps = [json.loads(r.content) for r in seen if r.url.path == "/v2/map"]
+        assert maps == [
+            {"url": f"https://{domain}", "limit": module.MAP_LIMIT}
+            for domain in self._domains()
+        ]
+        scrapes = [json.loads(r.content) for r in seen if r.url.path == "/v2/scrape"]
+        assert scrapes == [
+            {"url": link, "formats": ["markdown"], "onlyMainContent": True}
+            for link in self._links()
+        ]
 
-    async def test_each_page_is_stored_under_its_url_as_it_arrived(
+    async def test_each_page_is_stored_as_it_arrived_stamped_with_when_and_whose(
         self, capture, store, stored
     ):
         capture(self._body)
@@ -2571,82 +2595,269 @@ class TestCompetitorPagesCrawlsEachCompetitor(_CompetitorWatchers):
         assert {s["source"] for s in stored} == {"competitor_pages"}
         assert {s["object_type"] for s in stored} == {"pages"}
         rows = self._payloads(stored, "pages")
-        assert set(rows) == {
-            f"https://{domain}{path}"
-            for domain in self._domains()
-            for path in ("/", "/pricing")
+        assert set(rows) == set(self._links())
+        domain = self._domains()[0]
+        url = f"https://{domain}/pricing"
+        assert rows[url] == {
+            **self._scrape(url)["data"],
+            "_fetched_at": clock.now().isoformat(),
+            "_competitor_ref": domain,
         }
-        url = f"https://{self._domains()[0]}/pricing"
-        assert rows[url]["content_sha"] == "d9f5d1353c6ae4c3"
-        assert rows[url]["fetched_at"] == "2026-09-14T05:50:00Z"
 
-    async def test_a_domain_with_an_empty_sitemap_is_fetched_no_further(
+    async def test_the_www_prefix_is_not_a_different_competitor(
         self, capture, store, stored
     ):
-        seen = capture({"domain": "vidora.ai", "urls": []})
+        def body(request):
+            if request.url.path == "/v2/map":
+                return self._body(request)
+            url = json.loads(request.content)["url"]
+            return self._scrape(url.replace("https://", "https://www."))
+
+        capture(body)
+
+        await connector("competitor_pages").pull(None, store)
+
+        rows = self._payloads(stored, "pages")
+        domain = self._domains()[0]
+        assert rows[f"https://www.{domain}/"]["_competitor_ref"] == domain
+
+    async def test_a_scrape_that_did_not_succeed_is_counted_not_stored(
+        self, capture, store, stored
+    ):
+        def body(request):
+            if request.url.path == "/v2/map":
+                return self._body(request)
+            if json.loads(request.content)["url"].endswith("/pricing"):
+                return {"success": False, "error": "Page failed to load"}
+            return {"success": True}
+
+        capture(body)
+
+        notes = await connector("competitor_pages").pull(None, store)
+
+        assert stored == []
+        assert notes == {"failed_scrapes": len(self._links())}
+
+    async def test_a_scrape_naming_no_source_url_is_counted_not_stored(
+        self, capture, store, stored
+    ):
+        def body(request):
+            if request.url.path == "/v2/map":
+                return self._body(request)
+            return {"success": True, "data": {"markdown": "x", "metadata": {}}}
+
+        capture(body)
+
+        notes = await connector("competitor_pages").pull(None, store)
+
+        assert stored == []
+        assert notes == {"missing_id": len(self._links())}
+
+    async def test_a_site_whose_map_has_no_links_is_scraped_no_further(
+        self, capture, store, stored
+    ):
+        seen = capture({"success": True, "links": []})
 
         notes = await connector("competitor_pages").pull(None, store)
 
         assert notes is None
         assert stored == []
-        assert {r.url.path for r in seen} == {"/v1/sitemap"}
+        assert [r.url.path for r in seen] == ["/v2/map"] * len(self._domains())
+
+    def test_a_page_is_observed_when_it_was_fetched(self):
+        assert connector("competitor_pages").OBSERVED_AT == {"pages": "_fetched_at"}
+
+
+BRIGHTDATA_DATASET = "gd_lyy3tktm25m4avu764"
 
 
 class TestLinkedinPostsCollectsEachCompetitor(_CompetitorWatchers):
-    @staticmethod
-    def _body(request):
-        domain = request.url.params.get("domain")
+    @pytest.fixture(autouse=True)
+    def waits(self, monkeypatch):
+        seen = []
+
+        async def _record(seconds):
+            seen.append(seconds)
+
+        monkeypatch.setattr(client, "_sleep", _record)
+        return seen
+
+    def _companies(self):
         return {
-            "posts": [
-                {
-                    "id": f"7241{domain}",
-                    "url": f"https://www.linkedin.com/feed/update/{domain}/",
-                    "text": "Boring is a strategy.",
-                    "posted_at": "2026-09-11T13:25:00Z",
-                    "reactions": 372,
-                    "comments": 45,
-                    "reposts": 12,
-                    "platform": "linkedin",
-                }
-            ],
-            "cursor": None,
+            str(spec["linkedin_url"]): str(spec["domain"])
+            for spec in self._definitions()["competitors"].values()
         }
 
-    async def test_it_asks_the_collector_for_each_competitor_domain(
-        self, capture, store
-    ):
-        seen = capture(self._body)
+    @staticmethod
+    def _slug(company_url):
+        return company_url.rstrip("/").rsplit("/", 1)[-1]
+
+    @classmethod
+    def _post(cls, company_url):
+        slug = cls._slug(company_url)
+        return {
+            "id": f"7241-{slug}",
+            "url": f"https://www.linkedin.com/posts/{slug}_activity-7241-{slug}",
+            "user_id": company_url,
+            "post_text": "Boring is a strategy.",
+            "date_posted": "2026-09-11T13:25:00.000Z",
+            "num_likes": 372,
+            "num_comments": 45,
+            "num_shares": 12,
+            "post_type": "post",
+            "hashtags": ["#ads"],
+        }
+
+    def _vendor(self, statuses=("ready",), strip=()):
+        companies: dict = {}
+        polls: dict = {}
+
+        def handler(request):
+            path = request.url.path
+            if path == "/datasets/v3/trigger":
+                company = json.loads(request.content)[0]["url"]
+                snapshot = f"s_{self._slug(company)}"
+                companies[snapshot] = company
+                return {"snapshot_id": snapshot}
+            snapshot = path.rsplit("/", 1)[-1]
+            if path == f"/datasets/v3/progress/{snapshot}" and snapshot in companies:
+                seen = polls.get(snapshot, 0)
+                polls[snapshot] = seen + 1
+                return {"status": statuses[min(seen, len(statuses) - 1)]}
+            if path == f"/datasets/v3/snapshot/{snapshot}" and snapshot in companies:
+                post = self._post(companies[snapshot])
+                for key in strip:
+                    post.pop(key)
+                return [post]
+            raise AssertionError(f"unexpected {request.method} {path}")
+
+        return handler
+
+    async def test_it_triggers_a_discovery_for_each_company_url(self, capture, store):
+        seen = capture(self._vendor())
 
         await connector("linkedin_posts").pull(None, store)
 
-        assert {r.url.path for r in seen} == {"/v1/posts"}
-        assert {r.url.params.get("domain") for r in seen} == set(self._domains())
+        triggers = [r for r in seen if r.url.path == "/datasets/v3/trigger"]
+        assert {r.method for r in triggers} == {"POST"}
+        assert [json.loads(r.content) for r in triggers] == [
+            [{"url": company}] for company in self._companies()
+        ]
+        for request in triggers:
+            assert dict(request.url.params) == {
+                "dataset_id": BRIGHTDATA_DATASET,
+                "type": "discover_new",
+                "discover_by": "company_url",
+                "format": "json",
+                "include_errors": "true",
+            }
 
-    async def test_each_post_carries_the_company_it_was_collected_for(
+    async def test_it_polls_until_the_snapshot_is_ready_then_reads_it(
+        self, capture, store
+    ):
+        seen = capture(self._vendor(("running", "ready")))
+
+        await connector("linkedin_posts").pull(None, store)
+
+        expected = []
+        for company in self._companies():
+            snapshot = f"s_{self._slug(company)}"
+            expected += [
+                ("POST", "/datasets/v3/trigger"),
+                ("GET", f"/datasets/v3/progress/{snapshot}"),
+                ("GET", f"/datasets/v3/progress/{snapshot}"),
+                ("GET", f"/datasets/v3/snapshot/{snapshot}"),
+            ]
+        assert [(r.method, r.url.path) for r in seen] == expected
+        reads = [r for r in seen if "/snapshot/" in r.url.path]
+        assert all(dict(r.url.params) == {"format": "json"} for r in reads)
+
+    async def test_it_waits_between_polls_but_not_before_the_first(
+        self, capture, store, waits
+    ):
+        capture(self._vendor(("starting", "running", "ready")))
+
+        await connector("linkedin_posts").pull(None, store)
+
+        assert len(waits) == 2 * len(self._companies())
+        assert all(seconds > 0 for seconds in waits)
+
+    async def test_a_snapshot_ready_at_once_is_read_without_waiting(
+        self, capture, store, waits
+    ):
+        capture(self._vendor())
+
+        await connector("linkedin_posts").pull(None, store)
+
+        assert waits == []
+
+    async def test_each_post_is_stored_as_it_arrived_under_the_company_asked_for(
         self, capture, store, stored
     ):
-        capture(self._body)
+        capture(self._vendor())
 
         notes = await connector("linkedin_posts").pull(None, store)
 
         assert notes is None
         assert {s["source"] for s in stored} == {"linkedin_posts"}
         assert {s["object_type"] for s in stored} == {"posts"}
-        rows = self._payloads(stored, "posts")
-        assert set(rows) == {f"7241{domain}" for domain in self._domains()}
-        domain = self._domains()[0]
-        assert rows[f"7241{domain}"]["_domain"] == domain
-        assert rows[f"7241{domain}"]["reactions"] == 372
+        expected = {}
+        for company, domain in self._companies().items():
+            post = self._post(company)
+            expected[post["id"]] = {**post, "_competitor_ref": domain}
+        assert self._payloads(stored, "posts") == expected
 
-    async def test_a_post_with_no_id_is_counted_rather_than_stored(
+    async def test_a_post_with_no_id_is_stored_under_its_url(
         self, capture, store, stored
     ):
-        capture({"posts": [{"text": "no id here"}], "cursor": None})
+        capture(self._vendor(strip=("id",)))
+
+        notes = await connector("linkedin_posts").pull(None, store)
+
+        assert notes is None
+        assert set(self._payloads(stored, "posts")) == {
+            self._post(company)["url"] for company in self._companies()
+        }
+
+    async def test_a_post_with_neither_id_nor_url_is_counted_not_stored(
+        self, capture, store, stored
+    ):
+        capture(self._vendor(strip=("id", "url")))
 
         notes = await connector("linkedin_posts").pull(None, store)
 
         assert stored == []
-        assert notes == {"missing_id": len(self._domains())}
+        assert notes == {"missing_id": len(self._companies())}
+
+    async def test_a_snapshot_that_failed_leaves_a_note_and_stores_nothing(
+        self, capture, store, stored
+    ):
+        seen = capture(self._vendor(("failed",)))
+
+        notes = await connector("linkedin_posts").pull(None, store)
+
+        assert stored == []
+        assert notes == {"failed_snapshots": len(self._companies())}
+        assert [r for r in seen if "/snapshot/" in r.url.path] == []
+        polls = [r for r in seen if "/progress/" in r.url.path]
+        assert len(polls) == len(self._companies())
+
+    async def test_a_snapshot_never_ready_is_given_up_after_the_last_poll(
+        self, capture, store, stored
+    ):
+        seen = capture(self._vendor(("running",)))
+
+        notes = await connector("linkedin_posts").pull(None, store)
+
+        module = connector("linkedin_posts")
+        assert stored == []
+        assert notes == {"unfinished_snapshots": len(self._companies())}
+        assert [r for r in seen if "/snapshot/" in r.url.path] == []
+        polls = [r for r in seen if "/progress/" in r.url.path]
+        assert len(polls) == module.MAX_POLLS * len(self._companies())
+
+    def test_a_post_is_observed_when_it_was_published(self):
+        assert connector("linkedin_posts").OBSERVED_AT == {"posts": "date_posted"}
 
 
 class TestCompetitorCredentials:
