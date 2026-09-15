@@ -14,13 +14,17 @@ APPROVED = ("approved", "built")
 
 
 async def _runs(session) -> dict:
-    return dict(
-        (
-            await session.execute(
-                select(SkillRun.skill, func.count()).group_by(SkillRun.skill)
+    rows = (
+        await session.execute(
+            select(SkillRun.skill, SkillRun.mode, func.count()).group_by(
+                SkillRun.skill, SkillRun.mode
             )
-        ).all()
-    )
+        )
+    ).all()
+    counts: dict = {}
+    for skill, mode, total in rows:
+        counts.setdefault(skill, {})[mode] = total
+    return counts
 
 
 async def _approvals(session) -> dict:
@@ -81,11 +85,13 @@ async def _stats() -> dict:
 
 
 def _row(skill, stats: dict) -> dict:
+    ran = stats["runs"].get(skill.name, {})
     return {
         "name": skill.name,
         "description": skill.description,
         "modes": list(skill.modes),
-        "runs": stats["runs"].get(skill.name, 0),
+        "runs": sum(ran.values()),
+        "runs_by_mode": {mode: ran.get(mode, 0) for mode in runner.MODES},
         "approval_rate": stats["approvals"].get(skill.name),
         "median_edits": stats["edits"].get(skill.name),
         "cost_per_build": stats["spend"].get(skill.name),

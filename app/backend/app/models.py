@@ -486,6 +486,7 @@ class Asset(Base):
     origin = Column(String(16), nullable=False)  # who asked for it: proposal, chat
     proposal_seq = Column(BigInteger, ForeignKey("proposal.seq", ondelete="SET NULL"))  # proposal that made it: 1, null
     ancestor_ref = Column(String(512))  # swipe item a remix copies: swipe/8821, null
+    feedback = Column(Text)  # a person's note on the asset: "hook too slow", null
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: server now(), 2026-09-04T12:00:00Z
 
     __table_args__ = (Index("ix_asset_kind_seq", "kind", text("seq DESC")),)
@@ -523,6 +524,9 @@ class SkillRun(Base):
     error = Column(Text)  # failure detail: "RuntimeError: renderer down", null
     duration_ms = Column(Integer, nullable=False, server_default=text("0"))  # run wall time: 12, 3400
     cost_usd = Column(Numeric(10, 4), nullable=False, server_default=text("0"))  # model spend this run: 0.0000, 1.2345
+    model = Column(String(64))  # model that answered: claude-sonnet-5, null
+    tokens_in = Column(Integer, nullable=False, server_default=text("0"))  # prompt tokens read: 0, 12400
+    tokens_out = Column(Integer, nullable=False, server_default=text("0"))  # tokens written back: 0, 940
     started_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # run start timestamp: server now(), 2026-09-04T12:00:00Z
     finished_at = Column(DateTime(timezone=True))  # when it stopped: 2026-09-04T12:05:00Z, null
 

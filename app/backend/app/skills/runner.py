@@ -68,9 +68,12 @@ beside it; a quote tightened or smoothed is not a quote."""
 
 MODE_RULES = {
     "draft": "This is a draft: the marketer's cheap daily pass. Nothing here "
-    "is paid for — image.render and video.render refuse on a draft, and "
-    "build.md is where you say what a build would render and what it would "
-    "cost. A person reads this before anything is spent.",
+    "is paid for. image.render renders flat, because the generated "
+    "background is the part that costs money and it is refused here; "
+    "video.render is refused outright, and video.plan and a storyboard are "
+    "what a video draft gets. build.md is where you say what a build would "
+    "render and what it would cost, so a person reads the price before it "
+    "is spent.",
     "build": "This is a build: a person has approved the draft and the "
     "renders are paid for. The words are the ones that survived their edits; "
     "nothing is re-decided here.",
@@ -278,6 +281,7 @@ async def _loop(session, run, ask, bench, usage, model_client) -> dict:
             client_override=model_client,
         )
         _tally(usage, response)
+        run.model = getattr(response, "model", None) or settings.SKILL_MODEL
         if getattr(response, "stop_reason", None) == "refusal":
             raise SkillError("the model declined to run the skill")
         calls = [
@@ -433,6 +437,7 @@ async def execute(session, seq: int, ask: Ask, *, model_client=None) -> dict:
     run.error = error
     run.stage = bench.stage if error else ("held" if held else "done")
     run.duration_ms = int((time.monotonic() - started) * 1000)
+    run.tokens_in, run.tokens_out = usage["input"], usage["output"]
     run.finished_at = clock.now()
     await session.commit()
     return {

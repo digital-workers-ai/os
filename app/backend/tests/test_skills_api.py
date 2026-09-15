@@ -95,6 +95,7 @@ class TestTheSkillList:
                 "description": "One post, said once.",
                 "modes": ["draft", "build", "chat"],
                 "runs": 0,
+                "runs_by_mode": {"draft": 0, "build": 0, "chat": 0},
                 "approval_rate": None,
                 "median_edits": None,
                 "cost_per_build": None,
@@ -109,6 +110,7 @@ class TestTheSkillList:
         await session.commit()
         row = (await api.get("/api/skills")).json()["skills"][0]
         assert row["runs"] == 5
+        assert row["runs_by_mode"] == {"draft": 5, "build": 0, "chat": 0}
         assert row["approval_rate"] == 0.67
         assert row["median_edits"] == 1.0
 

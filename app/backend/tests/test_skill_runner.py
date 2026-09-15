@@ -168,6 +168,14 @@ class TestTheToolbeltReads:
         assert payload["body"].strip()
         assert await calls_of(session) == [("brand.read", True)]
 
+    async def test_a_file_read_twice_is_one_line_in_the_manifest(
+        self, bench, skill_run
+    ):
+        bench.run_seq = skill_run.seq
+        await toolbelt.call(bench, "brand.read", {"name": "voice"})
+        await toolbelt.call(bench, "brand.read", {"name": "voice"})
+        assert [row["ref"] for row in bench.read] == ["voice.md"]
+
     async def test_brand_read_of_a_file_that_is_not_ours_is_refused(
         self, bench, skill_run, session
     ):
@@ -233,7 +241,7 @@ class TestTheToolbeltReads:
             bench, "swipe.search", {"competitor": "acme", "sort": "days_running"}
         )
         assert found["items"] == [
-            {"id": "1", "competitor": "acme", "sort": "days_running"}
+            {"id": "1", "competitor": "acme", "sort": "days_running", "limit": 20}
         ]
 
     async def test_assets_read_returns_an_asset_and_its_text(
@@ -346,10 +354,24 @@ class TestTheToolbeltReads:
 
 
 class TestWhatADraftMayNotSpend:
-    async def test_image_render_refuses_on_a_draft(self, bench, skill_run, session):
+    async def test_a_draft_renders_an_image_flat_because_that_costs_nothing(
+        self, bench, skill_run, session, provide
+    ):
         bench.run_seq, bench.mode = skill_run.seq, "draft"
+        provide("app.render.image", render=lambda **kwargs: b"pixels")
         payload = await toolbelt.call(bench, "image.render", {"look": "soda"})
-        assert "never pays" in payload["error"]
+        assert payload["bytes"] == 6
+        assert await calls_of(session) == [("image.render", True)]
+
+    async def test_a_draft_may_not_pay_for_a_generated_background(
+        self, bench, skill_run, session, provide
+    ):
+        bench.run_seq, bench.mode = skill_run.seq, "draft"
+        provide("app.render.image", render=lambda **kwargs: b"pixels")
+        payload = await toolbelt.call(
+            bench, "image.render", {"look": "soda", "background": "a lit desk"}
+        )
+        assert "only on a build" in payload["error"]
         assert await calls_of(session) == [("image.render", False)]
 
     async def test_video_render_refuses_on_a_draft(self, bench, skill_run):
@@ -666,7 +688,10 @@ class TestADraftRun:
             proposal_seq=proposal.seq,
             model_client=writes(
                 ("post.md", "Reporting took four hours."),
-                ("claims.md", "Reporting took four hours. | proof | brand/proof.md"),
+                (
+                    "claims.md",
+                    "# claims\n\nReporting took four hours. | proof | brand/proof.md",
+                ),
                 ("build.md", "Two images, about a dollar."),
             ),
         )
@@ -875,7 +900,7 @@ class TestABuildRun:
             caller="mcp",
             input="remix 8821",
             model_client=writes(
-                ("remix.md", "ancestor: swipe/8821\n\nKept: the shape.\n"),
+                ("remix.md", "# remix\nancestor: swipe/8821\n\nKept: the shape.\n"),
                 ("post.md", "ours"),
             ),
         )
@@ -1036,7 +1061,9 @@ class TestWhenItGoesWrong:
 
 
 class TestWhatARunCosts:
-    async def test_tokens_are_counted_and_cost_is_left_at_zero(self, session, studio):
+    async def test_tokens_and_the_model_are_recorded_and_cost_left_at_zero(
+        self, session, studio
+    ):
         result = await runner.run(
             session,
             skill="dw-post",
@@ -1049,13 +1076,15 @@ class TestWhatARunCosts:
             ),
         )
         assert result["tokens"] == {"input": 300, "output": 50}
-        assert (await session.get(SkillRun, result["skill_run"])).cost_usd == 0
+        row = await session.get(SkillRun, result["skill_run"])
+        assert (row.tokens_in, row.tokens_out) == (300, 50)
+        assert (row.model, row.cost_usd) == ("claude-test", 0)
 
     async def test_a_reply_that_reports_no_usage_still_closes_the_run(
         self, session, studio
     ):
         reply = Reply(Text("done"))
-        reply.usage = None
+        reply.usage, reply.model = None, None
         result = await runner.run(
             session,
             skill="dw-post",
@@ -1065,6 +1094,9 @@ class TestWhatARunCosts:
             model_client=ScriptedModel(reply),
         )
         assert result["tokens"] == {"input": 0, "output": 0}
+        row = await session.get(SkillRun, result["skill_run"])
+        assert (row.tokens_in, row.tokens_out) == (0, 0)
+        assert row.model == settings.SKILL_MODEL
 
 
 class TestRunningItInTheBackground:

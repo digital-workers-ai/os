@@ -1,6 +1,5 @@
 import inspect
 import time
-import uuid
 from dataclasses import dataclass, field
 
 from sqlalchemy import func, select
@@ -24,8 +23,14 @@ MAX_LISTED = 20
 FENCE_OPEN, FENCE_CLOSE = "<studio_data>", "</studio_data>"
 
 NO_RENDER_ON_A_DRAFT = (
-    "{tool} does not run on a draft — a draft never pays for a render. Say in "
-    "build.md what a build would render and what it would cost."
+    "video.render does not run on a draft — a draft never pays for a render. "
+    "Say in build.md what a build would render and what it would cost."
+)
+
+NO_BACKGROUND_ON_A_DRAFT = (
+    "image.render generates a background only on a build — a draft renders "
+    "flat, which costs nothing. Say in build.md what the background would "
+    "cost, and render this variant without one."
 )
 
 
@@ -153,14 +158,6 @@ async def assets_read(bench: Bench, seq: int = 0) -> dict:
     }
 
 
-def _is_id(ref: str) -> bool:
-    try:
-        uuid.UUID(ref)
-    except ValueError:
-        return False
-    return True
-
-
 async def transcript_read(bench: Bench, ref: str = "") -> dict:
     names = select(FactCurrent.canonical_id, FactCurrent.value).where(
         FactCurrent.entity_type == MEETING, FactCurrent.attr == NAME
@@ -214,8 +211,8 @@ async def image_render(
     size: str = "",
     background: str = "",
 ) -> dict:
-    if bench.mode == DRAFT:
-        raise ToolRefused(NO_RENDER_ON_A_DRAFT.format(tool="image.render"))
+    if bench.mode == DRAFT and background:
+        raise ToolRefused(NO_BACKGROUND_ON_A_DRAFT)
     from app.render import image
 
     rendered = await _settled(
@@ -236,7 +233,7 @@ async def video_plan(bench: Bench, look: str = "", content: str = "") -> dict:
 
 async def video_render(bench: Bench, look: str = "", content: str = "") -> dict:
     if bench.mode == DRAFT:
-        raise ToolRefused(NO_RENDER_ON_A_DRAFT.format(tool="video.render"))
+        raise ToolRefused(NO_RENDER_ON_A_DRAFT)
     from app.render import video
 
     produced = await _settled(video.render(look=look, content=content))
@@ -357,7 +354,8 @@ TOOLS = (
     (
         "image.render",
         "Render one image on a look: the field values as HTML inside the "
-        "look's measured limits. Refused on a draft.",
+        "look's measured limits. A generated background is paid for, so a "
+        "draft renders flat and passes no background.",
         {
             "look": {"type": "string"},
             "fields": {"type": "object"},
