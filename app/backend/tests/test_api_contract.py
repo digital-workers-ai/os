@@ -20,6 +20,17 @@ EXCLUDED = {
     ("POST", "/api/resolution/candidates/{seq}/reject"),
     ("POST", "/api/resolution/candidates/{seq}/unmerge"),
     ("POST", "/api/search/embed"),
+    ("POST", "/api/studio/calendar/fill"),
+    ("POST", "/api/studio/slots/{day}/{name}/skip"),
+    ("PUT", "/api/studio/proposals/{seq}/draft"),
+    ("POST", "/api/studio/proposals/{seq}/approve"),
+    ("POST", "/api/studio/proposals/{seq}/reject"),
+    ("POST", "/api/studio/proposals/{seq}/redo"),
+    ("PUT", "/api/studio/canvas/layout"),
+    ("POST", "/api/assets/{seq}/rebuild"),
+    ("POST", "/api/assets/{seq}/feedback"),
+    ("POST", "/api/competitors/swipe/{item_id}/remix"),
+    ("POST", "/api/skills/{name}/run"),
 }
 
 

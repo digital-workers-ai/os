@@ -29,7 +29,8 @@ export default function App() {
           <Route path="assets/:seq" element={<AssetDetail />} />
           <Route path="context" element={<Navigate to="/context/brand" replace />} />
           <Route path="context/:tab" element={<Context />} />
-          <Route path="activity" element={<Activity />} />
+          <Route path="activity" element={<Navigate to="/activity/agents" replace />} />
+          <Route path="activity/:tab" element={<Activity />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

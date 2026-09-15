@@ -63,6 +63,8 @@ export interface DraftFile {
   path: string
   media_type: string
   bytes: number
+  text: string | null
+  url: string
 }
 
 export interface Evidence {
@@ -117,6 +119,7 @@ export interface ProposalsResponse {
 
 export interface Slot {
   date: string
+  time: string | null
   name: string
   kind: Kind
   look: string | null
@@ -151,6 +154,9 @@ export interface AgentRunRow {
 export interface SkillRunRow {
   seq: number
   skill: string
+  model: string
+  tokens_in: number
+  tokens_out: number
   mode: Mode
   caller: string
   proposal_seq: number | null
@@ -178,8 +184,16 @@ export interface SkillRun extends SkillRunRow {
   files: DraftFile[]
 }
 
+export interface Readiness {
+  brand: boolean
+  competitors: boolean
+  calendar: boolean
+  estate: boolean
+}
+
 export interface TodayResponse {
   today: string
+  readiness: Readiness
   last_run: AgentRunRow | null
   open: ProposalRow[]
   week: Slot[]
@@ -193,7 +207,9 @@ export interface AssetRow {
   seq: number
   name: string
   kind: Kind
+  skill: string
   look: string | null
+  made_by: string | null
   origin: 'proposal' | 'chat'
   proposal_seq: number | null
   status: 'building' | 'built'
@@ -229,6 +245,7 @@ export interface CanvasNode {
   group: string
   date: string
   kind: string
+  skill: string | null
   label: string
   media_type: string
   url: string | null
@@ -245,7 +262,7 @@ export interface CanvasEdge {
 export interface CanvasResponse {
   nodes: CanvasNode[]
   edges: CanvasEdge[]
-  frames: { id: string; label: string; nodes: string[] }[]
+  frames: Frame[]
   layout: Record<string, { x: number; y: number }>
 }
 
@@ -310,6 +327,7 @@ export interface AdsResponse {
 export interface RankingsResponse {
   engine: string
   location: string
+  us: string
   keywords: {
     keyword: string
     positions: Record<string, number | null>
@@ -319,6 +337,7 @@ export interface RankingsResponse {
 }
 
 export interface AnswersResponse {
+  us: string
   engines: string[]
   prompts: { prompt: string; named: Record<string, Record<string, boolean>> }[]
   mention_rate: Record<string, number>
@@ -350,6 +369,7 @@ export interface SkillRow {
   description: string
   modes: Mode[]
   runs: number
+  runs_by_mode: Record<Mode, number>
   approval_rate: number | null
   median_edits: number | null
   cost_per_build: number | null
@@ -417,16 +437,18 @@ export const fillCalendar = (days: number) => post<{ agent_run: number }>('/api/
 export const skipSlot = (date: string, name: string) =>
   post<{ ok: boolean }>(`/api/studio/slots/${encode(date)}/${encode(name)}/skip`)
 
-export const getProposals = (status?: string, kind?: string) =>
-  get<ProposalsResponse>(`/api/studio/proposals${query([['status', status], ['kind', kind]])}`)
+export const getProposals = (status?: string, kind?: string, slot?: string) =>
+  get<ProposalsResponse>(`/api/studio/proposals${query([['status', status], ['kind', kind], ['slot', slot]])}`)
 
 export const getProposal = (seq: number) => get<Proposal>(`/api/studio/proposals/${seq}`)
 
 export const editDraft = (seq: number, path: string, text: string) =>
   put<Proposal>(`/api/studio/proposals/${seq}/draft`, { path, text })
 
-export const approveProposal = (seq: number) =>
-  post<{ skill_run: number }>(`/api/studio/proposals/${seq}/approve`)
+export const approveProposal = (seq: number, variants?: string[]) =>
+  post<{ skill_run: number }>(`/api/studio/proposals/${seq}/approve`, variants ? { variants } : undefined)
+
+export const draftUrl = (seq: number, path: string) => `/api/studio/proposals/${seq}/drafts/${path}`
 
 export const rejectProposal = (seq: number, reason: string) =>
   post<Proposal>(`/api/studio/proposals/${seq}/reject`, { reason })
@@ -437,11 +459,21 @@ export const redoProposal = (seq: number, note: string) =>
 export const getCanvas = (from?: string, to?: string, kind?: string, skill?: string) =>
   get<CanvasResponse>(`/api/studio/canvas${query([['from', from], ['to', to], ['kind', kind], ['skill', skill]])}`)
 
-export const saveLayout = (layout: Record<string, { x: number; y: number }>) =>
-  put<{ ok: boolean }>('/api/studio/canvas/layout', { layout })
+export interface Frame {
+  id: string
+  label: string
+  nodes: string[]
+}
 
-export const getAssets = (kind?: string, look?: string, origin?: string, q?: string) =>
-  get<AssetsResponse>(`/api/assets${query([['kind', kind], ['look', look], ['origin', origin], ['q', q]])}`)
+export const saveLayout = (layout: Record<string, { x: number; y: number }>, frames?: Frame[]) =>
+  put<{ ok: boolean }>('/api/studio/canvas/layout', frames ? { layout, frames } : { layout })
+
+export const getAgentRun = (seq: number) => get<AgentRunRow>(`/api/agent-runs/${seq}`)
+
+export const getAssets = (kind?: string, look?: string, origin?: string, q?: string, skill?: string) =>
+  get<AssetsResponse>(
+    `/api/assets${query([['kind', kind], ['look', look], ['origin', origin], ['q', q], ['skill', skill]])}`,
+  )
 
 export const getAsset = (seq: number) => get<Asset>(`/api/assets/${seq}`)
 
