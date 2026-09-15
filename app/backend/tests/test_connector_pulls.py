@@ -2654,7 +2654,11 @@ class TestCompetitorPagesScrapesEachCompetitor(_CompetitorWatchers):
         )
         maps = [json.loads(r.content) for r in seen if r.url.path == "/v2/map"]
         assert maps == [
-            {"url": f"https://{domain}", "limit": module.MAP_LIMIT}
+            {
+                "url": f"https://{domain}",
+                "limit": module.MAP_LIMIT,
+                "includeSubdomains": False,
+            }
             for domain in self._domains()
         ]
         scrapes = [json.loads(r.content) for r in seen if r.url.path == "/v2/scrape"]
@@ -2683,22 +2687,23 @@ class TestCompetitorPagesScrapesEachCompetitor(_CompetitorWatchers):
             "_competitor_ref": domain,
         }
 
-    async def test_the_www_prefix_is_not_a_different_competitor(
-        self, capture, store, stored
+    @pytest.mark.parametrize("host", ["www.", "app.", "get."])
+    async def test_a_page_on_any_host_under_the_crawl_carries_the_files_domain(
+        self, capture, store, stored, host
     ):
         def body(request):
             if request.url.path == "/v2/map":
                 return self._body(request)
             url = json.loads(request.content)["url"]
-            return self._scrape(url.replace("https://", "https://www."))
+            return self._scrape(url.replace("https://", f"https://{host}"))
 
         capture(body)
 
         await connector("competitor_pages").pull(None, store)
 
         rows = self._payloads(stored, "pages")
-        domain = self._domains()[0]
-        assert rows[f"https://www.{domain}/"]["_competitor_ref"] == domain
+        for domain in self._domains():
+            assert rows[f"https://{host}{domain}/"]["_competitor_ref"] == domain
 
     async def test_a_scrape_that_did_not_succeed_is_counted_not_stored(
         self, capture, store, stored
