@@ -542,9 +542,8 @@ def post(canonical, link):
             "shares": "4",
             "url": "https://linkedin.com/posts/1",
         }
-        made = await canonical(
-            "competitor_post", {**base, **facts}, sources=["linkedin_posts"]
-        )
+        given = {k: v for k, v in {**base, **facts}.items() if v is not None}
+        made = await canonical("competitor_post", given, sources=["linkedin_posts"])
         if owner is not None:
             await link(made, "belongs_to", owner)
         return made
@@ -606,6 +605,22 @@ async def test_the_recent_posts_carry_their_engagement(session, competitor, post
             "url": "https://linkedin.com/posts/1",
         },
     ]
+
+
+async def test_a_post_with_no_engagement_counts_none(session, competitor, post):
+    await post(await competitor(), likes=None)
+    assert (await swipe.content(session))["recent_posts"][0]["likes"] == 0
+
+
+def test_an_older_reading_does_not_replace_a_newer_one():
+    rows = [
+        {"keyword": "ai ugc ads", "checked_on": "2026-09-01"},
+        {"keyword": "ai ugc ads", "checked_on": "2026-08-01"},
+        {"keyword": "ugc video tool"},
+    ]
+    newest = swipe._latest(rows, lambda facts: facts["keyword"], "checked_on")
+    assert newest["ai ugc ads"]["checked_on"] == "2026-09-01"
+    assert newest["ugc video tool"] == rows[2]
 
 
 async def test_content_with_nothing_read_is_empty(session):

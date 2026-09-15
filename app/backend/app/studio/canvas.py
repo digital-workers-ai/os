@@ -155,7 +155,7 @@ async def graph(session, frm=None, to=None, kind=None, skill=None):
         first_file.setdefault(row.asset_seq, node["id"])
         versions.setdefault((row.asset_seq, row.version), node["id"])
 
-    edges = _lineage(assets, by_seq, first_draft, first_file, versions)
+    edges = _lineage(assets, first_draft, first_file, versions)
     for seq, ref in (await _ancestor_refs(session)).items():
         proposal = by_seq[seq]
         group = _proposal_group(proposal)
@@ -217,7 +217,7 @@ async def graph(session, frm=None, to=None, kind=None, skill=None):
     }
 
 
-def _lineage(assets, by_seq, first_draft, first_file, versions):
+def _lineage(assets, first_draft, first_file, versions):
     edges = []
     for asset in assets.values():
         target = first_file.get(asset.seq)

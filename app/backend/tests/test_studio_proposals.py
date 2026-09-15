@@ -175,17 +175,24 @@ async def test_a_detail_of_an_original_has_no_ancestor(session):
 async def test_a_detail_names_the_run_the_asset_and_what_the_build_spent(session):
     made = await proposal(session, status="built")
     built = await asset(session, proposal_seq=made.seq)
-    await skill_run(session, mode="draft", proposal_seq=made.seq, cost_usd=1)
+    await skill_run(session, mode="draft", proposal_seq=made.seq)
     run = await skill_run(
         session,
         mode="build",
         proposal_seq=made.seq,
         asset_seq=built.seq,
-        cost_usd="0.1200",
+        tokens_in=1200,
+        tokens_out=340,
     )
     found = await proposals.detail(session, made.seq)
     assert (found["asset_seq"], found["skill_run_seq"]) == (built.seq, run.seq)
-    assert found["build_cost"] == "$0.12"
+    assert found["build_cost"] == "1,540 tokens"
+
+
+async def test_a_build_that_read_no_tokens_reports_no_spend(session):
+    made = await proposal(session, status="built")
+    await skill_run(session, mode="build", proposal_seq=made.seq)
+    assert (await proposals.detail(session, made.seq))["build_cost"] is None
 
 
 async def test_a_detail_with_no_build_estimates_no_cost(session):
