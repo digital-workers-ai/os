@@ -216,6 +216,7 @@ def pinned_clock(monkeypatch):
 
 @pytest.fixture(autouse=True)
 def only_the_stand_ins(monkeypatch):
+    monkeypatch.setattr(settings, "STAND_INS_ONLY", False)
     for source, (_base, names, _build) in creds._REAL.items():
         monkeypatch.delenv(f"{source.upper()}_BASE_URL", raising=False)
         for name in names:
