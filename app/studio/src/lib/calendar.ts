@@ -5,7 +5,6 @@ const KIND_GLYPHS: Record<Kind, string> = {
   newsletter: '✉',
   blog: '¶',
   image: '▣',
-  video: '▶',
   ad: '▣',
 }
 

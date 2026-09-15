@@ -8,7 +8,7 @@ argument-hint: "[the angle, or a swipe item id]"
 # Skill: Counter ad
 
 An ad that answers an angle. `copy.md` is the text — primary, headline, call
-to action — and beside it an image or a video on the look the slot asked for.
+to action — and beside it an image on the look the slot asked for.
 
 The angle is the thing being answered, never the ad. A competitor running one
 creative for ninety days has found something true about the reader, and that
@@ -29,18 +29,15 @@ number may come from. `voice.md` and `language.md` keep the answer ours.
 
 The toolbelt is fixed. This skill uses `brand.read`, `brand.list`,
 `swipe.search`, `swipe.read`, `looks.read`, `calendar.read`,
-`transcript.read`, `image.render`, `video.plan`, `video.render` and
-`files.write`, and nothing else is reachable — no shell, no network, no
-database. If the ad needs something that is not there, write `held.md`
+`transcript.read`, `image.render` and `files.write`, and nothing else is
+reachable — no shell, no network, no database. If the ad needs something that is not there, write `held.md`
 naming what is missing, and stop.
 
 ## Modes
 
 **draft** is the marketer's daily run: `copy.md`, and the asset as a cheap
-preview. An image ad drafts as the look rendered small on a flat background,
-under `dw-image`'s rules. A video ad drafts as a validated `content.yaml` and
-a storyboard from the look's frames, under `dw-video`'s rules. No render is
-paid for; `build.md` says what one would cost.
+preview: the look rendered small on a flat background, under `dw-image`'s
+rules. No render is paid for; `build.md` says what one would cost.
 
 **build** runs after a person approved: the real render on the same look, the
 copy they edited, nothing re-decided.
@@ -65,9 +62,8 @@ rule that would hold a draft holds here.
    `transcript` or `competitor_ad`, then the ref, separated by ` | `. The
    competitor items that established the angle go in as evidence, not as
    claims: we are not asserting what they said is true.
-6. Build the asset on the look — `dw-image`'s rules for an image,
-   `dw-video`'s for a video — write `build.md`, then every file through
-   `files.write`.
+6. Build the asset on the look, under `dw-image`'s rules — write
+   `build.md`, then every file through `files.write`.
 
 ## Rules
 

@@ -1,13 +1,8 @@
 import type { DraftFile, Kind, LookRow } from '@/api'
 
-export type Shape = 'text' | 'video' | 'image'
+export type Shape = 'text' | 'image'
 
-export const shapeOf = (kind: Kind, look: LookRow | undefined): Shape => {
-  if (kind === 'video') return 'video'
-  if (kind === 'image') return 'image'
-  if (kind === 'ad') return look?.medium === 'video' ? 'video' : 'image'
-  return 'text'
-}
+export const shapeOf = (kind: Kind): Shape => (kind === 'image' || kind === 'ad' ? 'image' : 'text')
 
 const TEXT_FILE = /\.(md|txt|html|json|ya?ml)$/
 

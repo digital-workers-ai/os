@@ -4,7 +4,7 @@ from app import caches
 
 DEFAULT_CALENDAR = caches.DEFINITIONS_DIR / "calendar.yaml"
 
-KINDS = ("newsletter", "post", "blog", "video", "ad")
+KINDS = ("newsletter", "post", "blog", "ad")
 
 CADENCES = ("weekly", "fortnightly", "monthly", "reactive")
 

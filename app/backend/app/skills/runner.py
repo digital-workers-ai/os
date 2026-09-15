@@ -43,7 +43,6 @@ KINDS = {
     "dw-newsletter": "newsletter",
     "dw-blog": "blog",
     "dw-image": "image",
-    "dw-video": "video",
     "dw-counter-ad": "ad",
     "dw-remix": "ad",
 }
@@ -69,11 +68,9 @@ beside it; a quote tightened or smoothed is not a quote."""
 MODE_RULES = {
     "draft": "This is a draft: the marketer's cheap daily pass. Nothing here "
     "is paid for. image.render renders flat, because the generated "
-    "background is the part that costs money and it is refused here; "
-    "video.render is refused outright, and video.plan and a storyboard are "
-    "what a video draft gets. build.md is where you say what a build would "
-    "render and what it would cost, so a person reads the price before it "
-    "is spent.",
+    "background is the part that costs money and it is refused here. "
+    "build.md is where you say what a build would render and what it would "
+    "cost, so a person reads the price before it is spent.",
     "build": "This is a build: a person has approved the draft and the "
     "renders are paid for. The words are the ones that survived their edits; "
     "nothing is re-decided here.",

@@ -1,13 +1,12 @@
 import type { Kind } from '@/api'
 
-export const KINDS: Kind[] = ['post', 'newsletter', 'blog', 'image', 'video', 'ad']
+export const KINDS: Kind[] = ['post', 'newsletter', 'blog', 'image', 'ad']
 
 const GLYPHS: Record<Kind, string> = {
   post: 'in',
   newsletter: '✉',
   blog: 'blog',
   image: '▣',
-  video: '▶',
   ad: '▣',
 }
 

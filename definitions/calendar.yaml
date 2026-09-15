@@ -17,16 +17,9 @@ slots:
     day: thu
     time: "06:00"
     theme: brand
-  video_monthly:
-    kind: video
-    when: monthly
-    day: 1
-    time: "06:00"
-    look: aios
-    theme: brand
   counter_ad:
     kind: ad
     when: reactive
     cap_per_week: 2
-    look: aios
+    look: square-stat
     theme: competitor

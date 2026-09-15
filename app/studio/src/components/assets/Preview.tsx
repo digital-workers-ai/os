@@ -15,8 +15,6 @@ function Frame({ seq, file }: { seq: number; file: DraftFile }) {
   const url = assetFileUrl(seq, file.path)
   if (file.media_type.startsWith('image/'))
     return <img src={url} alt={file.path} className="max-h-80 w-full rounded-md border border-line object-contain" />
-  if (file.media_type.startsWith('video/'))
-    return <video src={url} controls className="max-h-80 w-full rounded-md border border-line" />
   if (file.media_type === 'text/html')
     return <iframe src={url} title={file.path} className="h-80 w-full rounded-md border border-line bg-paper" />
   return (

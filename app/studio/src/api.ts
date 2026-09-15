@@ -53,7 +53,7 @@ const query = (params: Param[]) => {
   return text ? `?${text}` : ''
 }
 
-export type Kind = 'post' | 'newsletter' | 'blog' | 'image' | 'video' | 'ad'
+export type Kind = 'post' | 'newsletter' | 'blog' | 'image' | 'ad'
 export type Mode = 'draft' | 'build' | 'chat'
 export type ProposalStatus = 'open' | 'approved' | 'rejected' | 'built'
 export type RunStatus = 'running' | 'ok' | 'failed'
@@ -388,10 +388,9 @@ export interface Skill extends SkillRow {
 
 export interface LookRow {
   name: string
-  medium: 'video' | 'image'
+  medium: 'image'
   ratio: string
-  voice_confirmed: boolean | null
-  scenes: string[]
+  slots: string[]
   limits_measured: string | null
   used_by: number
   built: number

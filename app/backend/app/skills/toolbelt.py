@@ -22,11 +22,6 @@ MAX_LISTED = 20
 
 FENCE_OPEN, FENCE_CLOSE = "<studio_data>", "</studio_data>"
 
-NO_RENDER_ON_A_DRAFT = (
-    "video.render does not run on a draft — a draft never pays for a render. "
-    "Say in build.md what a build would render and what it would cost."
-)
-
 NO_BACKGROUND_ON_A_DRAFT = (
     "image.render generates a background only on a build — a draft renders "
     "flat, which costs nothing. Say in build.md what the background would "
@@ -224,27 +219,6 @@ async def image_render(
     }
 
 
-async def video_plan(bench: Bench, look: str = "", content: str = "") -> dict:
-    from app.render import video
-
-    problems = await _settled(video.plan(look=look, content=content))
-    return {"ok": not problems, "problems": list(problems)}
-
-
-async def video_render(bench: Bench, look: str = "", content: str = "") -> dict:
-    if bench.mode == DRAFT:
-        raise ToolRefused(NO_RENDER_ON_A_DRAFT)
-    from app.render import video
-
-    produced = await _settled(video.render(look=look, content=content))
-    return {
-        "renders": [
-            _handle(bench, name, payload) for name, payload in sorted(produced.items())
-        ],
-        "detail": "pass each handle to files.write to keep it",
-    }
-
-
 async def files_write(
     bench: Bench, path: str = "", text: str | None = None, render: str = ""
 ) -> dict:
@@ -253,8 +227,8 @@ async def files_write(
     if render:
         if render not in bench.renders:
             raise ToolRefused(
-                f"no render named {render!r} — image.render and video.render "
-                "hand back the handles they made"
+                f"no render named {render!r} — image.render hands back the "
+                "handle it made"
             )
         data = bench.renders.pop(render)
     else:
@@ -276,8 +250,6 @@ HANDLERS = {
     "assets.read": assets_read,
     "transcript.read": transcript_read,
     "image.render": image_render,
-    "video.plan": video_plan,
-    "video.render": video_render,
     "files.write": files_write,
 }
 
@@ -291,8 +263,6 @@ STAGES = {
     "assets.read": "reading",
     "transcript.read": "reading",
     "image.render": "rendering",
-    "video.plan": "planning",
-    "video.render": "rendering",
     "files.write": "writing",
 }
 
@@ -336,8 +306,8 @@ TOOLS = (
     ),
     (
         "looks.read",
-        "One look: its scene vocabulary, the fields each takes, the character "
-        "limit measured for each, and the ratios it sets.",
+        "One look: the slots its card holds, the character limit measured "
+        "for each, and the ratio it sets.",
         {"name": {"type": "string"}},
     ),
     (
@@ -362,17 +332,6 @@ TOOLS = (
             "size": {"type": "string"},
             "background": {"type": "string"},
         },
-    ),
-    (
-        "video.plan",
-        "Check a content.yaml against a look and answer with what breaks. "
-        "Renders nothing and costs nothing.",
-        {"look": {"type": "string"}, "content": {"type": "string"}},
-    ),
-    (
-        "video.render",
-        "Render, transcribe, compose and export one video. Refused on a draft.",
-        {"look": {"type": "string"}, "content": {"type": "string"}},
     ),
     (
         "files.write",

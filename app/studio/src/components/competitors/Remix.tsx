@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/card'
 import { Mono } from '@/components/ui/mono'
 import { shortDate } from '@/lib/format'
 
-const KINDS: Kind[] = ['post', 'newsletter', 'blog', 'image', 'video', 'ad']
+const KINDS: Kind[] = ['post', 'newsletter', 'blog', 'image', 'ad']
 
 const KEEPS: [string, string][] = [
   ['hook', 'hook type'],

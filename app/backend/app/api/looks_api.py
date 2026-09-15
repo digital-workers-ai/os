@@ -8,20 +8,13 @@ from app.models import Asset, AssetFile
 
 
 def _row(name: str, manifest: dict, counts: dict) -> dict:
-    image = manifest.get("medium") == "image"
-    scenes = (
-        [str(slot["name"]) for slot in manifest.get("slots") or []]
-        if image
-        else [str(scene) for scene in manifest.get("scenes") or []]
-    )
     used_by, built = counts.get(name, (0, 0))
     measured = manifest.get("limits_measured")
     return {
         "name": name,
         "medium": manifest.get("medium"),
         "ratio": manifest.get("ratio"),
-        "voice_confirmed": None if image else bool(manifest.get("voice_confirmed")),
-        "scenes": scenes,
+        "slots": [str(slot["name"]) for slot in manifest.get("slots") or []],
         "limits_measured": None if measured is None else str(measured),
         "used_by": used_by,
         "built": built,

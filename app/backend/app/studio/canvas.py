@@ -17,7 +17,7 @@ LAYOUT = "canvas-layout.json"
 
 DEFAULT_DAYS = 90
 
-MEDIA_KINDS = (("image/", "image"), ("video/", "video"), ("text/html", "html"))
+MEDIA_KINDS = (("image/", "image"), ("text/html", "html"))
 
 RANKS = {"ancestor": 0, "draft": 1, "file": 2}
 

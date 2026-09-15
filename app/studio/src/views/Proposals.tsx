@@ -12,7 +12,7 @@ import { dayLabel, kindGlyph } from '@/lib/calendar'
 import { cn } from '@/lib/utils'
 
 const STATUSES: ProposalStatus[] = ['open', 'approved', 'rejected', 'built']
-const KINDS: Kind[] = ['post', 'newsletter', 'blog', 'image', 'video', 'ad']
+const KINDS: Kind[] = ['post', 'newsletter', 'blog', 'image', 'ad']
 const SELECT =
   'h-8 rounded-md border border-input bg-transparent px-2 text-xs text-ink transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring'
 

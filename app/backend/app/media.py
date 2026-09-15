@@ -21,7 +21,6 @@ MEDIA_TYPES = {
     ".json": "application/json",
     ".png": "image/png",
     ".jpg": "image/jpeg",
-    ".mp4": "video/mp4",
 }
 
 PLAIN_TYPE = "application/octet-stream"

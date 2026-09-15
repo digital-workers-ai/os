@@ -32,17 +32,15 @@ are the shape; the quotes are what gets thrown away.
 
 The toolbelt is fixed. This skill uses `brand.read`, `brand.list`,
 `swipe.read`, `swipe.search`, `looks.read`, `calendar.read`,
-`transcript.read`, `image.render`, `video.plan`, `video.render` and
-`files.write`, and nothing else is reachable — no shell, no network, no
-database. If the remix needs something that is not there, write `held.md`
+`transcript.read`, `image.render` and `files.write`, and nothing else is
+reachable — no shell, no network, no database. If the remix needs something that is not there, write `held.md`
 naming what is missing, and stop.
 
 ## Modes
 
 **draft** is what Studio's Remix button runs: the copy, the cheap preview, and
-`remix.md`. An image drafts small on a flat background under `dw-image`'s
-rules; a video drafts as a validated `content.yaml` and a storyboard from the
-look's frames, under `dw-video`'s rules. No render is paid for.
+`remix.md`. The image drafts small on a flat background under `dw-image`'s
+rules. No render is paid for.
 
 **build** runs after a person approved: the real render on the same look, the
 copy they edited.

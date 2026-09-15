@@ -12,9 +12,7 @@ import { cn } from '@/lib/utils'
 type LookDetail = Awaited<ReturnType<typeof getLook>>
 
 const HEADING = 'text-xs font-medium uppercase tracking-wide text-muted'
-const MEDIUM_GLYPHS: Record<LookRow['medium'], string> = { video: '▶', image: '▣' }
-
-const count = (looks: LookRow[], medium: LookRow['medium']) => looks.filter((look) => look.medium === medium).length
+const MEDIUM_GLYPHS: Record<LookRow['medium'], string> = { image: '▣' }
 
 function LookGrid({
   query,
@@ -48,9 +46,6 @@ function LookGrid({
           <span className="text-xs text-muted">
             {MEDIUM_GLYPHS[look.medium]} {look.ratio}
           </span>
-          {look.voice_confirmed === null ? null : (
-            <Pill tone={look.voice_confirmed ? 'ok' : 'unknown'}>voice {look.voice_confirmed ? '✓' : '?'}</Pill>
-          )}
         </button>
       ))}
     </div>
@@ -67,8 +62,8 @@ function LookDetailBody({ selected, query }: { selected: string | null; query: U
       <p className="flex flex-wrap items-baseline gap-x-2 text-muted">
         <span className="font-medium text-ink">{look.name}</span>
         <span>·</span>
-        <span className="min-w-0" data-testid="look-scenes">
-          scenes: {look.scenes.length === 0 ? '—' : look.scenes.join(' ')}
+        <span className="min-w-0" data-testid="look-slots">
+          slots: {look.slots.length === 0 ? '—' : look.slots.join(' ')}
         </span>
         <span>·</span>
         <span>
@@ -80,9 +75,6 @@ function LookDetailBody({ selected, query }: { selected: string | null; query: U
         <span>·</span>
         <span>build cost {look.build_cost ?? '—'}</span>
         <span>·</span>
-        <a href={look.preview} target="_blank" rel="noreferrer" className="text-ink hover:underline" data-testid="look-preview-link">
-          preview.html ↗
-        </a>
         <a href={look.layouts} target="_blank" rel="noreferrer" className="text-ink hover:underline" data-testid="look-layouts-link">
           layouts.md ↗
         </a>
@@ -110,7 +102,7 @@ export function LooksPanel() {
       <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line pb-2">
         <h2 className={HEADING}>Looks</h2>
         <span className="text-xs text-muted">
-          {looks.data ? `${num(count(rows, 'video'))} video · ${num(count(rows, 'image'))} image · ` : ''}definitions/looks/
+          {looks.data ? `${num(rows.length)} image · ` : ''}definitions/looks/
         </span>
       </div>
       <LookGrid query={looks} selected={selected} onSelect={setPicked} />

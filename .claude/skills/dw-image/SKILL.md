@@ -79,7 +79,7 @@ draft holds here.
   pick a shorter one.
 - One proof point per image. Variants say it differently; they do not say
   different things.
-- Never invent a look, a field or a scene name. If the look lacks a field the
+- Never invent a look, a field or a slot name. If the look lacks a field the
   image needs, write `held.md` and stop: looks change by pull request.
 - Nothing is printed. The asset is the files written through `files.write`.
 - A claim you cannot source holds the draft: `held.md`, the field quoted, and

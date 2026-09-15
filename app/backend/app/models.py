@@ -420,12 +420,12 @@ class Proposal(Base):
     __tablename__ = "proposal"
 
     seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic proposal counter: 1, 2, 3
-    kind = Column(String(16), nullable=False)  # what is proposed: post, newsletter, video
+    kind = Column(String(16), nullable=False)  # what is proposed: post, newsletter, blog
     title = Column(String(256), nullable=False)  # what a person reads first: "Why the pipeline stalls"
     slot_date = Column(Date)  # calendar day, null when reactive: 2026-09-05, null
     slot_name = Column(String(64))  # slot on that day: friday_post, weekly_newsletter, null
     reactive = Column(Boolean, nullable=False, server_default=text("false"))  # answers something just noticed: true, false
-    skill = Column(String(64), nullable=False)  # skill that drafts and builds: dw-post, dw-video
+    skill = Column(String(64), nullable=False)  # skill that drafts and builds: dw-post, dw-image
     skill_sha = Column(String(64), nullable=False)  # SKILL.md digest at draft: "a3f9…", "0c7a…"
     status = Column(String(16), nullable=False, server_default=text("'open'"))  # review state: open, approved, rejected, built
     reason = Column(Text)  # why a person rejected it: "off voice", null
@@ -481,7 +481,7 @@ class Asset(Base):
 
     seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic asset counter: 1, 2, 3
     name = Column(String(256), nullable=False)  # what a person calls it: "Why the pipeline stalls"
-    kind = Column(String(16), nullable=False)  # what was built: post, video, image, ad
+    kind = Column(String(16), nullable=False)  # what was built: post, blog, image, ad
     look = Column(String(64))  # look it was rendered in: studio, plain, null
     origin = Column(String(16), nullable=False)  # who asked for it: proposal, chat
     proposal_seq = Column(BigInteger, ForeignKey("proposal.seq", ondelete="SET NULL"))  # proposal that made it: 1, null
@@ -499,7 +499,7 @@ class AssetFile(Base):
     asset_seq = Column(BigInteger, ForeignKey("asset.seq", ondelete="CASCADE"), nullable=False)  # owning asset: 1, 42
     version = Column(Integer, nullable=False)  # rebuild number, first is one: 1, 2, 3
     path = Column(String(512), nullable=False)  # path under the media volume: assets/1/out.mp4
-    media_type = Column(String(128), nullable=False)  # what the file is: video/mp4, image/png
+    media_type = Column(String(128), nullable=False)  # what the file is: text/markdown, image/png
     bytes = Column(Integer, nullable=False)  # file size in bytes: 412, 1048576
     note = Column(Text)  # why this version was rebuilt: "hook too slow", null
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: server now(), 2026-09-04T12:00:00Z
@@ -513,7 +513,7 @@ class SkillRun(Base):
     __tablename__ = "skill_run"
 
     seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic skill run counter: 1, 2, 3
-    skill = Column(String(64), nullable=False)  # skill that ran: dw-post, dw-video
+    skill = Column(String(64), nullable=False)  # skill that ran: dw-post, dw-image
     skill_sha = Column(String(64), nullable=False)  # SKILL.md digest at run: "a3f9…", "0c7a…"
     mode = Column(String(16), nullable=False)  # how it ran: draft, build, chat
     caller = Column(String(16), nullable=False)  # who started it: marketer, studio, mcp

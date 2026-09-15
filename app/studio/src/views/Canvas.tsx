@@ -48,7 +48,7 @@ const SELECT = 'h-8 rounded-md border border-line bg-paper px-2 text-xs text-ink
 
 const HANDLE = '!h-1.5 !w-1.5 !min-h-0 !min-w-0 !rounded-full !border !border-line !bg-wash'
 
-const GLYPHS: Record<string, string> = { image: '▣', video: '▶', html: '</>', document: '▤' }
+const GLYPHS: Record<string, string> = { image: '▣', html: '</>', document: '▤' }
 
 const glyph = (kind: string) => GLYPHS[kind] ?? '▫'
 
@@ -111,7 +111,6 @@ const MediaBox = ({ children }: { children: ReactNode }) => (
 function Media({ node }: { node: CanvasNode }) {
   if (node.url === null) return <MediaBox>{node.media_type} — nothing stored to show</MediaBox>
   if (node.kind === 'image') return <img src={node.url} alt={node.label} className="max-h-72 w-full rounded-lg border border-line object-contain" />
-  if (node.kind === 'video') return <video controls src={node.url} className="w-full rounded-lg border border-line" />
   if (node.kind === 'html') return <iframe title={node.label} src={node.url} className="h-72 w-full rounded-lg border border-line bg-paper" />
   return <MediaBox>{node.media_type}</MediaBox>
 }

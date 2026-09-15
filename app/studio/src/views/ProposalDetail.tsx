@@ -21,7 +21,6 @@ import { EditDraftDialog } from '@/components/proposal/EditDraft'
 import { Line, Panel } from '@/components/proposal/Panel'
 import { Preview } from '@/components/proposal/Preview'
 import { ReasonDialog } from '@/components/proposal/ReasonDialog'
-import { Storyboard } from '@/components/proposal/Storyboard'
 import { Variants, variantFiles } from '@/components/proposal/Variants'
 import { Banner, ErrorBanner } from '@/components/ui/banner'
 import { buttonVariants } from '@/components/ui/button'
@@ -139,7 +138,7 @@ export function ProposalDetail() {
   if (!Number.isFinite(seq)) return <Empty testId="proposal-missing">no such proposal</Empty>
 
   const failed = approve.error ?? reject.error ?? redo.error ?? edit.error ?? null
-  const shape = proposal ? shapeOf(proposal.kind, look.data) : 'text'
+  const shape = proposal ? shapeOf(proposal.kind) : 'text'
   const files = proposal ? variantFiles(proposal) : []
   const selection = picked ?? files.map((file) => file.path)
   const draft = proposal ? mainDraft(proposal.drafts) : null
@@ -203,9 +202,7 @@ export function ProposalDetail() {
           ) : (
             <>
               <Card className="space-y-6">
-                {shape === 'video' ? (
-                  <Storyboard proposal={proposal} look={look.data} />
-                ) : shape === 'image' ? (
+                {shape === 'image' ? (
                   <Variants
                     proposal={proposal}
                     files={files}
@@ -225,7 +222,7 @@ export function ProposalDetail() {
                         <p className="text-sm text-ink">{proposal.ancestor_ref ?? 'none (original)'}</p>
                       </Panel>
                       <Panel title="Build" testId="build-panel">
-                        <Line name="renders">{proposal.build_cost ?? 'not estimated'}</Line>
+                        <Line name="tokens">{proposal.build_cost ?? 'not estimated'}</Line>
                         <Line name="look">{proposal.look ?? '—'}</Line>
                       </Panel>
                     </div>
