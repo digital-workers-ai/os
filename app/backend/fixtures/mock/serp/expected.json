@@ -1,0 +1,331 @@
+{
+  "clears": {},
+  "extracted": {
+    "organic_results": {
+      "ranking": {
+        "ai ads without a studio|google|avatarly.com|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "avatarly.com",
+          "engine": "google",
+          "keyword": "ai ads without a studio",
+          "position": "5.0",
+          "url": "https://avatarly.com/how-it-works"
+        },
+        "ai ads without a studio|google|clipwise.io|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "clipwise.io",
+          "engine": "google",
+          "keyword": "ai ads without a studio",
+          "position": "9.0",
+          "url": "https://clipwise.io/how-it-works"
+        },
+        "ai ads without a studio|google|cutcraft.ai|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "cutcraft.ai",
+          "engine": "google",
+          "keyword": "ai ads without a studio",
+          "position": "10.0",
+          "url": "https://cutcraft.ai/"
+        },
+        "ai ads without a studio|google|growthletter.co|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "growthletter.co",
+          "engine": "google",
+          "keyword": "ai ads without a studio",
+          "position": "3.0",
+          "url": "https://growthletter.co/no-studio-no-crew"
+        },
+        "ai ads without a studio|google|hiredigitalworkers.com|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "hiredigitalworkers.com",
+          "engine": "google",
+          "keyword": "ai ads without a studio",
+          "position": "2.0",
+          "url": "https://hiredigitalworkers.com/ai-ads-without-a-studio"
+        },
+        "ai ads without a studio|google|hookmill.co|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "hookmill.co",
+          "engine": "google",
+          "keyword": "ai ads without a studio",
+          "position": "7.0",
+          "url": "https://hookmill.co/"
+        },
+        "ai ads without a studio|google|studioless.io|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "studioless.io",
+          "engine": "google",
+          "keyword": "ai ads without a studio",
+          "position": "1.0",
+          "url": "https://studioless.io/"
+        },
+        "ai ads without a studio|google|takeone.tools|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "takeone.tools",
+          "engine": "google",
+          "keyword": "ai ads without a studio",
+          "position": "6.0",
+          "url": "https://takeone.tools/"
+        },
+        "ai ads without a studio|google|thecreativeindex.com|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "thecreativeindex.com",
+          "engine": "google",
+          "keyword": "ai ads without a studio",
+          "position": "8.0",
+          "url": "https://thecreativeindex.com/no-studio-ad-tools"
+        },
+        "ai ads without a studio|google|vidora.ai|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "vidora.ai",
+          "engine": "google",
+          "keyword": "ai ads without a studio",
+          "position": "4.0",
+          "url": "https://vidora.ai/how-it-works"
+        },
+        "ai ugc ads|google|avatarly.com|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "avatarly.com",
+          "engine": "google",
+          "keyword": "ai ugc ads",
+          "position": "3.0",
+          "url": "https://avatarly.com/"
+        },
+        "ai ugc ads|google|clipwise.io|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "clipwise.io",
+          "engine": "google",
+          "keyword": "ai ugc ads",
+          "position": "5.0",
+          "url": "https://clipwise.io/"
+        },
+        "ai ugc ads|google|cutcraft.ai|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "cutcraft.ai",
+          "engine": "google",
+          "keyword": "ai ugc ads",
+          "position": "8.0",
+          "url": "https://cutcraft.ai/"
+        },
+        "ai ugc ads|google|growthletter.co|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "growthletter.co",
+          "engine": "google",
+          "keyword": "ai ugc ads",
+          "position": "7.0",
+          "url": "https://growthletter.co/ai-ugc-ads-what-actually-works"
+        },
+        "ai ugc ads|google|hiredigitalworkers.com|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "hiredigitalworkers.com",
+          "engine": "google",
+          "keyword": "ai ugc ads",
+          "position": "9.0",
+          "url": "https://hiredigitalworkers.com/"
+        },
+        "ai ugc ads|google|hookmill.co|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "hookmill.co",
+          "engine": "google",
+          "keyword": "ai ugc ads",
+          "position": "6.0",
+          "url": "https://hookmill.co/ugc"
+        },
+        "ai ugc ads|google|promptreel.com|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "promptreel.com",
+          "engine": "google",
+          "keyword": "ai ugc ads",
+          "position": "10.0",
+          "url": "https://promptreel.com/"
+        },
+        "ai ugc ads|google|reelforge.io|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "reelforge.io",
+          "engine": "google",
+          "keyword": "ai ugc ads",
+          "position": "4.0",
+          "url": "https://reelforge.io/"
+        },
+        "ai ugc ads|google|toolwatch.io|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "toolwatch.io",
+          "engine": "google",
+          "keyword": "ai ugc ads",
+          "position": "2.0",
+          "url": "https://toolwatch.io/best-ai-ugc-ad-tools"
+        },
+        "ai ugc ads|google|vidora.ai|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "vidora.ai",
+          "engine": "google",
+          "keyword": "ai ugc ads",
+          "position": "1.0",
+          "url": "https://vidora.ai/"
+        },
+        "ai video ads|google|avatarly.com|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "avatarly.com",
+          "engine": "google",
+          "keyword": "ai video ads",
+          "position": "6.0",
+          "url": "https://avatarly.com/"
+        },
+        "ai video ads|google|clipwise.io|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "clipwise.io",
+          "engine": "google",
+          "keyword": "ai video ads",
+          "position": "4.0",
+          "url": "https://clipwise.io/"
+        },
+        "ai video ads|google|framewise.ai|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "framewise.ai",
+          "engine": "google",
+          "keyword": "ai video ads",
+          "position": "7.0",
+          "url": "https://framewise.ai/"
+        },
+        "ai video ads|google|growthletter.co|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "growthletter.co",
+          "engine": "google",
+          "keyword": "ai video ads",
+          "position": "8.0",
+          "url": "https://growthletter.co/thirty-ai-video-ads-teardown"
+        },
+        "ai video ads|google|hiredigitalworkers.com|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "hiredigitalworkers.com",
+          "engine": "google",
+          "keyword": "ai video ads",
+          "position": "10.0",
+          "url": "https://hiredigitalworkers.com/"
+        },
+        "ai video ads|google|promptreel.com|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "promptreel.com",
+          "engine": "google",
+          "keyword": "ai video ads",
+          "position": "5.0",
+          "url": "https://promptreel.com/"
+        },
+        "ai video ads|google|reelforge.io|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "reelforge.io",
+          "engine": "google",
+          "keyword": "ai video ads",
+          "position": "1.0",
+          "url": "https://reelforge.io/"
+        },
+        "ai video ads|google|studioless.io|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "studioless.io",
+          "engine": "google",
+          "keyword": "ai video ads",
+          "position": "9.0",
+          "url": "https://studioless.io/"
+        },
+        "ai video ads|google|toolwatch.io|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "toolwatch.io",
+          "engine": "google",
+          "keyword": "ai video ads",
+          "position": "3.0",
+          "url": "https://toolwatch.io/ai-video-ad-makers"
+        },
+        "ai video ads|google|vidora.ai|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "vidora.ai",
+          "engine": "google",
+          "keyword": "ai video ads",
+          "position": "2.0",
+          "url": "https://vidora.ai/"
+        },
+        "ugc video tool|google|avatarly.com|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "avatarly.com",
+          "engine": "google",
+          "keyword": "ugc video tool",
+          "position": "7.0",
+          "url": "https://avatarly.com/"
+        },
+        "ugc video tool|google|clipwise.io|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "clipwise.io",
+          "engine": "google",
+          "keyword": "ugc video tool",
+          "position": "1.0",
+          "url": "https://clipwise.io/"
+        },
+        "ugc video tool|google|cutcraft.ai|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "cutcraft.ai",
+          "engine": "google",
+          "keyword": "ugc video tool",
+          "position": "10.0",
+          "url": "https://cutcraft.ai/"
+        },
+        "ugc video tool|google|framewise.ai|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "framewise.ai",
+          "engine": "google",
+          "keyword": "ugc video tool",
+          "position": "4.0",
+          "url": "https://framewise.ai/"
+        },
+        "ugc video tool|google|hiredigitalworkers.com|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "hiredigitalworkers.com",
+          "engine": "google",
+          "keyword": "ugc video tool",
+          "position": "8.0",
+          "url": "https://hiredigitalworkers.com/ugc"
+        },
+        "ugc video tool|google|reelforge.io|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "reelforge.io",
+          "engine": "google",
+          "keyword": "ugc video tool",
+          "position": "5.0",
+          "url": "https://reelforge.io/"
+        },
+        "ugc video tool|google|studioless.io|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "studioless.io",
+          "engine": "google",
+          "keyword": "ugc video tool",
+          "position": "9.0",
+          "url": "https://studioless.io/"
+        },
+        "ugc video tool|google|takeone.tools|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "takeone.tools",
+          "engine": "google",
+          "keyword": "ugc video tool",
+          "position": "6.0",
+          "url": "https://takeone.tools/"
+        },
+        "ugc video tool|google|thecreativeindex.com|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "thecreativeindex.com",
+          "engine": "google",
+          "keyword": "ugc video tool",
+          "position": "3.0",
+          "url": "https://thecreativeindex.com/ugc-video-tools"
+        },
+        "ugc video tool|google|vidora.ai|2026-09-14": {
+          "checked_on": "2026-09-14T00:00:00Z",
+          "domain": "vidora.ai",
+          "engine": "google",
+          "keyword": "ugc video tool",
+          "position": "2.0",
+          "url": "https://vidora.ai/"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "serp"
+}
