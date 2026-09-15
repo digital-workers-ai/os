@@ -16,6 +16,7 @@ router = APIRouter()
 
 _TODAY = "2026-09-14"
 _MAP_LIMIT = 100
+_SUBDOMAIN_PATH = "/login"
 
 
 def _failed(status, message):
@@ -66,17 +67,23 @@ async def map_site(request: Request):
     if competitor is None:
         return _failed(404, f"No site mapped for {url}")
     limit = body.get("limit") or _MAP_LIMIT
-    return {
-        "success": True,
-        "links": [
+    links = [
+        {
+            "url": f"https://{domain}{page.path}",
+            "title": page.title,
+            "description": _description(page.paragraphs),
+        }
+        for page in COMPETITOR_PAGES_BY_COMPETITOR[competitor.id]
+    ]
+    if body.get("includeSubdomains", True):
+        links.append(
             {
-                "url": f"https://{domain}{page.path}",
-                "title": page.title,
-                "description": _description(page.paragraphs),
+                "url": f"https://app.{domain}{_SUBDOMAIN_PATH}",
+                "title": f"Sign in — {competitor.name}",
+                "description": "The product itself, on its own host.",
             }
-            for page in COMPETITOR_PAGES_BY_COMPETITOR[competitor.id][:limit]
-        ],
-    }
+        )
+    return {"success": True, "links": links[:limit]}
 
 
 @router.post("/v2/scrape")

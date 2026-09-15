@@ -40,6 +40,7 @@ The pages on one site. A monitor calls this first, then scrapes each link.
 |-------|------|---------|-------------|
 | `url` | string | **required** | The site, with or without a scheme; `www.` is ignored |
 | `limit` | integer | 100 | Most links to return |
+| `includeSubdomains` | boolean | true | Whether pages on the site's subdomains are listed too |
 
 **Example request:**
 
@@ -47,7 +48,7 @@ The pages on one site. A monitor calls this first, then scrapes each link.
 curl -X POST "http://localhost:8192/pages/v2/map" \
   -H "Authorization: Bearer mock_competitor_pages_token" \
   -H "Content-Type: application/json" \
-  -d '{"url": "https://vidora.ai", "limit": 50}'
+  -d '{"url": "https://vidora.ai", "limit": 50, "includeSubdomains": false}'
 ```
 
 **Example response (200):**
@@ -71,6 +72,8 @@ curl -X POST "http://localhost:8192/pages/v2/map" \
 ```
 
 `links` holds objects, not bare strings: v2 returns the title and description it saw alongside each URL. The URL is what `/v2/scrape` takes.
+
+With `includeSubdomains` absent or true the map also lists pages on the site's subdomains, which a real map does by default: a product's `app.` or `get.` host is part of the same site to Firecrawl. The connector sends `false`, because a competitor's sign-in page and marketing tools are not the copy the monitor watches.
 
 ### 2. Scrape
 
@@ -198,13 +201,14 @@ None. A map is one response and a scrape is one page. Firecrawl caps `map` with 
 
 ## What the connector stores
 
-One `map` per tracked competitor, then one `scrape` per link it returned, with `formats: ["markdown"]` and `onlyMainContent: true`. Each successful scrape's `data` object is stored as it arrived, with two stamps added under the leading-underscore convention: `_fetched_at`, the connector's clock at the time of the scrape, and `_competitor_ref`, the host of `metadata.sourceURL` without `www.`, which is the domain the estate folds a competitor on. The stored `source_id` is `metadata.sourceURL`, one row per page; a scrape whose `success` is false or that carries no `data` is counted under `failed_scrapes` and not stored. Captured in `app/backend/fixtures/mock/competitor_pages/pages.json`: twenty-one rows, seven per competitor.
+One `map` per tracked competitor with `includeSubdomains: false` and `limit` 50, then one `scrape` per link it returned, with `formats: ["markdown"]` and `onlyMainContent: true`. Each successful scrape's `data` object is stored as it arrived, with two stamps added under the leading-underscore convention: `_fetched_at`, the connector's clock at the time of the scrape, and `_competitor_ref`, the tracked competitor's domain from `competitors.yaml`, the way `linkedin_posts` stamps its posts. The domain is not read from the page's URL: a page answered from `www.`, `app.` or any other host under the crawl still belongs to the competitor whose site was mapped, which is the domain the estate folds a competitor on. The stored `source_id` is `metadata.sourceURL`, one row per page; a scrape whose `success` is false or that carries no `data` is counted under `failed_scrapes` and not stored. Captured in `app/backend/fixtures/mock/competitor_pages/pages.json`: twenty-one rows, seven per competitor.
 
 ---
 
 ## What the mock simplifies
 
 - Three sites, seven pages each: `/`, `/pricing`, `/how-it-works`, `/blog`, two blog posts and `/about`. Any other URL is a 404.
+- One subdomain link per site, `https://app.<domain>/login`, is listed only when `includeSubdomains` is absent or true, so a connector that forgets the flag sees a page it should not have asked for. It has no capture: scraping it is a 404.
 - `markdown` is a heading and the page's own copy; with `onlyMainContent` false the site's shared footer follows it, which is what a scrape of a real page returns — navigation and legal boilerplate included, on every page of the site.
 - No HTML, no screenshots, no links graph, no `robots.txt` handling, no rendering of JavaScript, no rate limiting, no credits and no asynchronous crawl jobs. One POST is one page.
 - `formats` is accepted and ignored; markdown is the only format served.
