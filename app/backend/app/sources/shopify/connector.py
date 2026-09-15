@@ -9,18 +9,31 @@ OBSERVED_AT = {
     "products": "updated_at",
 }
 
-ACCOUNT_CURRENCY = "usd"
+PROTECTED_CUSTOMER_FIELDS = ("email", "first_name", "last_name", "phone")
+
+PAGE_SIZE = 250
 
 
 async def pull(session, store):
     api = client_for(SOURCE)
     notes: dict = {}
     for kind in ("products", "orders", "customers"):
+        params = {"limit": PAGE_SIZE}
+        if kind == "orders":
+            params["status"] = "any"
         items = await api.get(
             f"/admin/api/2024-01/{kind}.json",
-            params={"limit": 1},
+            params=params,
             paginate=ShopifyLink(kind),
         )
+        if kind == "customers":
+            withheld = sum(
+                1
+                for item in items
+                if not any(item.get(f) for f in PROTECTED_CUSTOMER_FIELDS)
+            )
+            if withheld:
+                notes["customers_without_personal_data"] = withheld
         await store_all(
             session, store, items, source=SOURCE, object_type=kind, notes=notes
         )

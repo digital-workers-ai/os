@@ -18,8 +18,6 @@ _DAILY_QUERY = (
     "FROM campaign WHERE segments.date BETWEEN '{since}' AND '{until}'"
 )
 
-_SEARCH = "/v24/customers/1234567890/googleAds:searchStream"
-
 
 def _results(data):
     if isinstance(data, list) and data:
@@ -40,7 +38,8 @@ def _daily_id(record):
 async def pull(session, store):
     api = client_for(SOURCE)
     notes: dict = {}
-    data = await api.post(_SEARCH, json={"query": _QUERY})
+    search = f"/v24/customers/{api.values['customer_id']}/googleAds:searchStream"
+    data = await api.post(search, json={"query": _QUERY})
     await store_all(
         session,
         store,
@@ -52,7 +51,7 @@ async def pull(session, store):
     )
     since, until = window()
     daily = await api.post(
-        _SEARCH, json={"query": _DAILY_QUERY.format(since=since, until=until)}
+        search, json={"query": _DAILY_QUERY.format(since=since, until=until)}
     )
     await store_all(
         session,

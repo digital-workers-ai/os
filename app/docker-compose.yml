@@ -39,6 +39,7 @@ services:
       - ../.claude/skills:/app/.claude/skills:ro
       - ../mock:/adversarial/seeds:ro
       - media:/media
+      - ./.env.example:/.env.example:ro
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')\""]
       interval: 5s

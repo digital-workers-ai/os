@@ -1,6 +1,8 @@
 import type { Locator, Page } from '@playwright/test'
 import { CANDIDATES, expect, header, mockCandidates, mockJson, openFilter, pickOption, settle, snap, test, visit } from './fixtures'
 
+const ABOVE_THE_CLIPPED_ROW = { x: 0, y: 0, width: 1280, height: 744 }
+
 const TABS = { canonical: 'Canonical', raw: 'Raw entities', visualize: 'Visualize', review: 'Review' }
 
 const counted = (scope: Locator, label: string) => header(scope, new RegExp(`^${label} \\(\\d[\\d,]*\\)$`))
@@ -35,7 +37,7 @@ test('canonical type dropdown open', async ({ page }) => {
   await visit(page, '/entities')
   await openFilter(page, 'entities-type-filter')
   await expect(option(page, 'entities-type-filter', 'person')).toHaveText(/^person \(\d+\)$/)
-  await snap(page, 'entities-canonical-type-open')
+  await snap(page, 'entities-canonical-type-open', { clip: ABOVE_THE_CLIPPED_ROW })
   await closeFilter(page, 'entities-type-filter')
 })
 
@@ -62,7 +64,7 @@ test('canonical entity selected', async ({ page }) => {
     counted(page.getByTestId('detail-links'), 'Link').or(detail.getByTestId('empty').filter({ hasText: 'no links' })),
   ).toBeVisible()
   await settle(page)
-  await snap(page, 'entities-canonical-selected')
+  await snap(page, 'entities-canonical-selected', { clip: ABOVE_THE_CLIPPED_ROW })
 })
 
 test('canonical anchor form', async ({ page }) => {

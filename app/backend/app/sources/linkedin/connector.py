@@ -7,8 +7,6 @@ SOURCE = "linkedin"
 
 OBSERVED_AT = {"ad_accounts": "lastModified"}
 
-ORGANIZATION = "urn:li:organization:1"
-
 _ELEMENTS = Offset("elements", count_param="count", offset_param="start")
 
 _DAY_MS = int(timedelta(days=1).total_seconds() * 1000)
@@ -25,16 +23,21 @@ def _intervals(since: str, until: str) -> str:
     )
 
 
-def _day_id(record):
-    start = (record.get("timeRange") or {}).get("start")
-    if isinstance(start, bool) or not isinstance(start, int | float):
-        return None
-    day = datetime.fromtimestamp(start / 1000, UTC).date().isoformat()
-    return f"{ORGANIZATION}|{day}"
+def _day_id_for(organization: str):
+    def _day_id(record):
+        start = (record.get("timeRange") or {}).get("start")
+        if isinstance(start, bool) or not isinstance(start, int | float):
+            return None
+        day = datetime.fromtimestamp(start / 1000, UTC).date().isoformat()
+        return f"{organization}|{day}"
+
+    return _day_id
 
 
 async def pull(session, store):
     api = client_for(SOURCE)
+    organization = api.values["organization"]
+    day_id = _day_id_for(organization)
     notes: dict = {}
     since, until = window()
     accounts = await api.get(
@@ -47,7 +50,7 @@ async def pull(session, store):
     )
     posts = await api.get(
         "/posts",
-        params={"author": ORGANIZATION, "q": "author", "start": 0, "count": 100},
+        params={"author": organization, "q": "author", "start": 0, "count": 100},
         paginate=_ELEMENTS,
     )
     await store_all(
@@ -59,7 +62,7 @@ async def pull(session, store):
             "/organizationalEntityShareStatistics",
             params={
                 "q": "organizationalEntity",
-                "organizationalEntity": ORGANIZATION,
+                "organizationalEntity": organization,
                 "shares": f"List({','.join(urns)})",
             },
             paginate=_ELEMENTS,
@@ -78,7 +81,7 @@ async def pull(session, store):
         "/organizationalEntityFollowerStatistics",
         params={
             "q": "organizationalEntity",
-            "organizationalEntity": ORGANIZATION,
+            "organizationalEntity": organization,
             "timeIntervals": intervals,
         },
         paginate=_ELEMENTS,
@@ -89,14 +92,14 @@ async def pull(session, store):
         followers,
         source=SOURCE,
         object_type="follower_stats",
-        id_of=_day_id,
+        id_of=day_id,
         notes=notes,
     )
     pages = await api.get(
         "/organizationPageStatistics",
         params={
             "q": "organization",
-            "organization": ORGANIZATION,
+            "organization": organization,
             "timeIntervals": intervals,
         },
         paginate=_ELEMENTS,
@@ -107,7 +110,7 @@ async def pull(session, store):
         pages,
         source=SOURCE,
         object_type="page_stats",
-        id_of=_day_id,
+        id_of=day_id,
         notes=notes,
     )
     return notes or None

@@ -7,7 +7,7 @@ Stripe's REST API provides access to customers, subscriptions, invoices, and pay
 - **Category:** Payments
 - **Production Base URL:** `https://api.stripe.com`
 - **Mock Base URL:** `http://localhost:8100/stripe`
-- **API Version:** 2025-03-31.basil (latest)
+- **API Version:** 2025-03-31.basil — pinned by the connector, see *API Version Pinning* below
 - **Response Format:** JSON
 - **Official Docs:** https://docs.stripe.com/api
 
@@ -32,6 +32,28 @@ Authorization: Bearer sk_test_4eC39HqLyjWDarjtT1zdp7dc
 ### Mock Server Tokens
 
 The mock server accepts any token starting with `sk_test_mock_`.
+
+### API Version Pinning
+
+The connector sends `Stripe-Version: 2025-03-31.basil` on every request.
+
+Without the header Stripe applies **the account's own default version**, which
+moves when Stripe upgrades it or when somebody presses upgrade in the dashboard.
+That already happened here: on 2026-09-14 the sandbox account answered with
+`stripe-version: 2026-08-26.dahlia`, two named versions past the one this
+contract was written against. An unpinned connector would have absorbed that
+shape change with no code change and no failing test.
+
+`2025-03-31.basil` is the version pinned because it is the one whose documented
+shapes the connector, the mock and the fixtures all model — in particular it is
+the version that moved `current_period_start` / `current_period_end` onto the
+subscription **items**. Raising the pin is a deliberate edit: change the header,
+re-capture, and re-diff the fields below.
+
+Sending the header is verified live: `Stripe-Version: 2025-03-31.basil` answers
+`200` and echoes the same value back in the response header. An unknown value
+answers `400`, so a typo in the pin fails loudly rather than silently falling
+back to the account default.
 
 ### Rate Limits
 
@@ -217,8 +239,23 @@ GET /v1/subscriptions
 | `limit` | integer | 10 | Results per page (1–100) |
 | `starting_after` | string | — | Cursor: last object ID |
 | `customer` | string | — | Filter by customer ID |
-| `status` | string | — | Filter by status |
+| `status` | string | — | Filter by status, or `all` / `ended` (see below) |
 | `price` | string | — | Filter by price ID |
+
+**The default is not "everything".** With no `status`, Stripe returns *all
+subscriptions that have not been canceled*. A canceled subscription is
+invisible to an unfiltered query, so churn and lifetime revenue read as if it
+never existed.
+
+The connector therefore sends `status=all`. That value is confirmed against the
+live API: `status=bogus_value` answers `400` with
+
+> Invalid status: must be one of active, past_due, unpaid, canceled,
+> incomplete, incomplete_expired, trialing, paused, all, or ended
+
+`all` and `ended` are filter-only values — they are not statuses an object can
+carry. The mock treats `all` as a wildcard and, given no `status` at all, hides
+canceled subscriptions the way the live API does.
 
 **Example request:**
 
@@ -497,12 +534,31 @@ while True:
 ## Notes
 
 - All monetary amounts are in the **smallest currency unit** (e.g., cents for USD). `480000` = $4,800.00
-- `current_period_start` and `current_period_end` are on the **subscription_item** level, not the subscription level (moved in API version 2025-03-31.basil)
+- `current_period_start` and `current_period_end` are on the **subscription_item** level, not the subscription level (moved in API version 2025-03-31.basil). They are not on the subscription itself at all — reading `subscription.current_period_end` yields nothing
+- There is no top-level `subscription.plan`. The plan lives on each item as `items.data[].price`; a `plan` beside `items` is a pre-`items` shape and was removed from the mock and the fixtures
+- Neither `customer` nor `subscription` carries an updated-at timestamp. `created` is the only timestamp either object has, so `created` is what `OBSERVED_AT` names for both — checked field by field against the Customer object reference
 - Object IDs are prefixed by type: `cus_` (customer), `sub_` (subscription), `in_` (invoice), `si_` (subscription_item), `price_` (price), `prod_` (product), `pm_` (payment method)
 - Stripe has an OpenAPI spec available for detailed field documentation
 - The mock server does not enforce `starting_after`/`ending_before` mutual exclusivity — it ignores `ending_before` if both are provided
 
 ---
+
+## What Was Verified Live
+
+Checked on 2026-09-14 against the sandbox account with the restricted key:
+
+| Claim | Verdict |
+|-------|---------|
+| Bearer auth on a restricted key | **verified** — `200` |
+| List envelope `object` / `url` / `has_more` / `data` | **verified** on both endpoints |
+| `status=all` is a valid filter value | **verified** — the `400` enum names it |
+| `Stripe-Version` is honoured and echoed | **verified** — `200`, header echoed |
+| An unknown `Stripe-Version` fails loudly | **verified** — `400` |
+| `/v1/charges` is outside the key's scope | **verified** — `403 more_permissions_required` |
+| Customer and subscription **record fields** | **NOT verified** — the account holds zero customers and zero subscriptions, so every field below is taken from this reference and Stripe's public docs, never from a live record |
+
+The record shapes stay unverified until the account has data. Nothing in this
+file should be read as field-level evidence from the live API.
 
 ## Reference
 

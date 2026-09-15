@@ -1,5 +1,7 @@
 {
-  "clears": {},
+  "clears": {
+    "sent_at/mailchimp": 2
+  },
   "extracted": {
     "campaigns": {
       "email_campaign": {
@@ -38,6 +40,38 @@
           "sent_at": "2026-07-10T14:00:00Z",
           "status": "sent",
           "subject": "Welcome to Acme \u2014 getting started"
+        },
+        "mc_camp_ec5": {
+          "name": "Q3 Webinar Invite",
+          "sends": "0.0",
+          "sent_at": null,
+          "status": "schedule",
+          "subject": "Join us: AI in 2026"
+        },
+        "mc_camp_ec6": {
+          "name": "Re-engagement: Inactive Users",
+          "sends": "0.0",
+          "sent_at": null,
+          "status": "draft",
+          "subject": "We miss you \u2014 here's what you missed"
+        },
+        "mc_camp_ec7": {
+          "clicks": "280.0",
+          "name": "Case Study: Globex Success",
+          "opens": "1400.0",
+          "sends": "3500.0",
+          "sent_at": "2026-06-25T11:00:00Z",
+          "status": "sent",
+          "subject": "How Globex grew 40% with us"
+        },
+        "mc_camp_ec8": {
+          "clicks": "410.0",
+          "name": "Feature Update: Dashboard v2",
+          "opens": "1750.0",
+          "sends": "4100.0",
+          "sent_at": "2026-06-15T09:30:00Z",
+          "status": "sent",
+          "subject": "Your new dashboard is here"
         }
       }
     },

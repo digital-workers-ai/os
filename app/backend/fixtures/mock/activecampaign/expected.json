@@ -1,6 +1,7 @@
 {
   "clears": {
-    "phone/activecampaign": 1
+    "phone/activecampaign": 1,
+    "sent_at/activecampaign": 1
   },
   "extracted": {
     "campaigns": {
@@ -32,6 +33,13 @@
           "opens": "98.0",
           "sends": "120.0",
           "sent_at": "2026-07-10T14:00:00Z"
+        },
+        "5": {
+          "clicks": "0.0",
+          "name": "Q3 Webinar Invite",
+          "opens": "0.0",
+          "sends": "0.0",
+          "sent_at": null
         }
       }
     },

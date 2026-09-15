@@ -44,13 +44,13 @@ async def test_the_sync_stores_the_whole_twenty_seven_source_estate(
 ):
     result = await sync.run_all(sessionmaker_for_test, SOURCES)
     assert result["failed"] == 0, result
-    assert result["rows_written"] == 2228
+    assert result["rows_written"] == 2227
     assert all(r["truncated"] is False for r in result["results"]), result
 
     total = (
         await session.execute(select(func.count()).select_from(RawEvent))
     ).scalar_one()
-    assert total == 2228
+    assert total == 2227
 
 
 async def test_the_rebuild_resolves_the_batch_four_entities(
@@ -80,7 +80,7 @@ async def test_the_rebuild_resolves_the_batch_four_entities(
         "email_campaign": 35,
         "event": 42,
         "event_definition": 4,
-        "ad_account": 8,
+        "ad_account": 6,
         "meeting": 11,
         "audience": 6,
         "campaign": 8,
@@ -90,7 +90,7 @@ async def test_the_rebuild_resolves_the_batch_four_entities(
         "traffic_report": 540,
         "data_source": 3,
     }
-    assert sum(canonical_by_type.values()) == 1891
+    assert sum(canonical_by_type.values()) == 1889
 
 
 async def test_the_estate_is_clean_apart_from_its_counted_clears(

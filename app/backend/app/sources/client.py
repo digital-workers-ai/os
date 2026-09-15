@@ -1,5 +1,8 @@
 import asyncio
 import contextvars
+import gzip
+import io
+import zipfile
 from urllib.parse import urlsplit, urlunsplit
 
 import httpx
@@ -64,6 +67,7 @@ class SourceClient:
         headers: dict | None = None,
         auth: tuple | None = None,
         params: dict | None = None,
+        values: dict | None = None,
     ):
         self.source = source
         self.base_url = base_url.rstrip("/")
@@ -72,6 +76,7 @@ class SourceClient:
         self.headers = headers or {}
         self.auth = auth
         self.default_params = params or {}
+        self.values = values or {}
         self.pages_read = 0
         self.truncated = False
         self.truncation_reasons: list[str] = []
@@ -205,6 +210,33 @@ class SourceClient:
                 )
                 body = body[: settings.CONNECTOR_MAX_BYTES]
             return body
+
+    async def get_archive(self, path: str, *, params: dict | None = None) -> str:
+        base = self.origin if _transport is not None else self.base_url
+        url = f"{base}{path}"
+        merged = {**self.default_params, **(params or {})}
+        async with self._client() as client:
+            r = await self._request(client, "GET", url, params=merged)
+            self.pages_read += 1
+            body = self._unpack(r)
+            if len(body) > settings.CONNECTOR_MAX_BYTES:
+                self._truncate(
+                    f"byte cap {settings.CONNECTOR_MAX_BYTES} reached on an "
+                    "export archive; the tail was not read"
+                )
+                body = body[: settings.CONNECTOR_MAX_BYTES]
+            return body
+
+    def _unpack(self, r: httpx.Response) -> str:
+        try:
+            with zipfile.ZipFile(io.BytesIO(r.content)) as bundle:
+                members = [gzip.decompress(bundle.read(n)) for n in bundle.namelist()]
+        except (zipfile.BadZipFile, OSError) as e:
+            raise ConnectorError(
+                self.source,
+                f"unreadable export archive from {redact_url(str(r.request.url))}",
+            ) from e
+        return "\n".join(m.decode() for m in members)
 
     async def post(self, path: str, *, json: dict | None = None):
         base = self.origin if _transport is not None else self.base_url

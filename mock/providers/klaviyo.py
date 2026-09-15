@@ -21,11 +21,22 @@ def _kl_auth(request: Request):
     require_header(request, "revision")
 
 
+def _kl_properties(p):
+    if p.phone:
+        return {"$phone_number_region": None, "$source": -6}
+    return {"$consent": ["email"], "$consent_timestamp": f"{p.created_at}T00:00:00.000Z", "$source": -6}
+
+
+def _kl_relationship(key, profile_id):
+    return {"links": {"self": f"/api/profiles/{profile_id}/relationships/{key}", "related": f"/api/profiles/{profile_id}/{key}"}}
+
+
 def _kl_profile(p):
     co = COMPANIES_BY_ID.get(p.company_id)
+    profile_id = f"kl_prof_{p.id}"
     return {
         "type": "profile",
-        "id": f"kl_prof_{p.id}",
+        "id": profile_id,
         "attributes": {
             "email": p.email, "phone_number": p.phone,
             "external_id": p.id,
@@ -33,19 +44,17 @@ def _kl_profile(p):
             "organization": co.name if co else None,
             "title": p.role,
             "image": None,
-            "location": {"city": co.city if co else None, "region": co.state if co else None, "country": co.country if co else "US", "zip": None},
-            "properties": {},
+            "anonymous_id": None,
+            "locale": None,
+            "whatsapp_bsuid": None,
+            "location": {"address1": None, "address2": None, "city": co.city if co else None, "region": co.state if co else None, "country": co.country if co else "US", "zip": None, "latitude": None, "longitude": None, "timezone": None, "ip": None},
+            "properties": _kl_properties(p),
             "created": f"{p.created_at}T00:00:00+00:00",
             "updated": f"{p.last_seen}T00:00:00+00:00" if p.last_seen else f"{p.created_at}T00:00:00+00:00",
             "last_event_date": f"{p.last_seen}T00:00:00+00:00" if p.last_seen else None,
-            "subscriptions": {"email": {"marketing": {"consent": "SUBSCRIBED"}}},
-            "predictive_analytics": {"historic_clv": 0, "predicted_clv": 0, "total_clv": 0, "historic_number_of_orders": 0, "predicted_number_of_orders": 0, "average_days_between_orders": None, "average_order_value": 0, "churn_probability": 0, "expected_date_of_next_order": None},
         },
-        "relationships": {
-            "lists": {"links": {"self": f"/api/profiles/kl_prof_{p.id}/relationships/lists", "related": f"/api/profiles/kl_prof_{p.id}/lists"}},
-            "segments": {"links": {"self": f"/api/profiles/kl_prof_{p.id}/relationships/segments", "related": f"/api/profiles/kl_prof_{p.id}/segments"}},
-        },
-        "links": {"self": f"/api/profiles/kl_prof_{p.id}"},
+        "relationships": {key: _kl_relationship(key, profile_id) for key in ("conversation", "lists", "push-tokens", "segments")},
+        "links": {"self": f"/api/profiles/{profile_id}"},
     }
 
 
@@ -122,9 +131,14 @@ async def list_flows(request: Request, page_cursor: str = Query(None, alias="pag
             "links": {"self": "/api/flows/kl_flow_003"},
         },
     ]
+    page, next_token = token_paginate(flows, page_cursor, page_size)
     return {
-        "data": flows,
-        "links": {"self": "/api/flows", "next": None, "prev": None},
+        "data": page,
+        "links": {
+            "self": "/api/flows",
+            "next": f"/api/flows?page[cursor]={next_token}" if next_token else None,
+            "prev": None,
+        },
     }
 
 

@@ -1,5 +1,5 @@
 """
-Intercom API v2.15 mock provider.
+Intercom API v2.10 mock provider.
 Contract: seeds/docs/27-intercom.md
 
 Bearer + Intercom-Version header. Cursor pagination (starting_after).
@@ -12,43 +12,88 @@ from seeds.world import PEOPLE, COMPANIES, COMPANIES_BY_ID, TICKETS, SUBSCRIPTIO
 
 router = APIRouter()
 
+MESSENGER_CONVERSATIONS = {"t1", "t2", "t3", "t4"}
+
+CONVERSATION_ATTRIBUTES = {
+    "Auto-translated": False,
+    "Copilot used": False,
+    "Fin AI Agent: Image used in reply": False,
+    "Fin AI Agent: Preview": False,
+    "Fin awaiting teammate input": False,
+    "Has attachments": False,
+    "Imported via standalone": False,
+    "SDR Success Counted": False,
+}
+
 
 def _ic_auth(request: Request):
     require_bearer(request)
     require_header(request, "intercom-version")
 
 
+def _ic_external_id(p, co):
+    if p is None:
+        return ""
+    if co is None:
+        return f"user_{p.id}"
+    return f"user_{p.first_name.lower()}_{co.domain.split('.')[0]}"
+
+
+def _ic_mini_list(contact_id, path, data=None):
+    items = data or []
+    return {
+        "type": "list", "data": items,
+        "url": f"/contacts/{contact_id}/{path}",
+        "total_count": len(items), "has_more": False,
+    }
+
+
 def _ic_contact(p, idx):
     co = COMPANIES_BY_ID.get(p.company_id)
-    sub = SUBSCRIPTIONS_BY_COMPANY.get(co.id) if co else None
+    contact_id = f"con_{p.id}"
+    created_at = 1710500000 + idx * 86400
+    companies = [
+        {"type": "company", "id": f"comp_{co.id}", "url": f"/companies/comp_{co.id}"}
+    ] if co else []
     return {
-        "type": "contact", "id": f"con_{p.id}",
+        "type": "contact", "id": contact_id,
         "workspace_id": "ws_mock_001",
-        "external_id": f"user_{p.first_name.lower()}_{co.domain.split('.')[0]}" if co else f"user_{p.id}",
+        "external_id": _ic_external_id(p, co),
         "role": "user", "email": p.email, "phone": p.phone,
         "name": f"{p.first_name} {p.last_name}",
-        "created_at": 1710500000 + idx * 86400,
+        "avatar": None, "owner_id": None,
+        "social_profiles": {"type": "list", "data": []},
+        "has_hard_bounced": False, "marked_email_as_spam": False,
+        "unsubscribed_from_emails": False, "unsubscribed_from_sms": False,
+        "sms_consent": False,
+        "created_at": created_at,
         "updated_at": 1720454400,
-        "signed_up_at": 1710500000 + idx * 86400,
+        "signed_up_at": created_at,
         "last_seen_at": 1720454400,
-        "browser": "Chrome", "browser_version": "126.0.0", "os": "Mac OS X 14.5",
+        "last_replied_at": None, "last_contacted_at": None,
+        "last_email_opened_at": None, "last_email_clicked_at": None,
+        "language_override": None,
+        "browser": None, "browser_version": None, "browser_language": None,
+        "os": None, "referrer": None,
         "location": {
             "type": "location",
-            "country": "United States", "region": co.state if co else "CA",
-            "city": co.city if co else "San Francisco", "country_code": "US",
+            "country": None, "region": None, "city": None,
+            "country_code": None, "continent_code": None,
         },
-        "custom_attributes": {
-            "company": co.name if co else "",
-            "plan": sub.plan if sub else "free",
-            "mrr": sub.mrr_cents / 100 if sub else 0,
-            "company_domain": co.domain if co else "",
-        },
-        "tags": {"type": "list", "data": [], "total_count": 0, "has_more": False},
-        "companies": {
-            "type": "list",
-            "data": [{"type": "company", "id": f"comp_{co.id}", "name": co.name, "company_id": co.domain}] if co else [],
-            "total_count": 1 if co else 0, "has_more": False,
-        },
+        "android_app_name": None, "android_app_version": None,
+        "android_device": None, "android_os_version": None,
+        "android_sdk_version": None, "android_last_seen_at": None,
+        "ios_app_name": None, "ios_app_version": None,
+        "ios_device": None, "ios_os_version": None,
+        "ios_sdk_version": None, "ios_last_seen_at": None,
+        "utm_campaign": None, "utm_content": None, "utm_medium": None,
+        "utm_source": None, "utm_term": None,
+        "custom_attributes": {},
+        "tags": _ic_mini_list(contact_id, "tags"),
+        "notes": _ic_mini_list(contact_id, "notes"),
+        "opted_in_subscription_types": _ic_mini_list(contact_id, "subscriptions"),
+        "opted_out_subscription_types": _ic_mini_list(contact_id, "subscriptions"),
+        "companies": _ic_mini_list(contact_id, "companies", companies),
     }
 
 
@@ -75,32 +120,92 @@ def _ic_company(c, idx):
     }
 
 
+def _ic_statistics(messenger, created_at):
+    if messenger:
+        return {
+            "type": "conversation_statistics",
+            "time_to_assignment": None, "time_to_admin_reply": None,
+            "time_to_first_close": None, "time_to_last_close": None,
+            "median_time_to_reply": None,
+            "first_contact_reply_at": None, "first_assignment_at": None,
+            "first_admin_reply_at": None, "first_close_at": None,
+            "last_assignment_at": None, "last_assignment_admin_reply_at": None,
+            "last_admin_reply_at": None, "last_close_at": None,
+            "last_closed_by_id": None, "last_contact_reply_at": None,
+            "count_reopens": 0, "count_assignments": 0,
+            "count_conversation_parts": 2,
+        }
+    return {
+        "type": "conversation_statistics",
+        "time_to_assignment": 120, "time_to_admin_reply": 300,
+        "time_to_first_close": 7200, "time_to_last_close": 7200,
+        "median_time_to_reply": 300,
+        "first_contact_reply_at": created_at,
+        "first_assignment_at": created_at + 120,
+        "first_admin_reply_at": created_at + 300,
+        "first_close_at": created_at + 7200,
+        "last_assignment_at": created_at + 120,
+        "last_assignment_admin_reply_at": created_at + 300,
+        "last_admin_reply_at": created_at + 300,
+        "last_close_at": created_at + 7200,
+        "last_closed_by_id": 12345,
+        "last_contact_reply_at": created_at,
+        "count_reopens": 0, "count_assignments": 1,
+        "count_conversation_parts": 4,
+    }
+
+
+def _ic_source(t, p):
+    return {
+        "type": "conversation", "id": f"conv_{t.id}",
+        "delivered_as": "customer_initiated", "subject": "",
+        "body": f"<p>{t.subject}</p>",
+        "author": {
+            "type": "user", "id": f"con_{t.requester_id}",
+            "name": f"{p.first_name} {p.last_name}" if p else "",
+            "email": p.email if p else "",
+        },
+        "attachments": [], "url": None,
+    }
+
+
 def _ic_conversation(t, idx):
     p = next((pp for pp in PEOPLE if pp.id == t.requester_id), None)
     co = COMPANIES_BY_ID.get(t.company_id)
+    messenger = t.id in MESSENGER_CONVERSATIONS
+    created_at = 1720108800 + idx * 86400
     return {
         "type": "conversation", "id": f"conv_{t.id}",
-        "created_at": 1720108800 + idx * 86400,
+        "created_at": created_at,
         "updated_at": 1720368000 + idx * 86400,
-        "title": t.subject, "state": "open" if t.status in ("open", "new") else "closed",
+        "waiting_since": None, "snoozed_until": None,
+        "title": None if messenger else t.subject,
+        "state": "open" if t.status in ("open", "new") else "closed",
         "open": t.status in ("open", "new"),
+        "read": not messenger,
         "priority": "priority" if t.priority in ("high", "urgent") else "not_priority",
-        "source": {
-            "type": "conversation", "id": f"conv_{t.id}",
-            "delivered_as": "customer_initiated", "subject": "",
-            "body": f"<p>{t.subject}</p>",
-            "author": {"type": "user", "id": f"con_{t.requester_id}", "name": f"{p.first_name} {p.last_name}" if p else "", "email": p.email if p else ""},
-        },
+        "admin_assignee_id": None if messenger else 12345,
+        "team_assignee_id": None,
+        "source": None if messenger else _ic_source(t, p),
         "contacts": {
             "type": "contact.list",
-            "contacts": [{"type": "contact", "id": f"con_{t.requester_id}", "external_id": f"user_{p.first_name.lower()}_{co.domain.split('.')[0]}" if p and co else ""}],
+            "contacts": [{
+                "type": "contact", "id": f"con_{t.requester_id}",
+                "external_id": _ic_external_id(p, co),
+            }],
         },
+        "teammates": {"type": "admin.list", "admins": []},
+        "first_contact_reply": None if messenger else {
+            "created_at": created_at, "type": "conversation", "url": None,
+        },
+        "conversation_rating": None, "sla_applied": None, "ticket": None,
         "tags": {"type": "tag.list", "tags": []},
-        "statistics": {
-            "type": "conversation_statistics",
-            "time_to_assignment": 120, "time_to_admin_reply": 300,
-            "time_to_first_close": 7200, "count_assignments": 1,
+        "topics": {"type": "topic.list", "topics": [], "total_count": 0},
+        "linked_objects": {
+            "type": "list", "data": [], "total_count": 0, "has_more": False,
         },
+        "custom_attributes": dict(CONVERSATION_ATTRIBUTES),
+        "statistics": _ic_statistics(messenger, created_at),
     }
 
 

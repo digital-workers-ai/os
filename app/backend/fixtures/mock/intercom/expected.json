@@ -1,21 +1,17 @@
 {
   "clears": {
-    "phone/intercom": 1
+    "email/intercom": 4,
+    "phone/intercom": 4,
+    "subject/intercom": 4
   },
   "extracted": {
     "contacts": {
       "person": {
-        "con_p1": {
-          "email": "jane@acme.io",
-          "external_ref": "user_jane_acme",
-          "name": "Jane Smith",
-          "phone": "+14155550101"
-        },
-        "con_p2": {
-          "email": "john.doe@acme.io",
-          "external_ref": "user_john_acme",
-          "name": "John Doe",
-          "phone": "+14155550102"
+        "con_p16": {
+          "email": "dinesh@piedpiper.com",
+          "external_ref": "user_dinesh_piedpiper",
+          "name": "Dinesh Chugtai",
+          "phone": null
         },
         "con_p3": {
           "email": "sarah@acme.io",
@@ -23,43 +19,49 @@
           "name": "Sarah Johnson",
           "phone": null
         },
-        "con_p4": {
-          "email": "mike@globex.com",
-          "external_ref": "user_mike_globex",
-          "name": "Mike Chen",
-          "phone": "+15125550201"
+        "con_p6": {
+          "email": "david@globex.com",
+          "external_ref": "user_david_globex",
+          "name": "David Kim",
+          "phone": null
+        },
+        "con_p9": {
+          "email": "chris@initech.io",
+          "external_ref": "user_chris_initech",
+          "name": "Chris Taylor",
+          "phone": null
         }
       }
     },
     "conversations": {
       "ticket": {
         "conv_t1": {
-          "email": "tom@initech.io",
+          "email": null,
           "opened_at": "2024-07-04T16:00:00Z",
           "priority": "priority",
           "status": "open",
-          "subject": "Billing discrepancy on June invoice"
+          "subject": null
         },
         "conv_t2": {
-          "email": "amy.brown@initech.io",
+          "email": null,
           "opened_at": "2024-07-05T16:00:00Z",
           "priority": "priority",
           "status": "open",
-          "subject": "Integration failing since update"
+          "subject": null
         },
         "conv_t3": {
-          "email": "chris@initech.io",
+          "email": null,
           "opened_at": "2024-07-06T16:00:00Z",
           "priority": "not_priority",
           "status": "closed",
-          "subject": "Cannot export reports"
+          "subject": null
         },
         "conv_t4": {
-          "email": "tom@initech.io",
+          "email": null,
           "opened_at": "2024-07-07T16:00:00Z",
           "priority": "not_priority",
           "status": "open",
-          "subject": "Feature request: bulk import"
+          "subject": null
         }
       }
     }

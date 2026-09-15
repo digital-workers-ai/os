@@ -85,10 +85,12 @@ curl -u "anystring:mc_mock_apikey_us21" \
       "contact": {
         "company": "Acme Corp",
         "address1": "123 Main St",
+        "address2": "",
         "city": "New York",
         "state": "NY",
         "zip": "10001",
-        "country": "US"
+        "country": "US",
+        "phone": "+1-212-555-0100"
       },
       "permission_reminder": "You signed up for updates on our website.",
       "use_archive_bar": true,
@@ -110,6 +112,7 @@ curl -u "anystring:mc_mock_apikey_us21" \
       "double_optin": false,
       "has_welcome": true,
       "marketing_permissions": false,
+      "modules": [],
       "stats": {
         "member_count": 15420,
         "unsubscribe_count": 342,
@@ -136,9 +139,21 @@ curl -u "anystring:mc_mock_apikey_us21" \
           "targetSchema": "https://us21.api.mailchimp.com/schema/3.0/Definitions/Lists/Response.json"
         },
         {
+          "rel": "parent",
+          "href": "https://us21.api.mailchimp.com/3.0/lists",
+          "method": "GET",
+          "schema": "https://us21.api.mailchimp.com/schema/3.0/Paths/Lists/Collection.json",
+          "targetSchema": "https://us21.api.mailchimp.com/schema/3.0/Definitions/Lists/CollectionResponse.json"
+        },
+        {
           "rel": "members",
           "href": "https://us21.api.mailchimp.com/3.0/lists/mc_list_acme_001/members",
           "method": "GET"
+        },
+        {
+          "rel": "delete",
+          "href": "https://us21.api.mailchimp.com/3.0/lists/mc_list_acme_001",
+          "method": "DELETE"
         }
       ]
     }
@@ -314,7 +329,7 @@ Returns all campaigns.
 | `count` | int | 10 | Results per page (max 1000) |
 | `offset` | int | 0 | Starting position |
 | `type` | string | — | `regular`, `plaintext`, `absplit`, `rss`, `variate` |
-| `status` | string | — | `save`, `paused`, `schedule`, `sending`, `sent` |
+| `status` | string | — | `save`, `paused`, `schedule`, `sending`, `sent`, `canceled`, `canceling`, `archived` |
 | `list_id` | string | — | Filter by audience |
 | `since_send_time` | string | — | ISO 8601 date filter |
 | `sort_field` | string | — | `create_time`, `send_time` |
@@ -543,7 +558,11 @@ GET /3.0/lists?count=10&offset=20    → items 20-29
 - The `{dc}` in the base URL is critical — API key `abc-us21` means data center `us21`
 - Member IDs are MD5 hashes of lowercase email addresses
 - `merge_fields` are custom fields configured per list (FNAME, LNAME are defaults)
-- Campaign `status` lifecycle: `save` → `schedule` → `sending` → `sent`
+- Campaign `status` lifecycle: `save` → `schedule` → `sending` → `sent`; a campaign still being drafted is `save`, never `draft`, and `canceled`, `canceling` and `archived` are terminal
+- A campaign that has not gone out carries `send_time` as an empty string and omits `report_summary` entirely — `report_summary` is documented as "for sent campaigns"
+- Unset date-times are empty strings rather than `null`: `campaign_last_sent`, `last_unsub_date` and `send_time` all read `""` before the event happens
+- Timestamps are ISO 8601 with an explicit `+00:00` offset, not a trailing `Z`
+- An account with no campaigns still answers `GET /3.0/campaigns` with `200`, `"campaigns": []` and `"total_items": 0`
 - `member_rating` is 1-5 stars based on engagement
 - Rates (open_rate, click_rate) are decimals, not percentages (0.3648 = 36.48%)
 - `total_items` is always present in list responses for pagination math

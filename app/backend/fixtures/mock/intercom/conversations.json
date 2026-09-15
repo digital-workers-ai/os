@@ -1,6 +1,7 @@
 [
   {
     "payload": {
+      "admin_assignee_id": null,
       "contacts": {
         "contacts": [
           {
@@ -11,43 +12,79 @@
         ],
         "type": "contact.list"
       },
+      "conversation_rating": null,
       "created_at": 1720108800,
+      "custom_attributes": {
+        "Auto-translated": false,
+        "Copilot used": false,
+        "Fin AI Agent: Image used in reply": false,
+        "Fin AI Agent: Preview": false,
+        "Fin awaiting teammate input": false,
+        "Has attachments": false,
+        "Imported via standalone": false,
+        "SDR Success Counted": false
+      },
+      "first_contact_reply": null,
       "id": "conv_t1",
+      "linked_objects": {
+        "data": [],
+        "has_more": false,
+        "total_count": 0,
+        "type": "list"
+      },
       "open": true,
       "priority": "priority",
-      "source": {
-        "author": {
-          "email": "tom@initech.io",
-          "id": "con_p7",
-          "name": "Tom Williams",
-          "type": "user"
-        },
-        "body": "<p>Billing discrepancy on June invoice</p>",
-        "delivered_as": "customer_initiated",
-        "id": "conv_t1",
-        "subject": "",
-        "type": "conversation"
-      },
+      "read": false,
+      "sla_applied": null,
+      "snoozed_until": null,
+      "source": null,
       "state": "open",
       "statistics": {
-        "count_assignments": 1,
-        "time_to_admin_reply": 300,
-        "time_to_assignment": 120,
-        "time_to_first_close": 7200,
+        "count_assignments": 0,
+        "count_conversation_parts": 2,
+        "count_reopens": 0,
+        "first_admin_reply_at": null,
+        "first_assignment_at": null,
+        "first_close_at": null,
+        "first_contact_reply_at": null,
+        "last_admin_reply_at": null,
+        "last_assignment_admin_reply_at": null,
+        "last_assignment_at": null,
+        "last_close_at": null,
+        "last_closed_by_id": null,
+        "last_contact_reply_at": null,
+        "median_time_to_reply": null,
+        "time_to_admin_reply": null,
+        "time_to_assignment": null,
+        "time_to_first_close": null,
+        "time_to_last_close": null,
         "type": "conversation_statistics"
       },
       "tags": {
         "tags": [],
         "type": "tag.list"
       },
-      "title": "Billing discrepancy on June invoice",
+      "team_assignee_id": null,
+      "teammates": {
+        "admins": [],
+        "type": "admin.list"
+      },
+      "ticket": null,
+      "title": null,
+      "topics": {
+        "topics": [],
+        "total_count": 0,
+        "type": "topic.list"
+      },
       "type": "conversation",
-      "updated_at": 1720368000
+      "updated_at": 1720368000,
+      "waiting_since": null
     },
     "source_id": "conv_t1"
   },
   {
     "payload": {
+      "admin_assignee_id": null,
       "contacts": {
         "contacts": [
           {
@@ -58,43 +95,79 @@
         ],
         "type": "contact.list"
       },
+      "conversation_rating": null,
       "created_at": 1720195200,
+      "custom_attributes": {
+        "Auto-translated": false,
+        "Copilot used": false,
+        "Fin AI Agent: Image used in reply": false,
+        "Fin AI Agent: Preview": false,
+        "Fin awaiting teammate input": false,
+        "Has attachments": false,
+        "Imported via standalone": false,
+        "SDR Success Counted": false
+      },
+      "first_contact_reply": null,
       "id": "conv_t2",
+      "linked_objects": {
+        "data": [],
+        "has_more": false,
+        "total_count": 0,
+        "type": "list"
+      },
       "open": true,
       "priority": "priority",
-      "source": {
-        "author": {
-          "email": "amy.brown@initech.io",
-          "id": "con_p8",
-          "name": "Amy Brown",
-          "type": "user"
-        },
-        "body": "<p>Integration failing since update</p>",
-        "delivered_as": "customer_initiated",
-        "id": "conv_t2",
-        "subject": "",
-        "type": "conversation"
-      },
+      "read": false,
+      "sla_applied": null,
+      "snoozed_until": null,
+      "source": null,
       "state": "open",
       "statistics": {
-        "count_assignments": 1,
-        "time_to_admin_reply": 300,
-        "time_to_assignment": 120,
-        "time_to_first_close": 7200,
+        "count_assignments": 0,
+        "count_conversation_parts": 2,
+        "count_reopens": 0,
+        "first_admin_reply_at": null,
+        "first_assignment_at": null,
+        "first_close_at": null,
+        "first_contact_reply_at": null,
+        "last_admin_reply_at": null,
+        "last_assignment_admin_reply_at": null,
+        "last_assignment_at": null,
+        "last_close_at": null,
+        "last_closed_by_id": null,
+        "last_contact_reply_at": null,
+        "median_time_to_reply": null,
+        "time_to_admin_reply": null,
+        "time_to_assignment": null,
+        "time_to_first_close": null,
+        "time_to_last_close": null,
         "type": "conversation_statistics"
       },
       "tags": {
         "tags": [],
         "type": "tag.list"
       },
-      "title": "Integration failing since update",
+      "team_assignee_id": null,
+      "teammates": {
+        "admins": [],
+        "type": "admin.list"
+      },
+      "ticket": null,
+      "title": null,
+      "topics": {
+        "topics": [],
+        "total_count": 0,
+        "type": "topic.list"
+      },
       "type": "conversation",
-      "updated_at": 1720454400
+      "updated_at": 1720454400,
+      "waiting_since": null
     },
     "source_id": "conv_t2"
   },
   {
     "payload": {
+      "admin_assignee_id": null,
       "contacts": {
         "contacts": [
           {
@@ -105,43 +178,79 @@
         ],
         "type": "contact.list"
       },
+      "conversation_rating": null,
       "created_at": 1720281600,
+      "custom_attributes": {
+        "Auto-translated": false,
+        "Copilot used": false,
+        "Fin AI Agent: Image used in reply": false,
+        "Fin AI Agent: Preview": false,
+        "Fin awaiting teammate input": false,
+        "Has attachments": false,
+        "Imported via standalone": false,
+        "SDR Success Counted": false
+      },
+      "first_contact_reply": null,
       "id": "conv_t3",
+      "linked_objects": {
+        "data": [],
+        "has_more": false,
+        "total_count": 0,
+        "type": "list"
+      },
       "open": false,
       "priority": "not_priority",
-      "source": {
-        "author": {
-          "email": "chris@initech.io",
-          "id": "con_p9",
-          "name": "Chris Taylor",
-          "type": "user"
-        },
-        "body": "<p>Cannot export reports</p>",
-        "delivered_as": "customer_initiated",
-        "id": "conv_t3",
-        "subject": "",
-        "type": "conversation"
-      },
+      "read": false,
+      "sla_applied": null,
+      "snoozed_until": null,
+      "source": null,
       "state": "closed",
       "statistics": {
-        "count_assignments": 1,
-        "time_to_admin_reply": 300,
-        "time_to_assignment": 120,
-        "time_to_first_close": 7200,
+        "count_assignments": 0,
+        "count_conversation_parts": 2,
+        "count_reopens": 0,
+        "first_admin_reply_at": null,
+        "first_assignment_at": null,
+        "first_close_at": null,
+        "first_contact_reply_at": null,
+        "last_admin_reply_at": null,
+        "last_assignment_admin_reply_at": null,
+        "last_assignment_at": null,
+        "last_close_at": null,
+        "last_closed_by_id": null,
+        "last_contact_reply_at": null,
+        "median_time_to_reply": null,
+        "time_to_admin_reply": null,
+        "time_to_assignment": null,
+        "time_to_first_close": null,
+        "time_to_last_close": null,
         "type": "conversation_statistics"
       },
       "tags": {
         "tags": [],
         "type": "tag.list"
       },
-      "title": "Cannot export reports",
+      "team_assignee_id": null,
+      "teammates": {
+        "admins": [],
+        "type": "admin.list"
+      },
+      "ticket": null,
+      "title": null,
+      "topics": {
+        "topics": [],
+        "total_count": 0,
+        "type": "topic.list"
+      },
       "type": "conversation",
-      "updated_at": 1720540800
+      "updated_at": 1720540800,
+      "waiting_since": null
     },
     "source_id": "conv_t3"
   },
   {
     "payload": {
+      "admin_assignee_id": null,
       "contacts": {
         "contacts": [
           {
@@ -152,38 +261,73 @@
         ],
         "type": "contact.list"
       },
+      "conversation_rating": null,
       "created_at": 1720368000,
+      "custom_attributes": {
+        "Auto-translated": false,
+        "Copilot used": false,
+        "Fin AI Agent: Image used in reply": false,
+        "Fin AI Agent: Preview": false,
+        "Fin awaiting teammate input": false,
+        "Has attachments": false,
+        "Imported via standalone": false,
+        "SDR Success Counted": false
+      },
+      "first_contact_reply": null,
       "id": "conv_t4",
+      "linked_objects": {
+        "data": [],
+        "has_more": false,
+        "total_count": 0,
+        "type": "list"
+      },
       "open": true,
       "priority": "not_priority",
-      "source": {
-        "author": {
-          "email": "tom@initech.io",
-          "id": "con_p7",
-          "name": "Tom Williams",
-          "type": "user"
-        },
-        "body": "<p>Feature request: bulk import</p>",
-        "delivered_as": "customer_initiated",
-        "id": "conv_t4",
-        "subject": "",
-        "type": "conversation"
-      },
+      "read": false,
+      "sla_applied": null,
+      "snoozed_until": null,
+      "source": null,
       "state": "open",
       "statistics": {
-        "count_assignments": 1,
-        "time_to_admin_reply": 300,
-        "time_to_assignment": 120,
-        "time_to_first_close": 7200,
+        "count_assignments": 0,
+        "count_conversation_parts": 2,
+        "count_reopens": 0,
+        "first_admin_reply_at": null,
+        "first_assignment_at": null,
+        "first_close_at": null,
+        "first_contact_reply_at": null,
+        "last_admin_reply_at": null,
+        "last_assignment_admin_reply_at": null,
+        "last_assignment_at": null,
+        "last_close_at": null,
+        "last_closed_by_id": null,
+        "last_contact_reply_at": null,
+        "median_time_to_reply": null,
+        "time_to_admin_reply": null,
+        "time_to_assignment": null,
+        "time_to_first_close": null,
+        "time_to_last_close": null,
         "type": "conversation_statistics"
       },
       "tags": {
         "tags": [],
         "type": "tag.list"
       },
-      "title": "Feature request: bulk import",
+      "team_assignee_id": null,
+      "teammates": {
+        "admins": [],
+        "type": "admin.list"
+      },
+      "ticket": null,
+      "title": null,
+      "topics": {
+        "topics": [],
+        "total_count": 0,
+        "type": "topic.list"
+      },
       "type": "conversation",
-      "updated_at": 1720627200
+      "updated_at": 1720627200,
+      "waiting_since": null
     },
     "source_id": "conv_t4"
   }

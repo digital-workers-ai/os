@@ -122,31 +122,41 @@ class TestStatus:
         assert t.normalize_status("hubspot", "deals", raw) == expected
 
     def test_near_synonyms_are_folded_per_source_and_object_type(self):
-        assert t.normalize_status("hubspot", "deals", "closedwon") == "closed_won"
-        assert t.normalize_status("hubspot", "deals", "closedlost") == "closed_lost"
+        opportunities = "opportunities"
+        assert (
+            t.normalize_status("salesforce", opportunities, "closedwon") == "closed_won"
+        )
+        assert (
+            t.normalize_status("salesforce", opportunities, "closedlost")
+            == "closed_lost"
+        )
 
     def test_the_synonym_table_is_scoped_not_global(self):
-        assert t.normalize_status("hubspot", "deals", "enabled") == "enabled"
-        assert t.normalize_status("hubspot", "contacts", "closedwon") == "closedwon"
+        assert t.normalize_status("salesforce", "opportunities", "enabled") == "enabled"
+        assert t.normalize_status("salesforce", "contacts", "closedwon") == "closedwon"
+
+    def test_a_source_with_no_table_folds_nothing(self):
+        assert t.normalize_status("hubspot", "deals", "closedwon") == "closedwon"
+        assert t.normalize_status("hubspot", "deals", "closedlost") == "closedlost"
 
     def test_folding_is_scoped_to_the_deal_object_types(self):
-        assert t.normalize_status("hubspot", "invoices", "closedwon") == "closedwon"
-        assert t.normalize_status("hubspot", "tickets", "Closed Won") == "closed_won"
+        assert t.normalize_status("salesforce", "invoices", "closedwon") == "closedwon"
+        assert t.normalize_status("salesforce", "tickets", "Closed Won") == "closed_won"
 
     def test_a_saved_mailchimp_campaign_is_a_draft(self):
         assert t.normalize_status("mailchimp", "campaigns", "save") == "draft"
         assert t.normalize_status("mailchimp", "lists", "save") == "save"
         assert t.normalize_status("hubspot", "campaigns", "save") == "save"
 
-    def test_a_twitter_accepted_account_is_active(self):
-        assert t.normalize_status("twitter", "accounts", "ACCEPTED") == "active"
+    def test_an_unlisted_status_is_left_alone(self):
+        assert t.normalize_status("twitter", "tweets", "accepted") == "accepted"
         assert t.normalize_status("hubspot", "deals", "accepted") == "accepted"
 
 
 class TestSynonymsLoader:
     def test_the_shipped_file_loads_and_folds_closedwon(self):
         doc = t.load_synonyms()
-        assert doc["hubspot"]["deals"]["closedwon"] == "closed_won"
+        assert doc["salesforce"]["opportunities"]["closedwon"] == "closed_won"
 
     def test_the_default_load_is_memoized(self):
         assert t.load_synonyms() is t.load_synonyms()

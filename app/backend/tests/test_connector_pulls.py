@@ -1,6 +1,9 @@
+import gzip
 import importlib
+import io
 import json
 import pkgutil
+import zipfile
 
 import httpx
 import pytest
@@ -51,12 +54,29 @@ def connector(name):
     return importlib.import_module(f"app.sources.{name}.connector")
 
 
+def zipped_ndjson(text: str) -> bytes:
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w") as bundle:
+        bundle.writestr(
+            "12345/12345_2026-09-04_0#0.json.gz", gzip.compress(text.encode())
+        )
+    return buffer.getvalue()
+
+
+EXPORT_BODIES = [
+    ("amplitude", lambda text: {"content": zipped_ndjson(text)}),
+    ("mixpanel", lambda text: {"text": text}),
+]
+
+
 @pytest.fixture
 def pull(monkeypatch):
-    def _run(module, body, *, text=None):
+    def _run(module, body, *, text=None, content=None):
         stored = []
 
         def handler(request):
+            if content is not None:
+                return httpx.Response(200, content=content)
             if text is not None:
                 return httpx.Response(200, text=text)
             return httpx.Response(200, json=body)
@@ -107,6 +127,62 @@ class TestWhatTheConnectorActuallyAsksFor:
         assert "industry" in companies
         assert "domain" in companies and "name" in companies
 
+    async def test_hubspot_asks_the_closed_flags_not_the_stage_id(self, capture):
+        seen = capture({"results": [], "paging": {}})
+
+        async def store(session, **kwargs):
+            pass
+
+        await hubspot.pull(None, store)
+
+        asked = {r.url.path: r.url.params.get("properties") for r in seen}
+        deals = next(v for k, v in asked.items() if k.endswith("deals"))
+        assert "hs_is_closed_won" in deals and "hs_is_closed" in deals
+        assert "deal_currency_code" in deals
+        assert "dealstage" not in deals
+
+    async def test_hubspot_reads_full_pages_so_the_page_cap_is_far_away(self, capture):
+        seen = capture({"results": [], "paging": {}})
+
+        async def store(session, **kwargs):
+            pass
+
+        await hubspot.pull(None, store)
+
+        assert {r.url.params.get("limit") for r in seen} == {"100"}
+
+    async def test_hubspot_follows_the_cursor_until_the_paging_key_is_gone(
+        self, monkeypatch
+    ):
+        seen = []
+
+        def handler(request):
+            seen.append(request)
+            if request.url.params.get("after"):
+                return httpx.Response(200, json={"results": [{"id": "2"}]})
+            return httpx.Response(
+                200,
+                json={
+                    "results": [{"id": "1"}],
+                    "paging": {"next": {"after": "1", "link": "https://x/y?after=1"}},
+                },
+            )
+
+        monkeypatch.setattr(client, "_transport", httpx.MockTransport(handler))
+        stored = []
+
+        async def store(session, **kwargs):
+            stored.append(kwargs["source_id"])
+
+        await hubspot.pull(None, store)
+        monkeypatch.setattr(client, "_transport", None)
+
+        assert len(seen) == 6
+        assert stored.count("1") == 3 and stored.count("2") == 3
+
+    async def test_hubspot_declares_no_account_wide_currency(self):
+        assert not hasattr(hubspot, "ACCOUNT_CURRENCY")
+
     async def test_stripe_walks_customers_then_subscriptions(self, capture):
         seen = capture({"data": [{"id": "x_1"}], "has_more": False})
         stored = []
@@ -122,6 +198,48 @@ class TestWhatTheConnectorActuallyAsksFor:
         assert {(s["source"], s["object_type"]) for s in stored} == {
             ("stripe", "customers"),
             ("stripe", "subscriptions"),
+        }
+
+    async def test_stripe_asks_for_subscriptions_of_every_status(self, capture):
+        seen = capture({"data": [], "has_more": False})
+
+        async def store(session, **kwargs):
+            pass
+
+        await stripe.pull(None, store)
+
+        asked = {r.url.path: r.url.params.get("status") for r in seen}
+        assert asked["/v1/subscriptions"] == "all"
+
+    async def test_stripe_sends_no_status_where_the_endpoint_has_none(self, capture):
+        seen = capture({"data": [], "has_more": False})
+
+        async def store(session, **kwargs):
+            pass
+
+        await stripe.pull(None, store)
+
+        asked = {r.url.path: r.url.params.get("status") for r in seen}
+        assert asked["/v1/customers"] is None
+
+    async def test_stripe_pins_the_api_version_its_shapes_were_read_from(self, capture):
+        seen = capture({"data": [], "has_more": False})
+
+        async def store(session, **kwargs):
+            pass
+
+        await stripe.pull(None, store)
+
+        assert seen
+        assert {r.headers.get("stripe-version") for r in seen} == {stripe.API_VERSION}
+
+    async def test_the_pinned_stripe_version_is_the_one_the_docs_record(self):
+        assert stripe.API_VERSION == "2025-03-31.basil"
+
+    async def test_stripe_observes_customers_by_the_only_timestamp_stripe_has(self):
+        assert stripe.OBSERVED_AT == {
+            "customers": "created",
+            "subscriptions": "created",
         }
 
     async def test_zendesk_walks_its_three_collections_with_a_page_size(self, capture):
@@ -163,7 +281,7 @@ class TestWhatTheConnectorActuallyAsksFor:
 
         assert notes is None
         assert {r.url.path for r in seen} == {"/contacts", "/conversations"}
-        assert all(r.url.params.get("per_page") == "8" for r in seen)
+        assert all(r.url.params.get("per_page") == "150" for r in seen)
         assert {(s["object_type"], s["source_id"]) for s in stored} == {
             ("contacts", "c1"),
             ("conversations", "v1"),
@@ -179,8 +297,10 @@ class TestWhatTheConnectorActuallyAsksFor:
         notes = await connector("klaviyo").pull(None, store)
 
         assert notes is None
-        assert {r.url.path for r in seen} == {"/api/profiles", "/api/flows"}
-        assert all(r.url.params.get("page[size]") == "8" for r in seen)
+        assert {r.url.path: r.url.params.get("page[size]") for r in seen} == {
+            "/api/profiles": "100",
+            "/api/flows": "50",
+        }
         assert {(s["object_type"], s["source_id"]) for s in stored} == {
             ("profiles", "p1"),
             ("flows", "p1"),
@@ -203,8 +323,12 @@ class TestWhatTheConnectorActuallyAsksFor:
         notes = await connector("calendly").pull(None, store)
 
         assert notes is None
-        assert [r.url.path for r in seen] == ["/scheduled_events"]
-        assert seen[0].url.params.get("count") == "2"
+        assert [r.url.path for r in seen] == [
+            "/users/me",
+            "/scheduled_events",
+            "/scheduled_events/evt_1/invitees",
+        ]
+        assert seen[1].url.params.get("count") == "100"
         assert [(s["object_type"], s["source_id"]) for s in stored] == [
             ("scheduled_events", "evt_1")
         ]
@@ -552,13 +676,13 @@ class TestWhatTheBatchTwoConnectorsAskFor:
 
         notes = await connector("shopify").pull(None, store)
 
-        assert notes is None
+        assert notes == {"customers_without_personal_data": 1}
         assert {r.url.path for r in seen} == {
             "/admin/api/2024-01/products.json",
             "/admin/api/2024-01/orders.json",
             "/admin/api/2024-01/customers.json",
         }
-        assert all(r.url.params.get("limit") == "1" for r in seen)
+        assert all(r.url.params.get("limit") == "250" for r in seen)
         assert {(s["object_type"], s["source_id"]) for s in stored} == {
             ("products", "1"),
             ("orders", "2"),
@@ -582,7 +706,7 @@ class TestWhatTheBatchTwoConnectorsAskFor:
 
         assert notes is None
         assert {r.url.path for r in seen} == {"/3.0/lists", "/3.0/campaigns"}
-        assert all(r.url.params.get("count") == "5" for r in seen)
+        assert all(r.url.params.get("count") == "1000" for r in seen)
         assert all(r.url.params.get("offset") == "0" for r in seen)
         assert {(s["object_type"], s["source_id"]) for s in stored} == {
             ("lists", "l1"),
@@ -821,7 +945,7 @@ class TestWhatTheBatchThreeConnectorsAskFor:
             "/api/3/contacts",
             "/api/3/campaigns",
         }
-        assert all(r.url.params.get("limit") == "8" for r in seen)
+        assert all(r.url.params.get("limit") == "100" for r in seen)
         assert all(r.headers.get("Api-Token") == "mock_ac_token" for r in seen)
         assert {(s["object_type"], s["source_id"]) for s in stored} == {
             ("contacts", "10"),
@@ -927,7 +1051,7 @@ class TestWhatTheNinetyDayConnectorsAskFor:
             if r.url.path.endswith("/insights")
             and r.url.params.get("time_increment") == "1"
         ]
-        assert len(daily) == len(connector("meta").ACCOUNT_IDS)
+        assert len(daily) == len(creds._MOCK_VALUES["meta"]["account_ids"])
         assert all(r.url.params.get("level") == "campaign" for r in daily)
         assert all(
             r.url.params.get("time_range")
@@ -1073,37 +1197,109 @@ class TestSheetRowsSharingACompanyAreACountedCollision:
 
 
 class TestExportStreams:
-    @pytest.mark.parametrize("name", ["amplitude", "mixpanel"])
-    async def test_a_blank_line_is_skipped_silently(self, pull, name):
+    @pytest.mark.parametrize(
+        "name,body", EXPORT_BODIES, ids=[n for n, _ in EXPORT_BODIES]
+    )
+    async def test_a_blank_line_is_skipped_silently(self, pull, name, body):
         notes, stored = await pull(
-            connector(name), None, text='{"a":1}\n\n   \n{"a":2}'
+            connector(name), None, **body('{"a":1}\n\n   \n{"a":2}')
         )
         assert len(stored) == 2
         assert notes is None
 
-    @pytest.mark.parametrize("name", ["amplitude", "mixpanel"])
-    async def test_a_malformed_line_is_counted_not_fatal(self, pull, name):
+    @pytest.mark.parametrize(
+        "name,body", EXPORT_BODIES, ids=[n for n, _ in EXPORT_BODIES]
+    )
+    async def test_a_malformed_line_is_counted_not_fatal(self, pull, name, body):
         notes, stored = await pull(
-            connector(name), None, text='{"a":1}\nnot json at all\n{"a":2}'
+            connector(name), None, **body('{"a":1}\nnot json at all\n{"a":2}')
         )
         assert len(stored) == 2
         assert notes == {"malformed_lines": 1}
 
-    @pytest.mark.parametrize("name", ["amplitude", "mixpanel"])
-    async def test_a_line_with_no_vendor_id_is_keyed_by_its_content(self, pull, name):
-        _notes, stored = await pull(connector(name), None, text='{"no_id_here":1}')
+    @pytest.mark.parametrize(
+        "name,body", EXPORT_BODIES, ids=[n for n, _ in EXPORT_BODIES]
+    )
+    async def test_a_line_with_no_vendor_id_is_keyed_by_its_content(
+        self, pull, name, body
+    ):
+        _notes, stored = await pull(connector(name), None, **body('{"no_id_here":1}'))
         assert len(stored[0]["source_id"]) == 32
         assert stored[0]["object_type"] == "events"
 
+    async def test_amplitude_reads_the_zipped_archive_the_export_returns(self, pull):
+        _notes, stored = await pull(
+            connector("amplitude"),
+            None,
+            content=zipped_ndjson('{"$insert_id":"a"}\n{"$insert_id":"b"}'),
+        )
+        assert [s["source_id"] for s in stored] == ["a", "b"]
+
+    async def test_a_plain_text_body_is_not_silently_read_as_zero_events(self, pull):
+        with pytest.raises(client.ConnectorError):
+            await pull(connector("amplitude"), None, text='{"$insert_id":"a"}')
+
     async def test_amplitude_prefers_the_vendor_insert_id(self, pull):
         _notes, stored = await pull(
-            connector("amplitude"), None, text='{"insert_id":"abc","uuid":"z"}'
+            connector("amplitude"),
+            None,
+            content=zipped_ndjson('{"$insert_id":"abc","uuid":"z"}'),
         )
         assert stored[0]["source_id"] == "abc"
 
-    async def test_amplitude_falls_back_to_the_uuid(self, pull):
-        _notes, stored = await pull(connector("amplitude"), None, text='{"uuid":"z"}')
+    async def test_amplitude_reads_no_undollared_insert_id(self, pull):
+        _notes, stored = await pull(
+            connector("amplitude"),
+            None,
+            content=zipped_ndjson('{"insert_id":"abc","uuid":"z"}'),
+        )
         assert stored[0]["source_id"] == "z"
+
+    async def test_amplitude_falls_back_to_the_uuid(self, pull):
+        _notes, stored = await pull(
+            connector("amplitude"), None, content=zipped_ndjson('{"uuid":"z"}')
+        )
+        assert stored[0]["source_id"] == "z"
+
+    async def test_amplitude_asks_for_a_rolling_window(self, monkeypatch):
+        seen = []
+
+        def handler(request):
+            seen.append(request)
+            return httpx.Response(200, content=zipped_ndjson(""))
+
+        monkeypatch.setattr(client, "_transport", httpx.MockTransport(handler))
+
+        async def store(session, **kwargs):
+            pass
+
+        await connector("amplitude").pull(None, store)
+        monkeypatch.setattr(client, "_transport", None)
+
+        since, until = util.window()
+        assert seen[0].url.params["start"] == f"{since.replace('-', '')}T00"
+        assert seen[0].url.params["end"] == f"{until.replace('-', '')}T23"
+
+    async def test_the_amplitude_window_is_hours_not_iso_dates(self, monkeypatch):
+        seen = []
+
+        def handler(request):
+            seen.append(request)
+            return httpx.Response(200, content=zipped_ndjson(""))
+
+        monkeypatch.setattr(client, "_transport", httpx.MockTransport(handler))
+
+        async def store(session, **kwargs):
+            pass
+
+        await connector("amplitude").pull(None, store)
+        monkeypatch.setattr(client, "_transport", None)
+
+        assert seen[0].url.params["start"] == "20260607T00"
+        assert seen[0].url.params["end"] == "20260904T23"
+
+    async def test_amplitude_observes_events_by_the_export_timestamp(self):
+        assert connector("amplitude").OBSERVED_AT == {"events": "event_time"}
 
     async def test_mixpanel_reads_its_id_out_of_properties(self, pull):
         _notes, stored = await pull(
@@ -1145,12 +1341,11 @@ class TestBatchFourShapes:
         notes, stored = await pull(connector("smartlook"), "not a collection")
         assert stored == [] and notes is None
 
-    async def test_twitter_stores_the_accounts_and_tweets_it_is_given(self, pull):
+    async def test_twitter_stores_the_tweets_it_is_given(self, pull):
         notes, stored = await pull(connector("twitter"), {"data": [{"id": "a1"}]})
         assert notes is None
         assert [(s["object_type"], s["source_id"]) for s in stored] == [
-            ("accounts", "a1"),
-            ("tweets", "a1"),
+            ("tweets", "a1")
         ]
 
 
@@ -1657,7 +1852,15 @@ class TestWhatLinkedinAsksForItsOrganization(_SocialCapture):
         assert notes == {"missing_id": 2}
 
 
+TWITTER_USER = "4030300010"
+TWITTER_TWEETS = f"/2/users/{TWITTER_USER}/tweets"
+
+
 class TestWhatTwitterAsksForItsTweets(_SocialCapture):
+    @pytest.fixture(autouse=True)
+    def configured_user(self, monkeypatch):
+        monkeypatch.setitem(creds._MOCK_VALUES, "twitter", {"user_id": TWITTER_USER})
+
     @staticmethod
     def _tweet(tweet_id):
         return {
@@ -1668,7 +1871,7 @@ class TestWhatTwitterAsksForItsTweets(_SocialCapture):
         }
 
     def _body(self, request):
-        if request.url.path == "/2/users/1/tweets":
+        if request.url.path == TWITTER_TWEETS:
             return {"data": [self._tweet("1")], "meta": {"result_count": 1}}
         return {"data": []}
 
@@ -1679,13 +1882,20 @@ class TestWhatTwitterAsksForItsTweets(_SocialCapture):
 
         await connector("twitter").pull(None, store)
 
-        tweets = [r for r in seen if r.url.path == "/2/users/1/tweets"]
+        tweets = [r for r in seen if r.url.path == TWITTER_TWEETS]
         assert len(tweets) == 1
         assert tweets[0].url.params.get("start_time") == "2026-06-07T00:00:00Z"
         assert tweets[0].url.params.get("end_time") == "2026-09-04T23:59:59Z"
         assert tweets[0].url.params.get("max_results") == "100"
         assert tweets[0].url.params.get("tweet.fields") == "created_at,public_metrics"
         assert tweets[0].headers["authorization"] == "Bearer mock_twitter_token"
+
+    async def test_twitter_asks_for_nothing_but_those_tweets(self, capture, store):
+        seen = capture(self._body)
+
+        await connector("twitter").pull(None, store)
+
+        assert [r.url.path for r in seen] == [TWITTER_TWEETS]
 
     async def test_twitter_stores_a_tweet_under_its_own_id(
         self, capture, store, stored
@@ -1700,7 +1910,7 @@ class TestWhatTwitterAsksForItsTweets(_SocialCapture):
         self, capture, store, stored
     ):
         def body(request):
-            if request.url.path != "/2/users/1/tweets":
+            if request.url.path != TWITTER_TWEETS:
                 return {"data": []}
             if request.url.params.get("pagination_token") == "tok":
                 return {"data": [self._tweet("2")], "meta": {"result_count": 1}}
@@ -1713,7 +1923,7 @@ class TestWhatTwitterAsksForItsTweets(_SocialCapture):
 
         await connector("twitter").pull(None, store)
 
-        pages = [r for r in seen if r.url.path == "/2/users/1/tweets"]
+        pages = [r for r in seen if r.url.path == TWITTER_TWEETS]
         assert [r.url.params.get("pagination_token") for r in pages] == [None, "tok"]
         assert {s["source_id"] for s in stored if s["object_type"] == "tweets"} == {
             "1",
@@ -1724,7 +1934,7 @@ class TestWhatTwitterAsksForItsTweets(_SocialCapture):
         self, capture, store, stored
     ):
         def body(request):
-            if request.url.path == "/2/users/1/tweets":
+            if request.url.path == TWITTER_TWEETS:
                 return {"meta": {"result_count": 0}}
             return {"data": []}
 
@@ -2478,3 +2688,368 @@ class TestTheWatchersAreCatalogued:
         assert row["category"] == "Competitors"
         assert row["label"] != source
         assert row["unlocks"]
+
+TWILIO_ACCOUNT = "AC-account-test-0000"
+TWILIO_KEY_SID = "SK-key-test-0000"
+TWILIO_KEY_SECRET = "twilio-secret-test-0000"
+CALENDLY_TOKEN = "calendly-token-test-0000"
+CALENDLY_USER = "https://api.calendly.com/users/USER-TEST-0000"
+MIXPANEL_USERNAME = "mixpanel-user-test-0000"
+MIXPANEL_SECRET = "mixpanel-secret-test-0000"
+MIXPANEL_PROJECT = "7654321"
+SHEETS_SPREADSHEET = "sheet-test-0000"
+GA_PROPERTY = "987654321"
+GADS_CUSTOMER = "9876543210"
+LINKEDIN_ORGANIZATION = "urn:li:organization:7000"
+META_ACCOUNTS = ["act_900001", "act_900002"]
+
+
+class TestWhatTheConfiguredValuesDoToTheRequest:
+    @pytest.fixture
+    def capture(self, monkeypatch):
+        seen = []
+
+        def _install(body):
+            def handler(request):
+                seen.append(request)
+                return httpx.Response(200, json=body)
+
+            monkeypatch.setattr(client, "_transport", httpx.MockTransport(handler))
+            return seen
+
+        yield _install
+        monkeypatch.setattr(client, "_transport", None)
+
+    @staticmethod
+    async def _pull(name, seen):
+        async def store(session, **kwargs):
+            pass
+
+        await connector(name).pull(None, store)
+        return seen
+
+    def _twilio_environment(self, monkeypatch):
+        monkeypatch.setenv("TWILIO_ACCOUNT_SID", TWILIO_ACCOUNT)
+        monkeypatch.setenv("TWILIO_API_KEY_SID", TWILIO_KEY_SID)
+        monkeypatch.setenv("TWILIO_API_KEY_SECRET", TWILIO_KEY_SECRET)
+
+    def _mixpanel_environment(self, monkeypatch):
+        monkeypatch.setenv("MIXPANEL_SERVICE_ACCOUNT_USERNAME", MIXPANEL_USERNAME)
+        monkeypatch.setenv("MIXPANEL_SERVICE_ACCOUNT_SECRET", MIXPANEL_SECRET)
+        monkeypatch.setenv("MIXPANEL_PROJECT_ID", MIXPANEL_PROJECT)
+
+    async def test_twilio_paths_by_the_configured_account(self, capture, monkeypatch):
+        self._twilio_environment(monkeypatch)
+        seen = await self._pull("twilio", capture({"messages": [{"sid": "SM1"}]}))
+        assert [r.url.path for r in seen] == [
+            f"/2010-04-01/Accounts/{TWILIO_ACCOUNT}/Messages.json"
+        ]
+        assert TWILIO_KEY_SECRET not in str(seen[0].url)
+
+    async def test_twilio_paths_by_the_stand_in_account_without_credentials(
+        self, capture
+    ):
+        seen = await self._pull("twilio", capture({"messages": [{"sid": "SM1"}]}))
+        assert [r.url.path for r in seen] == [
+            "/2010-04-01/Accounts/mock_account_sid/Messages.json"
+        ]
+
+    async def test_calendly_asks_for_the_configured_users_events(
+        self, capture, monkeypatch
+    ):
+        monkeypatch.setenv("CALENDLY_ACCESS_TOKEN", CALENDLY_TOKEN)
+        monkeypatch.setenv("CALENDLY_USER_URI", CALENDLY_USER)
+        seen = await self._pull("calendly", capture({"collection": []}))
+        assert [r.url.path for r in seen] == ["/scheduled_events"]
+        assert seen[0].url.params.get("user") == CALENDLY_USER
+        assert seen[0].url.params.get("count") == "100"
+
+    async def test_calendly_resolves_the_user_without_credentials(self, capture):
+        seen = await self._pull("calendly", capture({"collection": []}))
+        assert [r.url.path for r in seen] == ["/users/me", "/scheduled_events"]
+
+    async def test_mixpanel_exports_the_configured_project(self, capture, monkeypatch):
+        self._mixpanel_environment(monkeypatch)
+        seen = await self._pull("mixpanel", capture({}))
+        assert [r.url.path for r in seen] == ["/api/2.0/export"]
+        assert seen[0].url.params.get("project_id") == MIXPANEL_PROJECT
+        assert seen[0].url.params.get("from_date") == "2026-06-07"
+        assert seen[0].url.params.get("to_date") == "2026-09-04"
+
+    async def test_mixpanel_names_no_project_without_credentials(self, capture):
+        seen = await self._pull("mixpanel", capture({}))
+        assert seen[0].url.params.get("project_id") is None
+
+    async def test_google_sheets_reads_the_configured_spreadsheet(
+        self, capture, monkeypatch
+    ):
+        monkeypatch.setitem(
+            creds._MOCK_VALUES, "google_sheets", {"spreadsheet_id": SHEETS_SPREADSHEET}
+        )
+        seen = await self._pull("google_sheets", capture({"values": []}))
+        assert [r.url.path for r in seen] == [
+            f"/spreadsheets/{SHEETS_SPREADSHEET}/values/Pipeline!A1:F20"
+        ]
+
+    async def test_google_sheets_reads_the_stand_in_spreadsheet_without_credentials(
+        self, capture
+    ):
+        seen = await self._pull("google_sheets", capture({"values": []}))
+        assert [r.url.path for r in seen] == [
+            "/spreadsheets/mock_spreadsheet_id/values/Pipeline!A1:F20"
+        ]
+
+    async def test_google_analytics_reports_on_the_configured_property(
+        self, capture, monkeypatch
+    ):
+        monkeypatch.setitem(
+            creds._MOCK_VALUES, "google_analytics", {"property_id": GA_PROPERTY}
+        )
+        seen = await self._pull("google_analytics", capture({"rows": []}))
+        assert [r.url.path for r in seen] == [f"/properties/{GA_PROPERTY}:runReport"]
+
+    async def test_google_analytics_reports_on_the_stand_in_without_credentials(
+        self, capture
+    ):
+        seen = await self._pull("google_analytics", capture({"rows": []}))
+        assert [r.url.path for r in seen] == ["/properties/123456789:runReport"]
+
+    async def test_google_ads_searches_the_configured_customer(
+        self, capture, monkeypatch
+    ):
+        monkeypatch.setitem(
+            creds._MOCK_VALUES, "google_ads", {"customer_id": GADS_CUSTOMER}
+        )
+        seen = await self._pull("google_ads", capture({}))
+        assert len(seen) == 2
+        assert {r.url.path for r in seen} == {
+            f"/v24/customers/{GADS_CUSTOMER}/googleAds:searchStream"
+        }
+
+    async def test_google_ads_searches_the_stand_in_customer_without_credentials(
+        self, capture
+    ):
+        seen = await self._pull("google_ads", capture({}))
+        assert len(seen) == 2
+        assert {r.url.path for r in seen} == {
+            "/v24/customers/1234567890/googleAds:searchStream"
+        }
+
+    async def test_twitter_asks_the_configured_user_for_tweets(
+        self, capture, monkeypatch
+    ):
+        monkeypatch.setitem(creds._MOCK_VALUES, "twitter", {"user_id": TWITTER_USER})
+        seen = await self._pull("twitter", capture({"meta": {"result_count": 0}}))
+        assert [r.url.path for r in seen] == [f"/2/users/{TWITTER_USER}/tweets"]
+
+    async def test_twitter_asks_the_stand_in_user_without_credentials(self, capture):
+        seen = await self._pull("twitter", capture({"meta": {"result_count": 0}}))
+        assert [r.url.path for r in seen] == ["/2/users/me/tweets"]
+
+    async def test_twitter_names_its_user_before_any_request_is_made(self, monkeypatch):
+        monkeypatch.setenv("TWITTER_BEARER_TOKEN", "twitter-token-test-0000")
+        with pytest.raises(creds.CredentialsError, match="TWITTER_USER_ID"):
+            await connector("twitter").pull(None, None)
+
+    async def test_linkedin_asks_for_the_configured_organization(
+        self, capture, monkeypatch
+    ):
+        monkeypatch.setitem(
+            creds._MOCK_VALUES, "linkedin", {"organization": LINKEDIN_ORGANIZATION}
+        )
+        seen = await self._pull("linkedin", capture({"elements": []}))
+        assert [
+            r.url.params.get("author")
+            or r.url.params.get("organizationalEntity")
+            or r.url.params.get("organization")
+            for r in seen
+        ] == [None, LINKEDIN_ORGANIZATION, LINKEDIN_ORGANIZATION, LINKEDIN_ORGANIZATION]
+
+    async def test_linkedin_asks_for_the_stand_in_organization_without_credentials(
+        self, capture
+    ):
+        seen = await self._pull("linkedin", capture({"elements": []}))
+        assert seen[1].url.params.get("author") == "urn:li:organization:1"
+
+    async def test_meta_asks_every_configured_account(self, capture, monkeypatch):
+        monkeypatch.setitem(creds._MOCK_VALUES, "meta", {"account_ids": META_ACCOUNTS})
+        seen = await self._pull("meta", capture({"data": []}))
+        assert [r.url.path for r in seen] == [
+            f"/v25.0/{account}/{leaf}"
+            for account in META_ACCOUNTS
+            for leaf in ("campaigns", "insights", "insights")
+        ] + ["/v25.0/me/accounts"]
+
+    async def test_meta_asks_the_stand_in_accounts_without_credentials(self, capture):
+        seen = await self._pull("meta", capture({"data": []}))
+        assert {r.url.path.split("/")[2] for r in seen} == {
+            "act_000001",
+            "act_000002",
+            "act_000006",
+            "act_000007",
+            "me",
+        }
+
+
+class TestTheSecondPageIsAskedForAtTheSamePageSize:
+    @pytest.fixture
+    def walk(self, monkeypatch):
+        def _install(pages):
+            seen = []
+
+            def handler(request):
+                seen.append(request)
+                return httpx.Response(200, json=pages(request))
+
+            monkeypatch.setattr(client, "_transport", httpx.MockTransport(handler))
+            return seen
+
+        yield _install
+        monkeypatch.setattr(client, "_transport", None)
+
+    @pytest.fixture
+    def store(self):
+        async def _store(session, **kwargs):
+            return None
+
+        return _store
+
+    async def test_stripe_keeps_its_page_size_and_filter_across_the_cursor(
+        self, walk, store
+    ):
+        def pages(request):
+            if request.url.params.get("starting_after"):
+                return {"data": [{"id": "second"}], "has_more": False}
+            return {"data": [{"id": "first"}], "has_more": True}
+
+        seen = walk(pages)
+
+        await stripe.pull(None, store)
+
+        assert [(r.url.path, dict(r.url.params)) for r in seen] == [
+            ("/v1/customers", {"limit": "100"}),
+            ("/v1/customers", {"limit": "100", "starting_after": "first"}),
+            ("/v1/subscriptions", {"limit": "100", "status": "all"}),
+            (
+                "/v1/subscriptions",
+                {"limit": "100", "status": "all", "starting_after": "first"},
+            ),
+        ]
+
+    async def test_klaviyo_carries_each_endpoints_own_page_size_onto_page_two(
+        self, walk, store
+    ):
+        def pages(request):
+            if request.url.params.get("page[cursor]"):
+                return {"data": [{"id": "second"}], "links": {"next": None}}
+            size = request.url.params.get("page[size]")
+            return {
+                "data": [{"id": "first"}],
+                "links": {
+                    "next": f"https://a.klaviyo.com{request.url.path}"
+                    f"?page%5Bcursor%5D=cursor-two&page%5Bsize%5D={size}"
+                },
+            }
+
+        seen = walk(pages)
+
+        await connector("klaviyo").pull(None, store)
+
+        assert [(r.url.path, dict(r.url.params)) for r in seen] == [
+            ("/api/profiles", {"page[size]": "100"}),
+            ("/api/profiles", {"page[size]": "100", "page[cursor]": "cursor-two"}),
+            ("/api/flows", {"page[size]": "50"}),
+            ("/api/flows", {"page[size]": "50", "page[cursor]": "cursor-two"}),
+        ]
+
+    async def test_intercom_keeps_its_page_size_across_the_cursor(self, walk, store):
+        def pages(request):
+            key = "data" if request.url.path == "/contacts" else "conversations"
+            if request.url.params.get("starting_after"):
+                return {key: [{"id": "second"}], "pages": {}}
+            return {
+                key: [{"id": "first"}],
+                "pages": {"next": {"starting_after": "first"}},
+            }
+
+        seen = walk(pages)
+
+        await connector("intercom").pull(None, store)
+
+        assert [(r.url.path, dict(r.url.params)) for r in seen] == [
+            ("/contacts", {"per_page": "150"}),
+            ("/contacts", {"per_page": "150", "starting_after": "first"}),
+            ("/conversations", {"per_page": "150"}),
+            ("/conversations", {"per_page": "150", "starting_after": "first"}),
+        ]
+
+    async def test_calendly_keeps_its_page_size_across_the_page_token(
+        self, walk, store
+    ):
+        def pages(request):
+            if request.url.path == "/users/me":
+                return {"resource": {"uri": CALENDLY_USER}}
+            if request.url.path.endswith("/invitees"):
+                return {"collection": [], "pagination": {}}
+            if request.url.params.get("page_token"):
+                return {"collection": [], "pagination": {}}
+            return {
+                "collection": [
+                    {"uri": "https://api.calendly.com/scheduled_events/evt_1"}
+                ],
+                "pagination": {"next_page_token": "token-two"},
+            }
+
+        seen = walk(pages)
+
+        await connector("calendly").pull(None, store)
+
+        assert [(r.url.path, dict(r.url.params)) for r in seen] == [
+            ("/users/me", {}),
+            ("/scheduled_events", {"user": CALENDLY_USER, "count": "100"}),
+            (
+                "/scheduled_events",
+                {
+                    "user": CALENDLY_USER,
+                    "count": "100",
+                    "page_token": "token-two",
+                },
+            ),
+            ("/scheduled_events/evt_1/invitees", {"count": "100"}),
+        ]
+
+    async def test_mailchimp_advances_the_offset_by_a_whole_page(self, walk, store):
+        def pages(request):
+            kind = request.url.path.rsplit("/", 1)[-1]
+            return {kind: [{"id": "row"}], "total_items": 1500}
+
+        seen = walk(pages)
+
+        await connector("mailchimp").pull(None, store)
+
+        assert [(r.url.path, dict(r.url.params)) for r in seen] == [
+            ("/3.0/lists", {"count": "1000", "offset": "0"}),
+            ("/3.0/lists", {"count": "1000", "offset": "1000"}),
+            ("/3.0/campaigns", {"count": "1000", "offset": "0"}),
+            ("/3.0/campaigns", {"count": "1000", "offset": "1000"}),
+        ]
+
+    async def test_activecampaign_walks_on_from_a_page_that_is_full(self, walk, store):
+        def pages(request):
+            kind = request.url.path.rsplit("/", 1)[-1]
+            rows = 100 if request.url.params.get("offset") == "0" else 1
+            return {
+                kind: [{"id": str(n)} for n in range(rows)],
+                "meta": {"total": "2450"},
+            }
+
+        seen = walk(pages)
+
+        await connector("activecampaign").pull(None, store)
+
+        assert [(r.url.path, dict(r.url.params)) for r in seen] == [
+            ("/api/3/contacts", {"limit": "100", "offset": "0"}),
+            ("/api/3/contacts", {"limit": "100", "offset": "100"}),
+            ("/api/3/campaigns", {"limit": "100", "offset": "0"}),
+            ("/api/3/campaigns", {"limit": "100", "offset": "100"}),
+        ]

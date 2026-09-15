@@ -34,7 +34,7 @@ List orders.
 
 | Param | Type | Default | Description |
 |-------|------|---------|-------------|
-| `status` | string | `open` | Filter by status: `open`, `closed`, `cancelled`, `any` |
+| `status` | string | `open` | Filter by status: `open`, `closed`, `cancelled`, `any` — the connector sends `any`, because the default hides every closed and cancelled order |
 | `created_at_min` | string | — | ISO 8601 minimum creation date |
 | `created_at_max` | string | — | ISO 8601 maximum creation date |
 | `updated_at_min` | string | — | ISO 8601 minimum update date |
@@ -222,9 +222,6 @@ curl -H "X-Shopify-Access-Token: shpat_mock_xxxxxxxxxxxx" \
   "customers": [
     {
       "id": 1234567890,
-      "email": "jane@acme.io",
-      "first_name": "Jane",
-      "last_name": "Smith",
       "created_at": "2025-03-15T10:30:00-04:00",
       "updated_at": "2026-06-01T14:22:00-04:00",
       "orders_count": 5,
@@ -238,50 +235,93 @@ curl -H "X-Shopify-Access-Token: shpat_mock_xxxxxxxxxxxx" \
       "tax_exempt": false,
       "tags": "vip, repeat-buyer",
       "currency": "USD",
-      "phone": "+14155551234",
       "email_marketing_consent": {
         "state": "subscribed",
         "opt_in_level": "single_opt_in",
         "consent_updated_at": "2025-03-15T10:30:00-04:00"
       },
-      "sms_marketing_consent": null,
+      "sms_marketing_consent": {
+        "state": "subscribed",
+        "opt_in_level": "single_opt_in",
+        "consent_collected_from": "SHOP",
+        "consent_updated_at": "2025-03-15T10:30:00-04:00"
+      },
       "admin_graphql_api_id": "gid://shopify/Customer/1234567890",
       "tax_exemptions": [],
       "default_address": {
         "id": 9876543210,
         "customer_id": 1234567890,
-        "first_name": "Jane",
-        "last_name": "Smith",
         "company": "Acme Corp",
-        "address1": "123 Main St",
-        "address2": "Suite 400",
-        "city": "San Francisco",
-        "province": "California",
-        "province_code": "CA",
+        "province": null,
+        "province_code": null,
         "country": "United States",
         "country_code": "US",
-        "zip": "94105",
-        "phone": "+14155551234",
-        "name": "Jane Smith",
+        "country_name": "United States",
         "default": true
       },
       "addresses": [
         {
           "id": 9876543210,
           "customer_id": 1234567890,
-          "first_name": "Jane",
-          "last_name": "Smith",
           "company": "Acme Corp",
-          "address1": "123 Main St",
-          "address2": "Suite 400",
-          "city": "San Francisco",
-          "province": "California",
-          "province_code": "CA",
+          "province": null,
+          "province_code": null,
           "country": "United States",
           "country_code": "US",
-          "zip": "94105",
-          "phone": "+14155551234",
-          "name": "Jane Smith",
+          "country_name": "United States",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": 1234567891,
+      "created_at": "2026-09-10T09:15:00-04:00",
+      "updated_at": "2026-09-10T09:15:00-04:00",
+      "orders_count": 0,
+      "state": "disabled",
+      "total_spent": "0.00",
+      "last_order_id": null,
+      "last_order_name": null,
+      "note": null,
+      "verified_email": true,
+      "multipass_identifier": null,
+      "tax_exempt": false,
+      "tags": "",
+      "currency": "USD",
+      "email_marketing_consent": {
+        "state": "not_subscribed",
+        "opt_in_level": "single_opt_in",
+        "consent_updated_at": null
+      },
+      "sms_marketing_consent": {
+        "state": "not_subscribed",
+        "opt_in_level": "single_opt_in",
+        "consent_collected_from": null,
+        "consent_updated_at": null
+      },
+      "admin_graphql_api_id": "gid://shopify/Customer/1234567891",
+      "tax_exemptions": [],
+      "default_address": {
+        "id": 9876543211,
+        "customer_id": 1234567891,
+        "company": null,
+        "province": null,
+        "province_code": null,
+        "country": "United States",
+        "country_code": "US",
+        "country_name": "United States",
+        "default": true
+      },
+      "addresses": [
+        {
+          "id": 9876543211,
+          "customer_id": 1234567891,
+          "company": null,
+          "province": null,
+          "province_code": null,
+          "country": "United States",
+          "country_code": "US",
+          "country_name": "United States",
           "default": true
         }
       ]
@@ -289,6 +329,34 @@ curl -H "X-Shopify-Access-Token: shpat_mock_xxxxxxxxxxxx" \
   ]
 }
 ```
+
+An unapproved app sees the record above: no `email`, no `first_name`, no
+`last_name`, no `phone`, and an address with nothing below country level.
+
+Three customer shapes come back from a live store, and the stand-in seeds one
+of each:
+
+| Shape | `last_order_id` / `last_order_name` | `addresses` | `default_address` |
+|-------|-------------------------------------|-------------|-------------------|
+| Has ordered | the id and name of the last order | one entry | present |
+| Never ordered | `null` and `null` | one entry | present |
+| No address at all | either | `[]` | **key absent**, not null |
+
+A customer who has never ordered carries `null` in both order fields alongside
+`"orders_count": 0` and `"total_spent": "0.00"` — the shape of every customer
+from the moment it is created until its first order, and the shape of all three
+customers on the store that was pulled.
+
+`company` is the one address field below the shop's own level that an
+unapproved app still sees, and it is optional on the shopper's side: a string
+when they filled it in, `null` when they did not, in `default_address` and in
+the matching `addresses[]` entry alike. A customer with no address at all has
+no `default_address` key to read through, so a reader must reach for it with
+`.get`, never `[...]`.
+
+None of these nulls reaches a mapping — no mapping line reads a Shopify
+customer at all. They are here so the connector and the replayed fixtures meet
+the shapes the store actually sends.
 
 ---
 
@@ -305,7 +373,7 @@ List products.
 | `product_type` | string | — | Filter by product type |
 | `vendor` | string | — | Filter by vendor |
 | `handle` | string | — | Filter by comma-separated list of product handles |
-| `status` | string | `active` | `active`, `archived`, `draft` |
+| `status` | string | — | `active`, `archived`, `draft`; unset returns all three, as the live pull confirmed |
 | `created_at_min` | string | — | ISO 8601 minimum creation date |
 | `created_at_max` | string | — | ISO 8601 maximum creation date |
 | `updated_at_min` | string | — | ISO 8601 minimum update date |
@@ -346,6 +414,7 @@ curl -H "X-Shopify-Access-Token: shpat_mock_xxxxxxxxxxxx" \
       "variants": [
         {
           "id": 22222221,
+          "admin_graphql_api_id": "gid://shopify/ProductVariant/22222221",
           "product_id": 33333333,
           "title": "Blue / Small",
           "price": "79.99",
@@ -365,6 +434,7 @@ curl -H "X-Shopify-Access-Token: shpat_mock_xxxxxxxxxxxx" \
           "grams": 400,
           "weight": 0.88,
           "weight_unit": "lb",
+          "image_id": 77777771,
           "inventory_item_id": 55555551,
           "inventory_quantity": 150,
           "old_inventory_quantity": 150,
@@ -372,6 +442,7 @@ curl -H "X-Shopify-Access-Token: shpat_mock_xxxxxxxxxxxx" \
         },
         {
           "id": 22222222,
+          "admin_graphql_api_id": "gid://shopify/ProductVariant/22222222",
           "product_id": 33333333,
           "title": "Blue / Large",
           "price": "89.99",
@@ -391,6 +462,7 @@ curl -H "X-Shopify-Access-Token: shpat_mock_xxxxxxxxxxxx" \
           "grams": 500,
           "weight": 1.1,
           "weight_unit": "lb",
+          "image_id": null,
           "inventory_item_id": 55555552,
           "inventory_quantity": 85,
           "old_inventory_quantity": 85,
@@ -416,6 +488,7 @@ curl -H "X-Shopify-Access-Token: shpat_mock_xxxxxxxxxxxx" \
       "images": [
         {
           "id": 77777771,
+          "admin_graphql_api_id": "gid://shopify/MediaImage/77777771",
           "product_id": 33333333,
           "position": 1,
           "created_at": "2025-01-10T09:00:00-05:00",
@@ -429,6 +502,7 @@ curl -H "X-Shopify-Access-Token: shpat_mock_xxxxxxxxxxxx" \
       ],
       "image": {
         "id": 77777771,
+        "admin_graphql_api_id": "gid://shopify/MediaImage/77777771",
         "product_id": 33333333,
         "position": 1,
         "created_at": "2025-01-10T09:00:00-05:00",
@@ -551,7 +625,9 @@ X-Shopify-Shop-Api-Call-Limit: 32/40
 
 ## Notes
 
-- All monetary values are strings (e.g., `"299.97"`, not `299.97`).
+- All monetary values are strings (e.g., `"299.97"`, not `299.97`) — `total_price`, `subtotal_price`, `total_tax`, a line item's `price` and a variant's `price` and `compare_at_price` all arrive as decimal text.
+- A live product is mostly nulls: `body_html`, `published_at`, `image`, `template_suffix` and a variant's `sku`, `barcode`, `compare_at_price`, `image_id` and `inventory_management` are each null on real records, `images` is `[]` when there is no image, and `product_type` and `tags` come back as empty strings rather than absent.
+- The connector asks every endpoint for `limit=250`, the documented maximum for these REST resources, and walks on from the `Link` header. The bucket leaks at 2 requests/second on a standard plan, so a page per 250 records is the difference between a 5,000-product catalogue costing 20 requests and costing 5,000.
 - Timestamps are ISO 8601 with timezone offset.
 - The `admin_graphql_api_id` field is the GraphQL global ID for the resource.
 - `since_id` is the older pagination method — Link header cursor pagination is preferred.

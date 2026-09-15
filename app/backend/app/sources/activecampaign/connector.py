@@ -3,6 +3,8 @@ from app.sources.util import client_for, store_all
 
 SOURCE = "activecampaign"
 
+PAGE_SIZE = 100
+
 OBSERVED_AT = {"contacts": "udate", "campaigns": "mdate"}
 
 
@@ -15,7 +17,7 @@ async def pull(session, store):
     ]:
         records = await api.get(
             endpoint,
-            params={"limit": 8, "offset": 0},
+            params={"limit": PAGE_SIZE, "offset": 0},
             paginate=Offset(kind, count_param="limit"),
         )
         await store_all(

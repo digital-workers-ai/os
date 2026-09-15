@@ -1,6 +1,6 @@
 # Intercom API
 
-> API Version: 2.15
+> API Version: 2.10
 > Category: Support / Customer Engagement
 
 ---
@@ -19,7 +19,7 @@ Bearer token (access token from Intercom app settings or OAuth):
 Authorization: Bearer int_mock_xxxxxxxxxxxx
 Content-Type: application/json
 Accept: application/json
-Intercom-Version: 2.15
+Intercom-Version: 2.10
 ```
 
 The `Intercom-Version` header pins the API version. Returns `401 Unauthorized` without valid token.
@@ -42,7 +42,7 @@ For cursor pagination on the list endpoint, pass `starting_after` from the previ
 
 ```bash
 curl -H "Authorization: Bearer int_mock_xxxxxxxxxxxx" \
-  -H "Intercom-Version: 2.15" \
+  -H "Intercom-Version: 2.10" \
   "https://api.intercom.io/contacts"
 ```
 
@@ -54,13 +54,13 @@ curl -H "Authorization: Bearer int_mock_xxxxxxxxxxxx" \
   "data": [
     {
       "type": "contact",
-      "id": "con_abc123",
+      "id": "con_p3",
       "workspace_id": "ws_mock_001",
-      "external_id": "user_jane_acme",
+      "external_id": "user_sarah_acme",
       "role": "user",
-      "email": "jane@acme.io",
-      "phone": "+14155551234",
-      "name": "Jane Smith",
+      "email": "sarah@acme.io",
+      "phone": null,
+      "name": "Sarah Johnson",
       "avatar": null,
       "owner_id": null,
       "social_profiles": {
@@ -70,26 +70,29 @@ curl -H "Authorization: Bearer int_mock_xxxxxxxxxxxx" \
       "has_hard_bounced": false,
       "marked_email_as_spam": false,
       "unsubscribed_from_emails": false,
-      "created_at": 1710500000,
-      "updated_at": 1719835200,
-      "signed_up_at": 1710500000,
+      "unsubscribed_from_sms": false,
+      "sms_consent": false,
+      "created_at": 1710672800,
+      "updated_at": 1720454400,
+      "signed_up_at": 1710672800,
       "last_seen_at": 1720454400,
-      "last_replied_at": 1720368000,
-      "last_contacted_at": 1720281600,
-      "last_email_opened_at": 1720195200,
-      "last_email_clicked_at": 1720108800,
+      "last_replied_at": null,
+      "last_contacted_at": null,
+      "last_email_opened_at": null,
+      "last_email_clicked_at": null,
       "language_override": null,
-      "browser": "Chrome",
-      "browser_version": "126.0.0",
-      "browser_language": "en-US",
-      "os": "Mac OS X 14.5",
+      "browser": null,
+      "browser_version": null,
+      "browser_language": null,
+      "os": null,
+      "referrer": null,
       "location": {
         "type": "location",
-        "country": "United States",
-        "region": "California",
-        "city": "San Francisco",
-        "country_code": "US",
-        "continent_code": "NA"
+        "country": null,
+        "region": null,
+        "city": null,
+        "country_code": null,
+        "continent_code": null
       },
       "android_app_name": null,
       "android_app_version": null,
@@ -103,30 +106,37 @@ curl -H "Authorization: Bearer int_mock_xxxxxxxxxxxx" \
       "ios_os_version": null,
       "ios_sdk_version": null,
       "ios_last_seen_at": null,
-      "custom_attributes": {
-        "company": "Acme Corp",
-        "plan": "growth",
-        "mrr": 4800,
-        "signup_source": "organic",
-        "company_domain": "acme.io"
-      },
+      "utm_campaign": null,
+      "utm_content": null,
+      "utm_medium": null,
+      "utm_source": null,
+      "utm_term": null,
+      "custom_attributes": {},
       "tags": {
         "type": "list",
-        "data": [
-          {
-            "type": "tag",
-            "id": "tag_001",
-            "name": "vip"
-          }
-        ],
-        "url": "/contacts/con_abc123/tags",
-        "total_count": 1,
+        "data": [],
+        "url": "/contacts/con_p3/tags",
+        "total_count": 0,
         "has_more": false
       },
       "notes": {
         "type": "list",
         "data": [],
-        "url": "/contacts/con_abc123/notes",
+        "url": "/contacts/con_p3/notes",
+        "total_count": 0,
+        "has_more": false
+      },
+      "opted_in_subscription_types": {
+        "type": "list",
+        "data": [],
+        "url": "/contacts/con_p3/subscriptions",
+        "total_count": 0,
+        "has_more": false
+      },
+      "opted_out_subscription_types": {
+        "type": "list",
+        "data": [],
+        "url": "/contacts/con_p3/subscriptions",
         "total_count": 0,
         "has_more": false
       },
@@ -135,27 +145,26 @@ curl -H "Authorization: Bearer int_mock_xxxxxxxxxxxx" \
         "data": [
           {
             "type": "company",
-            "id": "comp_acme001",
-            "name": "Acme Corp",
-            "company_id": "acme_io"
+            "id": "comp_c1",
+            "url": "/companies/comp_c1"
           }
         ],
-        "url": "/contacts/con_abc123/companies",
+        "url": "/contacts/con_p3/companies",
         "total_count": 1,
         "has_more": false
       }
     }
   ],
-  "total_count": 25,
+  "total_count": 22,
   "pages": {
     "type": "pages",
     "next": {
       "page": 2,
-      "starting_after": "con_def456"
+      "starting_after": "con_p4"
     },
     "page": 1,
-    "per_page": 50,
-    "total_pages": 1
+    "per_page": 2,
+    "total_pages": 11
   }
 }
 ```
@@ -177,11 +186,13 @@ List conversations.
 
 ```bash
 curl -H "Authorization: Bearer int_mock_xxxxxxxxxxxx" \
-  -H "Intercom-Version: 2.15" \
+  -H "Intercom-Version: 2.10" \
   "https://api.intercom.io/conversations?per_page=2"
 ```
 
 **Example Response:**
+
+Two conversations are shown rather than one page: `conv_t1`, Messenger-originated, from page 1, and `conv_t5`, email-originated, from a later page.
 
 ```json
 {
@@ -189,12 +200,92 @@ curl -H "Authorization: Bearer int_mock_xxxxxxxxxxxx" \
   "conversations": [
     {
       "type": "conversation",
-      "id": "conv_001",
+      "id": "conv_t1",
       "created_at": 1720108800,
       "updated_at": 1720368000,
       "waiting_since": null,
       "snoozed_until": null,
-      "title": "Issue with billing",
+      "title": null,
+      "state": "open",
+      "open": true,
+      "read": false,
+      "priority": "priority",
+      "admin_assignee_id": null,
+      "team_assignee_id": null,
+      "source": null,
+      "contacts": {
+        "type": "contact.list",
+        "contacts": [
+          {
+            "type": "contact",
+            "id": "con_p7",
+            "external_id": "user_tom_initech"
+          }
+        ]
+      },
+      "teammates": {
+        "type": "admin.list",
+        "admins": []
+      },
+      "first_contact_reply": null,
+      "conversation_rating": null,
+      "sla_applied": null,
+      "ticket": null,
+      "tags": {
+        "type": "tag.list",
+        "tags": []
+      },
+      "topics": {
+        "type": "topic.list",
+        "topics": [],
+        "total_count": 0
+      },
+      "linked_objects": {
+        "type": "list",
+        "data": [],
+        "total_count": 0,
+        "has_more": false
+      },
+      "custom_attributes": {
+        "Auto-translated": false,
+        "Copilot used": false,
+        "Fin AI Agent: Image used in reply": false,
+        "Fin AI Agent: Preview": false,
+        "Fin awaiting teammate input": false,
+        "Has attachments": false,
+        "Imported via standalone": false,
+        "SDR Success Counted": false
+      },
+      "statistics": {
+        "type": "conversation_statistics",
+        "time_to_assignment": null,
+        "time_to_admin_reply": null,
+        "time_to_first_close": null,
+        "time_to_last_close": null,
+        "median_time_to_reply": null,
+        "first_contact_reply_at": null,
+        "first_assignment_at": null,
+        "first_admin_reply_at": null,
+        "first_close_at": null,
+        "last_assignment_at": null,
+        "last_assignment_admin_reply_at": null,
+        "last_admin_reply_at": null,
+        "last_close_at": null,
+        "last_closed_by_id": null,
+        "last_contact_reply_at": null,
+        "count_reopens": 0,
+        "count_assignments": 0,
+        "count_conversation_parts": 2
+      }
+    },
+    {
+      "type": "conversation",
+      "id": "conv_t5",
+      "created_at": 1720454400,
+      "updated_at": 1720713600,
+      "waiting_since": null,
+      "snoozed_until": null,
+      "title": "Payment method declined",
       "state": "open",
       "open": true,
       "read": true,
@@ -203,15 +294,15 @@ curl -H "Authorization: Bearer int_mock_xxxxxxxxxxxx" \
       "team_assignee_id": null,
       "source": {
         "type": "conversation",
-        "id": "conv_001",
+        "id": "conv_t5",
         "delivered_as": "customer_initiated",
         "subject": "",
-        "body": "<p>Hi, I'm having issues with my latest invoice. Can you help?</p>",
+        "body": "<p>Payment method declined</p>",
         "author": {
           "type": "user",
-          "id": "con_abc123",
-          "name": "Jane Smith",
-          "email": "jane@acme.io"
+          "id": "con_p18",
+          "name": "Tony Stark",
+          "email": "tony@stark.io"
         },
         "attachments": [],
         "url": null
@@ -221,27 +312,48 @@ curl -H "Authorization: Bearer int_mock_xxxxxxxxxxxx" \
         "contacts": [
           {
             "type": "contact",
-            "id": "con_abc123",
-            "external_id": "user_jane_acme"
+            "id": "con_p18",
+            "external_id": "user_tony_stark"
           }
         ]
       },
+      "teammates": {
+        "type": "admin.list",
+        "admins": []
+      },
       "first_contact_reply": {
-        "created_at": 1720108800,
+        "created_at": 1720454400,
         "type": "conversation",
         "url": null
       },
+      "conversation_rating": null,
+      "sla_applied": null,
+      "ticket": null,
       "tags": {
         "type": "tag.list",
-        "tags": [
-          {
-            "type": "tag",
-            "id": "tag_billing",
-            "name": "billing"
-          }
-        ]
+        "tags": []
       },
-      "conversation_rating": null,
+      "topics": {
+        "type": "topic.list",
+        "topics": [],
+        "total_count": 0
+      },
+      "linked_objects": {
+        "type": "list",
+        "data": [],
+        "total_count": 0,
+        "has_more": false
+      },
+      "custom_attributes": {
+        "Auto-translated": false,
+        "Copilot used": false,
+        "Fin AI Agent: Image used in reply": false,
+        "Fin AI Agent: Preview": false,
+        "Fin awaiting teammate input": false,
+        "Has attachments": false,
+        "Imported via standalone": false,
+        "SDR Success Counted": false
+      },
       "statistics": {
         "type": "conversation_statistics",
         "time_to_assignment": 120,
@@ -249,53 +361,32 @@ curl -H "Authorization: Bearer int_mock_xxxxxxxxxxxx" \
         "time_to_first_close": 7200,
         "time_to_last_close": 7200,
         "median_time_to_reply": 300,
-        "first_contact_reply_at": 1720108800,
-        "first_assignment_at": 1720108920,
-        "first_admin_reply_at": 1720109100,
-        "first_close_at": 1720116000,
-        "last_assignment_at": 1720108920,
-        "last_admin_reply_at": 1720109100,
-        "last_close_at": 1720116000,
-        "last_contact_reply_at": 1720108800,
+        "first_contact_reply_at": 1720454400,
+        "first_assignment_at": 1720454520,
+        "first_admin_reply_at": 1720454700,
+        "first_close_at": 1720461600,
+        "last_assignment_at": 1720454520,
+        "last_assignment_admin_reply_at": 1720454700,
+        "last_admin_reply_at": 1720454700,
+        "last_close_at": 1720461600,
+        "last_closed_by_id": 12345,
+        "last_contact_reply_at": 1720454400,
         "count_reopens": 0,
         "count_assignments": 1,
         "count_conversation_parts": 4
-      },
-      "conversation_parts": {
-        "type": "conversation_part.list",
-        "conversation_parts": [
-          {
-            "type": "conversation_part",
-            "id": "part_001",
-            "part_type": "comment",
-            "body": "<p>Sure, let me look into that for you.</p>",
-            "created_at": 1720109100,
-            "updated_at": 1720109100,
-            "notified_at": 1720109100,
-            "author": {
-              "type": "admin",
-              "id": "12345",
-              "name": "Support Agent",
-              "email": "support@os.dev"
-            },
-            "attachments": [],
-            "external_id": null
-          }
-        ],
-        "total_count": 4
       }
     }
   ],
-  "total_count": 42,
+  "total_count": 10,
   "pages": {
     "type": "pages",
     "next": {
       "page": 2,
-      "starting_after": "conv_002"
+      "starting_after": "conv_t2"
     },
     "page": 1,
     "per_page": 2,
-    "total_pages": 21
+    "total_pages": 5
   }
 }
 ```
@@ -318,7 +409,7 @@ List companies.
 
 ```bash
 curl -H "Authorization: Bearer int_mock_xxxxxxxxxxxx" \
-  -H "Intercom-Version: 2.15" \
+  -H "Intercom-Version: 2.10" \
   "https://api.intercom.io/companies?per_page=2"
 ```
 
@@ -407,7 +498,7 @@ List notes for a contact.
 
 ```bash
 curl -H "Authorization: Bearer int_mock_xxxxxxxxxxxx" \
-  -H "Intercom-Version: 2.15" \
+  -H "Intercom-Version: 2.10" \
   "https://api.intercom.io/contacts/con_abc123/notes"
 ```
 
@@ -547,11 +638,13 @@ X-RateLimit-Reset: 1720454460
 
 - All list responses have `type: "list"` or `type: "conversation.list"` at the top level.
 - Timestamps are **Unix timestamps** (seconds), not ISO 8601.
-- The `custom_attributes` object on contacts and companies holds arbitrary key-value data.
-- Nested related resources (tags, companies, notes on a contact) include a mini-list with `total_count` and `has_more`.
-- The `Intercom-Version` header is required and pins the API version. Without it, Intercom uses the app's default version.
+- The `custom_attributes` object holds arbitrary key-value data. A live workspace returned `{}` on every contact and eight workspace booleans on a conversation (`Auto-translated`, `Copilot used`, the two `Fin AI Agent` keys, `Fin awaiting teammate input`, `Has attachments`, `Imported via standalone`, `SDR Success Counted`).
+- Nested related resources on a contact (tags, notes, companies, both subscription-type lists) come back as a mini-list with `url`, `total_count` and `has_more`. The company mini-list carries `id`, `type` and `url` — not `name`, not `company_id`.
+- A conversation opened from the Messenger has no `source` part, no `title`, no `first_contact_reply`, no `admin_assignee_id`, and null for every `statistics` duration. `source` is null rather than absent, so `source.author.email` is a path that does not exist on that conversation; the connector reads `_author_email`, which its extract hook fills from the source part when there is one and leaves null when there is not.
+- `browser`, `browser_version`, `browser_language`, `os`, `referrer`, `avatar`, `owner_id`, `phone`, every `location` field, and every `utm_*`, `ios_*` and `android_*` field come back null until a workspace fills them. A live workspace returned null for all of them.
+- `GET /conversations` does not return `conversation_parts`. Only `GET /conversations/{id}` carries the conversation history (messages, notes, assignments, state changes).
+- The `Intercom-Version` header is required and pins the API version. Without it, Intercom uses the app's default version. The connector and this stand-in both send `2.10`, and a pull against the live API on 2026-09-14 was accepted at that version and returned the shapes above, so the pin still holds.
 - Errors are always wrapped in `{type: "error.list", errors: [...]}`.
-- Conversation parts include the full conversation history (messages, notes, assignments, state changes).
 
 ---
 

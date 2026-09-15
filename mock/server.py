@@ -61,7 +61,7 @@ from seeds.providers.twitter import _TwAuthError
 async def tw_auth_handler(request, exc):
     return JSONResponse(
         status_code=401,
-        content={"errors": [{"code": "UNAUTHORIZED_ACCESS", "message": "This request is not properly authenticated"}], "request": {"params": {}}},
+        content={"title": "Unauthorized", "type": "about:blank", "status": 401, "detail": "Unauthorized"},
     )
 
 

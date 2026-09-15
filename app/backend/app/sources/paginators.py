@@ -1,6 +1,6 @@
 import re
 from typing import Any
-from urllib.parse import unquote
+from urllib.parse import parse_qs, unquote, urlsplit
 
 
 class PaginationError(ValueError):
@@ -244,13 +244,10 @@ class TwilioPage(Paginator):
         return self._require_list(data, "messages")
 
     def next_params(self, data, params):
-        if not data.get("next_page_uri"):
+        query = parse_qs(urlsplit(str(data.get("next_page_uri") or "")).query)
+        if not query:
             return None
-        return {
-            **params,
-            "Page": int(data.get("page", 0)) + 1,
-            "PageToken": data.get("next_page_token") or "",
-        }
+        return {**params, **{key: values[-1] for key, values in query.items()}}
 
 
 PAGINATORS: dict[str, Paginator] = {

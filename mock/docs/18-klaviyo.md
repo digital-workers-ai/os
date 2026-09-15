@@ -39,6 +39,21 @@ Returns 401 without a valid key:
 }
 ```
 
+## Revisions
+
+The `revision` header pins the response shape. Requests here send `2026-07-15`,
+the latest revision Klaviyo had released as of 2026-09-14.
+
+The pin used to be `2024-10-15`, which Klaviyo retires on **2026-10-15**. Pulled
+live against both endpoints, every revision from `2024-10-15` through
+`2026-07-15` returns the same key set and the same types, so moving the pin
+changed nothing the profile and flow mappings read.
+
+Klaviyo validates the header rather than ignoring it: a future date is refused
+with `404 not_found` and `"Unable to specify a future revision date."`, a date
+before `2022-10-17` with `"Revision date requested is before the earliest
+available."`, and a non-date with `400 invalid_revision`.
+
 ## Rate Limits
 
 Per-account, fixed-window rate limiting with burst and steady windows. Limits vary by endpoint tier:
@@ -90,66 +105,56 @@ curl -H "Authorization: Klaviyo-API-Key kl_mock_apikey_001" \
       "id": "kl_prof_jane_001",
       "attributes": {
         "email": "jane@acme.io",
-        "phone_number": "+12125550100",
-        "external_id": "ext_jane_001",
+        "phone_number": null,
+        "external_id": null,
+        "anonymous_id": null,
         "first_name": "Jane",
         "last_name": "Smith",
-        "organization": "Acme Corp",
-        "title": "VP Marketing",
+        "organization": null,
+        "locale": null,
+        "title": null,
         "image": null,
         "created": "2025-03-20T14:30:00+00:00",
         "updated": "2026-07-10T09:00:00+00:00",
         "last_event_date": "2026-07-14T16:22:00+00:00",
         "location": {
-          "address1": "123 Main St",
+          "address1": null,
           "address2": null,
-          "city": "New York",
-          "country": "United States",
-          "latitude": 40.7128,
-          "longitude": -74.006,
-          "region": "NY",
-          "zip": "10001",
-          "timezone": "America/New_York",
+          "city": null,
+          "country": null,
+          "latitude": null,
+          "longitude": null,
+          "region": null,
+          "zip": null,
+          "timezone": null,
           "ip": null
         },
         "properties": {
-          "company_domain": "acme.io",
-          "plan": "enterprise",
-          "mrr": 4800,
-          "signup_source": "website"
+          "$consent": [
+            "email"
+          ],
+          "$consent_timestamp": "2025-03-20T14:30:00.318Z",
+          "$source": -6
         },
-        "subscriptions": {
-          "email": {
-            "marketing": {
-              "can_receive_email_marketing": true,
-              "consent": "SUBSCRIBED",
-              "consent_timestamp": "2025-03-20T14:30:00+00:00"
-            }
-          },
-          "sms": {
-            "marketing": {
-              "can_receive_sms_marketing": false,
-              "consent": "NEVER_SUBSCRIBED"
-            }
-          }
-        },
-        "predictive_analytics": {
-          "historic_clv": 24500.0,
-          "predicted_clv": 36000.0,
-          "total_clv": 60500.0,
-          "historic_number_of_orders": 12,
-          "predicted_number_of_orders": 8,
-          "average_days_between_orders": 45.2,
-          "average_order_value": 2041.67,
-          "churn_probability": 0.15,
-          "expected_date_of_next_order": "2026-08-28T00:00:00+00:00"
-        }
+        "whatsapp_bsuid": null
       },
       "relationships": {
+        "conversation": {
+          "links": {
+            "self": "https://a.klaviyo.com/api/profiles/kl_prof_jane_001/relationships/conversation/",
+            "related": "https://a.klaviyo.com/api/profiles/kl_prof_jane_001/conversation/"
+          }
+        },
         "lists": {
           "links": {
             "self": "https://a.klaviyo.com/api/profiles/kl_prof_jane_001/relationships/lists/",
             "related": "https://a.klaviyo.com/api/profiles/kl_prof_jane_001/lists/"
+          }
+        },
+        "push-tokens": {
+          "links": {
+            "self": "https://a.klaviyo.com/api/profiles/kl_prof_jane_001/relationships/push-tokens/",
+            "related": "https://a.klaviyo.com/api/profiles/kl_prof_jane_001/push-tokens/"
           }
         },
         "segments": {
@@ -168,12 +173,14 @@ curl -H "Authorization: Klaviyo-API-Key kl_mock_apikey_001" \
       "id": "kl_prof_bob_001",
       "attributes": {
         "email": "robert.smith@soylent.co",
-        "phone_number": null,
-        "external_id": "ext_bob_001",
+        "phone_number": "+12125550100",
+        "external_id": null,
+        "anonymous_id": null,
         "first_name": "Robert",
-        "last_name": "Smith",
-        "organization": "Soylent Corp",
-        "title": "CTO",
+        "last_name": null,
+        "organization": null,
+        "locale": null,
+        "title": null,
         "image": null,
         "created": "2025-06-10T09:00:00+00:00",
         "updated": "2026-06-15T12:00:00+00:00",
@@ -186,48 +193,33 @@ curl -H "Authorization: Klaviyo-API-Key kl_mock_apikey_001" \
           "latitude": 37.7749,
           "longitude": -122.4194,
           "region": "CA",
-          "zip": "94102",
+          "zip": null,
           "timezone": "America/Los_Angeles",
-          "ip": null
+          "ip": "203.0.113.42"
         },
         "properties": {
-          "company_domain": "soylent.co",
-          "plan": "growth",
-          "mrr": 1200,
-          "signup_source": "referral"
+          "$phone_number_region": null,
+          "$source": -6
         },
-        "subscriptions": {
-          "email": {
-            "marketing": {
-              "can_receive_email_marketing": true,
-              "consent": "SUBSCRIBED",
-              "consent_timestamp": "2025-06-10T09:00:00+00:00"
-            }
-          },
-          "sms": {
-            "marketing": {
-              "can_receive_sms_marketing": false,
-              "consent": "NEVER_SUBSCRIBED"
-            }
-          }
-        },
-        "predictive_analytics": {
-          "historic_clv": 8400.0,
-          "predicted_clv": 12000.0,
-          "total_clv": 20400.0,
-          "historic_number_of_orders": 7,
-          "predicted_number_of_orders": 5,
-          "average_days_between_orders": 60.0,
-          "average_order_value": 1200.0,
-          "churn_probability": 0.35,
-          "expected_date_of_next_order": "2026-09-10T00:00:00+00:00"
-        }
+        "whatsapp_bsuid": null
       },
       "relationships": {
+        "conversation": {
+          "links": {
+            "self": "https://a.klaviyo.com/api/profiles/kl_prof_bob_001/relationships/conversation/",
+            "related": "https://a.klaviyo.com/api/profiles/kl_prof_bob_001/conversation/"
+          }
+        },
         "lists": {
           "links": {
             "self": "https://a.klaviyo.com/api/profiles/kl_prof_bob_001/relationships/lists/",
             "related": "https://a.klaviyo.com/api/profiles/kl_prof_bob_001/lists/"
+          }
+        },
+        "push-tokens": {
+          "links": {
+            "self": "https://a.klaviyo.com/api/profiles/kl_prof_bob_001/relationships/push-tokens/",
+            "related": "https://a.klaviyo.com/api/profiles/kl_prof_bob_001/push-tokens/"
           }
         },
         "segments": {
@@ -243,8 +235,8 @@ curl -H "Authorization: Klaviyo-API-Key kl_mock_apikey_001" \
     }
   ],
   "links": {
-    "self": "https://a.klaviyo.com/api/profiles/?page[size]=2",
-    "next": "https://a.klaviyo.com/api/profiles/?page[cursor]=bmV4dF9jdXJzb3JfaGVyZQ&page[size]=2",
+    "self": "https://a.klaviyo.com/api/profiles?page%5Bsize%5D=2",
+    "next": "https://a.klaviyo.com/api/profiles?page%5Bcursor%5D=bmV4dF9jdXJzb3JfaGVyZQ&page%5Bsize%5D=2",
     "prev": null
   }
 }
@@ -574,8 +566,10 @@ JSON:API error format:
 - **Filter syntax** uses Klaviyo's filter language: `equals(field,"value")`, `greater-than(created,"2026-01-01")`, `any(list_id,["id1","id2"])`
 - **Sparse fieldsets** via `fields[resource_type]` — reduces response payload
 - **Relationships** are lazy-loaded — use `include` param to sideload related resources
-- Profile `properties` is a freeform object — any key/value pairs set via API or integrations
-- `predictive_analytics` only populated for profiles with enough event history
+- Profile `properties` is a freeform object — any key/value pairs set via API or integrations, alongside the `$consent`, `$consent_timestamp`, `$phone_number_region` and `$source` keys Klaviyo stamps itself
+- `subscriptions` and `predictive_analytics` are **not** in the default profile response — they arrive only when a request asks for `additional-fields[profile]`, which needs a wider scope than a profiles-read key
+- A default profile also carries `anonymous_id`, `locale`, `whatsapp_bsuid`, a ten-key `location` and four relationships: `conversation`, `lists`, `push-tokens`, `segments`
+- The envelope is `{data, links}` — there is no `meta`, and `links.next` is `null` on the last page
 - Campaign `status` values: `Draft`, `Scheduled`, `Sending`, `Sent`, `Cancelled`
 - Flow `status` values: `draft`, `manual`, `live`
 - Flow `trigger_type` values: `Added to List`, `Metric`, `Date Based`, `Unconfigured`, `Price Drop`, `Segment`

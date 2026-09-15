@@ -3,76 +3,72 @@
     "payload": {
       "archived": false,
       "createdAt": "2025-03-15T10:30:00.000Z",
-      "id": "hs_contact_001",
+      "id": "550000000001",
       "properties": {
-        "company": "Acme Corp",
         "createdate": "2025-03-15T10:30:00.000Z",
         "email": "jane@acme.io",
         "firstname": "Jane",
-        "hs_object_id": "hs_contact_001",
+        "hs_object_id": "550000000001",
         "lastmodifieddate": "2026-07-01T14:22:00.000Z",
-        "lastname": "Smith",
-        "lifecyclestage": "customer"
+        "lastname": "Smith"
       },
-      "updatedAt": "2026-07-01T14:22:00.000Z"
+      "updatedAt": "2026-07-01T14:22:00.000Z",
+      "url": "https://app-na2.hubspot.com/contacts/12345678/record/0-1/550000000001"
     },
-    "source_id": "hs_contact_001"
+    "source_id": "550000000001"
   },
   {
     "payload": {
       "archived": false,
       "createdAt": "2025-04-01T10:30:00.000Z",
-      "id": "hs_contact_002",
+      "id": "550000000002",
       "properties": {
-        "company": "Acme Corp",
         "createdate": "2025-04-01T10:30:00.000Z",
         "email": "john.doe@acme.io",
         "firstname": "John",
-        "hs_object_id": "hs_contact_002",
+        "hs_object_id": "550000000002",
         "lastmodifieddate": "2026-07-01T14:22:00.000Z",
-        "lastname": "Doe",
-        "lifecyclestage": "customer"
+        "lastname": "Doe"
       },
-      "updatedAt": "2026-07-01T14:22:00.000Z"
+      "updatedAt": "2026-07-01T14:22:00.000Z",
+      "url": "https://app-na2.hubspot.com/contacts/12345678/record/0-1/550000000002"
     },
-    "source_id": "hs_contact_002"
+    "source_id": "550000000002"
   },
   {
     "payload": {
       "archived": false,
       "createdAt": "2025-06-01T10:30:00.000Z",
-      "id": "hs_contact_003",
+      "id": "550000000003",
       "properties": {
-        "company": "Acme Corp",
         "createdate": "2025-06-01T10:30:00.000Z",
         "email": "sarah@acme.io",
         "firstname": "Sarah",
-        "hs_object_id": "hs_contact_003",
+        "hs_object_id": "550000000003",
         "lastmodifieddate": "2026-07-01T14:22:00.000Z",
-        "lastname": "Johnson",
-        "lifecyclestage": "customer"
+        "lastname": "Johnson"
       },
-      "updatedAt": "2026-07-01T14:22:00.000Z"
+      "updatedAt": "2026-07-01T14:22:00.000Z",
+      "url": "https://app-na2.hubspot.com/contacts/12345678/record/0-1/550000000003"
     },
-    "source_id": "hs_contact_003"
+    "source_id": "550000000003"
   },
   {
     "payload": {
       "archived": false,
       "createdAt": "2025-02-01T10:30:00.000Z",
-      "id": "hs_contact_004",
+      "id": "550000000004",
       "properties": {
-        "company": "Globex Inc",
         "createdate": "2025-02-01T10:30:00.000Z",
         "email": "mike@globex.com",
         "firstname": "Mike",
-        "hs_object_id": "hs_contact_004",
+        "hs_object_id": "550000000004",
         "lastmodifieddate": "2026-07-01T14:22:00.000Z",
-        "lastname": "Chen",
-        "lifecyclestage": "customer"
+        "lastname": "Chen"
       },
-      "updatedAt": "2026-07-01T14:22:00.000Z"
+      "updatedAt": "2026-07-01T14:22:00.000Z",
+      "url": "https://app-na2.hubspot.com/contacts/12345678/record/0-1/550000000004"
     },
-    "source_id": "hs_contact_004"
+    "source_id": "550000000004"
   }
 ]

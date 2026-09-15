@@ -6,6 +6,7 @@ Bearer auth. Token pagination via page_token/next_page_token.
 """
 
 from fastapi import APIRouter, Request, Query
+from fastapi.responses import JSONResponse
 from seeds.helpers import require_bearer, token_paginate
 from seeds.world import PEOPLE, COMPANIES_BY_ID
 
@@ -13,6 +14,17 @@ router = APIRouter()
 
 _USER_URI = "https://api.calendly.com/users/abc123def456"
 _ORG_URI = "https://api.calendly.com/organizations/org789"
+
+_SCOPE_MESSAGE = "At least one of organization, group or user must be filled"
+_SCOPE_REQUIRED = {
+    "title": "Invalid Argument",
+    "message": "The supplied parameters are invalid.",
+    "details": [
+        {"message": _SCOPE_MESSAGE, "parameter": "organization"},
+        {"message": _SCOPE_MESSAGE, "parameter": "user"},
+        {"message": _SCOPE_MESSAGE, "parameter": "group"},
+    ],
+}
 
 _EVENTS = [
     {
@@ -139,6 +151,50 @@ _INVITEES = {
             "cancellation": {"canceled_by": "Invitee", "reason": "Schedule conflict"},
         },
     ],
+    "evt_004": [
+        {
+            "uri": "https://api.calendly.com/scheduled_events/evt_004/invitees/inv_005",
+            "email": "lisa.park@globex.com", "name": "Lisa Park", "first_name": "Lisa", "last_name": "Park",
+            "status": "active", "timezone": "America/Chicago",
+            "created_at": "2026-06-18T14:00:00.000000Z", "updated_at": "2026-06-18T14:00:00.000000Z",
+            "event": "https://api.calendly.com/scheduled_events/evt_004",
+            "questions_and_answers": [{"question": "Company name", "answer": "Globex Inc", "position": 0}],
+            "tracking": {"utm_campaign": None, "utm_source": None, "utm_medium": None, "utm_term": None, "utm_content": None, "salesforce_uuid": None},
+            "text_reminder_number": None, "rescheduled": False, "routing_form_submission": None, "payment": None, "no_show": None,
+        },
+    ],
+    "evt_005": [
+        {
+            "uri": "https://api.calendly.com/scheduled_events/evt_005/invitees/inv_006",
+            "email": "tom@initech.io", "name": "Tom Williams", "first_name": "Tom", "last_name": "Williams",
+            "status": "active", "timezone": "America/Chicago",
+            "created_at": "2026-06-25T09:00:00.000000Z", "updated_at": "2026-06-25T09:00:00.000000Z",
+            "event": "https://api.calendly.com/scheduled_events/evt_005",
+            "questions_and_answers": [{"question": "Company name", "answer": "Initech LLC", "position": 0}],
+            "tracking": {"utm_campaign": None, "utm_source": None, "utm_medium": None, "utm_term": None, "utm_content": None, "salesforce_uuid": None},
+            "text_reminder_number": None, "rescheduled": False, "routing_form_submission": None, "payment": None, "no_show": None,
+        },
+        {
+            "uri": "https://api.calendly.com/scheduled_events/evt_005/invitees/inv_007",
+            "email": "amy.brown@initech.io", "name": "Amy Brown", "first_name": "Amy", "last_name": "Brown",
+            "status": "active", "timezone": "America/Chicago",
+            "created_at": "2026-06-25T09:05:00.000000Z", "updated_at": "2026-06-25T09:05:00.000000Z",
+            "event": "https://api.calendly.com/scheduled_events/evt_005",
+            "questions_and_answers": [],
+            "tracking": {"utm_campaign": None, "utm_source": None, "utm_medium": None, "utm_term": None, "utm_content": None, "salesforce_uuid": None},
+            "text_reminder_number": None, "rescheduled": False, "routing_form_submission": None, "payment": None, "no_show": None,
+        },
+        {
+            "uri": "https://api.calendly.com/scheduled_events/evt_005/invitees/inv_008",
+            "email": "chris@initech.io", "name": "Chris Taylor", "first_name": "Chris", "last_name": "Taylor",
+            "status": "active", "timezone": "America/Chicago",
+            "created_at": "2026-06-25T09:10:00.000000Z", "updated_at": "2026-06-25T09:10:00.000000Z",
+            "event": "https://api.calendly.com/scheduled_events/evt_005",
+            "questions_and_answers": [],
+            "tracking": {"utm_campaign": None, "utm_source": None, "utm_medium": None, "utm_term": None, "utm_content": None, "salesforce_uuid": None},
+            "text_reminder_number": None, "rescheduled": False, "routing_form_submission": None, "payment": None, "no_show": None,
+        },
+    ],
 }
 
 
@@ -157,6 +213,9 @@ async def users_me(request: Request):
             "created_at": "2025-01-15T10:30:00.000000Z",
             "updated_at": "2026-06-01T14:22:00.000000Z",
             "current_organization": _ORG_URI,
+            "resource_type": "User",
+            "locale": "en",
+            "time_notation": "12h",
         }
     }
 
@@ -166,6 +225,7 @@ async def list_events(
     request: Request,
     user: str = Query(None),
     organization: str = Query(None),
+    group: str = Query(None),
     count: int = Query(20, ge=1, le=100),
     sort: str = Query("start_time:asc"),
     min_start_time: str = Query(None),
@@ -175,6 +235,9 @@ async def list_events(
     page_token: str = Query(None),
 ):
     require_bearer(request)
+
+    if not (user or organization or group):
+        return JSONResponse(status_code=400, content=_SCOPE_REQUIRED)
 
     events = list(_EVENTS)
 
@@ -198,7 +261,7 @@ async def list_events(
 async def list_invitees(
     request: Request,
     event_uuid: str,
-    count: int = Query(10, ge=1, le=100),
+    count: int = Query(20, ge=1, le=100),
     page_token: str = Query(None),
     status: str = Query(None),
 ):
