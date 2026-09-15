@@ -196,6 +196,17 @@ class TestAds:
             78,
         )
 
+    async def test_a_day_nothing_can_read_is_no_day(
+        self, session, competition, canonical, link
+    ):
+        await ad(canonical, link, await competitor(canonical), first_seen="soon")
+        row = (await competition.ads(session, "meta"))["rows"][0]
+        assert (row["first_seen"], row["days_running"], row["running"]) == (
+            None,
+            None,
+            True,
+        )
+
     async def test_the_format_is_the_category_or_nothing(
         self, session, competition, canonical, link
     ):
@@ -582,12 +593,19 @@ class TestPages:
             ],
         }
 
-    async def test_a_page_with_no_owner_falls_back_to_its_reference(
-        self, session, competition, canonical, link
+    async def test_a_page_with_no_owner_is_named_from_the_file_by_its_domain(
+        self, session, competition, canonical, link, tracked
     ):
         await page(canonical, link, None)
         found = await competition.pages(session)
-        assert found["rows"][0]["competitor"] == "vidora.ai"
+        assert found["rows"][0]["competitor"] == "Vidora"
+
+    async def test_a_page_with_no_owner_and_a_domain_nobody_tracks_shows_the_domain(
+        self, session, competition, canonical, link, tracked
+    ):
+        await page(canonical, link, None, competitor_ref="nobody.example")
+        found = await competition.pages(session)
+        assert found["rows"][0]["competitor"] == "nobody.example"
 
     async def test_a_page_missing_its_measurements_has_nulls(
         self, session, competition, canonical, link
@@ -685,12 +703,19 @@ class TestPosts:
             ],
         }
 
-    async def test_a_post_with_no_owner_falls_back_to_its_reference(
-        self, session, competition, canonical, link
+    async def test_a_post_with_no_owner_whose_domain_is_ours_shows_our_name(
+        self, session, competition, canonical, link, tracked
     ):
-        await post(canonical, link, None)
+        await post(canonical, link, None, competitor_ref=US)
         found = await competition.posts(session)
-        assert found["rows"][0]["competitor"] == "vidora.ai"
+        assert found["rows"][0]["competitor"] == "Digital Workers"
+
+    async def test_a_post_with_no_owner_and_a_domain_nobody_tracks_shows_the_domain(
+        self, session, competition, canonical, link, tracked
+    ):
+        await post(canonical, link, None, competitor_ref="nobody.example")
+        found = await competition.posts(session)
+        assert found["rows"][0]["competitor"] == "nobody.example"
 
     async def test_a_post_with_no_engagement_has_nulls(
         self, session, competition, canonical, link

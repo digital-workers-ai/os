@@ -11,7 +11,7 @@ curl -X POST localhost:8092/api/sync
 curl -X POST localhost:8092/api/rebuild
 ```
 
-The example env is empty and that runs: every knob has a default. The compose project is `os`: postgres on :5442, the mock providers on :8192, the backend on :8092, the console on :3092. The Configuration section of `README.md` lists every variable.
+The example env is empty and that runs: every knob has a default. The compose project is `os`: postgres on :5442, the mock providers on :8192, the backend on :8092, the console on :3092, the spy app on :3094. The Configuration section of `README.md` lists every variable.
 
 ## The gate
 

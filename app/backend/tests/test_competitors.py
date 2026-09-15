@@ -43,8 +43,8 @@ def _file(root, doc):
     return path
 
 
-def _check(competitors, root, **overrides):
-    return competitors.check(_file(root, _document(**overrides)))
+def _check(module, root, **overrides):
+    return module.check(_file(root, _document(**overrides)))
 
 
 class TestTheShippedFile:
