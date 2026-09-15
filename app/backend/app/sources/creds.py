@@ -91,6 +91,13 @@ def _shopify(domain: str, token: str) -> tuple[dict, tuple | None, dict, dict]:
     return {"X-Shopify-Access-Token": token}, None, {}, {"domain": domain}
 
 
+def _query(name: str) -> Callable:
+    def build(value: str) -> tuple[dict, tuple | None, dict, dict]:
+        return {}, None, {name: value}, {}
+
+    return build
+
+
 _REAL: dict[str, tuple[str, tuple[str, ...], Callable]] = {
     "hubspot": ("https://api.hubapi.com", ("HUBSPOT_ACCESS_TOKEN",), _bearer),
     "stripe": ("https://api.stripe.com", ("STRIPE_API_KEY",), _bearer),
@@ -140,6 +147,17 @@ _REAL: dict[str, tuple[str, tuple[str, ...], Callable]] = {
         ("SHOPIFY_STORE_DOMAIN", "SHOPIFY_ACCESS_TOKEN"),
         _shopify,
     ),
+    "meta_ad_library": (
+        "https://graph.facebook.com",
+        ("META_AD_LIBRARY_ACCESS_TOKEN",),
+        _query("access_token"),
+    ),
+    "google_ads_transparency": (
+        "https://serpapi.com",
+        ("SERPAPI_API_KEY",),
+        _query("api_key"),
+    ),
+    "serp": ("https://serpapi.com", ("SERPAPI_API_KEY",), _query("api_key")),
 }
 
 _MOCK: dict[str, tuple[str, dict, tuple | None, dict]] = {
