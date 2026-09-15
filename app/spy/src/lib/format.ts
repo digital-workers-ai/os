@@ -22,3 +22,14 @@ export function relative(iso: string, now = Date.now()): string {
   for (const [unit, ms] of UNITS) if (elapsed >= ms) return `${Math.floor(elapsed / ms)} ${unit} ago`
   return 'just now'
 }
+
+const plural = (n: number, unit: string) => `${n} ${unit}${n === 1 ? '' : 's'} ago`
+
+export function timeAgo(iso: string, now = Date.now()): string {
+  const mins = Math.floor((now - Date.parse(iso)) / 60_000)
+  if (mins < 1) return 'just now'
+  if (mins < 60) return plural(mins, 'minute')
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return plural(hours, 'hour')
+  return plural(Math.floor(hours / 24), 'day')
+}

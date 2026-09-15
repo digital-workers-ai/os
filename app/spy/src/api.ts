@@ -13,10 +13,10 @@ export class ApiError extends Error {
 export const asApiError = (e: unknown): ApiError =>
   e instanceof ApiError ? e : new ApiError(0, (e as Error)?.message ?? String(e))
 
-async function request<T>(path: string): Promise<T> {
+async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   let res: Response
   try {
-    res = await fetch(path, { headers: { 'content-type': 'application/json' } })
+    res = await fetch(path, { ...init, headers: { 'content-type': 'application/json' } })
   } catch (e) {
     throw new ApiError(0, `cannot reach the backend: ${(e as Error).message}`)
   }
@@ -37,6 +37,19 @@ async function request<T>(path: string): Promise<T> {
 }
 
 export const get = <T>(path: string) => request<T>(path)
+
+export const post = <T>(path: string, body?: unknown) => request<T>(path, { method: 'POST', body: JSON.stringify(body) })
+
+export interface SourceStatus {
+  source: string
+  category: string
+  last_attempt: string | null
+  last_success: string | null
+}
+
+export interface SourcesResponse {
+  sources: SourceStatus[]
+}
 
 export interface Source {
   source: string
@@ -144,3 +157,9 @@ export const getAnswers = () => get<AnswersResponse>('/api/competitors/answers')
 export const getPages = () => get<PagesResponse>('/api/competitors/pages')
 
 export const getPosts = () => get<PostsResponse>('/api/competitors/posts')
+
+export const getSources = () => get<SourcesResponse>('/api/sources')
+
+export const syncSources = (names: string[]) => post<unknown>('/api/sync', { sources: names })
+
+export const rebuild = () => post<unknown>('/api/rebuild')

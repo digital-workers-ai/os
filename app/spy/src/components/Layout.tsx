@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import { PRODUCT } from '@/brand'
 import { DigitalWorkersMark, type IntroPhase } from '@/components/DigitalWorkersMark'
+import { SyncBanner } from '@/components/SyncBanner'
 import { TopNav } from '@/components/TopNav'
 
 type Step = IntroPhase | 'fadeout' | 'header' | 'all' | 'color'
@@ -70,6 +71,7 @@ export function Layout() {
         style={{ transition: EASE, opacity: reached('all') ? 1 : 0, filter: gray ? 'grayscale(1)' : 'grayscale(0)' }}
         data-testid="page-main"
       >
+        <SyncBanner />
         <Outlet />
       </main>
     </div>
