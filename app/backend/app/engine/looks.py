@@ -22,6 +22,8 @@ LAYOUTS = "layouts.md"
 
 PREVIEW = "preview.html"
 
+FRAMES_DIR = "images"
+
 SHARED = "_shared"
 
 MEDIA = ("video", "image")
@@ -104,6 +106,27 @@ def prompt(name: str, path=None) -> str:
 
 def sample(name: str, path=None) -> dict:
     return yaml.safe_load((directory(name, path) / SAMPLE).read_text()) or {}
+
+
+def frames(name: str, path=None) -> list[str]:
+    stills = directory(name, path) / FRAMES_DIR
+    if not stills.is_dir():
+        return []
+    return sorted(
+        f"{FRAMES_DIR}/{still.name}" for still in stills.iterdir() if still.is_file()
+    )
+
+
+def read(name: str, path=None) -> dict:
+    look = directory(name, path)
+    layouts = look / LAYOUTS
+    return {
+        **load(name, path),
+        "layouts": layouts.read_text() if layouts.is_file() else "",
+        "sample": sample(name, path),
+        "frames": frames(name, path),
+        "dir": str(look),
+    }
 
 
 def frame(name: str, path=None) -> tuple[int, int]:

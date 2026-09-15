@@ -1,6 +1,7 @@
 import asyncio
 import json
 import re
+import shutil
 from pathlib import Path
 
 import yaml
@@ -440,6 +441,17 @@ def content_cues(content, transcript) -> dict:
     return cues
 
 
+def _copy_frames(look_dir: Path, out_dir: Path) -> None:
+    stills = look_dir / looks.FRAMES_DIR
+    if not stills.is_dir():
+        return
+    dest = out_dir / looks.FRAMES_DIR
+    dest.mkdir(parents=True, exist_ok=True)
+    for still in stills.iterdir():
+        if still.is_file() and not (dest / still.name).exists():
+            shutil.copy2(still, dest / still.name)
+
+
 def compose(
     look: str,
     spec,
@@ -505,6 +517,7 @@ def compose(
 
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+    _copy_frames(look_dir, out_dir)
     preview = out_dir / PREVIEW
     preview.write_text(markup.render(**context, preview=True))
     if stills:

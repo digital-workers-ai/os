@@ -125,6 +125,12 @@ class TestTheShippedLooks:
             "mark",
         ]
 
+    def test_the_look_with_shot_footage_ships_its_frames(self):
+        assert looks.read("soda")["frames"]
+
+    def test_the_drawn_look_ships_no_frames_because_it_has_none(self):
+        assert looks.read("aios")["frames"] == []
+
     def test_the_calendars_video_look_is_one_we_ship(self):
         assert "aios" in looks.names()
 
@@ -164,6 +170,25 @@ class TestLoadingOneLook:
     def test_the_frame_is_the_pixels_the_ratio_names(self, tmp_path):
         directory = _image_look(tmp_path)
         assert looks.frame("card", directory) == (1080, 1080)
+
+    def test_a_skill_reads_a_look_whole(self, tmp_path):
+        directory = _video_look(tmp_path)
+        (directory / "demo" / "layouts.md").write_text("# demo\n\n## hook\n")
+        (directory / "demo" / "images").mkdir()
+        (directory / "demo" / "images" / "scene_01.jpg").write_bytes(b"jpg")
+        (directory / "demo" / "images" / "scene_02.jpg").write_bytes(b"jpg")
+        read = looks.read("demo", directory)
+        assert read["medium"] == "video"
+        assert read["frames"] == ["images/scene_01.jpg", "images/scene_02.jpg"]
+        assert "hook" in read["layouts"]
+        assert read["sample"]["scenes"][0]["type"] == "hook"
+        assert read["dir"].endswith("demo")
+
+    def test_a_look_that_draws_its_frames_rather_than_shipping_them(self, tmp_path):
+        directory = _video_look(tmp_path)
+        read = looks.read("demo", directory)
+        assert read["frames"] == []
+        assert read["layouts"] == ""
 
     def test_the_limits_are_read_off_an_image_looks_slots(self, tmp_path):
         directory = _image_look(tmp_path)

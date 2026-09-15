@@ -68,7 +68,12 @@ async def render(
     report(STAGES[1])
     ground = None
     wanted = content.get(PROMPT_SLOT)
-    if wanted and not draft:
+    if wanted:
+        if draft:
+            raise RenderError(
+                f"look {look!r} was asked for a generated ground in draft — a "
+                "draft is the free render, and the image model is not free"
+            )
         painter = painter or Painter()
         (out_dir / BACKGROUND).write_bytes(
             await painter.background(wanted, width=width, height=height)

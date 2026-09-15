@@ -757,6 +757,18 @@ class TestComposing:
         video.compose("demo", spec, out, self._state(transcript), looks_dir=looks_dir)
         assert "0.4" in (out / video.INDEX).read_text()
 
+    def test_the_looks_own_frames_land_beside_the_markup(
+        self, looks_dir, tmp_path, spec
+    ):
+        stills = looks_dir / "demo" / "images"
+        stills.mkdir()
+        (stills / "scene_01.jpg").write_bytes(b"jpg")
+        out = tmp_path / "out"
+        video.compose("demo", spec, out, self._state(), looks_dir=looks_dir)
+        assert (out / "images" / "scene_01.jpg").read_bytes() == b"jpg"
+        video.compose("demo", spec, out, self._state(), looks_dir=looks_dir)
+        assert (out / "images" / "scene_01.jpg").read_bytes() == b"jpg"
+
     def test_stills_mode_writes_only_the_preview(self, looks_dir, tmp_path, spec):
         out = tmp_path / "out"
         preview = video.compose(

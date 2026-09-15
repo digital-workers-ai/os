@@ -121,19 +121,38 @@ class TestDraftMode:
             int(FRAME[1] * image.DRAFT_SCALE),
         )
 
-    async def test_a_draft_never_asks_the_image_model_for_a_ground(
+    async def test_a_draft_asked_for_a_generated_ground_is_refused(
         self, looks_dir, tmp_path
     ):
         painter = FakePainter()
-        await image.render(
+        with pytest.raises(clients.RenderError) as caught:
+            await image.render(
+                "card",
+                {**CONTENT, "background_prompt": "a warm studio wall"},
+                tmp_path / "out",
+                draft=True,
+                looks_dir=looks_dir,
+                browser=FakeBrowser(),
+                painter=painter,
+            )
+        assert "draft" in str(caught.value)
+        assert painter.asked == []
+
+    async def test_a_draft_with_no_ground_asked_for_renders_free(
+        self, looks_dir, tmp_path
+    ):
+        painter = FakePainter()
+        out = tmp_path / "out"
+        png = await image.render(
             "card",
-            {**CONTENT, "background_prompt": "a warm studio wall"},
-            tmp_path / "out",
+            CONTENT,
+            out,
             draft=True,
             looks_dir=looks_dir,
             browser=FakeBrowser(),
             painter=painter,
         )
+        assert png.exists()
         assert painter.asked == []
 
     async def test_the_copy_is_html_and_the_markup_says_so(self, looks_dir, tmp_path):
