@@ -40,6 +40,10 @@ ALL_SOURCES = {
     "linkedin",
     "meta_ad_library",
     "google_ads_transparency",
+    "serp",
+    "ai_answers",
+    "competitor_pages",
+    "linkedin_posts",
 }
 
 
@@ -353,7 +357,7 @@ class TestCredentials:
 
 class TestRegistry:
     def test_every_connector_module_is_discovered(self):
-        assert len(ALL_SOURCES) == 29
+        assert len(ALL_SOURCES) == 33
         assert set(registry.discover()) == ALL_SOURCES
 
     def test_discovery_is_cached(self):
@@ -2088,3 +2092,389 @@ class TestGoogleAdsTransparencyWithNoCreatives(_SocialCapture):
             str(spec["google_advertiser_id"]) for spec in competitors.tracked().values()
         }
         assert all(s["raw_payload"] == {"id": s["source_id"]} for s in advertisers)
+
+
+class _CompetitorWatchers(_SocialCapture):
+    @staticmethod
+    def _definitions():
+        from app.engine import competitors
+
+        return competitors.definitions()
+
+    def _domains(self):
+        competitors = self._definitions()["competitors"]
+        return [str(spec["domain"]) for spec in competitors.values()]
+
+    @staticmethod
+    def _payloads(stored, object_type):
+        return {
+            s["source_id"]: s["raw_payload"]
+            for s in stored
+            if s["object_type"] == object_type
+        }
+
+
+class TestSerpAsksForEveryTrackedKeyword(_CompetitorWatchers):
+    @staticmethod
+    def _page(request):
+        return {
+            "search_metadata": {
+                "status": "Success",
+                "created_at": "2026-09-14 05:42:11 UTC",
+            },
+            "search_parameters": {
+                "engine": "google",
+                "q": request.url.params.get("q"),
+            },
+            "organic_results": [
+                {
+                    "position": 1,
+                    "title": "Vidora",
+                    "link": "https://vidora.ai/",
+                    "snippet": "Paste a product URL.",
+                },
+                {
+                    "position": 9,
+                    "title": "Digital Workers",
+                    "link": "https://www.hiredigitalworkers.com/ugc",
+                    "snippet": "We run the tool.",
+                },
+            ],
+        }
+
+    async def test_it_runs_one_google_search_for_each_keyword(self, capture, store):
+        seen = capture(self._page)
+
+        await connector("serp").pull(None, store)
+
+        assert {r.url.path for r in seen} == {"/search"}
+        assert [r.url.params.get("q") for r in seen] == self._definitions()["keywords"]
+        for request in seen:
+            assert request.url.params.get("engine") == "google"
+            assert request.url.params.get("api_key")
+
+    async def test_every_result_carries_the_search_that_found_it(
+        self, capture, store, stored
+    ):
+        capture(self._page)
+
+        notes = await connector("serp").pull(None, store)
+
+        assert notes is None
+        assert {s["source"] for s in stored} == {"serp"}
+        assert {s["object_type"] for s in stored} == {"organic_results"}
+        rows = self._payloads(stored, "organic_results")
+        keyword = self._definitions()["keywords"][0]
+        row = rows[f"{keyword}|google|vidora.ai|2026-09-14"]
+        assert row["_keyword"] == keyword
+        assert row["_engine"] == "google"
+        assert row["_domain"] == "vidora.ai"
+        assert row["_checked_on"] == "2026-09-14"
+        assert row["position"] == 1
+        assert row["snippet"] == "Paste a product URL."
+
+    async def test_one_row_per_keyword_per_domain_per_day(self, capture, store, stored):
+        capture(self._page)
+
+        await connector("serp").pull(None, store)
+
+        keywords = self._definitions()["keywords"]
+        assert set(self._payloads(stored, "organic_results")) == {
+            f"{keyword}|google|{domain}|2026-09-14"
+            for keyword in keywords
+            for domain in ("vidora.ai", "hiredigitalworkers.com")
+        }
+
+    async def test_a_keyword_google_answered_nothing_for_stores_nothing(
+        self, capture, store, stored
+    ):
+        capture({"error": "Google hasn't returned any results for this query."})
+
+        notes = await connector("serp").pull(None, store)
+
+        assert notes is None
+        assert stored == []
+
+    async def test_a_result_with_no_link_is_counted_rather_than_stored(
+        self, capture, store, stored
+    ):
+        capture(
+            {
+                "search_metadata": {"created_at": "2026-09-14 05:42:11 UTC"},
+                "search_parameters": {"engine": "google", "q": "ai ugc ads"},
+                "organic_results": [{"position": 1, "title": "No link here"}],
+            }
+        )
+
+        notes = await connector("serp").pull(None, store)
+
+        assert stored == []
+        assert notes == {"missing_id": len(self._definitions()["keywords"])}
+
+
+class TestAiAnswersAsksEveryPromptOfEveryEngine(_CompetitorWatchers):
+    @staticmethod
+    def _reading(request):
+        return {
+            "prompt": request.url.params.get("prompt"),
+            "engine": request.url.params.get("engine"),
+            "checked_at": "2026-09-14T05:45:00Z",
+            "mentions": [
+                {
+                    "brand": "Vidora",
+                    "domain": "vidora.ai",
+                    "mentioned": "yes",
+                    "cited_url": "https://vidora.ai/",
+                    "rank": 1,
+                },
+                {
+                    "brand": "Clipwise",
+                    "domain": "clipwise.io",
+                    "mentioned": "no",
+                    "cited_url": "",
+                    "rank": 0,
+                },
+            ],
+            "next": None,
+        }
+
+    def _pairs(self):
+        doc = self._definitions()
+        return {
+            (prompt, engine) for prompt in doc["prompts"] for engine in doc["engines"]
+        }
+
+    async def test_it_reads_every_prompt_on_every_engine(self, capture, store):
+        seen = capture(self._reading)
+
+        await connector("ai_answers").pull(None, store)
+
+        assert {r.url.path for r in seen} == {"/v1/mentions"}
+        assert len(seen) == len(self._pairs())
+        assert {
+            (r.url.params.get("prompt"), r.url.params.get("engine")) for r in seen
+        } == self._pairs()
+
+    async def test_every_brand_row_carries_the_reading_it_came_from(
+        self, capture, store, stored
+    ):
+        capture(self._reading)
+
+        notes = await connector("ai_answers").pull(None, store)
+
+        assert notes is None
+        assert {s["source"] for s in stored} == {"ai_answers"}
+        assert {s["object_type"] for s in stored} == {"mentions"}
+        rows = self._payloads(stored, "mentions")
+        assert set(rows) == {
+            f"{prompt}|{engine}|{brand}|2026-09-14"
+            for prompt, engine in self._pairs()
+            for brand in ("Vidora", "Clipwise")
+        }
+        prompt, engine = sorted(self._pairs())[0]
+        row = rows[f"{prompt}|{engine}|Vidora|2026-09-14"]
+        assert row["_prompt"] == prompt
+        assert row["_engine"] == engine
+        assert row["_checked_on"] == "2026-09-14"
+        assert row["rank"] == 1
+
+    async def test_a_brand_that_was_not_named_is_still_a_row(
+        self, capture, store, stored
+    ):
+        capture(self._reading)
+
+        await connector("ai_answers").pull(None, store)
+
+        rows = self._payloads(stored, "mentions")
+        prompt, engine = sorted(self._pairs())[0]
+        row = rows[f"{prompt}|{engine}|Clipwise|2026-09-14"]
+        assert row["mentioned"] == "no"
+        assert row["cited_url"] == ""
+        assert row["rank"] == 0
+
+    async def test_a_mention_with_no_brand_is_counted_rather_than_stored(
+        self, capture, store, stored
+    ):
+        capture(
+            {
+                "prompt": "best ai ugc ad tool",
+                "engine": "chatgpt",
+                "checked_at": "2026-09-14T05:45:00Z",
+                "mentions": [{"domain": "vidora.ai", "mentioned": "yes", "rank": 1}],
+                "next": None,
+            }
+        )
+
+        notes = await connector("ai_answers").pull(None, store)
+
+        assert stored == []
+        assert notes == {"missing_id": len(self._pairs())}
+
+
+class TestCompetitorPagesCrawlsEachCompetitor(_CompetitorWatchers):
+    def _body(self, request):
+        if request.url.path.endswith("/sitemap"):
+            domain = request.url.params.get("domain")
+            return {
+                "domain": domain,
+                "urls": [f"https://{domain}/", f"https://{domain}/pricing"],
+            }
+        url = request.url.params.get("url")
+        return {
+            "url": url,
+            "title": f"Title for {url}",
+            "text": "Three plans, no per-render fees.",
+            "fetched_at": "2026-09-14T05:50:00Z",
+            "content_sha": "d9f5d1353c6ae4c3",
+            "word_count": 5,
+        }
+
+    async def test_it_asks_for_a_sitemap_before_fetching_a_page(self, capture, store):
+        seen = capture(self._body)
+
+        await connector("competitor_pages").pull(None, store)
+
+        sitemaps = [r for r in seen if r.url.path == "/v1/sitemap"]
+        assert {r.url.params.get("domain") for r in sitemaps} == set(self._domains())
+        fetches = [r for r in seen if r.url.path == "/v1/fetch"]
+        assert {r.url.params.get("url") for r in fetches} == {
+            f"https://{domain}{path}"
+            for domain in self._domains()
+            for path in ("/", "/pricing")
+        }
+
+    async def test_it_never_asks_for_a_day_other_than_today(self, capture, store):
+        seen = capture(self._body)
+
+        await connector("competitor_pages").pull(None, store)
+
+        assert all(r.url.params.get("as_of") is None for r in seen)
+
+    async def test_each_page_is_stored_under_its_url_as_it_arrived(
+        self, capture, store, stored
+    ):
+        capture(self._body)
+
+        notes = await connector("competitor_pages").pull(None, store)
+
+        assert notes is None
+        assert {s["source"] for s in stored} == {"competitor_pages"}
+        assert {s["object_type"] for s in stored} == {"pages"}
+        rows = self._payloads(stored, "pages")
+        assert set(rows) == {
+            f"https://{domain}{path}"
+            for domain in self._domains()
+            for path in ("/", "/pricing")
+        }
+        url = f"https://{self._domains()[0]}/pricing"
+        assert rows[url]["content_sha"] == "d9f5d1353c6ae4c3"
+        assert rows[url]["fetched_at"] == "2026-09-14T05:50:00Z"
+
+    async def test_a_domain_with_an_empty_sitemap_is_fetched_no_further(
+        self, capture, store, stored
+    ):
+        seen = capture({"domain": "vidora.ai", "urls": []})
+
+        notes = await connector("competitor_pages").pull(None, store)
+
+        assert notes is None
+        assert stored == []
+        assert {r.url.path for r in seen} == {"/v1/sitemap"}
+
+
+class TestLinkedinPostsCollectsEachCompetitor(_CompetitorWatchers):
+    @staticmethod
+    def _body(request):
+        domain = request.url.params.get("domain")
+        return {
+            "posts": [
+                {
+                    "id": f"7241{domain}",
+                    "url": f"https://www.linkedin.com/feed/update/{domain}/",
+                    "text": "Boring is a strategy.",
+                    "posted_at": "2026-09-11T13:25:00Z",
+                    "reactions": 372,
+                    "comments": 45,
+                    "reposts": 12,
+                    "platform": "linkedin",
+                }
+            ],
+            "cursor": None,
+        }
+
+    async def test_it_asks_the_collector_for_each_competitor_domain(
+        self, capture, store
+    ):
+        seen = capture(self._body)
+
+        await connector("linkedin_posts").pull(None, store)
+
+        assert {r.url.path for r in seen} == {"/v1/posts"}
+        assert {r.url.params.get("domain") for r in seen} == set(self._domains())
+
+    async def test_each_post_carries_the_company_it_was_collected_for(
+        self, capture, store, stored
+    ):
+        capture(self._body)
+
+        notes = await connector("linkedin_posts").pull(None, store)
+
+        assert notes is None
+        assert {s["source"] for s in stored} == {"linkedin_posts"}
+        assert {s["object_type"] for s in stored} == {"posts"}
+        rows = self._payloads(stored, "posts")
+        assert set(rows) == {f"7241{domain}" for domain in self._domains()}
+        domain = self._domains()[0]
+        assert rows[f"7241{domain}"]["_domain"] == domain
+        assert rows[f"7241{domain}"]["reactions"] == 372
+
+    async def test_a_post_with_no_id_is_counted_rather_than_stored(
+        self, capture, store, stored
+    ):
+        capture({"posts": [{"text": "no id here"}], "cursor": None})
+
+        notes = await connector("linkedin_posts").pull(None, store)
+
+        assert stored == []
+        assert notes == {"missing_id": len(self._domains())}
+
+
+class TestCompetitorCredentials:
+    @pytest.mark.parametrize(
+        "source,prefix",
+        [
+            ("serp", "/serp"),
+            ("ai_answers", "/answers"),
+            ("competitor_pages", "/pages"),
+            ("linkedin_posts", "/social-scrape"),
+        ],
+    )
+    def test_each_watcher_reaches_its_own_prefix(self, source, prefix):
+        assert creds.credentials_for(source).base_url.endswith(prefix)
+
+    def test_the_ranking_key_travels_as_a_query_parameter(self):
+        assert creds.credentials_for("serp").params == {"api_key": "mock_serpapi_key"}
+
+    @pytest.mark.parametrize(
+        "source,token",
+        [
+            ("ai_answers", "mock_ai_answers_token"),
+            ("competitor_pages", "mock_competitor_pages_token"),
+            ("linkedin_posts", "mock_linkedin_posts_token"),
+        ],
+    )
+    def test_the_scrapers_carry_a_bearer_token(self, source, token):
+        assert creds.credentials_for(source).headers["Authorization"] == (
+            f"Bearer {token}"
+        )
+
+
+class TestTheWatchersAreCatalogued:
+    @pytest.mark.parametrize(
+        "source", ["serp", "ai_answers", "competitor_pages", "linkedin_posts"]
+    )
+    def test_each_watcher_sits_with_the_ad_libraries(self, source):
+        row = catalog.entry(source)
+        assert row["category"] == "Competitors"
+        assert row["label"] != source
+        assert row["unlocks"]

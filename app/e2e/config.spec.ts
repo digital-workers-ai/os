@@ -84,16 +84,16 @@ const restoreAmplitude = (page: Page) => page.request.put(AMPLITUDE_ENABLED, { d
 
 test('sources default', async ({ page }) => {
   await visit(page, '/config')
-  await expect(heads(page.getByTestId('sources-table'))).toHaveText(['Source (29)', 'Entities', 'Last sync', 'Rows', 'Enabled', ''])
-  await expect(page.getByTestId('sources-enabled-filter')).toHaveText('all sources (29)')
-  await expect(enabledChips(page)).toHaveText(Array(29).fill('on'))
+  await expect(heads(page.getByTestId('sources-table'))).toHaveText(['Source (33)', 'Entities', 'Last sync', 'Rows', 'Enabled', ''])
+  await expect(page.getByTestId('sources-enabled-filter')).toHaveText('all sources (33)')
+  await expect(enabledChips(page)).toHaveText(Array(33).fill('on'))
   await snap(page, 'config-sources-default')
 })
 
 test('filter open', async ({ page }) => {
   await visit(page, '/config')
   await openFilter(page, 'sources-enabled-filter')
-  await expect(options(page)).toHaveText(['all sources (29)', 'enabled (29)', 'disabled (0)'])
+  await expect(options(page)).toHaveText(['all sources (33)', 'enabled (33)', 'disabled (0)'])
   await snap(page, 'config-sources-filter-open')
   await page.keyboard.press('Escape')
   await expect(options(page)).toHaveCount(0)
@@ -108,7 +108,7 @@ test('toggle off', async ({ page }) => {
     await expect(chip).toHaveText('off')
     await expect(sync).toBeDisabled()
     await openFilter(page, 'sources-enabled-filter')
-    await expect(options(page)).toHaveText(['all sources (29)', 'enabled (28)', 'disabled (1)'])
+    await expect(options(page)).toHaveText(['all sources (33)', 'enabled (32)', 'disabled (1)'])
     await page.keyboard.press('Escape')
     await expect(options(page)).toHaveCount(0)
     await snap(page, 'config-sources-one-off')
