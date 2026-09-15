@@ -2,7 +2,7 @@
 
 **An AI Operating System for small businesses, built as code your company owns and evolves.**
 
-- Connects 27 sales, billing, support, marketing and analytics tools
+- Connects 33 sales, billing, support, marketing and analytics tools
 - Raw data kept as it arrived; everything rebuilt from it
 - Joins the same customer across tools, with a review queue
 - Every number traces to its tool, records and missing fields
@@ -71,7 +71,7 @@ curl -X POST localhost:8092/api/rebuild
 open http://localhost:3092
 ```
 
-The two `curl` commands pull from every stand-in tool and then build every record out of what arrived; the last command opens the console on your home page; the dashboard is at http://localhost:3093.
+The two `curl` commands pull from every stand-in tool and then build every record out of what arrived; the last command opens the console on your home page; the dashboard is at http://localhost:3093 and Spy at http://localhost:3094.
 
 ## Connectors
 
@@ -86,6 +86,7 @@ In this repository, all of them are answered by stand-ins rather than the real p
 | Support                | Zendesk, Intercom                                       | Tickets, organisations, people        |
 | Email and lifecycle    | Mailchimp, Klaviyo, ActiveCampaign, SendGrid, Customer.io | Campaigns, audiences, profiles, activity |
 | Advertising            | Meta, Google Ads, LinkedIn, Pinterest, Snapchat, Twitter | Ad accounts, campaigns, spend, conversions |
+| Competitors            | Meta Ad Library, Google Ads Transparency, SerpApi, AI Answers, Competitor Pages, LinkedIn Posts | Competitors' ads, rankings, answer-engine mentions, page copy, posts |
 | Analytics and product  | Google Analytics, Mixpanel, Amplitude, Segment, Smartlook | Traffic, events, event definitions    |
 | Meetings and messaging | Calendly, Zoom, Twilio                                  | Meetings, call transcripts, messages  |
 
@@ -96,7 +97,7 @@ Adding a tool is one package under `app/backend/app/sources/`, its lines in `def
 ```mermaid
 flowchart TD
 
-    SRC["1 · 27 connectors"]
+    SRC["1 · 33 connectors"]
     RAW["2 · Raw store<br/>every event as it arrived"]
     QUEUE["8 · Review queue<br/>look-alike pairs, a person confirms or rejects"]
 
@@ -186,6 +187,7 @@ flowchart TD
 22. **Dashboard:** A second web app for readers: the pages `dashboards.yaml` declares, one card per metric, over any date range.
 23. **Search:** One search box over everything stored: names, emails, ids, statuses, transcript passages, briefings, and the definitions themselves.
 24. **MCP:** The door for AI assistants. Any assistant on your machine can read the same numbers, definitions, and briefing prompts as the console, and every call is logged.
+25. **Spy:** A third web app, read-only: six tabs, one per competitor source, each a table of what that connector brought in, sorted by the signal that matters for it, with the connector's last sync in the header.
 
 ## Entity Resolution
 

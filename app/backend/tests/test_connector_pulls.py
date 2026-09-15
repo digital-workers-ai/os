@@ -8,7 +8,8 @@ import zipfile
 import httpx
 import pytest
 
-from app import sync
+from app import clock, sync
+from app.engine import mappings
 from app.sources import catalog, client, creds, registry, util
 from app.sources.hubspot import connector as hubspot
 from app.sources.stripe import connector as stripe
@@ -41,6 +42,12 @@ ALL_SOURCES = {
     "twitter",
     "pinterest",
     "linkedin",
+    "meta_ad_library",
+    "google_ads_transparency",
+    "serp",
+    "ai_answers",
+    "competitor_pages",
+    "linkedin_posts",
 }
 
 
@@ -475,7 +482,7 @@ class TestCredentials:
 
 class TestRegistry:
     def test_every_connector_module_is_discovered(self):
-        assert len(ALL_SOURCES) == 27
+        assert len(ALL_SOURCES) == 33
         assert set(registry.discover()) == ALL_SOURCES
 
     def test_discovery_is_cached(self):
@@ -2057,6 +2064,981 @@ class TestWhatPinterestAsksForItsPinsAndAccount(_SocialCapture):
 
         assert [s for s in stored if s["object_type"] == "account_analytics"] == []
         assert notes is None
+
+
+class TestCompetitorConnectors(_SocialCapture):
+    @staticmethod
+    def _competitors():
+        from app.engine import competitors
+
+        return competitors.tracked()
+
+    def _page_ids(self):
+        return {str(spec["meta_page_id"]) for spec in self._competitors().values()}
+
+    def _advertiser_ids(self):
+        return {
+            str(spec["google_advertiser_id"]) for spec in self._competitors().values()
+        }
+
+    @staticmethod
+    def _meta_body(request):
+        path = request.url.path
+        if path == "/v25.0/ads_archive":
+            page_id = request.url.params.get("search_page_ids")
+            return {
+                "data": [
+                    {
+                        "id": f"ad_{page_id}",
+                        "page_id": page_id,
+                        "ad_creative_bodies": ["Stop scrolling"],
+                        "ad_delivery_start_time": "2026-06-15",
+                        "ad_snapshot_url": "https://facebook.test/ads/1",
+                    }
+                ],
+                "paging": {},
+            }
+        page_id = path.rsplit("/", 1)[-1]
+        return {
+            "id": page_id,
+            "name": f"Page {page_id}",
+            "website": f"https://{page_id}.test",
+        }
+
+    @staticmethod
+    def _creative(advertiser_id, n, **extra):
+        creative_id = f"CR{advertiser_id}_{n}"
+        return {
+            "advertiser_id": advertiser_id,
+            "advertiser": f"Advertiser {advertiser_id}",
+            "ad_creative_id": creative_id,
+            "format": "text",
+            "width": 300,
+            "height": 250,
+            "target_domain": f"{advertiser_id.lower()}.test",
+            "first_shown": 1781515800,
+            "last_shown": 1788271200,
+            "total_days_shown": 78,
+            "details_link": (
+                "https://adstransparency.google.com/advertiser/"
+                f"{advertiser_id}/creative/{creative_id}"
+            ),
+            "serpapi_details_link": (
+                "https://serpapi.com/search.json?engine="
+                "google_ads_transparency_center_details"
+                f"&advertiser_id={advertiser_id}&creative_id={creative_id}"
+            ),
+            **extra,
+        }
+
+    def _file_domains(self):
+        return {
+            str(spec["google_advertiser_id"]): str(spec["domain"])
+            for spec in self._competitors().values()
+        }
+
+    def _google_body(self, request):
+        advertiser_id = request.url.params.get("advertiser_id")
+        return {
+            "ad_creatives": [
+                self._creative(advertiser_id, 1),
+                self._creative(advertiser_id, 2),
+            ],
+            "serpapi_pagination": {},
+        }
+
+    def _keys(self, stored):
+        return {(s["object_type"], s["source_id"]) for s in stored}
+
+    async def test_meta_ad_library_asks_each_competitor_page_for_its_website(
+        self, capture, store
+    ):
+        seen = capture(self._meta_body)
+
+        await connector("meta_ad_library").pull(None, store)
+
+        pages = [r for r in seen if r.url.path != "/v25.0/ads_archive"]
+        assert {r.url.path for r in pages} == {
+            f"/v25.0/{page_id}" for page_id in self._page_ids()
+        }
+        for request in pages:
+            fields = set(request.url.params.get("fields", "").split(","))
+            assert {"id", "name", "website"} <= fields
+            assert request.url.params.get("access_token")
+
+    async def test_meta_ad_library_asks_the_archive_for_each_pages_ads(
+        self, capture, store
+    ):
+        seen = capture(self._meta_body)
+
+        await connector("meta_ad_library").pull(None, store)
+
+        archive = [r for r in seen if r.url.path == "/v25.0/ads_archive"]
+        assert len(archive) == len(self._page_ids())
+        assert {r.url.params.get("search_page_ids") for r in archive} == (
+            self._page_ids()
+        )
+        for request in archive:
+            params = request.url.params
+            assert params.get("ad_active_status") == "ALL"
+            assert params.get("ad_reached_countries")
+            assert params.get("access_token")
+            assert {
+                "ad_creative_bodies",
+                "ad_delivery_start_time",
+                "ad_delivery_stop_time",
+                "ad_snapshot_url",
+                "page_id",
+            } <= set(params.get("fields", "").split(","))
+
+    async def test_meta_ad_library_stores_each_page_and_its_ads_as_they_arrived(
+        self, capture, store, stored
+    ):
+        capture(self._meta_body)
+
+        notes = await connector("meta_ad_library").pull(None, store)
+
+        assert notes is None
+        assert {s["source"] for s in stored} == {"meta_ad_library"}
+        page_ids = self._page_ids()
+        assert self._keys(stored) == {("pages", p) for p in page_ids} | {
+            ("ads", f"ad_{p}") for p in page_ids
+        }
+        ads = {
+            s["source_id"]: s["raw_payload"]
+            for s in stored
+            if s["object_type"] == "ads"
+        }
+        pages = {
+            s["source_id"]: s["raw_payload"]
+            for s in stored
+            if s["object_type"] == "pages"
+        }
+        for page_id in page_ids:
+            assert pages[page_id]["website"] == f"https://{page_id}.test"
+            assert ads[f"ad_{page_id}"]["ad_creative_bodies"] == ["Stop scrolling"]
+
+    async def test_google_ads_transparency_asks_the_center_for_each_advertiser(
+        self, capture, store
+    ):
+        seen = capture(self._google_body)
+
+        await connector("google_ads_transparency").pull(None, store)
+
+        assert {r.url.path for r in seen} == {"/search"}
+        assert len(seen) == len(self._advertiser_ids())
+        assert {r.url.params.get("advertiser_id") for r in seen} == (
+            self._advertiser_ids()
+        )
+        for request in seen:
+            assert request.url.params.get("engine") == "google_ads_transparency_center"
+            assert request.url.params.get("api_key")
+
+    async def test_google_ads_transparency_stores_each_creative_under_its_creative_id(
+        self, capture, store, stored
+    ):
+        capture(self._google_body)
+
+        notes = await connector("google_ads_transparency").pull(None, store)
+
+        assert notes is None
+        assert {s["source"] for s in stored} == {"google_ads_transparency"}
+        creatives = {
+            s["source_id"]: s["raw_payload"]
+            for s in stored
+            if s["object_type"] == "creatives"
+        }
+        assert set(creatives) == {
+            f"CR{advertiser_id}_{n}"
+            for advertiser_id in self._advertiser_ids()
+            for n in (1, 2)
+        }
+        for advertiser_id in self._advertiser_ids():
+            assert creatives[f"CR{advertiser_id}_1"] == self._creative(advertiser_id, 1)
+
+    async def test_google_ads_transparency_builds_one_advertiser_from_its_creatives(
+        self, capture, store, stored
+    ):
+        capture(self._google_body)
+
+        await connector("google_ads_transparency").pull(None, store)
+
+        advertisers = [s for s in stored if s["object_type"] == "advertisers"]
+        assert sorted(s["source_id"] for s in advertisers) == sorted(
+            self._advertiser_ids()
+        )
+        for row in advertisers:
+            advertiser_id = row["source_id"]
+            assert row["raw_payload"] == {
+                "id": advertiser_id,
+                "name": f"Advertiser {advertiser_id}",
+                "domain": f"{advertiser_id.lower()}.test",
+            }
+
+    async def test_the_advertisers_domain_comes_from_the_first_creative_that_has_one(
+        self, capture, store, stored
+    ):
+        def body(request):
+            advertiser_id = request.url.params.get("advertiser_id")
+            first = self._creative(advertiser_id, 1)
+            first.pop("target_domain")
+            return {
+                "ad_creatives": [first, self._creative(advertiser_id, 2)],
+                "serpapi_pagination": {},
+            }
+
+        capture(body)
+
+        await connector("google_ads_transparency").pull(None, store)
+
+        for row in [s for s in stored if s["object_type"] == "advertisers"]:
+            advertiser_id = row["source_id"]
+            assert row["raw_payload"]["domain"] == f"{advertiser_id.lower()}.test"
+            assert row["raw_payload"]["name"] == f"Advertiser {advertiser_id}"
+
+    async def test_an_advertiser_whose_creatives_name_no_domain_takes_the_files(
+        self, capture, store, stored
+    ):
+        def body(request):
+            advertiser_id = request.url.params.get("advertiser_id")
+            creatives = [self._creative(advertiser_id, n) for n in (1, 2)]
+            for creative in creatives:
+                creative.pop("target_domain")
+            return {"ad_creatives": creatives, "serpapi_pagination": {}}
+
+        capture(body)
+
+        await connector("google_ads_transparency").pull(None, store)
+
+        domains = self._file_domains()
+        for row in [s for s in stored if s["object_type"] == "advertisers"]:
+            assert row["raw_payload"]["domain"] == domains[row["source_id"]]
+
+    def test_google_creatives_are_read_by_their_details_link_and_never_named(self):
+        labels = {
+            line.key: line.label
+            for line in mappings.load()
+            if line.source == "google_ads_transparency"
+            and line.object_type == "creatives"
+        }
+        assert labels["google_ads_transparency.creatives.details_link"] == "url"
+        assert "name" not in labels.values()
+        assert not [key for key in labels if key.endswith(".link")]
+
+    async def test_google_ads_transparency_walks_the_page_token_to_its_end(
+        self, capture, store, stored
+    ):
+        def body(request):
+            advertiser_id = request.url.params.get("advertiser_id")
+            if request.url.params.get("next_page_token") == "tok":
+                return {
+                    "ad_creatives": [self._creative(advertiser_id, 2)],
+                    "serpapi_pagination": {},
+                }
+            return {
+                "ad_creatives": [self._creative(advertiser_id, 1)],
+                "serpapi_pagination": {"next_page_token": "tok"},
+            }
+
+        seen = capture(body)
+
+        await connector("google_ads_transparency").pull(None, store)
+
+        for advertiser_id in self._advertiser_ids():
+            pages = [
+                r for r in seen if r.url.params.get("advertiser_id") == advertiser_id
+            ]
+            assert [r.url.params.get("next_page_token") for r in pages] == [None, "tok"]
+        creatives = {s["source_id"] for s in stored if s["object_type"] == "creatives"}
+        assert creatives == {
+            f"CR{advertiser_id}_{n}"
+            for advertiser_id in self._advertiser_ids()
+            for n in (1, 2)
+        }
+
+
+class TestGoogleAdsTransparencyWithNoCreatives(_SocialCapture):
+    async def test_an_advertiser_with_no_creatives_keeps_its_id_and_the_files_domain(
+        self, capture, store, stored
+    ):
+        from app.engine import competitors
+
+        capture({"ad_creatives": [], "serpapi_pagination": {}})
+
+        notes = await connector("google_ads_transparency").pull(None, store)
+
+        assert notes is None
+        assert [s for s in stored if s["object_type"] == "creatives"] == []
+        advertisers = {
+            s["source_id"]: s["raw_payload"]
+            for s in stored
+            if s["object_type"] == "advertisers"
+        }
+        assert advertisers == {
+            str(spec["google_advertiser_id"]): {
+                "id": str(spec["google_advertiser_id"]),
+                "domain": str(spec["domain"]),
+            }
+            for spec in competitors.tracked().values()
+        }
+
+
+class _CompetitorWatchers(_SocialCapture):
+    @staticmethod
+    def _definitions():
+        from app.engine import competitors
+
+        return competitors.definitions()
+
+    def _domains(self):
+        competitors = self._definitions()["competitors"]
+        return [str(spec["domain"]) for spec in competitors.values()]
+
+    @staticmethod
+    def _payloads(stored, object_type):
+        return {
+            s["source_id"]: s["raw_payload"]
+            for s in stored
+            if s["object_type"] == object_type
+        }
+
+
+class TestSerpAsksForEveryTrackedKeyword(_CompetitorWatchers):
+    @staticmethod
+    def _page(request):
+        return {
+            "search_metadata": {
+                "status": "Success",
+                "created_at": "2026-09-14 05:42:11 UTC",
+            },
+            "search_parameters": {
+                "engine": "google",
+                "q": request.url.params.get("q"),
+            },
+            "organic_results": [
+                {
+                    "position": 1,
+                    "title": "Vidora",
+                    "link": "https://vidora.ai/",
+                    "snippet": "Paste a product URL.",
+                },
+                {
+                    "position": 9,
+                    "title": "Digital Workers",
+                    "link": "https://www.hiredigitalworkers.com/ugc",
+                    "snippet": "We run the tool.",
+                },
+            ],
+        }
+
+    async def test_it_runs_one_google_search_for_each_keyword(self, capture, store):
+        seen = capture(self._page)
+
+        await connector("serp").pull(None, store)
+
+        assert {r.url.path for r in seen} == {"/search"}
+        assert [r.url.params.get("q") for r in seen] == self._definitions()["keywords"]
+        for request in seen:
+            assert request.url.params.get("engine") == "google"
+            assert request.url.params.get("api_key")
+
+    async def test_every_result_carries_the_search_that_found_it(
+        self, capture, store, stored
+    ):
+        capture(self._page)
+
+        notes = await connector("serp").pull(None, store)
+
+        assert notes is None
+        assert {s["source"] for s in stored} == {"serp"}
+        assert {s["object_type"] for s in stored} == {"organic_results"}
+        rows = self._payloads(stored, "organic_results")
+        keyword = self._definitions()["keywords"][0]
+        row = rows[f"{keyword}|google|vidora.ai|2026-09-14"]
+        assert row["_keyword"] == keyword
+        assert row["_engine"] == "google"
+        assert row["_domain"] == "vidora.ai"
+        assert row["_checked_on"] == "2026-09-14"
+        assert row["position"] == 1
+        assert row["snippet"] == "Paste a product URL."
+
+    async def test_one_row_per_keyword_per_domain_per_day(self, capture, store, stored):
+        capture(self._page)
+
+        await connector("serp").pull(None, store)
+
+        keywords = self._definitions()["keywords"]
+        assert set(self._payloads(stored, "organic_results")) == {
+            f"{keyword}|google|{domain}|2026-09-14"
+            for keyword in keywords
+            for domain in ("vidora.ai", "hiredigitalworkers.com")
+        }
+
+    async def test_a_keyword_google_answered_nothing_for_stores_nothing(
+        self, capture, store, stored
+    ):
+        capture({"error": "Google hasn't returned any results for this query."})
+
+        notes = await connector("serp").pull(None, store)
+
+        assert notes is None
+        assert stored == []
+
+    async def test_a_result_with_no_link_is_counted_rather_than_stored(
+        self, capture, store, stored
+    ):
+        capture(
+            {
+                "search_metadata": {"created_at": "2026-09-14 05:42:11 UTC"},
+                "search_parameters": {"engine": "google", "q": "ai ugc ads"},
+                "organic_results": [{"position": 1, "title": "No link here"}],
+            }
+        )
+
+        notes = await connector("serp").pull(None, store)
+
+        assert stored == []
+        assert notes == {"missing_id": len(self._definitions()["keywords"])}
+
+
+class TestAiAnswersAsksEveryPromptOfEveryEngine(_CompetitorWatchers):
+    @staticmethod
+    def _reading(request):
+        return {
+            "prompt": request.url.params.get("prompt"),
+            "engine": request.url.params.get("engine"),
+            "checked_at": "2026-09-14T05:45:00Z",
+            "mentions": [
+                {
+                    "brand": "Vidora",
+                    "domain": "vidora.ai",
+                    "mentioned": "yes",
+                    "cited_url": "https://vidora.ai/",
+                    "rank": 1,
+                },
+                {
+                    "brand": "Clipwise",
+                    "domain": "clipwise.io",
+                    "mentioned": "no",
+                    "cited_url": "",
+                    "rank": 0,
+                },
+            ],
+            "next": None,
+        }
+
+    def _pairs(self):
+        doc = self._definitions()
+        return {
+            (prompt, engine) for prompt in doc["prompts"] for engine in doc["engines"]
+        }
+
+    async def test_it_reads_every_prompt_on_every_engine(self, capture, store):
+        seen = capture(self._reading)
+
+        await connector("ai_answers").pull(None, store)
+
+        assert {r.url.path for r in seen} == {"/v1/mentions"}
+        assert len(seen) == len(self._pairs())
+        assert {
+            (r.url.params.get("prompt"), r.url.params.get("engine")) for r in seen
+        } == self._pairs()
+
+    async def test_every_brand_row_carries_the_reading_it_came_from(
+        self, capture, store, stored
+    ):
+        capture(self._reading)
+
+        notes = await connector("ai_answers").pull(None, store)
+
+        assert notes is None
+        assert {s["source"] for s in stored} == {"ai_answers"}
+        assert {s["object_type"] for s in stored} == {"mentions"}
+        rows = self._payloads(stored, "mentions")
+        assert set(rows) == {
+            f"{prompt}|{engine}|{brand}|2026-09-14"
+            for prompt, engine in self._pairs()
+            for brand in ("Vidora", "Clipwise")
+        }
+        prompt, engine = sorted(self._pairs())[0]
+        row = rows[f"{prompt}|{engine}|Vidora|2026-09-14"]
+        assert row["_prompt"] == prompt
+        assert row["_engine"] == engine
+        assert row["_checked_on"] == "2026-09-14"
+        assert row["rank"] == 1
+
+    async def test_a_brand_that_was_not_named_is_still_a_row(
+        self, capture, store, stored
+    ):
+        capture(self._reading)
+
+        await connector("ai_answers").pull(None, store)
+
+        rows = self._payloads(stored, "mentions")
+        prompt, engine = sorted(self._pairs())[0]
+        row = rows[f"{prompt}|{engine}|Clipwise|2026-09-14"]
+        assert row["mentioned"] == "no"
+        assert row["cited_url"] == ""
+        assert row["rank"] == 0
+
+    async def test_a_mention_with_no_brand_is_counted_rather_than_stored(
+        self, capture, store, stored
+    ):
+        capture(
+            {
+                "prompt": "best ai ugc ad tool",
+                "engine": "chatgpt",
+                "checked_at": "2026-09-14T05:45:00Z",
+                "mentions": [{"domain": "vidora.ai", "mentioned": "yes", "rank": 1}],
+                "next": None,
+            }
+        )
+
+        notes = await connector("ai_answers").pull(None, store)
+
+        assert stored == []
+        assert notes == {"missing_id": len(self._pairs())}
+
+
+class TestCompetitorPagesScrapesEachCompetitor(_CompetitorWatchers):
+    PATHS = ("/", "/pricing")
+
+    @staticmethod
+    def _scrape(url):
+        return {
+            "success": True,
+            "data": {
+                "markdown": "# Pricing\n\nThree plans, no per-render fees.",
+                "metadata": {
+                    "title": f"Title for {url}",
+                    "description": "Plans and prices",
+                    "sourceURL": url,
+                    "url": url,
+                    "statusCode": 200,
+                },
+            },
+        }
+
+    def _body(self, request):
+        body = json.loads(request.content)
+        if request.url.path == "/v2/map":
+            return {
+                "success": True,
+                "links": [
+                    {"url": f"{body['url']}{path}", "title": path, "description": ""}
+                    for path in self.PATHS
+                ],
+            }
+        if request.url.path == "/v2/scrape":
+            return self._scrape(body["url"])
+        raise AssertionError(f"unexpected {request.method} {request.url.path}")
+
+    def _links(self):
+        return [
+            f"https://{domain}{path}"
+            for domain in self._domains()
+            for path in self.PATHS
+        ]
+
+    async def test_it_maps_each_site_then_scrapes_every_link_it_was_given(
+        self, capture, store
+    ):
+        seen = capture(self._body)
+
+        await connector("competitor_pages").pull(None, store)
+
+        module = connector("competitor_pages")
+        assert {r.method for r in seen} == {"POST"}
+        assert [r.url.path for r in seen] == ["/v2/map", "/v2/scrape", "/v2/scrape"] * (
+            len(self._domains())
+        )
+        maps = [json.loads(r.content) for r in seen if r.url.path == "/v2/map"]
+        assert maps == [
+            {
+                "url": f"https://{domain}",
+                "limit": module.MAP_LIMIT,
+                "includeSubdomains": False,
+            }
+            for domain in self._domains()
+        ]
+        scrapes = [json.loads(r.content) for r in seen if r.url.path == "/v2/scrape"]
+        assert scrapes == [
+            {"url": link, "formats": ["markdown"], "onlyMainContent": True}
+            for link in self._links()
+        ]
+
+    async def test_each_page_is_stored_as_it_arrived_stamped_with_when_and_whose(
+        self, capture, store, stored
+    ):
+        capture(self._body)
+
+        notes = await connector("competitor_pages").pull(None, store)
+
+        assert notes is None
+        assert {s["source"] for s in stored} == {"competitor_pages"}
+        assert {s["object_type"] for s in stored} == {"pages"}
+        rows = self._payloads(stored, "pages")
+        assert set(rows) == set(self._links())
+        domain = self._domains()[0]
+        url = f"https://{domain}/pricing"
+        assert rows[url] == {
+            **self._scrape(url)["data"],
+            "_fetched_at": clock.now().isoformat(),
+            "_competitor_ref": domain,
+        }
+
+    @pytest.mark.parametrize("host", ["www.", "app.", "get."])
+    async def test_a_page_on_any_host_under_the_crawl_carries_the_files_domain(
+        self, capture, store, stored, host
+    ):
+        def body(request):
+            if request.url.path == "/v2/map":
+                return self._body(request)
+            url = json.loads(request.content)["url"]
+            return self._scrape(url.replace("https://", f"https://{host}"))
+
+        capture(body)
+
+        await connector("competitor_pages").pull(None, store)
+
+        rows = self._payloads(stored, "pages")
+        for domain in self._domains():
+            assert rows[f"https://{host}{domain}/"]["_competitor_ref"] == domain
+
+    async def test_a_scrape_that_did_not_succeed_is_counted_not_stored(
+        self, capture, store, stored
+    ):
+        def body(request):
+            if request.url.path == "/v2/map":
+                return self._body(request)
+            if json.loads(request.content)["url"].endswith("/pricing"):
+                return {"success": False, "error": "Page failed to load"}
+            return {"success": True}
+
+        capture(body)
+
+        notes = await connector("competitor_pages").pull(None, store)
+
+        assert stored == []
+        assert notes == {"failed_scrapes": len(self._links())}
+
+    async def test_a_scrape_naming_no_source_url_is_counted_not_stored(
+        self, capture, store, stored
+    ):
+        def body(request):
+            if request.url.path == "/v2/map":
+                return self._body(request)
+            return {"success": True, "data": {"markdown": "x", "metadata": {}}}
+
+        capture(body)
+
+        notes = await connector("competitor_pages").pull(None, store)
+
+        assert stored == []
+        assert notes == {"missing_id": len(self._links())}
+
+    async def test_a_site_whose_map_has_no_links_is_scraped_no_further(
+        self, capture, store, stored
+    ):
+        seen = capture({"success": True, "links": []})
+
+        notes = await connector("competitor_pages").pull(None, store)
+
+        assert notes is None
+        assert stored == []
+        assert [r.url.path for r in seen] == ["/v2/map"] * len(self._domains())
+
+    def test_a_page_is_observed_when_it_was_fetched(self):
+        assert connector("competitor_pages").OBSERVED_AT == {"pages": "_fetched_at"}
+
+
+BRIGHTDATA_DATASET = "gd_lyy3tktm25m4avu764"
+
+
+class TestLinkedinPostsCollectsEachCompetitor(_CompetitorWatchers):
+    @pytest.fixture(autouse=True)
+    def waits(self, monkeypatch):
+        seen = []
+
+        async def _record(seconds):
+            seen.append(seconds)
+
+        monkeypatch.setattr(client, "_sleep", _record)
+        return seen
+
+    def _companies(self):
+        return {
+            str(spec["linkedin_url"]): str(spec["domain"])
+            for spec in self._definitions()["competitors"].values()
+        }
+
+    @staticmethod
+    def _slug(company_url):
+        return company_url.rstrip("/").rsplit("/", 1)[-1]
+
+    @classmethod
+    def _post(cls, company_url):
+        slug = cls._slug(company_url)
+        return {
+            "id": f"7241-{slug}",
+            "url": f"https://www.linkedin.com/posts/{slug}_activity-7241-{slug}",
+            "user_id": company_url,
+            "post_text": "Boring is a strategy.",
+            "date_posted": "2026-09-11T13:25:00.539Z",
+            "num_likes": 372,
+            "num_comments": 45,
+            "post_type": "post",
+            "account_type": "Organization",
+            "user_followers": 18400,
+            "hashtags": ["#ads"],
+            "repost": {},
+            "timestamp": "2026-09-15T19:12:08.000Z",
+        }
+
+    @staticmethod
+    def _dead_page(company_url):
+        return {
+            "timestamp": "2026-09-15T19:12:08.000Z",
+            "input": {"url": company_url},
+            "error": "Activities are not found",
+            "error_code": "dead_page",
+        }
+
+    def _vendor(self, statuses=("ready",), strip=(), dead=False, records=None):
+        companies: dict = {}
+        polls: dict = {}
+
+        def handler(request):
+            path = request.url.path
+            if path == "/datasets/v3/trigger":
+                company = json.loads(request.content)[0]["url"]
+                snapshot = f"s_{self._slug(company)}"
+                companies[snapshot] = company
+                return {"snapshot_id": snapshot}
+            snapshot = path.rsplit("/", 1)[-1]
+            if path == f"/datasets/v3/progress/{snapshot}" and snapshot in companies:
+                seen = polls.get(snapshot, 0)
+                polls[snapshot] = seen + 1
+                return {"status": statuses[min(seen, len(statuses) - 1)]}
+            if path == f"/datasets/v3/snapshot/{snapshot}" and snapshot in companies:
+                company = companies[snapshot]
+                if records is not None:
+                    return records(company)
+                post = self._post(company)
+                for key in strip:
+                    post.pop(key)
+                return [self._dead_page(company)] if dead else [post]
+            raise AssertionError(f"unexpected {request.method} {path}")
+
+        return handler
+
+    async def test_it_triggers_a_discovery_for_each_company_url(self, capture, store):
+        seen = capture(self._vendor())
+
+        await connector("linkedin_posts").pull(None, store)
+
+        triggers = [r for r in seen if r.url.path == "/datasets/v3/trigger"]
+        assert {r.method for r in triggers} == {"POST"}
+        assert [json.loads(r.content) for r in triggers] == [
+            [{"url": company}] for company in self._companies()
+        ]
+        module = connector("linkedin_posts")
+        for request in triggers:
+            assert dict(request.url.params) == {
+                "dataset_id": BRIGHTDATA_DATASET,
+                "type": "discover_new",
+                "discover_by": "company_url",
+                "format": "json",
+                "include_errors": "true",
+                "limit_per_input": str(module.POSTS_PER_COMPANY),
+            }
+
+    async def test_it_polls_until_the_snapshot_is_ready_then_reads_it(
+        self, capture, store
+    ):
+        seen = capture(self._vendor(("running", "ready")))
+
+        await connector("linkedin_posts").pull(None, store)
+
+        expected = []
+        for company in self._companies():
+            snapshot = f"s_{self._slug(company)}"
+            expected += [
+                ("POST", "/datasets/v3/trigger"),
+                ("GET", f"/datasets/v3/progress/{snapshot}"),
+                ("GET", f"/datasets/v3/progress/{snapshot}"),
+                ("GET", f"/datasets/v3/snapshot/{snapshot}"),
+            ]
+        assert [(r.method, r.url.path) for r in seen] == expected
+        reads = [r for r in seen if "/snapshot/" in r.url.path]
+        assert all(dict(r.url.params) == {"format": "json"} for r in reads)
+
+    async def test_it_waits_between_polls_but_not_before_the_first(
+        self, capture, store, waits
+    ):
+        capture(self._vendor(("starting", "running", "ready")))
+
+        await connector("linkedin_posts").pull(None, store)
+
+        assert len(waits) == 2 * len(self._companies())
+        assert all(seconds > 0 for seconds in waits)
+
+    async def test_a_snapshot_ready_at_once_is_read_without_waiting(
+        self, capture, store, waits
+    ):
+        capture(self._vendor())
+
+        await connector("linkedin_posts").pull(None, store)
+
+        assert waits == []
+
+    async def test_each_post_is_stored_as_it_arrived_under_the_company_asked_for(
+        self, capture, store, stored
+    ):
+        capture(self._vendor())
+
+        notes = await connector("linkedin_posts").pull(None, store)
+
+        assert notes is None
+        assert {s["source"] for s in stored} == {"linkedin_posts"}
+        assert {s["object_type"] for s in stored} == {"posts"}
+        expected = {}
+        for company, domain in self._companies().items():
+            post = self._post(company)
+            expected[post["id"]] = {**post, "_competitor_ref": domain}
+        assert self._payloads(stored, "posts") == expected
+
+    async def test_a_post_with_no_id_is_stored_under_its_url(
+        self, capture, store, stored
+    ):
+        capture(self._vendor(strip=("id",)))
+
+        notes = await connector("linkedin_posts").pull(None, store)
+
+        assert notes is None
+        assert set(self._payloads(stored, "posts")) == {
+            self._post(company)["url"] for company in self._companies()
+        }
+
+    async def test_a_post_with_neither_id_nor_url_is_counted_not_stored(
+        self, capture, store, stored
+    ):
+        capture(self._vendor(strip=("id", "url")))
+
+        notes = await connector("linkedin_posts").pull(None, store)
+
+        assert stored == []
+        assert notes == {"missing_id": len(self._companies())}
+
+    async def test_a_company_page_the_vendor_could_not_read_is_counted_not_stored(
+        self, capture, store, stored
+    ):
+        capture(self._vendor(dead=True))
+
+        notes = await connector("linkedin_posts").pull(None, store)
+
+        assert stored == []
+        assert notes == {"dead_pages": len(self._companies())}
+
+    async def test_a_dead_page_is_not_a_post_missing_its_id(
+        self, capture, store, stored
+    ):
+        def records(company):
+            orphan = self._post(company)
+            orphan.pop("id")
+            orphan.pop("url")
+            return [self._dead_page(company), orphan, self._post(company)]
+
+        capture(self._vendor(records=records))
+
+        notes = await connector("linkedin_posts").pull(None, store)
+
+        companies = len(self._companies())
+        assert notes == {"dead_pages": companies, "missing_id": companies}
+        assert set(self._payloads(stored, "posts")) == {
+            self._post(company)["id"] for company in self._companies()
+        }
+
+    def test_linkedin_posts_read_no_share_count(self):
+        labels = {
+            line.key: line.label
+            for line in mappings.load()
+            if line.source == "linkedin_posts" and line.object_type == "posts"
+        }
+        assert labels["linkedin_posts.posts.num_likes"] == "likes"
+        assert "shares" not in labels.values()
+        assert not [key for key in labels if key.endswith(".num_shares")]
+
+    async def test_a_snapshot_that_failed_leaves_a_note_and_stores_nothing(
+        self, capture, store, stored
+    ):
+        seen = capture(self._vendor(("failed",)))
+
+        notes = await connector("linkedin_posts").pull(None, store)
+
+        assert stored == []
+        assert notes == {"failed_snapshots": len(self._companies())}
+        assert [r for r in seen if "/snapshot/" in r.url.path] == []
+        polls = [r for r in seen if "/progress/" in r.url.path]
+        assert len(polls) == len(self._companies())
+
+    async def test_a_snapshot_never_ready_is_given_up_after_the_last_poll(
+        self, capture, store, stored
+    ):
+        seen = capture(self._vendor(("running",)))
+
+        notes = await connector("linkedin_posts").pull(None, store)
+
+        module = connector("linkedin_posts")
+        assert stored == []
+        assert notes == {"unfinished_snapshots": len(self._companies())}
+        assert [r for r in seen if "/snapshot/" in r.url.path] == []
+        polls = [r for r in seen if "/progress/" in r.url.path]
+        assert len(polls) == module.MAX_POLLS * len(self._companies())
+
+    def test_a_post_is_observed_when_it_was_published(self):
+        assert connector("linkedin_posts").OBSERVED_AT == {"posts": "date_posted"}
+
+
+class TestCompetitorCredentials:
+    @pytest.mark.parametrize(
+        "source,prefix",
+        [
+            ("serp", "/serp"),
+            ("ai_answers", "/answers"),
+            ("competitor_pages", "/pages"),
+            ("linkedin_posts", "/social-scrape"),
+        ],
+    )
+    def test_each_watcher_reaches_its_own_prefix(self, source, prefix):
+        assert creds.credentials_for(source).base_url.endswith(prefix)
+
+    def test_the_ranking_key_travels_as_a_query_parameter(self):
+        assert creds.credentials_for("serp").params == {"api_key": "mock_serpapi_key"}
+
+    @pytest.mark.parametrize(
+        "source,token",
+        [
+            ("ai_answers", "mock_ai_answers_token"),
+            ("competitor_pages", "mock_competitor_pages_token"),
+            ("linkedin_posts", "mock_linkedin_posts_token"),
+        ],
+    )
+    def test_the_scrapers_carry_a_bearer_token(self, source, token):
+        assert creds.credentials_for(source).headers["Authorization"] == (
+            f"Bearer {token}"
+        )
+
+
+class TestTheWatchersAreCatalogued:
+    @pytest.mark.parametrize(
+        "source", ["serp", "ai_answers", "competitor_pages", "linkedin_posts"]
+    )
+    def test_each_watcher_sits_with_the_ad_libraries(self, source):
+        row = catalog.entry(source)
+        assert row["category"] == "Competitors"
+        assert row["label"] != source
+        assert row["unlocks"]
 
 
 TWILIO_ACCOUNT = "AC-account-test-0000"

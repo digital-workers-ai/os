@@ -1,0 +1,36 @@
+us:
+  name: Digital Workers
+  domain: hiredigitalworkers.com
+competitors:
+  vidora:
+    name: Vidora
+    domain: vidora.ai
+    meta_page_id: "204815000001"
+    google_advertiser_id: AR11111111111111111111
+    linkedin_url: https://www.linkedin.com/company/vidora
+  clipwise:
+    name: Clipwise
+    domain: clipwise.io
+    meta_page_id: "204815000002"
+    google_advertiser_id: AR22222222222222222222
+    linkedin_url: https://www.linkedin.com/company/clipwise
+  avatarly:
+    name: Avatarly
+    domain: avatarly.com
+    meta_page_id: "204815000003"
+    google_advertiser_id: AR33333333333333333333
+    linkedin_url: https://www.linkedin.com/company/avatarly
+keywords:
+  - ai ugc ads
+  - ugc video tool
+  - ai video ads
+  - ai ads without a studio
+prompts:
+  - best ai ugc ad tool
+  - ugc ads without creators
+  - how do i make video ads with ai
+engines:
+  - chatgpt
+  - perplexity
+  - gemini
+  - aio  # Google AI Overviews, the answer Google shows above its results

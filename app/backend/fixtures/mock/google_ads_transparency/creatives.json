@@ -1,0 +1,87 @@
+[
+  {
+    "payload": {
+      "ad_creative_id": "CR30410000000000000004",
+      "advertiser": "Vidora",
+      "advertiser_id": "AR11111111111111111111",
+      "details_link": "https://adstransparency.google.com/advertiser/AR11111111111111111111/creative/CR30410000000000000004?region=anywhere",
+      "first_shown": 1784678400,
+      "format": "text",
+      "height": 250,
+      "last_shown": 1788393600,
+      "serpapi_details_link": "https://serpapi.com/search.json?engine=google_ads_transparency_center_details&advertiser_id=AR11111111111111111111&creative_id=CR30410000000000000004",
+      "target_domain": "vidora.ai",
+      "total_days_shown": 44,
+      "width": 300
+    },
+    "source_id": "CR30410000000000000004"
+  },
+  {
+    "payload": {
+      "ad_creative_id": "CR30410000000000000005",
+      "advertiser": "Vidora",
+      "advertiser_id": "AR11111111111111111111",
+      "details_link": "https://adstransparency.google.com/advertiser/AR11111111111111111111/creative/CR30410000000000000005?region=anywhere",
+      "first_shown": 1785888000,
+      "format": "video",
+      "height": 720,
+      "last_shown": 1788393600,
+      "serpapi_details_link": "https://serpapi.com/search.json?engine=google_ads_transparency_center_details&advertiser_id=AR11111111111111111111&creative_id=CR30410000000000000005",
+      "target_domain": "vidora.ai",
+      "total_days_shown": 30,
+      "width": 1280
+    },
+    "source_id": "CR30410000000000000005"
+  },
+  {
+    "payload": {
+      "ad_creative_id": "CR30410000000000000008",
+      "advertiser": "Clipwise",
+      "advertiser_id": "AR22222222222222222222",
+      "details_link": "https://adstransparency.google.com/advertiser/AR22222222222222222222/creative/CR30410000000000000008?region=anywhere",
+      "first_shown": 1784073600,
+      "format": "text",
+      "height": 250,
+      "last_shown": 1786752000,
+      "serpapi_details_link": "https://serpapi.com/search.json?engine=google_ads_transparency_center_details&advertiser_id=AR22222222222222222222&creative_id=CR30410000000000000008",
+      "target_domain": "clipwise.io",
+      "total_days_shown": 32,
+      "width": 300
+    },
+    "source_id": "CR30410000000000000008"
+  },
+  {
+    "payload": {
+      "ad_creative_id": "CR30410000000000000009",
+      "advertiser": "Clipwise",
+      "advertiser_id": "AR22222222222222222222",
+      "details_link": "https://adstransparency.google.com/advertiser/AR22222222222222222222/creative/CR30410000000000000009?region=anywhere",
+      "first_shown": 1787788800,
+      "format": "image",
+      "height": 628,
+      "image": "https://tpc.googlesyndication.com/archive/simgad/30410000000000000009",
+      "last_shown": 1788393600,
+      "serpapi_details_link": "https://serpapi.com/search.json?engine=google_ads_transparency_center_details&advertiser_id=AR22222222222222222222&creative_id=CR30410000000000000009",
+      "total_days_shown": 8,
+      "width": 1200
+    },
+    "source_id": "CR30410000000000000009"
+  },
+  {
+    "payload": {
+      "ad_creative_id": "CR30410000000000000012",
+      "advertiser": "Avatarly",
+      "advertiser_id": "AR33333333333333333333",
+      "details_link": "https://adstransparency.google.com/advertiser/AR33333333333333333333/creative/CR30410000000000000012?region=anywhere",
+      "first_shown": 1788220800,
+      "format": "image",
+      "height": 628,
+      "image": "https://tpc.googlesyndication.com/archive/simgad/30410000000000000012",
+      "last_shown": 1788393600,
+      "serpapi_details_link": "https://serpapi.com/search.json?engine=google_ads_transparency_center_details&advertiser_id=AR33333333333333333333&creative_id=CR30410000000000000012",
+      "total_days_shown": 3,
+      "width": 1200
+    },
+    "source_id": "CR30410000000000000012"
+  }
+]

@@ -3,6 +3,7 @@ import yaml
 from app.caches import BACKEND_DIR
 from app.engine import (
     candidates,
+    competitors,
     dashboards,
     derived,
     goals,
@@ -46,12 +47,12 @@ def source_status(lines=None) -> dict:
     status = {}
     for source in sorted(registry.discover()):
         entities = entities_by_source.get(source, set())
-        if source in replayed:
-            label = "provider-validated"
-        elif entities:
-            label = "mock-validated"
-        else:
+        if not entities:
             label = "unmapped"
+        elif source in replayed:
+            label = "provider-validated"
+        else:
+            label = "mock-validated"
         status[source] = {"status": label, "entities": sorted(entities)}
     return status
 
@@ -100,6 +101,7 @@ def run(
     enrichment_paths=None,
     derived_path=None,
     dashboards_path=None,
+    competitors_path=None,
 ) -> list[str]:
     problems: list[str] = []
 
@@ -120,6 +122,7 @@ def run(
     modules = registry.discover()
     connectors = set(modules)
     problems += derived.check(onto, derived_path)
+    problems += competitors.check(competitors_path)
     attrs_of = derived.attrs_of(onto, derived_path)
 
     for source in sorted({line.source for line in lines}):

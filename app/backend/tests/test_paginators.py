@@ -579,3 +579,33 @@ class TestBatchFourParamsAreCarried:
         )
         assert nxt["updated_since"] == "2026-01-01"
         assert nxt["limit"] == 50
+
+
+class TestSerpapiToken:
+    def test_the_mode_is_registered(self):
+        assert isinstance(pag.resolve("token_serpapi"), pag.SerpapiToken)
+
+    def test_the_ad_creatives_list_is_extracted(self):
+        assert paginator("token_serpapi").extract(
+            {"ad_creatives": [{"ad_id": "CR1"}]}
+        ) == [{"ad_id": "CR1"}]
+
+    def test_a_next_page_token_advances_and_carries_the_query(self):
+        body = {"ad_creatives": [], "serpapi_pagination": {"next_page_token": "t1"}}
+        assert paginator("token_serpapi").next_params(
+            body, {"advertiser_id": "AR1"}
+        ) == {"advertiser_id": "AR1", "next_page_token": "t1"}
+
+    @pytest.mark.parametrize(
+        "body",
+        [
+            {"ad_creatives": [], "serpapi_pagination": {"next_page_token": None}},
+            {"ad_creatives": [], "serpapi_pagination": {}},
+            {"ad_creatives": []},
+        ],
+    )
+    def test_the_walk_ends(self, body):
+        assert (
+            paginator("token_serpapi").next_params(body, {"advertiser_id": "AR1"})
+            is None
+        )

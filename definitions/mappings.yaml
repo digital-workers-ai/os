@@ -271,6 +271,26 @@ social_report:
   pinterest.account_analytics._engaged: engaged
   pinterest.account_analytics._reach: reach
 
+competitor:
+  meta_ad_library.pages.website: domain
+  meta_ad_library.pages.name: name
+  google_ads_transparency.advertisers.domain: domain
+  google_ads_transparency.advertisers.name: name
+
+competitor_ad:
+  meta_ad_library.ads._name: name
+  meta_ad_library.ads._platform: platform
+  meta_ad_library.ads.page_id: competitor_ref
+  meta_ad_library.ads.ad_delivery_start_time: first_seen
+  meta_ad_library.ads.ad_delivery_stop_time: last_seen
+  meta_ad_library.ads.ad_snapshot_url: url
+  google_ads_transparency.creatives._platform: platform
+  google_ads_transparency.creatives.format: category
+  google_ads_transparency.creatives.advertiser_id: competitor_ref
+  google_ads_transparency.creatives._first_seen: first_seen
+  google_ads_transparency.creatives._last_seen: last_seen
+  google_ads_transparency.creatives.details_link: url
+
 traffic_report:
   google_analytics.report_rows._report_date: report_date
   google_analytics.report_rows._channel: channel
@@ -301,3 +321,38 @@ audience:
   mailchimp.lists.stats.member_count: members
   customerio.segments.name: name
   customerio.segments.count: members
+
+ranking:
+  serp.organic_results._keyword: keyword
+  serp.organic_results._engine: engine
+  serp.organic_results._domain: domain
+  serp.organic_results.position: position
+  serp.organic_results.link: url
+  serp.organic_results._checked_on: checked_on
+
+ai_mention:
+  ai_answers.mentions._prompt: prompt
+  ai_answers.mentions.engine: engine
+  ai_answers.mentions.brand: brand
+  ai_answers.mentions.mentioned: mentioned
+  ai_answers.mentions.cited_url: cited_url
+  ai_answers.mentions.rank: rank
+  ai_answers.mentions._checked_on: checked_on
+
+competitor_page:
+  competitor_pages.pages.metadata.sourceURL: url
+  competitor_pages.pages.metadata.title: name
+  competitor_pages.pages._competitor_ref: competitor_ref
+  competitor_pages.pages._body_sha: body_sha
+  competitor_pages.pages._word_count: word_count
+  competitor_pages.pages._fetched_at: fetched_on
+
+competitor_post:
+  linkedin_posts.posts.post_text: name
+  linkedin_posts.posts.post_type: category
+  linkedin_posts.posts._platform: platform
+  linkedin_posts.posts._competitor_ref: competitor_ref
+  linkedin_posts.posts.date_posted: posted_at
+  linkedin_posts.posts.num_likes: likes
+  linkedin_posts.posts.num_comments: comments
+  linkedin_posts.posts.url: url

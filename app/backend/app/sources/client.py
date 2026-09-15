@@ -238,13 +238,18 @@ class SourceClient:
             ) from e
         return "\n".join(m.decode() for m in members)
 
-    async def post(self, path: str, *, json: dict | None = None):
+    async def post(
+        self,
+        path: str,
+        *,
+        params: dict | None = None,
+        json: dict | list | None = None,
+    ):
         base = self.origin if _transport is not None else self.base_url
         url = f"{base}{path}"
+        merged = {**self.default_params, **(params or {})}
         async with self._client() as client:
-            r = await self._request(
-                client, "POST", url, params=self.default_params, json=json
-            )
+            r = await self._request(client, "POST", url, params=merged, json=json)
             self.pages_read += 1
             return self._safe_json(r)
 

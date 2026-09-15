@@ -567,3 +567,26 @@ class TestDashboardsAreChecked:
         problems = files.problems()
         assert len(problems) == 1, problems
         assert "dashboards.yaml" in problems[0]
+
+
+def _competitors_file(root):
+    path = root / "competitors.yaml"
+    path.write_text(
+        yaml.safe_dump(
+            {
+                "us": {"name": "Digital Workers", "domain": "hiredigitalworkers.com"},
+                "competitors": {"acme": {"meta_page_id": "100"}},
+                "keywords": ["ai ugc ads"],
+                "prompts": ["best ai ugc ad tool"],
+                "engines": ["chatgpt"],
+            },
+            sort_keys=False,
+        )
+    )
+    return path
+
+
+class TestTheCompetitorsFileIsChecked:
+    def test_the_build_checks_read_a_competitors_path(self, files):
+        problems = files.problems(competitors_path=_competitors_file(files.root))
+        assert any("acme" in p and "domain" in p for p in problems), problems

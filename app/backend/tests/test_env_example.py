@@ -8,6 +8,14 @@ from app.sources import creds
 ENV_EXAMPLE = BACKEND_DIR.parent / ".env.example"
 ASSIGNMENT = re.compile(r"^([A-Z][A-Z0-9_]*)=(\S*)$")
 STAND_INS_ONLY = "STAND_INS_ONLY"
+COMPETITOR_CREDENTIALS = (
+    "META_AD_LIBRARY_ACCESS_TOKEN",
+    "SERPAPI_API_KEY",
+    "FIRECRAWL_API_KEY",
+    "BRIGHTDATA_API_KEY",
+)
+SERPAPI_KEY = "SERPAPI_API_KEY"
+SERPAPI_SOURCES = ("google_ads_transparency", "serp")
 
 
 def credential_names() -> list[str]:
@@ -41,6 +49,16 @@ def documented() -> list[tuple[int, str, str]]:
 
 def documented_keys() -> list[str]:
     return [key for _number, key, _value in documented()]
+
+
+def heading_above(key: str) -> str:
+    heading = ""
+    for line in ENV_EXAMPLE.read_text().splitlines():
+        if line.startswith("#"):
+            heading = line
+        elif line.startswith(f"{key}="):
+            return heading
+    return ""
 
 
 class TestEveryVariableASourceReadsIsDocumented:
@@ -126,3 +144,31 @@ class TestTheFileParsesAsAnEnvFile:
             f"app/.env.example writes {', '.join(twice)} more than once. The last "
             "line silently shadows the ones above it, so one of them is a lie"
         )
+
+
+class TestTheCompetitorSourcesAreDocumented:
+    @pytest.mark.parametrize("name", COMPETITOR_CREDENTIALS)
+    def test_the_variable_is_named(self, name):
+        assert name in documented_keys(), (
+            f"app/.env.example names no {name}, so the competitor source that "
+            "reads it cannot be turned on"
+        )
+
+    @pytest.mark.parametrize("source", SERPAPI_SOURCES)
+    def test_the_serpapi_key_is_the_one_variable_each_serpapi_source_reads(
+        self, source
+    ):
+        assert creds._REAL[source][1] == (SERPAPI_KEY,)
+
+    def test_a_variable_two_sources_share_is_written_once_and_counted_once(self):
+        assert documented_keys().count(SERPAPI_KEY) == 1
+        assert credential_names().count(SERPAPI_KEY) == 1
+
+    def test_the_shared_keys_heading_names_every_source_that_reads_it(self):
+        heading = heading_above(SERPAPI_KEY)
+        for source in SERPAPI_SOURCES:
+            assert source in heading, (
+                f"the heading above {SERPAPI_KEY} is {heading!r}; a developer "
+                f"reading it cannot tell that {source} is one of the sources it "
+                "unlocks"
+            )

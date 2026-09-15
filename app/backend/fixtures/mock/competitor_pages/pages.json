@@ -1,0 +1,317 @@
+[
+  {
+    "payload": {
+      "_competitor_ref": "vidora.ai",
+      "_fetched_at": "2026-09-15T20:03:04.263802+00:00",
+      "markdown": "# Vidora \u2014 video ads from a product URL\n\nPaste a product URL. Vidora reads the page, writes three scripts in your voice, picks a presenter and renders a captioned ad for each one. The first cut is ready in about four minutes, before you have finished writing the brief you were going to send a creator.\n\nMost teams ship two ads a month because every ad costs a brief, a contract, a shoot and a round of notes. Vidora removes all four. Thirty ads in an afternoon is not a stunt \u2014 it is what happens when the only input is a link you already have.\n\nEvery ad comes out on brand. Upload your fonts, your colours and two ads you already like, and Vidora holds the look across every render: a hook in the first second, captions burned in, a cut every three seconds, and the aspect ratios the feed, the reel and the story each want.\n\nNo shoot days, no usage rights, no reshoot fees. If a hook does not land, change one line and render it again. The second version costs what the first one did, which is nothing.\n\nTeams at nine hundred brands ship with Vidora. Start free, render three ads, and keep them whether or not you stay.",
+      "metadata": {
+        "description": "Paste a product URL.",
+        "sourceURL": "https://vidora.ai/",
+        "statusCode": 200,
+        "title": "Vidora \u2014 video ads from a product URL",
+        "url": "https://vidora.ai/"
+      }
+    },
+    "source_id": "https://vidora.ai/"
+  },
+  {
+    "payload": {
+      "_competitor_ref": "vidora.ai",
+      "_fetched_at": "2026-09-15T20:03:04.270280+00:00",
+      "markdown": "# Pricing \u2014 Vidora\n\nThree plans, no per-render fees. Every plan includes the full presenter library, brand kits, captions in twelve languages and unlimited revisions. You are charged for the seats you use, never for the ads you make.\n\nFree \u2014 three ads a month, 720p, a Vidora watermark. Enough to hear whether the scripts sound like you.\n\nStudio \u2014 $99 a month. Unlimited ads, 1080p, no watermark, three brand kits and one seat. This is the plan most teams stay on.\n\nScale \u2014 $299 a month. Everything in Studio, plus five seats, an approval step before anything renders, shared brand kits and priority rendering in campaign weeks.\n\nAnnual billing saves two months. Agencies running more than ten brands should talk to us instead: we price by brand rather than by seat, and the first brand is free for a month.",
+      "metadata": {
+        "description": "Three plans, no per-render fees.",
+        "sourceURL": "https://vidora.ai/pricing",
+        "statusCode": 200,
+        "title": "Pricing \u2014 Vidora",
+        "url": "https://vidora.ai/pricing"
+      }
+    },
+    "source_id": "https://vidora.ai/pricing"
+  },
+  {
+    "payload": {
+      "_competitor_ref": "vidora.ai",
+      "_fetched_at": "2026-09-15T20:03:04.278144+00:00",
+      "markdown": "# How Vidora works\n\nStep one, the read. Vidora fetches your product page and pulls out what an ad actually needs: the promise, the price, the objection the copy is already answering, and the three details a stranger would not guess. You can correct any of it before a script is written.\n\nStep two, the scripts. Three scripts come back, each built on a different angle \u2014 the contrast, the number, the objection. Every line is under fourteen words because presenters read long lines badly and viewers read them worse.\n\nStep three, the render. Pick a presenter and a look. Vidora voices the script, cuts b-roll from your product page against it, burns in captions and exports 9:16, 1:1 and 4:5 in one pass. A thirty-second ad takes about four minutes.\n\nStep four, the loop. Every ad keeps its script, so you can change one hook and re-render without touching the rest. Teams who ship weekly tend to keep the winner, swap the first three seconds, and let the two versions run against each other.\n\nNothing you upload trains a shared model. Your brand kit, your footage and your scripts stay inside your workspace, and you can export or delete all of it from one screen.",
+      "metadata": {
+        "description": "Step one, the read.",
+        "sourceURL": "https://vidora.ai/how-it-works",
+        "statusCode": 200,
+        "title": "How Vidora works",
+        "url": "https://vidora.ai/how-it-works"
+      }
+    },
+    "source_id": "https://vidora.ai/how-it-works"
+  },
+  {
+    "payload": {
+      "_competitor_ref": "vidora.ai",
+      "_fetched_at": "2026-09-15T20:03:04.286117+00:00",
+      "markdown": "# Blog \u2014 Vidora\n\nNotes on making video ads faster than the brief that used to describe them.\n\nOne URL, thirty ads: what we learned shipping a month of creative in an afternoon \u2014 8 September 2026.\n\nWhat a creator brief actually costs \u2014 21 August 2026.\n\nCaptions are not an accessibility feature, they are the sound \u2014 4 August 2026.\n\nThe first second is the whole ad \u2014 17 July 2026.",
+      "metadata": {
+        "description": "Notes on making video ads faster than the brief that used to describe them.",
+        "sourceURL": "https://vidora.ai/blog",
+        "statusCode": 200,
+        "title": "Blog \u2014 Vidora",
+        "url": "https://vidora.ai/blog"
+      }
+    },
+    "source_id": "https://vidora.ai/blog"
+  },
+  {
+    "payload": {
+      "_competitor_ref": "vidora.ai",
+      "_fetched_at": "2026-09-15T20:03:04.292570+00:00",
+      "markdown": "# One URL, thirty ads \u2014 Vidora\n\nWe gave one product page to Vidora and asked for thirty ads in an afternoon. Not thirty renders of the same script \u2014 thirty different ads, across six angles, five of each. Here is what came back and what it taught us about volume.\n\nThe first surprise was how quickly the angles ran out. Six angles is what a product page supports honestly: the contrast, the number, the objection, the demonstration, the testimonial and the question. Past that, scripts start inventing claims the page never made, so we stopped at six and went wide inside each.\n\nThe second surprise was that the winners were boring. The ad that carried the week opened on the price, held on it for a second and a half, and then explained it. No hook gimmick, no stitched reaction. It beat the clever ones by a factor of three on cost per purchase.\n\nThe third was that twenty-eight of the thirty were fine and forgettable. That is the point. When one ad costs a shoot, a forgettable ad is a loss. When one ad costs four minutes, a forgettable ad is a data point, and you need thirty data points to find the two that work.\n\nWhat we would do differently: write the six angles first, by hand, before opening the tool. The model is good at variations and bad at deciding what is worth varying. Bring it a decision and it will make you thirty versions of it by dinner.\n\nWe are publishing the full set, including the ones that flopped, in the swipe file linked below.",
+      "metadata": {
+        "description": "We gave one product page to Vidora and asked for thirty ads in an afternoon.",
+        "sourceURL": "https://vidora.ai/blog/one-url-thirty-ads",
+        "statusCode": 200,
+        "title": "One URL, thirty ads \u2014 Vidora",
+        "url": "https://vidora.ai/blog/one-url-thirty-ads"
+      }
+    },
+    "source_id": "https://vidora.ai/blog/one-url-thirty-ads"
+  },
+  {
+    "payload": {
+      "_competitor_ref": "vidora.ai",
+      "_fetched_at": "2026-09-15T20:03:04.302282+00:00",
+      "markdown": "# What a creator brief actually costs \u2014 Vidora\n\nA creator brief looks like it costs whatever you pay the creator. It does not. We tracked eleven briefs across four brands last quarter and counted everything the brief touched.\n\nThe fee is the small part. The median creator fee was $340. The median total was $1,180, and the gap is made of things nobody invoices for: forty minutes writing the brief, two rounds of notes, the licensing question somebody has to answer, and the eleven days between sending it and having a file.\n\nEleven days is the real number. In eleven days a competitor ships four ads, your seasonal angle expires, and whoever wrote the brief has moved on to the next thing and no longer remembers what they wanted.\n\nThe reshoot is where it gets expensive. One brief in three came back needing a change \u2014 a line, a lighting problem, a product held the wrong way round. A reshoot costs the fee again and another nine days, so most teams run the flawed version instead, which is how a brand ends up with ads nobody is proud of.\n\nNone of this is an argument against creators. It is an argument against the brief as the only way to get a video. Use creators for the ads that need a human face and a real opinion, and stop spending eleven days on the ones that need a product, a price and a caption.",
+      "metadata": {
+        "description": "A creator brief looks like it costs whatever you pay the creator.",
+        "sourceURL": "https://vidora.ai/blog/what-a-creator-brief-costs",
+        "statusCode": 200,
+        "title": "What a creator brief actually costs \u2014 Vidora",
+        "url": "https://vidora.ai/blog/what-a-creator-brief-costs"
+      }
+    },
+    "source_id": "https://vidora.ai/blog/what-a-creator-brief-costs"
+  },
+  {
+    "payload": {
+      "_competitor_ref": "vidora.ai",
+      "_fetched_at": "2026-09-15T20:03:04.308151+00:00",
+      "markdown": "# About Vidora\n\nVidora was started in 2024 by two people who had spent four years running paid social at consumer brands and had the same argument every Monday: the creative was the bottleneck, and everyone kept pretending it was the budget.\n\nWe are eleven people, remote across five countries, and we are profitable. There is no growth team; the product is the growth team.\n\nWhat we believe: an ad is a script with a face on it, volume beats polish until you know what works, and any tool that makes you wait for a render is a tool you will stop opening.\n\nWhat we will not do: we do not clone real people without written consent, we do not train on customer footage, and we do not sell the ads you make back to anyone as templates.",
+      "metadata": {
+        "description": "Vidora was started in 2024 by two people who had spent four years running paid social at consumer brands and had the same argument every Monday: the creative was the bottleneck, and everyone kept pretending it was the budget.",
+        "sourceURL": "https://vidora.ai/about",
+        "statusCode": 200,
+        "title": "About Vidora",
+        "url": "https://vidora.ai/about"
+      }
+    },
+    "source_id": "https://vidora.ai/about"
+  },
+  {
+    "payload": {
+      "_competitor_ref": "clipwise.io",
+      "_fetched_at": "2026-09-15T20:03:04.320081+00:00",
+      "markdown": "# Clipwise \u2014 your footage, cut for the feed\n\nClipwise is not another avatar tool. It takes footage you already own \u2014 the shoot from last spring, the customer clip, the phone video from the warehouse \u2014 and cuts it into hook-first ads that look shot for the feed rather than borrowed from a brochure.\n\nUpload an hour of footage and Clipwise watches it: it finds the sentences that work as hooks, the moments where the product is visible, the three seconds before someone smiles. Then it builds ads out of them, with captions that carry the sound off and a cut every three seconds.\n\nYou keep editorial control the whole way. Every cut Clipwise proposes is a timeline you can open, drag and overrule. Nothing renders until you say so, and nothing is generated that was not in your footage to begin with.\n\nOne flat fee, unlimited renders. No per-minute pricing, no seat limits, no credits that expire at the end of the month.\n\nBrands using Clipwise ship a median of nineteen ads a month from footage they had already paid for.",
+      "metadata": {
+        "description": "Clipwise is not another avatar tool.",
+        "sourceURL": "https://clipwise.io/",
+        "statusCode": 200,
+        "title": "Clipwise \u2014 your footage, cut for the feed",
+        "url": "https://clipwise.io/"
+      }
+    },
+    "source_id": "https://clipwise.io/"
+  },
+  {
+    "payload": {
+      "_competitor_ref": "clipwise.io",
+      "_fetched_at": "2026-09-15T20:03:04.325692+00:00",
+      "markdown": "# Pricing \u2014 Clipwise\n\nOne plan. $149 a month, unlimited video ads, unlimited renders, unlimited revisions, every seat on your team included.\n\nWhat is in it: unlimited uploads, automatic transcription, hook detection, caption styles that match your brand, exports at 9:16, 1:1, 4:5 and 16:9, and a shared library everyone on the team can pull from.\n\nWhat is not in it: per-render fees, per-seat fees, storage tiers, watermarks, and an annual contract. Cancel in one click and your exports stay yours.\n\nThere is a fourteen-day trial with the full product and no card. If you cannot ship an ad you would actually run in fourteen days, we have not earned $149.\n\nAgencies: the same $149 covers one brand. Ten brands or more, get in touch and we will quote a workspace.",
+      "metadata": {
+        "description": "One plan.",
+        "sourceURL": "https://clipwise.io/pricing",
+        "statusCode": 200,
+        "title": "Pricing \u2014 Clipwise",
+        "url": "https://clipwise.io/pricing"
+      }
+    },
+    "source_id": "https://clipwise.io/pricing"
+  },
+  {
+    "payload": {
+      "_competitor_ref": "clipwise.io",
+      "_fetched_at": "2026-09-15T20:03:04.331572+00:00",
+      "markdown": "# How Clipwise works\n\nUpload. Drag in anything: a shoot, a Zoom recording, a folder of phone clips. Clipwise transcribes the lot and indexes every frame so you can search footage by what was said or what is on screen.\n\nFind the hooks. The transcript is scored line by line for what tends to stop a scroll: a number, a contradiction, a named objection, a promise in under nine words. The ten strongest lines are surfaced with the clip attached.\n\nCut. Pick a hook and Clipwise assembles the rest \u2014 b-roll from your own footage under the voice, a cut every three seconds, captions in your brand's type, and the product on screen inside the first two seconds.\n\nReview and ship. Open the timeline, overrule anything, then export every aspect ratio in one pass. The average brand goes from an hour of raw footage to six finished ads in under twenty minutes.\n\nWhat Clipwise will never do: generate a face, clone a voice, or put words in a real person's mouth. If it is in your ad, somebody said it on camera.",
+      "metadata": {
+        "description": "Upload.",
+        "sourceURL": "https://clipwise.io/how-it-works",
+        "statusCode": 200,
+        "title": "How Clipwise works",
+        "url": "https://clipwise.io/how-it-works"
+      }
+    },
+    "source_id": "https://clipwise.io/how-it-works"
+  },
+  {
+    "payload": {
+      "_competitor_ref": "clipwise.io",
+      "_fetched_at": "2026-09-15T20:03:04.337828+00:00",
+      "markdown": "# Blog \u2014 Clipwise\n\nEditing notes for people who have more footage than time.\n\nThree cuts that convert \u2014 2 September 2026.\n\nThe candle shop that outshipped its agency \u2014 12 August 2026.\n\nWhy we will not build an avatar \u2014 29 July 2026.\n\nHow to shoot a day of footage that survives twelve months of ads \u2014 15 July 2026.",
+      "metadata": {
+        "description": "Editing notes for people who have more footage than time.",
+        "sourceURL": "https://clipwise.io/blog",
+        "statusCode": 200,
+        "title": "Blog \u2014 Clipwise",
+        "url": "https://clipwise.io/blog"
+      }
+    },
+    "source_id": "https://clipwise.io/blog"
+  },
+  {
+    "payload": {
+      "_competitor_ref": "clipwise.io",
+      "_fetched_at": "2026-09-15T20:03:04.344423+00:00",
+      "markdown": "# Three cuts that convert \u2014 Clipwise\n\nWe looked at the four hundred best-performing ads our customers shipped last quarter and asked what the winners had in common that the rest did not. Three edits showed up again and again, and none of them are about taste.\n\nOne: the hook lands in the first second, not the first three. Not a logo, not a title card, not a slow push-in \u2014 a person saying the most surprising true thing about the product, before anyone has decided to keep watching. Ads where the first word arrived after 1.2 seconds lost about a third of their view-through.\n\nTwo: the captions carry the sound off. Eighty-five per cent of the feed is watched muted, so the caption is the ad. That means burned in, high contrast, three to five words on screen at a time, and positioned above the interface furniture rather than under it.\n\nThree: a cut every three seconds. Not because attention spans are short, but because a static frame reads as a pause and a pause reads as an ending. Even a half-step in \u2014 the same shot, slightly tighter \u2014 keeps the ad moving.\n\nNone of these three is a creative decision. They are hygiene, and they are why a mediocre script cut well beats a good script cut badly. Clipwise does all three by default, which is less about cleverness than about not making you remember.\n\nThe fourth thing the winners shared, for what it is worth: they were shot on a phone.",
+      "metadata": {
+        "description": "We looked at the four hundred best-performing ads our customers shipped last quarter and asked what the winners had in common that the rest did not.",
+        "sourceURL": "https://clipwise.io/blog/three-cuts-that-convert",
+        "statusCode": 200,
+        "title": "Three cuts that convert \u2014 Clipwise",
+        "url": "https://clipwise.io/blog/three-cuts-that-convert"
+      }
+    },
+    "source_id": "https://clipwise.io/blog/three-cuts-that-convert"
+  },
+  {
+    "payload": {
+      "_competitor_ref": "clipwise.io",
+      "_fetched_at": "2026-09-15T20:03:04.351508+00:00",
+      "markdown": "# The candle shop that outshipped its agency \u2014 Clipwise\n\nLast spring a two-person candle shop in Leeds shipped forty ads in a week. Their agency, on retainer, shipped three in the same month. This is what the week actually looked like, because the number on its own is not useful.\n\nMonday, they filmed. One afternoon, one phone, no lights: pouring wax, trimming wicks, the smell test, the packing bench, and about twenty minutes of one of the founders answering questions a customer had emailed. Ninety minutes of raw footage.\n\nTuesday, they picked hooks. Clipwise surfaced eleven lines from the transcript. They kept six, all of them things the founder had said without meaning them as copy \u2014 including the one that carried the quarter, which was about why the cheap candles smell of nothing after the first hour.\n\nWednesday to Friday, they shipped. Six hooks, each cut against different footage, each exported in three ratios. Forty ads, all from the Monday afternoon. Total additional cost: nothing.\n\nBy June, video was their cheapest channel, and the agency's three ads were still the ones on the homepage. The lesson is not that agencies are bad. It is that a month of lead time is a competitive disadvantage that no amount of polish repays.\n\nThey still film one afternoon a month. Everything else comes out of Clipwise.",
+      "metadata": {
+        "description": "Last spring a two-person candle shop in Leeds shipped forty ads in a week.",
+        "sourceURL": "https://clipwise.io/blog/the-candle-shop-week",
+        "statusCode": 200,
+        "title": "The candle shop that outshipped its agency \u2014 Clipwise",
+        "url": "https://clipwise.io/blog/the-candle-shop-week"
+      }
+    },
+    "source_id": "https://clipwise.io/blog/the-candle-shop-week"
+  },
+  {
+    "payload": {
+      "_competitor_ref": "clipwise.io",
+      "_fetched_at": "2026-09-15T20:03:04.360985+00:00",
+      "markdown": "# About Clipwise\n\nClipwise came out of a video agency. We spent six years cutting ads for consumer brands, and the thing that finally broke us was watching good footage die in a folder because nobody had three days to cut it.\n\nWe are seven people in Leeds and Lisbon. We took one round in 2025 and have not raised since.\n\nWhat we believe: the best ad you will ship this quarter is already on a hard drive somewhere, real footage beats a synthetic presenter for anything a customer has to trust, and an editor's judgement is worth automating around rather than replacing.\n\nWe will not build an avatar. We have been asked, repeatedly, and the answer is in the blog.",
+      "metadata": {
+        "description": "Clipwise came out of a video agency.",
+        "sourceURL": "https://clipwise.io/about",
+        "statusCode": 200,
+        "title": "About Clipwise",
+        "url": "https://clipwise.io/about"
+      }
+    },
+    "source_id": "https://clipwise.io/about"
+  },
+  {
+    "payload": {
+      "_competitor_ref": "avatarly.com",
+      "_fetched_at": "2026-09-15T20:03:04.373351+00:00",
+      "markdown": "# Avatarly \u2014 presenters who show up\n\nYour UGC creator ghosted again. Avatarly's presenters show up every time, speak twelve languages, never ask for a reshoot fee and are available at eleven at night when the campaign goes live in the morning.\n\nWrite a script or paste a product page. Pick a presenter from two hundred licensed faces \u2014 every one of them a real actor who signed for this, paid per use. Avatarly voices, renders and captions the ad in about three minutes.\n\nVolume is the point. Your competitors test twenty hooks a week and you test two, and the gap is not talent, it is throughput. Avatarly writes, voices and renders the other eighteen while you sleep.\n\nTwelve languages from one script, with the same presenter and lip sync that holds up. Brands running in more than three markets tend to start here and work backwards.\n\nFree to try: three ads, watermarked, no card.",
+      "metadata": {
+        "description": "Your UGC creator ghosted again.",
+        "sourceURL": "https://avatarly.com/",
+        "statusCode": 200,
+        "title": "Avatarly \u2014 presenters who show up",
+        "url": "https://avatarly.com/"
+      }
+    },
+    "source_id": "https://avatarly.com/"
+  },
+  {
+    "payload": {
+      "_competitor_ref": "avatarly.com",
+      "_fetched_at": "2026-09-15T20:03:04.378912+00:00",
+      "markdown": "# Pricing \u2014 Avatarly\n\nPricing follows renders, because renders are what cost us money. Every plan includes all two hundred presenters, all twelve languages and unlimited scripts.\n\nStarter \u2014 $39 a month for twenty renders. For one brand testing whether presenters work in their category.\n\nGrowth \u2014 $129 a month for a hundred and fifty renders, three seats, brand kits and 1080p exports. Unused renders roll over for one month.\n\nStudio \u2014 $390 a month for unlimited renders, ten seats, an approval step, priority queue and a named contact. Most agencies land here.\n\nPresenter licensing is included in every plan. The actors are paid per render, which is why we do not offer an unlimited tier under $390 and will not pretend otherwise.",
+      "metadata": {
+        "description": "Pricing follows renders, because renders are what cost us money.",
+        "sourceURL": "https://avatarly.com/pricing",
+        "statusCode": 200,
+        "title": "Pricing \u2014 Avatarly",
+        "url": "https://avatarly.com/pricing"
+      }
+    },
+    "source_id": "https://avatarly.com/pricing"
+  },
+  {
+    "payload": {
+      "_competitor_ref": "avatarly.com",
+      "_fetched_at": "2026-09-15T20:03:04.385333+00:00",
+      "markdown": "# How Avatarly works\n\nThe script. Paste a product page and Avatarly drafts twenty hooks against it, or write your own. Hooks are scored on a model trained against ads that ran, not against copywriting advice, and the scores are visible so you can disagree with them.\n\nThe presenter. Two hundred licensed actors, filmed in studio, each with a range they are good at: the sceptic, the enthusiast, the explainer, the friend with an opinion. Filter by age, language, register and setting.\n\nThe render. Voice, lip sync, captions and b-roll in one pass, about three minutes an ad. Twelve languages from the same script and the same face, so a market launch is one export rather than twelve shoots.\n\nThe test. Ship twenty variants, let them run, and Avatarly reports which hook shape won \u2014 not which ad, which shape. The next twenty are drafted from the winner.\n\nConsent and licensing: every presenter signed a per-use agreement, every render is logged against it, and actors can withdraw a face at any time. We do not accept uploads of faces we cannot verify.",
+      "metadata": {
+        "description": "The script.",
+        "sourceURL": "https://avatarly.com/how-it-works",
+        "statusCode": 200,
+        "title": "How Avatarly works",
+        "url": "https://avatarly.com/how-it-works"
+      }
+    },
+    "source_id": "https://avatarly.com/how-it-works"
+  },
+  {
+    "payload": {
+      "_competitor_ref": "avatarly.com",
+      "_fetched_at": "2026-09-15T20:03:04.390877+00:00",
+      "markdown": "# Blog \u2014 Avatarly\n\nNotes on synthetic presenters, hook volume and the things people get wrong about both.\n\nWe showed ten ads to two thousand people \u2014 6 September 2026.\n\nTwelve languages, one take \u2014 19 August 2026.\n\nTwenty hooks a week is a process, not a budget \u2014 2 August 2026.\n\nWhat we tell actors before they sign \u2014 14 July 2026.",
+      "metadata": {
+        "description": "Notes on synthetic presenters, hook volume and the things people get wrong about both.",
+        "sourceURL": "https://avatarly.com/blog",
+        "statusCode": 200,
+        "title": "Blog \u2014 Avatarly",
+        "url": "https://avatarly.com/blog"
+      }
+    },
+    "source_id": "https://avatarly.com/blog"
+  },
+  {
+    "payload": {
+      "_competitor_ref": "avatarly.com",
+      "_fetched_at": "2026-09-15T20:03:04.396602+00:00",
+      "markdown": "# We showed ten ads to two thousand people \u2014 Avatarly\n\nWe ran the test we keep being challenged to run. Ten ads: one made with a human crew, nine made in Avatarly. Two thousand people, asked to pick the real one. Here is what happened, including the part that does not flatter us.\n\nMost people guessed wrong. Fourteen per cent picked the human ad, which is worse than chance across ten options. The single most-picked ad was a synthetic one, chosen by twenty-two per cent, and the thing they cited was that it looked slightly awkward on camera.\n\nThat is the finding, and it is not the one we expected. People do not detect synthesis. They detect polish, and they read polish as fake. The ads viewers flagged as artificial were the well-lit, well-framed, perfectly-paced ones \u2014 including the one shot by four humans in a studio.\n\nThe uncomfortable part: this means the honest signal people think they have is not there. We think that argues for disclosure rather than against it. Avatarly watermarks metadata on every export and we are in favour of doing that by regulation rather than by choice.\n\nThe useful part, if you make ads: stop sanding the edges. The variants that performed in the follow-up spend test were the ones with an unsteady first second, a real room behind the presenter and a line that sounded like it was being thought of rather than read.\n\nFull method, the ten ads and the raw responses are linked below.",
+      "metadata": {
+        "description": "We ran the test we keep being challenged to run.",
+        "sourceURL": "https://avatarly.com/blog/spot-the-avatar-results",
+        "statusCode": 200,
+        "title": "We showed ten ads to two thousand people \u2014 Avatarly",
+        "url": "https://avatarly.com/blog/spot-the-avatar-results"
+      }
+    },
+    "source_id": "https://avatarly.com/blog/spot-the-avatar-results"
+  },
+  {
+    "payload": {
+      "_competitor_ref": "avatarly.com",
+      "_fetched_at": "2026-09-15T20:03:04.403328+00:00",
+      "markdown": "# Twelve languages, one take \u2014 Avatarly\n\nA market launch used to mean twelve shoots or twelve subtitle files, and both are bad. Twelve shoots costs twelve budgets and gives you twelve different brands. Twelve subtitle files gives you one brand that nobody in eleven markets wants to watch.\n\nThe third option is one take, twelve voices, and lip sync that holds. That is what we ship, and it is worth being precise about what holds and what does not.\n\nWhat holds: sentence rhythm, the presenter's face, the product shots, the caption timing. A Spanish viewer and a Japanese viewer see the same ad, and the brand reads the same in both.\n\nWhat does not hold: idiom, humour and length. German runs about twenty per cent longer than English and Japanese runs shorter, so a thirty-second ad becomes a thirty-six and a twenty-six unless somebody rewrites the script rather than translating it. We rewrite; it is slower and it is the only thing that works.\n\nWhat we will not claim: that this replaces a local marketer. It replaces twelve shoots. Somebody who speaks the language still needs to read the script before it runs, and every plan includes an export for exactly that review.",
+      "metadata": {
+        "description": "A market launch used to mean twelve shoots or twelve subtitle files, and both are bad.",
+        "sourceURL": "https://avatarly.com/blog/twelve-languages-one-take",
+        "statusCode": 200,
+        "title": "Twelve languages, one take \u2014 Avatarly",
+        "url": "https://avatarly.com/blog/twelve-languages-one-take"
+      }
+    },
+    "source_id": "https://avatarly.com/blog/twelve-languages-one-take"
+  },
+  {
+    "payload": {
+      "_competitor_ref": "avatarly.com",
+      "_fetched_at": "2026-09-15T20:03:04.410043+00:00",
+      "markdown": "# About Avatarly\n\nAvatarly started in 2023 with a casting problem: we needed a hundred short videos for a client, and there was no honest way to make them without either a hundred shoots or a hundred broken promises to creators.\n\nWe are twenty-four people across Berlin, Toronto and Singapore, and we raised a Series A in early 2026.\n\nWhat we believe: synthetic presenters are a production tool and not a deception, actors should be paid every time their face is used, and the brands that win the next two years will be the ones testing twenty hooks a week rather than the ones with the best single ad.\n\nEvery presenter in the library signed a per-use agreement and can withdraw at any time. We publish the count of withdrawn faces every quarter, and it has been non-zero twice.",
+      "metadata": {
+        "description": "Avatarly started in 2023 with a casting problem: we needed a hundred short videos for a client, and there was no honest way to make them without either a hundred shoots or a hundred broken promises to creators.",
+        "sourceURL": "https://avatarly.com/about",
+        "statusCode": 200,
+        "title": "About Avatarly",
+        "url": "https://avatarly.com/about"
+      }
+    },
+    "source_id": "https://avatarly.com/about"
+  }
+]

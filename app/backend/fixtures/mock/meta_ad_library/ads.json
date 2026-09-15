@@ -1,0 +1,144 @@
+[
+  {
+    "payload": {
+      "ad_creative_bodies": [
+        "Hiring a creator vs. typing a brief into Vidora: one takes three weeks and a contract, the other takes four minutes."
+      ],
+      "ad_creative_link_titles": [
+        "Skip the creator brief"
+      ],
+      "ad_delivery_start_time": "2026-06-12",
+      "ad_snapshot_url": "https://www.facebook.com/ads/archive/render_ad/?id=304100000000001&access_token=mock_meta_library_token",
+      "id": "304100000000001",
+      "page_id": "204815000001",
+      "page_name": "Vidora",
+      "publisher_platforms": [
+        "facebook",
+        "instagram"
+      ]
+    },
+    "source_id": "304100000000001"
+  },
+  {
+    "payload": {
+      "ad_creative_bodies": [
+        "30 videos a month from one product page. Vidora reads the listing, writes the script and renders every cut in your brand font."
+      ],
+      "ad_creative_link_titles": [
+        "30 ads. One afternoon."
+      ],
+      "ad_delivery_start_time": "2026-07-08",
+      "ad_snapshot_url": "https://www.facebook.com/ads/archive/render_ad/?id=304100000000002&access_token=mock_meta_library_token",
+      "id": "304100000000002",
+      "page_id": "204815000001",
+      "page_name": "Vidora",
+      "publisher_platforms": [
+        "facebook",
+        "instagram"
+      ]
+    },
+    "source_id": "304100000000002"
+  },
+  {
+    "payload": {
+      "ad_creative_bodies": [
+        "\"We replaced a $9k monthly retainer with Vidora and our cost per purchase dropped 31%.\" A growth lead at a skincare brand, three months in."
+      ],
+      "ad_creative_link_titles": [
+        "What a growth lead said"
+      ],
+      "ad_delivery_start_time": "2026-08-19",
+      "ad_delivery_stop_time": "2026-08-30",
+      "ad_snapshot_url": "https://www.facebook.com/ads/archive/render_ad/?id=304100000000003&access_token=mock_meta_library_token",
+      "id": "304100000000003",
+      "page_id": "204815000001",
+      "page_name": "Vidora",
+      "publisher_platforms": [
+        "facebook",
+        "instagram"
+      ]
+    },
+    "source_id": "304100000000003"
+  },
+  {
+    "payload": {
+      "ad_creative_bodies": [
+        "Last spring a two-person candle shop shipped 40 ads in a week with Clipwise. By June, video was their cheapest channel."
+      ],
+      "ad_creative_link_titles": [
+        "The candle shop that outshipped its agency"
+      ],
+      "ad_delivery_start_time": "2026-07-01",
+      "ad_snapshot_url": "https://www.facebook.com/ads/archive/render_ad/?id=304100000000006&access_token=mock_meta_library_token",
+      "id": "304100000000006",
+      "page_id": "204815000002",
+      "page_name": "Clipwise",
+      "publisher_platforms": [
+        "facebook",
+        "instagram"
+      ]
+    },
+    "source_id": "304100000000006"
+  },
+  {
+    "payload": {
+      "ad_creative_bodies": [
+        "Unlimited video ads for $149 a month. No per-render fees, no seat limits, cancel whenever."
+      ],
+      "ad_creative_link_titles": [
+        "Flat fee, unlimited renders"
+      ],
+      "ad_delivery_start_time": "2026-08-11",
+      "ad_snapshot_url": "https://www.facebook.com/ads/archive/render_ad/?id=304100000000007&access_token=mock_meta_library_token",
+      "id": "304100000000007",
+      "page_id": "204815000002",
+      "page_name": "Clipwise",
+      "publisher_platforms": [
+        "facebook",
+        "instagram"
+      ]
+    },
+    "source_id": "304100000000007"
+  },
+  {
+    "payload": {
+      "ad_creative_bodies": [
+        "Your competitors test twenty hooks a week; you test two. Avatarly writes, voices and renders the other eighteen while you sleep."
+      ],
+      "ad_creative_link_titles": [
+        "Eighteen more hooks"
+      ],
+      "ad_delivery_start_time": "2026-07-29",
+      "ad_delivery_stop_time": "2026-08-24",
+      "ad_snapshot_url": "https://www.facebook.com/ads/archive/render_ad/?id=304100000000010&access_token=mock_meta_library_token",
+      "id": "304100000000010",
+      "page_id": "204815000003",
+      "page_name": "Avatarly",
+      "publisher_platforms": [
+        "facebook",
+        "instagram"
+      ]
+    },
+    "source_id": "304100000000010"
+  },
+  {
+    "payload": {
+      "ad_creative_bodies": [
+        "Your UGC creator ghosted again. Avatarly's presenters show up every time, speak twelve languages and never ask for a reshoot fee."
+      ],
+      "ad_creative_link_titles": [
+        "Presenters who show up"
+      ],
+      "ad_delivery_start_time": "2026-08-14",
+      "ad_snapshot_url": "https://www.facebook.com/ads/archive/render_ad/?id=304100000000011&access_token=mock_meta_library_token",
+      "id": "304100000000011",
+      "page_id": "204815000003",
+      "page_name": "Avatarly",
+      "publisher_platforms": [
+        "facebook",
+        "instagram"
+      ]
+    },
+    "source_id": "304100000000011"
+  }
+]

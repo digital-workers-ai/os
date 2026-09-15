@@ -1,0 +1,445 @@
+{
+  "clears": {
+    "cited_url/ai_answers": 28
+  },
+  "extracted": {
+    "mentions": {
+      "ai_mention": {
+        "best ai ugc ad tool|aio|Avatarly|2026-09-14": {
+          "brand": "Avatarly",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "aio",
+          "mentioned": "no",
+          "prompt": "best ai ugc ad tool",
+          "rank": "0.0"
+        },
+        "best ai ugc ad tool|aio|Clipwise|2026-09-14": {
+          "brand": "Clipwise",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "aio",
+          "mentioned": "no",
+          "prompt": "best ai ugc ad tool",
+          "rank": "0.0"
+        },
+        "best ai ugc ad tool|aio|Digital Workers|2026-09-14": {
+          "brand": "Digital Workers",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "aio",
+          "mentioned": "no",
+          "prompt": "best ai ugc ad tool",
+          "rank": "0.0"
+        },
+        "best ai ugc ad tool|aio|Vidora|2026-09-14": {
+          "brand": "Vidora",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": "https://vidora.ai/",
+          "engine": "aio",
+          "mentioned": "yes",
+          "prompt": "best ai ugc ad tool",
+          "rank": "1.0"
+        },
+        "best ai ugc ad tool|chatgpt|Avatarly|2026-09-14": {
+          "brand": "Avatarly",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": "https://avatarly.com/",
+          "engine": "chatgpt",
+          "mentioned": "yes",
+          "prompt": "best ai ugc ad tool",
+          "rank": "2.0"
+        },
+        "best ai ugc ad tool|chatgpt|Clipwise|2026-09-14": {
+          "brand": "Clipwise",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": "https://clipwise.io/pricing",
+          "engine": "chatgpt",
+          "mentioned": "yes",
+          "prompt": "best ai ugc ad tool",
+          "rank": "3.0"
+        },
+        "best ai ugc ad tool|chatgpt|Digital Workers|2026-09-14": {
+          "brand": "Digital Workers",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "chatgpt",
+          "mentioned": "no",
+          "prompt": "best ai ugc ad tool",
+          "rank": "0.0"
+        },
+        "best ai ugc ad tool|chatgpt|Vidora|2026-09-14": {
+          "brand": "Vidora",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": "https://vidora.ai/",
+          "engine": "chatgpt",
+          "mentioned": "yes",
+          "prompt": "best ai ugc ad tool",
+          "rank": "1.0"
+        },
+        "best ai ugc ad tool|gemini|Avatarly|2026-09-14": {
+          "brand": "Avatarly",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": "https://avatarly.com/",
+          "engine": "gemini",
+          "mentioned": "yes",
+          "prompt": "best ai ugc ad tool",
+          "rank": "1.0"
+        },
+        "best ai ugc ad tool|gemini|Clipwise|2026-09-14": {
+          "brand": "Clipwise",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "gemini",
+          "mentioned": "no",
+          "prompt": "best ai ugc ad tool",
+          "rank": "0.0"
+        },
+        "best ai ugc ad tool|gemini|Digital Workers|2026-09-14": {
+          "brand": "Digital Workers",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "gemini",
+          "mentioned": "no",
+          "prompt": "best ai ugc ad tool",
+          "rank": "0.0"
+        },
+        "best ai ugc ad tool|gemini|Vidora|2026-09-14": {
+          "brand": "Vidora",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": "https://vidora.ai/",
+          "engine": "gemini",
+          "mentioned": "yes",
+          "prompt": "best ai ugc ad tool",
+          "rank": "2.0"
+        },
+        "best ai ugc ad tool|perplexity|Avatarly|2026-09-14": {
+          "brand": "Avatarly",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "perplexity",
+          "mentioned": "no",
+          "prompt": "best ai ugc ad tool",
+          "rank": "0.0"
+        },
+        "best ai ugc ad tool|perplexity|Clipwise|2026-09-14": {
+          "brand": "Clipwise",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": "https://clipwise.io/pricing",
+          "engine": "perplexity",
+          "mentioned": "yes",
+          "prompt": "best ai ugc ad tool",
+          "rank": "2.0"
+        },
+        "best ai ugc ad tool|perplexity|Digital Workers|2026-09-14": {
+          "brand": "Digital Workers",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "perplexity",
+          "mentioned": "no",
+          "prompt": "best ai ugc ad tool",
+          "rank": "0.0"
+        },
+        "best ai ugc ad tool|perplexity|Vidora|2026-09-14": {
+          "brand": "Vidora",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": "https://vidora.ai/",
+          "engine": "perplexity",
+          "mentioned": "yes",
+          "prompt": "best ai ugc ad tool",
+          "rank": "1.0"
+        },
+        "how do i make video ads with ai|aio|Avatarly|2026-09-14": {
+          "brand": "Avatarly",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "aio",
+          "mentioned": "no",
+          "prompt": "how do i make video ads with ai",
+          "rank": "0.0"
+        },
+        "how do i make video ads with ai|aio|Clipwise|2026-09-14": {
+          "brand": "Clipwise",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "aio",
+          "mentioned": "no",
+          "prompt": "how do i make video ads with ai",
+          "rank": "0.0"
+        },
+        "how do i make video ads with ai|aio|Digital Workers|2026-09-14": {
+          "brand": "Digital Workers",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "aio",
+          "mentioned": "no",
+          "prompt": "how do i make video ads with ai",
+          "rank": "0.0"
+        },
+        "how do i make video ads with ai|aio|Vidora|2026-09-14": {
+          "brand": "Vidora",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "aio",
+          "mentioned": "no",
+          "prompt": "how do i make video ads with ai",
+          "rank": "0.0"
+        },
+        "how do i make video ads with ai|chatgpt|Avatarly|2026-09-14": {
+          "brand": "Avatarly",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "chatgpt",
+          "mentioned": "no",
+          "prompt": "how do i make video ads with ai",
+          "rank": "0.0"
+        },
+        "how do i make video ads with ai|chatgpt|Clipwise|2026-09-14": {
+          "brand": "Clipwise",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": "https://clipwise.io/how-it-works",
+          "engine": "chatgpt",
+          "mentioned": "yes",
+          "prompt": "how do i make video ads with ai",
+          "rank": "2.0"
+        },
+        "how do i make video ads with ai|chatgpt|Digital Workers|2026-09-14": {
+          "brand": "Digital Workers",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "chatgpt",
+          "mentioned": "no",
+          "prompt": "how do i make video ads with ai",
+          "rank": "0.0"
+        },
+        "how do i make video ads with ai|chatgpt|Vidora|2026-09-14": {
+          "brand": "Vidora",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": "https://vidora.ai/how-it-works",
+          "engine": "chatgpt",
+          "mentioned": "yes",
+          "prompt": "how do i make video ads with ai",
+          "rank": "1.0"
+        },
+        "how do i make video ads with ai|gemini|Avatarly|2026-09-14": {
+          "brand": "Avatarly",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "gemini",
+          "mentioned": "no",
+          "prompt": "how do i make video ads with ai",
+          "rank": "0.0"
+        },
+        "how do i make video ads with ai|gemini|Clipwise|2026-09-14": {
+          "brand": "Clipwise",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "gemini",
+          "mentioned": "no",
+          "prompt": "how do i make video ads with ai",
+          "rank": "0.0"
+        },
+        "how do i make video ads with ai|gemini|Digital Workers|2026-09-14": {
+          "brand": "Digital Workers",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "gemini",
+          "mentioned": "no",
+          "prompt": "how do i make video ads with ai",
+          "rank": "0.0"
+        },
+        "how do i make video ads with ai|gemini|Vidora|2026-09-14": {
+          "brand": "Vidora",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": "https://vidora.ai/how-it-works",
+          "engine": "gemini",
+          "mentioned": "yes",
+          "prompt": "how do i make video ads with ai",
+          "rank": "1.0"
+        },
+        "how do i make video ads with ai|perplexity|Avatarly|2026-09-14": {
+          "brand": "Avatarly",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "perplexity",
+          "mentioned": "no",
+          "prompt": "how do i make video ads with ai",
+          "rank": "0.0"
+        },
+        "how do i make video ads with ai|perplexity|Clipwise|2026-09-14": {
+          "brand": "Clipwise",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "perplexity",
+          "mentioned": "no",
+          "prompt": "how do i make video ads with ai",
+          "rank": "0.0"
+        },
+        "how do i make video ads with ai|perplexity|Digital Workers|2026-09-14": {
+          "brand": "Digital Workers",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "perplexity",
+          "mentioned": "no",
+          "prompt": "how do i make video ads with ai",
+          "rank": "0.0"
+        },
+        "how do i make video ads with ai|perplexity|Vidora|2026-09-14": {
+          "brand": "Vidora",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": "https://vidora.ai/how-it-works",
+          "engine": "perplexity",
+          "mentioned": "yes",
+          "prompt": "how do i make video ads with ai",
+          "rank": "1.0"
+        },
+        "ugc ads without creators|aio|Avatarly|2026-09-14": {
+          "brand": "Avatarly",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": "https://avatarly.com/how-it-works",
+          "engine": "aio",
+          "mentioned": "yes",
+          "prompt": "ugc ads without creators",
+          "rank": "1.0"
+        },
+        "ugc ads without creators|aio|Clipwise|2026-09-14": {
+          "brand": "Clipwise",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "aio",
+          "mentioned": "no",
+          "prompt": "ugc ads without creators",
+          "rank": "0.0"
+        },
+        "ugc ads without creators|aio|Digital Workers|2026-09-14": {
+          "brand": "Digital Workers",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "aio",
+          "mentioned": "no",
+          "prompt": "ugc ads without creators",
+          "rank": "0.0"
+        },
+        "ugc ads without creators|aio|Vidora|2026-09-14": {
+          "brand": "Vidora",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "aio",
+          "mentioned": "no",
+          "prompt": "ugc ads without creators",
+          "rank": "0.0"
+        },
+        "ugc ads without creators|chatgpt|Avatarly|2026-09-14": {
+          "brand": "Avatarly",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": "https://avatarly.com/how-it-works",
+          "engine": "chatgpt",
+          "mentioned": "yes",
+          "prompt": "ugc ads without creators",
+          "rank": "2.0"
+        },
+        "ugc ads without creators|chatgpt|Clipwise|2026-09-14": {
+          "brand": "Clipwise",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "chatgpt",
+          "mentioned": "no",
+          "prompt": "ugc ads without creators",
+          "rank": "0.0"
+        },
+        "ugc ads without creators|chatgpt|Digital Workers|2026-09-14": {
+          "brand": "Digital Workers",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": "https://hiredigitalworkers.com/ugc",
+          "engine": "chatgpt",
+          "mentioned": "yes",
+          "prompt": "ugc ads without creators",
+          "rank": "3.0"
+        },
+        "ugc ads without creators|chatgpt|Vidora|2026-09-14": {
+          "brand": "Vidora",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": "https://vidora.ai/blog/what-a-creator-brief-costs",
+          "engine": "chatgpt",
+          "mentioned": "yes",
+          "prompt": "ugc ads without creators",
+          "rank": "1.0"
+        },
+        "ugc ads without creators|gemini|Avatarly|2026-09-14": {
+          "brand": "Avatarly",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "gemini",
+          "mentioned": "no",
+          "prompt": "ugc ads without creators",
+          "rank": "0.0"
+        },
+        "ugc ads without creators|gemini|Clipwise|2026-09-14": {
+          "brand": "Clipwise",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": "https://clipwise.io/",
+          "engine": "gemini",
+          "mentioned": "yes",
+          "prompt": "ugc ads without creators",
+          "rank": "2.0"
+        },
+        "ugc ads without creators|gemini|Digital Workers|2026-09-14": {
+          "brand": "Digital Workers",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "gemini",
+          "mentioned": "no",
+          "prompt": "ugc ads without creators",
+          "rank": "0.0"
+        },
+        "ugc ads without creators|gemini|Vidora|2026-09-14": {
+          "brand": "Vidora",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": "https://vidora.ai/blog/what-a-creator-brief-costs",
+          "engine": "gemini",
+          "mentioned": "yes",
+          "prompt": "ugc ads without creators",
+          "rank": "1.0"
+        },
+        "ugc ads without creators|perplexity|Avatarly|2026-09-14": {
+          "brand": "Avatarly",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "perplexity",
+          "mentioned": "no",
+          "prompt": "ugc ads without creators",
+          "rank": "0.0"
+        },
+        "ugc ads without creators|perplexity|Clipwise|2026-09-14": {
+          "brand": "Clipwise",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": "https://clipwise.io/",
+          "engine": "perplexity",
+          "mentioned": "yes",
+          "prompt": "ugc ads without creators",
+          "rank": "1.0"
+        },
+        "ugc ads without creators|perplexity|Digital Workers|2026-09-14": {
+          "brand": "Digital Workers",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": "https://hiredigitalworkers.com/ugc",
+          "engine": "perplexity",
+          "mentioned": "yes",
+          "prompt": "ugc ads without creators",
+          "rank": "2.0"
+        },
+        "ugc ads without creators|perplexity|Vidora|2026-09-14": {
+          "brand": "Vidora",
+          "checked_on": "2026-09-14T00:00:00Z",
+          "cited_url": null,
+          "engine": "perplexity",
+          "mentioned": "no",
+          "prompt": "ugc ads without creators",
+          "rank": "0.0"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "ai_answers"
+}

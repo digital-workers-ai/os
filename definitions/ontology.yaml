@@ -193,6 +193,62 @@ entities:
     attrs:
       name: string
       category: string
+  competitor:
+    description: A company whose marketing this business watches.
+    attrs:
+      name: string
+      domain: string
+    identity:
+      - domain
+  competitor_ad:
+    description: One ad a competitor ran, as the platform's public library shows it.
+    attrs:
+      name: string
+      platform: string
+      category: string
+      competitor_ref: string
+      first_seen: date
+      last_seen: date
+      url: string
+  ranking:
+    description: One keyword's position for one domain on one day.
+    attrs:
+      keyword: string
+      engine: string
+      domain: string
+      position: number
+      url: string
+      checked_on: date
+  ai_mention:
+    description: Whether an answer engine named a brand for one prompt, and what it cited.
+    attrs:
+      prompt: string
+      engine: string
+      brand: string
+      mentioned: string
+      cited_url: string
+      rank: number
+      checked_on: date
+  competitor_page:
+    description: One page on a competitor's site, as it read on the day it was fetched.
+    attrs:
+      url: string
+      name: string
+      competitor_ref: string
+      body_sha: string
+      word_count: number
+      fetched_on: date
+  competitor_post:
+    description: One post a competitor published, with the engagement it drew.
+    attrs:
+      name: string
+      platform: string
+      category: string
+      competitor_ref: string
+      posted_at: date
+      likes: number
+      comments: number
+      url: string
 
 attributes:
   external_ref:
@@ -284,6 +340,38 @@ attributes:
     description: Followers lost on the reporting day.
   profile_views:
     description: Visits to the page or profile on the reporting day.
+  competitor_ref:
+    description: The provider's id for the competitor an ad, a page or a post belongs to.
+  first_seen:
+    description: When the ad library first showed the ad running.
+  last_seen:
+    description: When the ad library last showed the ad running; empty while it still runs.
+  url:
+    description: Where the thing itself can be read or watched, on the platform that holds it.
+  keyword:
+    description: A search phrase this business wants to be found for.
+  engine:
+    description: The search or answer service the reading was taken from.
+  position:
+    description: Where the result sat in the list, counting from the top.
+  checked_on:
+    description: The day the position or the answer was read.
+  prompt:
+    description: A question a buyer would type into an answer engine.
+  brand:
+    description: The company the answer was read for, ours or a competitor's.
+  mentioned:
+    description: Whether the answer named the brand at all.
+  cited_url:
+    description: The page the answer pointed at when it named the brand.
+  rank:
+    description: How far down the answer the brand appeared, counting the brands named before it.
+  body_sha:
+    description: A fingerprint of the page text, so a rewrite is visible without keeping every copy.
+  word_count:
+    description: How long the page was on the day it was fetched.
+  fetched_on:
+    description: The day the page was read.
 
 source_priority:
   - salesforce
@@ -312,6 +400,12 @@ source_priority:
   - smartlook
   - google_analytics
   - google_sheets
+  - meta_ad_library
+  - google_ads_transparency
+  - serp
+  - ai_answers
+  - competitor_pages
+  - linkedin_posts
 
 relationships:
   - rel: belongs_to
@@ -364,3 +458,18 @@ relationships:
     to: campaign
     cardinality: many_to_one
     via: campaign_ref
+  - rel: belongs_to
+    from: competitor_ad
+    to: competitor
+    cardinality: many_to_one
+    via: competitor_ref
+  - rel: belongs_to
+    from: competitor_page
+    to: competitor
+    cardinality: many_to_one
+    via: competitor_ref
+  - rel: belongs_to
+    from: competitor_post
+    to: competitor
+    cardinality: many_to_one
+    via: competitor_ref

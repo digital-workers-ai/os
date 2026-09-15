@@ -1,3 +1,4 @@
+import hashlib
 import pkgutil
 
 import pytest
@@ -374,6 +375,12 @@ class TestDiscovery:
             "twitter",
             "pinterest",
             "intercom",
+            "meta_ad_library",
+            "google_ads_transparency",
+            "serp",
+            "ai_answers",
+            "competitor_pages",
+            "linkedin_posts",
         }
 
     def test_a_package_without_an_extract_module_contributes_no_hook(self, monkeypatch):
@@ -1389,6 +1396,262 @@ class TestPinterestHook:
 
         payload = {"id": "549764905678", "name": "Acme"}
         assert extract.reshape("ad_accounts", payload) == [payload]
+
+
+class TestMetaAdLibraryHook:
+    def test_an_ad_is_named_by_its_first_creative_body_and_stamped_meta(self):
+        from app.sources.meta_ad_library import extract
+
+        out = extract.reshape(
+            "ads",
+            {"id": "ad_1", "ad_creative_bodies": ["Stop scrolling", "Second body"]},
+        )
+        assert out[0]["_name"] == "Stop scrolling"
+        assert out[0]["_platform"] == "meta"
+
+    def test_an_ad_with_no_bodies_carries_only_the_platform(self):
+        from app.sources.meta_ad_library import extract
+
+        out = extract.reshape("ads", {"id": "ad_1"})
+        assert out[0] == {"id": "ad_1", "_platform": "meta"}
+
+    def test_an_ad_with_an_empty_body_list_carries_no_name(self):
+        from app.sources.meta_ad_library import extract
+
+        out = extract.reshape("ads", {"id": "ad_1", "ad_creative_bodies": []})
+        assert "_name" not in out[0]
+        assert out[0]["_platform"] == "meta"
+
+    def test_the_stamp_does_not_touch_the_stored_payload(self):
+        from app.sources.meta_ad_library import extract
+
+        payload = {"id": "ad_1", "ad_creative_bodies": ["Stop scrolling"]}
+        extract.reshape("ads", payload)
+        assert payload == {"id": "ad_1", "ad_creative_bodies": ["Stop scrolling"]}
+
+    def test_other_object_types_pass_through(self):
+        from app.sources.meta_ad_library import extract
+
+        payload = {"id": "100", "name": "Acme", "website": "https://acme.io"}
+        assert extract.reshape("pages", payload) == [payload]
+
+
+class TestGoogleAdsTransparencyHook:
+    @staticmethod
+    def _creative(**extra):
+        return {
+            "ad_creative_id": "CR1",
+            "advertiser_id": "AR1",
+            "format": "text",
+            "width": 300,
+            "height": 250,
+            "first_shown": 1781515800,
+            "total_days_shown": 78,
+            **extra,
+        }
+
+    def test_a_creative_is_stamped_google_with_its_seen_window_as_iso(self):
+        from app.sources.google_ads_transparency import extract
+
+        out = extract.reshape("creatives", self._creative(last_shown=1788271200))
+        assert out[0]["_platform"] == "google"
+        assert out[0]["_first_seen"] == "2026-06-15T09:30:00Z"
+        assert out[0]["_last_seen"] == "2026-09-01T14:00:00Z"
+
+    def test_a_running_creative_has_no_last_seen(self):
+        from app.sources.google_ads_transparency import extract
+
+        out = extract.reshape("creatives", self._creative())
+        assert out[0]["_first_seen"] == "2026-06-15T09:30:00Z"
+        assert "_last_seen" not in out[0]
+
+    def test_the_hook_never_names_a_creative(self):
+        from app.sources.google_ads_transparency import extract
+
+        out = extract.reshape("creatives", self._creative(text="Stop scrolling"))
+        assert "_name" not in out[0]
+
+    def test_everything_else_is_left_as_it_arrived(self):
+        from app.sources.google_ads_transparency import extract
+
+        out = extract.reshape("creatives", self._creative(last_shown=1788271200))
+        stamped = {"_platform", "_first_seen", "_last_seen"}
+        assert {k: v for k, v in out[0].items() if k not in stamped} == self._creative(
+            last_shown=1788271200
+        )
+
+    def test_the_stamp_does_not_touch_the_stored_payload(self):
+        from app.sources.google_ads_transparency import extract
+
+        payload = self._creative(last_shown=1788271200, text="hi")
+        extract.reshape("creatives", payload)
+        assert payload == self._creative(last_shown=1788271200, text="hi")
+
+    def test_other_object_types_pass_through(self):
+        from app.sources.google_ads_transparency import extract
+
+        payload = {"id": "AR1", "name": "Acme", "domain": "acme.io"}
+        assert extract.reshape("advertisers", payload) == [payload]
+
+
+class TestSerpHook:
+    @staticmethod
+    def _result(**extra):
+        return {"position": 1, "title": "Vidora", **extra}
+
+    def test_a_result_is_folded_onto_the_domain_its_link_points_at(self):
+        from app.sources.serp import extract
+
+        out = extract.reshape(
+            "organic_results", self._result(link="https://vidora.ai/")
+        )
+        assert out[0]["_domain"] == "vidora.ai"
+
+    def test_the_www_prefix_is_not_a_different_company(self):
+        from app.sources.serp import extract
+
+        out = extract.reshape(
+            "organic_results", self._result(link="https://www.vidora.ai/pricing")
+        )
+        assert out[0]["_domain"] == "vidora.ai"
+
+    def test_a_result_with_no_link_names_no_domain(self):
+        from app.sources.serp import extract
+
+        out = extract.reshape("organic_results", self._result())
+        assert "_domain" not in out[0]
+
+    def test_the_stamp_does_not_touch_the_stored_payload(self):
+        from app.sources.serp import extract
+
+        payload = self._result(link="https://vidora.ai/")
+        extract.reshape("organic_results", payload)
+        assert payload == self._result(link="https://vidora.ai/")
+
+    def test_other_object_types_pass_through(self):
+        from app.sources.serp import extract
+
+        payload = {"q": "ai ugc ads"}
+        assert extract.reshape("searches", payload) == [payload]
+
+
+class TestAiAnswersHook:
+    def test_the_row_takes_the_engine_the_envelope_named(self):
+        from app.sources.ai_answers import extract
+
+        out = extract.reshape(
+            "mentions", {"brand": "Vidora", "_engine": "chatgpt", "rank": 1}
+        )
+        assert out[0]["engine"] == "chatgpt"
+
+    def test_a_row_with_no_engine_names_none(self):
+        from app.sources.ai_answers import extract
+
+        out = extract.reshape("mentions", {"brand": "Vidora", "rank": 1})
+        assert "engine" not in out[0]
+
+    def test_the_stamp_does_not_touch_the_stored_payload(self):
+        from app.sources.ai_answers import extract
+
+        payload = {"brand": "Vidora", "_engine": "chatgpt"}
+        extract.reshape("mentions", payload)
+        assert payload == {"brand": "Vidora", "_engine": "chatgpt"}
+
+    def test_other_object_types_pass_through(self):
+        from app.sources.ai_answers import extract
+
+        payload = {"prompt": "best ai ugc ad tool"}
+        assert extract.reshape("readings", payload) == [payload]
+
+
+class TestCompetitorPagesHook:
+    MARKDOWN = "Three plans, no  per-render fees.\nNo studio."
+
+    @classmethod
+    def _page(cls, **extra):
+        return {
+            "markdown": cls.MARKDOWN,
+            "metadata": {"title": "Pricing", "sourceURL": "https://vidora.ai/pricing"},
+            "_fetched_at": "2026-09-04T12:00:00+00:00",
+            "_competitor_ref": "vidora.ai",
+            **extra,
+        }
+
+    def test_the_words_of_the_markdown_are_counted(self):
+        from app.sources.competitor_pages import extract
+
+        out = extract.reshape("pages", self._page())
+        assert out[0]["_word_count"] == 7
+
+    def test_the_body_sha_is_the_sha256_of_the_markdown(self):
+        from app.sources.competitor_pages import extract
+
+        out = extract.reshape("pages", self._page())
+        digest = hashlib.sha256(self.MARKDOWN.encode()).hexdigest()
+        assert out[0]["_body_sha"] == digest
+
+    def test_everything_else_is_left_as_it_arrived(self):
+        from app.sources.competitor_pages import extract
+
+        out = extract.reshape("pages", self._page())
+        stamped = {"_word_count", "_body_sha"}
+        assert {k: v for k, v in out[0].items() if k not in stamped} == self._page()
+
+    def test_a_page_with_no_markdown_has_no_count_and_no_sha(self):
+        from app.sources.competitor_pages import extract
+
+        page = self._page()
+        page.pop("markdown")
+        assert extract.reshape("pages", page) == [page]
+
+    def test_the_stamp_does_not_touch_the_stored_payload(self):
+        from app.sources.competitor_pages import extract
+
+        payload = self._page()
+        extract.reshape("pages", payload)
+        assert payload == self._page()
+
+    def test_other_object_types_pass_through(self):
+        from app.sources.competitor_pages import extract
+
+        payload = {"url": "https://vidora.ai/", "title": "Vidora"}
+        assert extract.reshape("links", payload) == [payload]
+
+
+class TestLinkedinPostsHook:
+    @staticmethod
+    def _post(**extra):
+        return {
+            "id": "7241000000000000006",
+            "num_likes": 372,
+            "_competitor_ref": "vidora.ai",
+            **extra,
+        }
+
+    def test_a_post_is_stamped_linkedin(self):
+        from app.sources.linkedin_posts import extract
+
+        out = extract.reshape("posts", self._post())
+        assert out[0]["_platform"] == "linkedin"
+
+    def test_everything_else_is_left_as_it_arrived(self):
+        from app.sources.linkedin_posts import extract
+
+        out = extract.reshape("posts", self._post())
+        assert {k: v for k, v in out[0].items() if k != "_platform"} == self._post()
+
+    def test_the_stamp_does_not_touch_the_stored_payload(self):
+        from app.sources.linkedin_posts import extract
+
+        payload = self._post()
+        extract.reshape("posts", payload)
+        assert payload == self._post()
+
+    def test_other_object_types_pass_through(self):
+        from app.sources.linkedin_posts import extract
+
+        payload = {"status": "ready"}
+        assert extract.reshape("progress", payload) == [payload]
 
 
 class TestIntercomConversationSource:
