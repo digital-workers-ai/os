@@ -19,7 +19,7 @@ MANIFEST = {
     "build": "2 HeyGen renders",
 }
 
-TEMPLATE_PY = '''
+TEMPLATE_PY = """
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -62,7 +62,7 @@ def shout(value):
 
 
 FILTERS = {"shout": shout}
-'''
+"""
 
 BASE = """{% for scene in scenes %}
 <div id="s{{ loop.index0 }}" data-start="{{ starts[loop.index0] }}"
@@ -128,7 +128,10 @@ class FakeHeyGen:
         return f"vid_{scene_id}"
 
     async def wait(self, video_id):
-        return {"video_url": f"https://heygen.test/{video_id}", "duration": self.duration}
+        return {
+            "video_url": f"https://heygen.test/{video_id}",
+            "duration": self.duration,
+        }
 
     async def speak(self, voice_id, script):
         self.spoken.append((voice_id, script))
@@ -259,7 +262,10 @@ class TestPlanning:
     ):
         model = FakeModel(f"```json\n{_plan_json()}\n```")
         spec = await video.plan(
-            "demo", "an idea", tmp_path / "out", looks_dir=looks_dir,
+            "demo",
+            "an idea",
+            tmp_path / "out",
+            looks_dir=looks_dir,
             client_override=model,
         )
         assert spec.scenes[0].content.headline == "Hello"
@@ -267,22 +273,32 @@ class TestPlanning:
     async def test_copy_over_its_limit_is_handed_back_for_repair(
         self, looks_dir, tmp_path
     ):
-        model = FakeModel(_plan_json(headline="far too long"), _plan_json())
+        model = FakeModel(
+            _plan_json(headline="far too long for one line"), _plan_json()
+        )
         spec = await video.plan(
-            "demo", "an idea", tmp_path / "out", looks_dir=looks_dir,
+            "demo",
+            "an idea",
+            tmp_path / "out",
+            looks_dir=looks_dir,
             client_override=model,
         )
         assert spec.scenes[0].content.headline == "Hello"
         assert len(model.asked) == 2
-        assert "far too long" in model.asked[1]["messages"][0]["content"]
+        assert "far too long for one line" in model.asked[1]["messages"][0]["content"]
 
     async def test_a_plan_that_never_validates_is_one_render_error(
         self, looks_dir, tmp_path
     ):
-        model = FakeModel(*[_plan_json(headline="far too long")] * video.MAX_ATTEMPTS)
+        model = FakeModel(
+            *[_plan_json(headline="far too long for one line")] * video.MAX_ATTEMPTS
+        )
         with pytest.raises(clients.RenderError) as caught:
             await video.plan(
-                "demo", "an idea", tmp_path / "out", looks_dir=looks_dir,
+                "demo",
+                "an idea",
+                tmp_path / "out",
+                looks_dir=looks_dir,
                 client_override=model,
             )
         assert "demo" in str(caught.value)
@@ -293,7 +309,10 @@ class TestPlanning:
     ):
         model = FakeModel("not json at all", _plan_json())
         spec = await video.plan(
-            "demo", "an idea", tmp_path / "out", looks_dir=looks_dir,
+            "demo",
+            "an idea",
+            tmp_path / "out",
+            looks_dir=looks_dir,
             client_override=model,
         )
         assert spec.scenes[0].content.headline == "Hello"
@@ -301,8 +320,12 @@ class TestPlanning:
     async def test_a_supplied_script_must_survive_verbatim(self, looks_dir, tmp_path):
         model = FakeModel(_plan_json())
         await video.plan(
-            "demo", "an idea", tmp_path / "out", script="say this exactly",
-            looks_dir=looks_dir, client_override=model,
+            "demo",
+            "an idea",
+            tmp_path / "out",
+            script="say this exactly",
+            looks_dir=looks_dir,
+            client_override=model,
         )
         assert "verbatim" in model.asked[0]["system"]
         assert "say this exactly" in model.asked[0]["messages"][0]["content"]
@@ -312,7 +335,10 @@ class TestPlanning:
     ):
         model = FakeModel(_plan_json())
         await video.plan(
-            "demo", "an idea", tmp_path / "out", looks_dir=looks_dir,
+            "demo",
+            "an idea",
+            tmp_path / "out",
+            looks_dir=looks_dir,
             client_override=model,
         )
         assert "spoken dialogue" in model.asked[0]["system"]
@@ -329,8 +355,12 @@ class TestPlanning:
 
         model = FakeModel(_plan_json(), _plan_json())
         await video.plan(
-            "demo", "an idea", tmp_path / "out", looks_dir=looks_dir,
-            client_override=model, validate=measure,
+            "demo",
+            "an idea",
+            tmp_path / "out",
+            looks_dir=looks_dir,
+            client_override=model,
+            validate=measure,
         )
         assert len(model.asked) == 2
         assert "overflows" in model.asked[1]["messages"][0]["content"]
@@ -338,8 +368,12 @@ class TestPlanning:
     async def test_the_stage_is_reported(self, looks_dir, tmp_path):
         seen: list[str] = []
         await video.plan(
-            "demo", "an idea", tmp_path / "out", looks_dir=looks_dir,
-            client_override=FakeModel(_plan_json()), progress=seen.append,
+            "demo",
+            "an idea",
+            tmp_path / "out",
+            looks_dir=looks_dir,
+            client_override=FakeModel(_plan_json()),
+            progress=seen.append,
         )
         assert seen == ["plan"]
 
@@ -390,19 +424,34 @@ class TestRenderingTheScenes:
         spec.scenes[0].slot = 2
         agent = FakeHeyGen()
         await video.render_scenes(
-            "demo", spec, tmp_path / "out", scenes.PipelineState(),
-            looks_dir=looks_dir, client=agent,
+            "demo",
+            spec,
+            tmp_path / "out",
+            scenes.PipelineState(),
+            looks_dir=looks_dir,
+            client=agent,
         )
         assert agent.started[0][0] == "s2"
 
     async def test_more_scenes_than_shots_reuse_the_last_one(
         self, looks_dir, tmp_path, spec
     ):
+        (looks_dir / "demo" / "template.py").write_text(
+            TEMPLATE_PY.replace(
+                'SLOTS = [{"id": "s1", "pose": "to camera"}, '
+                '{"id": "s2", "pose": "seated"}]',
+                'SLOTS = [{"id": "s1", "pose": "to camera"}]',
+            )
+        )
         spec.scenes[1].background = "video"
         agent = FakeHeyGen(slots=(("s1", "script_1"),))
         await video.render_scenes(
-            "demo", spec, tmp_path / "out", scenes.PipelineState(),
-            looks_dir=looks_dir, client=agent,
+            "demo",
+            spec,
+            tmp_path / "out",
+            scenes.PipelineState(),
+            looks_dir=looks_dir,
+            client=agent,
         )
         assert [started[0] for started in agent.started] == ["s1", "s1"]
 
@@ -411,8 +460,12 @@ class TestRenderingTheScenes:
     ):
         with pytest.raises(clients.RenderError) as caught:
             await video.render_scenes(
-                "demo", spec, tmp_path / "out", scenes.PipelineState(),
-                looks_dir=looks_dir, client=FakeHeyGen(slots=()),
+                "demo",
+                spec,
+                tmp_path / "out",
+                scenes.PipelineState(),
+                looks_dir=looks_dir,
+                client=FakeHeyGen(slots=()),
             )
         assert "text variable" in str(caught.value)
 
@@ -422,8 +475,12 @@ class TestRenderingTheScenes:
         agent = FakeHeyGen(slots=(("moved", "script_1"), ("s2", "script_2")))
         with pytest.raises(clients.RenderError) as caught:
             await video.render_scenes(
-                "demo", spec, tmp_path / "out", scenes.PipelineState(),
-                looks_dir=looks_dir, client=agent,
+                "demo",
+                spec,
+                tmp_path / "out",
+                scenes.PipelineState(),
+                looks_dir=looks_dir,
+                client=agent,
             )
         assert "moved" in str(caught.value)
 
@@ -434,8 +491,12 @@ class TestRenderingTheScenes:
         (looks_dir / "demo" / "look.yaml").write_text(yaml.safe_dump(manifest))
         with pytest.raises(clients.RenderError) as caught:
             await video.render_scenes(
-                "demo", spec, tmp_path / "out", scenes.PipelineState(),
-                looks_dir=looks_dir, client=FakeHeyGen(),
+                "demo",
+                spec,
+                tmp_path / "out",
+                scenes.PipelineState(),
+                looks_dir=looks_dir,
+                client=FakeHeyGen(),
             )
         assert "heygen_template" in str(caught.value)
 
@@ -459,8 +520,12 @@ class TestRenderingTheScenes:
         spec.voice = "voice_2"
         agent = FakeHeyGen()
         await video.render_scenes(
-            "demo", spec, tmp_path / "out", scenes.PipelineState(),
-            looks_dir=looks_dir, client=agent,
+            "demo",
+            spec,
+            tmp_path / "out",
+            scenes.PipelineState(),
+            looks_dir=looks_dir,
+            client=agent,
         )
         assert agent.spoken[0][0] == "voice_2"
 
@@ -471,8 +536,12 @@ class TestRenderingTheScenes:
         (looks_dir / "demo" / "look.yaml").write_text(yaml.safe_dump(manifest))
         agent = FakeHeyGen()
         await video.render_scenes(
-            "demo", spec, tmp_path / "out", scenes.PipelineState(),
-            looks_dir=looks_dir, client=agent,
+            "demo",
+            spec,
+            tmp_path / "out",
+            scenes.PipelineState(),
+            looks_dir=looks_dir,
+            client=agent,
         )
         assert len(agent.started) == 2
         assert agent.spoken == []
@@ -488,8 +557,12 @@ class TestRenderingTheScenes:
         agent.speak = silent
         with pytest.raises(clients.RenderError) as caught:
             await video.render_scenes(
-                "demo", spec, tmp_path / "out", scenes.PipelineState(),
-                looks_dir=looks_dir, client=agent,
+                "demo",
+                spec,
+                tmp_path / "out",
+                scenes.PipelineState(),
+                looks_dir=looks_dir,
+                client=agent,
             )
         assert "audio" in str(caught.value)
 
@@ -511,8 +584,12 @@ class TestRenderingTheScenes:
     async def test_every_scene_is_reported_as_it_moves(self, looks_dir, tmp_path, spec):
         seen: list[tuple] = []
         await video.render_scenes(
-            "demo", spec, tmp_path / "out", scenes.PipelineState(),
-            looks_dir=looks_dir, client=FakeHeyGen(),
+            "demo",
+            spec,
+            tmp_path / "out",
+            scenes.PipelineState(),
+            looks_dir=looks_dir,
+            client=FakeHeyGen(),
             progress=lambda stage: seen.append(stage),
         )
         assert seen[0] == "render_scenes"
@@ -538,6 +615,13 @@ class TestSyncingDurations:
         path = tmp_path / video.SPEC
         assert video.sync_durations(spec, scenes.PipelineState(), path) == []
         assert not path.exists()
+
+    def test_a_scene_that_never_rendered_is_passed_over(self, spec, tmp_path):
+        state = scenes.PipelineState()
+        state.for_scene(0)
+        state.for_scene(1).actual_duration = 6.0
+        path = tmp_path / video.SPEC
+        assert video.sync_durations(spec, state, path) == [(2, 3.0, 6.0)]
 
     def test_a_length_that_already_agrees_rewrites_nothing(self, spec, tmp_path):
         state = scenes.PipelineState()
@@ -650,9 +734,7 @@ class TestComposing:
             ]
         }
         out = tmp_path / "out"
-        video.compose(
-            "demo", spec, out, self._state(transcript), looks_dir=looks_dir
-        )
+        video.compose("demo", spec, out, self._state(transcript), looks_dir=looks_dir)
         assert "0.4" in (out / video.INDEX).read_text()
 
     def test_stills_mode_writes_only_the_preview(self, looks_dir, tmp_path, spec):
@@ -667,10 +749,26 @@ class TestComposing:
     def test_the_stage_is_reported(self, looks_dir, tmp_path, spec):
         seen: list[str] = []
         video.compose(
-            "demo", spec, tmp_path / "out", self._state(), looks_dir=looks_dir,
+            "demo",
+            spec,
+            tmp_path / "out",
+            self._state(),
+            looks_dir=looks_dir,
             progress=seen.append,
         )
         assert seen == ["compose"]
+
+
+class Listy:
+    model_fields = {"items": None}
+    items = ["carrot.png", "never said"]
+
+
+class Mixed:
+    model_fields = {"count": None, "blank": None, "said": None}
+    count = 3
+    blank = "   "
+    said = "carrot"
 
 
 class TestWordTimings:
@@ -736,13 +834,22 @@ class TestWordTimings:
         assert video.content_cues(spec.scenes[1].content, None) == {}
 
     def test_a_list_field_cues_every_entry_even_the_ones_it_cannot_place(self):
-        class Listy:
-            model_fields = {"items": None}
-            items = ["carrot.png", "never said"]
-
         transcript = {"words": [{"word": "carrot", "start": 2.0, "end": 2.3}]}
         cues = video.content_cues(Listy(), transcript)
         assert cues["items"] == [2.0, None]
+
+    def test_a_list_field_with_no_transcript_still_cues_one_slot_each(self):
+        assert video.content_cues(Listy(), None)["items"] == [None, None]
+
+    def test_a_field_that_is_neither_copy_nor_a_list_of_copy_is_passed_over(self):
+        transcript = {"words": [{"word": "carrot", "start": 2.0, "end": 2.3}]}
+        assert "count" not in video.content_cues(Mixed(), transcript)
+
+    def test_copy_with_no_words_in_it_is_never_cued(self):
+        transcript = {"words": [{"word": "carrot", "start": 2.0, "end": 2.3}]}
+        cues = video.content_cues(Mixed(), transcript)
+        assert "blank" not in cues
+        assert cues["said"] == 2.0
 
     def test_copy_nobody_said_is_left_out_of_the_cues(self, spec):
         transcript = {"words": [{"word": "unrelated", "start": 0.1, "end": 0.2}]}
@@ -787,8 +894,13 @@ class TestTheStoryboard:
         out = tmp_path / "out"
         seen: list[str] = []
         result = await video.run(
-            "demo", "an idea", out, draft=True, looks_dir=looks_dir,
-            client_override=FakeModel(_plan_json()), progress=seen.append,
+            "demo",
+            "an idea",
+            out,
+            draft=True,
+            looks_dir=looks_dir,
+            client_override=FakeModel(_plan_json()),
+            progress=seen.append,
         )
         assert result == out / video.PREVIEW
         assert seen == ["plan", "storyboard"]
@@ -797,9 +909,16 @@ class TestTheStoryboard:
         out = tmp_path / "out"
         seen: list[str] = []
         result = await video.run(
-            "demo", "an idea", out, draft=False, looks_dir=looks_dir,
-            client_override=FakeModel(_plan_json()), heygen=FakeHeyGen(),
-            deepgram=FakeDeepgram(), frames=FakeFrames(), progress=seen.append,
+            "demo",
+            "an idea",
+            out,
+            draft=False,
+            looks_dir=looks_dir,
+            client_override=FakeModel(_plan_json()),
+            heygen=FakeHeyGen(),
+            deepgram=FakeDeepgram(),
+            frames=FakeFrames(),
+            progress=seen.append,
         )
         assert result.name == video.MP4
         assert seen == list(video.STAGES)

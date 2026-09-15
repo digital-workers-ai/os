@@ -150,12 +150,18 @@ class TestBuildMode:
     async def test_a_build_renders_at_the_looks_own_size(self, looks_dir, tmp_path):
         agent = FakeBrowser()
         await image.render(
-            "card", CONTENT, tmp_path / "out", draft=False, looks_dir=looks_dir,
+            "card",
+            CONTENT,
+            tmp_path / "out",
+            draft=False,
+            looks_dir=looks_dir,
             browser=agent,
         )
         assert agent.shots[0][1:] == FRAME
 
-    async def test_a_named_ground_is_generated_and_referenced(self, looks_dir, tmp_path):
+    async def test_a_named_ground_is_generated_and_referenced(
+        self, looks_dir, tmp_path
+    ):
         painter = FakePainter()
         out = tmp_path / "out"
         await image.render(
@@ -177,8 +183,13 @@ class TestBuildMode:
         painter = FakePainter()
         out = tmp_path / "out"
         await image.render(
-            "card", CONTENT, out, draft=False, looks_dir=looks_dir,
-            browser=FakeBrowser(), painter=painter,
+            "card",
+            CONTENT,
+            out,
+            draft=False,
+            looks_dir=looks_dir,
+            browser=FakeBrowser(),
+            painter=painter,
         )
         assert painter.asked == []
         assert 'data-bg=""' in (out / image.HTML).read_text()
@@ -247,7 +258,9 @@ class TestTheOverflowMeasurement:
             "over": 180,
         }
         with pytest.raises(browser.OverflowError) as caught:
-            browser.refuse_overflow(page, frame_width=1080, client=FakeBrowser([finding]))
+            browser.refuse_overflow(
+                page, frame_width=1080, client=FakeBrowser([finding])
+            )
         assert caught.value.findings == [finding]
         assert "label" in str(caught.value)
 
@@ -340,7 +353,9 @@ class TestTheBrowserSeam:
         page = tmp_path / "card.html"
         page.write_text("<p>hi</p>")
         dest = tmp_path / "card.png"
-        assert clients.Browser().shot(page.as_uri(), dest, width=800, height=600) == dest
+        assert (
+            clients.Browser().shot(page.as_uri(), dest, width=800, height=600) == dest
+        )
         assert playwright["viewport"] == {"width": 800, "height": 600}
         assert playwright["url"] == page.as_uri()
         assert playwright["closed"] is True
@@ -400,7 +415,9 @@ class TestTheImageModelSeam:
         assert fake.asked[0]["size"] == "1080x1080"
 
     async def test_a_model_that_refuses_is_one_render_error(self):
-        painter = clients.Painter(client=FakeOpenAI("", error=RuntimeError("over quota")))
+        painter = clients.Painter(
+            client=FakeOpenAI("", error=RuntimeError("over quota"))
+        )
         with pytest.raises(clients.RenderError) as caught:
             await painter.background("a wall", width=1080, height=1080)
         assert "over quota" in str(caught.value)
