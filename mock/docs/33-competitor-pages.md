@@ -1,15 +1,15 @@
-# Competitor Pages — Crawl
+# Competitor Pages — Firecrawl v2
 
 ## Overview
 
-A crawl stand-in: list a competitor's pages, then fetch each one as text with a hash of that text. OS keeps the hash so it can tell when a page changed, which is the whole point of the source — a competitor's pricing page moving from $99 to $79 is a thing the marketer agent should notice the morning it happens.
+A change monitor for competitors' sites: map a domain to the pages worth reading, then scrape each one to markdown and keep a hash of it. OS keeps the hash so it can tell when a page changed, which is the whole point of the source — a competitor's pricing page moving from $99 to $79 is a thing the marketer agent should notice the morning it happens.
 
-Firecrawl, Diffbot and ScrapingBee all sell this shape. The contract below is close to Firecrawl's, trimmed to the two calls a change monitor makes.
+The contract is Firecrawl's v2 API, trimmed to the two calls a monitor makes: `map` for the site and `scrape` for a page.
 
 - **Category:** Competitors
-- **Production Base URL:** vendor-specific, e.g. `https://api.firecrawl.dev`
-- **Mock Base URL:** `http://mock:8100/pages` (from the host: `http://localhost:9192/pages`)
-- **API Version:** v1
+- **Production Base URL:** `https://api.firecrawl.dev`
+- **Mock Base URL:** `http://mock:8100/pages` (from the host: `http://localhost:8192/pages`)
+- **API Version:** v2
 - **Response Format:** JSON
 
 ## Authentication
@@ -26,91 +26,111 @@ Any non-empty bearer token is accepted. A missing or malformed one answers `401`
 
 ## Endpoints
 
-### 1. Sitemap
+### 1. Map
 
 ```
-GET /v1/sitemap
+POST /v2/map
 ```
 
-The pages worth watching on one domain. A monitor calls this first, then fetches each URL.
+The pages on one site. A monitor calls this first, then scrapes each link.
 
-**Query parameters:**
+**Request body:**
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `domain` | string | **required** | A tracked competitor's domain, no scheme |
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `url` | string | **required** | The site, with or without a scheme; `www.` is ignored |
+| `limit` | integer | 100 | Most links to return |
 
 **Example request:**
 
 ```bash
-curl -G "http://localhost:9192/pages/v1/sitemap" \
+curl -X POST "http://localhost:8192/pages/v2/map" \
   -H "Authorization: Bearer mock_competitor_pages_token" \
-  --data-urlencode "domain=vidora.ai"
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://vidora.ai", "limit": 50}'
 ```
 
 **Example response (200):**
 
 ```json
 {
-  "domain": "vidora.ai",
-  "urls": [
-    "https://vidora.ai/",
-    "https://vidora.ai/pricing",
-    "https://vidora.ai/how-it-works",
-    "https://vidora.ai/blog",
-    "https://vidora.ai/blog/one-url-thirty-ads",
-    "https://vidora.ai/blog/what-a-creator-brief-costs",
-    "https://vidora.ai/about"
+  "success": true,
+  "links": [
+    {
+      "url": "https://vidora.ai/",
+      "title": "Vidora — video ads from a product URL",
+      "description": "Paste a product URL."
+    },
+    {
+      "url": "https://vidora.ai/pricing",
+      "title": "Pricing — Vidora",
+      "description": "Three plans, no per-render fees."
+    }
   ]
 }
 ```
 
-`urls` holds absolute URLs, which is what a sitemap carries and what `/v1/fetch` takes.
+`links` holds objects, not bare strings: v2 returns the title and description it saw alongside each URL. The URL is what `/v2/scrape` takes.
 
-### 2. Fetch
+### 2. Scrape
 
 ```
-GET /v1/fetch
+POST /v2/scrape
 ```
 
-**Query parameters:**
+**Request body:**
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `url` | string | **required** | One of the URLs the map listed |
+| `formats` | list | `["markdown"]` | Accepted and ignored; markdown is the only format served |
+| `onlyMainContent` | boolean | false | `true` drops the site's navigation and footer from the markdown |
+
+**Query parameters (mock only):**
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `url` | string | **required** | One of the URLs the sitemap listed |
 | `as_of` | string | today | `YYYY-MM-DD`; picks which stored version comes back |
 
 **Example request:**
 
 ```bash
-curl -G "http://localhost:9192/pages/v1/fetch" \
+curl -X POST "http://localhost:8192/pages/v2/scrape" \
   -H "Authorization: Bearer mock_competitor_pages_token" \
-  --data-urlencode "url=https://vidora.ai/pricing"
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://vidora.ai/pricing", "formats": ["markdown"], "onlyMainContent": true}'
 ```
 
 **Example response (200):**
 
 ```json
 {
-  "url": "https://vidora.ai/pricing",
-  "title": "Pricing — Vidora",
-  "text": "Three plans, no per-render fees. ...\n\nStudio — $99 a month. Unlimited ads, 1080p, no watermark, three brand kits and one seat. This is the plan most teams stay on.\n\n...",
-  "fetched_at": "2026-09-14T05:50:00Z",
-  "content_sha": "d9f5d1353c6ae4c3...",
-  "word_count": 194
+  "success": true,
+  "data": {
+    "markdown": "# Pricing — Vidora\n\nThree plans, no per-render fees. ...\n\nStudio — $99 a month. Unlimited ads, 1080p, no watermark, three brand kits and one seat. This is the plan most teams stay on.\n\n...",
+    "metadata": {
+      "title": "Pricing — Vidora",
+      "description": "Three plans, no per-render fees.",
+      "sourceURL": "https://vidora.ai/pricing",
+      "url": "https://vidora.ai/pricing",
+      "statusCode": 200
+    }
+  }
 }
 ```
 
-**Fields:**
+**Fields under `data`:**
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `url` | string | The page, normalised to `https://domain/path` |
-| `title` | string | The page's title |
-| `text` | string | The page's copy, paragraphs joined with a blank line |
-| `fetched_at` | string | ISO 8601; the mock puts `as_of` at 05:50 UTC |
-| `content_sha` | string | `sha256` of `text`, hex — the change signal |
-| `word_count` | integer | Words in `text` |
+| `markdown` | string | The page as markdown: a title heading, then the copy, paragraphs separated by a blank line |
+| `metadata.title` | string | The page's title |
+| `metadata.description` | string | The page's meta description |
+| `metadata.sourceURL` | string | The URL that was asked for, normalised to `https://domain/path` |
+| `metadata.url` | string | The URL that answered; the same here, since nothing redirects |
+| `metadata.statusCode` | integer | The site's own status for the page |
+
+There is no hash and no word count in the response. Firecrawl returns the content and leaves the comparing to the caller; the connector's extract hook computes `_body_sha` and `_word_count` from `markdown` on the way in.
 
 ### The page that changes
 
@@ -121,25 +141,24 @@ The mock picks by `as_of`: the latest revision whose effective date is on or bef
 Today, Studio is $99 with three brand kits and one seat:
 
 ```bash
-curl -G .../v1/fetch --data-urlencode "url=https://vidora.ai/pricing"
+curl -X POST .../v2/scrape -d '{"url": "https://vidora.ai/pricing"}'
 ```
 
 On or after 2026-09-18, Studio is $79 with five brand kits and two seats:
 
 ```bash
-curl -G .../v1/fetch --data-urlencode "url=https://vidora.ai/pricing" \
-                     --data-urlencode "as_of=2026-09-20"
+curl -X POST ".../v2/scrape?as_of=2026-09-20" -d '{"url": "https://vidora.ai/pricing"}'
 ```
 
-`content_sha` differs between the two, as do `title`-adjacent copy, `word_count` and `fetched_at`. Nothing else on any other page moves.
+The markdown differs between the two, and with it the hash and the word count the hook computes. Nothing else on any other page moves.
 
-The real crawler has no `as_of`. It fetches what is live and the monitor finds the change by comparing today's `content_sha` against the one it stored yesterday. `as_of` exists so a test can reach the second version without waiting for a date to arrive, and a connector should not send it in normal operation.
+Firecrawl has no `as_of`. It scrapes what is live and the monitor finds the change by comparing today's hash against the one it stored yesterday. `as_of` exists so a test can reach the second version without waiting for a date to arrive, and a connector should not send it in normal operation.
 
 ---
 
 ## Pagination
 
-None. A sitemap is one response and a fetch is one page. Real crawlers paginate large sitemaps with a cursor; seven pages per domain never needs it.
+None. A map is one response and a scrape is one page. Firecrawl caps `map` with `limit` rather than paging it; seven pages per site never reaches the cap.
 
 ---
 
@@ -151,13 +170,19 @@ None. A sitemap is one response and a fetch is one page. Real crawlers paginate 
 { "detail": "Unauthorized" }
 ```
 
-### Domain not tracked (404)
+### No `url` in the body (400)
 
 ```json
-{ "success": false, "error": "No crawl configured for domain 'example.com'" }
+{ "success": false, "error": "Bad Request: url is required" }
 ```
 
-### URL not in the sitemap (404)
+### Site not tracked (404, map)
+
+```json
+{ "success": false, "error": "No site mapped for https://example.com" }
+```
+
+### URL not on the site (404, scrape)
 
 ```json
 { "success": false, "error": "No capture for https://vidora.ai/nope" }
@@ -169,30 +194,27 @@ None. A sitemap is one response and a fetch is one page. Real crawlers paginate 
 { "success": false, "error": "as_of must be an ISO date, got 'soon'" }
 ```
 
-### Missing required parameter (422)
-
-`domain` and `url` are required; the mock refuses their absence with FastAPI's validation body.
-
 ---
 
 ## What the connector stores
 
-The fetch response already names its own subject, so nothing is added to it. The stored `source_id` is the `url`, one row per page, and re-crawling the same page on a later day overwrites the row rather than appending — the history lives in the `content_sha` the pipeline keeps, not in duplicate raw rows. Captured in `app/backend/fixtures/mock/competitor_pages/pages.json`: a sitemap call for each of the three competitors, then a fetch for every URL it returned, twenty-one rows.
+One `map` per tracked competitor, then one `scrape` per link it returned, with `formats: ["markdown"]` and `onlyMainContent: true`. Each successful scrape's `data` object is stored as it arrived, with two stamps added under the leading-underscore convention: `_fetched_at`, the connector's clock at the time of the scrape, and `_competitor_ref`, the host of `metadata.sourceURL` without `www.`, which is the domain the estate folds a competitor on. The stored `source_id` is `metadata.sourceURL`, one row per page; a scrape whose `success` is false or that carries no `data` is counted under `failed_scrapes` and not stored. Captured in `app/backend/fixtures/mock/competitor_pages/pages.json`: twenty-one rows, seven per competitor.
 
 ---
 
 ## What the mock simplifies
 
-- Three domains, seven pages each: `/`, `/pricing`, `/how-it-works`, `/blog`, two blog posts and `/about`. Any other URL is a 404.
-- `text` is the page's own copy followed by the site's shared footer, which is what a crawl of a real page returns — navigation and legal boilerplate included, on every page of the site.
-- No HTML, no markdown, no screenshots, no links graph, no `robots.txt` handling, no rendering of JavaScript, no rate limiting and no crawl jobs. One GET is one page.
+- Three sites, seven pages each: `/`, `/pricing`, `/how-it-works`, `/blog`, two blog posts and `/about`. Any other URL is a 404.
+- `markdown` is a heading and the page's own copy; with `onlyMainContent` false the site's shared footer follows it, which is what a scrape of a real page returns — navigation and legal boilerplate included, on every page of the site.
+- No HTML, no screenshots, no links graph, no `robots.txt` handling, no rendering of JavaScript, no rate limiting, no credits and no asynchronous crawl jobs. One POST is one page.
+- `formats` is accepted and ignored; markdown is the only format served.
 - One page has a second version and the rest never move, so a change-detection test has exactly one thing to find.
-- `fetched_at` is derived from `as_of` rather than the clock, so repeated calls are byte-identical.
+- `description` is the first sentence of the page's first paragraph rather than a real meta description.
 
 ---
 
 ## Reference
 
-- [Firecrawl](https://docs.firecrawl.dev/api-reference/introduction) -- Scrape and map endpoints; the closest public shape to this one
-- [Diffbot](https://docs.diffbot.com/reference/article) -- Article extraction, text plus metadata
-- [ScrapingBee](https://www.scrapingbee.com/documentation/) -- HTML API with rendering options
+- [Firecrawl map](https://docs.firecrawl.dev/api-reference/endpoint/map) -- The v2 map endpoint and its link objects
+- [Firecrawl scrape](https://docs.firecrawl.dev/api-reference/endpoint/scrape) -- The v2 scrape endpoint, `formats` and `onlyMainContent`
+- [Firecrawl errors](https://docs.firecrawl.dev/api-reference/introduction) -- The `success`/`error` envelope

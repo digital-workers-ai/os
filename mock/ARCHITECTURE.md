@@ -72,8 +72,8 @@ mock/
 │   ├── google_ads_transparency.py  # SerpApi's google_ads_transparency_center engine
 │   ├── serp.py                  # SerpApi's google engine: keyword rankings
 │   ├── ai_answers.py            # AI-visibility tracker: who each engine named
-│   ├── competitor_pages.py      # Crawl: sitemap, page text, change detection
-│   └── social_scrape.py         # Social scraper: a competitor's LinkedIn posts
+│   ├── competitor_pages.py      # Firecrawl v2: map a site, scrape a page to markdown
+│   └── social_scrape.py         # BrightData datasets v3: trigger, poll, snapshot of LinkedIn posts
 │
 └── docs/                        # API contracts (the source of truth)
     ├── 01-hubspot.md
@@ -111,7 +111,7 @@ All providers render the same canonical dataset. The entities are defined as Pyt
 | Our brand | 1 | Digital Workers, hiredigitalworkers.com — the "us" row in rankings and answers |
 | Tracked keywords | 4 | Search terms the ranking view follows, one of which we win |
 | Tracked prompts | 3 | Questions put to four answer engines: chatgpt, perplexity, gemini, aio |
-| Competitor pages | 21 | Seven crawled pages each; Vidora's `/pricing` has a second version |
+| Competitor pages | 21 | Seven scraped pages each; Vidora's `/pricing` has a second version |
 | Competitor posts | 18 | Six LinkedIn posts each, spread over two months, one carousel apiece |
 
 ### 4.2 Company Scenarios
@@ -211,8 +211,8 @@ The server mounts each provider's router with a prefix that absorbs the API vers
 | 31 | Google Ads Transparency (SerpApi) | `/serpapi` | `api_key` query param | `30-google-ads-transparency.md` |
 | 32 | SerpApi google engine | `/serp` | `api_key` query param | `31-serp.md` |
 | 33 | AI answers tracker | `/answers` | Bearer | `32-ai-answers.md` |
-| 34 | Competitor pages crawl | `/pages` | Bearer | `33-competitor-pages.md` |
-| 35 | Social scraper (LinkedIn) | `/social-scrape` | Bearer | `34-social-scrape.md` |
+| 34 | Competitor pages (Firecrawl v2) | `/pages` | Bearer | `33-competitor-pages.md` |
+| 35 | LinkedIn posts (BrightData datasets v3) | `/social-scrape` | Bearer | `34-social-scrape.md` |
 
 34 numbered contracts plus Zoom, 33 modules — Meta Ads, FB Organic, and IG Organic share one module (`meta.py`) because they share the Graph API. Route conflicts (e.g., `/{id}/insights` matching ads, pages, and IG accounts) are resolved by dispatching on ID prefix (`act_`, `page_`, `ig_`).
 

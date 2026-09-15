@@ -2,7 +2,7 @@ from app import caches
 
 DEFAULT_COMPETITORS = caches.DEFINITIONS_DIR / "competitors.yaml"
 
-PLATFORM_IDS = ("meta_page_id", "google_advertiser_id")
+PLATFORM_IDS = ("meta_page_id", "google_advertiser_id", "linkedin_url")
 
 ENGINES = ("chatgpt", "perplexity", "gemini", "aio")
 

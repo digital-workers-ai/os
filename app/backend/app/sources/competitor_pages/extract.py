@@ -1,4 +1,4 @@
-from urllib.parse import urlsplit
+import hashlib
 
 SOURCE = "competitor_pages"
 
@@ -6,11 +6,13 @@ SOURCE = "competitor_pages"
 def reshape(object_type: str, payload: dict) -> list[dict]:
     if object_type != "pages":
         return [payload]
-    record = {**payload}
-    host = urlsplit(str(payload.get("url") or "")).hostname
-    if host:
-        record["_competitor_ref"] = host.removeprefix("www.")
-    text = payload.get("text")
-    if isinstance(text, str):
-        record["_word_count"] = len(text.split())
-    return [record]
+    markdown = payload.get("markdown")
+    if not isinstance(markdown, str):
+        return [payload]
+    return [
+        {
+            **payload,
+            "_word_count": len(markdown.split()),
+            "_body_sha": hashlib.sha256(markdown.encode()).hexdigest(),
+        }
+    ]

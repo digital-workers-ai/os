@@ -470,12 +470,16 @@ class Competitor:
     domain: str
     meta_page_id: str
     google_advertiser_id: str
+    linkedin_url: str
 
 
 COMPETITORS = [
-    Competitor("k1", "Vidora", "vidora.ai", "204815000001", "AR11111111111111111111"),
-    Competitor("k2", "Clipwise", "clipwise.io", "204815000002", "AR22222222222222222222"),
-    Competitor("k3", "Avatarly", "avatarly.com", "204815000003", "AR33333333333333333333"),
+    Competitor("k1", "Vidora", "vidora.ai", "204815000001", "AR11111111111111111111",
+               "https://www.linkedin.com/company/vidora"),
+    Competitor("k2", "Clipwise", "clipwise.io", "204815000002", "AR22222222222222222222",
+               "https://www.linkedin.com/company/clipwise"),
+    Competitor("k3", "Avatarly", "avatarly.com", "204815000003", "AR33333333333333333333",
+               "https://www.linkedin.com/company/avatarly"),
 ]
 
 COMPETITORS_BY_ID = {k.id: k for k in COMPETITORS}

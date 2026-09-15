@@ -243,6 +243,7 @@ entities:
     attrs:
       name: string
       platform: string
+      category: string
       competitor_ref: string
       posted_at: date
       likes: number

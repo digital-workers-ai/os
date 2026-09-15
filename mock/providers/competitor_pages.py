@@ -1,5 +1,5 @@
-import hashlib
 from datetime import date
+from urllib.parse import urlsplit
 
 from fastapi import APIRouter, Query, Request
 from fastapi.responses import JSONResponse
@@ -14,8 +14,8 @@ from seeds.world import (
 
 router = APIRouter()
 
-_CRAWLED_AT_TIME = "05:50:00Z"
 _TODAY = "2026-09-14"
+_MAP_LIMIT = 100
 
 
 def _failed(status, message):
@@ -23,9 +23,8 @@ def _failed(status, message):
 
 
 def _split(url):
-    without_scheme = url.split("://", 1)[-1]
-    domain, _, rest = without_scheme.partition("/")
-    return domain, "/" + rest
+    parts = urlsplit(url if "://" in url else f"https://{url}")
+    return (parts.hostname or "").removeprefix("www."), parts.path or "/"
 
 
 def _version(page, as_of):
@@ -43,42 +42,74 @@ def _page_at(competitor, path):
     return None
 
 
-@router.get("/v1/sitemap")
-async def sitemap(request: Request, domain: str = Query(...)):
+def _description(paragraphs):
+    return paragraphs[0].split(". ")[0].rstrip(".") + "." if paragraphs else ""
+
+
+async def _body(request):
+    try:
+        body = await request.json()
+    except ValueError:
+        return None
+    return body if isinstance(body, dict) else None
+
+
+@router.post("/v2/map")
+async def map_site(request: Request):
     require_bearer(request)
+    body = await _body(request)
+    url = (body or {}).get("url")
+    if not isinstance(url, str) or not url:
+        return _failed(400, "Bad Request: url is required")
+    domain, _path = _split(url)
     competitor = COMPETITORS_BY_DOMAIN.get(domain)
     if competitor is None:
-        return _failed(404, f"No crawl configured for domain '{domain}'")
+        return _failed(404, f"No site mapped for {url}")
+    limit = body.get("limit") or _MAP_LIMIT
     return {
-        "domain": domain,
-        "urls": [
-            f"https://{domain}{page.path}"
-            for page in COMPETITOR_PAGES_BY_COMPETITOR[competitor.id]
+        "success": True,
+        "links": [
+            {
+                "url": f"https://{domain}{page.path}",
+                "title": page.title,
+                "description": _description(page.paragraphs),
+            }
+            for page in COMPETITOR_PAGES_BY_COMPETITOR[competitor.id][:limit]
         ],
     }
 
 
-@router.get("/v1/fetch")
-async def fetch(request: Request, url: str = Query(...), as_of: str = Query(_TODAY)):
+@router.post("/v2/scrape")
+async def scrape(request: Request, as_of: str = Query(_TODAY)):
     require_bearer(request)
     try:
         date.fromisoformat(as_of)
     except ValueError:
         return _failed(400, f"as_of must be an ISO date, got '{as_of}'")
+    body = await _body(request)
+    url = (body or {}).get("url")
+    if not isinstance(url, str) or not url:
+        return _failed(400, "Bad Request: url is required")
     domain, path = _split(url)
     competitor = COMPETITORS_BY_DOMAIN.get(domain)
-    if competitor is None:
-        return _failed(404, f"No crawl configured for domain '{domain}'")
-    page = _page_at(competitor, path)
+    page = _page_at(competitor, path) if competitor is not None else None
     if page is None:
         return _failed(404, f"No capture for {url}")
     title, paragraphs = _version(page, as_of)
-    text = "\n\n".join([*paragraphs, COMPETITOR_SITE_FOOTERS[competitor.id]])
+    parts = [f"# {title}", *paragraphs]
+    if not body.get("onlyMainContent"):
+        parts.append(COMPETITOR_SITE_FOOTERS[competitor.id])
+    source_url = f"https://{domain}{path}"
     return {
-        "url": f"https://{domain}{path}",
-        "title": title,
-        "text": text,
-        "fetched_at": f"{as_of}T{_CRAWLED_AT_TIME}",
-        "content_sha": hashlib.sha256(text.encode()).hexdigest(),
-        "word_count": len(text.split()),
+        "success": True,
+        "data": {
+            "markdown": "\n\n".join(parts),
+            "metadata": {
+                "title": title,
+                "description": _description(paragraphs),
+                "sourceURL": source_url,
+                "url": source_url,
+                "statusCode": 200,
+            },
+        },
     }

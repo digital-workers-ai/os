@@ -341,19 +341,20 @@ ai_mention:
   ai_answers.mentions._checked_on: checked_on
 
 competitor_page:
-  competitor_pages.pages.url: url
-  competitor_pages.pages.title: name
+  competitor_pages.pages.metadata.sourceURL: url
+  competitor_pages.pages.metadata.title: name
   competitor_pages.pages._competitor_ref: competitor_ref
-  competitor_pages.pages.content_sha: body_sha
+  competitor_pages.pages._body_sha: body_sha
   competitor_pages.pages._word_count: word_count
-  competitor_pages.pages.fetched_at: fetched_on
+  competitor_pages.pages._fetched_at: fetched_on
 
 competitor_post:
-  linkedin_posts.posts.text: name
+  linkedin_posts.posts.post_text: name
+  linkedin_posts.posts.post_type: category
   linkedin_posts.posts._platform: platform
   linkedin_posts.posts._competitor_ref: competitor_ref
-  linkedin_posts.posts.posted_at: posted_at
-  linkedin_posts.posts.reactions: likes
-  linkedin_posts.posts.comments: comments
-  linkedin_posts.posts.reposts: shares
+  linkedin_posts.posts.date_posted: posted_at
+  linkedin_posts.posts.num_likes: likes
+  linkedin_posts.posts.num_comments: comments
+  linkedin_posts.posts.num_shares: shares
   linkedin_posts.posts.url: url

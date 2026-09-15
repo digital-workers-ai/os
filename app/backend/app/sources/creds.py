@@ -158,6 +158,8 @@ _REAL: dict[str, tuple[str, tuple[str, ...], Callable]] = {
         _query("api_key"),
     ),
     "serp": ("https://serpapi.com", ("SERPAPI_API_KEY",), _query("api_key")),
+    "competitor_pages": ("https://api.firecrawl.dev", ("FIRECRAWL_API_KEY",), _bearer),
+    "linkedin_posts": ("https://api.brightdata.com", ("BRIGHTDATA_API_KEY",), _bearer),
 }
 
 _MOCK: dict[str, tuple[str, dict, tuple | None, dict]] = {
