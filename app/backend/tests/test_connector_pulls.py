@@ -2842,6 +2842,7 @@ class TestLinkedinPostsCollectsEachCompetitor(_CompetitorWatchers):
         assert [json.loads(r.content) for r in triggers] == [
             [{"url": company}] for company in self._companies()
         ]
+        module = connector("linkedin_posts")
         for request in triggers:
             assert dict(request.url.params) == {
                 "dataset_id": BRIGHTDATA_DATASET,
@@ -2849,6 +2850,7 @@ class TestLinkedinPostsCollectsEachCompetitor(_CompetitorWatchers):
                 "discover_by": "company_url",
                 "format": "json",
                 "include_errors": "true",
+                "limit_per_input": str(module.POSTS_PER_COMPANY),
             }
 
     async def test_it_polls_until_the_snapshot_is_ready_then_reads_it(
