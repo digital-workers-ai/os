@@ -1,26 +1,16 @@
 import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { CircleCheck, RefreshCw, TriangleAlert } from 'lucide-react'
-import { asApiError, getSources, rebuild, syncSources, type SourceStatus } from '@/api'
+import { asApiError, getSources, rebuild, syncSources } from '@/api'
 import { Button } from '@/components/ui/button'
 import { timeAgo } from '@/lib/format'
 import { cn } from '@/lib/utils'
-import { SOURCES } from '@/tabs'
 
 type Step = 'idle' | 'syncing' | 'rebuilding'
 
 const LABELS: Record<Step, string> = { idle: 'Sync now', syncing: 'Syncing…', rebuilding: 'Rebuilding…' }
 
-function lastSync(sources: SourceStatus[]): string | null {
-  let latest: string | null = null
-  for (const { source, last_success } of sources) {
-    if (!SOURCES.includes(source) || !last_success) continue
-    if (!latest || Date.parse(last_success) > Date.parse(latest)) latest = last_success
-  }
-  return latest
-}
-
-export function SyncBanner() {
+export function SyncBanner({ source }: { source: string }) {
   const queryClient = useQueryClient()
   const sources = useQuery({ queryKey: ['sources'], queryFn: getSources, refetchInterval: 60_000 })
   const [step, setStep] = useState<Step>('idle')
@@ -28,14 +18,14 @@ export function SyncBanner() {
 
   if (!sources.data) return null
 
-  const latest = lastSync(sources.data.sources)
+  const latest = sources.data.sources.find((row) => row.source === source)?.last_success ?? null
   const busy = step !== 'idle'
   const failed = failure !== null
 
   async function syncNow() {
     setStep('syncing')
     try {
-      await syncSources(SOURCES)
+      await syncSources([source])
       setStep('rebuilding')
       await rebuild()
       setFailure(null)

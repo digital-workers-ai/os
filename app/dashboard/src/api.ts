@@ -274,6 +274,6 @@ export interface SourcesResponse {
 
 export const getSources = () => get<SourcesResponse>('/api/sources')
 
-export const syncAll = () => post('/api/sync', {})
+export const sync = (sources: string[] | null) => post('/api/sync', sources ? { sources } : {})
 
 export const rebuild = () => post('/api/rebuild')

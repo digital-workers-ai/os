@@ -4,7 +4,6 @@ import { pageAt, type PageSpec } from '@/api'
 import { PRODUCT } from '@/brand'
 import { DigitalWorkersMark, type IntroPhase } from '@/components/DigitalWorkersMark'
 import { RangePicker } from '@/components/RangePicker'
-import { SyncBanner } from '@/components/SyncBanner'
 import { TopNav } from '@/components/TopNav'
 import type { Range } from '@/lib/range'
 
@@ -91,7 +90,6 @@ export function Layout({
         style={{ transition: EASE, opacity: reached('all') ? 1 : 0, filter: gray ? 'grayscale(1)' : 'grayscale(0)' }}
         data-testid="page-main"
       >
-        <SyncBanner />
         <Outlet />
       </main>
     </div>

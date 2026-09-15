@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import { PRODUCT } from '@/brand'
 import { DigitalWorkersMark, type IntroPhase } from '@/components/DigitalWorkersMark'
 import { SyncBanner } from '@/components/SyncBanner'
 import { TopNav } from '@/components/TopNav'
+import { TABS } from '@/tabs'
 
 type Step = IntroPhase | 'fadeout' | 'header' | 'all' | 'color'
 
@@ -36,6 +37,8 @@ function useReveal(): Step {
 
 export function Layout() {
   const step = useReveal()
+  const { pathname } = useLocation()
+  const tab = TABS.find(({ slug }) => pathname === `/${slug}`)
   const reached = (target: Step) => ORDER.indexOf(step) >= ORDER.indexOf(target)
   const phase: IntroPhase = step === 'full' || step === 'fade' || step === 'collapse' ? step : 'done'
   const gray = !reached('color')
@@ -71,7 +74,7 @@ export function Layout() {
         style={{ transition: EASE, opacity: reached('all') ? 1 : 0, filter: gray ? 'grayscale(1)' : 'grayscale(0)' }}
         data-testid="page-main"
       >
-        <SyncBanner />
+        {tab && <SyncBanner key={tab.source} source={tab.source} />}
         <Outlet />
       </main>
     </div>

@@ -7,6 +7,4 @@ export const TABS = [
   { slug: 'linkedin', label: 'LinkedIn', source: 'linkedin_posts' },
 ]
 
-export const SOURCES = TABS.map(({ source }) => source)
-
 export const HOME = `/${TABS[0].slug}`

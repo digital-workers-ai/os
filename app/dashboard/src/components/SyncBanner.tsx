@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { CircleCheck, RefreshCw, TriangleAlert } from 'lucide-react'
-import { asApiError, getSources, rebuild, syncAll } from '@/api'
+import { asApiError, getSources, rebuild, sync, type MetricResponse } from '@/api'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -15,28 +15,34 @@ export function timeAgo(from: number, to: number): string {
   return `${days} day${days === 1 ? '' : 's'} ago`
 }
 
+export function pageSources(responses: (MetricResponse | undefined)[]): string[] | null {
+  const names = new Set(responses.flatMap((r) => r?.raw_fields ?? []).map((field) => field.split('.')[0]))
+  return names.size ? [...names].sort() : null
+}
+
 type Phase = 'idle' | 'syncing' | 'rebuilding'
 
 const LABEL: Record<Phase, string> = { idle: 'Sync now', syncing: 'Syncing…', rebuilding: 'Rebuilding…' }
 
-export function SyncBanner() {
+export function SyncBanner({ sources }: { sources: string[] | null }) {
   const queryClient = useQueryClient()
-  const sources = useQuery({ queryKey: ['sources'], queryFn: getSources, refetchInterval: 60_000 })
+  const status = useQuery({ queryKey: ['sources'], queryFn: getSources, refetchInterval: 60_000 })
   const [phase, setPhase] = useState<Phase>('idle')
   const [error, setError] = useState<string | null>(null)
 
-  if (!sources.data) return null
+  if (!status.data) return null
 
-  const successes = sources.data.sources.flatMap((s) => (s.last_success ? [Date.parse(s.last_success)] : []))
+  const covered = sources ? status.data.sources.filter((s) => sources.includes(s.source)) : status.data.sources
+  const successes = covered.flatMap((s) => (s.last_success ? [Date.parse(s.last_success)] : []))
   const latest = successes.length ? Math.max(...successes) : null
   const busy = phase !== 'idle'
   const Icon = error ? TriangleAlert : CircleCheck
-  const text = error ? `Sync failed: ${error}` : latest === null ? 'Never synced.' : `Last sync: ${timeAgo(latest, sources.dataUpdatedAt)}.`
+  const text = error ? `Sync failed: ${error}` : latest === null ? 'Never synced.' : `Last sync: ${timeAgo(latest, status.dataUpdatedAt)}.`
 
   async function run() {
     setPhase('syncing')
     try {
-      await syncAll()
+      await sync(sources)
       setPhase('rebuilding')
       await rebuild()
     } catch (e) {
