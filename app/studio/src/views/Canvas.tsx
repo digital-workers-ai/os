@@ -268,8 +268,8 @@ function Board() {
         <Button size="sm" disabled={save.isPending} onClick={() => save.mutate()} data-testid="canvas-save-layout">
           {save.isPending ? 'Saving…' : 'Save layout'}
         </Button>
-        <span aria-live="polite" className={cn('text-xs text-muted transition-opacity duration-700', saved ? 'opacity-100' : 'opacity-0')}>
-          saved
+        <span aria-live="polite" className="text-xs text-muted">
+          {saved ? 'saved' : null}
         </span>
       </div>
 
