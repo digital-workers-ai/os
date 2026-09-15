@@ -18,7 +18,6 @@ export function LinkedIn() {
             <Th>posted</Th>
             <Th right>reactions</Th>
             <Th right>comments</Th>
-            <Th right>reposts</Th>
             <Th>link</Th>
           </Head>
           <tbody>
@@ -29,7 +28,6 @@ export function LinkedIn() {
                 <DateCell value={row.posted_at} />
                 <NumCell value={row.likes} />
                 <NumCell value={row.comments} />
-                <NumCell value={row.shares} />
                 <LinkCell href={row.url}>open ↗</LinkCell>
               </Row>
             ))}

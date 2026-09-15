@@ -46,10 +46,14 @@ async def pull(session, store):
     notes: dict = {}
     for spec in competitors.tracked().values():
         records = await _snapshot(api, str(spec["linkedin_url"]), notes)
+        found = [record for record in records if isinstance(record, dict)]
+        dead = sum("error" in record for record in found)
+        if dead:
+            notes["dead_pages"] = notes.get("dead_pages", 0) + dead
         posts = [
             {**post, "_competitor_ref": str(spec["domain"])}
-            for post in records
-            if isinstance(post, dict)
+            for post in found
+            if "error" not in post
         ]
         await store_all(
             session,

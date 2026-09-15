@@ -355,5 +355,4 @@ competitor_post:
   linkedin_posts.posts.date_posted: posted_at
   linkedin_posts.posts.num_likes: likes
   linkedin_posts.posts.num_comments: comments
-  linkedin_posts.posts.num_shares: shares
   linkedin_posts.posts.url: url

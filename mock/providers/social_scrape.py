@@ -1,11 +1,10 @@
 from collections import Counter
-from datetime import date
 
 from fastapi import APIRouter, Query, Request
 from fastapi.responses import JSONResponse
 
-from seeds.helpers import day_factor, item_factor, require_bearer
-from seeds.world import COMPETITOR_POSTS_BY_COMPETITOR, COMPETITORS, COMPETITORS_BY_ID
+from seeds.helpers import item_factor, require_bearer
+from seeds.world import COMPETITOR_POSTS_BY_COMPETITOR, COMPETITORS
 
 router = APIRouter()
 
@@ -14,6 +13,7 @@ DISCOVER_BY = "company_url"
 
 _COMPANIES = {k.linkedin_url.rstrip("/"): k for k in COMPETITORS}
 _FOLLOWERS = {"k1": 18400, "k2": 9600, "k3": 12700}
+_COLLECTED_AT = "2026-09-15T05:50:00.000Z"
 _SNAPSHOTS: dict = {}
 _POLLS: Counter = Counter()
 
@@ -32,7 +32,6 @@ def _activity_id(post):
 
 def _post(competitor, post):
     activity_id = _activity_id(post)
-    posted_on = date.fromisoformat(post.posted_at[:10])
     reactions = post.reactions
     slug = _slug(competitor.linkedin_url)
     return {
@@ -44,9 +43,20 @@ def _post(competitor, post):
         "hashtags": [f"#{competitor.name.lower()}", "#ugc"],
         "num_likes": reactions,
         "num_comments": max(1, round(reactions * 0.11 * item_factor(post.id))),
-        "num_shares": max(0, round(reactions * 0.04 * day_factor(posted_on))),
         "post_type": "document" if "swipe" in post.text.lower() else "post",
+        "account_type": "Organization",
         "user_followers": _FOLLOWERS[competitor.id],
+        "repost": {},
+        "timestamp": _COLLECTED_AT,
+    }
+
+
+def _dead_page(company_url):
+    return {
+        "timestamp": _COLLECTED_AT,
+        "input": {"url": company_url},
+        "error": "Activities are not found",
+        "error_code": "dead_page",
     }
 
 
@@ -82,12 +92,8 @@ async def trigger(
     urls = await _inputs(request)
     if urls is None:
         return _error(400, "Input must be a non-empty list of objects with a url")
-    companies = [_COMPANIES.get(url.rstrip("/")) for url in urls]
-    unknown = [url for url, company in zip(urls, companies) if company is None]
-    if unknown:
-        return _error(400, f"No LinkedIn company page known for {unknown[0]}")
-    snapshot_id = f"s_{len(_SNAPSHOTS) + 1:06d}_{'_'.join(k.id for k in companies)}"
-    _SNAPSHOTS[snapshot_id] = [k.id for k in companies]
+    snapshot_id = f"s_{len(_SNAPSHOTS) + 1:06d}"
+    _SNAPSHOTS[snapshot_id] = urls
     return {"snapshot_id": snapshot_id}
 
 
@@ -106,8 +112,8 @@ async def snapshot(
     request: Request, snapshot_id: str, fmt: str = Query("json", alias="format")
 ):
     require_bearer(request)
-    ids = _SNAPSHOTS.get(snapshot_id)
-    if ids is None:
+    urls = _SNAPSHOTS.get(snapshot_id)
+    if urls is None:
         return _error(404, f"Snapshot {snapshot_id} not found")
     if fmt != "json":
         return _error(400, "Only format=json is served")
@@ -119,13 +125,16 @@ async def snapshot(
                 "message": "Snapshot is not ready yet, check again in 10s",
             },
         )
-    posts = []
-    for competitor_id in ids:
-        competitor = COMPETITORS_BY_ID[competitor_id]
+    rows = []
+    for url in urls:
+        competitor = _COMPANIES.get(url.rstrip("/"))
+        if competitor is None:
+            rows.append(_dead_page(url))
+            continue
         newest_first = sorted(
-            COMPETITOR_POSTS_BY_COMPETITOR[competitor_id],
+            COMPETITOR_POSTS_BY_COMPETITOR[competitor.id],
             key=lambda p: p.posted_at,
             reverse=True,
         )
-        posts += [_post(competitor, post) for post in newest_first]
-    return posts
+        rows += [_post(competitor, post) for post in newest_first]
+    return rows

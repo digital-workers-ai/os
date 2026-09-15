@@ -109,7 +109,7 @@ curl "http://localhost:8192/social-scrape/datasets/v3/snapshot/s_000001_k1?forma
   -H "Authorization: Bearer mock_linkedin_posts_token"
 ```
 
-**Example response (200):** a JSON array, newest post first.
+**Example response (200):** a JSON array, newest post first, one row per post plus one error row per company page the collector could not read.
 
 ```json
 [
@@ -122,14 +122,22 @@ curl "http://localhost:8192/social-scrape/datasets/v3/snapshot/s_000001_k1?forma
     "hashtags": ["#vidora", "#ugc"],
     "num_likes": 1180,
     "num_comments": 147,
-    "num_shares": 42,
     "post_type": "document",
-    "user_followers": 18400
+    "account_type": "Organization",
+    "user_followers": 18400,
+    "repost": {},
+    "timestamp": "2026-09-15T05:50:00.000Z"
+  },
+  {
+    "timestamp": "2026-09-15T05:50:00.000Z",
+    "input": { "url": "https://www.linkedin.com/company/nobody" },
+    "error": "Activities are not found",
+    "error_code": "dead_page"
   }
 ]
 ```
 
-**Post fields:**
+**Post fields the mock emits:**
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -141,13 +149,28 @@ curl "http://localhost:8192/social-scrape/datasets/v3/snapshot/s_000001_k1?forma
 | `hashtags` | list | Hashtags in the post |
 | `num_likes` | integer | Reactions of every kind, summed |
 | `num_comments` | integer | Comment count |
-| `num_shares` | integer | Repost count |
 | `post_type` | string | `post`, or `document` for a carousel |
+| `account_type` | string | `Organization` for a company page |
 | `user_followers` | integer | The company page's followers when collected |
+| `repost` | object | The original when the row is a repost; empty otherwise |
+| `timestamp` | string | When the collector read the row |
+
+A real row also carries `use_url`, `title`, `headline`, `embedded_links`, `images`, `videos`, `top_visible_comments`, `user_posts`, `user_articles`, `post_text_html`, `tagged_companies`, `tagged_people`, `user_name`, `original_post_text`, `input` and `discovery_input`, none of which the connector reads. There is **no share or repost count** in the dataset: nothing in a row says how often it was reposted, so OS keeps no `shares` for a LinkedIn post.
+
+**Error rows:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `timestamp` | string | When the collector tried |
+| `input` | object | The input row it was trying, here `{"url": ...}` |
+| `error` | string | `Activities are not found`, or `4XX page - dead page.` |
+| `error_code` | string | `dead_page` |
+
+A company page the collector cannot read does not fail the snapshot: it comes back inside it as an error row, next to the posts of the pages that worked. The mock answers one such row for any input URL it does not know.
 
 Asked for before the progress has reached `ready`, the snapshot answers `202` with `{"status": "running", ...}` and no rows, which is what BrightData does.
 
-`num_likes` is ground truth in `world.py`; `num_comments` and `num_shares` are derived from it with `item_factor` and `day_factor`, so they are plausible, proportionate and identical on every call.
+`num_likes` is ground truth in `world.py`; `num_comments` is derived from it with `item_factor`, so it is plausible, proportionate and identical on every call.
 
 ---
 
@@ -183,12 +206,6 @@ None. A snapshot is one array. BrightData pages large snapshots with `batch_size
 { "error": "Input must be a non-empty list of objects with a url" }
 ```
 
-### Company page not tracked (400)
-
-```json
-{ "error": "No LinkedIn company page known for https://www.linkedin.com/company/example" }
-```
-
 ### Unknown snapshot (404)
 
 ```json
@@ -203,17 +220,17 @@ None. A snapshot is one array. BrightData pages large snapshots with `batch_size
 
 ## What the connector stores
 
-One trigger per tracked competitor, with the company page from `competitors.yaml` as the single input; then progress polled up to `MAX_POLLS` times with a sleep between polls and none before the first; then, on `ready`, the snapshot read as json. A post row does not name the company it came from, so the connector carries the competitor's domain down as `_competitor_ref`, under the same leading-underscore convention as the other competitor sources. The stored `source_id` is the post `id`, or its `url` when the id is absent. A snapshot that reports `failed` is counted under `failed_snapshots`; one that never reaches `ready` within the poll budget is counted under `unfinished_snapshots`; neither stores anything. Captured in `app/backend/fixtures/mock/linkedin_posts/posts.json`: one collection per competitor, eighteen rows.
+One trigger per tracked competitor, with the company page from `competitors.yaml` as the single input; then progress polled up to `MAX_POLLS` times with a sleep between polls and none before the first; then, on `ready`, the snapshot read as json. A post row does not name the company it came from, so the connector carries the competitor's domain down as `_competitor_ref`, under the same leading-underscore convention as the other competitor sources. The stored `source_id` is the post `id`, or its `url` when the id is absent. An error row is never stored: it is counted under `dead_pages`, a bare count with the `error_code` left out, separately from `missing_id`. A snapshot that reports `failed` is counted under `failed_snapshots`; one that never reaches `ready` within the poll budget is counted under `unfinished_snapshots`; neither stores anything. Captured in `app/backend/fixtures/mock/linkedin_posts/posts.json`: one collection per competitor, eighteen rows.
 
 ---
 
 ## What the mock simplifies
 
-- Three company pages, six posts each, spread across 16 July to 11 September 2026. Any other company page is refused at the trigger rather than reported as a row error in the snapshot.
+- Three company pages, six posts each, spread across 16 July to 11 September 2026. Any other company page is accepted at the trigger and comes back as one `dead_page` error row in the snapshot, the way the real collector reports a page it cannot read.
 - Every company has one carousel among its six, marked `post_type: document`, and it is the one that did well — Vidora's nine-hook carousel at 1,180 reactions against a median of about 365.
 - The lifecycle is real but short: one `running` poll, then `ready`, then the download. No `failed`, no partial snapshots, no `batch_size`, no delivery to storage, no webhooks and no cost accounting.
 - Snapshot state lives in the mock process, so a restart forgets every snapshot id it issued.
-- No author beyond the company page, no images or documents, no comment bodies, no reaction breakdown by type, no `is_repost`, and no other network.
+- Only the fields the connector reads and the cheap ones beside them: no `title`, `headline`, `images`, `videos`, `embedded_links`, `top_visible_comments`, `post_text_html`, tagged entities or `user_name`; `repost` is always empty and `timestamp` is one fixed instant.
 - Engagement never moves, so a re-run on a later day produces the same numbers rather than a growth curve.
 
 ---

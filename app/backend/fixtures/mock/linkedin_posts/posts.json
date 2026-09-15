@@ -2,6 +2,7 @@
   {
     "payload": {
       "_competitor_ref": "vidora.ai",
+      "account_type": "Organization",
       "date_posted": "2026-09-11T13:25:00.000Z",
       "hashtags": [
         "#vidora",
@@ -10,9 +11,10 @@
       "id": "7241000000000000006",
       "num_comments": 45,
       "num_likes": 372,
-      "num_shares": 12,
       "post_text": "The ad that carried our quarter opened on the price and held on it for a second and a half. No hook gimmick, no stitched reaction. It beat the clever ones three to one on cost per purchase. Boring is a strategy.",
       "post_type": "post",
+      "repost": {},
+      "timestamp": "2026-09-15T05:50:00.000Z",
       "url": "https://www.linkedin.com/posts/vidora_activity-7241000000000000006",
       "user_followers": 18400,
       "user_id": "https://www.linkedin.com/company/vidora"
@@ -22,6 +24,7 @@
   {
     "payload": {
       "_competitor_ref": "vidora.ai",
+      "account_type": "Organization",
       "date_posted": "2026-09-04T10:00:00.000Z",
       "hashtags": [
         "#vidora",
@@ -30,9 +33,10 @@
       "id": "7241000000000000005",
       "num_comments": 10,
       "num_likes": 126,
-      "num_shares": 5,
       "post_text": "Shipped this week: brand kits now hold three reference ads, not just fonts and colours. Paste two ads you already like and every render matches their pacing. Small feature, and it cut our own revision rounds roughly in half.",
       "post_type": "post",
+      "repost": {},
+      "timestamp": "2026-09-15T05:50:00.000Z",
       "url": "https://www.linkedin.com/posts/vidora_activity-7241000000000000005",
       "user_followers": 18400,
       "user_id": "https://www.linkedin.com/company/vidora"
@@ -42,6 +46,7 @@
   {
     "payload": {
       "_competitor_ref": "vidora.ai",
+      "account_type": "Organization",
       "date_posted": "2026-08-26T15:10:00.000Z",
       "hashtags": [
         "#vidora",
@@ -50,9 +55,10 @@
       "id": "7241000000000000004",
       "num_comments": 59,
       "num_likes": 488,
-      "num_shares": 20,
       "post_text": "Unpopular opinion from a video tool: your ads are not underperforming because the creative is bad. They are underperforming because you shipped two of them. Two ads is not a test, it is a coin flip with a budget attached.",
       "post_type": "post",
+      "repost": {},
+      "timestamp": "2026-09-15T05:50:00.000Z",
       "url": "https://www.linkedin.com/posts/vidora_activity-7241000000000000004",
       "user_followers": 18400,
       "user_id": "https://www.linkedin.com/company/vidora"
@@ -62,6 +68,7 @@
   {
     "payload": {
       "_competitor_ref": "vidora.ai",
+      "account_type": "Organization",
       "date_posted": "2026-08-13T08:20:00.000Z",
       "hashtags": [
         "#vidora",
@@ -70,9 +77,10 @@
       "id": "7241000000000000003",
       "num_comments": 147,
       "num_likes": 1180,
-      "num_shares": 42,
       "post_text": "Nine hooks that kept winning across 4,000 ads our customers shipped this year. Swipe through \u2014 9 slides, one hook each, with the ad that proved it and the number it moved. Slide 6 is the one nobody believes until they run it.",
       "post_type": "document",
+      "repost": {},
+      "timestamp": "2026-09-15T05:50:00.000Z",
       "url": "https://www.linkedin.com/posts/vidora_activity-7241000000000000003",
       "user_followers": 18400,
       "user_id": "https://www.linkedin.com/company/vidora"
@@ -82,6 +90,7 @@
   {
     "payload": {
       "_competitor_ref": "vidora.ai",
+      "account_type": "Organization",
       "date_posted": "2026-07-30T11:40:00.000Z",
       "hashtags": [
         "#vidora",
@@ -90,9 +99,10 @@
       "id": "7241000000000000002",
       "num_comments": 35,
       "num_likes": 307,
-      "num_shares": 15,
       "post_text": "A creator brief does not cost what you pay the creator. We tracked eleven of them: median fee $340, median true cost $1,180, median wait eleven days. The gap is briefs, notes, licensing questions and the seasonal angle expiring while you wait.",
       "post_type": "post",
+      "repost": {},
+      "timestamp": "2026-09-15T05:50:00.000Z",
       "url": "https://www.linkedin.com/posts/vidora_activity-7241000000000000002",
       "user_followers": 18400,
       "user_id": "https://www.linkedin.com/company/vidora"
@@ -102,6 +112,7 @@
   {
     "payload": {
       "_competitor_ref": "vidora.ai",
+      "account_type": "Organization",
       "date_posted": "2026-07-17T09:05:00.000Z",
       "hashtags": [
         "#vidora",
@@ -110,9 +121,10 @@
       "id": "7241000000000000001",
       "num_comments": 19,
       "num_likes": 214,
-      "num_shares": 9,
       "post_text": "We gave one product page to Vidora and asked for thirty ads before dinner. Twenty-eight were forgettable. Two carried the month. That ratio is the whole argument for volume, and it only works when a forgettable ad costs four minutes instead of a shoot.",
       "post_type": "post",
+      "repost": {},
+      "timestamp": "2026-09-15T05:50:00.000Z",
       "url": "https://www.linkedin.com/posts/vidora_activity-7241000000000000001",
       "user_followers": 18400,
       "user_id": "https://www.linkedin.com/company/vidora"
@@ -122,6 +134,7 @@
   {
     "payload": {
       "_competitor_ref": "clipwise.io",
+      "account_type": "Organization",
       "date_posted": "2026-09-09T16:00:00.000Z",
       "hashtags": [
         "#clipwise",
@@ -130,9 +143,10 @@
       "id": "7241000000000000012",
       "num_comments": 16,
       "num_likes": 164,
-      "num_shares": 8,
       "post_text": "Shipped: search your footage by what was said. Type a phrase, get every clip where someone said it, with the timeline already cut. Built it for ourselves and then realised nobody should have to scrub an hour of Zoom recording again.",
       "post_type": "post",
+      "repost": {},
+      "timestamp": "2026-09-15T05:50:00.000Z",
       "url": "https://www.linkedin.com/posts/clipwise_activity-7241000000000000012",
       "user_followers": 9600,
       "user_id": "https://www.linkedin.com/company/clipwise"
@@ -142,6 +156,7 @@
   {
     "payload": {
       "_competitor_ref": "clipwise.io",
+      "account_type": "Organization",
       "date_posted": "2026-09-02T10:45:00.000Z",
       "hashtags": [
         "#clipwise",
@@ -150,9 +165,10 @@
       "id": "7241000000000000011",
       "num_comments": 26,
       "num_likes": 289,
-      "num_shares": 10,
       "post_text": "85% of the feed is watched muted, which means the caption is the ad and not a courtesy. Burned in, high contrast, three to five words on screen, placed above the interface furniture. That is it. That is the post.",
       "post_type": "post",
+      "repost": {},
+      "timestamp": "2026-09-15T05:50:00.000Z",
       "url": "https://www.linkedin.com/posts/clipwise_activity-7241000000000000011",
       "user_followers": 9600,
       "user_id": "https://www.linkedin.com/company/clipwise"
@@ -162,6 +178,7 @@
   {
     "payload": {
       "_competitor_ref": "clipwise.io",
+      "account_type": "Organization",
       "date_posted": "2026-08-24T14:05:00.000Z",
       "hashtags": [
         "#clipwise",
@@ -170,9 +187,10 @@
       "id": "7241000000000000010",
       "num_comments": 84,
       "num_likes": 874,
-      "num_shares": 33,
       "post_text": "Three edits every winning ad shares. Swipe \u2192 6 slides: hook inside the first second, captions that carry the sound off, a cut every three seconds, and the two we thought mattered but did not. Slide 5 is the one that surprised us.",
       "post_type": "document",
+      "repost": {},
+      "timestamp": "2026-09-15T05:50:00.000Z",
       "url": "https://www.linkedin.com/posts/clipwise_activity-7241000000000000010",
       "user_followers": 9600,
       "user_id": "https://www.linkedin.com/company/clipwise"
@@ -182,6 +200,7 @@
   {
     "payload": {
       "_competitor_ref": "clipwise.io",
+      "account_type": "Organization",
       "date_posted": "2026-08-11T09:30:00.000Z",
       "hashtags": [
         "#clipwise",
@@ -190,9 +209,10 @@
       "id": "7241000000000000009",
       "num_comments": 46,
       "num_likes": 531,
-      "num_shares": 17,
       "post_text": "A two-person candle shop in Leeds shipped 40 ads in a week from one afternoon of phone footage. Their agency shipped three that month. By June, video was their cheapest channel. Full week-by-week breakdown in the comments.",
       "post_type": "post",
+      "repost": {},
+      "timestamp": "2026-09-15T05:50:00.000Z",
       "url": "https://www.linkedin.com/posts/clipwise_activity-7241000000000000009",
       "user_followers": 9600,
       "user_id": "https://www.linkedin.com/company/clipwise"
@@ -202,6 +222,7 @@
   {
     "payload": {
       "_competitor_ref": "clipwise.io",
+      "account_type": "Organization",
       "date_posted": "2026-07-28T12:15:00.000Z",
       "hashtags": [
         "#clipwise",
@@ -210,9 +231,10 @@
       "id": "7241000000000000008",
       "num_comments": 80,
       "num_likes": 642,
-      "num_shares": 29,
       "post_text": "We will not build an avatar. We get asked every week. The answer is that our customers sell things people have to trust, and a synthetic face is a tax on trust that their categories cannot pay. Real footage, cut properly, wins there.",
       "post_type": "post",
+      "repost": {},
+      "timestamp": "2026-09-15T05:50:00.000Z",
       "url": "https://www.linkedin.com/posts/clipwise_activity-7241000000000000008",
       "user_followers": 9600,
       "user_id": "https://www.linkedin.com/company/clipwise"
@@ -222,6 +244,7 @@
   {
     "payload": {
       "_competitor_ref": "clipwise.io",
+      "account_type": "Organization",
       "date_posted": "2026-07-16T07:50:00.000Z",
       "hashtags": [
         "#clipwise",
@@ -230,9 +253,10 @@
       "id": "7241000000000000007",
       "num_comments": 28,
       "num_likes": 198,
-      "num_shares": 8,
       "post_text": "Your best ad this quarter is already on a hard drive. We keep finding it in footage brands paid for eighteen months ago and never cut. An hour of raw footage is usually six finished ads and about twenty minutes of work.",
       "post_type": "post",
+      "repost": {},
+      "timestamp": "2026-09-15T05:50:00.000Z",
       "url": "https://www.linkedin.com/posts/clipwise_activity-7241000000000000007",
       "user_followers": 9600,
       "user_id": "https://www.linkedin.com/company/clipwise"
@@ -242,6 +266,7 @@
   {
     "payload": {
       "_competitor_ref": "avatarly.com",
+      "account_type": "Organization",
       "date_posted": "2026-09-10T15:40:00.000Z",
       "hashtags": [
         "#avatarly",
@@ -250,9 +275,10 @@
       "id": "7241000000000000018",
       "num_comments": 59,
       "num_likes": 417,
-      "num_shares": 20,
       "post_text": "Stop sanding the edges. In our spend test the variants that won had an unsteady first second, a real room behind the presenter, and a line that sounded thought of rather than read. Polish is what viewers flag as artificial.",
       "post_type": "post",
+      "repost": {},
+      "timestamp": "2026-09-15T05:50:00.000Z",
       "url": "https://www.linkedin.com/posts/avatarly_activity-7241000000000000018",
       "user_followers": 12700,
       "user_id": "https://www.linkedin.com/company/avatarly"
@@ -262,6 +288,7 @@
   {
     "payload": {
       "_competitor_ref": "avatarly.com",
+      "account_type": "Organization",
       "date_posted": "2026-09-07T10:30:00.000Z",
       "hashtags": [
         "#avatarly",
@@ -270,9 +297,10 @@
       "id": "7241000000000000017",
       "num_comments": 94,
       "num_likes": 1042,
-      "num_shares": 44,
       "post_text": "Ten things we learned filming 200 licensed presenters. Swipe \u2192 10 slides on casting for range instead of looks, why the sceptic outperforms the enthusiast, and the lighting mistake that made our first forty faces unusable.",
       "post_type": "document",
+      "repost": {},
+      "timestamp": "2026-09-15T05:50:00.000Z",
       "url": "https://www.linkedin.com/posts/avatarly_activity-7241000000000000017",
       "user_followers": 12700,
       "user_id": "https://www.linkedin.com/company/avatarly"
@@ -282,6 +310,7 @@
   {
     "payload": {
       "_competitor_ref": "avatarly.com",
+      "account_type": "Organization",
       "date_posted": "2026-08-31T09:55:00.000Z",
       "hashtags": [
         "#avatarly",
@@ -290,9 +319,10 @@
       "id": "7241000000000000016",
       "num_comments": 38,
       "num_likes": 358,
-      "num_shares": 11,
       "post_text": "Every presenter in our library signed a per-use agreement and can withdraw a face at any time. We publish the withdrawn count every quarter. It has been non-zero twice, and we think both numbers should be public.",
       "post_type": "post",
+      "repost": {},
+      "timestamp": "2026-09-15T05:50:00.000Z",
       "url": "https://www.linkedin.com/posts/avatarly_activity-7241000000000000016",
       "user_followers": 12700,
       "user_id": "https://www.linkedin.com/company/avatarly"
@@ -302,6 +332,7 @@
   {
     "payload": {
       "_competitor_ref": "avatarly.com",
+      "account_type": "Organization",
       "date_posted": "2026-08-18T13:00:00.000Z",
       "hashtags": [
         "#avatarly",
@@ -310,9 +341,10 @@
       "id": "7241000000000000015",
       "num_comments": 114,
       "num_likes": 925,
-      "num_shares": 41,
       "post_text": "We showed ten ads to 2,000 people. One was made by a human crew, nine by Avatarly. 14% picked the human one \u2014 worse than chance. People do not detect synthesis, they detect polish, and they read polish as fake.",
       "post_type": "post",
+      "repost": {},
+      "timestamp": "2026-09-15T05:50:00.000Z",
       "url": "https://www.linkedin.com/posts/avatarly_activity-7241000000000000015",
       "user_followers": 12700,
       "user_id": "https://www.linkedin.com/company/avatarly"
@@ -322,6 +354,7 @@
   {
     "payload": {
       "_competitor_ref": "avatarly.com",
+      "account_type": "Organization",
       "date_posted": "2026-08-04T11:20:00.000Z",
       "hashtags": [
         "#avatarly",
@@ -330,9 +363,10 @@
       "id": "7241000000000000014",
       "num_comments": 25,
       "num_likes": 176,
-      "num_shares": 7,
       "post_text": "German runs about 20% longer than English and Japanese runs shorter, so a thirty-second ad becomes a thirty-six and a twenty-six unless somebody rewrites rather than translates. We rewrite. It is slower and it is the only thing that works.",
       "post_type": "post",
+      "repost": {},
+      "timestamp": "2026-09-15T05:50:00.000Z",
       "url": "https://www.linkedin.com/posts/avatarly_activity-7241000000000000014",
       "user_followers": 12700,
       "user_id": "https://www.linkedin.com/company/avatarly"
@@ -342,6 +376,7 @@
   {
     "payload": {
       "_competitor_ref": "avatarly.com",
+      "account_type": "Organization",
       "date_posted": "2026-07-21T08:10:00.000Z",
       "hashtags": [
         "#avatarly",
@@ -350,9 +385,10 @@
       "id": "7241000000000000013",
       "num_comments": 21,
       "num_likes": 243,
-      "num_shares": 8,
       "post_text": "Your competitors test twenty hooks a week and you test two. The gap is not taste, it is throughput. Twenty hooks a week is a process you can write down, not a budget you have to win.",
       "post_type": "post",
+      "repost": {},
+      "timestamp": "2026-09-15T05:50:00.000Z",
       "url": "https://www.linkedin.com/posts/avatarly_activity-7241000000000000013",
       "user_followers": 12700,
       "user_id": "https://www.linkedin.com/company/avatarly"

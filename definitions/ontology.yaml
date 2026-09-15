@@ -248,7 +248,6 @@ entities:
       posted_at: date
       likes: number
       comments: number
-      shares: number
       url: string
 
 attributes:
