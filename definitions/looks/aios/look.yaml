@@ -1,0 +1,9 @@
+name: aios
+medium: video
+ratio: "9:16"
+scenes: [hook, statement, intake, briefing, funnel, feed, mailstack, pitch, cta]
+heygen_template: null
+voice: null
+voice_confirmed: false
+limits_measured: 2026-09-01
+build: composed locally, no renders

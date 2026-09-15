@@ -1,0 +1,2184 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!doctype html>
+<html lang="en" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Science+Gothic:wght@300;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+
+      .copy-block {
+        translate: var(--nudge-x, 0px) var(--nudge-y, 0px);
+        scale: var(--nudge-s, 1);
+      }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      :root {
+        --ink: #1A1A1A;
+        --bg: #F5F4ED;
+        --accent: #FD4E00;
+        --muted: #666666;
+        --cream: #E0DCC1;
+        --tan: #ADAB9E;
+        --card: #FFFFFF;
+        --up: #12A150;
+
+        --size-headline: 116px;
+      }
+
+      body { background: var(--bg); }
+      .scene-solid { background: var(--bg); }
+
+      .ai-frame {
+        position: absolute; inset: 0;
+        background: var(--bg);
+        padding: 88px;
+        font-family: 'Inter', system-ui, sans-serif;
+        color: var(--ink);
+        overflow: hidden;
+      }
+      .ai-frame--centre {
+        display: flex; flex-direction: column; justify-content: center;
+        padding-left: 88px; padding-right: 88px;
+      }
+
+      .ai-eyebrow {
+        color: var(--accent);
+        font-size: 30px; font-weight: 500;
+        letter-spacing: 0.16em; text-transform: uppercase;
+        margin-bottom: 44px;
+      }
+      .ai-headline {
+        font-family: 'Inter', system-ui, sans-serif;
+
+        font-weight: 400;
+        font-size: var(--size-headline);
+        line-height: var(--nudge-lh, 1.06);
+        letter-spacing: -0.022em;
+        color: var(--ink);
+      }
+      .ai-headline--sm { --size-headline: 78px; }
+
+      .ai-headline--pitch { --size-headline: 96px; }
+
+      .ai-line { display: block; overflow: hidden; }
+      .ai-line-in { display: block; will-change: transform; }
+
+      .ai-body {
+        margin-top: 40px;
+        font-size: 38px; line-height: 1.52; color: var(--muted);
+        max-width: 860px;
+      }
+
+      .ai-pitch-copy {
+        margin-top: 44px; max-width: 830px;
+        font-size: 36px; line-height: 1.5; color: var(--muted);
+      }
+
+      .ai-pitch-list { list-style: none; margin-top: 44px; max-width: 830px; }
+      .ai-pitch-list li {
+        position: relative; padding-left: 44px;
+        font-size: 36px; line-height: 1.45; color: var(--ink);
+      }
+      .ai-pitch-list li + li { margin-top: 20px; }
+      .ai-pitch-list li::before {
+        content: ""; position: absolute; left: 8px; top: 21px;
+        width: 12px; height: 12px; border-radius: 50%;
+        background: var(--accent);
+      }
+      .ai-pitch-note {
+        margin-top: 40px; max-width: 830px;
+        font-size: 34px; line-height: 1.5; color: var(--muted);
+      }
+
+      .ai-frame--centre .ai-pills { margin-top: 66px; }
+
+      .ai-mailstack { position: relative; width: 812px; margin: 0 auto; z-index: 5; }
+      .ai-mail {
+        position: absolute; left: 0; right: 0;
+        height: 296px;
+        padding: 26px 32px;
+        background: var(--card); border: 1px solid var(--cream);
+        border-radius: 26px;
+        box-shadow: 0 -6px 30px rgba(26, 26, 26, 0.10);
+      }
+      .ai-mail-top {
+        display: flex; justify-content: space-between; align-items: baseline;
+        padding-bottom: 16px; border-bottom: 1px solid var(--cream);
+      }
+      .ai-mail-from {
+        font-size: 22px; font-weight: 600; letter-spacing: 0.11em;
+        text-transform: uppercase; color: var(--accent);
+      }
+      .ai-mail-date { font-size: 22px; color: var(--muted); }
+      .ai-mail-subject {
+        margin-top: 20px; font-size: 33px; line-height: 1.2; color: var(--ink);
+      }
+      .ai-mail-lines { list-style: none; margin-top: 18px; }
+      .ai-mail-lines li {
+        position: relative; padding-left: 26px;
+        font-size: 26px; line-height: 1.35; color: var(--muted);
+      }
+      .ai-mail-lines li + li { margin-top: 10px; }
+      .ai-mail-lines li::before {
+        content: ""; position: absolute; left: 2px; top: 13px;
+        width: 8px; height: 8px; border-radius: 50%; background: var(--tan);
+      }
+
+      .ai-dark .ai-mail { box-shadow: none; }
+
+      .ai-frame--feed { display: flex; flex-direction: column; justify-content: center; }
+      .ai-feed-head {
+        font-size: 60px; font-weight: 400; letter-spacing: -0.02em;
+        color: var(--ink); margin-bottom: 40px;
+      }
+      .ai-feed {
+        position: relative; overflow: hidden;
+
+        height: var(--copy-h);
+        -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 90px,
+                            #000 calc(100% - 150px), transparent 100%);
+        mask-image: linear-gradient(to bottom, transparent 0, #000 90px,
+                    #000 calc(100% - 150px), transparent 100%);
+      }
+      .ai-feed-list { position: absolute; inset: 0 0 auto 0; will-change: transform; }
+
+      .ai-feed-row {
+        position: relative;
+        height: 116px; margin-bottom: 14px;
+        padding: 0 30px 0 34px;
+        display: flex; flex-direction: column; justify-content: center; gap: 7px;
+        background: var(--card); border: 1px solid var(--cream);
+        border-radius: 22px;
+      }
+      .ai-feed-row::before {
+        content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
+        border-radius: 0 4px 4px 0;
+      }
+
+      .ai-feed-row.is-high::before { background: var(--accent); }
+      .ai-feed-row.is-medium::before { background: var(--tan); }
+      .ai-feed-text { font-size: 30px; line-height: 1.25; color: var(--ink); }
+      .ai-feed-meta {
+        font-size: 21px; letter-spacing: 0.09em; text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .ai-funnel-inner { width: 100%; }
+
+      .ai-funnel-mid { display: flex; flex-direction: column; justify-content: center; }
+
+      .ai-funnel--v2 .ai-cap { display: none; }
+
+      .ai-funnel--v3 .ai-slab {
+        width: calc(100% + 176px); margin: 0 -88px;
+        border-radius: 0;
+      }
+
+      .ai-funnel--v4 .ai-funnel-inner {
+        background: var(--card); border: 1px solid var(--cream);
+        border-radius: 48px; padding: 48px 36px 56px;
+      }
+      .ai-funnel--v4 .ai-lane { margin: 0; width: 100%; }
+      .ai-funnel--v4 .ai-slab, .ai-funnel--v4 .ai-window { width: 700px; }
+      .ai-funnel--v4 .ai-card { background: var(--bg); }
+
+      .ai-funnel--v5 .ai-lane--compact { height: 634px; }
+      .ai-funnel--v5 .ai-window { --rows: 2; }
+
+      .ai-funnel--v5 .ai-funnel-mid { padding: 123px 0; }
+
+      .ai-funnel--v6 .ai-lane--compact { height: 470px; }
+      .ai-funnel--v6 .ai-window { --rows: 2; }
+      .ai-funnel--v6 .ai-card-text, .ai-funnel--v6 .ai-card-flag { font-size: 34px; }
+
+      .ai-funnel--v7 .ai-slab { border-radius: 999px; padding-left: 48px; padding-right: 48px; }
+
+      .ai-funnel--v8 .ai-slab, .ai-funnel--v8 .ai-card { border-radius: 0; }
+      .ai-funnel--v8 .ai-chip { border-radius: 4px; }
+
+      .ai-funnel--v9 .ai-slab { background: var(--accent); color: #ffffff; }
+      .ai-funnel--v9 .ai-stem { background: var(--accent); }
+
+      .ai-funnel--v10 .ai-slab, .ai-funnel--v10 .ai-window { width: 660px; }
+      .ai-funnel--v10 .ai-card { border-radius: 22px; padding: 0 26px; }
+      .ai-funnel--v10 .ai-card-text, .ai-funnel--v10 .ai-card-flag { font-size: 27px; }
+
+      .ai-pitch-inner { width: 100%; }
+      .ai-pitch-list li span { display: inline-block; }
+
+      .ai-pitch--v2 { text-align: center; }
+      .ai-pitch--v2 .ai-pitch-list li { padding-left: 0; }
+      .ai-pitch--v2 .ai-pitch-list li::before { display: none; }
+      .ai-pitch--v2 .ai-pitch-list,
+      .ai-pitch--v2 .ai-pitch-note { margin-left: auto; margin-right: auto; }
+      .ai-pitch--v2 .ai-pills { justify-content: center; }
+
+      .ai-pitch--v3 .ai-pitch-inner {
+        background: var(--card); border: 1px solid var(--cream);
+        border-radius: 44px; padding: 76px 68px 84px;
+        box-shadow: 0 24px 60px rgba(26, 26, 26, 0.07);
+      }
+      .ai-pitch--v3 { --size-headline: 82px; }
+      .ai-pitch--v3 .ai-pitch-list { max-width: none; }
+
+      .ai-pitch--v4 .ai-pitch-list { counter-reset: aios-b; }
+      .ai-pitch--v4 .ai-pitch-list li { padding-left: 90px; }
+      .ai-pitch--v4 .ai-pitch-list li::before {
+        counter-increment: aios-b;
+        content: counter(aios-b, decimal-leading-zero);
+        background: none; border-radius: 0;
+        left: 0; top: 0; width: auto; height: auto;
+        font-size: 30px; font-weight: 600; color: var(--accent);
+        letter-spacing: 0.04em;
+      }
+
+      .ai-pitch--v5 .ai-eyebrow {
+        display: inline-block;
+        background: var(--ink); color: var(--card);
+        border-radius: 14px; padding: 16px 26px;
+        font-size: 25px; letter-spacing: 0.13em;
+      }
+
+      .ai-pitch--v6 .ai-pitch-list li {
+        padding: 26px 0; border-bottom: 1px solid var(--cream);
+      }
+      .ai-pitch--v6 .ai-pitch-list li:first-child { border-top: 1px solid var(--cream); }
+      .ai-pitch--v6 .ai-pitch-list li + li { margin-top: 0; }
+      .ai-pitch--v6 .ai-pitch-list li::before { display: none; }
+
+      .ai-pitch--v7 .ai-pitch-inner { display: flex; flex-direction: column; }
+      .ai-pitch--v7 .ai-eyebrow { order: 1; }
+      .ai-pitch--v7 .ai-headline { order: 2; }
+      .ai-pitch--v7 .ai-pitch-note {
+        order: 3; margin-top: 40px;
+        font-size: 40px; line-height: 1.4; color: var(--ink);
+      }
+      .ai-pitch--v7 .ai-pitch-list { order: 4; margin-top: 38px; }
+      .ai-pitch--v7 .ai-pitch-list li { font-size: 31px; color: var(--muted); }
+      .ai-pitch--v7 .ai-pitch-list li::before { top: 18px; width: 10px; height: 10px; }
+      .ai-pitch--v7 .ai-pills { order: 5; }
+
+      .ai-pitch--v8 .ai-pitch-list {
+        border: 1px solid var(--tan); border-radius: 32px;
+        padding: 44px 46px; max-width: 880px;
+      }
+
+      .ai-pitch--v9 .ai-pitch-list {
+        display: flex; flex-direction: column; align-items: flex-start; gap: 20px;
+      }
+      .ai-pitch--v9 .ai-pitch-list li {
+        padding: 16px 32px; margin: 0;
+        background: var(--card); border: 1px solid var(--cream);
+        border-radius: 999px; font-size: 32px;
+        box-shadow: 0 3px 10px rgba(26, 26, 26, 0.06);
+      }
+      .ai-pitch--v9 .ai-pitch-list li::before { display: none; }
+
+      .ai-dark {
+        --bg: #1A1A1A;
+        --ink: #F5F4ED;
+        --card: #232322;
+        --cream: #38352F;
+        --muted: #ADAB9E;
+        --tan: #55514A;
+
+        --up: #3DD68C;
+      }
+
+      .ai-dark .ai-chip, .ai-dark .ai-card { box-shadow: none; }
+
+      .ai-dark .ai-chip { background: #2c2c28; border-color: #474338; }
+
+      .ai-dark .ai-pitch-inner,
+      .ai-dark .ai-pitch-list li { box-shadow: none; }
+
+      .ai-dark .ai-pill.is-solid { background: var(--accent); color: #ffffff; }
+      .ai-dark .ai-pill.is-ghost { border-color: var(--tan); color: var(--ink); }
+
+      .ai-pitch--v10 .ai-pitch-list { max-width: 880px; }
+      .ai-pitch--v10 .ai-pitch-list li {
+        padding: 30px 34px; margin: 0 0 16px;
+        background: var(--card); border: 1px solid var(--cream);
+        border-radius: 26px; font-size: 32px;
+        box-shadow: 0 8px 26px rgba(26, 26, 26, 0.05);
+      }
+      .ai-pitch--v10 .ai-pitch-list li::before {
+        left: 0; top: 0; bottom: 0; width: 6px; height: auto;
+        border-radius: 0 4px 4px 0; background: var(--accent);
+      }
+
+      .ai-closer {
+        margin-top: 40px; text-align: center;
+        color: var(--accent);
+        font-size: 27px; font-weight: 500;
+        letter-spacing: 0.16em; text-transform: uppercase;
+        line-height: 1.45;
+        text-wrap: balance;
+
+        padding-left: 0.16em;
+      }
+
+      .ai-cap {
+        color: var(--accent);
+        font-size: 27px; font-weight: 500;
+        letter-spacing: 0.16em; text-transform: uppercase;
+        text-align: center;
+        margin-bottom: 30px;
+
+        line-height: 1.45;
+        text-wrap: balance;
+
+        padding-left: 0.16em;
+      }
+
+      .ai-lane {
+        position: relative;
+
+        margin: 0 -88px;
+        width: calc(100% + 176px); height: 940px;
+        overflow: hidden;
+        -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 120px);
+        mask-image: linear-gradient(to bottom, transparent 0, #000 120px);
+      }
+      .ai-lane--compact { height: 660px; }
+      .ai-src { position: absolute; top: 0; }
+      .ai-ghost { position: absolute; display: block; will-change: transform; }
+      .ai-chip {
+        display: flex; align-items: center; gap: 14px;
+        white-space: nowrap;
+        background: var(--card);
+        border: 1px solid var(--cream);
+        border-radius: 999px;
+        padding: 15px 30px 15px 23px;
+        font-size: 34px; color: var(--ink);
+        box-shadow: 0 3px 10px rgba(26, 26, 26, 0.06);
+      }
+
+      .ai-chip.is-ghost { box-shadow: none; }
+      .ai-chip.is-ghost .ai-ico,
+      .ai-chip.is-ghost .ai-chip-label { visibility: hidden; }
+      .ai-ico { color: var(--accent); flex: none; }
+      .ai-chip-label { line-height: 1; }
+
+      .ai-slab-wrap {
+        position: relative; z-index: 5;
+        display: flex; flex-direction: column; align-items: center;
+      }
+      .ai-slab {
+        width: 812px;
+        background: var(--ink); color: var(--card);
+        border-radius: 20px;
+        padding: 30px 36px;
+        text-align: center;
+        font-size: 29px; font-weight: 600;
+        letter-spacing: 0.13em; text-transform: uppercase;
+
+        text-indent: 0.13em;
+        transform-origin: center;
+      }
+      .ai-stem {
+        width: 2px; height: 46px; background: var(--tan);
+        transform-origin: top center;
+      }
+
+      .ai-window {
+        position: relative; z-index: 5;
+        width: 812px; margin: 0 auto;
+        height: calc(var(--rows, 3) * 150px - 18px);
+        overflow: hidden;
+      }
+      .ai-list { position: absolute; left: 0; right: 0; will-change: transform; }
+      .ai-card {
+        display: flex; align-items: center; gap: 18px;
+        height: 132px; margin-bottom: 18px;
+        background: var(--card);
+        border: 1px solid var(--cream);
+        border-radius: 30px;
+        padding: 0 34px;
+        box-shadow: 0 10px 34px rgba(26, 26, 26, 0.06);
+      }
+      .ai-card-flag { font-size: 30px; font-weight: 700; flex: none; }
+
+      .ai-card-flag.is-up { color: var(--up); }
+      .ai-card-flag.is-down, .ai-card-flag.is-alert { color: var(--accent); }
+      .ai-card-text { font-size: 30px; line-height: 1.3; color: var(--ink); }
+
+      .ai-pills { display: flex; gap: 22px; margin-top: 60px; flex-wrap: wrap; }
+      .ai-pill {
+        display: inline-flex; align-items: center;
+        border-radius: 999px;
+        padding: 26px 54px;
+        font-size: 32px; font-weight: 500;
+      }
+      .ai-pill.is-solid { background: var(--ink); color: var(--card); }
+      .ai-pill.is-ghost { border: 1px solid var(--tan); color: var(--ink); }
+
+      .ai-frame--brief, .ai-frame--intake, .ai-frame--funnel {
+        display: flex; flex-direction: column; justify-content: center;
+      }
+
+
+
+      :root {
+        --dw-orange: #FD4E00; --dw-cream: #E0DCC1; --dw-light-cream: #EAE5D1;
+        --dw-tan: #ADAB9E; --dw-dark: #1A1A1A; --dw-line: #332f2c;
+
+        --card-w: 260px;
+      }
+      .preview-grid {
+        display: grid; grid-template-columns: repeat(auto-fill, var(--card-w));
+        justify-content: start;
+        gap: 22px; padding: 26px 30px 60px; background: var(--dw-dark); min-height: 100vh;
+      }
+      .preview-cell { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+      .preview-card {
+        position: relative; width: 100%; aspect-ratio: 1080/1920;
+        overflow: hidden; border-radius: 12px; border: 1px solid var(--dw-line);
+      }
+
+      .preview-card .scene-frame {
+        position: absolute; inset: 0; width: 1080px; height: 1920px;
+        transform-origin: top left; background: #F5F4ED;
+      }
+
+      .preview-progress { cursor: pointer; padding: 4px 0; margin: -4px 0;
+        position: relative; height: 4px; border-radius: 999px;
+        background: #2a2725; overflow: hidden;
+      }
+      .preview-progress i {
+        position: absolute; inset: 0; transform-origin: left center;
+        transform: scaleX(0); background: var(--dw-orange);
+      }
+      .preview-meta {
+        display: flex; justify-content: space-between; gap: 8px;
+        font: 500 10.5px/1 Inter, sans-serif; color: var(--dw-tan);
+        letter-spacing: 0.01em;
+      }
+      .preview-label {
+        position: absolute; top: 9px; left: 9px; z-index: 10;
+        background: rgba(26,26,26,0.82); color: var(--dw-cream); padding: 5px 9px;
+        border-radius: 5px; font: 700 10px/1 ui-monospace, monospace;
+        letter-spacing: 0.05em;
+      }
+      .preview-play {
+        position: absolute; bottom: 9px; right: 9px; z-index: 10;
+        width: 36px; height: 36px; border-radius: 50%; border: none;
+        background: rgba(234,229,209,0.92); cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 15px; color: var(--dw-dark); transition: transform 0.15s;
+      }
+      .preview-play:hover { transform: scale(1.15); }
+      .preview-bar {
+        position: sticky; top: 0; z-index: 50;
+        display: flex; gap: 12px; align-items: center; flex-wrap: nowrap;
+        padding: 14px 30px; background: var(--dw-dark);
+        border-bottom: 1px solid var(--dw-line);
+        font-family: Inter, sans-serif; color: var(--dw-cream);
+      }
+      .preview-bar button, .preview-bar span { white-space: nowrap; }
+      .preview-logo { display: flex; align-items: center; gap: 9px; margin-right: 10px; flex: none; }
+      .preview-logo span {
+        font-family: 'Science Gothic', system-ui, sans-serif; font-weight: 500;
+        font-size: 18px; letter-spacing: 0.016em; color: var(--dw-cream);
+      }
+      .preview-logo i {
+        width: 8px; height: 8px; border-radius: 50%; background: var(--dw-orange);
+      }
+      .preview-title {
+        font-family: 'Space Grotesk', Inter, sans-serif; font-weight: 600;
+        font-size: 14px; color: var(--dw-light-cream); letter-spacing: -0.01em;
+        overflow: hidden; text-overflow: ellipsis; min-width: 0;
+      }
+      .preview-bar button {
+        border: 1px solid var(--dw-line); background: #232020; color: var(--dw-cream);
+        padding: 7px 14px; border-radius: 8px; cursor: pointer;
+        font-family: inherit; font-size: 12.5px;
+      }
+      .preview-bar button:hover { background: #2c2827; border-color: #443f3b; }
+      .preview-bar button.on { background: var(--dw-orange); border-color: var(--dw-orange); color: #fff; }
+      .preview-bar button[disabled] { opacity: 0.42; cursor: not-allowed; }
+      .preview-bar button[disabled]:hover { background: #232020; border-color: var(--dw-line); }
+      .preview-bar .spacer { flex: 1; }
+      .preview-bar #bar-status { font-size: 12px; color: var(--dw-tan); }
+      .preview-card.active { outline: 2px solid var(--dw-orange); outline-offset: 3px; }
+
+      html, body { width: auto; height: auto; overflow: auto; background: var(--dw-dark); }
+
+    </style>
+
+    <script>
+
+      function fitFrames() {
+        document.querySelectorAll('.preview-card').forEach(card => {
+          const frame = card.querySelector('.scene-frame');
+          if (!frame) return;
+          frame.style.transform = `scale(${card.getBoundingClientRect().width / 1080})`;
+        });
+      }
+
+      const CARD_STEPS = [150, 190, 230, 260, 320, 400, 500, 640, 820];
+      function applyCardWidth(px) {
+        document.documentElement.style.setProperty('--card-w', px + 'px');
+        try { localStorage.setItem('ugc-card-w', px); } catch (e) {  }
+      }
+      function resize(dir) {
+        const now = parseInt(getComputedStyle(document.documentElement)
+          .getPropertyValue('--card-w'), 10) || 260;
+        let i = CARD_STEPS.findIndex(v => v >= now);
+        if (i < 0) i = CARD_STEPS.length - 1;
+        applyCardWidth(CARD_STEPS[Math.min(Math.max(i + dir, 0), CARD_STEPS.length - 1)]);
+      }
+      try {
+        const saved = parseInt(localStorage.getItem('ugc-card-w'), 10);
+        if (saved) applyCardWidth(saved);
+      } catch (e) {  }
+
+      let lastCardWidth = 0, lastCardCount = 0;
+      function watchFit() {
+        const cards = document.querySelectorAll('.preview-card');
+        if (cards.length) {
+          const w = cards[0].getBoundingClientRect().width;
+
+          if (Math.abs(w - lastCardWidth) > 0.5 || cards.length !== lastCardCount) {
+            lastCardWidth = w; lastCardCount = cards.length; fitFrames();
+          }
+        }
+        requestAnimationFrame(watchFit);
+      }
+      requestAnimationFrame(watchFit);
+
+      document.addEventListener('DOMContentLoaded', () => {
+        fitFrames();
+      });
+    </script>
+  </head>
+
+  <body>
+
+
+    <div class="preview-bar">
+      <div class="preview-logo"><span>Digital Workers</span><i></i></div>
+      <span class="preview-title">AI Operating System — Every Signal In</span>
+      <span class="spacer"></span>
+      <button onclick="resize(-1)" title="Smaller frames">&minus;</button>
+      <button onclick="resize(1)" title="Larger frames">+</button>
+      <button id="btn-all" onclick="playAll()">&#9654; Play all</button>
+      <button onclick="resetAll()" title="Back to the first frame">&#8634; Reset</button>
+      <button id="btn-edit" onclick="toggleEdit()" title="Move and resize each scene's copy">&#9998; Edit layout</button>
+      <button id="btn-save" onclick="edSaveAll()" hidden title="Write every changed scene to content.yaml">Save</button>
+      <button id="btn-export" onclick="exportVideo()" title="Render this project's composed page to an mp4">&#8681; Export video</button>
+      <button id="btn-export-watch" onclick="openExportModal()" hidden title="Reopen the last export without re-rendering it">&#9654; Watch video</button>
+      <span id="export-status" hidden></span>
+      <span id="bar-status">5 scenes &middot; 34.0s</span>
+    </div>
+
+    <div class="preview-grid">
+
+
+      <div class="preview-cell">
+      <div class="preview-card" data-scene="1">
+        <div class="preview-label">1. hook</div>
+        <button class="preview-play" onclick="playScene(1)">&#9654;</button>
+
+        <div class="scene-frame scene-solid">
+
+
+      <div class="ai-frame ai-frame--centre copy-block" id="pv1" >
+        <div class="ai-eyebrow" id="pv1-eyebrow">AI Operating System</div>
+<div class="ai-headline" id="pv1-headline">
+
+          <span class="ai-line"><span class="ai-line-in" data-line>Every signal in.</span></span>
+
+          <span class="ai-line"><span class="ai-line-in" data-line>Intelligence out.</span></span>
+
+        </div>
+      </div>
+
+
+        </div>
+      </div>
+        <div class="preview-progress" data-scene="1" onclick="progSeek(event, 1)" title="Play from here"><i></i></div>
+        <div class="preview-meta">
+          <span>1. hook</span>
+          <span>4.0s</span>
+        </div>
+      </div>
+
+
+      <div class="preview-cell">
+      <div class="preview-card" data-scene="2">
+        <div class="preview-label">2. statement</div>
+        <button class="preview-play" onclick="playScene(2)">&#9654;</button>
+
+        <div class="scene-frame scene-solid">
+
+
+      <div class="ai-frame ai-frame--centre copy-block" id="pv2" >
+
+<div class="ai-headline ai-headline--sm" id="pv2-headline">
+
+          <span class="ai-line"><span class="ai-line-in" data-line>None of it adds up</span></span>
+
+          <span class="ai-line"><span class="ai-line-in" data-line>on its own.</span></span>
+
+        </div>
+        <p class="ai-body" id="pv2-body">Every customer action leaves a trace somewhere — a comment, a reply, an invoice, a call. They land in six tools, in six different shapes.</p>
+      </div>
+
+
+        </div>
+      </div>
+        <div class="preview-progress" data-scene="2" onclick="progSeek(event, 2)" title="Play from here"><i></i></div>
+        <div class="preview-meta">
+          <span>2. statement</span>
+          <span>6.5s</span>
+        </div>
+      </div>
+
+
+      <div class="preview-cell">
+      <div class="preview-card" data-scene="3">
+        <div class="preview-label">3. intake</div>
+        <button class="preview-play" onclick="playScene(3)">&#9654;</button>
+
+        <div class="scene-frame scene-solid">
+
+
+      <div class="ai-frame ai-frame--intake" id="pv3">
+        <div class="ai-cap copy-block" id="pv3-cap"  data-block="caption" data-level="element" data-root="1">Every signal, one place</div>
+<div class="ai-lane" id="pv3-lane">
+
+
+
+        <div class="ai-src" style="left: 62%">
+
+          <span class="ai-ghost" id="pv3-c0-0"
+                data-phase="0.0"
+                style="z-index: 7">
+            <span class="ai-chip"
+                  style="opacity: 1.0; transform: translate(-50%, -50%) scale(1.0)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg><span class="ai-chip-label">subscription</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c0-1"
+                data-phase="1138.01"
+                style="z-index: 6">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.88; transform: translate(-50%, -50%) scale(0.99)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg><span class="ai-chip-label">subscription</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c0-2"
+                data-phase="1096.01"
+                style="z-index: 5">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.774; transform: translate(-50%, -50%) scale(0.98)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg><span class="ai-chip-label">subscription</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c0-3"
+                data-phase="1054.02"
+                style="z-index: 4">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.681; transform: translate(-50%, -50%) scale(0.97)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg><span class="ai-chip-label">subscription</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c0-4"
+                data-phase="1012.02"
+                style="z-index: 3">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.6; transform: translate(-50%, -50%) scale(0.96)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg><span class="ai-chip-label">subscription</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c0-5"
+                data-phase="970.03"
+                style="z-index: 2">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.528; transform: translate(-50%, -50%) scale(0.95)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg><span class="ai-chip-label">subscription</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c0-6"
+                data-phase="928.03"
+                style="z-index: 1">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.464; transform: translate(-50%, -50%) scale(0.94)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg><span class="ai-chip-label">subscription</span>
+            </span>
+          </span>
+
+        </div>
+
+
+
+        <div class="ai-src" style="left: 40%">
+
+          <span class="ai-ghost" id="pv3-c1-0"
+                data-phase="98.33"
+                style="z-index: 7">
+            <span class="ai-chip"
+                  style="opacity: 1.0; transform: translate(-50%, -50%) scale(1.0)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg><span class="ai-chip-label">email</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c1-1"
+                data-phase="56.34"
+                style="z-index: 6">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.88; transform: translate(-50%, -50%) scale(0.99)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg><span class="ai-chip-label">email</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c1-2"
+                data-phase="14.34"
+                style="z-index: 5">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.774; transform: translate(-50%, -50%) scale(0.98)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg><span class="ai-chip-label">email</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c1-3"
+                data-phase="1152.35"
+                style="z-index: 4">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.681; transform: translate(-50%, -50%) scale(0.97)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg><span class="ai-chip-label">email</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c1-4"
+                data-phase="1110.35"
+                style="z-index: 3">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.6; transform: translate(-50%, -50%) scale(0.96)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg><span class="ai-chip-label">email</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c1-5"
+                data-phase="1068.36"
+                style="z-index: 2">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.528; transform: translate(-50%, -50%) scale(0.95)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg><span class="ai-chip-label">email</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c1-6"
+                data-phase="1026.36"
+                style="z-index: 1">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.464; transform: translate(-50%, -50%) scale(0.94)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg><span class="ai-chip-label">email</span>
+            </span>
+          </span>
+
+        </div>
+
+
+
+        <div class="ai-src" style="left: 26%">
+
+          <span class="ai-ghost" id="pv3-c2-0"
+                data-phase="196.67"
+                style="z-index: 7">
+            <span class="ai-chip"
+                  style="opacity: 1.0; transform: translate(-50%, -50%) scale(1.0)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10a4 4 0 0 1-8 0"/><path d="M3.103 6.034h17.794"/><path d="M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z"/></svg><span class="ai-chip-label">purchase</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c2-1"
+                data-phase="154.67"
+                style="z-index: 6">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.88; transform: translate(-50%, -50%) scale(0.99)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10a4 4 0 0 1-8 0"/><path d="M3.103 6.034h17.794"/><path d="M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z"/></svg><span class="ai-chip-label">purchase</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c2-2"
+                data-phase="112.68"
+                style="z-index: 5">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.774; transform: translate(-50%, -50%) scale(0.98)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10a4 4 0 0 1-8 0"/><path d="M3.103 6.034h17.794"/><path d="M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z"/></svg><span class="ai-chip-label">purchase</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c2-3"
+                data-phase="70.68"
+                style="z-index: 4">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.681; transform: translate(-50%, -50%) scale(0.97)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10a4 4 0 0 1-8 0"/><path d="M3.103 6.034h17.794"/><path d="M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z"/></svg><span class="ai-chip-label">purchase</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c2-4"
+                data-phase="28.69"
+                style="z-index: 3">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.6; transform: translate(-50%, -50%) scale(0.96)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10a4 4 0 0 1-8 0"/><path d="M3.103 6.034h17.794"/><path d="M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z"/></svg><span class="ai-chip-label">purchase</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c2-5"
+                data-phase="1166.69"
+                style="z-index: 2">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.528; transform: translate(-50%, -50%) scale(0.95)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10a4 4 0 0 1-8 0"/><path d="M3.103 6.034h17.794"/><path d="M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z"/></svg><span class="ai-chip-label">purchase</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c2-6"
+                data-phase="1124.7"
+                style="z-index: 1">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.464; transform: translate(-50%, -50%) scale(0.94)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10a4 4 0 0 1-8 0"/><path d="M3.103 6.034h17.794"/><path d="M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z"/></svg><span class="ai-chip-label">purchase</span>
+            </span>
+          </span>
+
+        </div>
+
+
+
+        <div class="ai-src" style="left: 72%">
+
+          <span class="ai-ghost" id="pv3-c3-0"
+                data-phase="295.0"
+                style="z-index: 7">
+            <span class="ai-chip"
+                  style="opacity: 1.0; transform: translate(-50%, -50%) scale(1.0)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m2 9 3-3 3 3"/><path d="M13 18H7a2 2 0 0 1-2-2V6"/><path d="m22 15-3 3-3-3"/><path d="M11 6h6a2 2 0 0 1 2 2v10"/></svg><span class="ai-chip-label">share</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c3-1"
+                data-phase="253.01"
+                style="z-index: 6">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.88; transform: translate(-50%, -50%) scale(0.99)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m2 9 3-3 3 3"/><path d="M13 18H7a2 2 0 0 1-2-2V6"/><path d="m22 15-3 3-3-3"/><path d="M11 6h6a2 2 0 0 1 2 2v10"/></svg><span class="ai-chip-label">share</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c3-2"
+                data-phase="211.01"
+                style="z-index: 5">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.774; transform: translate(-50%, -50%) scale(0.98)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m2 9 3-3 3 3"/><path d="M13 18H7a2 2 0 0 1-2-2V6"/><path d="m22 15-3 3-3-3"/><path d="M11 6h6a2 2 0 0 1 2 2v10"/></svg><span class="ai-chip-label">share</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c3-3"
+                data-phase="169.02"
+                style="z-index: 4">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.681; transform: translate(-50%, -50%) scale(0.97)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m2 9 3-3 3 3"/><path d="M13 18H7a2 2 0 0 1-2-2V6"/><path d="m22 15-3 3-3-3"/><path d="M11 6h6a2 2 0 0 1 2 2v10"/></svg><span class="ai-chip-label">share</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c3-4"
+                data-phase="127.02"
+                style="z-index: 3">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.6; transform: translate(-50%, -50%) scale(0.96)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m2 9 3-3 3 3"/><path d="M13 18H7a2 2 0 0 1-2-2V6"/><path d="m22 15-3 3-3-3"/><path d="M11 6h6a2 2 0 0 1 2 2v10"/></svg><span class="ai-chip-label">share</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c3-5"
+                data-phase="85.03"
+                style="z-index: 2">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.528; transform: translate(-50%, -50%) scale(0.95)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m2 9 3-3 3 3"/><path d="M13 18H7a2 2 0 0 1-2-2V6"/><path d="m22 15-3 3-3-3"/><path d="M11 6h6a2 2 0 0 1 2 2v10"/></svg><span class="ai-chip-label">share</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c3-6"
+                data-phase="43.03"
+                style="z-index: 1">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.464; transform: translate(-50%, -50%) scale(0.94)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m2 9 3-3 3 3"/><path d="M13 18H7a2 2 0 0 1-2-2V6"/><path d="m22 15-3 3-3-3"/><path d="M11 6h6a2 2 0 0 1 2 2v10"/></svg><span class="ai-chip-label">share</span>
+            </span>
+          </span>
+
+        </div>
+
+
+
+        <div class="ai-src" style="left: 56%">
+
+          <span class="ai-ghost" id="pv3-c4-0"
+                data-phase="393.33"
+                style="z-index: 7">
+            <span class="ai-chip"
+                  style="opacity: 1.0; transform: translate(-50%, -50%) scale(1.0)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg><span class="ai-chip-label">follow</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c4-1"
+                data-phase="351.34"
+                style="z-index: 6">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.88; transform: translate(-50%, -50%) scale(0.99)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg><span class="ai-chip-label">follow</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c4-2"
+                data-phase="309.34"
+                style="z-index: 5">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.774; transform: translate(-50%, -50%) scale(0.98)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg><span class="ai-chip-label">follow</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c4-3"
+                data-phase="267.35"
+                style="z-index: 4">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.681; transform: translate(-50%, -50%) scale(0.97)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg><span class="ai-chip-label">follow</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c4-4"
+                data-phase="225.35"
+                style="z-index: 3">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.6; transform: translate(-50%, -50%) scale(0.96)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg><span class="ai-chip-label">follow</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c4-5"
+                data-phase="183.36"
+                style="z-index: 2">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.528; transform: translate(-50%, -50%) scale(0.95)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg><span class="ai-chip-label">follow</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c4-6"
+                data-phase="141.36"
+                style="z-index: 1">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.464; transform: translate(-50%, -50%) scale(0.94)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg><span class="ai-chip-label">follow</span>
+            </span>
+          </span>
+
+        </div>
+
+
+
+        <div class="ai-src" style="left: 15%">
+
+          <span class="ai-ghost" id="pv3-c5-0"
+                data-phase="491.67"
+                style="z-index: 7">
+            <span class="ai-chip"
+                  style="opacity: 1.0; transform: translate(-50%, -50%) scale(1.0)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg><span class="ai-chip-label">like</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c5-1"
+                data-phase="449.67"
+                style="z-index: 6">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.88; transform: translate(-50%, -50%) scale(0.99)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg><span class="ai-chip-label">like</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c5-2"
+                data-phase="407.68"
+                style="z-index: 5">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.774; transform: translate(-50%, -50%) scale(0.98)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg><span class="ai-chip-label">like</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c5-3"
+                data-phase="365.68"
+                style="z-index: 4">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.681; transform: translate(-50%, -50%) scale(0.97)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg><span class="ai-chip-label">like</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c5-4"
+                data-phase="323.69"
+                style="z-index: 3">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.6; transform: translate(-50%, -50%) scale(0.96)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg><span class="ai-chip-label">like</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c5-5"
+                data-phase="281.69"
+                style="z-index: 2">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.528; transform: translate(-50%, -50%) scale(0.95)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg><span class="ai-chip-label">like</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c5-6"
+                data-phase="239.7"
+                style="z-index: 1">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.464; transform: translate(-50%, -50%) scale(0.94)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg><span class="ai-chip-label">like</span>
+            </span>
+          </span>
+
+        </div>
+
+
+
+        <div class="ai-src" style="left: 30%">
+
+          <span class="ai-ghost" id="pv3-c6-0"
+                data-phase="590.0"
+                style="z-index: 7">
+            <span class="ai-chip"
+                  style="opacity: 1.0; transform: translate(-50%, -50%) scale(1.0)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/></svg><span class="ai-chip-label">call</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c6-1"
+                data-phase="548.01"
+                style="z-index: 6">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.88; transform: translate(-50%, -50%) scale(0.99)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/></svg><span class="ai-chip-label">call</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c6-2"
+                data-phase="506.01"
+                style="z-index: 5">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.774; transform: translate(-50%, -50%) scale(0.98)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/></svg><span class="ai-chip-label">call</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c6-3"
+                data-phase="464.02"
+                style="z-index: 4">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.681; transform: translate(-50%, -50%) scale(0.97)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/></svg><span class="ai-chip-label">call</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c6-4"
+                data-phase="422.02"
+                style="z-index: 3">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.6; transform: translate(-50%, -50%) scale(0.96)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/></svg><span class="ai-chip-label">call</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c6-5"
+                data-phase="380.03"
+                style="z-index: 2">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.528; transform: translate(-50%, -50%) scale(0.95)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/></svg><span class="ai-chip-label">call</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c6-6"
+                data-phase="338.03"
+                style="z-index: 1">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.464; transform: translate(-50%, -50%) scale(0.94)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/></svg><span class="ai-chip-label">call</span>
+            </span>
+          </span>
+
+        </div>
+
+
+
+        <div class="ai-src" style="left: 48%">
+
+          <span class="ai-ghost" id="pv3-c7-0"
+                data-phase="688.33"
+                style="z-index: 7">
+            <span class="ai-chip"
+                  style="opacity: 1.0; transform: translate(-50%, -50%) scale(1.0)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"/></svg><span class="ai-chip-label">ad click</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c7-1"
+                data-phase="646.34"
+                style="z-index: 6">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.88; transform: translate(-50%, -50%) scale(0.99)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"/></svg><span class="ai-chip-label">ad click</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c7-2"
+                data-phase="604.34"
+                style="z-index: 5">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.774; transform: translate(-50%, -50%) scale(0.98)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"/></svg><span class="ai-chip-label">ad click</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c7-3"
+                data-phase="562.35"
+                style="z-index: 4">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.681; transform: translate(-50%, -50%) scale(0.97)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"/></svg><span class="ai-chip-label">ad click</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c7-4"
+                data-phase="520.35"
+                style="z-index: 3">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.6; transform: translate(-50%, -50%) scale(0.96)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"/></svg><span class="ai-chip-label">ad click</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c7-5"
+                data-phase="478.36"
+                style="z-index: 2">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.528; transform: translate(-50%, -50%) scale(0.95)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"/></svg><span class="ai-chip-label">ad click</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c7-6"
+                data-phase="436.36"
+                style="z-index: 1">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.464; transform: translate(-50%, -50%) scale(0.94)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"/></svg><span class="ai-chip-label">ad click</span>
+            </span>
+          </span>
+
+        </div>
+
+
+
+        <div class="ai-src" style="left: 68%">
+
+          <span class="ai-ghost" id="pv3-c8-0"
+                data-phase="786.67"
+                style="z-index: 7">
+            <span class="ai-chip"
+                  style="opacity: 1.0; transform: translate(-50%, -50%) scale(1.0)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/></svg><span class="ai-chip-label">review</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c8-1"
+                data-phase="744.67"
+                style="z-index: 6">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.88; transform: translate(-50%, -50%) scale(0.99)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/></svg><span class="ai-chip-label">review</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c8-2"
+                data-phase="702.68"
+                style="z-index: 5">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.774; transform: translate(-50%, -50%) scale(0.98)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/></svg><span class="ai-chip-label">review</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c8-3"
+                data-phase="660.68"
+                style="z-index: 4">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.681; transform: translate(-50%, -50%) scale(0.97)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/></svg><span class="ai-chip-label">review</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c8-4"
+                data-phase="618.69"
+                style="z-index: 3">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.6; transform: translate(-50%, -50%) scale(0.96)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/></svg><span class="ai-chip-label">review</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c8-5"
+                data-phase="576.69"
+                style="z-index: 2">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.528; transform: translate(-50%, -50%) scale(0.95)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/></svg><span class="ai-chip-label">review</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c8-6"
+                data-phase="534.7"
+                style="z-index: 1">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.464; transform: translate(-50%, -50%) scale(0.94)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/></svg><span class="ai-chip-label">review</span>
+            </span>
+          </span>
+
+        </div>
+
+
+
+        <div class="ai-src" style="left: 22%">
+
+          <span class="ai-ghost" id="pv3-c9-0"
+                data-phase="885.0"
+                style="z-index: 7">
+            <span class="ai-chip"
+                  style="opacity: 1.0; transform: translate(-50%, -50%) scale(1.0)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg><span class="ai-chip-label">comment</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c9-1"
+                data-phase="843.01"
+                style="z-index: 6">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.88; transform: translate(-50%, -50%) scale(0.99)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg><span class="ai-chip-label">comment</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c9-2"
+                data-phase="801.01"
+                style="z-index: 5">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.774; transform: translate(-50%, -50%) scale(0.98)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg><span class="ai-chip-label">comment</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c9-3"
+                data-phase="759.02"
+                style="z-index: 4">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.681; transform: translate(-50%, -50%) scale(0.97)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg><span class="ai-chip-label">comment</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c9-4"
+                data-phase="717.02"
+                style="z-index: 3">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.6; transform: translate(-50%, -50%) scale(0.96)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg><span class="ai-chip-label">comment</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c9-5"
+                data-phase="675.03"
+                style="z-index: 2">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.528; transform: translate(-50%, -50%) scale(0.95)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg><span class="ai-chip-label">comment</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c9-6"
+                data-phase="633.03"
+                style="z-index: 1">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.464; transform: translate(-50%, -50%) scale(0.94)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg><span class="ai-chip-label">comment</span>
+            </span>
+          </span>
+
+        </div>
+
+
+
+        <div class="ai-src" style="left: 36%">
+
+          <span class="ai-ghost" id="pv3-c10-0"
+                data-phase="983.33"
+                style="z-index: 7">
+            <span class="ai-chip"
+                  style="opacity: 1.0; transform: translate(-50%, -50%) scale(1.0)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg><span class="ai-chip-label">message</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c10-1"
+                data-phase="941.34"
+                style="z-index: 6">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.88; transform: translate(-50%, -50%) scale(0.99)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg><span class="ai-chip-label">message</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c10-2"
+                data-phase="899.34"
+                style="z-index: 5">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.774; transform: translate(-50%, -50%) scale(0.98)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg><span class="ai-chip-label">message</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c10-3"
+                data-phase="857.35"
+                style="z-index: 4">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.681; transform: translate(-50%, -50%) scale(0.97)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg><span class="ai-chip-label">message</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c10-4"
+                data-phase="815.35"
+                style="z-index: 3">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.6; transform: translate(-50%, -50%) scale(0.96)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg><span class="ai-chip-label">message</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c10-5"
+                data-phase="773.36"
+                style="z-index: 2">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.528; transform: translate(-50%, -50%) scale(0.95)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg><span class="ai-chip-label">message</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c10-6"
+                data-phase="731.36"
+                style="z-index: 1">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.464; transform: translate(-50%, -50%) scale(0.94)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg><span class="ai-chip-label">message</span>
+            </span>
+          </span>
+
+        </div>
+
+
+
+        <div class="ai-src" style="left: 80%">
+
+          <span class="ai-ghost" id="pv3-c11-0"
+                data-phase="1081.67"
+                style="z-index: 7">
+            <span class="ai-chip"
+                  style="opacity: 1.0; transform: translate(-50%, -50%) scale(1.0)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg><span class="ai-chip-label">booking</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c11-1"
+                data-phase="1039.67"
+                style="z-index: 6">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.88; transform: translate(-50%, -50%) scale(0.99)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg><span class="ai-chip-label">booking</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c11-2"
+                data-phase="997.68"
+                style="z-index: 5">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.774; transform: translate(-50%, -50%) scale(0.98)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg><span class="ai-chip-label">booking</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c11-3"
+                data-phase="955.68"
+                style="z-index: 4">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.681; transform: translate(-50%, -50%) scale(0.97)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg><span class="ai-chip-label">booking</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c11-4"
+                data-phase="913.69"
+                style="z-index: 3">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.6; transform: translate(-50%, -50%) scale(0.96)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg><span class="ai-chip-label">booking</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c11-5"
+                data-phase="871.69"
+                style="z-index: 2">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.528; transform: translate(-50%, -50%) scale(0.95)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg><span class="ai-chip-label">booking</span>
+            </span>
+          </span>
+
+          <span class="ai-ghost" id="pv3-c11-6"
+                data-phase="829.7"
+                style="z-index: 1">
+            <span class="ai-chip is-ghost"
+                  style="opacity: 0.464; transform: translate(-50%, -50%) scale(0.94)">
+              <svg class="ai-ico" width="34" height="34" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg><span class="ai-chip-label">booking</span>
+            </span>
+          </span>
+
+        </div>
+
+      </div>
+<div class="ai-slab-wrap">
+        <div class="ai-slab" id="pv3-slab">AI Operating System</div>
+
+      </div>
+      </div>
+
+
+        </div>
+      </div>
+        <div class="preview-progress" data-scene="3" onclick="progSeek(event, 3)" title="Play from here"><i></i></div>
+        <div class="preview-meta">
+          <span>3. intake</span>
+          <span>10.0s</span>
+        </div>
+      </div>
+
+
+      <div class="preview-cell">
+      <div class="preview-card" data-scene="4">
+        <div class="preview-label">4. briefing</div>
+        <button class="preview-play" onclick="playScene(4)">&#9654;</button>
+
+        <div class="scene-frame scene-solid">
+
+
+      <div class="ai-frame ai-frame--brief" id="pv4">
+        <div class="ai-cap copy-block" id="pv4-cap"  data-block="caption" data-level="element" data-root="1">What changed, what needs you</div>
+<div class="ai-slab-wrap">
+        <div class="ai-slab" id="pv4-slab">AI Operating System</div>
+
+        <div class="ai-stem" id="pv4-stem"></div>
+
+      </div>
+<div class="ai-window">
+        <div class="ai-list" id="pv4-list" style="top: -750px">
+
+
+<div class="ai-card">
+
+          <span class="ai-card-flag is-up">▲ 50%</span>
+
+          <span class="ai-card-text">up in traffic</span>
+        </div>
+
+<div class="ai-card">
+
+          <span class="ai-card-flag is-alert">!</span>
+
+          <span class="ai-card-text">Follow up with Sandra on pricing</span>
+        </div>
+
+<div class="ai-card">
+
+          <span class="ai-card-flag is-up">▲ 12</span>
+
+          <span class="ai-card-text">new signups since yesterday</span>
+        </div>
+
+<div class="ai-card">
+
+          <span class="ai-card-flag is-alert">!</span>
+
+          <span class="ai-card-text">Acme invoice failed twice this week</span>
+        </div>
+
+<div class="ai-card">
+
+          <span class="ai-card-flag is-down">▼ 8%</span>
+
+          <span class="ai-card-text">drop in reply rate on outbound</span>
+        </div>
+
+
+
+<div class="ai-card">
+
+          <span class="ai-card-flag is-up">▲ 50%</span>
+
+          <span class="ai-card-text">up in traffic</span>
+        </div>
+
+<div class="ai-card">
+
+          <span class="ai-card-flag is-alert">!</span>
+
+          <span class="ai-card-text">Follow up with Sandra on pricing</span>
+        </div>
+
+<div class="ai-card">
+
+          <span class="ai-card-flag is-up">▲ 12</span>
+
+          <span class="ai-card-text">new signups since yesterday</span>
+        </div>
+
+<div class="ai-card">
+
+          <span class="ai-card-flag is-alert">!</span>
+
+          <span class="ai-card-text">Acme invoice failed twice this week</span>
+        </div>
+
+<div class="ai-card">
+
+          <span class="ai-card-flag is-down">▼ 8%</span>
+
+          <span class="ai-card-text">drop in reply rate on outbound</span>
+        </div>
+
+
+        </div>
+      </div>
+      </div>
+
+
+        </div>
+      </div>
+        <div class="preview-progress" data-scene="4" onclick="progSeek(event, 4)" title="Play from here"><i></i></div>
+        <div class="preview-meta">
+          <span>4. briefing</span>
+          <span>9.0s</span>
+        </div>
+      </div>
+
+
+      <div class="preview-cell">
+      <div class="preview-card" data-scene="5">
+        <div class="preview-label">5. cta</div>
+        <button class="preview-play" onclick="playScene(5)">&#9654;</button>
+
+        <div class="scene-frame scene-solid">
+
+
+      <div class="ai-frame ai-frame--centre copy-block" id="pv5" >
+<div class="ai-headline ai-headline--sm" id="pv5-headline">
+
+          <span class="ai-line"><span class="ai-line-in" data-line>See the whole picture.</span></span>
+
+        </div>
+        <div class="ai-pills" id="pv5-pills">
+          <span class="ai-pill is-solid">Book a walkthrough</span>
+
+          <span class="ai-pill is-ghost">See the architecture</span>
+
+        </div>
+      </div>
+
+        </div>
+      </div>
+        <div class="preview-progress" data-scene="5" onclick="progSeek(event, 5)" title="Play from here"><i></i></div>
+        <div class="preview-meta">
+          <span>5. cta</span>
+          <span>4.5s</span>
+        </div>
+      </div>
+
+    </div>
+
+    <script>
+      const sceneBuilders = {};
+      const sceneTL = {};
+
+
+
+      sceneBuilders[1] = function() {
+        const tl = gsap.timeline({ paused: true });
+
+        let _cursor = 0;
+        const seq = (t, d) => { const at = Math.max(t, _cursor); _cursor = at + d; return +at.toFixed(3); };
+
+
+
+tl.fromTo('#pv1-eyebrow',
+        { opacity: 0, y: 18 },
+        { opacity: 1, y: 0, duration: 0.62, ease: 'power2.out' },
+        0.1);
+tl.fromTo('#pv1-headline .ai-line-in',
+        { yPercent: 115 },
+        { yPercent: 0, duration: 0.78, ease: 'power3.out', stagger: 0.12 },
+        0.28);
+
+
+        return tl;
+      };
+
+
+      sceneBuilders[2] = function() {
+        const tl = gsap.timeline({ paused: true });
+
+        let _cursor = 0;
+        const seq = (t, d) => { const at = Math.max(t, _cursor); _cursor = at + d; return +at.toFixed(3); };
+
+
+
+
+tl.fromTo('#pv2-headline .ai-line-in',
+        { yPercent: 115 },
+        { yPercent: 0, duration: 0.78, ease: 'power3.out', stagger: 0.12 },
+        0.24);
+tl.fromTo('#pv2-body',
+        { opacity: 0, y: 24 },
+        { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' },
+        0.72);
+
+
+        return tl;
+      };
+
+
+      sceneBuilders[3] = function() {
+        const tl = gsap.timeline({ paused: true });
+
+        let _cursor = 0;
+        const seq = (t, d) => { const at = Math.max(t, _cursor); _cursor = at + d; return +at.toFixed(3); };
+
+
+
+
+
+      [...document.querySelectorAll('#pv3-lane .ai-ghost')].forEach(function (el) {
+        var phase = parseFloat(el.dataset.phase) || 0;
+        tl.fromTo(el, { y: 0 }, {
+          y: 1180, duration: 9.0, ease: 'none', repeat: 2,
+          modifiers: { y: function (v) { return ((parseFloat(v) + phase) % 1180) + 'px'; } },
+        }, 0);
+      });
+tl.fromTo('#pv3-slab',
+        { scaleY: 0.12, opacity: 1 },
+        { scaleY: 1, duration: 0.5, ease: 'power3.out' },
+        0.55);
+      if (document.getElementById('pv3-stem')) {
+        tl.fromTo('#pv3-stem',
+          { scaleY: 0 },
+          { scaleY: 1, duration: 0.3, ease: 'power2.out' },
+          0.97);
+      }
+tl.fromTo('#pv3-cap',
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.62, ease: 'power2.out' },
+        1.0);
+
+
+        return tl;
+      };
+
+
+      sceneBuilders[4] = function() {
+        const tl = gsap.timeline({ paused: true });
+
+        let _cursor = 0;
+        const seq = (t, d) => { const at = Math.max(t, _cursor); _cursor = at + d; return +at.toFixed(3); };
+
+
+
+tl.fromTo('#pv4-slab',
+        { scaleY: 0.12, opacity: 1 },
+        { scaleY: 1, duration: 0.5, ease: 'power3.out' },
+        0.2);
+      if (document.getElementById('pv4-stem')) {
+        tl.fromTo('#pv4-stem',
+          { scaleY: 0 },
+          { scaleY: 1, duration: 0.3, ease: 'power2.out' },
+          0.62);
+      }
+tl.fromTo('#pv4-cap',
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.62, ease: 'power2.out' },
+        0.1);
+
+
+
+      {
+        var listpv4 = document.getElementById('pv4-list');
+        var tickpv4 = gsap.timeline({ repeat: 1 });
+        for (var k = 0; k < 5; k++) {
+          tickpv4.to(listpv4, {
+            y: (k + 1) * 150, duration: 0.52, ease: 'power2.out',
+          }, k * 3.6);
+        }
+        tickpv4.to({}, { duration: 0 }, 18.0);
+        gsap.set(listpv4, { y: 0 });
+        tl.add(tickpv4, 0.5);
+      }
+tl.fromTo('#pv4 .ai-window',
+        { opacity: 0, y: 26 },
+        { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' },
+        0.62);
+
+
+        return tl;
+      };
+
+
+      sceneBuilders[5] = function() {
+        const tl = gsap.timeline({ paused: true });
+
+        let _cursor = 0;
+        const seq = (t, d) => { const at = Math.max(t, _cursor); _cursor = at + d; return +at.toFixed(3); };
+
+
+
+tl.fromTo('#pv5-headline .ai-line-in',
+        { yPercent: 115 },
+        { yPercent: 0, duration: 0.78, ease: 'power3.out', stagger: 0.12 },
+        0.15);
+tl.fromTo('#pv5-pills',
+        { opacity: 0, y: 26 },
+        { opacity: 1, y: 0, duration: 0.66, ease: 'power2.out' },
+        0.72);
+
+        return tl;
+      };
+
+
+      const SCENE_DURATIONS = [3.99, 6.49, 9.99, 8.99, 4.5];
+      const IDLE_STATUS = '5 scenes \u00b7 34.0s';
+
+      const HAS_AUDIO = false;
+      let audioOn = false;
+      let allTimer = null;
+      let playing = false;
+
+      const PROG = {};
+      const SCENE_STATE = {};
+
+      const progFill = idx =>
+        document.querySelector(`.preview-progress[data-scene="${idx}"] i`);
+
+      function progTick(idx) {
+        const p = PROG[idx], fill = progFill(idx);
+        if (!p || !fill) return;
+        const elapsed = p.elapsed + (performance.now() - p.t0) / 1000;
+        const frac = Math.min(elapsed / SCENE_DURATIONS[idx - 1], 1);
+        fill.style.transform = `scaleX(${frac})`;
+        if (frac < 1 && !p.paused) p.raf = requestAnimationFrame(() => progTick(idx));
+      }
+
+      function progPlay(idx, fromZero) {
+        const p = PROG[idx] || (PROG[idx] = { elapsed: 0 });
+        if (fromZero) p.elapsed = 0;
+        cancelAnimationFrame(p.raf);
+        p.paused = false;
+        p.t0 = performance.now();
+        progTick(idx);
+      }
+
+      function progPause(idx) {
+        const p = PROG[idx];
+        if (!p || p.paused) return;
+        p.elapsed += (performance.now() - p.t0) / 1000;
+        p.paused = true;
+        cancelAnimationFrame(p.raf);
+      }
+
+      function resetProgress(idx) {
+        const p = PROG[idx];
+        if (p) { cancelAnimationFrame(p.raf); p.elapsed = 0; p.paused = true; }
+        const fill = progFill(idx);
+        if (fill) fill.style.transform = 'scaleX(0)';
+      }
+
+      function progSeek(event, idx) {
+        const bar = event.currentTarget;
+        const rect = bar.getBoundingClientRect();
+        const frac = Math.min(Math.max((event.clientX - rect.left) / rect.width, 0), 1);
+        const at = frac * SCENE_DURATIONS[idx - 1];
+
+        sceneTL[idx] = buildSceneTL(idx);
+        sceneTL[idx].seek(at);
+        const vid = sceneVideo(idx);
+        if (vid) {
+          vid.muted = !audioOn;
+
+          try { vid.currentTime = Math.min(at, vid.duration || at); } catch (e) {}
+        }
+
+        const p = PROG[idx] || (PROG[idx] = { elapsed: 0 });
+        cancelAnimationFrame(p.raf);
+        p.elapsed = at;
+        const fill = progFill(idx);
+        if (fill) fill.style.transform = `scaleX(${frac})`;
+
+        sceneTL[idx].play();
+        if (vid) vid.play().catch(() => {});
+        progPlay(idx, false);
+        SCENE_STATE[idx] = 'playing';
+        playGlyph(idx, true);
+      }
+
+      function playGlyph(idx, playing) {
+        const b = document.querySelector(`.preview-card[data-scene="${idx}"] .preview-play`);
+        if (b) b.innerHTML = playing ? '&#10074;&#10074;' : '&#9654;';
+      }
+
+      function stopAll() {
+        clearTimeout(allTimer);
+        allTimer = null;
+        playing = false;
+        document.querySelectorAll('video').forEach(v => v.pause());
+        document.querySelectorAll('.preview-card').forEach(c => c.classList.remove('active'));
+        SCENE_DURATIONS.forEach((_, i) => {
+          resetProgress(i + 1); SCENE_STATE[i + 1] = 'idle'; playGlyph(i + 1, false);
+        });
+        const b = document.getElementById('btn-all');
+        b.classList.remove('on');
+        b.innerHTML = '\u25B6 Play all';
+        document.getElementById('bar-status').textContent = IDLE_STATUS;
+      }
+
+      function playAll(from = 1) {
+        const total = SCENE_DURATIONS.length;
+
+        if (playing && from === 1) { stopAll(); return; }
+        if (from > total) { stopAll(); return; }
+        if (from === 1) SCENE_DURATIONS.forEach((_, i) => resetProgress(i + 1));
+        playing = true;
+        const b = document.getElementById('btn-all');
+        b.classList.add('on');
+        b.innerHTML = '\u25A0 Stop';
+        document.querySelectorAll('.preview-card').forEach(c => c.classList.remove('active'));
+        const card = document.querySelector(`.preview-card[data-scene="${from}"]`);
+        if (card) {
+          card.classList.add('active');
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        document.getElementById('bar-status').textContent = `playing ${from} / ${total}`;
+        startScene(from, false);
+        allTimer = setTimeout(() => playAll(from + 1), SCENE_DURATIONS[from - 1] * 1000);
+      }
+
+      function playScene(idx) {
+        const state = SCENE_STATE[idx] || 'idle';
+        if (state === 'playing') return pauseScene(idx);
+        if (state === 'paused') return resumeScene(idx);
+        return startScene(idx);
+      }
+
+      function sceneVideo(idx) {
+
+        return null;
+
+      }
+
+      function cascadeTimeline(idx, tl) {
+        const a = (typeof ANIMS !== 'undefined') ? ANIMS[idx - 1] : null;
+        if (!a || !a.cascade) return tl;
+        const delay = +a.delay || 0, start = +a.start || 0;
+
+        const kids = tl.getChildren(false, true, true).filter(k => {
+          const t = k.targets && k.targets()[0];
+          const id = t && t.id ? String(t.id) : '';
+          return !id.endsWith('-scrim');
+        });
+        kids.forEach((k, i) => k.startTime(start + i * delay));
+        return tl;
+      }
+
+      function buildSceneTL(idx) {
+        if (sceneTL[idx]) { sceneTL[idx].revert(); delete sceneTL[idx]; }
+        return cascadeTimeline(idx, sceneBuilders[idx]());
+      }
+
+      function replayScene(idx) {
+        sceneTL[idx] = buildSceneTL(idx);
+        const vid = sceneVideo(idx);
+        if (vid) { vid.muted = !audioOn; vid.currentTime = 0; vid.play().catch(() => {}); }
+        sceneTL[idx].play(0);
+        progPlay(idx, true);
+        SCENE_STATE[idx] = 'playing';
+        playGlyph(idx, true);
+      }
+
+      function startScene(idx, exclusive = true) {
+
+        if (exclusive) {
+          SCENE_DURATIONS.forEach((_, i) => {
+            const other = i + 1;
+            if (other === idx || (SCENE_STATE[other] || 'idle') === 'idle') return;
+            if (sceneTL[other]) sceneTL[other].pause();
+            const ov = sceneVideo(other);
+            if (ov) ov.pause();
+            resetProgress(other);
+            SCENE_STATE[other] = 'idle';
+            playGlyph(other, false);
+          });
+        }
+
+        sceneTL[idx] = buildSceneTL(idx);
+        const vid = sceneVideo(idx);
+        if (vid) { vid.muted = !audioOn; vid.currentTime = 0; vid.play().catch(() => {}); }
+        sceneTL[idx].play();
+        progPlay(idx, true);
+        SCENE_STATE[idx] = 'playing';
+        playGlyph(idx, true);
+      }
+
+      function pauseScene(idx) {
+        if (sceneTL[idx]) sceneTL[idx].pause();
+        const vid = sceneVideo(idx);
+        if (vid) vid.pause();
+        progPause(idx);
+        SCENE_STATE[idx] = 'paused';
+        playGlyph(idx, false);
+      }
+
+      function resumeScene(idx) {
+        if (sceneTL[idx]) sceneTL[idx].resume();
+        const vid = sceneVideo(idx);
+        if (vid) { vid.muted = !audioOn; vid.play().catch(() => {}); }
+        progPlay(idx, false);
+        SCENE_STATE[idx] = 'playing';
+        playGlyph(idx, true);
+      }
+
+      function resetAll() {
+        stopAll();
+        SCENE_DURATIONS.forEach((_, i) => {
+          const idx = i + 1;
+          if (sceneTL[idx]) { sceneTL[idx].revert(); delete sceneTL[idx]; }
+          const vid = sceneVideo(idx);
+          if (vid) { vid.pause(); vid.currentTime = 0; }
+          resetProgress(idx);
+          SCENE_STATE[idx] = 'idle';
+          playGlyph(idx, false);
+        });
+        document.getElementById('bar-status').textContent = IDLE_STATUS;
+      }
+
+    </script>
+
+
+  </body>
+</html>

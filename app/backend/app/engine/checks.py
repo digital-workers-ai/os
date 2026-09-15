@@ -9,6 +9,7 @@ from app.engine import (
     dashboards,
     derived,
     goals,
+    looks,
     mappings,
     metrics,
     ontology,
@@ -106,6 +107,7 @@ def run(
     competitors_path=None,
     brand_dir=None,
     calendar_path=None,
+    looks_dir=None,
 ) -> list[str]:
     problems: list[str] = []
 
@@ -129,6 +131,7 @@ def run(
     problems += competitors.check(competitors_path)
     problems += brand.check(brand_dir)
     problems += calendar.check(calendar_path)
+    problems += looks.check(looks_dir)
     attrs_of = derived.attrs_of(onto, derived_path)
 
     for source in sorted({line.source for line in lines}):

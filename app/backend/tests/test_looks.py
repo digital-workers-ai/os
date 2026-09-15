@@ -259,7 +259,9 @@ class TestTheDirectoryIsChecked:
         assert any("label" in p for p in problems), problems
 
     def test_an_image_sample_over_its_limit_is_named(self, tmp_path):
-        directory = _image_look(tmp_path, sample={"stat": "29", "label": "far too long"})
+        directory = _image_look(
+            tmp_path, sample={"stat": "29", "label": "far too long"}
+        )
         problems = looks.check(directory)
         assert any("label" in p for p in problems), problems
 

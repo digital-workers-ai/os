@@ -1,0 +1,1352 @@
+{% import "layout-macro.j2" as ed %}
+
+{% set SIZE_VARS = [] %}
+
+{% set w = 1080 if project.resolution == 'portrait' else 1920 %}
+{% set h = 1920 if project.resolution == 'portrait' else 1080 %}
+<!doctype html>
+<html lang="en" data-resolution="{{ project.resolution }}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width={{ w }}, height={{ h }}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family={{ theme.font_display | replace(' ', '+') }}:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family={{ theme.font_body | replace(' ', '+') }}:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+{% if preview %}
+    <link href="https://fonts.googleapis.com/css2?family=Science+Gothic:wght@300;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+{% endif %}
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/SplitText.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <style>
+
+      .copy-block {
+        translate: var(--nudge-x, 0px) var(--nudge-y, 0px);
+        scale: var(--nudge-s, 1);
+      }
+
+      :root {
+        --green: {{ theme.color_positive }};
+        --red: {{ theme.color_negative }};
+        --white: {{ theme.color_text }};
+        --black: {{ theme.color_bg }};
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        margin: 0; width: {{ w }}px; height: {{ h }}px;
+        overflow: hidden; background: #000;
+        font-family: "{{ theme.font_body }}", sans-serif;
+      }
+      .clip { position: absolute; inset: 0; width: {{ w }}px; height: {{ h }}px; }
+      video { position: absolute; inset: 0; width: {{ w }}px; height: {{ h }}px; object-fit: cover; }
+      .vignette {
+        position: absolute; inset: 0; z-index: 1;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.05), rgba(0,0,0,0.35));
+        pointer-events: none;
+      }
+
+{% if 'title' in scene_types %}
+      .title-headline {
+        position: absolute; left: 0; right: 0; bottom: 190px; z-index: 2;
+        font-family: "{{ theme.font_display }}", sans-serif;
+        text-transform: uppercase; text-align: center;
+        line-height: var(--nudge-lh, 0.85);
+        letter-spacing: -0.3em;
+        transform: rotate(-5deg) skewX(-4deg);
+      }
+      .title-regular {
+        position: relative; z-index: 3;
+        display: block; color: var(--white); font-size: 172px; font-weight: 500;
+        text-shadow: 5px 5px 0 rgba(0,0,0,0.7), 10px 10px 0 rgba(0,0,0,0.35);
+      }
+      .title-soda {
+        position: relative; z-index: 2;
+        display: block; color: var(--red); font-size: 265px; font-weight: 500;
+        text-shadow: 5px 5px 0 rgba(0,0,0,0.7), 10px 10px 0 rgba(0,0,0,0.35);
+      }
+      .title-tag {
+        position: relative; z-index: 4;
+        display: inline-block; background: var(--green); color: var(--white);
+        font-size: 104px; font-weight: 500; padding: 12px 28px;
+        text-shadow: 3px 3px 0 rgba(0,0,0,0.9), 6px 6px 10px rgba(0,0,0,0.6);
+        box-shadow: 8px 8px 0 rgba(0,70,50,0.55), 0 12px 24px rgba(0,0,0,0.35);
+        margin-top: 16px;
+      }
+      .title-glow {
+        position: absolute; left: 0; right: 0; bottom: 0; z-index: 1;
+        height: 900px;
+        background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0) 100%);
+        pointer-events: none;
+      }
+{% endif %}
+
+{% if 'stat-block' in scene_types %}
+      .stat {
+        position: absolute; top: 100px; right: 40px; width: 640px; z-index: 2;
+        color: var(--white);
+        font-family: "{{ theme.font_display }}", sans-serif; text-align: right;
+        letter-spacing: -0.084em;
+      }
+      .stat::before {
+        content: '';
+        position: absolute;
+        top: -100px; bottom: -70px;
+        left: 43px; right: -50px;
+        background: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.65) 30%, rgba(0,0,0,0.65) 100%);
+        z-index: -1;
+        pointer-events: none;
+      }
+      .stat-title {
+        font-size: 88px; font-weight: 500; line-height: var(--nudge-lh, 0.95);
+        text-transform: uppercase;
+        text-shadow: 5px 5px 0 rgba(0,0,0,0.6), 10px 10px 0 rgba(0,0,0,0.3);
+      }
+      .stat-number {
+        color: var(--red); font-size: 260px; font-weight: 700;
+        line-height: var(--nudge-lh, 0.8); margin-top: 8px;
+        text-shadow: 5px 5px 0 rgba(0,0,0,0.7), 10px 10px 0 rgba(0,0,0,0.35);
+      }
+      .stat-sugar {
+        color: var(--red); font-size: 110px; font-weight: 600; line-height: var(--nudge-lh, 0.9);
+        margin-top: 80px;
+        text-shadow: 5px 5px 0 rgba(0,0,0,0.6), 10px 10px 0 rgba(0,0,0,0.3);
+      }
+      .stat-percan {
+        font-size: 80px; font-weight: 500; color: var(--white);
+        text-shadow: 5px 5px 0 rgba(0,0,0,0.6), 10px 10px 0 rgba(0,0,0,0.3);
+      }
+      .stat-bullets {
+        margin-top: 48px; margin-left: 0; font-family: "{{ theme.font_body }}", sans-serif;
+        font-size: 46px; font-weight: 600; line-height: var(--nudge-lh, 2.4);
+        text-align: left; white-space: nowrap;
+        text-shadow: 3px 3px 0 rgba(0,0,0,0.5), 6px 6px 0 rgba(0,0,0,0.25);
+      }
+      .stat-x {
+        display: inline-flex; width: 60px; height: 60px; border-radius: 50%;
+        background: var(--red); color: var(--white);
+        align-items: center; justify-content: center;
+        margin-right: 18px; font-size: 30px; font-weight: 700;
+      }
+      .stat.positive .stat-number { color: var(--green); }
+      .stat.positive .stat-sugar { color: var(--green); }
+      .stat.positive .stat-x { background: var(--green); }
+{% endif %}
+
+{% if 'caption' in scene_types %}
+      .caption-glow {
+        position: absolute; left: 0; right: 0; bottom: 0; z-index: 1;
+        height: 900px;
+        background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0) 100%);
+        pointer-events: none;
+      }
+      .caption {
+        position: absolute; z-index: 2;
+        font-family: "{{ theme.font_display }}", sans-serif;
+        text-transform: uppercase; line-height: var(--nudge-lh, 0.85);
+      }
+      .caption.tilt {
+        transform: rotate(-5deg) skewX(-4deg);
+      }
+      .caption.pos-bottom-right {
+        left: 40px; right: 40px; bottom: 180px; text-align: center;
+      }
+      .caption.pos-center {
+        left: 40px; right: 40px; bottom: 355px; text-align: center;
+      }
+      .caption.pos-bottom {
+        left: 40px; right: 40px; bottom: 230px; text-align: center;
+      }
+      .caption.pos-top { top: 200px; left: 40px; right: 40px; text-align: center; }
+      .cap-small {
+        display: block; color: var(--white); font-size: 120px; font-weight: 600;
+        font-family: "{{ theme.font_display }}", sans-serif;
+        line-height: var(--nudge-lh, 0.95); letter-spacing: -0.05em;
+        text-shadow: 5px 5px 0 rgba(0,0,0,0.6), 10px 10px 0 rgba(0,0,0,0.3);
+      }
+      .cap-large {
+        display: inline-block; color: var(--green); font-size: 280px; font-weight: 700;
+        font-family: "{{ theme.font_display }}", sans-serif; white-space: nowrap;
+        line-height: var(--nudge-lh, 0.85); letter-spacing: -0.05em;
+        text-shadow: 5px 5px 0 rgba(0,0,0,0.7), 10px 10px 0 rgba(0,0,0,0.35);
+      }
+      .pos-center .cap-small, .pos-bottom .cap-small {
+        font-size: 110px;
+      }
+      .caption.tilt .cap-large { font-size: 220px; }
+      .cap-large-wrap {
+        display: inline-block;
+        text-align: left;
+      }
+      .cap-brush {
+        display: block; height: 14px; background: var(--green);
+        margin-top: 8px; transform: skewX(-15deg);
+        width: 100%;
+      }
+      .pos-center .cap-brush, .pos-bottom .cap-brush, .pos-bottom-right .cap-brush {
+        height: 16px; transform: skewX(-18deg);
+      }
+      .cap-single {
+        display: block; color: var(--white); font-size: 76px; font-weight: 600;
+        text-shadow: 5px 5px 0 rgba(0,0,0,0.6), 10px 10px 0 rgba(0,0,0,0.3);
+      }
+{% endif %}
+
+{% if 'pros-cons' in scene_types %}
+      .pros-cons {
+        position: absolute; inset: 0; z-index: 2;
+        background: transparent;
+      }
+      .pc-bg-canvas {
+        position: absolute; inset: 0; width: {{ w }}px; height: {{ h }}px; z-index: 0;
+      }
+      .pc-headline {
+        position: absolute; top: 120px; left: 70px; z-index: 1;
+        font-family: "{{ theme.font_display }}", sans-serif;
+        text-transform: uppercase; line-height: var(--nudge-lh, 0.9);
+      }
+      .pc-why {
+        display: block; color: var(--white); font-size: 100px; font-weight: 600;
+      }
+      .pc-zero-title {
+        display: block; color: var(--green); font-size: 180px; font-weight: 700;
+      }
+      .pc-comparison {
+        position: absolute; left: 70px; right: 70px; top: 460px; z-index: 1;
+      }
+      .pc-card {
+        border-radius: 28px; overflow: hidden;
+        margin-bottom: 28px; background: var(--white);
+        font-family: "{{ theme.font_body }}", sans-serif;
+      }
+      .pc-card-header {
+        font-family: "{{ theme.font_display }}", sans-serif;
+        color: var(--white); font-size: 72px; font-weight: 700;
+        text-align: center; padding: 24px; text-transform: uppercase;
+      }
+      .pc-card.zero .pc-card-header { background: var(--green); }
+      .pc-card.regular .pc-card-header { background: var(--red); }
+      .pc-list {
+        padding: 28px 44px; font-size: 53px; font-weight: 700;
+        line-height: var(--nudge-lh, 1.7); color: #111;
+      }
+      .pc-list .check {
+        display: inline-flex; width: 52px; height: 52px; border-radius: 50%;
+        background: var(--green); color: var(--white);
+        align-items: center; justify-content: center;
+        margin-right: 16px; font-size: 28px; font-weight: 700;
+        vertical-align: middle;
+      }
+      .pc-list .cross {
+        display: inline-flex; width: 52px; height: 52px; border-radius: 50%;
+        background: var(--red); color: var(--white);
+        align-items: center; justify-content: center;
+        margin-right: 16px; font-size: 28px; font-weight: 700;
+        vertical-align: middle;
+      }
+{% endif %}
+
+{% if 'data-table' in scene_types %}
+      .data-table {
+        position: absolute; inset: 0; z-index: 2;
+        background: #090909;
+      }
+      .dt-bg-canvas {
+        position: absolute; inset: 0; width: {{ w }}px; height: {{ h }}px; z-index: 0;
+      }
+      .dt-title {
+        position: absolute; top: 110px; left: 70px;
+        font-family: "{{ theme.font_display }}", sans-serif;
+        text-transform: uppercase; line-height: var(--nudge-lh, 0.85);
+      }
+      .dt-the {
+        display: block; color: var(--white); font-size: 110px; font-weight: 900;
+      }
+      .dt-numbers {
+        display: block; color: var(--green); font-size: 130px; font-weight: 900;
+      }
+      .dt-grid {
+        position: absolute; left: 70px; top: 520px; width: 880px;
+        display: grid; grid-template-columns: 1fr 1.1fr 1.1fr;
+        font-family: "{{ theme.font_body }}", sans-serif; font-weight: 800;
+        border-radius: 20px; overflow: hidden;
+      }
+      .dt-cell {
+        height: 220px; display: flex; align-items: center; justify-content: center;
+        border: 3px solid #111; background: var(--white);
+        font-size: 54px; color: #111;
+      }
+      .dt-row-label {
+        justify-content: flex-start; padding-left: 34px;
+        font-size: 42px;
+      }
+      .dt-head-zero {
+        background: var(--green); color: var(--white);
+        font-size: 46px; font-weight: 900;
+      }
+      .dt-head-regular {
+        background: var(--red); color: var(--white);
+        font-size: 46px; font-weight: 900;
+      }
+      .dt-corner { background: #090909; border-color: #090909; }
+      .dt-zero-value { color: #07885d; font-size: 90px; }
+      .dt-regular-value { color: #b71f2b; font-size: 90px; }
+      .dt-check { color: var(--green) !important; font-size: 110px; }
+{% endif %}
+
+{% if 'hero' in scene_types %}
+      .hero-copy {
+        position: absolute; top: 80px; left: 60px; z-index: 2;
+        font-family: "{{ theme.font_display }}", sans-serif;
+        text-transform: uppercase; line-height: var(--nudge-lh, 0.9);
+        transform: rotate(-3deg);
+      }
+      .hero-clean {
+        display: block; color: var(--green); font-size: 130px; font-weight: 900;
+        text-shadow: 5px 5px 0 rgba(0,0,0,0.7), 10px 10px 0 rgba(0,0,0,0.35);
+      }
+      .hero-refreshing {
+        display: block; color: var(--white); font-size: 120px; font-weight: 900;
+        text-shadow: 5px 5px 0 rgba(0,0,0,0.7), 10px 10px 0 rgba(0,0,0,0.35);
+      }
+      .hero-upgrade {
+        position: absolute; left: 60px; bottom: 130px; z-index: 2;
+        width: 760px; background: var(--green); color: #050505;
+        font-family: "{{ theme.font_display }}", sans-serif;
+        font-size: 76px; font-weight: 900; padding: 20px 40px;
+        transform: rotate(-4deg) skewX(-8deg);
+        text-transform: uppercase;
+      }
+      .hero-check-circle {
+        position: absolute; right: 80px; bottom: 122px; z-index: 2;
+        width: 130px; height: 130px; border-radius: 50%;
+        background: var(--green); border: 10px solid var(--white);
+        color: var(--white); font-size: 90px; font-weight: 900;
+        display: flex; align-items: center; justify-content: center;
+      }
+{% endif %}
+
+{% if 'cta' in scene_types %}
+      .benefit {
+        position: absolute; right: 80px; top: 370px; z-index: 2;
+        font-family: "{{ theme.font_display }}", sans-serif;
+        text-transform: uppercase; text-align: left;
+        line-height: var(--nudge-lh, 0.9); transform: rotate(-2deg);
+      }
+      .benefit .b-white {
+        display: block; color: var(--white); font-size: 100px; font-weight: 900;
+        text-shadow: 5px 5px 0 rgba(0,0,0,0.7), 10px 10px 0 rgba(0,0,0,0.35);
+      }
+      .benefit .b-green {
+        display: block; color: var(--green); font-size: 110px; font-weight: 900;
+        text-shadow: 5px 5px 0 rgba(0,0,0,0.7), 10px 10px 0 rgba(0,0,0,0.35);
+      }
+      .cta-banner {
+        position: absolute; left: 80px; bottom: 140px; z-index: 2;
+        width: 650px; background: var(--red); color: var(--white);
+        font-family: "{{ theme.font_display }}", sans-serif;
+        text-transform: uppercase; padding: 26px 42px;
+        transform: rotate(-2deg);
+      }
+      .cta-small { font-size: 58px; font-weight: 900; line-height: var(--nudge-lh, 0.9); }
+      .cta-big { font-size: 88px; font-weight: 900; line-height: var(--nudge-lh, 0.9); }
+      .cta-arrow {
+        position: absolute; right: 180px; bottom: 110px; z-index: 2;
+        font-size: 120px; color: var(--white);
+        transform: rotate(-20deg);
+      }
+{% endif %}
+
+{% if preview %}
+
+      :root {
+        --dw-orange: #FD4E00; --dw-cream: #E0DCC1; --dw-light-cream: #EAE5D1;
+        --dw-tan: #ADAB9E; --dw-dark: #1A1A1A; --dw-line: #332f2c;
+
+        --card-w: 260px;
+      }
+      .preview-grid {
+        display: grid; grid-template-columns: repeat(auto-fill, var(--card-w));
+        justify-content: start;
+        gap: 22px; padding: 26px 30px 60px; background: var(--dw-dark); min-height: 100vh;
+      }
+      .preview-cell { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+      .preview-card {
+        position: relative; width: 100%; aspect-ratio: {{ w }}/{{ h }};
+        overflow: hidden; border-radius: 12px; border: 1px solid var(--dw-line);
+      }
+
+      .preview-card .scene-frame {
+        position: absolute; inset: 0; width: {{ w }}px; height: {{ h }}px;
+        transform-origin: top left; background: {{ theme.color_bg }};
+      }
+
+      .preview-progress { cursor: pointer; padding: 4px 0; margin: -4px 0;
+        position: relative; height: 4px; border-radius: 999px;
+        background: #2a2725; overflow: hidden;
+      }
+      .preview-progress i {
+        position: absolute; inset: 0; transform-origin: left center;
+        transform: scaleX(0); background: var(--dw-orange);
+      }
+      .preview-meta {
+        display: flex; justify-content: space-between; gap: 8px;
+        font: 500 10.5px/1 Inter, sans-serif; color: var(--dw-tan);
+        letter-spacing: 0.01em;
+      }
+      .preview-label {
+        position: absolute; top: 9px; left: 9px; z-index: 10;
+        background: rgba(26,26,26,0.82); color: var(--dw-cream); padding: 5px 9px;
+        border-radius: 5px; font: 700 10px/1 ui-monospace, monospace;
+        letter-spacing: 0.05em;
+      }
+      .preview-play {
+        position: absolute; bottom: 9px; right: 9px; z-index: 10;
+        width: 36px; height: 36px; border-radius: 50%; border: none;
+        background: rgba(234,229,209,0.92); cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 15px; color: var(--dw-dark); transition: transform 0.15s;
+      }
+      .preview-play:hover { transform: scale(1.15); }
+      .preview-bar {
+        position: sticky; top: 0; z-index: 50;
+        display: flex; gap: 12px; align-items: center; flex-wrap: nowrap;
+        padding: 14px 30px; background: var(--dw-dark);
+        border-bottom: 1px solid var(--dw-line);
+        font-family: Inter, sans-serif; color: var(--dw-cream);
+      }
+      .preview-bar button, .preview-bar span { white-space: nowrap; }
+      .preview-logo { display: flex; align-items: center; gap: 9px; margin-right: 10px; flex: none; }
+      .preview-logo span {
+        font-family: 'Science Gothic', system-ui, sans-serif; font-weight: 500;
+        font-size: 18px; letter-spacing: 0.016em; color: var(--dw-cream);
+      }
+      .preview-logo i {
+        width: 8px; height: 8px; border-radius: 50%; background: var(--dw-orange);
+      }
+      .preview-title {
+        font-family: 'Space Grotesk', Inter, sans-serif; font-weight: 600;
+        font-size: 14px; color: var(--dw-light-cream); letter-spacing: -0.01em;
+        overflow: hidden; text-overflow: ellipsis; min-width: 0;
+      }
+      .preview-bar button {
+        border: 1px solid var(--dw-line); background: #232020; color: var(--dw-cream);
+        padding: 7px 14px; border-radius: 8px; cursor: pointer;
+        font-family: inherit; font-size: 12.5px;
+      }
+      .preview-bar button:hover { background: #2c2827; border-color: #443f3b; }
+      .preview-bar button.on { background: var(--dw-orange); border-color: var(--dw-orange); color: #fff; }
+      .preview-bar button[disabled] { opacity: 0.42; cursor: not-allowed; }
+      .preview-bar button[disabled]:hover { background: #232020; border-color: var(--dw-line); }
+      .preview-bar .spacer { flex: 1; }
+      .preview-bar #bar-status { font-size: 12px; color: var(--dw-tan); }
+      .preview-card.active { outline: 2px solid var(--dw-orange); outline-offset: 3px; }
+
+      html, body { width: auto; height: auto; overflow: auto; background: var(--dw-dark); }
+{% endif %}
+    </style>
+    <script>
+
+      function fitFrames() {
+        document.querySelectorAll('.preview-card').forEach(card => {
+          const frame = card.querySelector('.scene-frame');
+          if (!frame) return;
+          frame.style.transform = `scale(${card.getBoundingClientRect().width / {{ w }}})`;
+        });
+      }
+
+      const CARD_STEPS = [150, 190, 230, 260, 320, 400, 500, 640, 820];
+      function applyCardWidth(px) {
+        document.documentElement.style.setProperty('--card-w', px + 'px');
+        try { localStorage.setItem('ugc-card-w', px); } catch (e) {  }
+      }
+      function resize(dir) {
+        const now = parseInt(getComputedStyle(document.documentElement)
+          .getPropertyValue('--card-w'), 10) || 260;
+        let i = CARD_STEPS.findIndex(v => v >= now);
+        if (i < 0) i = CARD_STEPS.length - 1;
+        applyCardWidth(CARD_STEPS[Math.min(Math.max(i + dir, 0), CARD_STEPS.length - 1)]);
+      }
+      try {
+        const saved = parseInt(localStorage.getItem('ugc-card-w'), 10);
+        if (saved) applyCardWidth(saved);
+      } catch (e) {  }
+
+      let lastCardWidth = 0, lastCardCount = 0;
+      function watchFit() {
+        const cards = document.querySelectorAll('.preview-card');
+        if (cards.length) {
+          const w = cards[0].getBoundingClientRect().width;
+
+          if (Math.abs(w - lastCardWidth) > 0.5 || cards.length !== lastCardCount) {
+            lastCardWidth = w; lastCardCount = cards.length; fitFrames();
+          }
+        }
+        requestAnimationFrame(watchFit);
+      }
+      requestAnimationFrame(watchFit);
+
+      document.addEventListener('DOMContentLoaded', () => {
+        fitFrames();
+{% if 'pros-cons' in scene_types or 'data-table' in scene_types %}
+        setTimeout(() => {
+          document.querySelectorAll('.pc-bg-canvas').forEach(c => initCylinderBg(c, {{ w }}, {{ h }}, PC_CYLINDER_CONFIGS));
+          document.querySelectorAll('.dt-bg-canvas').forEach(c => initCylinderBg(c, {{ w }}, {{ h }}, DT_CYLINDER_CONFIGS));
+        }, 100);
+{% endif %}
+      });
+    </script>
+    <script>
+{% if 'pros-cons' in scene_types or 'data-table' in scene_types %}
+      const PC_CYLINDER_CONFIGS = [
+        { pos: [-2.3,  2.9, -0.5], rot: [ 0.3,  0.2,  0.8] },
+        { pos: [ 2.3,  2.7, -0.5], rot: [ 0.4, -0.2, -0.7] },
+        { pos: [-2.1, -2.7, -0.5], rot: [-0.2,  0.3,  0.5] },
+        { pos: [ 2.1, -2.9, -0.5], rot: [-0.3, -0.2, -0.5] },
+      ];
+      const DT_CYLINDER_CONFIGS = [
+        { pos: [-2.3,  2.9, -0.5], rot: [ 0.3,  0.2,  0.8] },
+        { pos: [ 2.3, -2.7, -0.5], rot: [-0.3, -0.2, -0.5] },
+        { pos: [ 0.0,  0.0, -0.5], rot: [ 0.2,  0.3,  0.4] },
+      ];
+
+      function initCylinderBg(canvasEl, w, h, configs) {
+        if (!window.THREE || canvasEl._pcInitialized) return;
+        canvasEl._pcInitialized = true;
+        const THREE = window.THREE;
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000);
+        const camera = new THREE.PerspectiveCamera(50, w / h, 0.1, 100);
+        camera.position.z = 6;
+        scene.add(new THREE.AmbientLight(0x444444));
+        const l1 = new THREE.DirectionalLight(0xffffff, 4);
+        l1.position.set(2, 3, 4); scene.add(l1);
+        const l2 = new THREE.DirectionalLight(0x888888, 2);
+        l2.position.set(-3, -1, 2); scene.add(l2);
+        const mat = new THREE.MeshPhongMaterial({color:0xaaaaaa, shininess:220, specular:0xffffff});
+        const geo = new THREE.CylinderGeometry(0.44, 0.44, 2.8, 32);
+        const cylinders = configs.map(cfg => {
+          const m = new THREE.Mesh(geo, mat);
+          m.position.set(...cfg.pos);
+          m.rotation.set(...cfg.rot);
+          scene.add(m);
+          return m;
+        });
+        const renderer = new THREE.WebGLRenderer({canvas: canvasEl, antialias: true});
+        renderer.setPixelRatio(1);
+        renderer.setSize(w, h);
+        gsap.ticker.add(() => {
+          cylinders.forEach((c, i) => {
+            c.rotation.x += 0.003 * (i % 2 === 0 ? 1 : -1);
+            c.rotation.z += 0.002 * (i % 2 === 0 ? 1 : -1);
+          });
+          renderer.render(scene, camera);
+        });
+      }
+{% endif %}
+
+{% if 'data-table' in scene_types %}
+      function countUpCell(el, duration) {
+        const raw = el.dataset.target || '';
+        const match = raw.match(/^(\d+)(.*)$/);
+        if (!match) return;
+        const target = parseInt(match[1]);
+        const suffix = match[2] || '';
+        el.textContent = '0' + suffix;
+        if (target === 0) return;
+        const obj = { val: 0 };
+        gsap.to(obj, {
+          val: target, duration: duration, ease: "power4.out",
+          onUpdate: () => { el.textContent = Math.round(obj.val) + suffix; },
+          onComplete: () => { el.textContent = target + suffix; }
+        });
+      }
+      function resetGridToZero(gridId) {
+        const grid = document.getElementById(gridId);
+        if (!grid) return;
+        grid.querySelectorAll('.dt-zero-value:not(.dt-check), .dt-regular-value:not(.dt-check)').forEach(el => {
+          const raw = el.dataset.target || '';
+          const match = raw.match(/^(\d+)(.*)$/);
+          if (match) el.textContent = '0' + (match[2] || '');
+        });
+      }
+      function countUpGrid(gridId) {
+        const grid = document.getElementById(gridId);
+        if (!grid) return;
+        grid.querySelectorAll('.dt-zero-value:not(.dt-check)').forEach(el => countUpCell(el, 0.6));
+        grid.querySelectorAll('.dt-regular-value:not(.dt-check)').forEach(el => countUpCell(el, 1.8));
+      }
+{% endif %}
+    </script>
+  </head>
+  <body>
+{% if preview %}
+
+    <div class="preview-bar">
+      <div class="preview-logo"><span>Digital Workers</span><i></i></div>
+      <span class="preview-title">{{ project.name }}</span>
+      <span class="spacer"></span>
+      <button onclick="resize(-1)" title="Smaller frames">&minus;</button>
+      <button onclick="resize(1)" title="Larger frames">+</button>
+      <button id="btn-all" onclick="playAll()">&#9654; Play all</button>
+      <button onclick="resetAll()" title="Back to the first frame">&#8634; Reset</button>
+      <button id="btn-edit" onclick="toggleEdit()" title="Move and resize each scene's copy">&#9998; Edit layout</button>
+      <button id="btn-save" onclick="edSaveAll()" hidden title="Write every changed scene to content.yaml">Save</button>
+      <button id="btn-audio" onclick="toggleAudio()"{% if stills %} disabled title="This card is built from stills — there is no audio to play"{% endif %}>&#128266; Audio on</button>
+      <button id="btn-export" onclick="exportVideo()" title="Render this project's composed page to an mp4">&#8681; Export video</button>
+      <button id="btn-export-watch" onclick="openExportModal()" hidden title="Reopen the last export without re-rendering it">&#9654; Watch video</button>
+      <span id="export-status" hidden></span>
+      <span id="bar-status">{{ scenes | length }} scenes &middot; {{ total_duration }}s</span>
+    </div>
+
+    <div class="preview-grid">
+{% for scene in scenes %}
+{% set idx = loop.index %}
+{% set c = scene.content %}
+      <div class="preview-cell">
+      <div class="preview-card" data-scene="{{ idx }}">
+        <div class="preview-label">{{ idx }}. {{ scene.type }}</div>
+        <button class="preview-play" onclick="playScene({{ idx }})">&#9654;</button>
+        <div class="scene-frame">
+{% if stills %}
+{% if scene.background == 'video' %}
+          <img class="scene-still" src="images/scene_{{ '%02d' | format(idx) }}.jpg" alt="" style="width:{{ w }}px;height:{{ h }}px;object-fit:cover;position:absolute;inset:0;" />
+{% endif %}
+{% else %}
+
+          <video id="pv-bg{{ idx }}" src="assets/scene_{{ '%02d' | format(idx) }}.mp4" style="width:{{ w }}px;height:{{ h }}px;object-fit:cover;position:absolute;inset:0;{% if scene.background == 'solid' %}opacity:0;{% endif %}" muted></video>
+{% endif %}
+{% if scene.background == 'video' %}
+          <div class="vignette"></div>
+{% endif %}
+
+{% if scene.type == 'title' %}
+          <div class="title-glow"></div>
+          <div class="title-headline copy-block" id="pv{{ idx }}-title" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='copy', level='group', root=true) }}>
+            <div class="title-regular copy-block" data-field="line1" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='line1', level='element') }}>{{ c.line1 }}</div>
+            <div class="title-soda copy-block" data-field="line2" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='line2', level='element') }}>{{ c.line2 }}</div>
+{% if c.line3 %}
+            <div class="title-tag copy-block" data-field="line3" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='line3', level='element') }}>{{ c.line3 }}</div>
+{% endif %}
+          </div>
+
+{% elif scene.type == 'stat-block' %}
+          <div class="stat {{ scene.variant }}" id="pv{{ idx }}-stat">
+            <div class="stat-title copy-block" data-field="header" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='header', level='element', root=true) }}>{{ c.header }}</div>
+            <div class="stat-number copy-block" data-field="stat" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='stat', level='element', root=true) }}>{{ c.stat }}</div>
+            <div class="stat-sugar copy-block" data-field="stat_label" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='stat_label', level='element', root=true) }}>{{ c.stat_label }}</div>
+            <div class="stat-percan copy-block" data-field="stat_sub" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='stat_sub', level='element', root=true) }}>{{ c.stat_sub }}</div>
+            <div class="stat-bullets copy-block" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='bullets', level='group', root=true) }}>
+{% for bullet in c.bullets %}
+              <div><span class="stat-x">{{ '✕' if scene.variant == 'negative' else '✓' }}</span>{{ bullet }}</div>
+{% endfor %}
+            </div>
+          </div>
+
+{% elif scene.type == 'pros-cons' %}
+{% set title_parts = c.title.split('\n') %}
+          <div class="pros-cons copy-block" id="pv{{ idx }}-pc" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='copy', level='group', root=true) }}>
+            <canvas class="pc-bg-canvas" id="pv{{ idx }}-pc-bg"></canvas>
+            <div class="pc-headline copy-block" id="pv{{ idx }}-headline" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='headline', level='group') }}>
+              <div class="pc-why copy-block" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='why', level='element') }}>{{ title_parts[0] }}</div>
+{% if title_parts | length > 1 %}
+              <div class="pc-zero-title copy-block" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='subtitle', level='element') }}>{{ title_parts[1] }}</div>
+{% endif %}
+            </div>
+            <div class="pc-comparison copy-block" id="pv{{ idx }}-comparison" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='cards', level='group') }}>
+              <div class="pc-card zero" id="pv{{ idx }}-pos">
+                <div class="pc-card-header">{{ c.positive.header }}</div>
+                <div class="pc-list">
+{% for item in c.positive['items'] %}
+                  <div><span class="check">✓</span>{{ item }}</div>
+{% endfor %}
+                </div>
+              </div>
+              <div class="pc-card regular" id="pv{{ idx }}-neg">
+                <div class="pc-card-header">{{ c.negative.header }}</div>
+                <div class="pc-list">
+{% for item in c.negative['items'] %}
+                  <div><span class="cross">✕</span>{{ item }}</div>
+{% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+
+{% elif scene.type == 'caption' %}
+{% set cap_lines = c.text.split('\n') %}
+          <div class="caption-glow copy-block" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='copy', level='group', root=true) }}></div>
+          <div class="caption pos-{{ c.position | default('bottom') }}{{ ' tilt' if c.tilt else '' }}" id="pv{{ idx }}-cap">
+
+{% if scene.word_timestamps %}
+{% set ns = namespace(wi=0) %}
+{% if cap_lines | length > 1 %}
+            <div class="cap-small copy-block" data-field="line1" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='line1', level='element', root=true) }}>{% for wt in scene.word_timestamps if wt.line == 0 %}<span id="pv{{ idx }}-cw{{ ns.wi }}" style="opacity:0">{{ wt.word }}</span> {% set ns.wi = ns.wi + 1 %}{% endfor %}</div>
+            <div class="cap-large-wrap">
+              <div class="cap-large copy-block" data-field="line2" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='line2', level='element', root=true) }}>{% for wt in scene.word_timestamps if wt.line == 1 %}<span id="pv{{ idx }}-cw{{ ns.wi }}" style="opacity:0">{{ wt.word }}</span> {% set ns.wi = ns.wi + 1 %}{% endfor %}</div>
+              <div class="cap-brush" id="pv{{ idx }}-brush" style="opacity:0"></div>
+            </div>
+{% else %}
+            <div class="cap-single copy-block" data-field="text" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='text', level='element', root=true) }}>{% for wt in scene.word_timestamps %}<span id="pv{{ idx }}-cw{{ ns.wi }}" style="opacity:0">{{ wt.word }}</span> {% set ns.wi = ns.wi + 1 %}{% endfor %}</div>
+{% endif %}
+{% elif cap_lines | length > 1 %}
+            <div class="cap-small copy-block" data-field="line1" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='line1', level='element', root=true) }}>{{ cap_lines[0] }}</div>
+            <div class="cap-large copy-block" data-field="line2" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='line2', level='element', root=true) }}>{{ cap_lines[1] }}</div>
+            <div class="cap-brush"></div>
+{% else %}
+            <div class="cap-single copy-block" data-field="text" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='text', level='element', root=true) }}>{{ c.text }}</div>
+{% endif %}
+          </div>
+
+{% elif scene.type == 'data-table' %}
+{% set dt_title = c.title.split('\n') %}
+          <div class="data-table copy-block" id="pv{{ idx }}-dt" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='copy', level='group', root=true) }}>
+            <canvas class="dt-bg-canvas" id="pv{{ idx }}-dt-bg"></canvas>
+            <div class="dt-title copy-block" id="pv{{ idx }}-dt-title" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='title', level='group') }}>
+              <div class="dt-the copy-block" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='the', level='element') }}>{{ dt_title[0] }}</div>
+{% if dt_title | length > 1 %}
+              <div class="dt-numbers copy-block" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='numbers', level='element') }}>{{ dt_title[1] }}</div>
+{% endif %}
+            </div>
+            <div class="dt-grid" id="pv{{ idx }}-dt-grid">
+              <div class="dt-cell dt-corner"></div>
+              <div class="dt-cell dt-head-zero">{{ c.columns[0] }}</div>
+              <div class="dt-cell dt-head-regular">{{ c.columns[1] }}</div>
+{% for row in c.rows %}
+              <div class="dt-cell dt-row-label">{{ row.label }}</div>
+{% set v0 = row['values'][0] %}{% set v1 = row['values'][1] %}
+              <div class="dt-cell dt-zero-value{{ ' dt-check' if v0 == '✓' }}" data-target="{{ v0 }}">{{ v0 | zero_text }}</div>
+              <div class="dt-cell dt-regular-value{{ ' dt-check' if v1 == '✓' }}" data-target="{{ v1 }}">{{ v1 | zero_text }}</div>
+{% endfor %}
+            </div>
+          </div>
+
+{% elif scene.type == 'hero' %}
+{% set lines = c.text.split('\n') %}
+          <div class="hero-copy copy-block" id="pv{{ idx }}-hero" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='copy', level='group', root=true) }}>
+{% for line in lines %}
+            <div class="{{ 'hero-clean' if loop.first else 'hero-refreshing' }}">{{ line }}</div>
+{% endfor %}
+          </div>
+{% if c.banner_text %}
+          <div class="hero-upgrade copy-block" data-field="banner_text" id="pv{{ idx }}-upgrade" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='banner_text', level='element', root=true) }}>{{ c.banner_text }}</div>
+{% if c.banner_icon %}
+          <div class="hero-check-circle" id="pv{{ idx }}-check">{{ c.banner_icon }}</div>
+{% endif %}
+{% endif %}
+
+{% elif scene.type == 'cta' %}
+{% set cta_words = c.headline.replace('\n', ' ').split(' ') %}
+          <div class="benefit copy-block" id="pv{{ idx }}-benefit" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='copy', level='group', root=true) }}>
+{% if scene.word_timestamps %}
+{% set ns = namespace(wi=0) %}
+{% for word in cta_words %}
+            <span id="pv{{ idx }}-cw{{ ns.wi }}" class="{{ 'b-green' if loop.index is even else 'b-white' }}" style="opacity:0">{{ word }}</span>{% set ns.wi = ns.wi + 1 %}
+{% endfor %}
+{% else %}
+{% for word in cta_words %}
+            <span class="{{ 'b-green' if loop.index is even else 'b-white' }}">{{ word }}</span>
+{% endfor %}
+{% endif %}
+          </div>
+{% if c.banner_text %}
+{% set bwords = c.banner_text.split(' ') %}
+          <div class="cta-banner" id="pv{{ idx }}-ctabanner">
+            <div class="cta-small">{{ bwords[0] }}</div>
+            <div class="cta-big">{{ bwords[1:] | join(' ') }}</div>
+          </div>
+          <div class="cta-arrow" id="pv{{ idx }}-arrow">↩</div>
+{% endif %}
+
+{% endif %}
+        </div>
+      </div>
+        <div class="preview-progress" data-scene="{{ idx }}" onclick="progSeek(event, {{ idx }})" title="Play from here"><i></i></div>
+        <div class="preview-meta">
+          <span>{{ idx }}. {{ scene.type }}</span>
+          <span>{{ scene.duration }}s</span>
+        </div>
+      </div>
+{% endfor %}
+    </div>
+    <script>
+      const sceneBuilders = {};
+      const sceneTL = {};
+{% for scene in scenes %}
+{% set idx = loop.index %}
+{% set c = scene.content %}
+      sceneBuilders[{{ idx }}] = function() {
+        const tl = gsap.timeline({ paused: true });
+{% if scene.type == 'title' %}
+        tl.from("#pv{{ idx }}-title .title-regular", { y: 60, opacity: 0, duration: 0.35, ease: "power3.out" }, 0);
+        tl.from("#pv{{ idx }}-title .title-soda", { y: 80, opacity: 0, duration: 0.4, ease: "power3.out" }, 0.15);
+{% if c.line3 %}
+        tl.from("#pv{{ idx }}-title .title-tag", { y: 60, opacity: 0, duration: 0.35, ease: "power3.out" }, 0.35);
+{% endif %}
+{% elif scene.type == 'stat-block' %}
+        tl.from("#pv{{ idx }}-stat", { x: 280, opacity: 0, duration: 0.5, ease: "power2.out" }, 0);
+        tl.from("#pv{{ idx }}-stat .stat-number", { scale: 0.7, opacity: 0, duration: 0.4, ease: "back.out(1.7)" }, 0.4);
+        tl.from("#pv{{ idx }}-stat .stat-bullets > div", { x: 60, opacity: 0, duration: 0.35, stagger: 0.12 }, 0.8);
+{% elif scene.type == 'pros-cons' %}
+        tl.call(() => initCylinderBg(document.getElementById("pv{{ idx }}-pc-bg"), {{ w }}, {{ h }}, PC_CYLINDER_CONFIGS), null, 0);
+        tl.from("#pv{{ idx }}-headline", { y: 40, opacity: 0, duration: 0.4, ease: "power3.out" }, 0);
+        tl.from("#pv{{ idx }}-pos", { y: 60, opacity: 0, duration: 0.4, ease: "power2.out" }, 0.3);
+        tl.from("#pv{{ idx }}-neg", { y: 60, opacity: 0, duration: 0.4, ease: "power2.out" }, 0.8);
+{% elif scene.type == 'caption' %}
+{% if scene.word_timestamps %}
+{% set last_wt = scene.word_timestamps | last %}
+{% for wt in scene.word_timestamps %}
+        tl.to("#pv{{ idx }}-cw{{ loop.index0 }}", { opacity: 1, duration: 0.12, ease: "none" }, {{ ((wt.start - 0.15) | round(3)) if wt.start > 0.15 else 0 }});
+{% endfor %}
+
+{% if c.text.split('\n') | length > 1 %}
+        tl.to("#pv{{ idx }}-brush", { opacity: 1, duration: 0.35, ease: "power2.out" }, {{ ((last_wt.start) | round(3)) }});
+{% endif %}
+{% else %}
+{% set cap_lines = c.text.split('\n') %}
+{% if cap_lines | length > 1 %}
+        tl.from("#pv{{ idx }}-cap .cap-small", { y: 30, opacity: 0, duration: 0.3, ease: "power2.out" }, 0);
+        tl.from("#pv{{ idx }}-cap .cap-large", { y: 60, opacity: 0, duration: 0.4, ease: "power3.out" }, 0.2);
+        tl.from("#pv{{ idx }}-cap .cap-brush", { scaleX: 0, transformOrigin: "left center", duration: 0.3, ease: "power2.out" }, 0.5);
+{% else %}
+        var st{{ idx }} = new SplitText("#pv{{ idx }}-cap .cap-single", { type: "words" });
+        tl.from(st{{ idx }}.words, { y: 40, opacity: 0, duration: 0.3, stagger: 0.18, ease: "power2.out" }, 0);
+{% endif %}
+{% endif %}
+{% elif scene.type == 'data-table' %}
+        tl.call(() => initCylinderBg(document.getElementById("pv{{ idx }}-dt-bg"), {{ w }}, {{ h }}, DT_CYLINDER_CONFIGS), null, 0);
+        tl.call(() => resetGridToZero("pv{{ idx }}-dt-grid"), null, 0);
+        tl.from("#pv{{ idx }}-dt-title", { y: 40, opacity: 0, duration: 0.4, ease: "power3.out" }, 0);
+        tl.from("#pv{{ idx }}-dt-grid .dt-cell", { y: 40, opacity: 0, duration: 0.3, stagger: 0.05, ease: "power2.out" }, 0.3);
+        tl.call(() => countUpGrid("pv{{ idx }}-dt-grid"), null, 1.6);
+{% elif scene.type == 'hero' %}
+        tl.from("#pv{{ idx }}-hero > div", { y: 60, opacity: 0, duration: 0.4, stagger: 0.2, ease: "power3.out" }, 0);
+{% if c.banner_text %}
+        tl.from("#pv{{ idx }}-upgrade", { y: 100, opacity: 0, duration: 0.4, ease: "power2.out" }, 0.6);
+{% if c.banner_icon %}
+        tl.from("#pv{{ idx }}-check", { scale: 0, opacity: 0, duration: 0.3, ease: "back.out(2)" }, 0.8);
+{% endif %}
+{% endif %}
+{% elif scene.type == 'cta' %}
+{% if scene.word_timestamps %}
+{% for wt in scene.word_timestamps %}
+        tl.to("#pv{{ idx }}-cw{{ loop.index0 }}", { opacity: 1, duration: 0.12, ease: "none" }, {{ ((wt.start - 0.15) | round(3)) if wt.start > 0.15 else 0 }});
+{% endfor %}
+{% else %}
+        tl.from("#pv{{ idx }}-benefit span", { y: 60, opacity: 0, duration: 0.4, stagger: 0.15, ease: "power3.out" }, 0);
+{% endif %}
+{% if c.banner_text %}
+        tl.from("#pv{{ idx }}-ctabanner", { y: 100, opacity: 0, duration: 0.4, ease: "power2.out" }, 0.8);
+        tl.from("#pv{{ idx }}-arrow", { opacity: 0, scale: 0, duration: 0.3, ease: "back.out(2)" }, 1.0);
+{% endif %}
+{% endif %}
+        return tl;
+      };
+{% endfor %}
+
+      const SCENE_DURATIONS = {{ durations | tojson }};
+      const IDLE_STATUS = '{{ scenes | length }} scenes \u00b7 {{ total_duration }}s';
+
+      const HAS_AUDIO = {{ 'false' if stills else 'true' }};
+      let audioOn = HAS_AUDIO;
+      let allTimer = null;
+      let playing = false;
+
+      function setAudio(on) {
+        audioOn = on && HAS_AUDIO;
+
+        document.querySelectorAll('video:not(.scene-still)').forEach(v => { v.muted = !audioOn; });
+        const b = document.getElementById('btn-audio');
+        b.classList.toggle('on', audioOn);
+        b.innerHTML = audioOn ? '\u{1F50A} Audio on' : '\u{1F507} Audio off';
+      }
+
+      function toggleAudio() { setAudio(!audioOn); }
+
+      const PROG = {};
+      const SCENE_STATE = {};
+
+      const progFill = idx =>
+        document.querySelector(`.preview-progress[data-scene="${idx}"] i`);
+
+      function progTick(idx) {
+        const p = PROG[idx], fill = progFill(idx);
+        if (!p || !fill) return;
+        const elapsed = p.elapsed + (performance.now() - p.t0) / 1000;
+        const frac = Math.min(elapsed / SCENE_DURATIONS[idx - 1], 1);
+        fill.style.transform = `scaleX(${frac})`;
+        if (frac < 1 && !p.paused) p.raf = requestAnimationFrame(() => progTick(idx));
+      }
+
+      function progPlay(idx, fromZero) {
+        const p = PROG[idx] || (PROG[idx] = { elapsed: 0 });
+        if (fromZero) p.elapsed = 0;
+        cancelAnimationFrame(p.raf);
+        p.paused = false;
+        p.t0 = performance.now();
+        progTick(idx);
+      }
+
+      function progPause(idx) {
+        const p = PROG[idx];
+        if (!p || p.paused) return;
+        p.elapsed += (performance.now() - p.t0) / 1000;
+        p.paused = true;
+        cancelAnimationFrame(p.raf);
+      }
+
+      function resetProgress(idx) {
+        const p = PROG[idx];
+        if (p) { cancelAnimationFrame(p.raf); p.elapsed = 0; p.paused = true; }
+        const fill = progFill(idx);
+        if (fill) fill.style.transform = 'scaleX(0)';
+      }
+
+      function progSeek(event, idx) {
+        const bar = event.currentTarget;
+        const rect = bar.getBoundingClientRect();
+        const frac = Math.min(Math.max((event.clientX - rect.left) / rect.width, 0), 1);
+        const at = frac * SCENE_DURATIONS[idx - 1];
+
+        sceneTL[idx] = buildSceneTL(idx);
+        sceneTL[idx].seek(at);
+        const vid = sceneVideo(idx);
+        if (vid) {
+          vid.muted = !audioOn;
+
+          try { vid.currentTime = Math.min(at, vid.duration || at); } catch (e) {}
+        }
+
+        const p = PROG[idx] || (PROG[idx] = { elapsed: 0 });
+        cancelAnimationFrame(p.raf);
+        p.elapsed = at;
+        const fill = progFill(idx);
+        if (fill) fill.style.transform = `scaleX(${frac})`;
+
+        sceneTL[idx].play();
+        if (vid) vid.play().catch(() => {});
+        progPlay(idx, false);
+        SCENE_STATE[idx] = 'playing';
+        playGlyph(idx, true);
+      }
+
+      function playGlyph(idx, playing) {
+        const b = document.querySelector(`.preview-card[data-scene="${idx}"] .preview-play`);
+        if (b) b.innerHTML = playing ? '&#10074;&#10074;' : '&#9654;';
+      }
+
+      function stopAll() {
+        clearTimeout(allTimer);
+        allTimer = null;
+        playing = false;
+        document.querySelectorAll('video').forEach(v => v.pause());
+        document.querySelectorAll('.preview-card').forEach(c => c.classList.remove('active'));
+        SCENE_DURATIONS.forEach((_, i) => {
+          resetProgress(i + 1); SCENE_STATE[i + 1] = 'idle'; playGlyph(i + 1, false);
+        });
+        const b = document.getElementById('btn-all');
+        b.classList.remove('on');
+        b.innerHTML = '\u25B6 Play all';
+        document.getElementById('bar-status').textContent = IDLE_STATUS;
+      }
+
+      function playAll(from = 1) {
+        const total = SCENE_DURATIONS.length;
+
+        if (playing && from === 1) { stopAll(); return; }
+        if (from > total) { stopAll(); return; }
+        if (from === 1) SCENE_DURATIONS.forEach((_, i) => resetProgress(i + 1));
+        playing = true;
+        const b = document.getElementById('btn-all');
+        b.classList.add('on');
+        b.innerHTML = '\u25A0 Stop';
+        document.querySelectorAll('.preview-card').forEach(c => c.classList.remove('active'));
+        const card = document.querySelector(`.preview-card[data-scene="${from}"]`);
+        if (card) {
+          card.classList.add('active');
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        document.getElementById('bar-status').textContent = `playing ${from} / ${total}`;
+        startScene(from, false);
+        allTimer = setTimeout(() => playAll(from + 1), SCENE_DURATIONS[from - 1] * 1000);
+      }
+
+      function playScene(idx) {
+        const state = SCENE_STATE[idx] || 'idle';
+        if (state === 'playing') return pauseScene(idx);
+        if (state === 'paused') return resumeScene(idx);
+        return startScene(idx);
+      }
+
+      function sceneVideo(idx) {
+{% if stills %}
+        return null;
+{% else %}
+        return document.getElementById('pv-bg' + idx);
+{% endif %}
+      }
+
+      function cascadeTimeline(idx, tl) {
+        const a = (typeof ANIMS !== 'undefined') ? ANIMS[idx - 1] : null;
+        if (!a || !a.cascade) return tl;
+        const delay = +a.delay || 0, start = +a.start || 0;
+
+        const kids = tl.getChildren(false, true, true).filter(k => {
+          const t = k.targets && k.targets()[0];
+          const id = t && t.id ? String(t.id) : '';
+          return !id.endsWith('-scrim');
+        });
+        kids.forEach((k, i) => k.startTime(start + i * delay));
+        return tl;
+      }
+
+      function buildSceneTL(idx) {
+        if (sceneTL[idx]) { sceneTL[idx].revert(); delete sceneTL[idx]; }
+        return cascadeTimeline(idx, sceneBuilders[idx]());
+      }
+
+      function replayScene(idx) {
+        sceneTL[idx] = buildSceneTL(idx);
+        const vid = sceneVideo(idx);
+        if (vid) { vid.muted = !audioOn; vid.currentTime = 0; vid.play().catch(() => {}); }
+        sceneTL[idx].play(0);
+        progPlay(idx, true);
+        SCENE_STATE[idx] = 'playing';
+        playGlyph(idx, true);
+      }
+
+      function startScene(idx, exclusive = true) {
+
+        if (exclusive) {
+          SCENE_DURATIONS.forEach((_, i) => {
+            const other = i + 1;
+            if (other === idx || (SCENE_STATE[other] || 'idle') === 'idle') return;
+            if (sceneTL[other]) sceneTL[other].pause();
+            const ov = sceneVideo(other);
+            if (ov) ov.pause();
+            resetProgress(other);
+            SCENE_STATE[other] = 'idle';
+            playGlyph(other, false);
+          });
+        }
+
+        sceneTL[idx] = buildSceneTL(idx);
+        const vid = sceneVideo(idx);
+        if (vid) { vid.muted = !audioOn; vid.currentTime = 0; vid.play().catch(() => {}); }
+        sceneTL[idx].play();
+        progPlay(idx, true);
+        SCENE_STATE[idx] = 'playing';
+        playGlyph(idx, true);
+      }
+
+      function pauseScene(idx) {
+        if (sceneTL[idx]) sceneTL[idx].pause();
+        const vid = sceneVideo(idx);
+        if (vid) vid.pause();
+        progPause(idx);
+        SCENE_STATE[idx] = 'paused';
+        playGlyph(idx, false);
+      }
+
+      function resumeScene(idx) {
+        if (sceneTL[idx]) sceneTL[idx].resume();
+        const vid = sceneVideo(idx);
+        if (vid) { vid.muted = !audioOn; vid.play().catch(() => {}); }
+        progPlay(idx, false);
+        SCENE_STATE[idx] = 'playing';
+        playGlyph(idx, true);
+      }
+
+      function resetAll() {
+        stopAll();
+        SCENE_DURATIONS.forEach((_, i) => {
+          const idx = i + 1;
+          if (sceneTL[idx]) { sceneTL[idx].revert(); delete sceneTL[idx]; }
+          const vid = sceneVideo(idx);
+          if (vid) { vid.pause(); vid.currentTime = 0; }
+          resetProgress(idx);
+          SCENE_STATE[idx] = 'idle';
+          playGlyph(idx, false);
+        });
+        document.getElementById('bar-status').textContent = IDLE_STATUS;
+      }
+
+      document.addEventListener('DOMContentLoaded', () => setAudio(HAS_AUDIO));
+
+    </script>
+
+{% else %}
+
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="{{ total_duration }}"
+      data-width="{{ w }}"
+      data-height="{{ h }}"
+    >
+
+{% for scene in scenes %}
+      <video id="bg{{ loop.index }}" class="clip" src="assets/scene_{{ '%02d' | format(loop.index) }}.mp4"
+             data-start="{{ starts[loop.index0] }}" data-duration="{{ durations[loop.index0] }}"
+             data-track-index="0" muted playsinline{% if scene.background == 'solid' %} style="opacity:0"{% endif %}></video>
+{% endfor %}
+
+{% for scene in scenes %}
+{% set idx = loop.index %}
+{% set s = starts[loop.index0] %}
+{% set dur = durations[loop.index0] %}
+{% set c = scene.content %}
+
+{% if scene.type == 'title' %}
+      <div id="shot{{ idx }}" class="clip" data-start="{{ s }}" data-duration="{{ dur }}" data-track-index="1">
+{% if scene.background == 'video' %}
+        <div class="vignette"></div>
+{% endif %}
+        <div class="title-glow"></div>
+        <div class="title-headline copy-block" id="s{{ idx }}-title" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='copy', level='group', root=true) }}>
+          <div class="title-regular copy-block" data-field="line1" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='line1', level='element') }}>{{ c.line1 }}</div>
+          <div class="title-soda copy-block" data-field="line2" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='line2', level='element') }}>{{ c.line2 }}</div>
+{% if c.line3 %}
+          <div class="title-tag copy-block" data-field="line3" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='line3', level='element') }}>{{ c.line3 }}</div>
+{% endif %}
+        </div>
+      </div>
+
+{% elif scene.type == 'stat-block' %}
+      <div id="shot{{ idx }}" class="clip" data-start="{{ s }}" data-duration="{{ dur }}" data-track-index="1">
+{% if scene.background == 'video' %}
+        <div class="vignette"></div>
+{% endif %}
+        <div class="stat {{ scene.variant }}" id="s{{ idx }}-stat">
+          <div class="stat-title copy-block" data-field="header" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='header', level='element', root=true) }}>{{ c.header }}</div>
+          <div class="stat-number copy-block" data-field="stat" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='stat', level='element', root=true) }}>{{ c.stat }}</div>
+          <div class="stat-sugar copy-block" data-field="stat_label" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='stat_label', level='element', root=true) }}>{{ c.stat_label }}</div>
+          <div class="stat-percan copy-block" data-field="stat_sub" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='stat_sub', level='element', root=true) }}>{{ c.stat_sub }}</div>
+          <div class="stat-bullets copy-block" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='bullets', level='group', root=true) }}>
+{% for bullet in c.bullets %}
+            <div><span class="stat-x">{{ '✕' if scene.variant == 'negative' else '✓' }}</span>{{ bullet }}</div>
+{% endfor %}
+          </div>
+        </div>
+      </div>
+
+{% elif scene.type == 'pros-cons' %}
+{% set title_parts = c.title.split('\n') %}
+      <div id="shot{{ idx }}" class="clip" data-start="{{ s }}" data-duration="{{ dur }}" data-track-index="1">
+        <div class="pros-cons copy-block" id="s{{ idx }}-pc" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='copy', level='group', root=true) }}>
+          <canvas class="pc-bg-canvas" id="s{{ idx }}-pc-bg"></canvas>
+          <div class="pc-headline copy-block" id="s{{ idx }}-headline" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='headline', level='group') }}>
+            <div class="pc-why copy-block" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='why', level='element') }}>{{ title_parts[0] }}</div>
+{% if title_parts | length > 1 %}
+            <div class="pc-zero-title copy-block" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='subtitle', level='element') }}>{{ title_parts[1] }}</div>
+{% endif %}
+          </div>
+          <div class="pc-comparison copy-block" id="s{{ idx }}-comparison" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='cards', level='group') }}>
+            <div class="pc-card zero" id="s{{ idx }}-pos">
+              <div class="pc-card-header">{{ c.positive.header }}</div>
+              <div class="pc-list">
+{% for item in c.positive['items'] %}
+                <div><span class="check">✓</span>{{ item }}</div>
+{% endfor %}
+              </div>
+            </div>
+            <div class="pc-card regular" id="s{{ idx }}-neg">
+              <div class="pc-card-header">{{ c.negative.header }}</div>
+              <div class="pc-list">
+{% for item in c.negative['items'] %}
+                <div><span class="cross">✕</span>{{ item }}</div>
+{% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+{% elif scene.type == 'caption' %}
+{% set cap_lines = c.text.split('\n') %}
+      <div id="shot{{ idx }}" class="clip" data-start="{{ s }}" data-duration="{{ dur }}" data-track-index="1">
+{% if scene.background == 'video' %}
+        <div class="vignette"></div>
+{% endif %}
+        <div class="caption-glow copy-block" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='copy', level='group', root=true) }}></div>
+        <div class="caption pos-{{ c.position | default('bottom') }}{{ ' tilt' if c.tilt else '' }}" id="s{{ idx }}-cap">
+{% if cap_lines | length > 1 %}
+{% if scene.word_timestamps %}
+{% set ns = namespace(wi=0) %}
+          <div class="cap-small copy-block" data-field="line1" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='line1', level='element', root=true) }}>{% for wt in scene.word_timestamps if wt.line == 0 %}<span id="s{{ idx }}-cw{{ ns.wi }}" style="opacity:0">{{ wt.word }}</span> {% set ns.wi = ns.wi + 1 %}{% endfor %}</div>
+          <div class="cap-large-wrap">
+            <div class="cap-large copy-block" data-field="line2" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='line2', level='element', root=true) }}>{% for wt in scene.word_timestamps if wt.line == 1 %}<span id="s{{ idx }}-cw{{ ns.wi }}" style="opacity:0">{{ wt.word }}</span> {% set ns.wi = ns.wi + 1 %}{% endfor %}</div>
+            <div class="cap-brush" id="s{{ idx }}-brush" style="opacity:0"></div>
+          </div>
+{% else %}
+          <div class="cap-small copy-block" data-field="line1" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='line1', level='element', root=true) }}>{{ cap_lines[0] }}</div>
+          <div class="cap-large copy-block" data-field="line2" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='line2', level='element', root=true) }}>{{ cap_lines[1] }}</div>
+          <div class="cap-brush"></div>
+{% endif %}
+{% else %}
+          <div class="cap-single copy-block" data-field="text" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='text', level='element', root=true) }}>{{ c.text }}</div>
+{% endif %}
+        </div>
+      </div>
+
+{% elif scene.type == 'data-table' %}
+{% set dt_title = c.title.split('\n') %}
+      <div id="shot{{ idx }}" class="clip" data-start="{{ s }}" data-duration="{{ dur }}" data-track-index="1">
+        <div class="data-table copy-block" id="s{{ idx }}-dt" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='copy', level='group', root=true) }}>
+          <canvas class="dt-bg-canvas" id="s{{ idx }}-dt-bg"></canvas>
+          <div class="dt-title copy-block" id="s{{ idx }}-dt-title" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='title', level='group') }}>
+            <div class="dt-the copy-block" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='the', level='element') }}>{{ dt_title[0] }}</div>
+{% if dt_title | length > 1 %}
+            <div class="dt-numbers copy-block" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='numbers', level='element') }}>{{ dt_title[1] }}</div>
+{% endif %}
+          </div>
+          <div class="dt-grid" id="s{{ idx }}-dt-grid">
+            <div class="dt-cell dt-corner"></div>
+            <div class="dt-cell dt-head-zero">{{ c.columns[0] }}</div>
+            <div class="dt-cell dt-head-regular">{{ c.columns[1] }}</div>
+{% for row in c.rows %}
+            <div class="dt-cell dt-row-label">{{ row.label }}</div>
+{% set v0 = row['values'][0] %}{% set v1 = row['values'][1] %}
+            <div class="dt-cell dt-zero-value{{ ' dt-check' if v0 == '✓' }}" data-target="{{ v0 }}">{{ v0 | zero_text }}</div>
+            <div class="dt-cell dt-regular-value{{ ' dt-check' if v1 == '✓' }}" data-target="{{ v1 }}">{{ v1 | zero_text }}</div>
+{% endfor %}
+          </div>
+        </div>
+      </div>
+
+{% elif scene.type == 'hero' %}
+{% set lines = c.text.split('\n') %}
+      <div id="shot{{ idx }}" class="clip" data-start="{{ s }}" data-duration="{{ dur }}" data-track-index="1">
+{% if scene.background == 'video' %}
+        <div class="vignette"></div>
+{% endif %}
+        <div class="hero-copy copy-block" id="s{{ idx }}-hero" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='copy', level='group', root=true) }}>
+{% for line in lines %}
+          <div class="{{ 'hero-clean' if loop.first else 'hero-refreshing' }}">{{ line }}</div>
+{% endfor %}
+        </div>
+{% if c.banner_text %}
+        <div class="hero-upgrade copy-block" data-field="banner_text" id="s{{ idx }}-upgrade" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='banner_text', level='element', root=true) }}>{{ c.banner_text }}</div>
+{% if c.banner_icon %}
+        <div class="hero-check-circle" id="s{{ idx }}-check">{{ c.banner_icon }}</div>
+{% endif %}
+{% endif %}
+      </div>
+
+{% elif scene.type == 'cta' %}
+{% set cta_words = c.headline.replace('\n', ' ').split(' ') %}
+      <div id="shot{{ idx }}" class="clip" data-start="{{ s }}" data-duration="{{ dur }}" data-track-index="1">
+{% if scene.background == 'video' %}
+        <div class="vignette"></div>
+{% endif %}
+        <div class="benefit copy-block" id="s{{ idx }}-benefit" {{ ed.layout_style(scene, SIZE_VARS, 'center', block='copy', level='group', root=true) }}>
+{% if scene.word_timestamps %}
+{% set ns = namespace(wi=0) %}
+{% for word in cta_words %}
+          <span id="s{{ idx }}-cw{{ ns.wi }}" class="{{ 'b-green' if loop.index is even else 'b-white' }}" style="opacity:0">{{ word }}</span>{% set ns.wi = ns.wi + 1 %}
+{% endfor %}
+{% else %}
+{% for word in cta_words %}
+          <span class="{{ 'b-green' if loop.index is even else 'b-white' }}">{{ word }}</span>
+{% endfor %}
+{% endif %}
+        </div>
+{% if c.banner_text %}
+{% set bwords = c.banner_text.split(' ') %}
+        <div class="cta-banner" id="s{{ idx }}-ctabanner">
+          <div class="cta-small">{{ bwords[0] }}</div>
+          <div class="cta-big">{{ bwords[1:] | join(' ') }}</div>
+        </div>
+        <div class="cta-arrow" id="s{{ idx }}-arrow">↩</div>
+{% endif %}
+      </div>
+{% endif %}
+
+{% endfor %}
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+{% for scene in scenes %}
+{% set idx = loop.index %}
+{% set s = starts[loop.index0] %}
+{% set c = scene.content %}
+
+{% if scene.type == 'title' %}
+      tl.from("#s{{ idx }}-title .title-regular", { y: 60, opacity: 0, duration: 0.35, ease: "power3.out" }, {{ s }});
+      tl.from("#s{{ idx }}-title .title-soda", { y: 80, opacity: 0, duration: 0.4, ease: "power3.out" }, {{ s + 0.15 }});
+{% if c.line3 %}
+      tl.from("#s{{ idx }}-title .title-tag", { y: 60, opacity: 0, duration: 0.35, ease: "power3.out" }, {{ s + 0.35 }});
+{% endif %}
+
+{% elif scene.type == 'stat-block' %}
+      tl.from("#s{{ idx }}-stat", { x: 280, opacity: 0, duration: 0.5, ease: "power2.out" }, {{ s }});
+      tl.from("#s{{ idx }}-stat .stat-number", { scale: 0.7, opacity: 0, duration: 0.4, ease: "back.out(1.7)" }, {{ s + 0.4 }});
+      tl.from("#s{{ idx }}-stat .stat-bullets > div", { x: 60, opacity: 0, duration: 0.35, stagger: 0.12 }, {{ s + 0.8 }});
+
+{% elif scene.type == 'pros-cons' %}
+      tl.call(() => initCylinderBg(document.getElementById("s{{ idx }}-pc-bg"), {{ w }}, {{ h }}, PC_CYLINDER_CONFIGS), null, {{ s }});
+      tl.from("#s{{ idx }}-headline", { y: 40, opacity: 0, duration: 0.4, ease: "power3.out" }, {{ s }});
+      tl.from("#s{{ idx }}-pos", { y: 60, opacity: 0, duration: 0.4, ease: "power2.out" }, {{ s + 0.3 }});
+      tl.from("#s{{ idx }}-neg", { y: 60, opacity: 0, duration: 0.4, ease: "power2.out" }, {{ s + 0.8 }});
+
+{% elif scene.type == 'caption' %}
+{% if scene.word_timestamps %}
+{% set last_wt = scene.word_timestamps | last %}
+{% for wt in scene.word_timestamps %}
+      tl.to("#s{{ idx }}-cw{{ loop.index0 }}", { opacity: 1, duration: 0.12, ease: "none" }, {{ (s + wt.start - 0.15) | round(3) if wt.start > 0.15 else s }});
+{% endfor %}
+      tl.to("#s{{ idx }}-brush", { opacity: 1, duration: 0.35, ease: "power2.out" }, {{ (s + last_wt.start) | round(3) }});
+{% else %}
+{% set cap_lines = c.text.split('\n') %}
+{% if cap_lines | length > 1 %}
+      tl.from("#s{{ idx }}-cap .cap-small", { y: 30, opacity: 0, duration: 0.3, ease: "power2.out" }, {{ s }});
+      tl.from("#s{{ idx }}-cap .cap-large", { y: 60, opacity: 0, duration: 0.4, ease: "power3.out" }, {{ s + 0.2 }});
+      tl.from("#s{{ idx }}-cap .cap-brush", { scaleX: 0, transformOrigin: "left center", duration: 0.3, ease: "power2.out" }, {{ s + 0.5 }});
+{% else %}
+      (function() {
+        var st = new SplitText("#s{{ idx }}-cap .cap-single", { type: "words" });
+        tl.from(st.words, { y: 40, opacity: 0, duration: 0.3, stagger: 0.18, ease: "power2.out" }, {{ s }});
+      })();
+{% endif %}
+{% endif %}
+
+{% elif scene.type == 'data-table' %}
+      tl.call(() => initCylinderBg(document.getElementById("s{{ idx }}-dt-bg"), {{ w }}, {{ h }}, DT_CYLINDER_CONFIGS), null, {{ s }});
+      tl.from("#s{{ idx }}-dt-title", { y: 40, opacity: 0, duration: 0.4, ease: "power3.out" }, {{ s }});
+      tl.call(() => resetGridToZero("s{{ idx }}-dt-grid"), null, {{ s }});
+      tl.from("#s{{ idx }}-dt-grid .dt-cell", { y: 40, opacity: 0, duration: 0.3, stagger: 0.05, ease: "power2.out" }, {{ s + 0.3 }});
+      tl.call(() => countUpGrid("s{{ idx }}-dt-grid"), null, {{ s + 1.2 }});
+
+{% elif scene.type == 'hero' %}
+      tl.from("#s{{ idx }}-hero > div", { y: 60, opacity: 0, duration: 0.4, stagger: 0.2, ease: "power3.out" }, {{ s }});
+{% if c.banner_text %}
+      tl.from("#s{{ idx }}-upgrade", { y: 100, opacity: 0, duration: 0.4, ease: "power2.out" }, {{ s + 0.6 }});
+{% if c.banner_icon %}
+      tl.from("#s{{ idx }}-check", { scale: 0, opacity: 0, duration: 0.3, ease: "back.out(2)" }, {{ s + 0.8 }});
+{% endif %}
+{% endif %}
+
+{% elif scene.type == 'cta' %}
+{% if scene.word_timestamps %}
+{% for wt in scene.word_timestamps %}
+      tl.to("#s{{ idx }}-cw{{ loop.index0 }}", { opacity: 1, duration: 0.12, ease: "none" }, {{ (s + wt.start - 0.15) | round(3) if wt.start > 0.15 else s }});
+{% endfor %}
+{% else %}
+      tl.from("#s{{ idx }}-benefit span", { y: 60, opacity: 0, duration: 0.4, stagger: 0.15, ease: "power3.out" }, {{ s }});
+{% endif %}
+{% if c.banner_text %}
+      tl.from("#s{{ idx }}-ctabanner", { y: 100, opacity: 0, duration: 0.4, ease: "power2.out" }, {{ s + 0.8 }});
+      tl.from("#s{{ idx }}-arrow", { opacity: 0, scale: 0, duration: 0.3, ease: "back.out(2)" }, {{ s + 1.0 }});
+{% endif %}
+
+{% endif %}
+{% endfor %}
+      window.__timelines["main"] = tl;
+    </script>
+{% endif %}
+  </body>
+</html>

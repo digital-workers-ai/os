@@ -1,0 +1,61 @@
+project:
+  name: AI Operating System — Every Signal In
+  resolution: portrait
+
+theme:
+  font_display: Inter
+  font_body: Inter
+  color_ink: "#1A1A1A"
+  color_bg: "#F5F4ED"
+  color_accent: "#FD4E00"
+  color_muted: "#666666"
+  color_cream: "#E0DCC1"
+  color_tan: "#ADAB9E"
+  color_card: "#FFFFFF"
+  color_positive: "#12A150"
+
+scenes:
+  - type: hook
+    duration: 4.0
+    content:
+      eyebrow: "AI Operating System"
+      headline: "Every signal in.\nIntelligence out."
+
+  - type: statement
+    duration: 6.5
+    content:
+      headline: "None of it adds up\non its own."
+      body: "Every customer action leaves a trace somewhere — a comment, a reply, an invoice, a call. They land in six tools, in six different shapes."
+
+  - type: intake
+    duration: 10.0
+    content:
+      label: "AI Operating System"
+      caption: "Every signal, one place"
+
+  - type: briefing
+    duration: 9.0
+    content:
+      label: "AI Operating System"
+      caption: "What changed, what needs you"
+      briefs:
+        - kind: up
+          stat: "50%"
+          text: "up in traffic"
+        - kind: alert
+          text: "Follow up with Sandra on pricing"
+        - kind: up
+          stat: "12"
+          text: "new signups since yesterday"
+        - kind: alert
+          text: "Acme invoice failed twice this week"
+        - kind: down
+          stat: "8%"
+          text: "drop in reply rate on outbound"
+
+  - type: cta
+    duration: 4.5
+    content:
+      headline: "See the whole picture."
+      primary: "Book a walkthrough"
+      secondary: "See the architecture"

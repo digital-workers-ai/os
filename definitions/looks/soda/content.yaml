@@ -1,0 +1,128 @@
+project:
+  name: zero-plus-vs-regular-soda
+  resolution: portrait
+theme:
+  font_display: Oswald
+  font_body: Inter
+  color_positive: '#10b981'
+  color_negative: '#dc2626'
+  color_bg: '#111'
+  color_text: '#fff'
+scenes:
+- type: title
+  duration: 3.906
+  background: video
+  script: It's 2026… so why are we still choosing regular soda?
+  content:
+    line1: REGULAR
+    line2: SODA?
+    line3: IN 2026?
+    position: bottom
+- type: stat-block
+  duration: 4.46
+  background: video
+  script: Most traditional sodas are packed with sugar — like 39 grams in one can.
+  variant: negative
+  content:
+    header: TRADITIONAL SODA
+    stat: 39g
+    stat_label: SUGAR
+    stat_sub: PER CAN
+    bullets:
+    - High Sugar
+    - Empty Calories
+    - Crash Risk
+- type: caption
+  duration: 2.135
+  background: video
+  script: That's why I switched to ZERO+.
+  content:
+    line1: I SWITCHED TO
+    line2: ZERO+
+    position: bottom-right
+    animate: word-by-word
+- type: pros-cons
+  duration: 4.8
+  background: solid
+  script: Zero sugar, way fewer calories, no crash, and ingredients that actually
+    feel better.
+  content:
+    title: 'WHY
+
+      ZERO+?'
+    positive:
+      header: ZERO+
+      items:
+      - Zero Sugar
+      - Fewer Calories
+      - No Crash
+      - Feels Better
+    negative:
+      header: REGULAR
+      items:
+      - Sugar Overload
+      - More Calories
+      - Crash Later
+      - Old Ingredients
+- type: caption
+  duration: 3.372
+  background: video
+  script: And the best part? It still tastes like real soda.
+  content:
+    line1: STILL TASTES
+    line2: LIKE SODA
+    position: center
+    animate: fade
+    tilt: true
+- type: data-table
+  duration: 4.416
+  background: solid
+  script: 'Look at the numbers: ZERO+ gives you the flavor without all the sugar.'
+  content:
+    title: 'THE
+
+      NUMBERS'
+    columns:
+    - ZERO+
+    - REGULAR
+    rows:
+    - label: SUGAR
+      values:
+      - 0g
+      - 39g
+      small: false
+    - label: CALORIES
+      values:
+      - '10'
+      - '160'
+      small: false
+    - label: TASTE
+      values:
+      - ✓
+      - ✓
+      small: false
+- type: hero
+  duration: 4.844
+  background: video
+  script: Honestly, ZERO+ wins for me. It's clean, refreshing, and guilt-free.
+  content:
+    text: 'CLEAN.
+
+      REFRESHING.'
+    icon: ✓
+    banner_text: 100% UPGRADE
+    banner_icon: ✓
+- type: cta
+  duration: 6.312
+  background: video
+  script: Easy choice. Drink better, feel better. Let me know in the comments which
+    flavor you'd try first.
+  content:
+    headline: 'DRINK
+
+      BETTER
+
+      FEEL
+
+      BETTER'
+    banner_text: COMMENT YOUR FLAVOR!

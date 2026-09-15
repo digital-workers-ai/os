@@ -1,0 +1,19 @@
+
+{% macro layout_style(scene, size_vars=[], origin='left bottom', block=None, level='element', root=false) -%}
+{%- set L = scene.layout -%}
+{%- if L -%}
+{%- set B = (L.blocks or {}).get(block) if block else None -%}
+
+{%- set carries_scene = (block is none) or root -%}
+
+{%- set dx = (L.dx if carries_scene else 0) + (B.dx if B and B.dx is not none else 0) -%}
+{%- set dy = (L.dy if carries_scene else 0) + (B.dy if B and B.dy is not none else 0) -%}
+{%- set sc = (L.scale if carries_scene else 1) * (B.scale if B and B.scale is not none else 1) -%}
+{%- set sz = (B.size if B and B.size is not none else L.size) -%}
+{%- set lh = (B.line_height if B and B.line_height is not none else L.line_height) -%}
+{%- if block %} data-block="{{ block }}" data-level="{{ level }}"{% if carries_scene %} data-root="1"{% endif %}{% endif %} style="--nudge-x: {{ dx }}px; --nudge-y: {{ dy }}px; --nudge-s: {{ sc }}; transform-origin: {{ origin }};
+{%- if lh %} --nudge-lh: {{ lh }};{% endif %}
+{%- if sz %}{% for prop, ratio in size_vars %} {{ prop }}: {{ (sz * ratio) | round | int }}px;{% endfor %}{% endif %}"
+{%- elif block %} data-block="{{ block }}" data-level="{{ level }}"{% if root %} data-root="1"{% endif %}
+{%- endif -%}
+{%- endmacro %}
