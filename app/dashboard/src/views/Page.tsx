@@ -8,7 +8,6 @@ import { Definition, type Opened } from '@/components/Definition'
 import { EmptyPage } from '@/components/EmptyPage'
 import { Findings } from '@/components/Findings'
 import { Goals } from '@/components/Goals'
-import { SyncBanner, pageSources } from '@/components/SyncBanner'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Loading } from '@/components/ui/loading'
 import { bounds, type Range } from '@/lib/range'
@@ -60,7 +59,6 @@ export function Page({
     )
   }
 
-  const settled = metricResults.every((r) => !r.isPending)
   const byMetric = new Map(metrics.map((card, i) => [card.metric, metricResults[i]]))
   const byTable = new Map(tables.map((card, i) => [card, tableResults[i]]))
   const allEmpty = metricResults.length > 0 && metricResults.every((r) => r.data?.entities === 0)
@@ -72,7 +70,6 @@ export function Page({
 
   return (
     <>
-      {settled && <SyncBanner sources={pageSources(metricResults.map((r) => r.data))} />}
       {allEmpty && <EmptyPage />}
       {spec.goals && <Goals />}
       {spec.findings && <Findings />}

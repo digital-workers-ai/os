@@ -13,10 +13,10 @@ export class ApiError extends Error {
 export const asApiError = (e: unknown): ApiError =>
   e instanceof ApiError ? e : new ApiError(0, (e as Error)?.message ?? String(e))
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+async function request<T>(path: string): Promise<T> {
   let res: Response
   try {
-    res = await fetch(path, { ...init, headers: { 'content-type': 'application/json' } })
+    res = await fetch(path, { headers: { 'content-type': 'application/json' } })
   } catch (e) {
     throw new ApiError(0, `cannot reach the backend: ${(e as Error).message}`)
   }
@@ -37,9 +37,6 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const get = <T>(path: string) => request<T>(path)
-
-export const post = <T = unknown>(path: string, body?: unknown) =>
-  request<T>(path, { method: 'POST', body: body === undefined ? undefined : JSON.stringify(body) })
 
 export type Filter = Record<string, string>
 
@@ -262,18 +259,3 @@ export interface FindingsResponse {
 export const getGoals = () => get<GoalsResponse>('/api/insights/goals')
 
 export const getFindings = () => get<FindingsResponse>('/api/insights/rules')
-
-export interface Source {
-  source: string
-  last_success: string | null
-}
-
-export interface SourcesResponse {
-  sources: Source[]
-}
-
-export const getSources = () => get<SourcesResponse>('/api/sources')
-
-export const sync = (sources: string[] | null) => post('/api/sync', sources ? { sources } : {})
-
-export const rebuild = () => post('/api/rebuild')
