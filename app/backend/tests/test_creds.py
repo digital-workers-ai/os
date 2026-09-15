@@ -710,7 +710,9 @@ class TestEverySourceWithRealCredentialsStillHasAStandIn:
     def test_each_real_entry_names_a_mock_entry(self):
         assert set(creds._REAL) <= set(creds._MOCK)
 
-    def test_the_twelve_configured_sources_are_the_ones_the_environment_names(self):
+    def test_the_fifteen_configured_sources_are_the_ones_the_environment_names(
+        self,
+    ):
         assert set(creds._REAL) == {
             "hubspot",
             "stripe",
@@ -724,6 +726,9 @@ class TestEverySourceWithRealCredentialsStillHasAStandIn:
             "mixpanel",
             "activecampaign",
             "twitter",
+            "meta_ad_library",
+            "google_ads_transparency",
+            "serp",
         }
 
 
@@ -801,3 +806,139 @@ class TestStandInsOnlyOutranksTheEnvironment:
         found = creds.credentials_for(source)
         assert found.base_url == f"https://{source}.example.test"
         assert not found.base_url.startswith(settings.MOCK_BASE_URL)
+
+
+META_AD_LIBRARY_TOKEN = "meta-ad-library-token-test-0000"
+META_AD_LIBRARY_MOCK = "/meta-ad-library"
+GRAPH_API = "https://graph.facebook.com"
+SERPAPI_KEY = "serpapi-key-test-0000"
+SERPAPI = "https://serpapi.com"
+SERPAPI_SOURCES = {"google_ads_transparency": "/serpapi", "serp": "/serp"}
+
+
+@pytest.fixture
+def clean_meta_ad_library(monkeypatch):
+    for name in ("META_AD_LIBRARY_ACCESS_TOKEN", "META_AD_LIBRARY_BASE_URL"):
+        monkeypatch.delenv(name, raising=False)
+
+
+@pytest.fixture
+def clean_serpapi(monkeypatch):
+    for name in (
+        "SERPAPI_API_KEY",
+        "SERP_BASE_URL",
+        "GOOGLE_ADS_TRANSPARENCY_BASE_URL",
+    ):
+        monkeypatch.delenv(name, raising=False)
+
+
+class TestMetaAdLibrarySendsItsTokenAsAQueryParam:
+    def test_no_variable_set_means_the_mock(self, clean_meta_ad_library):
+        found = creds.credentials_for("meta_ad_library")
+        assert found.base_url == f"{settings.MOCK_BASE_URL}{META_AD_LIBRARY_MOCK}"
+        assert found.params == {"access_token": "mock_meta_library_token"}
+        assert found.headers == {}
+
+    def test_the_token_travels_as_the_access_token_param_on_the_graph_api(
+        self, clean_meta_ad_library, monkeypatch
+    ):
+        monkeypatch.setenv("META_AD_LIBRARY_ACCESS_TOKEN", META_AD_LIBRARY_TOKEN)
+        found = creds.credentials_for("meta_ad_library")
+        assert found.base_url == GRAPH_API
+        assert found.params == {"access_token": META_AD_LIBRARY_TOKEN}
+        assert found.headers == {}
+        assert found.auth is None
+        assert found.values == {}
+
+    def test_neither_base_repeats_the_version_the_paths_carry(
+        self, clean_meta_ad_library, monkeypatch
+    ):
+        assert "/v25.0" not in creds._MOCK["meta_ad_library"][0]
+        monkeypatch.setenv("META_AD_LIBRARY_ACCESS_TOKEN", META_AD_LIBRARY_TOKEN)
+        assert "/v25.0" not in creds.credentials_for("meta_ad_library").base_url
+
+    def test_the_base_url_can_be_overridden(self, clean_meta_ad_library, monkeypatch):
+        monkeypatch.setenv("META_AD_LIBRARY_ACCESS_TOKEN", META_AD_LIBRARY_TOKEN)
+        monkeypatch.setenv("META_AD_LIBRARY_BASE_URL", "https://graph.example.test")
+        found = creds.credentials_for("meta_ad_library")
+        assert found.base_url == "https://graph.example.test"
+        assert found.params == {"access_token": META_AD_LIBRARY_TOKEN}
+
+    def test_a_base_url_override_alone_does_not_leave_the_mock(
+        self, clean_meta_ad_library, monkeypatch
+    ):
+        monkeypatch.setenv("META_AD_LIBRARY_BASE_URL", "https://graph.example.test")
+        found = creds.credentials_for("meta_ad_library")
+        assert found.base_url == f"{settings.MOCK_BASE_URL}{META_AD_LIBRARY_MOCK}"
+
+    def test_the_switch_holds_it_to_the_stand_in(
+        self, clean_meta_ad_library, stand_ins_only, monkeypatch
+    ):
+        monkeypatch.setenv("META_AD_LIBRARY_ACCESS_TOKEN", META_AD_LIBRARY_TOKEN)
+        found = creds.credentials_for("meta_ad_library")
+        assert found.base_url == f"{settings.MOCK_BASE_URL}{META_AD_LIBRARY_MOCK}"
+        assert META_AD_LIBRARY_TOKEN not in repr(found)
+        monkeypatch.setattr(settings, "STAND_INS_ONLY", False)
+        assert creds.credentials_for("meta_ad_library").base_url == GRAPH_API
+
+
+class TestGoogleAdsTransparencyAndSerpShareOneSerpapiKey:
+    @pytest.mark.parametrize("source,prefix", sorted(SERPAPI_SOURCES.items()))
+    def test_no_variable_set_means_the_mock(self, clean_serpapi, source, prefix):
+        found = creds.credentials_for(source)
+        assert found.base_url == f"{settings.MOCK_BASE_URL}{prefix}"
+        assert found.params == {"api_key": "mock_serpapi_key"}
+        assert found.headers == {}
+
+    @pytest.mark.parametrize("source", sorted(SERPAPI_SOURCES))
+    def test_the_key_travels_as_the_api_key_param_on_serpapi(
+        self, clean_serpapi, monkeypatch, source
+    ):
+        monkeypatch.setenv("SERPAPI_API_KEY", SERPAPI_KEY)
+        found = creds.credentials_for(source)
+        assert found.base_url == SERPAPI
+        assert found.params == {"api_key": SERPAPI_KEY}
+        assert found.headers == {}
+        assert found.auth is None
+        assert found.values == {}
+
+    def test_both_rows_read_the_one_variable(self):
+        for source in SERPAPI_SOURCES:
+            assert creds._REAL[source][1] == ("SERPAPI_API_KEY",)
+
+    @pytest.mark.parametrize(
+        "source,other",
+        [("serp", "google_ads_transparency"), ("google_ads_transparency", "serp")],
+    )
+    def test_each_source_honours_only_its_own_base_url_override(
+        self, clean_serpapi, monkeypatch, source, other
+    ):
+        monkeypatch.setenv("SERPAPI_API_KEY", SERPAPI_KEY)
+        monkeypatch.setenv(
+            f"{source.upper()}_BASE_URL", f"https://{source}.example.test"
+        )
+        assert (
+            creds.credentials_for(source).base_url == f"https://{source}.example.test"
+        )
+        assert creds.credentials_for(other).base_url == SERPAPI
+
+    @pytest.mark.parametrize("source,prefix", sorted(SERPAPI_SOURCES.items()))
+    def test_a_base_url_override_alone_does_not_leave_the_mock(
+        self, clean_serpapi, monkeypatch, source, prefix
+    ):
+        monkeypatch.setenv(
+            f"{source.upper()}_BASE_URL", f"https://{source}.example.test"
+        )
+        found = creds.credentials_for(source)
+        assert found.base_url == f"{settings.MOCK_BASE_URL}{prefix}"
+
+    @pytest.mark.parametrize("source,prefix", sorted(SERPAPI_SOURCES.items()))
+    def test_the_switch_holds_both_to_their_stand_ins(
+        self, clean_serpapi, stand_ins_only, monkeypatch, source, prefix
+    ):
+        monkeypatch.setenv("SERPAPI_API_KEY", SERPAPI_KEY)
+        found = creds.credentials_for(source)
+        assert found.base_url == f"{settings.MOCK_BASE_URL}{prefix}"
+        assert SERPAPI_KEY not in repr(found)
+        monkeypatch.setattr(settings, "STAND_INS_ONLY", False)
+        assert creds.credentials_for(source).base_url == SERPAPI
