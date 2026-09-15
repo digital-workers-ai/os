@@ -195,6 +195,15 @@ def _video_problems(name, manifest, path) -> list[str]:
             f"look {name!r}: {SAMPLE} does not validate against its own "
             f"schema: {error}"
         )
+    else:
+        shape = resolution(name, path)
+        written = sample(name, path).get("project", {}).get("resolution")
+        if written and written != shape:
+            problems.append(
+                f"look {name!r}: {SAMPLE} lays out for {written!r} and the "
+                f"manifest says {manifest['ratio']!r}, which is {shape!r} — "
+                "the composed frame would not be the shape the look declares"
+            )
     return problems
 
 

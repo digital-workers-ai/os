@@ -566,6 +566,26 @@ class TestRenderingTheScenes:
             )
         assert "audio" in str(caught.value)
 
+    async def test_a_finished_render_with_no_file_is_one_render_error(
+        self, looks_dir, tmp_path, spec
+    ):
+        agent = FakeHeyGen()
+
+        async def empty(video_id):
+            return {"duration": 3.0}
+
+        agent.wait = empty
+        with pytest.raises(clients.RenderError) as caught:
+            await video.render_scenes(
+                "demo",
+                spec,
+                tmp_path / "out",
+                scenes.PipelineState(),
+                looks_dir=looks_dir,
+                client=agent,
+            )
+        assert "no video" in str(caught.value)
+
     async def test_speech_with_no_timings_leaves_the_transcript_to_deepgram(
         self, looks_dir, tmp_path, spec
     ):
@@ -1124,6 +1144,14 @@ class TestTheFrameExporterSeam:
 
         with pytest.raises(clients.RenderError):
             clients.Frames(runner=runner).export(tmp_path, video.MP4)
+
+    def test_an_image_with_no_exporter_in_it_refuses_rather_than_passes(self, tmp_path):
+        def runner(command, **kw):
+            raise FileNotFoundError("npx")
+
+        with pytest.raises(clients.RenderError) as caught:
+            clients.Frames(runner=runner).export(tmp_path, video.MP4)
+        assert "frame exporter" in str(caught.value)
 
     def test_an_existing_config_is_left_alone(self, tmp_path):
         (tmp_path / clients.FRAMES_CONFIG).write_text("{}")

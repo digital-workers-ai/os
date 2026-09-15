@@ -238,22 +238,28 @@ class Frames:
             config.parent.mkdir(parents=True, exist_ok=True)
             config.write_text(json.dumps(FRAMES_SETTINGS, indent=2))
         dest = project_dir / RENDERS / name
-        result = self._run(
-            [
-                "npx",
-                "--yes",
-                FRAMES_PACKAGE,
-                "render",
-                ".",
-                "-o",
-                str(Path(RENDERS) / name),
-                "--quiet",
-            ],
-            cwd=project_dir,
-            capture_output=True,
-            text=True,
-            timeout=FRAMES_TIMEOUT,
-        )
+        try:
+            result = self._run(
+                [
+                    "npx",
+                    "--yes",
+                    FRAMES_PACKAGE,
+                    "render",
+                    ".",
+                    "-o",
+                    str(Path(RENDERS) / name),
+                    "--quiet",
+                ],
+                cwd=project_dir,
+                capture_output=True,
+                text=True,
+                timeout=FRAMES_TIMEOUT,
+            )
+        except OSError as exc:
+            raise RenderError(
+                f"this image carries no frame exporter, so nothing can be "
+                f"stepped into video here ({exc})"
+            ) from exc
         if result.returncode != 0:
             raise RenderError(f"the frame exporter failed: {result.stderr[-600:]}")
         if not dest.exists():

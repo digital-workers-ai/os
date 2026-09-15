@@ -157,6 +157,10 @@ class TestLoadingOneLook:
         with pytest.raises(looks.LookError):
             looks.schema("card", directory)
 
+    def test_the_resolution_is_the_word_the_markup_lays_out_for(self, tmp_path):
+        directory = _video_look(tmp_path)
+        assert looks.resolution("demo", directory) == "portrait"
+
     def test_the_frame_is_the_pixels_the_ratio_names(self, tmp_path):
         directory = _image_look(tmp_path)
         assert looks.frame("card", directory) == (1080, 1080)
@@ -252,6 +256,19 @@ class TestTheDirectoryIsChecked:
         }
         problems = looks.check(_video_look(tmp_path, sample=sample))
         assert any("content.yaml" in p and "demo" in p for p in problems), problems
+
+    def test_an_image_look_with_no_sample_is_named(self, tmp_path):
+        directory = _image_look(tmp_path, omit=("content.yaml",))
+        problems = looks.check(directory)
+        assert any("content.yaml" in p and "card" in p for p in problems), problems
+
+    def test_a_sample_laid_out_for_another_shape_is_named(self, tmp_path):
+        sample = {
+            **VIDEO_SAMPLE,
+            "project": {"name": "demo", "resolution": "square"},
+        }
+        problems = looks.check(_video_look(tmp_path, sample=sample))
+        assert any("square" in p and "9:16" in p for p in problems), problems
 
     def test_an_image_sample_missing_a_slot_is_named(self, tmp_path):
         directory = _image_look(tmp_path, sample={"stat": "29"})

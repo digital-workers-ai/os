@@ -188,8 +188,11 @@ async def _act(client, template_id, slots, index, scene, assets, state):
     scene_id, variable = slots[position] if position < len(slots) else slots[-1]
     entry.video_id = await client.start(template_id, scene_id, scene.script, variable)
     finished = await client.wait(entry.video_id)
+    url = finished.get("video_url") or finished.get("download_url")
+    if not url:
+        raise RenderError(f"scene {index + 1} finished with no video to download")
     dest = assets / scene_file(index)
-    await client.fetch(finished.get("video_url") or finished["download_url"], dest)
+    await client.fetch(url, dest)
     entry.status = SceneStatus.rendered
     entry.video_path = str(dest)
     entry.actual_duration = float(finished.get("duration", 0))
