@@ -159,7 +159,7 @@ def _slot_problems(name, manifest) -> list[str]:
     ]
 
 
-def _image_sample_problems(name, manifest, path) -> list[str]:
+def _image_sample_problems(name, path) -> list[str]:
     try:
         content = sample(name, path)
     except FileNotFoundError:
@@ -231,19 +231,19 @@ def _video_problems(name, manifest, path) -> list[str]:
 
 
 def check(path=None) -> list[str]:
-    directory = root(path)
-    if not directory.is_dir():
+    folder = root(path)
+    if not folder.is_dir():
         return [
-            f"looks: {directory.name}/ is not there — every asset is rendered "
+            f"looks: {folder.name}/ is not there — every asset is rendered "
             "through one of these, and with none of them nothing can be built"
         ]
     problems: list[str] = []
     for name in sorted(
         child.name
-        for child in directory.iterdir()
+        for child in folder.iterdir()
         if child.is_dir() and child.name != SHARED
     ):
-        if not (directory / name / MANIFEST).is_file():
+        if not (folder / name / MANIFEST).is_file():
             problems.append(
                 f"look {name!r} has no {MANIFEST} — the manifest is how a look "
                 "describes itself without anything importing its Python"
@@ -269,11 +269,11 @@ def check(path=None) -> list[str]:
         if medium == "video" and ratio in FRAMES:
             problems += _video_problems(name, manifest, path)
         if medium == "image" and ratio in FRAMES:
-            if not (directory / name / IMAGE_TEMPLATE).is_file():
+            if not (folder / name / IMAGE_TEMPLATE).is_file():
                 problems.append(
                     f"look {name!r} has no {IMAGE_TEMPLATE} — an image look "
                     "with no card has nothing to screenshot"
                 )
             slot_problems = _slot_problems(name, manifest)
-            problems += slot_problems or _image_sample_problems(name, manifest, path)
+            problems += slot_problems or _image_sample_problems(name, path)
     return problems
