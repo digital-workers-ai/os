@@ -9,6 +9,7 @@ import httpx
 import pytest
 
 from app import clock, sync
+from app.engine import mappings
 from app.sources import catalog, client, creds, registry, util
 from app.sources.hubspot import connector as hubspot
 from app.sources.stripe import connector as stripe
@@ -2105,16 +2106,35 @@ class TestCompetitorConnectors(_SocialCapture):
         }
 
     @staticmethod
-    def _creative(advertiser_id, n):
+    def _creative(advertiser_id, n, **extra):
+        creative_id = f"CR{advertiser_id}_{n}"
         return {
-            "ad_id": f"CR{advertiser_id}_{n}",
             "advertiser_id": advertiser_id,
             "advertiser": f"Advertiser {advertiser_id}",
-            "target_domain": f"{advertiser_id.lower()}.test",
+            "ad_creative_id": creative_id,
             "format": "text",
-            "text": "Stop scrolling",
+            "width": 300,
+            "height": 250,
+            "target_domain": f"{advertiser_id.lower()}.test",
             "first_shown": 1781515800,
             "last_shown": 1788271200,
+            "total_days_shown": 78,
+            "details_link": (
+                "https://adstransparency.google.com/advertiser/"
+                f"{advertiser_id}/creative/{creative_id}"
+            ),
+            "serpapi_details_link": (
+                "https://serpapi.com/search.json?engine="
+                "google_ads_transparency_center_details"
+                f"&advertiser_id={advertiser_id}&creative_id={creative_id}"
+            ),
+            **extra,
+        }
+
+    def _file_domains(self):
+        return {
+            str(spec["google_advertiser_id"]): str(spec["domain"])
+            for spec in self._competitors().values()
         }
 
     def _google_body(self, request):
@@ -2214,7 +2234,7 @@ class TestCompetitorConnectors(_SocialCapture):
             assert request.url.params.get("engine") == "google_ads_transparency_center"
             assert request.url.params.get("api_key")
 
-    async def test_google_ads_transparency_stores_each_creative_under_its_ad_id(
+    async def test_google_ads_transparency_stores_each_creative_under_its_creative_id(
         self, capture, store, stored
     ):
         capture(self._google_body)
@@ -2249,9 +2269,61 @@ class TestCompetitorConnectors(_SocialCapture):
         )
         for row in advertisers:
             advertiser_id = row["source_id"]
-            assert row["raw_payload"]["id"] == advertiser_id
-            assert row["raw_payload"]["name"] == f"Advertiser {advertiser_id}"
+            assert row["raw_payload"] == {
+                "id": advertiser_id,
+                "name": f"Advertiser {advertiser_id}",
+                "domain": f"{advertiser_id.lower()}.test",
+            }
+
+    async def test_the_advertisers_domain_comes_from_the_first_creative_that_has_one(
+        self, capture, store, stored
+    ):
+        def body(request):
+            advertiser_id = request.url.params.get("advertiser_id")
+            first = self._creative(advertiser_id, 1)
+            first.pop("target_domain")
+            return {
+                "ad_creatives": [first, self._creative(advertiser_id, 2)],
+                "serpapi_pagination": {},
+            }
+
+        capture(body)
+
+        await connector("google_ads_transparency").pull(None, store)
+
+        for row in [s for s in stored if s["object_type"] == "advertisers"]:
+            advertiser_id = row["source_id"]
             assert row["raw_payload"]["domain"] == f"{advertiser_id.lower()}.test"
+            assert row["raw_payload"]["name"] == f"Advertiser {advertiser_id}"
+
+    async def test_an_advertiser_whose_creatives_name_no_domain_takes_the_files(
+        self, capture, store, stored
+    ):
+        def body(request):
+            advertiser_id = request.url.params.get("advertiser_id")
+            creatives = [self._creative(advertiser_id, n) for n in (1, 2)]
+            for creative in creatives:
+                creative.pop("target_domain")
+            return {"ad_creatives": creatives, "serpapi_pagination": {}}
+
+        capture(body)
+
+        await connector("google_ads_transparency").pull(None, store)
+
+        domains = self._file_domains()
+        for row in [s for s in stored if s["object_type"] == "advertisers"]:
+            assert row["raw_payload"]["domain"] == domains[row["source_id"]]
+
+    def test_google_creatives_are_read_by_their_details_link_and_never_named(self):
+        labels = {
+            line.key: line.label
+            for line in mappings.load()
+            if line.source == "google_ads_transparency"
+            and line.object_type == "creatives"
+        }
+        assert labels["google_ads_transparency.creatives.details_link"] == "url"
+        assert "name" not in labels.values()
+        assert not [key for key in labels if key.endswith(".link")]
 
     async def test_google_ads_transparency_walks_the_page_token_to_its_end(
         self, capture, store, stored
@@ -2286,7 +2358,7 @@ class TestCompetitorConnectors(_SocialCapture):
 
 
 class TestGoogleAdsTransparencyWithNoCreatives(_SocialCapture):
-    async def test_an_advertiser_with_no_creatives_is_stored_by_id_alone(
+    async def test_an_advertiser_with_no_creatives_keeps_its_id_and_the_files_domain(
         self, capture, store, stored
     ):
         from app.engine import competitors
@@ -2297,11 +2369,18 @@ class TestGoogleAdsTransparencyWithNoCreatives(_SocialCapture):
 
         assert notes is None
         assert [s for s in stored if s["object_type"] == "creatives"] == []
-        advertisers = [s for s in stored if s["object_type"] == "advertisers"]
-        assert {s["source_id"] for s in advertisers} == {
-            str(spec["google_advertiser_id"]) for spec in competitors.tracked().values()
+        advertisers = {
+            s["source_id"]: s["raw_payload"]
+            for s in stored
+            if s["object_type"] == "advertisers"
         }
-        assert all(s["raw_payload"] == {"id": s["source_id"]} for s in advertisers)
+        assert advertisers == {
+            str(spec["google_advertiser_id"]): {
+                "id": str(spec["google_advertiser_id"]),
+                "domain": str(spec["domain"]),
+            }
+            for spec in competitors.tracked().values()
+        }
 
 
 class _CompetitorWatchers(_SocialCapture):

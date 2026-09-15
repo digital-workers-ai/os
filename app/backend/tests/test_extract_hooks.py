@@ -1440,10 +1440,13 @@ class TestGoogleAdsTransparencyHook:
     @staticmethod
     def _creative(**extra):
         return {
-            "ad_id": "CR1",
+            "ad_creative_id": "CR1",
             "advertiser_id": "AR1",
             "format": "text",
+            "width": 300,
+            "height": 250,
             "first_shown": 1781515800,
+            "total_days_shown": 78,
             **extra,
         }
 
@@ -1462,18 +1465,20 @@ class TestGoogleAdsTransparencyHook:
         assert out[0]["_first_seen"] == "2026-06-15T09:30:00Z"
         assert "_last_seen" not in out[0]
 
-    def test_a_text_creative_is_named_by_its_text(self):
+    def test_the_hook_never_names_a_creative(self):
         from app.sources.google_ads_transparency import extract
 
         out = extract.reshape("creatives", self._creative(text="Stop scrolling"))
-        assert out[0]["_name"] == "Stop scrolling"
+        assert "_name" not in out[0]
 
-    def test_an_image_creative_with_no_text_carries_no_name(self):
+    def test_everything_else_is_left_as_it_arrived(self):
         from app.sources.google_ads_transparency import extract
 
-        out = extract.reshape("creatives", self._creative(format="image"))
-        assert "_name" not in out[0]
-        assert out[0]["_platform"] == "google"
+        out = extract.reshape("creatives", self._creative(last_shown=1788271200))
+        stamped = {"_platform", "_first_seen", "_last_seen"}
+        assert {k: v for k, v in out[0].items() if k not in stamped} == self._creative(
+            last_shown=1788271200
+        )
 
     def test_the_stamp_does_not_touch_the_stored_payload(self):
         from app.sources.google_ads_transparency import extract
