@@ -8,15 +8,13 @@ OBSERVED_AT: dict = {}
 ENGINE = "google_ads_transparency_center"
 
 
-def _advertiser(advertiser_id, creatives):
-    if not creatives:
-        return {"id": advertiser_id}
-    first = creatives[0]
-    return {
-        "id": advertiser_id,
-        "name": first.get("advertiser"),
-        "domain": first.get("target_domain"),
-    }
+def _advertiser(advertiser_id, domain, creatives):
+    record = {"id": advertiser_id}
+    if creatives:
+        record["name"] = creatives[0].get("advertiser")
+    named = (creative.get("target_domain") for creative in creatives)
+    record["domain"] = next((found for found in named if found), None) or domain
+    return record
 
 
 async def pull(session, store):
@@ -35,13 +33,13 @@ async def pull(session, store):
             creatives,
             source=SOURCE,
             object_type="creatives",
-            id_fields=("ad_id",),
+            id_fields=("ad_creative_id",),
             notes=notes,
         )
         await store_all(
             session,
             store,
-            [_advertiser(advertiser_id, creatives)],
+            [_advertiser(advertiser_id, str(spec["domain"]), creatives)],
             source=SOURCE,
             object_type="advertisers",
             notes=notes,

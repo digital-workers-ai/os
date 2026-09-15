@@ -6,7 +6,7 @@ Google's Ads Transparency Center lists every ad an advertiser has run on Search,
 
 - **Category:** Competitors
 - **Production Base URL:** `https://serpapi.com`
-- **Mock Base URL:** `http://mock:8100/serpapi` (from the host: `http://localhost:9192/serpapi`)
+- **Mock Base URL:** `http://mock:8100/serpapi` (from the host: `http://localhost:8192/serpapi`)
 - **Response Format:** JSON
 
 ## Authentication
@@ -65,13 +65,16 @@ api_key=64e1c0f8..."
     {
       "advertiser_id": "AR11111111111111111111",
       "advertiser": "Vidora",
-      "ad_id": "CR30410000000000000004",
+      "ad_creative_id": "CR30410000000000000004",
       "format": "text",
-      "link": "https://adstransparency.google.com/advertiser/AR11111111111111111111/creative/CR30410000000000000004",
-      "target_domain": "vidora.ai",
+      "width": 300,
+      "height": 250,
       "first_shown": 1784678400,
       "last_shown": 1788393600,
-      "text": "What if every product page came with its own video ad? Vidora turns a URL into a scripted, voiced, captioned ad in minutes."
+      "total_days_shown": 44,
+      "details_link": "https://adstransparency.google.com/advertiser/AR11111111111111111111/creative/CR30410000000000000004?region=anywhere",
+      "serpapi_details_link": "https://serpapi.com/search.json?engine=google_ads_transparency_center_details&advertiser_id=AR11111111111111111111&creative_id=CR30410000000000000004",
+      "target_domain": "vidora.ai"
     }
   ],
   "serpapi_pagination": {
@@ -86,19 +89,21 @@ api_key=64e1c0f8..."
 |-------|------|-------------|
 | `advertiser_id` | string | The advertiser queried |
 | `advertiser` | string | Display name of the advertiser |
-| `ad_id` | string | `CR` followed by digits; the creative's id in the center |
+| `ad_creative_id` | string | `CR` followed by digits; the creative's id in the center |
 | `format` | string | `text`, `image` or `video` |
-| `link` | string | The creative's page in the transparency center |
-| `target_domain` | string | Where the ad sends people; the advertiser's own domain |
+| `width` | integer | Rendered width in pixels |
+| `height` | integer | Rendered height in pixels |
 | `first_shown` | integer | Unix seconds of the first day the ad was seen |
 | `last_shown` | integer | Unix seconds of the last day it was seen; recent for a running ad |
-| `text` | string | Body copy; **only present on `text` creatives** |
+| `total_days_shown` | integer | Days between the two, inclusive |
+| `details_link` | string | The creative's page in the transparency center |
+| `serpapi_details_link` | string | SerpApi's details engine for this creative, which renders it |
+| `target_domain` | string | Where the ad sends people; **absent on some creatives** |
 | `image` | string | Rendered creative; only on `image` creatives |
-| `video` | string | Embedded video; only on `video` creatives |
 
-The center shows image and video creatives as pictures, not words, so the listing carries no copy for them. A reader that wants a name for every ad only gets one for text creatives.
+The listing carries no copy at all, not even for text creatives: the center renders every creative as a picture, and the words live behind `details_link`. OS therefore names Google creatives by nothing and shows them by their `details_link`.
 
-There is no advertiser endpoint. The advertiser's name and domain come with every creative, and OS builds its one advertiser record from them.
+There is no advertiser endpoint. The advertiser's name comes with every creative and its domain with most of them, so OS builds its one advertiser record from the first creative's `advertiser` and the first `target_domain` it finds; when no creative carries one, the domain is the one the competitors file gives that advertiser.
 
 ---
 
@@ -141,9 +146,11 @@ SerpApi answers a search with no results with a 200 and an error string, not a 4
 ## What the mock simplifies
 
 - Only the three advertisers in `world.py` exist, five creatives between them: two text, two image, one video.
-- `last_shown` for a running creative is pinned to `2026-09-03` so captures are stable; SerpApi would report the day of the query.
+- `last_shown` for a running creative is pinned to `2026-09-03` so captures are stable, and `total_days_shown` is counted from it; SerpApi would report the day of the query.
+- `target_domain` is omitted on image creatives, the way the center leaves it off some real ones, so Avatarly's only Google creative names no domain and its advertiser record falls back to the file.
+- `width` and `height` are fixed per format rather than read from the creative.
 - `search_metadata` carries only `status`; the real one adds ids, timestamps and endpoint links. `search_parameters` echoes only `engine` and `advertiser_id`.
-- No `region`, `topic`, `political_ads`, `start_date` or `end_date` filters; no `width`, `height` or `days_ran_for` on creatives.
+- No `region`, `topic`, `political_ads`, `start_date` or `end_date` filters, and no details engine behind `serpapi_details_link`.
 
 ---
 

@@ -284,13 +284,12 @@ competitor_ad:
   meta_ad_library.ads.ad_delivery_start_time: first_seen
   meta_ad_library.ads.ad_delivery_stop_time: last_seen
   meta_ad_library.ads.ad_snapshot_url: url
-  google_ads_transparency.creatives._name: name
   google_ads_transparency.creatives._platform: platform
   google_ads_transparency.creatives.format: category
   google_ads_transparency.creatives.advertiser_id: competitor_ref
   google_ads_transparency.creatives._first_seen: first_seen
   google_ads_transparency.creatives._last_seen: last_seen
-  google_ads_transparency.creatives.link: url
+  google_ads_transparency.creatives.details_link: url
 
 traffic_report:
   google_analytics.report_rows._report_date: report_date

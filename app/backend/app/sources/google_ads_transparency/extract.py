@@ -28,6 +28,4 @@ def reshape(object_type: str, payload: dict) -> list[dict]:
     record = {**payload, "_platform": PLATFORM}
     for field, label in _SEEN_LABELS.items():
         _stamp(record, label, _iso(payload.get(field)))
-    if payload.get("text"):
-        record["_name"] = payload["text"]
     return [record]

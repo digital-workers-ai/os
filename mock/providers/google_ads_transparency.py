@@ -12,30 +12,40 @@ _ENGINE = "google_ads_transparency_center"
 _ADVERTISERS = {k.google_advertiser_id: k for k in COMPETITORS}
 _LAST_SHOWN_WHEN_RUNNING = "2026-09-03"
 _PAGE_SIZE = 1
+_SIZES = {"text": (300, 250), "image": (1200, 628), "video": (1280, 720)}
+_DETAILS_ENGINE = "google_ads_transparency_center_details"
 
 
 def _unix(day):
     return day_ms(date.fromisoformat(day)) // 1000
 
 
+def _days_shown(started, stopped):
+    return (date.fromisoformat(stopped) - date.fromisoformat(started)).days + 1
+
+
 def _creative(competitor, ad):
-    ad_id = f"CR3041{ad.id[2:].zfill(16)}"
+    creative_id = f"CR3041{ad.id[2:].zfill(16)}"
+    advertiser_id = competitor.google_advertiser_id
+    stopped = ad.stopped or _LAST_SHOWN_WHEN_RUNNING
+    width, height = _SIZES[ad.format]
     record = {
-        "advertiser_id": competitor.google_advertiser_id,
+        "advertiser_id": advertiser_id,
         "advertiser": competitor.name,
-        "ad_id": ad_id,
+        "ad_creative_id": creative_id,
         "format": ad.format,
-        "link": f"https://adstransparency.google.com/advertiser/{competitor.google_advertiser_id}/creative/{ad_id}",
-        "target_domain": competitor.domain,
+        "width": width,
+        "height": height,
         "first_shown": _unix(ad.started),
-        "last_shown": _unix(ad.stopped or _LAST_SHOWN_WHEN_RUNNING),
+        "last_shown": _unix(stopped),
+        "total_days_shown": _days_shown(ad.started, stopped),
+        "details_link": f"https://adstransparency.google.com/advertiser/{advertiser_id}/creative/{creative_id}?region=anywhere",
+        "serpapi_details_link": f"https://serpapi.com/search.json?engine={_DETAILS_ENGINE}&advertiser_id={advertiser_id}&creative_id={creative_id}",
     }
-    if ad.format == "text":
-        record["text"] = ad.body
-    elif ad.format == "image":
-        record["image"] = f"https://tpc.googlesyndication.com/archive/simgad/{ad_id[2:]}"
+    if ad.format == "image":
+        record["image"] = f"https://tpc.googlesyndication.com/archive/simgad/{creative_id[2:]}"
     else:
-        record["video"] = f"https://www.youtube.com/embed/{ad_id}"
+        record["target_domain"] = competitor.domain
     return record
 
 
