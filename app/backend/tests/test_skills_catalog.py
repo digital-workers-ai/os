@@ -120,6 +120,10 @@ class TestWhatItRefuses:
         with pytest.raises(catalog.SkillError, match="no skill named"):
             catalog.load("dw-chore")
 
+    def test_a_name_that_could_climb_out_of_the_directory_is_refused(self, skills):
+        with pytest.raises(catalog.SkillError, match="no skill named"):
+            catalog.load("../../definitions/brand/proof")
+
     def test_a_skill_with_no_front_matter_is_refused(self, skills):
         skills("dw-bare", ASSET_SKILL.split("---\n", 2)[2])
         with pytest.raises(catalog.SkillError, match="front matter"):

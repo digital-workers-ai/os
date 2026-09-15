@@ -36,6 +36,7 @@ services:
     volumes:
       - ./backend:/app
       - ../definitions:/app/definitions
+      - ../.claude/skills:/app/.claude/skills:ro
       - ../mock:/adversarial/seeds:ro
       - media:/media
     healthcheck:
