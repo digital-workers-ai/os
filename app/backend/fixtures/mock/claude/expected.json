@@ -1,0 +1,259 @@
+{
+  "clears": {},
+  "extracted": {
+    "checks": {
+      "visibility_check": {
+        "claude|affordable-crm-for-sales-teams|2026-09-04": {
+          "answer": "I'll search for current information to answer this. Freshsales is the name that comes up first for teams that want a visual pipeline without a long setup. Pipedrive adds an AI assistant that summarises calls and suggests the next step on every deal. Each offers a two-week trial, so the practical test is importing a real pipeline and checking the automation limits.",
+          "brand_rank": "2.0",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "claude",
+          "query": "affordable crm for sales teams",
+          "sources": "3.0"
+        },
+        "claude|best-crm-for-small-business|2026-09-04": {
+          "answer": "I'll search for current information to answer this. Freshsales is the name that comes up first for teams that want a visual pipeline without a long setup. Pipedrive offers the broader free tier, but Zoho CRM is easier to customise once the process gets more complex. Entry plans start around fifteen dollars per user per month, with AI features gated to the mid tiers.",
+          "brand_rank": "2.0",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "claude",
+          "query": "best crm for small business",
+          "sources": "3.0"
+        },
+        "claude|crm-with-ai-assistant|2026-09-04": {
+          "answer": "I'll search for current information to answer this. Most comparisons start with Freshsales, which keeps contacts, deals and email tracking in one place. Pipedrive is the usual alternative when marketing automation matters, and Zoho CRM is the pick when calling has to live inside the CRM. HubSpot covers the same ground with stronger marketing tools bundled into the same product. All of them sync with Gmail and Outlook, and most add a two-way calendar sync on the second tier. The right choice depends on whether the team needs marketing tools in the same product or just a clean sales pipeline.",
+          "brand_rank": "2.0",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "claude",
+          "query": "crm with ai assistant",
+          "sources": "3.0"
+        },
+        "claude|crm-with-built-in-calling|2026-09-04": {
+          "answer": "I'll search for current information to answer this. Zoho CRM tends to lead the shortlist because its per-seat pricing stays predictable as the team grows. Pipedrive covers the same ground with stronger marketing tools bundled into the same product. Migration from a spreadsheet takes an afternoon with any of them. The right choice depends on whether the team needs marketing tools in the same product or just a clean sales pipeline.",
+          "brand_rank": "2.0",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "claude",
+          "query": "crm with built in calling",
+          "sources": "3.0"
+        },
+        "claude|crm-with-email-automation|2026-09-04": {
+          "answer": "I'll search for current information to answer this. For a fast rollout, Freshsales is usually the first recommendation reviewers make. HubSpot is worth a look when the team also needs email sequences and a free tier to start on. All of them sync with Gmail and Outlook, and most add a two-way calendar sync on the second tier. Integration counts are similar across the group, so support quality and the mobile apps tend to decide it.",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "claude",
+          "query": "crm with email automation",
+          "sources": "3.0"
+        },
+        "claude|hubspot-alternatives|2026-09-04": {
+          "answer": "I'll search for current information to answer this. Pipedrive tends to lead the shortlist because its per-seat pricing stays predictable as the team grows. Reviewers put Freshsales ahead on reporting depth, while HubSpot wins on price for teams under ten seats. Zoho CRM is worth a look when the team also needs email sequences and a free tier to start on. The right choice depends on whether the team needs marketing tools in the same product or just a clean sales pipeline.",
+          "brand_rank": "1.0",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "claude",
+          "query": "hubspot alternatives",
+          "sources": "3.0"
+        },
+        "claude|pipeline-management-software|2026-09-04": {
+          "answer": "I'll search for current information to answer this. Freshsales tends to lead the shortlist because its per-seat pricing stays predictable as the team grows. Reviewers put Pipedrive ahead on reporting depth, while HubSpot wins on price for teams under ten seats. All of them sync with Gmail and Outlook, and most add a two-way calendar sync on the second tier. Integration counts are similar across the group, so support quality and the mobile apps tend to decide it.",
+          "brand_rank": "2.0",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "claude",
+          "query": "pipeline management software",
+          "sources": "3.0"
+        },
+        "claude|sales-crm-for-startups|2026-09-04": {
+          "answer": "I'll search for current information to answer this. Freshsales tends to lead the shortlist because its per-seat pricing stays predictable as the team grows. Zoho CRM offers the broader free tier, but HubSpot is easier to customise once the process gets more complex. Integration counts are similar across the group, so support quality and the mobile apps tend to decide it.",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "claude",
+          "query": "sales crm for startups",
+          "sources": "3.0"
+        }
+      },
+      "visibility_mention": {
+        "claude|affordable-crm-for-sales-teams|2026-09-04|freshworks.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "claude",
+          "query": "affordable crm for sales teams",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "claude|affordable-crm-for-sales-teams|2026-09-04|pipedrive.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "claude",
+          "query": "affordable crm for sales teams",
+          "rank": "2.0",
+          "role": "brand"
+        },
+        "claude|best-crm-for-small-business|2026-09-04|freshworks.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "claude",
+          "query": "best crm for small business",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "claude|best-crm-for-small-business|2026-09-04|pipedrive.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "claude",
+          "query": "best crm for small business",
+          "rank": "2.0",
+          "role": "brand"
+        },
+        "claude|best-crm-for-small-business|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "claude",
+          "query": "best crm for small business",
+          "rank": "3.0",
+          "role": "competitor"
+        },
+        "claude|crm-with-ai-assistant|2026-09-04|freshworks.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "claude",
+          "query": "crm with ai assistant",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "claude|crm-with-ai-assistant|2026-09-04|hubspot.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "claude",
+          "query": "crm with ai assistant",
+          "rank": "4.0",
+          "role": "competitor"
+        },
+        "claude|crm-with-ai-assistant|2026-09-04|pipedrive.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "claude",
+          "query": "crm with ai assistant",
+          "rank": "2.0",
+          "role": "brand"
+        },
+        "claude|crm-with-ai-assistant|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "claude",
+          "query": "crm with ai assistant",
+          "rank": "3.0",
+          "role": "competitor"
+        },
+        "claude|crm-with-built-in-calling|2026-09-04|pipedrive.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "claude",
+          "query": "crm with built in calling",
+          "rank": "2.0",
+          "role": "brand"
+        },
+        "claude|crm-with-built-in-calling|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "claude",
+          "query": "crm with built in calling",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "claude|crm-with-email-automation|2026-09-04|freshworks.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "claude",
+          "query": "crm with email automation",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "claude|crm-with-email-automation|2026-09-04|hubspot.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "claude",
+          "query": "crm with email automation",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "claude|hubspot-alternatives|2026-09-04|freshworks.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "claude",
+          "query": "hubspot alternatives",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "claude|hubspot-alternatives|2026-09-04|hubspot.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "claude",
+          "query": "hubspot alternatives",
+          "rank": "3.0",
+          "role": "competitor"
+        },
+        "claude|hubspot-alternatives|2026-09-04|pipedrive.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "claude",
+          "query": "hubspot alternatives",
+          "rank": "1.0",
+          "role": "brand"
+        },
+        "claude|hubspot-alternatives|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "claude",
+          "query": "hubspot alternatives",
+          "rank": "4.0",
+          "role": "competitor"
+        },
+        "claude|pipeline-management-software|2026-09-04|freshworks.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "claude",
+          "query": "pipeline management software",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "claude|pipeline-management-software|2026-09-04|hubspot.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "claude",
+          "query": "pipeline management software",
+          "rank": "3.0",
+          "role": "competitor"
+        },
+        "claude|pipeline-management-software|2026-09-04|pipedrive.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "claude",
+          "query": "pipeline management software",
+          "rank": "2.0",
+          "role": "brand"
+        },
+        "claude|sales-crm-for-startups|2026-09-04|freshworks.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "claude",
+          "query": "sales crm for startups",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "claude|sales-crm-for-startups|2026-09-04|hubspot.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "claude",
+          "query": "sales crm for startups",
+          "rank": "3.0",
+          "role": "competitor"
+        },
+        "claude|sales-crm-for-startups|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "claude",
+          "query": "sales crm for startups",
+          "rank": "2.0",
+          "role": "competitor"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "claude"
+}
