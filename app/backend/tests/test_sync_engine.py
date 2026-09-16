@@ -456,7 +456,7 @@ class TestStatusAnswersThreeDifferentQuestions:
     async def test_a_never_synced_source_still_appears(self, session):
         rows = await sync.status(session)
         assert [r["source"] for r in rows] == sorted(registry.discover())
-        assert len(rows) == 27
+        assert len(rows) == len(registry.discover())
         stripe_row = next(r for r in rows if r["source"] == "stripe")
         assert stripe_row == {
             "source": "stripe",

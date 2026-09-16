@@ -17,6 +17,7 @@ from app.api import (
 )
 from app.db import get_session
 from app.engine import (
+    checks,
     dashboards,
     goals,
     mappings,
@@ -38,7 +39,7 @@ from app.models import (
     RawEvent,
     SyncRun,
 )
-from app.sources import hooks
+from app.sources import hooks, registry
 from tests.conftest import NOW
 
 SELF_TRANSACTING = (
@@ -151,8 +152,7 @@ class TestSources:
 
     async def test_the_catalog_lists_every_source_in_order(self, api):
         rows = (await api.get("/api/sources")).json()["sources"]
-        assert len(rows) == 27
-        assert [r["source"] for r in rows] == sorted(r["source"] for r in rows)
+        assert [r["source"] for r in rows] == sorted(registry.discover())
 
     async def test_every_row_carries_its_metadata_and_status(self, api):
         rows = (await api.get("/api/sources")).json()["sources"]
@@ -183,12 +183,30 @@ class TestSources:
     async def test_the_validation_coverage_summary_counts_every_source(self, api):
         body = (await api.get("/api/sources")).json()
         coverage = body["validation_coverage"]
-        assert coverage["total"] == 27
-        assert sum(coverage["by_status"].values()) == 27
+        assert coverage["total"] == len(registry.discover())
+        assert sum(coverage["by_status"].values()) == len(registry.discover())
         assert coverage["provider_validated"] == sum(
             1 for r in body["sources"] if r["validation"] == "provider-validated"
         )
         assert coverage["detail"]
+
+    async def test_the_detail_counts_the_sources_that_replayed_a_provider_payload(
+        self, api
+    ):
+        coverage = (await api.get("/api/sources")).json()["validation_coverage"]
+        provider, total = coverage["provider_validated"], coverage["total"]
+        assert provider
+        assert coverage["detail"] == (
+            f"{provider} of {total} sources have replayed a real provider payload"
+        )
+
+    async def test_without_a_real_fixture_the_detail_names_the_gap(
+        self, api, tmp_path, monkeypatch
+    ):
+        monkeypatch.setattr(checks, "REAL_FIXTURES", tmp_path)
+        coverage = (await api.get("/api/sources")).json()["validation_coverage"]
+        assert coverage["provider_validated"] == 0
+        assert "mock-validated only" in coverage["detail"]
 
     async def test_a_never_synced_source_reports_zero_attempts(self, api):
         rows = (await api.get("/api/sources")).json()["sources"]
