@@ -61,8 +61,8 @@ jobs:
       id-token: write
       actions: read
     env:
-      OPERATOR_DATABASE_URL: postgresql://os:os@localhost:6442/os
-      OPERATOR_API: http://localhost:9092
+      OPERATOR_DATABASE_URL: postgresql://os:os@localhost:5442/os
+      OPERATOR_API: http://localhost:8092
     steps:
       - name: Acknowledge the comment on the issue
         if: github.event_name == 'issue_comment'

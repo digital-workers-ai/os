@@ -31,6 +31,6 @@ export default defineConfig({
   projects: [
     { name: 'chromium', testIgnore: [...ignored, 'dashboard/**', 'studio/**'] },
     { name: 'dashboard', testMatch: 'dashboard/**/*.spec.ts', use: { baseURL: process.env.DASHBOARD_URL ?? 'http://localhost:3093' } },
-    { name: 'studio', testMatch: 'studio/**/*.spec.ts', use: { baseURL: process.env.STUDIO_URL ?? 'http://localhost:4094' } },
+    { name: 'studio', testMatch: 'studio/**/*.spec.ts', use: { baseURL: process.env.STUDIO_URL ?? 'http://localhost:3094' } },
   ],
 })

@@ -68,12 +68,12 @@ Docker is all you need.
 git clone https://github.com/digital-workers-ai/os.git && cd os
 cp app/.env.example app/.env
 docker compose -f app/docker-compose.yml up -d --build --wait
-curl -X POST localhost:9092/api/sync
-curl -X POST localhost:9092/api/rebuild
-open http://localhost:4092
+curl -X POST localhost:8092/api/sync
+curl -X POST localhost:8092/api/rebuild
+open http://localhost:3092
 ```
 
-The two `curl` commands pull from every stand-in tool and then build every record out of what arrived; the last command opens the console on your home page; the dashboard is at http://localhost:4093 and the studio at http://localhost:4094.
+The two `curl` commands pull from every stand-in tool and then build every record out of what arrived; the last command opens the console on your home page; the dashboard is at http://localhost:3093 and the studio at http://localhost:3094.
 
 ## Connectors
 
@@ -299,7 +299,7 @@ Each morning, when `MARKETER_DAILY` is on, a marketer routine reads the calendar
 Nothing publishes. An asset exports as its files, and where it goes from there is a person's decision. The studio is off until a person sets `STUDIO_ENABLED`, which needs both `ANTHROPIC_API_KEY` and `OPENAI_API_KEY`; the app refuses to start with the flag on and either key missing.
 
 ```bash
-open http://localhost:4094
+open http://localhost:3094
 ```
 
 ## MCP Support
@@ -307,7 +307,7 @@ open http://localhost:4094
 Any AI assistant can use DW-OS as a tool. It gets read-only access to the same reviewed numbers the console shows, so when you ask your assistant about revenue it reports the number your system agreed on rather than guessing over raw tables. It can also read the definition files, so it can check what a number means before quoting it. The studio adds four tools that only read, `assets_list`, `assets_read`, `brand_read` and `looks_read`, and one tool per content skill, `dw_post`, `dw_newsletter`, `dw_blog`, `dw_image` and `dw_carousel`, which are not read-only: each one runs the skill and lands a new asset in the library.
 
 ```
-claude mcp add --transport http os http://localhost:4092/mcp
+claude mcp add --transport http os http://localhost:3092/mcp
 ```
 
 ## The Nightly AI Engineer Agent
@@ -343,7 +343,7 @@ Everything is read from the environment, and `app/.env` is loaded first. Every s
 
 | Variable                   | Default                                         | What it does                                                           |
 |----------------------------|-------------------------------------------------|------------------------------------------------------------------------|
-| `DATABASE_URL`             | `postgresql+asyncpg://os:os@localhost:6442/os`  | Postgres connection; compose points it at the `postgres` service        |
+| `DATABASE_URL`             | `postgresql+asyncpg://os:os@localhost:5442/os`  | Postgres connection; compose points it at the `postgres` service        |
 | `MOCK_BASE_URL`            | `http://localhost:8192`                         | Where the vendored mock providers answer                                |
 | `STAND_INS_ONLY`           | `false`                                         | Every source answers from its stand-in, whatever keys are set          |
 | `SYNC_RUN_RETENTION_DAYS`  | `30`                                            | Sync runs older than this are pruned                                   |

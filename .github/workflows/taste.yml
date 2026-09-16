@@ -47,8 +47,8 @@ jobs:
       id-token: write
       actions: read
     env:
-      TASTE_DATABASE_URL: postgresql://os:os@localhost:6442/os
-      TASTE_API: http://localhost:9092
+      TASTE_DATABASE_URL: postgresql://os:os@localhost:5442/os
+      TASTE_API: http://localhost:8092
     steps:
       - name: Check out with full history
         uses: actions/checkout@v4

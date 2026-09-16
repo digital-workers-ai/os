@@ -7,11 +7,11 @@ Docker Desktop is the only requirement on the host, plus `python3` for the searc
 ```
 cp app/.env.example app/.env
 docker compose -f app/docker-compose.yml up -d --build --wait
-curl -X POST localhost:9092/api/sync
-curl -X POST localhost:9092/api/rebuild
+curl -X POST localhost:8092/api/sync
+curl -X POST localhost:8092/api/rebuild
 ```
 
-The example env is empty and that runs: every knob has a default. The compose project is `os_studio`: postgres on :6442, the mock providers on :9192, the backend on :9092, the console on :4092, the dashboard on :4093, the studio on :4094. The Configuration section of `README.md` lists every variable.
+The example env is empty and that runs: every knob has a default. The compose project is `os`: postgres on :5442, the mock providers on :8192, the backend on :8092, the console on :3092, the dashboard on :3093, the studio on :3094. The Configuration section of `README.md` lists every variable.
 
 ## The gate
 
@@ -23,7 +23,7 @@ The example env is empty and that runs: every knob has a default. The compose pr
 ./format.sh              apply what ruff can fix
 ```
 
-`unit` runs inside the backend container and starts the stack when it is down. `snap` builds a fresh stack under its own compose project and now also screenshots the studio on :4094, with `STUDIO_ENABLED` off and the run routes mocked: run it alone, never overlapping the unit suite, whenever anything under `app/console/` or `app/studio/` changes, and ship the updated baselines in the same PR. Nothing is committed on red.
+`unit` runs inside the backend container and starts the stack when it is down. `snap` builds a fresh stack under its own compose project and now also screenshots the studio on :3094, with `STUDIO_ENABLED` off and the run routes mocked: run it alone, never overlapping the unit suite, whenever anything under `app/console/` or `app/studio/` changes, and ship the updated baselines in the same PR. Nothing is committed on red.
 
 ## Rules
 
