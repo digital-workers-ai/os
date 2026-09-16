@@ -1,0 +1,562 @@
+[
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "perplexity",
+        "model": "perplexity/sonar",
+        "query": "best crm for small business"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "annotations": [
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 214,
+                    "start_index": 101,
+                    "title": "Pipedrive: Sales CRM and Pipeline Management Software",
+                    "url": "https://www.pipedrive.com/en/features/sales-pipeline"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 100,
+                    "start_index": 0,
+                    "title": "Zoho CRM: Top-rated Sales CRM Software",
+                    "url": "https://www.zoho.com/crm/sales-automation.html"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 214,
+                    "start_index": 101,
+                    "title": "Best CRM Software 2026 | Reviews of the Most Popular Tools",
+                    "url": "https://www.capterra.com/crm-software/"
+                  }
+                }
+              ],
+              "content": "Zoho CRM is the name that comes up first for teams that want a visual pipeline without a long setup. Pipedrive offers the broader free tier, but Freshsales is easier to customise once the process gets more complex. HubSpot adds an AI assistant that summarises calls and suggests the next step on every deal. Entry plans start around fifteen dollars per user per month, with AI features gated to the mid tiers.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "stop"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-3ea50b59002ff22a493d",
+        "model": "perplexity/sonar",
+        "object": "chat.completion",
+        "provider": "Perplexity",
+        "service_tier": null,
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 103,
+          "cost": 0.005115,
+          "is_byok": false,
+          "prompt_tokens": 12,
+          "total_tokens": 115
+        }
+      }
+    },
+    "source_id": "best-crm-for-small-business|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "perplexity",
+        "model": "perplexity/sonar",
+        "query": "crm with ai assistant"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "annotations": [
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 309,
+                    "start_index": 214,
+                    "title": "Best CRM Software in 2026: Compare Reviews on 900+ Tools",
+                    "url": "https://www.g2.com/categories/crm"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 213,
+                    "start_index": 83,
+                    "title": "HubSpot CRM Software for Sales Teams",
+                    "url": "https://www.hubspot.com/products/crm"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 82,
+                    "start_index": 0,
+                    "title": "Freshsales: AI-powered Sales CRM",
+                    "url": "https://www.freshworks.com/crm/sales/"
+                  }
+                }
+              ],
+              "content": "For a fast rollout, Freshsales is usually the first recommendation reviewers make. Zoho CRM and HubSpot both ship AI assistants that draft follow-ups and score deals, though HubSpot keeps its cheaper plans leaner. Pipedrive is worth a look when the team also needs email sequences and a free tier to start on. All of them sync with Gmail and Outlook, and most add a two-way calendar sync on the second tier. Entry plans start around fifteen dollars per user per month, with AI features gated to the mid tiers.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "stop"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-7594698a5ca95c9e9feb",
+        "model": "perplexity/sonar",
+        "object": "chat.completion",
+        "provider": "Perplexity",
+        "service_tier": null,
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 128,
+          "cost": 0.005139,
+          "is_byok": false,
+          "prompt_tokens": 11,
+          "total_tokens": 139
+        }
+      }
+    },
+    "source_id": "crm-with-ai-assistant|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "perplexity",
+        "model": "perplexity/sonar",
+        "query": "pipeline management software"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "annotations": [
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 99,
+                    "start_index": 0,
+                    "title": "HubSpot CRM Software for Sales Teams",
+                    "url": "https://www.hubspot.com/products/crm"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 205,
+                    "start_index": 100,
+                    "title": "Best CRM Software in 2026: Compare Reviews on 900+ Tools",
+                    "url": "https://www.g2.com/categories/crm"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 303,
+                    "start_index": 206,
+                    "title": "Freshsales: AI-powered Sales CRM",
+                    "url": "https://www.freshworks.com/crm/sales/"
+                  }
+                }
+              ],
+              "content": "HubSpot is the name that comes up first for teams that want a visual pipeline without a long setup. Reviewers put Pipedrive ahead on reporting depth, while Zoho CRM wins on price for teams under ten seats. Freshsales is often chosen for its built-in calling and workflow automation on the mid-tier plan. All of them sync with Gmail and Outlook, and most add a two-way calendar sync on the second tier. Entry plans start around fifteen dollars per user per month, with AI features gated to the mid tiers.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "stop"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-ade3efcf9f4dae0e5501",
+        "model": "perplexity/sonar",
+        "object": "chat.completion",
+        "provider": "Perplexity",
+        "service_tier": null,
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 126,
+          "cost": 0.005139,
+          "is_byok": false,
+          "prompt_tokens": 13,
+          "total_tokens": 139
+        }
+      }
+    },
+    "source_id": "pipeline-management-software|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "perplexity",
+        "model": "perplexity/sonar",
+        "query": "sales crm for startups"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "annotations": [
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 235,
+                    "start_index": 105,
+                    "title": "The best CRM software of 2026",
+                    "url": "https://www.techradar.com/best/the-best-crm-software"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 235,
+                    "start_index": 105,
+                    "title": "HubSpot CRM Software for Sales Teams",
+                    "url": "https://www.hubspot.com/products/crm"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 104,
+                    "start_index": 0,
+                    "title": "Freshsales: AI-powered Sales CRM",
+                    "url": "https://www.freshworks.com/crm/sales/"
+                  }
+                }
+              ],
+              "content": "Freshsales tends to lead the shortlist because its per-seat pricing stays predictable as the team grows. Zoho CRM and HubSpot both ship AI assistants that draft follow-ups and score deals, though HubSpot keeps its cheaper plans leaner. Integration counts are similar across the group, so support quality and the mobile apps tend to decide it.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "stop"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-9cc11755cdf38b628ed8",
+        "model": "perplexity/sonar",
+        "object": "chat.completion",
+        "provider": "Perplexity",
+        "service_tier": null,
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 86,
+          "cost": 0.005097,
+          "is_byok": false,
+          "prompt_tokens": 11,
+          "total_tokens": 97
+        }
+      }
+    },
+    "source_id": "sales-crm-for-startups|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "perplexity",
+        "model": "perplexity/sonar",
+        "query": "crm with email automation"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "annotations": [
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 187,
+                    "start_index": 83,
+                    "title": "Best CRM Software in 2026: Compare Reviews on 900+ Tools",
+                    "url": "https://www.g2.com/categories/crm"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 283,
+                    "start_index": 188,
+                    "title": "Zoho CRM: Top-rated Sales CRM Software",
+                    "url": "https://www.zoho.com/crm/sales-automation.html"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 82,
+                    "start_index": 0,
+                    "title": "Freshsales: AI-powered Sales CRM",
+                    "url": "https://www.freshworks.com/crm/sales/"
+                  }
+                }
+              ],
+              "content": "For a fast rollout, Freshsales is usually the first recommendation reviewers make. Reviewers put Pipedrive ahead on reporting depth, while HubSpot wins on price for teams under ten seats. Zoho CRM is often chosen for its built-in calling and workflow automation on the mid-tier plan. All of them sync with Gmail and Outlook, and most add a two-way calendar sync on the second tier. Entry plans start around fifteen dollars per user per month, with AI features gated to the mid tiers.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "stop"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-83b959fb507cf2ad5fa3",
+        "model": "perplexity/sonar",
+        "object": "chat.completion",
+        "provider": "Perplexity",
+        "service_tier": null,
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 121,
+          "cost": 0.005133,
+          "is_byok": false,
+          "prompt_tokens": 12,
+          "total_tokens": 133
+        }
+      }
+    },
+    "source_id": "crm-with-email-automation|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "perplexity",
+        "model": "perplexity/sonar",
+        "query": "affordable crm for sales teams"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "annotations": [
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 206,
+                    "start_index": 101,
+                    "title": "HubSpot CRM Software for Sales Teams",
+                    "url": "https://www.hubspot.com/products/crm"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 206,
+                    "start_index": 101,
+                    "title": "Freshsales: AI-powered Sales CRM",
+                    "url": "https://www.freshworks.com/crm/sales/"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 206,
+                    "start_index": 101,
+                    "title": "Best CRM Software in 2026: Compare Reviews on 900+ Tools",
+                    "url": "https://www.g2.com/categories/crm"
+                  }
+                }
+              ],
+              "content": "Zoho CRM is the name that comes up first for teams that want a visual pipeline without a long setup. Reviewers put HubSpot ahead on reporting depth, while Freshsales wins on price for teams under ten seats. Entry plans start around fifteen dollars per user per month, with AI features gated to the mid tiers.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "stop"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-519fc47eadb81f99fca7",
+        "model": "perplexity/sonar",
+        "object": "chat.completion",
+        "provider": "Perplexity",
+        "service_tier": null,
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 78,
+          "cost": 0.005091,
+          "is_byok": false,
+          "prompt_tokens": 13,
+          "total_tokens": 91
+        }
+      }
+    },
+    "source_id": "affordable-crm-for-sales-teams|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "perplexity",
+        "model": "perplexity/sonar",
+        "query": "hubspot alternatives"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "annotations": [
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 196,
+                    "start_index": 101,
+                    "title": "Pipedrive: Sales CRM and Pipeline Management Software",
+                    "url": "https://www.pipedrive.com/en/features/sales-pipeline"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 100,
+                    "start_index": 0,
+                    "title": "Freshsales: AI-powered Sales CRM",
+                    "url": "https://www.freshworks.com/crm/sales/"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 196,
+                    "start_index": 101,
+                    "title": "Best CRM Software 2026 | Reviews of the Most Popular Tools",
+                    "url": "https://www.capterra.com/crm-software/"
+                  }
+                }
+              ],
+              "content": "Most comparisons start with Freshsales, which keeps contacts, deals and email tracking in one place. Pipedrive is worth a look when the team also needs email sequences and a free tier to start on. All of them sync with Gmail and Outlook, and most add a two-way calendar sync on the second tier. Each offers a two-week trial, so the practical test is importing a real pipeline and checking the automation limits.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "stop"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-e62502c17c53444530e6",
+        "model": "perplexity/sonar",
+        "object": "chat.completion",
+        "provider": "Perplexity",
+        "service_tier": null,
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 103,
+          "cost": 0.005114,
+          "is_byok": false,
+          "prompt_tokens": 11,
+          "total_tokens": 114
+        }
+      }
+    },
+    "source_id": "hubspot-alternatives|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "perplexity",
+        "model": "perplexity/sonar",
+        "query": "crm with built in calling"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "annotations": [
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 198,
+                    "start_index": 105,
+                    "title": "Zoho CRM: Top-rated Sales CRM Software",
+                    "url": "https://www.zoho.com/crm/sales-automation.html"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 198,
+                    "start_index": 105,
+                    "title": "The best CRM software of 2026",
+                    "url": "https://www.techradar.com/best/the-best-crm-software"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 104,
+                    "start_index": 0,
+                    "title": "Freshsales: AI-powered Sales CRM",
+                    "url": "https://www.freshworks.com/crm/sales/"
+                  }
+                }
+              ],
+              "content": "Freshsales tends to lead the shortlist because its per-seat pricing stays predictable as the team grows. Zoho CRM adds an AI assistant that summarises calls and suggests the next step on every deal. Reporting is where the differences show, so it pays to test the dashboards before committing. Entry plans start around fifteen dollars per user per month, with AI features gated to the mid tiers.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "stop"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-aac39f42c62c9903a56f",
+        "model": "perplexity/sonar",
+        "object": "chat.completion",
+        "provider": "Perplexity",
+        "service_tier": null,
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 99,
+          "cost": 0.005111,
+          "is_byok": false,
+          "prompt_tokens": 12,
+          "total_tokens": 111
+        }
+      }
+    },
+    "source_id": "crm-with-built-in-calling|2026-09-04"
+  }
+]

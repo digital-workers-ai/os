@@ -320,6 +320,12 @@ visibility_check:
   gemini.checks._answer: answer
   gemini.checks._sources: sources
   gemini.checks._brand_rank: brand_rank
+  perplexity.checks._engine: engine
+  perplexity.checks._query: query
+  perplexity.checks._checked_at: checked_at
+  perplexity.checks._answer: answer
+  perplexity.checks._sources: sources
+  perplexity.checks._brand_rank: brand_rank
 
 visibility_mention:
   google_serp.searches._mention_engine: engine
@@ -340,6 +346,12 @@ visibility_mention:
   gemini.checks._company: company
   gemini.checks._role: role
   gemini.checks._rank: rank
+  perplexity.checks._mention_engine: engine
+  perplexity.checks._mention_query: query
+  perplexity.checks._mention_checked_at: checked_at
+  perplexity.checks._company: company
+  perplexity.checks._role: role
+  perplexity.checks._rank: rank
 
 competitor_post:
   linkedin_posts.posts._company: company

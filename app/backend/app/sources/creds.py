@@ -152,6 +152,7 @@ _REAL: dict[str, tuple[str, tuple[str, ...], Callable]] = {
         _serpapi_read_by_openrouter,
     ),
     "chatgpt": ("https://openrouter.ai", ("OPENROUTER_API_KEY",), _bearer),
+    "perplexity": ("https://openrouter.ai", ("OPENROUTER_API_KEY",), _bearer),
     "gemini": ("https://openrouter.ai", ("OPENROUTER_API_KEY",), _bearer),
     "linkedin_posts": (
         "https://api.brightdata.com",
@@ -278,6 +279,12 @@ _MOCK: dict[str, tuple[str, dict, tuple | None, dict]] = {
     ),
     "google_ads_transparency": ("/serpapi", {}, None, {"api_key": "mock_serpapi_key"}),
     "chatgpt": (
+        "/openrouter",
+        {"Authorization": "Bearer mock_openrouter_key"},
+        None,
+        {},
+    ),
+    "perplexity": (
         "/openrouter",
         {"Authorization": "Bearer mock_openrouter_key"},
         None,
