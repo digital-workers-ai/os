@@ -1,0 +1,1 @@
+Read voice.md, language.md, pillars.md, audiences.md and proof.md, then wrote the files beside this one. Three claims, each with a line in proof.md. Where the asset carries an image: one paint and one render on the look the ask named.
