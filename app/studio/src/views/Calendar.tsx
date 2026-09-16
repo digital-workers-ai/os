@@ -38,7 +38,7 @@ const option = (active: boolean) =>
 
 const useInvalidate = () => {
   const client = useQueryClient()
-  return () => Promise.all([client.invalidateQueries({ queryKey: ['calendar'] }), client.invalidateQueries({ queryKey: ['today'] })])
+  return () => client.invalidateQueries({ queryKey: ['calendar'] })
 }
 
 function Chip({ slot, time, onPick }: { slot: Slot; time?: boolean; onPick: (slot: Slot) => void }) {
