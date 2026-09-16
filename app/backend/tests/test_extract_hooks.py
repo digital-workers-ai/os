@@ -371,11 +371,15 @@ class TestDiscovery:
             "meta",
             "google_ads",
             "linkedin",
-            "linkedin_posts",
             "google_serp",
+            "chatgpt",
+            "linkedin_posts",
             "twitter",
             "pinterest",
             "intercom",
+            "google_ads_transparency",
+            "perplexity",
+            "claude",
         }
 
     def test_a_package_without_an_extract_module_contributes_no_hook(self, monkeypatch):
