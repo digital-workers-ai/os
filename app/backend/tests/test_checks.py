@@ -598,3 +598,55 @@ class TestSpyIsChecked:
         problems = files.problems()
         assert len(problems) == 1, problems
         assert problems[0].startswith("spy.yaml: ")
+
+
+SPY_METRICS = (
+    "brand_mention_rate",
+    "brand_mentions_by_engine",
+    "checks_by_engine",
+    "mentions_by_company",
+    "brand_google_position",
+    "ai_overview_brand_mentions",
+    "brand_mentions_by_day",
+    "checks_by_day",
+    "competitor_ads",
+    "competitor_ads_by_company",
+    "competitor_posts",
+    "competitor_post_likes",
+)
+SPY_RULE = "brand_absent_from_answer"
+
+
+class TestSpyDefinitionsPassTheBuild:
+    def test_the_spy_metrics_and_rule_ship_and_the_build_names_none_of_them(self):
+        shipped_metrics = yaml.safe_load((DEFINITIONS / "metrics.yaml").read_text())
+        shipped_rules = yaml.safe_load((DEFINITIONS / "rules.yaml").read_text())
+        assert set(SPY_METRICS) <= set(shipped_metrics)
+        assert SPY_RULE in shipped_rules
+        named = [
+            p
+            for p in checks.run()
+            if any(f"{name!r}" in p for name in (*SPY_METRICS, SPY_RULE))
+        ]
+        assert named == [], named
+
+    def test_the_mention_rate_windows_on_the_check_not_the_mention(self, files):
+        files.edit(
+            "metrics.yaml",
+            lambda d: d["brand_mention_rate"].update({"window_attr": "rank"}),
+        )
+        problems = files.problems()
+        assert any(
+            "window_attr 'rank' is not an attr of visibility_check" in p
+            for p in problems
+        ), problems
+
+    def test_the_brand_absent_rule_reads_the_clock_off_a_date(self, files):
+        files.edit(
+            "rules.yaml",
+            lambda d: d[SPY_RULE]["all"].append({"attr": "answer", "within_days": 7}),
+        )
+        problems = files.problems()
+        assert any("within_days on visibility_check.answer" in p for p in problems), (
+            problems
+        )

@@ -410,3 +410,168 @@ class TestProvenanceOverDimensions:
             {"entity": "deal", "expression": "COUNT(entity)", "group_by": "status"}
         )
         assert "deal.status" in lineage["attrs"]
+
+
+SPY_SHAPES = {
+    "brand_mention_rate": (
+        "visibility_check",
+        (
+            ("visibility_mention", "COUNT", "entity", {"role": "brand"}),
+            ("visibility_check", "COUNT", "entity", {}),
+        ),
+        "/",
+        None,
+        None,
+        "checked_at",
+    ),
+    "brand_mentions_by_engine": (
+        "visibility_mention",
+        ((None, "COUNT", "entity", {"role": "brand"}),),
+        None,
+        "engine",
+        None,
+        "checked_at",
+    ),
+    "checks_by_engine": (
+        "visibility_check",
+        ((None, "COUNT", "entity", None),),
+        None,
+        "engine",
+        None,
+        "checked_at",
+    ),
+    "mentions_by_company": (
+        "visibility_mention",
+        ((None, "COUNT", "entity", None),),
+        None,
+        "company",
+        None,
+        "checked_at",
+    ),
+    "brand_google_position": (
+        "visibility_check",
+        ((None, "AVG", "brand_rank", {"engine": "google"}),),
+        None,
+        None,
+        None,
+        "checked_at",
+    ),
+    "ai_overview_brand_mentions": (
+        "visibility_mention",
+        ((None, "COUNT", "entity", {"role": "brand", "engine": "ai_overview"}),),
+        None,
+        None,
+        None,
+        "checked_at",
+    ),
+    "brand_mentions_by_day": (
+        "visibility_mention",
+        ((None, "COUNT", "entity", {"role": "brand"}),),
+        None,
+        "checked_at",
+        "day",
+        "checked_at",
+    ),
+    "checks_by_day": (
+        "visibility_check",
+        ((None, "COUNT", "entity", None),),
+        None,
+        "checked_at",
+        "day",
+        "checked_at",
+    ),
+    "competitor_ads": (
+        "ad",
+        ((None, "COUNT", "entity", None),),
+        None,
+        None,
+        None,
+        "last_seen",
+    ),
+    "competitor_ads_by_company": (
+        "ad",
+        ((None, "COUNT", "entity", None),),
+        None,
+        "company",
+        None,
+        "last_seen",
+    ),
+    "competitor_posts": (
+        "competitor_post",
+        ((None, "COUNT", "entity", None),),
+        None,
+        None,
+        None,
+        "posted_at",
+    ),
+    "competitor_post_likes": (
+        "competitor_post",
+        ((None, "SUM", "likes", None),),
+        None,
+        None,
+        None,
+        "posted_at",
+    ),
+}
+
+
+def _shape(name):
+    spec = metrics.load_definitions()[name]
+    parsed = metrics.parse_spec(spec)
+    return (
+        spec["entity"],
+        tuple(
+            (term.get("entity"), term["agg"], term["operand"], term["filter"])
+            for term in parsed["terms"]
+        ),
+        parsed["op"],
+        parsed["group_by"],
+        parsed["grain"],
+        parsed["range_attr"],
+    )
+
+
+class TestSpyMetricsShip:
+    @pytest.mark.parametrize("name", sorted(SPY_SHAPES))
+    def test_each_spy_metric_ships_with_its_shape(self, name):
+        assert _shape(name) == SPY_SHAPES[name]
+
+    @pytest.mark.parametrize("name", sorted(SPY_SHAPES))
+    def test_each_spy_metric_is_glossed(self, name):
+        spec = metrics.load_definitions()[name]
+        assert spec["label"]
+        assert spec["description"].endswith(".")
+
+    @pytest.mark.parametrize("name", sorted(SPY_SHAPES))
+    def test_each_spy_metric_has_raw_fields_to_show(self, name):
+        lineage = metrics.provenance(metrics.load_definitions(), mappings.load())
+        assert lineage[name]["raw_fields"], name
+
+    def test_share_of_voice_finds_the_mentions_by_company(self):
+        spec = metrics.load_definitions()["mentions_by_company"]
+        assert "share of voice" in spec["synonyms"]
+
+    async def test_the_mention_rate_ranges_both_sides_of_the_ratio(
+        self, session, canonical
+    ):
+        from app import clock
+
+        for checked_at in ("2026-09-03", "2026-08-01"):
+            await canonical(
+                "visibility_check", {"engine": "google", "checked_at": checked_at}
+            )
+            await canonical(
+                "visibility_mention", {"role": "brand", "checked_at": checked_at}
+            )
+        await canonical(
+            "visibility_mention", {"role": "competitor", "checked_at": "2026-09-03"}
+        )
+        result = await metrics.evaluate_one(
+            session,
+            "brand_mention_rate",
+            metrics.load_definitions()["brand_mention_rate"],
+            now=clock.now(),
+            bounds=("2026-09-01", "2026-09-04"),
+        )
+        assert result["value"] == 1.0
+        assert result["window_attr"] == "checked_at"
