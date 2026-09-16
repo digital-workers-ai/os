@@ -710,7 +710,7 @@ class TestEverySourceWithRealCredentialsStillHasAStandIn:
     def test_each_real_entry_names_a_mock_entry(self):
         assert set(creds._REAL) <= set(creds._MOCK)
 
-    def test_the_twelve_configured_sources_are_the_ones_the_environment_names(self):
+    def test_the_nineteen_configured_sources_are_the_ones_the_environment_names(self):
         assert set(creds._REAL) == {
             "hubspot",
             "stripe",
@@ -726,6 +726,11 @@ class TestEverySourceWithRealCredentialsStillHasAStandIn:
             "twitter",
             "google_ads_transparency",
             "chatgpt",
+            "perplexity",
+            "gemini",
+            "linkedin_posts",
+            "google_serp",
+            "claude",
         }
 
 
