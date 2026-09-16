@@ -201,7 +201,8 @@ class TestStudioTools:
         async def asset_rows(session, assets):
             return [{"seq": a.seq, "name": a.name, "kind": a.kind} for a in assets]
 
-        def file_row(file):
+        def file_row(asset_seq, version, file):
+            assert (asset_seq, version) == (file.asset_seq, file.version)
             return {"path": file.path, "bytes": file.bytes, "url": _file_url(file)}
 
         monkeypatch.setattr(mcp.runner, "open_run", open_run)
@@ -290,7 +291,7 @@ class TestStudioTools:
     ):
         async def detail(session, seq):
             if seq == 9:
-                raise mcp.assets.Missing("no asset 9")
+                raise mcp.Missing("no asset 9")
             return {"seq": seq, "versions": []}
 
         monkeypatch.setattr(mcp.assets, "detail", detail)
