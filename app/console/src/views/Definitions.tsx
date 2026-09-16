@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { get } from '@/api'
 import { ALL } from '@/components/Filter'
 import { SectionCard } from '@/components/SectionCard'
+import { Section } from '@/components/SectionHeading'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Loading } from '@/components/ui/loading'
 import { Mono } from '@/components/ui/mono'
@@ -181,6 +182,26 @@ interface DashboardPage {
 
 interface Dashboards {
   dashboards: Record<string, DashboardPage>
+}
+
+interface TrackedCompany {
+  name: string
+  domain: string
+  aliases: string[]
+}
+
+interface Competitor extends TrackedCompany {
+  linkedin: string | null
+  google_advertiser_id: string | null
+}
+
+interface Spy {
+  brand: TrackedCompany
+  competitors: Competitor[]
+  queries: string[]
+  country: string
+  language: string
+  engines: string[]
 }
 
 const keyCol = 'font-medium text-ink'
@@ -812,6 +833,84 @@ function DashboardsTab({ d }: { d: Dashboards }) {
   )
 }
 
+const chips = (values: string[]) =>
+  values.length > 0 ? (
+    <span className="flex flex-wrap gap-1">
+      {values.map((v) => (
+        <Chip key={v}>{v}</Chip>
+      ))}
+    </span>
+  ) : (
+    '—'
+  )
+
+function SpyTab({ s }: { s: Spy }) {
+  return (
+    <SectionCard className={FILL} bodyClassName={BODY} testId="definitions-spy">
+      <Section title="Brand" testId="definitions-spy-brand">
+        <div className="flex flex-wrap items-center gap-1.5 text-sm text-muted">
+          <Mono className={keyCol}>{s.brand.name}</Mono>
+          <span>{s.brand.domain}</span>
+          {s.brand.aliases.map((a) => (
+            <Chip key={a}>{a}</Chip>
+          ))}
+          <Chip>
+            country <strong>{s.country}</strong>
+          </Chip>
+          <Chip>
+            language <strong>{s.language}</strong>
+          </Chip>
+        </div>
+      </Section>
+      <Section title="Competitors">
+        <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="definitions-spy-competitors">
+          <TableHeader className={STICKY_HEAD}>
+            <TableRow>
+              <TableHead className="w-40" hint="A company tracked beside the brand, by its display name">Competitor ({num(s.competitors.length)})</TableHead>
+              <TableHead className="w-40" hint="The website a result or citation is matched on">Domain</TableHead>
+              <TableHead hint="Other names an answer may use for the company">Aliases</TableHead>
+              <TableHead className="w-40" hint="The company page whose posts are tracked">LinkedIn</TableHead>
+              <TableHead className="w-56" hint="The Ads Transparency advertiser whose creatives are tracked">Google advertiser</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {s.competitors.map((c) => (
+              <TableRow key={c.domain}>
+                <TableCell className={cn(keyCol, 'align-top')}>
+                  <Mono>{c.name}</Mono>
+                </TableCell>
+                <TableCell className="align-top">
+                  <Mono>{c.domain}</Mono>
+                </TableCell>
+                <TableCell className="align-top">{chips(c.aliases)}</TableCell>
+                <TableCell className="align-top">{c.linkedin ? <Mono>{c.linkedin}</Mono> : '—'}</TableCell>
+                <TableCell className="align-top">{c.google_advertiser_id ? <Mono>{c.google_advertiser_id}</Mono> : '—'}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Section>
+      <Section
+        title={`Queries (${num(s.queries.length)})`}
+        right={
+          <span className="flex flex-wrap gap-1">
+            {s.engines.map((e) => (
+              <Chip key={e}>{e}</Chip>
+            ))}
+          </span>
+        }
+        testId="definitions-spy-queries"
+      >
+        <ol className="list-decimal space-y-1 pl-5 text-sm text-ink">
+          {s.queries.map((q) => (
+            <li key={q}>{q}</li>
+          ))}
+        </ol>
+      </Section>
+    </SectionCard>
+  )
+}
+
 export function Definitions() {
   const ontology = useLoad(() => get<Ontology>('/api/definitions/ontology'), [])
   const mappings = useLoad(() => get<Mappings>('/api/definitions/mappings'), [])
@@ -822,6 +921,7 @@ export function Definitions() {
   const goals = useLoad(() => get<Goals>('/api/definitions/goals'), [])
   const vocabulary = useLoad(() => get<Vocabulary>('/api/enrichment/vocabulary'), [])
   const dashboards = useLoad(() => get<Dashboards>('/api/definitions/dashboards'), [])
+  const spy = useLoad(() => get<Spy>('/api/definitions/spy'), [])
   const [tab, setTab] = useTab(DEFINITIONS_ROUTE)
 
   return (
@@ -854,6 +954,9 @@ export function Definitions() {
         <TabsTrigger value="dashboards" data-testid="tab-dashboards">
           Dashboards
         </TabsTrigger>
+        <TabsTrigger value="spy" data-testid="tab-spy">
+          Spy
+        </TabsTrigger>
       </TabsList>
       <TabsContent value="ontology" className={TAB_FILL} data-testid="tabpanel-ontology">
         <Loaded got={ontology}>{(o) => <OntologyTab o={o} />}</Loaded>
@@ -881,6 +984,9 @@ export function Definitions() {
       </TabsContent>
       <TabsContent value="dashboards" className={TAB_FILL} data-testid="tabpanel-dashboards">
         <Loaded got={dashboards}>{(d) => <DashboardsTab d={d} />}</Loaded>
+      </TabsContent>
+      <TabsContent value="spy" className={TAB_FILL} data-testid="tabpanel-spy">
+        <Loaded got={spy}>{(s) => <SpyTab s={s} />}</Loaded>
       </TabsContent>
     </Tabs>
   )
