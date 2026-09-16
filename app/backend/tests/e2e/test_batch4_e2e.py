@@ -165,5 +165,5 @@ async def test_the_sources_endpoint_reflects_the_finished_sync(
     assert synced["failed"] == 0, synced
 
     rows = (await api.get("/api/sources")).json()["sources"]
-    assert len(rows) == 27
+    assert len(rows) == len(SOURCES)
     assert all(row["last_attempt"] is not None for row in rows), rows
