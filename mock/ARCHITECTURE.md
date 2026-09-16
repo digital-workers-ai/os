@@ -188,6 +188,7 @@ The server mounts each provider's router with a prefix that absorbs the API vers
 | 28 | Zendesk | `/zendesk/api/v2` | Bearer or Basic Auth | `28-zendesk.md` |
 | 29 | Zoom | `/zoom` | Bearer | — |
 | 30 | OpenRouter | `/openrouter` | Bearer | `30-openrouter.md` |
+| 31 | Anthropic | `/anthropic` | `x-api-key` + `anthropic-version` | `31-anthropic.md` |
 
 28 numbered contracts plus Zoom, 27 modules — Meta Ads, FB Organic, and IG Organic share one module (`meta.py`) because they share the Graph API. Route conflicts (e.g., `/{id}/insights` matching ads, pages, and IG accounts) are resolved by dispatching on ID prefix (`act_`, `page_`, `ig_`).
 

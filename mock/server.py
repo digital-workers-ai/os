@@ -11,6 +11,7 @@ from seeds.providers import (
     zoom,
 )
 from seeds.providers import openrouter
+from seeds.providers import anthropic
 
 app = FastAPI(title="OS Mock Providers")
 
@@ -43,6 +44,7 @@ routers = {
     "/zendesk/api/v2": zendesk,
     "/zoom": zoom,
     "/openrouter": openrouter,
+    "/anthropic": anthropic,
 }
 
 for prefix, mod in routers.items():
