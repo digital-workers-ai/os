@@ -97,7 +97,7 @@ compose exec -T backend ruff format --check app tests tools alembic
 echo "==> $mode suite"
 
 if [ "$mode" = "e2e" ]; then
-  compose exec -T backend python -u -m pytest "${pytest_args[@]}" \
+  compose exec -T -e STAND_INS_ONLY=true backend python -u -m pytest "${pytest_args[@]}" \
     -v --tb=short "$@"
 else
   compose exec -T backend python -u -m pytest "${pytest_args[@]}" \
