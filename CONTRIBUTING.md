@@ -27,7 +27,7 @@ The example env is empty and that runs: every knob has a default. The compose pr
 
 ## Rules
 
-**No comments.** No `#` comments, no docstrings, no YAML, shell or TOML comments. Code explains itself through naming and structure; commit messages and PR descriptions carry the rationale. The one exception is the DB schema in `app/backend/app/models.py`: every column gets a trailing comment, five words at most plus two or three example values.
+**No comments.** No `#` comments, no docstrings, no YAML, shell or TOML comments. Code explains itself through naming and structure; commit messages and PR descriptions carry the rationale. There are two exceptions, the DB schema in `app/backend/app/models.py` and the validation patterns in `app/backend/app/engine/spy.py`: every column and every pattern gets a trailing comment, five words at most plus two or three example values. Both files are listed in `[tool.ruff.format] exclude` in `app/backend/pyproject.toml`, because the comment carries the line past 88 characters and the formatter would split the declaration underneath it to fit — a file that carries this style is not auto-formatted, and `./format.sh` leaves it alone.
 
 **Minimalism.** Ship only what the change needs: no speculative fields, flags, endpoints or config. Anything aspirational, an invariant not yet enforced or a knob nothing reads, waits for the PR that enforces or reads it.
 

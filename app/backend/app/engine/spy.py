@@ -12,14 +12,14 @@ TOP_KEYS = frozenset({"brand", "competitors", "queries", "country", "language"})
 BRAND_KEYS = frozenset({"name", "domain", "aliases"})
 COMPETITOR_KEYS = BRAND_KEYS | {"linkedin", "google_advertiser_id"}
 
-_DOMAIN_RE = re.compile(r"^[a-z0-9-]+(\.[a-z0-9-]+)+$")
-_LINKEDIN_RE = re.compile(r"^[a-z0-9-]+$")
-_ADVERTISER_RE = re.compile(r"^AR\d+$")
-_COUNTRY_RE = re.compile(r"^[A-Z]{2}$")
-_LANGUAGE_RE = re.compile(r"^[a-z]{2}$")
-_CODED_KEYS = (("linkedin", _LINKEDIN_RE), ("google_advertiser_id", _ADVERTISER_RE))
-_SLUG_RE = re.compile(r"[^a-z0-9]+")
-_HOST_RE = re.compile(r"^(?:[a-z][a-z0-9+.-]*://)?(?:www\.)?([^/:?#]*)")
+_DOMAIN_RE = re.compile(r"^[a-z0-9-]+(\.[a-z0-9-]+)+$")  # lowercase host, no scheme: acme.io, crm.zoho.com
+_LINKEDIN_RE = re.compile(r"^[a-z0-9-]+$")  # company page slug: hubspot, freshworks-inc
+_ADVERTISER_RE = re.compile(r"^AR\d+$")  # google advertiser id: AR10072600…, AR07034216…
+_COUNTRY_RE = re.compile(r"^[A-Z]{2}$")  # two-letter country code: US, GB
+_LANGUAGE_RE = re.compile(r"^[a-z]{2}$")  # two-letter language code: en, es
+_CODED_KEYS = (("linkedin", _LINKEDIN_RE), ("google_advertiser_id", _ADVERTISER_RE))  # optional keys, refused when malformed
+_SLUG_RE = re.compile(r"[^a-z0-9]+")  # non-alphanumeric runs become dashes: best crm → best-crm
+_HOST_RE = re.compile(r"^(?:[a-z][a-z0-9+.-]*://)?(?:www\.)?([^/:?#]*)")  # host only, www dropped: zoho.com, crm.zoho.com
 
 
 class SpyError(ValueError):
