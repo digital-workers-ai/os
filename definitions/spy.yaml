@@ -1,0 +1,28 @@
+brand:
+  name: Pipedrive
+  domain: pipedrive.com
+  aliases: []
+competitors:
+  - name: HubSpot
+    domain: hubspot.com
+    aliases: [HubSpot CRM]
+    linkedin: hubspot
+  - name: Zoho CRM
+    domain: zoho.com
+    aliases: [Zoho]
+    linkedin: zoho
+  - name: Freshsales
+    domain: freshworks.com
+    aliases: [Freshworks, Freshworks CRM]
+    linkedin: freshworks-inc
+queries:
+  - best crm for small business
+  - crm with ai assistant
+  - pipeline management software
+  - sales crm for startups
+  - crm with email automation
+  - affordable crm for sales teams
+  - hubspot alternatives
+  - crm with built in calling
+country: US
+language: en

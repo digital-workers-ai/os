@@ -20,6 +20,7 @@ ALL_FILES = (
     "goals.yaml",
     "enrichment.yaml",
     "dashboards.yaml",
+    "spy.yaml",
 )
 OPTIONAL_FILES = ("derived.yaml",)
 
@@ -50,6 +51,7 @@ def files(tmp_path):
                 "rules_path": tmp_path / "rules.yaml",
                 "goals_path": tmp_path / "goals.yaml",
                 "dashboards_path": tmp_path / "dashboards.yaml",
+                "spy_path": tmp_path / "spy.yaml",
             }
             if "derived.yaml" in optional:
                 kwargs["derived_path"] = tmp_path / "derived.yaml"
@@ -567,3 +569,32 @@ class TestDashboardsAreChecked:
         problems = files.problems()
         assert len(problems) == 1, problems
         assert "dashboards.yaml" in problems[0]
+
+
+class TestSpyIsChecked:
+    def test_an_alias_repeating_the_brands_name(self, files):
+        files.edit(
+            "spy.yaml",
+            lambda d: d["competitors"][0]["aliases"].append("pipedrive"),
+        )
+        problems = files.problems()
+        assert any(
+            p.startswith("spy.yaml:") and "'pipedrive'" in p for p in problems
+        ), problems
+
+    def test_a_missing_brand(self, files):
+        files.edit("spy.yaml", lambda d: d.pop("brand"))
+        problems = files.problems()
+        assert any(p.startswith("spy.yaml: brand") for p in problems), problems
+
+    def test_a_spy_file_that_is_not_a_mapping_is_one_problem(self, files):
+        (files.root / "spy.yaml").write_text("- a\n")
+        problems = files.problems()
+        assert len(problems) == 1, problems
+        assert "spy.yaml" in problems[0]
+
+    def test_a_spy_file_that_is_not_yaml_is_one_problem(self, files):
+        (files.root / "spy.yaml").write_text("brand: [\n")
+        problems = files.problems()
+        assert len(problems) == 1, problems
+        assert problems[0].startswith("spy.yaml: ")

@@ -582,3 +582,47 @@ class TestPublicTruncate:
             SourceClient("salesforce", "http://api").truncate("stopped early")
         assert stats.truncated is True
         assert "stopped early" in stats.truncation_reasons
+
+
+class TestPostParams:
+    async def test_request_params_ride_over_the_defaults(self, transport):
+        seen = {}
+
+        def handler(request):
+            seen.update(request.url.params)
+            return json_page({"ok": True})
+
+        transport(handler)
+        source_client = SourceClient(
+            "meta", "http://api", params={"access_token": "T", "format": "csv"}
+        )
+        await source_client.post(
+            "/search", json={"q": "x"}, params={"format": "json", "limit": "5"}
+        )
+        assert seen == {"access_token": "T", "format": "json", "limit": "5"}
+
+    async def test_a_post_may_carry_params_and_no_body(self, transport):
+        seen = {}
+
+        def handler(request):
+            seen["params"] = dict(request.url.params)
+            seen["body"] = request.content
+            return json_page({"ok": True})
+
+        transport(handler)
+        await SourceClient("brightdata", "http://api").post(
+            "/datasets/v3/trigger", params={"dataset_id": "gd_1"}
+        )
+        assert seen == {"params": {"dataset_id": "gd_1"}, "body": b""}
+
+
+class TestWait:
+    async def test_wait_sleeps_through_the_module_clock(self, monkeypatch):
+        slept = []
+
+        async def record(seconds):
+            slept.append(seconds)
+
+        monkeypatch.setattr(client, "_sleep", record)
+        await SourceClient("brightdata", "http://api").wait(10)
+        assert slept == [10]

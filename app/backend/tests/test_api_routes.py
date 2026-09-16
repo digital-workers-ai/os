@@ -16,7 +16,16 @@ from app.api import (
     sources_api,
 )
 from app.db import get_session
-from app.engine import dashboards, goals, mappings, metrics, ontology, rules, run
+from app.engine import (
+    dashboards,
+    goals,
+    mappings,
+    metrics,
+    ontology,
+    rules,
+    run,
+    spy,
+)
 from app.engine.transforms import TRANSFORM_TYPES, TRANSFORMS
 from app.main import app
 from app.models import (
@@ -2190,6 +2199,41 @@ class TestDefinitions:
         body = (await api.get("/api/definitions/dashboards")).json()
         assert body["dashboards"]["social"]["parent"] is None
         assert body["dashboards"]["facebook"]["parent"] == "social"
+
+    async def test_the_spy_definition_is_served_with_its_engines(self, api):
+        response = await api.get("/api/definitions/spy")
+        assert response.status_code == 200, response.text
+        body = response.json()
+        tracked = spy.definition()
+        assert set(body) == {
+            "brand",
+            "competitors",
+            "queries",
+            "country",
+            "language",
+            "engines",
+        }
+        assert body["brand"] == {
+            "name": "Pipedrive",
+            "domain": "pipedrive.com",
+            "aliases": [],
+        }
+        assert [c["name"] for c in body["competitors"]] == [
+            c.name for c in tracked.competitors
+        ]
+        hubspot = body["competitors"][0]
+        assert hubspot == {
+            "name": "HubSpot",
+            "domain": "hubspot.com",
+            "aliases": ["HubSpot CRM"],
+            "linkedin": "hubspot",
+            "google_advertiser_id": tracked.competitors[0].google_advertiser_id,
+        }
+        assert body["queries"] == list(tracked.queries)
+        assert len(body["queries"]) == 8
+        assert body["country"] == "US"
+        assert body["language"] == "en"
+        assert body["engines"] == list(spy.ENGINES)
 
     async def test_there_is_no_checks_endpoint(self, api):
         assert (await api.get("/api/definitions/checks")).status_code == 404
