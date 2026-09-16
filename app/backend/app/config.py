@@ -53,7 +53,7 @@ class Settings(BaseSettings):
     STUDIO_MODEL: str = "claude-opus-5"
     STUDIO_MAX_TOKENS: int = 8000
     STUDIO_MAX_TURNS: int = 16
-    PAINT_MODEL: str = "gpt-image-1"
+    PAINT_MODEL: str = "gpt-image-2"
     MEDIA_DIR: str = "/media"
     RENDER_URL: str = "http://localhost:8200"
     MARKETER_DAILY: bool = False
