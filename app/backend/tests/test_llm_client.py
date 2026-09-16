@@ -1,10 +1,15 @@
+import base64
 import importlib
+from types import SimpleNamespace
 
 import anthropic
 import httpx
+import openai
 import pytest
 
 from app import config, llm
+
+PNG = b"\x89PNG\r\n\x1a\nfake"
 
 
 def api_error(message="boom"):
@@ -251,6 +256,86 @@ class TestConverse:
                 tools=[],
                 client_override=client,
             )
+
+
+class FakePaintApi:
+    def __init__(self, data=None, raises=None):
+        self.data, self.raises = data, raises
+        self.calls: list = []
+        self.images = self
+
+    async def generate(self, **kwargs):
+        self.calls.append(kwargs)
+        if self.raises:
+            raise self.raises
+        return SimpleNamespace(data=self.data)
+
+
+def painted(png=PNG):
+    return [SimpleNamespace(b64_json=base64.b64encode(png).decode())]
+
+
+class TestPaint:
+    @pytest.fixture
+    def paint(self):
+        return importlib.import_module("app.llm.paint")
+
+    async def test_the_picture_is_decoded_from_the_first_result(self, paint):
+        api = FakePaintApi(painted())
+        picture = await paint.paint("a harbour", "1024x1024", client_override=api)
+        assert picture == PNG
+
+    async def test_the_configured_model_the_prompt_and_the_size_are_sent(self, paint):
+        api = FakePaintApi(painted())
+        await paint.paint("a quiet harbour", "1024x1280", client_override=api)
+        assert api.calls == [
+            {
+                "model": config.settings.PAINT_MODEL,
+                "prompt": "a quiet harbour",
+                "size": "1024x1280",
+                "n": 1,
+            }
+        ]
+
+    async def test_an_explicit_model_wins(self, paint):
+        api = FakePaintApi(painted())
+        await paint.paint("a harbour", "1024x1024", model="other", client_override=api)
+        assert api.calls[0]["model"] == "other"
+
+    @pytest.mark.parametrize("data", [None, [], [SimpleNamespace(b64_json=None)]])
+    async def test_an_answer_with_no_picture_is_an_llm_error(self, paint, data):
+        api = FakePaintApi(data)
+        with pytest.raises(paint.LLMError, match="no picture"):
+            await paint.paint("a harbour", "1024x1024", client_override=api)
+
+    async def test_a_vendor_failure_is_an_llm_error_naming_its_cause(self, paint):
+        api = FakePaintApi(raises=openai.OpenAIError("quota"))
+        with pytest.raises(paint.LLMError) as caught:
+            await paint.paint("a harbour", "1024x1024", client_override=api)
+        assert "OpenAIError" in str(caught.value)
+        assert "quota" in str(caught.value)
+
+    def test_the_client_is_built_once_and_reused(self, paint, monkeypatch):
+        built = []
+
+        class Fake:
+            def __init__(self):
+                built.append(self)
+
+        monkeypatch.setattr(openai, "AsyncOpenAI", Fake)
+        paint.reset()
+        first, second = paint.client(), paint.client()
+        assert first is second
+        assert len(built) == 1
+        paint.reset()
+
+    def test_reset_drops_the_cached_client(self, paint, monkeypatch):
+        monkeypatch.setattr(openai, "AsyncOpenAI", lambda: object())
+        paint.reset()
+        first = paint.client()
+        paint.reset()
+        assert paint.client() is not first
+        paint.reset()
 
 
 class TestStartupRefusesAMisconfiguredDeploy:

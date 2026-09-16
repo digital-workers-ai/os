@@ -256,7 +256,13 @@ class TestDeletesCascade:
                 )
             )
             session.add(
-                AssetEvidence(asset_seq=seq, version=1, kind="proof", ref="mrr")
+                AssetEvidence(
+                    asset_seq=seq,
+                    version=1,
+                    kind="proof",
+                    ref="mrr",
+                    detail="the figure it quotes",
+                )
             )
         await session.flush()
 

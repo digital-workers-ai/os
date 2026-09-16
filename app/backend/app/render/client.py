@@ -1,10 +1,10 @@
-import base64
 import os
 
 import httpx
-import openai
 
 from app.config import settings
+from app.llm import LLMError
+from app.llm.paint import paint
 
 SIZES = {
     "1:1": "1024x1024",
@@ -41,14 +41,6 @@ class Render:
         return response.content
 
 
-def _painter_client():
-    if not os.environ.get(KEY_ENV):
-        raise RenderError(
-            f"{KEY_ENV} is not set, and image.paint calls the painter with it"
-        )
-    return openai.AsyncOpenAI()
-
-
 class Painter:
     def __init__(self, client=None):
         self.client = client
@@ -56,14 +48,11 @@ class Painter:
     async def picture(self, prompt: str, ratio: str) -> bytes:
         if ratio not in SIZES:
             raise RenderError(f"ratio {ratio!r} is not one of {list(SIZES)}")
-        client = self.client or _painter_client()
-        try:
-            response = await client.images.generate(
-                model=settings.PAINT_MODEL, prompt=prompt, size=SIZES[ratio], n=1
+        if self.client is None and not os.environ.get(KEY_ENV):
+            raise RenderError(
+                f"{KEY_ENV} is not set, and image.paint calls the painter with it"
             )
-        except openai.OpenAIError as exc:
-            raise RenderError(f"painter: {type(exc).__name__}: {exc}") from exc
-        data = response.data or []
-        if not data or not data[0].b64_json:
-            raise RenderError("the painter answered with no picture")
-        return base64.b64decode(data[0].b64_json)
+        try:
+            return await paint(prompt, SIZES[ratio], client_override=self.client)
+        except LLMError as exc:
+            raise RenderError(f"painter: {exc}") from exc

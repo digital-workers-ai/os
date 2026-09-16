@@ -6,7 +6,7 @@ import openai
 import pytest
 
 from app.config import settings
-from app.render import client as render_client
+from app.llm import paint as llm_paint
 from app.render import image
 from app.render.client import SIZES, Painter, Render, RenderError
 
@@ -129,10 +129,12 @@ class TestPainter:
         with pytest.raises(RenderError, match="OPENAI_API_KEY"):
             await Painter().picture("a harbour", "1:1")
 
-    async def test_the_real_client_is_built_only_with_a_key(self, monkeypatch):
+    async def test_with_a_key_and_no_client_the_llm_module_supplies_one(
+        self, monkeypatch
+    ):
         monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
         paint = FakePaint(_painted())
-        monkeypatch.setattr(render_client.openai, "AsyncOpenAI", lambda: paint)
+        monkeypatch.setattr(llm_paint, "client", lambda: paint)
         assert await Painter().picture("a harbour", "1:1") == PNG
 
 
