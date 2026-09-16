@@ -324,7 +324,15 @@ class TestRunSlot:
 class TestCanvas:
     async def test_lists_nodes_in_the_range_and_kind(self, api, session):
         for kind in ("post", "blog"):
-            session.add(Asset(name=kind, kind=kind, skill=f"dw-{kind}", origin="chat"))
+            session.add(
+                Asset(
+                    name=kind,
+                    kind=kind,
+                    skill=f"dw-{kind}",
+                    origin="chat",
+                    created_at=NOW,
+                )
+            )
         await session.flush()
         body = (await api.get("/api/studio/canvas")).json()
         assert [node["kind"] for node in body["nodes"]] == ["blog", "post"]
