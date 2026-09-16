@@ -11,19 +11,19 @@ curl -X POST localhost:8092/api/sync
 curl -X POST localhost:8092/api/rebuild
 ```
 
-The example env is empty and that runs: every knob has a default. The compose project is `os`: postgres on :5442, the mock providers on :8192, the backend on :8092, the console on :3092. The Configuration section of `README.md` lists every variable.
+The example env is empty and that runs: every knob has a default. The compose project is `os`: postgres on :5442, the mock providers on :8192, the backend on :8092, the console on :3092, the dashboard on :3093, Spy on :3094. The Configuration section of `README.md` lists every variable.
 
 ## The gate
 
 ```
 ./test.sh unit           ruff check + ruff format --check, then pytest at 100% line and branch coverage
 ./test.sh e2e            the e2e-marked suite against the live mock providers
-./test.sh snap           Playwright screenshots of every console page against the committed baselines
+./test.sh snap           Playwright screenshots of every console, dashboard and Spy page against the committed baselines
 ./test.sh snap-update    accept new baselines
 ./format.sh              apply what ruff can fix
 ```
 
-`unit` runs inside the backend container and starts the stack when it is down. `snap` builds a fresh stack under its own compose project: run it alone, never overlapping the unit suite, whenever anything under `app/console/` changes, and ship the updated baselines in the same PR. Nothing is committed on red.
+`unit` runs inside the backend container and starts the stack when it is down. `snap` builds a fresh stack under its own compose project and covers `app/console/`, `app/dashboard/` and `app/spy/`: run it alone, never overlapping the unit suite, whenever anything under those three changes, and ship the updated baselines in the same PR. Nothing is committed on red.
 
 ## Rules
 
