@@ -7,6 +7,7 @@ from sqlalchemy import (
     CheckConstraint,
     Column,
     Computed,
+    Date,
     DateTime,
     Float,
     ForeignKey,
@@ -412,3 +413,167 @@ class EmbeddingRun(Base):
     truncated_at_cap = Column(Boolean, nullable=False, server_default=text("false"))  # stopped at call cap: true, false
     duration_ms = Column(Integer, nullable=False, server_default=text("0"))  # run wall time: 12, 3400
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # run timestamp: server now(), 2026-09-04T12:00:00Z
+
+
+class Asset(Base):
+    __tablename__ = "asset"
+
+    seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic asset counter: 1, 2, 3
+    name = Column(String(256), nullable=False)  # first line of the ask: "Three numbers from the quarter", "Why churn fell"
+    kind = Column(String(16), nullable=False)  # what was made: post, newsletter, carousel
+    skill = Column(String(64), nullable=False)  # skill that made it: dw-post, dw-newsletter
+    look = Column(String(64))  # image look, null for text: stat-card, carousel, null
+    ratio = Column(String(8))  # image ratio, null for text: 1:1, 4:5, null
+    origin = Column(String(16), nullable=False)  # who asked for it: chat, marketer, mcp
+    slot_date = Column(Date)  # calendar day it fills: 2026-09-04, null
+    slot_name = Column(String(64))  # calendar slot it fills: linkedin_post, null
+    feedback = Column(Text)  # a person's note on it: "Shorter next time", null
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: app clock, 2026-09-04T12:00:00Z
+
+    __table_args__ = (
+        Index("ix_asset_kind_seq", "kind", text("seq DESC")),
+        Index("ix_asset_slot", "slot_date", "slot_name"),
+    )
+
+
+class AssetVersion(Base):
+    __tablename__ = "asset_version"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # row identity, random UUID: 6f1c…, 9b2d…
+    asset_seq = Column(BigInteger, ForeignKey("asset.seq", ondelete="CASCADE"), nullable=False)  # owning asset: 1, 42
+    version = Column(Integer, nullable=False)  # version number, from one: 1, 2, 3
+    note = Column(Text, nullable=False)  # the ask or the edit: "Make it shorter", "Remake this at 9:16"
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: app clock, 2026-09-04T12:00:00Z
+
+    __table_args__ = (
+        UniqueConstraint("asset_seq", "version", name="asset_version_number"),
+    )
+
+
+class AssetFile(Base):
+    __tablename__ = "asset_file"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # row identity, random UUID: 6f1c…, 9b2d…
+    asset_seq = Column(BigInteger, ForeignKey("asset.seq", ondelete="CASCADE"), nullable=False)  # owning asset: 1, 42
+    version = Column(Integer, nullable=False)  # version it belongs to: 1, 2
+    path = Column(String(512), nullable=False)  # path under the version: post.md, slides/slide-01.png
+    media_type = Column(String(128), nullable=False)  # what the bytes are: text/markdown, image/png
+    bytes = Column(Integer, nullable=False)  # file size: 1200, 348211
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: app clock, 2026-09-04T12:00:00Z
+
+    __table_args__ = (
+        UniqueConstraint("asset_seq", "version", "path", name="asset_file_path"),
+    )
+
+
+class AssetClaim(Base):
+    __tablename__ = "asset_claim"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # row identity, random UUID: 6f1c…, 9b2d…
+    asset_seq = Column(BigInteger, ForeignKey("asset.seq", ondelete="CASCADE"), nullable=False)  # owning asset: 1, 42
+    version = Column(Integer, nullable=False)  # version it belongs to: 1, 2
+    text = Column(Text, nullable=False)  # the claim as written: "MRR is 17,147", "Churn fell in August"
+    source_kind = Column(String(16), nullable=False)  # where it came from: proof, transcript, none
+    source_ref = Column(String(512))  # what backs it: mrr, mtg_20260830, null
+    verified = Column(Boolean, nullable=False)  # proof or transcript with ref: true, false
+
+    __table_args__ = (Index("ix_asset_claim_asset", "asset_seq"),)
+
+
+class AssetEvidence(Base):
+    __tablename__ = "asset_evidence"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # row identity, random UUID: 6f1c…, 9b2d…
+    asset_seq = Column(BigInteger, ForeignKey("asset.seq", ondelete="CASCADE"), nullable=False)  # owning asset: 1, 42
+    version = Column(Integer, nullable=False)  # version it belongs to: 1, 2
+    kind = Column(String(32), nullable=False)  # what was read: brand, transcript, proof
+    ref = Column(String(512), nullable=False)  # which one was read: voice.md, mtg_20260830, mrr
+    detail = Column(Text, nullable=False)  # what it said: "MRR 17,147 on 2026-09-04"
+
+    __table_args__ = (Index("ix_asset_evidence_asset", "asset_seq"),)
+
+
+class SkillRun(Base):
+    __tablename__ = "skill_run"
+
+    seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic run counter: 1, 2, 3
+    skill = Column(String(64), nullable=False)  # skill that ran: dw-post, dw-carousel
+    skill_sha = Column(String(64), nullable=False)  # SHA-256 of SKILL.md: "a3f9…", "0c7a…"
+    caller = Column(String(16), nullable=False)  # who started it: chat, marketer, mcp
+    asset_seq = Column(BigInteger, ForeignKey("asset.seq", ondelete="SET NULL"))  # asset built, null once deleted: 1, 42, null
+    version = Column(Integer)  # version it built: 1, 2, null
+    stage = Column(String(64))  # where it is now: reading, painting, null
+    status = Column(String(16), nullable=False)  # outcome so far: running, ok, held
+    error = Column(Text)  # failure detail: "RenderError: down", null
+    model = Column(String(64))  # model that ran it: claude-sonnet-5, null
+    tokens_in = Column(Integer, nullable=False, server_default=text("0"))  # prompt tokens used: 0, 12000
+    tokens_out = Column(Integer, nullable=False, server_default=text("0"))  # completion tokens used: 0, 3400
+    duration_ms = Column(Integer, nullable=False, server_default=text("0"))  # run wall time: 12, 34000
+    started_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # run start timestamp: app clock, 2026-09-04T12:00:00Z
+    finished_at = Column(DateTime(timezone=True))  # run end, null while running: 2026-09-04T12:01:00Z, null
+
+    __table_args__ = (
+        Index("ix_skill_run_status", "status"),
+        Index("ix_skill_run_asset", "asset_seq"),
+    )
+
+
+class SkillRunToolCall(Base):
+    __tablename__ = "skill_run_tool_call"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # row identity, random UUID: 6f1c…, 9b2d…
+    skill_run_seq = Column(BigInteger, ForeignKey("skill_run.seq", ondelete="CASCADE"), nullable=False)  # owning run: 1, 42
+    tool = Column(String(64), nullable=False)  # wire name called: brand_read, image_paint, files_write
+    ok = Column(Boolean, nullable=False)  # call succeeded: true, false
+    duration_ms = Column(Integer, nullable=False, server_default=text("0"))  # call wall time: 12, 3400
+    detail = Column(Text)  # what it returned or refused: "post.md, 1200 bytes", null
+
+    __table_args__ = (Index("ix_skill_run_tool_call_run", "skill_run_seq"),)
+
+
+class AgentRun(Base):
+    __tablename__ = "agent_run"
+
+    seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic run counter: 1, 2, 3
+    agent = Column(String(16), nullable=False)  # which agent ran: marketer
+    trigger = Column(String(16), nullable=False)  # what started it: daily, manual
+    read_detail = Column(Text, nullable=False)  # what it looked at: "14 days, 4 slots, 2 empty"
+    made = Column(Integer, nullable=False, server_default=text("0"))  # assets it built: 0, 2
+    duration_ms = Column(Integer, nullable=False, server_default=text("0"))  # run wall time: 12, 90000
+    ok = Column(Boolean, nullable=False)  # every skill run succeeded: true, false
+    error = Column(Text)  # failure detail: "SkillError: dw-post unknown", null
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # run timestamp: app clock, 2026-09-04T06:00:00Z
+
+
+class SlotSkip(Base):
+    __tablename__ = "slot_skip"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # row identity, random UUID: 6f1c…, 9b2d…
+    slot_date = Column(Date, nullable=False)  # calendar day skipped: 2026-09-04, 2026-09-11
+    slot_name = Column(String(64), nullable=False)  # calendar slot skipped: linkedin_post, newsletter_weekly
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: app clock, 2026-09-04T12:00:00Z
+
+    __table_args__ = (
+        UniqueConstraint("slot_date", "slot_name", name="slot_skip_slot"),
+    )
+
+
+class StudioThread(Base):
+    __tablename__ = "studio_thread"
+
+    seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic thread counter: 1, 2, 3
+    title = Column(String(256), nullable=False)  # first ask, shortened: "Monday post", "Quarter numbers"
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # thread creation timestamp: app clock, 2026-09-04T12:00:00Z
+
+
+class StudioTurn(Base):
+    __tablename__ = "studio_turn"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # row identity, random UUID: 6f1c…, 9b2d…
+    thread_seq = Column(BigInteger, ForeignKey("studio_thread.seq", ondelete="CASCADE"), nullable=False)  # owning thread: 1, 42
+    role = Column(String(16), nullable=False)  # who spoke: person, studio
+    skill_run_seq = Column(BigInteger, ForeignKey("skill_run.seq", ondelete="SET NULL"))  # run the turn started: 1, 42, null
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: app clock, 2026-09-04T12:00:00Z
+    text = Column(Text, nullable=False)  # what was said: "Make a post about MRR", "Here it is."
+
+    __table_args__ = (Index("ix_studio_turn_thread", "thread_seq"),)
