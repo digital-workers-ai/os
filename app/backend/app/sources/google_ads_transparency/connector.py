@@ -18,7 +18,8 @@ PROMPT_VERSION = "2026-09-15.1"
 READS_PER_PULL = 50
 OPENROUTER_PATH = "/api/v1/chat/completions"
 ADS_ENGINE = "google_ads_transparency_center"
-PAGE_SIZE = 100
+PAGE_SIZE = 40
+PAGES_PER_ADVERTISER = 2
 READABLE_FORMATS = ("text", "image")
 KEYS_DISAGREE = (
     "OPENROUTER_API_KEY and SERPAPI_API_KEY must both be set or both unset — "
@@ -27,17 +28,25 @@ KEYS_DISAGREE = (
 
 
 class AdsPage(Paginator):
+    def __init__(self, pages: int = PAGES_PER_ADVERTISER):
+        self.pages = pages
+        self.read = 0
+        self.more = False
+
     def extract(self, data):
         creatives = data.get("ad_creatives") if isinstance(data, dict) else None
         return creatives if isinstance(creatives, list) else []
 
     def next_params(self, data, params):
+        self.read += 1
         paging = data.get("serpapi_pagination") if isinstance(data, dict) else None
         token = paging.get("next_page_token") if isinstance(paging, dict) else None
-        return {**params, "next_page_token": token} if token else None
-
-
-_ADS = AdsPage()
+        if not token:
+            return None
+        if self.read >= self.pages:
+            self.more = True
+            return None
+        return {**params, "next_page_token": token}
 
 
 def _creative_id(record):
@@ -119,6 +128,7 @@ async def pull(session, store):
         advertiser_id = company.google_advertiser_id
         if not advertiser_id:
             continue
+        walk = AdsPage()
         page = await api.get(
             "/search.json",
             params={
@@ -126,8 +136,10 @@ async def pull(session, store):
                 "advertiser_id": advertiser_id,
                 "num": PAGE_SIZE,
             },
-            paginate=_ADS,
+            paginate=walk,
         )
+        if walk.more:
+            notes["creatives_capped"] = notes.get("creatives_capped", 0) + 1
         creatives += [
             {
                 "request": {"company": company.name, "advertiser_id": advertiser_id},
