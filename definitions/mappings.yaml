@@ -326,6 +326,12 @@ visibility_check:
   perplexity.checks._answer: answer
   perplexity.checks._sources: sources
   perplexity.checks._brand_rank: brand_rank
+  chatgpt.checks._engine: engine
+  chatgpt.checks._query: query
+  chatgpt.checks._checked_at: checked_at
+  chatgpt.checks._answer: answer
+  chatgpt.checks._sources: sources
+  chatgpt.checks._brand_rank: brand_rank
 
 visibility_mention:
   google_serp.searches._mention_engine: engine
@@ -352,6 +358,12 @@ visibility_mention:
   perplexity.checks._company: company
   perplexity.checks._role: role
   perplexity.checks._rank: rank
+  chatgpt.checks._mention_engine: engine
+  chatgpt.checks._mention_query: query
+  chatgpt.checks._mention_checked_at: checked_at
+  chatgpt.checks._company: company
+  chatgpt.checks._role: role
+  chatgpt.checks._rank: rank
 
 competitor_post:
   linkedin_posts.posts._company: company

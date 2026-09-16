@@ -1,0 +1,266 @@
+{
+  "clears": {},
+  "extracted": {
+    "checks": {
+      "visibility_check": {
+        "chatgpt|affordable-crm-for-sales-teams|2026-09-04": {
+          "answer": "Zoho CRM tends to lead the shortlist because its per-seat pricing stays predictable as the team grows. Reviewers put HubSpot ahead on reporting depth, while Freshsales wins on price for teams under ten seats. Reporting is where the differences show, so it pays to test the dashboards before committing. The right choice depends on whether the team needs marketing tools in the same product or just a clean sales pipeline.",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "chatgpt",
+          "query": "affordable crm for sales teams",
+          "sources": "3.0"
+        },
+        "chatgpt|best-crm-for-small-business|2026-09-04": {
+          "answer": "For a fast rollout, Freshsales is usually the first recommendation reviewers make. Reviewers put Pipedrive ahead on reporting depth, while Zoho CRM wins on price for teams under ten seats. HubSpot is worth a look when the team also needs email sequences and a free tier to start on. Each offers a two-week trial, so the practical test is importing a real pipeline and checking the automation limits.",
+          "brand_rank": "2.0",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "chatgpt",
+          "query": "best crm for small business",
+          "sources": "3.0"
+        },
+        "chatgpt|crm-with-ai-assistant|2026-09-04": {
+          "answer": "Most comparisons start with Zoho CRM, which keeps contacts, deals and email tracking in one place. Reviewers put HubSpot ahead on reporting depth, while Freshsales wins on price for teams under ten seats. Reporting is where the differences show, so it pays to test the dashboards before committing. The right choice depends on whether the team needs marketing tools in the same product or just a clean sales pipeline.",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "chatgpt",
+          "query": "crm with ai assistant",
+          "sources": "3.0"
+        },
+        "chatgpt|crm-with-built-in-calling|2026-09-04": {
+          "answer": "HubSpot tends to lead the shortlist because its per-seat pricing stays predictable as the team grows. Reviewers put Zoho CRM ahead on reporting depth, while Pipedrive wins on price for teams under ten seats. Integration counts are similar across the group, so support quality and the mobile apps tend to decide it.",
+          "brand_rank": "3.0",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "chatgpt",
+          "query": "crm with built in calling",
+          "sources": "3.0"
+        },
+        "chatgpt|crm-with-email-automation|2026-09-04": {
+          "answer": "Zoho CRM is the name that comes up first for teams that want a visual pipeline without a long setup. HubSpot covers the same ground with stronger marketing tools bundled into the same product. All of them sync with Gmail and Outlook, and most add a two-way calendar sync on the second tier. Entry plans start around fifteen dollars per user per month, with AI features gated to the mid tiers.",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "chatgpt",
+          "query": "crm with email automation",
+          "sources": "3.0"
+        },
+        "chatgpt|hubspot-alternatives|2026-09-04": {
+          "answer": "Pipedrive tends to lead the shortlist because its per-seat pricing stays predictable as the team grows. Freshsales offers the broader free tier, but HubSpot is easier to customise once the process gets more complex. Each offers a two-week trial, so the practical test is importing a real pipeline and checking the automation limits.",
+          "brand_rank": "1.0",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "chatgpt",
+          "query": "hubspot alternatives",
+          "sources": "3.0"
+        },
+        "chatgpt|pipeline-management-software|2026-09-04": {
+          "answer": "Pipedrive tends to lead the shortlist because its per-seat pricing stays predictable as the team grows. Zoho CRM is often chosen for its built-in calling and workflow automation on the mid-tier plan. Migration from a spreadsheet takes an afternoon with any of them. Integration counts are similar across the group, so support quality and the mobile apps tend to decide it.",
+          "brand_rank": "1.0",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "chatgpt",
+          "query": "pipeline management software",
+          "sources": "3.0"
+        },
+        "chatgpt|sales-crm-for-startups|2026-09-04": {
+          "answer": "Most comparisons start with Pipedrive, which keeps contacts, deals and email tracking in one place. Freshsales offers the broader free tier, but Zoho CRM is easier to customise once the process gets more complex. HubSpot is worth a look when the team also needs email sequences and a free tier to start on. Migration from a spreadsheet takes an afternoon with any of them. Integration counts are similar across the group, so support quality and the mobile apps tend to decide it.",
+          "brand_rank": "1.0",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "chatgpt",
+          "query": "sales crm for startups",
+          "sources": "3.0"
+        }
+      },
+      "visibility_mention": {
+        "chatgpt|affordable-crm-for-sales-teams|2026-09-04|freshworks.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "chatgpt",
+          "query": "affordable crm for sales teams",
+          "rank": "3.0",
+          "role": "competitor"
+        },
+        "chatgpt|affordable-crm-for-sales-teams|2026-09-04|hubspot.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "chatgpt",
+          "query": "affordable crm for sales teams",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "chatgpt|affordable-crm-for-sales-teams|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "chatgpt",
+          "query": "affordable crm for sales teams",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "chatgpt|best-crm-for-small-business|2026-09-04|freshworks.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "chatgpt",
+          "query": "best crm for small business",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "chatgpt|best-crm-for-small-business|2026-09-04|hubspot.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "chatgpt",
+          "query": "best crm for small business",
+          "rank": "4.0",
+          "role": "competitor"
+        },
+        "chatgpt|best-crm-for-small-business|2026-09-04|pipedrive.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "chatgpt",
+          "query": "best crm for small business",
+          "rank": "2.0",
+          "role": "brand"
+        },
+        "chatgpt|best-crm-for-small-business|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "chatgpt",
+          "query": "best crm for small business",
+          "rank": "3.0",
+          "role": "competitor"
+        },
+        "chatgpt|crm-with-ai-assistant|2026-09-04|freshworks.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "chatgpt",
+          "query": "crm with ai assistant",
+          "rank": "3.0",
+          "role": "competitor"
+        },
+        "chatgpt|crm-with-ai-assistant|2026-09-04|hubspot.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "chatgpt",
+          "query": "crm with ai assistant",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "chatgpt|crm-with-ai-assistant|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "chatgpt",
+          "query": "crm with ai assistant",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "chatgpt|crm-with-built-in-calling|2026-09-04|hubspot.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "chatgpt",
+          "query": "crm with built in calling",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "chatgpt|crm-with-built-in-calling|2026-09-04|pipedrive.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "chatgpt",
+          "query": "crm with built in calling",
+          "rank": "3.0",
+          "role": "brand"
+        },
+        "chatgpt|crm-with-built-in-calling|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "chatgpt",
+          "query": "crm with built in calling",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "chatgpt|crm-with-email-automation|2026-09-04|hubspot.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "chatgpt",
+          "query": "crm with email automation",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "chatgpt|crm-with-email-automation|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "chatgpt",
+          "query": "crm with email automation",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "chatgpt|hubspot-alternatives|2026-09-04|freshworks.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "chatgpt",
+          "query": "hubspot alternatives",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "chatgpt|hubspot-alternatives|2026-09-04|hubspot.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "chatgpt",
+          "query": "hubspot alternatives",
+          "rank": "3.0",
+          "role": "competitor"
+        },
+        "chatgpt|hubspot-alternatives|2026-09-04|pipedrive.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "chatgpt",
+          "query": "hubspot alternatives",
+          "rank": "1.0",
+          "role": "brand"
+        },
+        "chatgpt|pipeline-management-software|2026-09-04|pipedrive.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "chatgpt",
+          "query": "pipeline management software",
+          "rank": "1.0",
+          "role": "brand"
+        },
+        "chatgpt|pipeline-management-software|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "chatgpt",
+          "query": "pipeline management software",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "chatgpt|sales-crm-for-startups|2026-09-04|freshworks.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "chatgpt",
+          "query": "sales crm for startups",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "chatgpt|sales-crm-for-startups|2026-09-04|hubspot.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "chatgpt",
+          "query": "sales crm for startups",
+          "rank": "4.0",
+          "role": "competitor"
+        },
+        "chatgpt|sales-crm-for-startups|2026-09-04|pipedrive.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "chatgpt",
+          "query": "sales crm for startups",
+          "rank": "1.0",
+          "role": "brand"
+        },
+        "chatgpt|sales-crm-for-startups|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "chatgpt",
+          "query": "sales crm for startups",
+          "rank": "3.0",
+          "role": "competitor"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "chatgpt"
+}
