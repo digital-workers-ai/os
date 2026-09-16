@@ -547,7 +547,11 @@ class TestFilesWrite:
         payload = await toolbelt.call(
             bench, "files_write", {"path": "image.png", "render": "render-1"}
         )
-        assert payload == {"path": "image.png", "media_type": "image/png", "bytes": 13}
+        assert payload == {
+            "path": "image.png",
+            "media_type": "image/png",
+            "bytes": len(PNG),
+        }
         assert media.read(bench.asset_seq, 1, "image.png") == PNG
 
     @pytest.mark.parametrize(

@@ -630,9 +630,9 @@ class TestExecute:
         assert (file.path, file.media_type, file.bytes) == (
             "image.png",
             "image/png",
-            13,
+            len(PNG),
         )
-        assert "picture-1" in model.sent[1]["messages"][-1]["content"][0]["content"]
+        assert "picture-1" in model.sent[-1]["messages"][2]["content"][0]["content"]
 
     async def test_the_stage_is_persisted_after_each_batch(
         self, session, enabled, sessionmaker_for_test

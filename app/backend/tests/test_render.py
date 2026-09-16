@@ -206,7 +206,7 @@ class TestHtml:
         assert "Fact 1" in html
 
     def test_a_missing_variable_is_an_error_not_an_empty_string(self):
-        with pytest.raises(Exception, match="pages"):
+        with pytest.raises(Exception, match="undefined"):
             image.html("carousel", CAROUSEL["cover"], "4:5", None, "cover")
 
 
