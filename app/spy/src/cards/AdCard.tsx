@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { Ad } from '@/api'
 import { Card } from '@/components/ui/card'
 import { Pill } from '@/components/ui/pill'
@@ -7,14 +8,22 @@ import { shortDate } from '@/lib/format'
 const platformLabel = (value: string) => PLATFORMS.find((option) => option.value === value)?.label ?? value
 
 function Preview({ ad }: { ad: Ad }) {
-  if (!ad.preview) {
+  const [broken, setBroken] = useState(false)
+  if (!ad.preview || broken) {
     return (
       <div className="flex h-40 items-center justify-center bg-wash">
-        <Pill tone="unknown">video</Pill>
+        <Pill tone="unknown">{ad.category || 'ad'}</Pill>
       </div>
     )
   }
-  return <img src={ad.preview} alt={ad.name ?? 'ad preview'} className="h-40 w-full bg-wash object-contain" />
+  return (
+    <img
+      src={ad.preview}
+      alt={ad.name ?? 'ad preview'}
+      className="h-40 w-full bg-wash object-contain"
+      onError={() => setBroken(true)}
+    />
+  )
 }
 
 export function AdCard({ ad }: { ad: Ad }) {

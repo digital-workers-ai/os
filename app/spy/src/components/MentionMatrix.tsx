@@ -50,7 +50,7 @@ function Check({ check, pattern }: { check: VisibilityCheck; pattern: RegExp | n
     <div className="flex flex-col gap-2" data-engine={check.engine}>
       <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
         <span className="font-medium text-ink">{engineLabel(check.engine)}</span>
-        <span>{shortDate(check.checked_at)}</span>
+        <span>{shortDate(check.checked_at.slice(0, 10))}</span>
         <span>{num(check.sources)} sources</span>
         {ranks.map(([company, rank]) => (
           <Pill key={company}>
@@ -99,7 +99,7 @@ function Row({ entry, companies, pattern }: { entry: VisibilityQuery; companies:
                 </td>
               )
             })}
-            <td className={cn(CELL, 'whitespace-nowrap text-right text-muted')}>{shortDate(latest(entry.checks))}</td>
+            <td className={cn(CELL, 'whitespace-nowrap text-right text-muted')}>{shortDate(latest(entry.checks).slice(0, 10))}</td>
           </>
         )}
       </tr>
