@@ -122,7 +122,7 @@ export interface SkillRunRow {
 }
 
 export interface ToolCall {
-  id: number
+  id: string
   tool: string
   ok: boolean
   duration_ms: number
@@ -227,7 +227,7 @@ export interface ThreadRow {
 }
 
 export interface Turn {
-  id: number
+  id: string
   role: 'person' | 'studio'
   text: string
   skill_run: SkillRunRow | null
