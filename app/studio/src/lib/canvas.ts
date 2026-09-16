@@ -107,6 +107,8 @@ export function buildNodes(groups: [string, CanvasNode[]][]): FlowNode[] {
       id: `day:${date}`,
       type: 'day',
       position: { x: left, y: 0 },
+      width: COLUMN_WIDTH,
+      height: HEADER_HEIGHT,
       data: { date, count: nodes.length },
       ...inert,
     }
@@ -117,6 +119,7 @@ export function buildNodes(groups: [string, CanvasNode[]][]): FlowNode[] {
         x: left + (i % COLUMNS) * (CARD.width + GAP),
         y: HEADER_HEIGHT + Math.floor(i / COLUMNS) * (CARD.height + GAP),
       },
+      ...CARD,
       data: { node },
       ...clickable,
     }))
