@@ -289,8 +289,6 @@ Spy is a third web app, at http://localhost:3094, for whoever looks after the br
 
 `definitions/spy.yaml` holds the brand (name, domain, aliases), the competitors (name, domain, aliases, LinkedIn slug, Google advertiser id), the queries, the country and the language. It is checked at boot and before every rebuild like the other definition files, and the console shows it under Definitions → Spy. To change what Spy tracks, edit the file and rebuild. The shipped file names real companies, Pipedrive against HubSpot, Zoho CRM and Freshsales, so the stand-ins and the saved real responses have something to find.
 
-Google Search and Google Ads Transparency read `SERPAPI_API_KEY`; ChatGPT, Perplexity and Gemini read `OPENROUTER_API_KEY`, and Google Ads Transparency reads it too, to have GPT read the ad text off the creative image; Claude reads `ANTHROPIC_API_KEY`, the same key the briefings use; LinkedIn company posts read `BRIGHTDATA_API_KEY`. The per-source rule from [Configuration](#configuration) applies, every variable a source names or none of them, so Google Ads Transparency needs both of its keys. The ads walk is capped at two pages, the 80 newest creatives, per advertiser per pull, because SerpApi charges per page. SerpApi's free plan is 250 searches a month; a daily pull of eight queries plus three advertisers exceeds it, so a paid plan is the realistic setting.
-
 ## MCP Support
 
 Any AI assistant can use DW-OS as a tool. It gets read-only access to the same reviewed numbers the console shows, so when you ask your assistant about revenue it reports the number your system agreed on rather than guessing over raw tables. It can also read the definition files, so it can check what a number means before quoting it.
