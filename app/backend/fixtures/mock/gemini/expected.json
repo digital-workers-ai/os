@@ -1,0 +1,257 @@
+{
+  "clears": {},
+  "extracted": {
+    "checks": {
+      "visibility_check": {
+        "gemini|affordable-crm-for-sales-teams|2026-09-04": {
+          "answer": "HubSpot is the name that comes up first for teams that want a visual pipeline without a long setup. Zoho CRM is often chosen for its built-in calling and workflow automation on the mid-tier plan. The right choice depends on whether the team needs marketing tools in the same product or just a clean sales pipeline.",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "gemini",
+          "query": "affordable crm for sales teams",
+          "sources": "3.0"
+        },
+        "gemini|best-crm-for-small-business|2026-09-04": {
+          "answer": "For a fast rollout, Pipedrive is usually the first recommendation reviewers make. Zoho CRM adds an AI assistant that summarises calls and suggests the next step on every deal. Integration counts are similar across the group, so support quality and the mobile apps tend to decide it.",
+          "brand_rank": "1.0",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "gemini",
+          "query": "best crm for small business",
+          "sources": "3.0"
+        },
+        "gemini|crm-with-ai-assistant|2026-09-04": {
+          "answer": "Most comparisons start with Freshsales, which keeps contacts, deals and email tracking in one place. HubSpot offers the broader free tier, but Zoho CRM is easier to customise once the process gets more complex. The right choice depends on whether the team needs marketing tools in the same product or just a clean sales pipeline.",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "gemini",
+          "query": "crm with ai assistant",
+          "sources": "3.0"
+        },
+        "gemini|crm-with-built-in-calling|2026-09-04": {
+          "answer": "Most comparisons start with Pipedrive, which keeps contacts, deals and email tracking in one place. Zoho CRM and HubSpot both ship AI assistants that draft follow-ups and score deals, though HubSpot keeps its cheaper plans leaner. Freshsales is often chosen for its built-in calling and workflow automation on the mid-tier plan. Entry plans start around fifteen dollars per user per month, with AI features gated to the mid tiers.",
+          "brand_rank": "1.0",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "gemini",
+          "query": "crm with built in calling",
+          "sources": "3.0"
+        },
+        "gemini|crm-with-email-automation|2026-09-04": {
+          "answer": "For a fast rollout, Freshsales is usually the first recommendation reviewers make. Zoho CRM is the usual alternative when marketing automation matters, and HubSpot is the pick when calling has to live inside the CRM. Pipedrive is often chosen for its built-in calling and workflow automation on the mid-tier plan. Migration from a spreadsheet takes an afternoon with any of them. The right choice depends on whether the team needs marketing tools in the same product or just a clean sales pipeline.",
+          "brand_rank": "4.0",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "gemini",
+          "query": "crm with email automation",
+          "sources": "3.0"
+        },
+        "gemini|hubspot-alternatives|2026-09-04": {
+          "answer": "HubSpot is the name that comes up first for teams that want a visual pipeline without a long setup. Freshsales is worth a look when the team also needs email sequences and a free tier to start on. Entry plans start around fifteen dollars per user per month, with AI features gated to the mid tiers.",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "gemini",
+          "query": "hubspot alternatives",
+          "sources": "3.0"
+        },
+        "gemini|pipeline-management-software|2026-09-04": {
+          "answer": "For a fast rollout, Zoho CRM is usually the first recommendation reviewers make. Pipedrive adds an AI assistant that summarises calls and suggests the next step on every deal. Reporting is where the differences show, so it pays to test the dashboards before committing. Each offers a two-week trial, so the practical test is importing a real pipeline and checking the automation limits.",
+          "brand_rank": "2.0",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "gemini",
+          "query": "pipeline management software",
+          "sources": "3.0"
+        },
+        "gemini|sales-crm-for-startups|2026-09-04": {
+          "answer": "Most comparisons start with Zoho CRM, which keeps contacts, deals and email tracking in one place. Pipedrive and HubSpot both ship AI assistants that draft follow-ups and score deals, though HubSpot keeps its cheaper plans leaner. Freshsales covers the same ground with stronger marketing tools bundled into the same product. Reporting is where the differences show, so it pays to test the dashboards before committing. The right choice depends on whether the team needs marketing tools in the same product or just a clean sales pipeline.",
+          "brand_rank": "2.0",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "gemini",
+          "query": "sales crm for startups",
+          "sources": "3.0"
+        }
+      },
+      "visibility_mention": {
+        "gemini|affordable-crm-for-sales-teams|2026-09-04|hubspot.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "gemini",
+          "query": "affordable crm for sales teams",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "gemini|affordable-crm-for-sales-teams|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "gemini",
+          "query": "affordable crm for sales teams",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "gemini|best-crm-for-small-business|2026-09-04|pipedrive.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "gemini",
+          "query": "best crm for small business",
+          "rank": "1.0",
+          "role": "brand"
+        },
+        "gemini|best-crm-for-small-business|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "gemini",
+          "query": "best crm for small business",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "gemini|crm-with-ai-assistant|2026-09-04|freshworks.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "gemini",
+          "query": "crm with ai assistant",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "gemini|crm-with-ai-assistant|2026-09-04|hubspot.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "gemini",
+          "query": "crm with ai assistant",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "gemini|crm-with-ai-assistant|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "gemini",
+          "query": "crm with ai assistant",
+          "rank": "3.0",
+          "role": "competitor"
+        },
+        "gemini|crm-with-built-in-calling|2026-09-04|freshworks.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "gemini",
+          "query": "crm with built in calling",
+          "rank": "4.0",
+          "role": "competitor"
+        },
+        "gemini|crm-with-built-in-calling|2026-09-04|hubspot.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "gemini",
+          "query": "crm with built in calling",
+          "rank": "3.0",
+          "role": "competitor"
+        },
+        "gemini|crm-with-built-in-calling|2026-09-04|pipedrive.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "gemini",
+          "query": "crm with built in calling",
+          "rank": "1.0",
+          "role": "brand"
+        },
+        "gemini|crm-with-built-in-calling|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "gemini",
+          "query": "crm with built in calling",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "gemini|crm-with-email-automation|2026-09-04|freshworks.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "gemini",
+          "query": "crm with email automation",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "gemini|crm-with-email-automation|2026-09-04|hubspot.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "gemini",
+          "query": "crm with email automation",
+          "rank": "3.0",
+          "role": "competitor"
+        },
+        "gemini|crm-with-email-automation|2026-09-04|pipedrive.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "gemini",
+          "query": "crm with email automation",
+          "rank": "4.0",
+          "role": "brand"
+        },
+        "gemini|crm-with-email-automation|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "gemini",
+          "query": "crm with email automation",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "gemini|hubspot-alternatives|2026-09-04|freshworks.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "gemini",
+          "query": "hubspot alternatives",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "gemini|hubspot-alternatives|2026-09-04|hubspot.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "gemini",
+          "query": "hubspot alternatives",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "gemini|pipeline-management-software|2026-09-04|pipedrive.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "gemini",
+          "query": "pipeline management software",
+          "rank": "2.0",
+          "role": "brand"
+        },
+        "gemini|pipeline-management-software|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "gemini",
+          "query": "pipeline management software",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "gemini|sales-crm-for-startups|2026-09-04|freshworks.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "gemini",
+          "query": "sales crm for startups",
+          "rank": "4.0",
+          "role": "competitor"
+        },
+        "gemini|sales-crm-for-startups|2026-09-04|hubspot.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "gemini",
+          "query": "sales crm for startups",
+          "rank": "3.0",
+          "role": "competitor"
+        },
+        "gemini|sales-crm-for-startups|2026-09-04|pipedrive.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "gemini",
+          "query": "sales crm for startups",
+          "rank": "2.0",
+          "role": "brand"
+        },
+        "gemini|sales-crm-for-startups|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "gemini",
+          "query": "sales crm for startups",
+          "rank": "1.0",
+          "role": "competitor"
+        }
+      }
+    }
+  },
+  "skips": {}
+}

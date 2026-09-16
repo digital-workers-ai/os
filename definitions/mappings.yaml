@@ -314,6 +314,12 @@ visibility_check:
   google_serp.ai_overviews._answer: answer
   google_serp.ai_overviews._sources: sources
   google_serp.ai_overviews._brand_rank: brand_rank
+  gemini.checks._engine: engine
+  gemini.checks._query: query
+  gemini.checks._checked_at: checked_at
+  gemini.checks._answer: answer
+  gemini.checks._sources: sources
+  gemini.checks._brand_rank: brand_rank
 
 visibility_mention:
   google_serp.searches._mention_engine: engine
@@ -328,6 +334,12 @@ visibility_mention:
   google_serp.ai_overviews._company: company
   google_serp.ai_overviews._role: role
   google_serp.ai_overviews._rank: rank
+  gemini.checks._mention_engine: engine
+  gemini.checks._mention_query: query
+  gemini.checks._mention_checked_at: checked_at
+  gemini.checks._company: company
+  gemini.checks._role: role
+  gemini.checks._rank: rank
 
 competitor_post:
   linkedin_posts.posts._company: company

@@ -1,0 +1,562 @@
+[
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "gemini",
+        "model": "google/gemini-3.5-flash-lite",
+        "query": "best crm for small business"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "annotations": [
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 175,
+                    "start_index": 82,
+                    "title": "zoho.com",
+                    "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/5d1b21f243d8ec5ae914a8d0d5604846c570ae998e88c7882ce1db0e4037f7cc"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 81,
+                    "start_index": 0,
+                    "title": "pipedrive.com",
+                    "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/0268ab25ea69695e301544acfe010ebc6c903d9596ad155c8dc0a668ead07b31"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 81,
+                    "start_index": 0,
+                    "title": "capterra.com",
+                    "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/0118271c07578fddc1428e0c4334f7d2f621672f5f7870fae911a1b3be5b6c7a"
+                  }
+                }
+              ],
+              "content": "For a fast rollout, Pipedrive is usually the first recommendation reviewers make. Zoho CRM adds an AI assistant that summarises calls and suggests the next step on every deal. Integration counts are similar across the group, so support quality and the mobile apps tend to decide it.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "STOP"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-c1fa599161e1bef6cbef",
+        "model": "google/gemini-3.5-flash-lite",
+        "object": "chat.completion",
+        "provider": "Google",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 71,
+          "cost": 0.0141811,
+          "is_byok": false,
+          "prompt_tokens": 12,
+          "total_tokens": 83
+        }
+      }
+    },
+    "source_id": "best-crm-for-small-business|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "gemini",
+        "model": "google/gemini-3.5-flash-lite",
+        "query": "crm with ai assistant"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "annotations": [
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 100,
+                    "start_index": 0,
+                    "title": "freshworks.com",
+                    "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/8d69014793da64b5e1448fc4694d7a991cad36b9c4104820ab2199bde52bac79"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 210,
+                    "start_index": 101,
+                    "title": "techradar.com",
+                    "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/f8c60e6e71062f1ea51a0fabb2ff53621bbc48834b0abd656caf9f0bfd2a0b93"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 210,
+                    "start_index": 101,
+                    "title": "zoho.com",
+                    "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/5d1b21f243d8ec5ae914a8d0d5604846c570ae998e88c7882ce1db0e4037f7cc"
+                  }
+                }
+              ],
+              "content": "Most comparisons start with Freshsales, which keeps contacts, deals and email tracking in one place. HubSpot offers the broader free tier, but Zoho CRM is easier to customise once the process gets more complex. The right choice depends on whether the team needs marketing tools in the same product or just a clean sales pipeline.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "STOP"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-2c755aa5cdbe3f6523a1",
+        "model": "google/gemini-3.5-flash-lite",
+        "object": "chat.completion",
+        "provider": "Google",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 83,
+          "cost": 0.0142108,
+          "is_byok": false,
+          "prompt_tokens": 11,
+          "total_tokens": 94
+        }
+      }
+    },
+    "source_id": "crm-with-ai-assistant|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "gemini",
+        "model": "google/gemini-3.5-flash-lite",
+        "query": "pipeline management software"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "annotations": [
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 175,
+                    "start_index": 81,
+                    "title": "g2.com",
+                    "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/4bc829fa2f95ab5b9cf291cb61b0142f5c89cd8a4e84e13c4215e97f871801f5"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 175,
+                    "start_index": 81,
+                    "title": "pipedrive.com",
+                    "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/0268ab25ea69695e301544acfe010ebc6c903d9596ad155c8dc0a668ead07b31"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 80,
+                    "start_index": 0,
+                    "title": "zoho.com",
+                    "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/5d1b21f243d8ec5ae914a8d0d5604846c570ae998e88c7882ce1db0e4037f7cc"
+                  }
+                }
+              ],
+              "content": "For a fast rollout, Zoho CRM is usually the first recommendation reviewers make. Pipedrive adds an AI assistant that summarises calls and suggests the next step on every deal. Reporting is where the differences show, so it pays to test the dashboards before committing. Each offers a two-week trial, so the practical test is importing a real pipeline and checking the automation limits.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "STOP"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-b0dbefa8cef60851bb04",
+        "model": "google/gemini-3.5-flash-lite",
+        "object": "chat.completion",
+        "provider": "Google",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 97,
+          "cost": 0.0142464,
+          "is_byok": false,
+          "prompt_tokens": 13,
+          "total_tokens": 110
+        }
+      }
+    },
+    "source_id": "pipeline-management-software|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "gemini",
+        "model": "google/gemini-3.5-flash-lite",
+        "query": "sales crm for startups"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "annotations": [
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 230,
+                    "start_index": 99,
+                    "title": "pipedrive.com",
+                    "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/0268ab25ea69695e301544acfe010ebc6c903d9596ad155c8dc0a668ead07b31"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 230,
+                    "start_index": 99,
+                    "title": "techradar.com",
+                    "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/f8c60e6e71062f1ea51a0fabb2ff53621bbc48834b0abd656caf9f0bfd2a0b93"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 98,
+                    "start_index": 0,
+                    "title": "zoho.com",
+                    "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/5d1b21f243d8ec5ae914a8d0d5604846c570ae998e88c7882ce1db0e4037f7cc"
+                  }
+                }
+              ],
+              "content": "Most comparisons start with Zoho CRM, which keeps contacts, deals and email tracking in one place. Pipedrive and HubSpot both ship AI assistants that draft follow-ups and score deals, though HubSpot keeps its cheaper plans leaner. Freshsales covers the same ground with stronger marketing tools bundled into the same product. Reporting is where the differences show, so it pays to test the dashboards before committing. The right choice depends on whether the team needs marketing tools in the same product or just a clean sales pipeline.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "STOP"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-cbead7a3e5145f80f02d",
+        "model": "google/gemini-3.5-flash-lite",
+        "object": "chat.completion",
+        "provider": "Google",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 135,
+          "cost": 0.0143408,
+          "is_byok": false,
+          "prompt_tokens": 11,
+          "total_tokens": 146
+        }
+      }
+    },
+    "source_id": "sales-crm-for-startups|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "gemini",
+        "model": "google/gemini-3.5-flash-lite",
+        "query": "crm with email automation"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "annotations": [
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 313,
+                    "start_index": 217,
+                    "title": "capterra.com",
+                    "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/0118271c07578fddc1428e0c4334f7d2f621672f5f7870fae911a1b3be5b6c7a"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 82,
+                    "start_index": 0,
+                    "title": "freshworks.com",
+                    "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/8d69014793da64b5e1448fc4694d7a991cad36b9c4104820ab2199bde52bac79"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 216,
+                    "start_index": 83,
+                    "title": "hubspot.com",
+                    "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/56dd59a52913c6c2fa3787b87d443b8a3239c0796b77f0bc3747c88d15093fb2"
+                  }
+                }
+              ],
+              "content": "For a fast rollout, Freshsales is usually the first recommendation reviewers make. Zoho CRM is the usual alternative when marketing automation matters, and HubSpot is the pick when calling has to live inside the CRM. Pipedrive is often chosen for its built-in calling and workflow automation on the mid-tier plan. Migration from a spreadsheet takes an afternoon with any of them. The right choice depends on whether the team needs marketing tools in the same product or just a clean sales pipeline.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "STOP"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-df11cb5a5dc19dde46ba",
+        "model": "google/gemini-3.5-flash-lite",
+        "object": "chat.completion",
+        "provider": "Google",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 125,
+          "cost": 0.0143161,
+          "is_byok": false,
+          "prompt_tokens": 12,
+          "total_tokens": 137
+        }
+      }
+    },
+    "source_id": "crm-with-email-automation|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "gemini",
+        "model": "google/gemini-3.5-flash-lite",
+        "query": "affordable crm for sales teams"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "annotations": [
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 99,
+                    "start_index": 0,
+                    "title": "hubspot.com",
+                    "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/56dd59a52913c6c2fa3787b87d443b8a3239c0796b77f0bc3747c88d15093fb2"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 195,
+                    "start_index": 100,
+                    "title": "zoho.com",
+                    "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/5d1b21f243d8ec5ae914a8d0d5604846c570ae998e88c7882ce1db0e4037f7cc"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 99,
+                    "start_index": 0,
+                    "title": "capterra.com",
+                    "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/0118271c07578fddc1428e0c4334f7d2f621672f5f7870fae911a1b3be5b6c7a"
+                  }
+                }
+              ],
+              "content": "HubSpot is the name that comes up first for teams that want a visual pipeline without a long setup. Zoho CRM is often chosen for its built-in calling and workflow automation on the mid-tier plan. The right choice depends on whether the team needs marketing tools in the same product or just a clean sales pipeline.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "STOP"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-84a32227cb076dd6568b",
+        "model": "google/gemini-3.5-flash-lite",
+        "object": "chat.completion",
+        "provider": "Google",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 79,
+          "cost": 0.0142014,
+          "is_byok": false,
+          "prompt_tokens": 13,
+          "total_tokens": 92
+        }
+      }
+    },
+    "source_id": "affordable-crm-for-sales-teams|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "gemini",
+        "model": "google/gemini-3.5-flash-lite",
+        "query": "hubspot alternatives"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "annotations": [
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 196,
+                    "start_index": 100,
+                    "title": "freshworks.com",
+                    "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/8d69014793da64b5e1448fc4694d7a991cad36b9c4104820ab2199bde52bac79"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 99,
+                    "start_index": 0,
+                    "title": "hubspot.com",
+                    "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/56dd59a52913c6c2fa3787b87d443b8a3239c0796b77f0bc3747c88d15093fb2"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 99,
+                    "start_index": 0,
+                    "title": "g2.com",
+                    "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/4bc829fa2f95ab5b9cf291cb61b0142f5c89cd8a4e84e13c4215e97f871801f5"
+                  }
+                }
+              ],
+              "content": "HubSpot is the name that comes up first for teams that want a visual pipeline without a long setup. Freshsales is worth a look when the team also needs email sequences and a free tier to start on. Entry plans start around fifteen dollars per user per month, with AI features gated to the mid tiers.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "STOP"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-64c4f2bace4eaa3e4c34",
+        "model": "google/gemini-3.5-flash-lite",
+        "object": "chat.completion",
+        "provider": "Google",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 75,
+          "cost": 0.0141908,
+          "is_byok": false,
+          "prompt_tokens": 11,
+          "total_tokens": 86
+        }
+      }
+    },
+    "source_id": "hubspot-alternatives|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "gemini",
+        "model": "google/gemini-3.5-flash-lite",
+        "query": "crm with built in calling"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "annotations": [
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 99,
+                    "start_index": 0,
+                    "title": "pipedrive.com",
+                    "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/0268ab25ea69695e301544acfe010ebc6c903d9596ad155c8dc0a668ead07b31"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 99,
+                    "start_index": 0,
+                    "title": "g2.com",
+                    "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/4bc829fa2f95ab5b9cf291cb61b0142f5c89cd8a4e84e13c4215e97f871801f5"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 230,
+                    "start_index": 100,
+                    "title": "hubspot.com",
+                    "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/56dd59a52913c6c2fa3787b87d443b8a3239c0796b77f0bc3747c88d15093fb2"
+                  }
+                }
+              ],
+              "content": "Most comparisons start with Pipedrive, which keeps contacts, deals and email tracking in one place. Zoho CRM and HubSpot both ship AI assistants that draft follow-ups and score deals, though HubSpot keeps its cheaper plans leaner. Freshsales is often chosen for its built-in calling and workflow automation on the mid-tier plan. Entry plans start around fifteen dollars per user per month, with AI features gated to the mid tiers.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "STOP"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-d18a2e8cb7260926db0c",
+        "model": "google/gemini-3.5-flash-lite",
+        "object": "chat.completion",
+        "provider": "Google",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 108,
+          "cost": 0.0142736,
+          "is_byok": false,
+          "prompt_tokens": 12,
+          "total_tokens": 120
+        }
+      }
+    },
+    "source_id": "crm-with-built-in-calling|2026-09-04"
+  }
+]
