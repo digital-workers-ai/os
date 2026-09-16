@@ -24,8 +24,6 @@ const AGENT_RUN = {
 
 const chip = (page: Page, slot: Slot) => page.locator(`[data-testid="calendar-slot"][data-date="${slot.date}"][data-name="${slot.name}"]`).first()
 
-const calendarLoaded = (page: Page) => page.waitForResponse((r) => r.url().includes('/api/studio/calendar?'))
-
 test('month, week and list', async ({ page }) => {
   const { slots } = (await (await page.request.get(`/api/studio/calendar?from=${MONTH}-01&to=${MONTH}-28`)).json()) as { slots: Slot[] }
   const names = [...new Set(slots.map((slot) => slot.name))]
@@ -51,23 +49,18 @@ test('month, week and list', async ({ page }) => {
   await page.getByTestId('slot-close').click()
   await expect(dialog).toHaveCount(0)
 
-  const week = calendarLoaded(page)
   await page.getByTestId('calendar-mode-week').click()
-  await week
-  await ready(page)
   await expect(page.getByTestId('calendar-week')).toBeVisible()
+  await ready(page)
 
-  const list = calendarLoaded(page)
   await page.getByTestId('calendar-mode-list').click()
-  await list
-  await ready(page)
   await expect(page.getByTestId('calendar-list')).toBeVisible()
-
-  const month = calendarLoaded(page)
-  await page.getByTestId('calendar-mode-month').click()
-  await month
+  await expect(page.getByTestId('calendar-slot').first()).toBeVisible()
   await ready(page)
+
+  await page.getByTestId('calendar-mode-month').click()
   await expect(page.getByTestId('calendar-month')).toBeVisible()
+  await ready(page)
   await snap(page, 'studio-calendar')
 })
 

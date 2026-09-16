@@ -4,8 +4,6 @@ import { ready } from './ready'
 
 const preset = (page: Page, name: string) => page.locator(`[data-testid="canvas-date-option"][data-preset="${name}"]`)
 
-const canvasLoaded = (page: Page) => page.waitForResponse((r) => r.url().includes('/api/studio/canvas'))
-
 test('board', async ({ page }) => {
   await visit(page, '/')
   await ready(page)
@@ -19,17 +17,14 @@ test('board', async ({ page }) => {
   await page.getByTestId('canvas-chip-image').click()
   await expect(page.getByTestId('canvas-node')).toHaveCount(6)
 
-  const narrowed = canvasLoaded(page)
   await preset(page, 'today').click()
-  await narrowed
-  await ready(page)
   await expect(preset(page, 'today')).toHaveAttribute('aria-pressed', 'true')
   await expect(page.getByTestId('canvas-day')).toHaveCount(1)
   await expect(page.getByTestId('canvas-node')).toHaveCount(2)
+  await ready(page)
 
-  const all = canvasLoaded(page)
   await preset(page, 'all').click()
-  await all
+  await expect(page.getByTestId('canvas-node')).toHaveCount(6)
   await ready(page)
   const first = page.getByTestId('canvas-node').first()
   await first.dblclick()
