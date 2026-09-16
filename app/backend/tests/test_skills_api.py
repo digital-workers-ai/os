@@ -105,7 +105,7 @@ def runner_fakes(monkeypatch):
                 status="running",
             ),
         )
-        return runner.Started(skill_run=run, asset_seq=asset.seq, version=1)
+        return runner.Started(skill_run=run.seq, asset_seq=asset.seq, version=1)
 
     async def fake_execute_detached(seq, ask):
         detached.append((seq, ask))

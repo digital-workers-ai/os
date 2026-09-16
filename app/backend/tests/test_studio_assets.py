@@ -102,7 +102,7 @@ def opened(monkeypatch):
                 status="running",
             ),
         )
-        return runner.Started(skill_run=run, asset_seq=ask.asset_seq, version=2)
+        return runner.Started(skill_run=run.seq, asset_seq=ask.asset_seq, version=2)
 
     monkeypatch.setattr(runner, "open_run", fake_open_run)
     return asks
@@ -307,7 +307,8 @@ class TestEdit:
         assert (ask.look, ask.ratio, ask.asset_seq) == ("stat-card", "1:1", asset.seq)
         assert (ask.slot_date, ask.slot_name) == (None, None)
         assert started.version == 2
-        assert started.skill_run.asset_seq == asset.seq
+        run = await session.get(SkillRun, started.skill_run)
+        assert (run.asset_seq, run.status) == (asset.seq, "running")
 
 
 class TestResize:
