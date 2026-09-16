@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>quote-card</title>
+<style>
+@font-face { font-family: "Sans"; src: url("{{ fonts.sans }}") format("woff2"); font-weight: 400 700; }
+@font-face { font-family: "Display"; src: url("{{ fonts.display }}") format("woff2"); font-weight: 500; }
+html { font-size: calc({{ [width, height] | min }}px / 100); }
+html, body { margin: 0; padding: 0; }
+body { position: relative; width: {{ width }}px; height: {{ height }}px; overflow: hidden; background: {{ tokens.colors.wash }}; color: {{ tokens.colors.ink }}; font-family: "Sans", sans-serif; -webkit-font-smoothing: antialiased; }
+.picture { position: absolute; inset: 0; background: url("{{ picture }}") center / cover no-repeat; }
+.card { position: absolute; inset: 6rem; display: flex; flex-direction: column; box-sizing: border-box; padding: 7rem; background: {{ tokens.colors.paper }}; border: 0.25rem solid {{ tokens.colors.line }}; border-radius: 2.5rem; }
+.body { display: flex; flex-direction: column; margin: auto 0; }
+.mark { font-family: "Display", sans-serif; font-weight: 500; font-size: 24rem; line-height: 0.5; height: 12rem; color: {{ tokens.colors.accent }}; }
+.quote { margin: 0; font-size: 5.6rem; font-weight: 500; line-height: 1.25; letter-spacing: -0.01em; text-wrap: balance; overflow-wrap: anywhere; }
+.who { margin-top: 4rem; font-size: 3rem; color: {{ tokens.colors.muted }}; }
+.who::before { content: "— "; }
+.footer { display: flex; align-items: center; justify-content: space-between; padding-top: 3rem; border-top: 0.25rem solid {{ tokens.colors.line }}; }
+.footer img { height: 3.2rem; }
+.footer span { font-size: 2.4rem; color: {{ tokens.colors.muted }}; letter-spacing: 0.04em; }
+.landscape .quote { font-size: 5.2rem; max-width: 30ch; }
+.landscape .mark { height: 9rem; }
+</style>
+</head>
+<body class="{{ 'landscape' if width > height else 'portrait' }}">
+{% if picture %}<div class="picture"></div>{% endif %}
+<main class="card">
+  <section class="body">
+    <div class="mark" aria-hidden="true">“</div>
+    <p class="quote">{{ slots.quote }}</p>
+    <div class="who">{{ slots.who }}</div>
+  </section>
+  <footer class="footer">
+    <img src="{{ logo }}" alt="Digital Workers">
+    <span>DW-OS</span>
+  </footer>
+</main>
+</body>
+</html>

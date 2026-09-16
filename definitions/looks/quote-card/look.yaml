@@ -1,0 +1,4 @@
+name: quote-card
+medium: image
+ratios: ["1:1", "4:5", "9:16", "16:9"]
+slots: [{name: quote, max: 140}, {name: who, max: 40}]

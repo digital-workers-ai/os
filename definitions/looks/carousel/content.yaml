@@ -1,0 +1,13 @@
+cover:
+  title: Where a number comes from
+  kicker: Three facts about DW-OS
+slides:
+  - title: Kept as it arrived
+    body: Every data point from every tool is stored exactly as it came in. Nothing there is edited or deleted, and everything else is rebuilt from it.
+  - title: Traced to its tool
+    body: Each number reports which tool it came from, which records it counted, and which of those records were missing the field.
+  - title: Files you own
+    body: What a customer is, how revenue is calculated and what counts as a problem live in definition files in a repository your company owns.
+closing:
+  title: "Open source, AGPL-3.0"
+  cta: github.com/digital-workers-ai/os

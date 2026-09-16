@@ -1,0 +1,5 @@
+slots:
+  newsletter_weekly: {kind: newsletter, skill: dw-newsletter, when: weekly, day: mon, time: "06:00", theme: "Write this week's letter to the operator around one pillar from pillars.md and the facts in proof.md that earn it."}
+  linkedin_post:     {kind: post, skill: dw-post, when: weekly, days: [tue, fri], time: "06:00", look: stat-card, ratio: "1:1", theme: "One thing DW-OS does that a spreadsheet cannot, from proof.md, for the owner."}
+  blog_fortnightly:  {kind: blog, skill: dw-blog, when: fortnightly, day: thu, time: "06:00", theme: "Explain one pillar from pillars.md to the engineer, naming the file in the repository that proves each claim."}
+  carousel_monthly:  {kind: carousel, skill: dw-carousel, when: monthly, day: 1, time: "06:00", look: carousel, ratio: "4:5", theme: "Answer one objection from objections.md across the slides, one fact from proof.md per slide."}
