@@ -140,6 +140,11 @@ _REAL: dict[str, tuple[str, tuple[str, ...], Callable]] = {
         ("TWITTER_BEARER_TOKEN", "TWITTER_USER_ID"),
         _twitter,
     ),
+    "linkedin_posts": (
+        "https://api.brightdata.com",
+        ("BRIGHTDATA_API_KEY",),
+        _bearer,
+    ),
     "google_serp": ("https://serpapi.com", ("SERPAPI_API_KEY",), _serpapi),
     "shopify": (
         "https://{domain}",
@@ -255,6 +260,12 @@ _MOCK: dict[str, tuple[str, dict, tuple | None, dict]] = {
     "twitter": (
         "/twitter",
         {"Authorization": "Bearer mock_twitter_token"},
+        None,
+        {},
+    ),
+    "linkedin_posts": (
+        "/brightdata",
+        {"Authorization": "Bearer mock_brightdata_key"},
         None,
         {},
     ),

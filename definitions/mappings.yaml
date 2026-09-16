@@ -328,3 +328,13 @@ visibility_mention:
   google_serp.ai_overviews._company: company
   google_serp.ai_overviews._role: role
   google_serp.ai_overviews._rank: rank
+
+competitor_post:
+  linkedin_posts.posts._company: company
+  linkedin_posts.posts._platform: platform
+  linkedin_posts.posts.post_text: name
+  linkedin_posts.posts.post_type: category
+  linkedin_posts.posts.date_posted: posted_at
+  linkedin_posts.posts.num_likes: likes
+  linkedin_posts.posts.num_comments: comments
+  linkedin_posts.posts.url: url

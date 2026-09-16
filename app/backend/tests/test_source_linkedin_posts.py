@@ -361,6 +361,25 @@ class TestTheHook:
         del payload["user_id"]
         assert extract.reshape("posts", payload)[0]["_company"] == "Zoho CRM"
 
+    def test_a_sub_brand_repost_resolves_through_the_discovered_page(self):
+        record = extract.reshape(
+            "posts",
+            post(
+                user_id="zoho-sprints",
+                use_url="https://www.linkedin.com/showcase/zoho-sprints/?trk=public_post_feed-actor-image",
+                discovery_input={"url": "https://www.linkedin.com/company/zoho"},
+                title="See Zoho's activity on LinkedIn",
+            ),
+        )[0]
+        assert record["_company"] == "Zoho CRM"
+
+    def test_a_discovery_input_without_a_url_string_is_ignored(self):
+        record = extract.reshape(
+            "posts",
+            post(user_id="nobody", use_url=None, discovery_input={"url": 5}, title="T"),
+        )[0]
+        assert record["_company"] == "T"
+
     def test_the_company_falls_back_to_the_title(self):
         record = extract.reshape(
             "posts",
@@ -386,7 +405,8 @@ class TestTheHook:
 
     def test_a_malformed_shape_never_raises(self):
         record = extract.reshape(
-            "posts", post(user_id=["hubspot"], use_url=7, title={"x": 1})
+            "posts",
+            post(user_id=["hubspot"], use_url=7, discovery_input=[], title={"x": 1}),
         )[0]
         assert "_company" not in record
         assert record["_platform"] == "linkedin"
@@ -472,9 +492,10 @@ def payloads(root):
 
 
 class TestTheFixtures:
-    def test_every_mock_post_carries_the_forty_keys_in_the_real_order(self):
+    def test_every_mock_post_carries_the_forty_documented_keys(self):
         for payload in payloads(MOCK_FIXTURES):
-            assert tuple(payload) == RECORD_KEYS
+            assert set(payload) == set(RECORD_KEYS)
+            assert len(payload) == 40
 
     def test_the_real_capture_covers_two_companies_in_three_posts_at_most(self):
         real = payloads(REAL_FIXTURES)

@@ -208,6 +208,17 @@ entities:
       company: string
       role: string
       rank: number
+  competitor_post:
+    description: One public post on a competitor's company page, with the engagement it drew.
+    attrs:
+      company: string
+      platform: string
+      name: string
+      category: string
+      posted_at: date
+      likes: number
+      comments: number
+      url: string
   data_source:
     description: An upstream system feeding the estate.
     attrs:
@@ -350,6 +361,7 @@ source_priority:
   - smartlook
   - google_analytics
   - google_sheets
+  - linkedin_posts
   - google_serp
 
 relationships:
