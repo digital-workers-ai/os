@@ -1,17 +1,26 @@
 import asyncio
 import hashlib
 import re
+import shutil
 from datetime import datetime, timedelta
+from pathlib import Path
 
 from sqlalchemy import delete, func, select, update
 
-from app import clock, store
+from app import clock, media, store
 from app.coaching import briefer
+from app.config import settings
 from app.db import async_session
-from app.engine import metrics, search
+from app.engine import calendar, metrics, search
 from app.engine.run import rebuild
 from app.enrichment import vocabulary
 from app.models import (
+    AgentRun,
+    Asset,
+    AssetClaim,
+    AssetEvidence,
+    AssetFile,
+    AssetVersion,
     BriefingRun,
     EngineRun,
     EnrichedFact,
@@ -21,8 +30,14 @@ from app.models import (
     MergeCandidate,
     MetricSnapshot,
     RawEvent,
+    SkillRun,
+    SkillRunToolCall,
+    SlotSkip,
+    StudioThread,
+    StudioTurn,
     SyncRun,
 )
+from app.skills import catalog
 
 NOW = clock.now()
 MODEL = "claude-sonnet-5"
@@ -172,6 +187,145 @@ LOOKALIKES = {
     ),
 }
 DECIDED = {"maria": "confirmed", "alex": "rejected"}
+STUDIO_MODEL = "claude-opus-5"
+STUDIO_FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "studio"
+STUDIO_TABLES = (
+    StudioTurn,
+    StudioThread,
+    SkillRunToolCall,
+    SkillRun,
+    AgentRun,
+    SlotSkip,
+    AssetClaim,
+    AssetEvidence,
+    AssetFile,
+    AssetVersion,
+    Asset,
+)
+CLAIMS = "claims.md"
+BUILD = "build.md"
+HELD_CLAIM = "Teams close their quarter twice as fast with DW-OS."
+EVIDENCE = (
+    ("proof.md", "The gate holds 100% line and branch coverage; never red."),
+    ("voice.md", "Plain, specific, concrete. No hype, no hashtags, no emoji."),
+)
+IMAGE_TOOLS = ("image_paint", "image_render")
+TEXT_TOOLS = ("brand_read", "files_write")
+TOOL_DETAIL = {
+    "image_paint": "painted one picture, no words in it",
+    "image_render": "rendered the card over the picture",
+    "brand_read": "read voice.md, language.md and proof.md",
+    "files_write": "wrote every file the ask named",
+}
+CARD_FILES = (
+    ("content.yaml", "content.yaml"),
+    ("image.png", "stat-card.png"),
+    (CLAIMS, CLAIMS),
+    (BUILD, BUILD),
+)
+QUOTE_FILES = (("image.png", "quote-card.png"), (CLAIMS, CLAIMS), (BUILD, BUILD))
+POST_FILES = (
+    ("post.md", "post.md"),
+    ("image.png", "stat-card.png"),
+    (CLAIMS, CLAIMS),
+    (BUILD, BUILD),
+)
+LETTER_FILES = (
+    ("newsletter.md", "newsletter.md"),
+    ("newsletter.html", "newsletter.html"),
+    (CLAIMS, CLAIMS),
+    (BUILD, BUILD),
+)
+BLOG_FILES = (("post.md", "blog.md"), (CLAIMS, CLAIMS), (BUILD, BUILD))
+CAROUSEL_FILES = (
+    ("slide-01.png", "carousel-01.png"),
+    ("slide-02.png", "carousel-02.png"),
+    ("slide-03.png", "carousel-03.png"),
+    (CLAIMS, CLAIMS),
+    (BUILD, BUILD),
+)
+STUDIO_ASSETS = (
+    {
+        "name": "100% line and branch coverage",
+        "kind": "image",
+        "skill": "dw-image",
+        "look": "stat-card",
+        "ratio": "1:1",
+        "origin": "chat",
+        "days": 0,
+        "hours": 2,
+        "tools": IMAGE_TOOLS,
+        "versions": (
+            ("A stat card on the test gate, stat-card at 1:1", CARD_FILES),
+            ("shorter label", CARD_FILES),
+        ),
+    },
+    {
+        "name": "Every number can tell you which tool it came from",
+        "kind": "image",
+        "skill": "dw-image",
+        "look": "quote-card",
+        "ratio": "1:1",
+        "origin": "chat",
+        "days": 0,
+        "hours": 3,
+        "tools": IMAGE_TOOLS,
+        "status": "held",
+        "versions": (("A quote card from the line on tracing a number", QUOTE_FILES),),
+    },
+    {
+        "name": "Why a rebuild never touches the raw store",
+        "kind": "blog",
+        "skill": "dw-blog",
+        "origin": "chat",
+        "days": 1,
+        "hours": 2,
+        "tools": TEXT_TOOLS,
+        "versions": (("Explain the rebuild to the engineer", BLOG_FILES),),
+    },
+    {
+        "name": "Where a number comes from",
+        "kind": "carousel",
+        "skill": "dw-carousel",
+        "look": "carousel",
+        "ratio": "4:5",
+        "origin": "mcp",
+        "days": 1,
+        "hours": 3,
+        "tools": IMAGE_TOOLS,
+        "versions": (("Three facts about DW-OS, carousel at 4:5", CAROUSEL_FILES),),
+    },
+    {
+        "name": "A spreadsheet has no test gate",
+        "kind": "post",
+        "skill": "dw-post",
+        "look": "stat-card",
+        "ratio": "1:1",
+        "origin": "marketer",
+        "slot": ("linkedin_post", 2),
+        "days": 2,
+        "hours": 2,
+        "tools": IMAGE_TOOLS,
+        "versions": (("One thing a spreadsheet cannot do, for the owner", POST_FILES),),
+    },
+    {
+        "name": "The review queue this week",
+        "kind": "newsletter",
+        "skill": "dw-newsletter",
+        "origin": "marketer",
+        "slot": ("newsletter_weekly", 4),
+        "days": 2,
+        "hours": 3,
+        "tools": TEXT_TOOLS,
+        "versions": (("This week's letter to the operator", LETTER_FILES),),
+    },
+)
+SKIPPED_SLOT = "linkedin_post"
+THREAD_TITLE = "a post on the coverage gate"
+THREAD_TURNS = (
+    ("person", "Make a post about the coverage gate for the owner, with the image."),
+    ("studio", "Writing one post on the test gate, with a stat card at 1:1."),
+)
 
 
 def sha(text: str) -> str:
@@ -389,6 +543,186 @@ async def seed_candidates(s) -> int:
     return await s.scalar(select(func.count()).select_from(MergeCandidate))
 
 
+def claim_rows(seq, version, held) -> list:
+    lines = (STUDIO_FIXTURES / CLAIMS).read_text().strip().splitlines()
+    rows = []
+    for line in lines:
+        text, source_kind, source_ref = (part.strip() for part in line.split("|"))
+        rows.append(
+            AssetClaim(
+                asset_seq=seq,
+                version=version,
+                text=text,
+                source_kind=source_kind,
+                source_ref=source_ref,
+                verified=True,
+            )
+        )
+    if held:
+        rows.append(
+            AssetClaim(
+                asset_seq=seq,
+                version=version,
+                text=HELD_CLAIM,
+                source_kind="none",
+                source_ref=None,
+                verified=False,
+            )
+        )
+    return rows
+
+
+def evidence_rows(seq, version) -> list:
+    return [
+        AssetEvidence(
+            asset_seq=seq, version=version, kind="brand", ref=ref, detail=detail
+        )
+        for ref, detail in EVIDENCE
+    ]
+
+
+def run_row(spec, number, seq, version, when) -> SkillRun:
+    return SkillRun(
+        skill=spec["skill"],
+        skill_sha=catalog.load(spec["skill"]).sha,
+        caller=spec["origin"],
+        asset_seq=seq,
+        version=version,
+        stage=None,
+        status=spec.get("status", "ok"),
+        error=None,
+        model=STUDIO_MODEL,
+        tokens_in=8200 + 730 * number,
+        tokens_out=1140 + 260 * number,
+        duration_ms=38000 + 4200 * number,
+        started_at=when - timedelta(minutes=2),
+        finished_at=when,
+    )
+
+
+def asset_row(spec, created) -> Asset:
+    slot_name, slot_days = spec.get("slot", (None, None))
+    slot_date = None if slot_name is None else (NOW - timedelta(days=slot_days)).date()
+    return Asset(
+        name=spec["name"],
+        kind=spec["kind"],
+        skill=spec["skill"],
+        look=spec.get("look"),
+        ratio=spec.get("ratio"),
+        origin=spec["origin"],
+        slot_date=slot_date,
+        slot_name=slot_name,
+        feedback=None,
+        created_at=created,
+    )
+
+
+def skipped_day() -> datetime.date:
+    spec = calendar.slots()[SKIPPED_SLOT]
+    day = NOW.date()
+    return calendar.dates(spec, day + timedelta(days=1), day + timedelta(days=14))[0]
+
+
+async def seed_studio(s) -> dict:
+    for table in STUDIO_TABLES:
+        await s.execute(delete(table))
+    await s.flush()
+    shutil.rmtree(Path(settings.MEDIA_DIR) / "assets", ignore_errors=True)
+    counts = dict.fromkeys(("asset_version", "asset_file", "asset_claim"), 0)
+    runs: dict = {}
+    for number, spec in enumerate(STUDIO_ASSETS):
+        created = NOW - timedelta(days=spec["days"], hours=spec["hours"])
+        asset = asset_row(spec, created)
+        s.add(asset)
+        await s.flush()
+        for index, (note, files) in enumerate(spec["versions"]):
+            version, when = index + 1, created + timedelta(minutes=30 * index)
+            s.add(
+                AssetVersion(
+                    asset_seq=asset.seq, version=version, note=note, created_at=when
+                )
+            )
+            for path, fixture in files:
+                written = media.write(
+                    asset.seq, version, path, (STUDIO_FIXTURES / fixture).read_bytes()
+                )
+                s.add(
+                    AssetFile(
+                        asset_seq=asset.seq,
+                        version=version,
+                        path=written["path"],
+                        media_type=written["media_type"],
+                        bytes=written["bytes"],
+                        created_at=when,
+                    )
+                )
+            claims = claim_rows(asset.seq, version, "status" in spec)
+            s.add_all(claims + evidence_rows(asset.seq, version))
+            run = run_row(spec, number, asset.seq, version, when)
+            s.add(run)
+            await s.flush()
+            for tool in spec["tools"]:
+                s.add(
+                    SkillRunToolCall(
+                        skill_run_seq=run.seq,
+                        tool=tool,
+                        ok=True,
+                        duration_ms=1400 + 90 * number,
+                        detail=TOOL_DETAIL[tool],
+                    )
+                )
+            counts["asset_version"] += 1
+            counts["asset_file"] += len(files)
+            counts["asset_claim"] += len(claims)
+            runs[spec["kind"]] = run.seq
+    s.add(
+        AgentRun(
+            agent="marketer",
+            trigger="daily",
+            read_detail="6 slots, 2 empty",
+            made=2,
+            duration_ms=84000,
+            ok=True,
+            error=None,
+            created_at=(NOW - timedelta(days=1)).replace(
+                hour=6, minute=0, second=0, microsecond=0
+            ),
+        )
+    )
+    s.add(
+        SlotSkip(
+            slot_date=skipped_day(),
+            slot_name=SKIPPED_SLOT,
+            created_at=NOW - timedelta(days=1),
+        )
+    )
+    opened = NOW - timedelta(days=2, hours=2, minutes=5)
+    thread = StudioThread(title=THREAD_TITLE, created_at=opened)
+    s.add(thread)
+    await s.flush()
+    for minutes, (role, text) in enumerate(THREAD_TURNS, 1):
+        s.add(
+            StudioTurn(
+                thread_seq=thread.seq,
+                role=role,
+                text=text,
+                skill_run_seq=runs["post"] if role == "studio" else None,
+                created_at=opened + timedelta(minutes=minutes),
+            )
+        )
+    return {
+        "asset": len(STUDIO_ASSETS),
+        **counts,
+        "asset_evidence": counts["asset_version"] * len(EVIDENCE),
+        "skill_run": counts["asset_version"],
+        "skill_run_tool_call": counts["asset_version"] * 2,
+        "agent_run": 1,
+        "slot_skip": 1,
+        "studio_thread": 1,
+        "studio_turn": len(THREAD_TURNS),
+    }
+
+
 async def main() -> None:
     readings = vocabulary.load()
     async with async_session() as s:
@@ -398,6 +732,7 @@ async def main() -> None:
         meetings = await seed_meetings(s, readings["sales_call"].sha)
         tickets = await seed_tickets(s, readings["support_ticket"].sha)
         briefings = await seed_briefings(s)
+        studio = await seed_studio(s)
         indexed = await search.index(s)
         pinned = {
             column.class_.__tablename__: await pin(s, column, target, window)
@@ -416,6 +751,7 @@ async def main() -> None:
         "metric_snapshot": snapshots,
         **pinned,
         "engine_run_duration_ms": engine_run_durations,
+        **studio,
     }
     print(" ".join(f"{k}={v}" for k, v in counts.items()), f"anchor={NOW.isoformat()}")
 
