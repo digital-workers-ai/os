@@ -222,6 +222,11 @@ class TestTheConstantsTheContractNames:
         assert module.READS_PER_PULL == 50
         assert module.OPENROUTER_PATH == COMPLETIONS
 
+    def test_the_walk_is_bounded_to_two_pages_of_forty(self):
+        module = connector()
+        assert module.PAGES_PER_ADVERTISER == 2
+        assert module.PAGE_SIZE == 40
+
     def test_the_catalog_lists_the_source_under_spy(self):
         assert catalog.entry(SOURCE) == {
             "source": SOURCE,
@@ -269,7 +274,25 @@ class TestThePaginatorReadsSerpApiPages:
         ],
     )
     def test_no_token_ends_the_walk(self, body):
-        assert connector().AdsPage().next_params(body, {"num": 100}) is None
+        walk = connector().AdsPage()
+        assert walk.next_params(body, {"num": 40}) is None
+        assert walk.more is False
+
+    def test_a_token_after_the_last_allowed_page_ends_the_walk_and_says_so(self):
+        walk = connector().AdsPage()
+        page = ads_page([], next_page_token="t2")
+        assert walk.next_params(page, {"num": 40}) == {
+            "num": 40,
+            "next_page_token": "t2",
+        }
+        assert walk.next_params(page, {"num": 40, "next_page_token": "t2"}) is None
+        assert walk.more is True
+
+    def test_a_walk_ending_on_its_last_allowed_page_is_not_more(self):
+        walk = connector().AdsPage()
+        walk.next_params(ads_page([], next_page_token="t2"), {"num": 40})
+        assert walk.next_params(ads_page([]), {"num": 40}) is None
+        assert walk.more is False
 
 
 class TestTheWalkFollowsNextPageToken:
@@ -300,6 +323,52 @@ class TestTheWalkFollowsNextPageToken:
         assert [s["source_id"] for s in of_type(stored, "creatives")] == ["CR1", "CR2"]
 
 
+class TestTheWalkStopsAtTheCap:
+    @staticmethod
+    def _three_pages(prefix):
+        return {
+            None: ads_page([creative(f"{prefix}1")], next_page_token="t2"),
+            "t2": ads_page([creative(f"{prefix}2")], next_page_token="t3"),
+            "t3": ads_page([creative(f"{prefix}3")]),
+        }
+
+    async def test_only_two_pages_are_asked_and_the_advertiser_is_noted(
+        self, estate, save, stored
+    ):
+        seen = estate({HUBSPOT_ID: self._three_pages("CR")})
+
+        notes = await connector().pull(None, save)
+
+        hubspot = [
+            r for r in searches(seen) if r.url.params["advertiser_id"] == HUBSPOT_ID
+        ]
+        assert [r.url.params.get("next_page_token") for r in hubspot] == [None, "t2"]
+        assert [s["source_id"] for s in of_type(stored, "creatives")] == ["CR1", "CR2"]
+        assert notes["creatives_capped"] == 1
+
+    async def test_every_advertiser_with_more_pages_counts(self, estate, save):
+        estate({HUBSPOT_ID: self._three_pages("CR"), ZOHO_ID: self._three_pages("CZ")})
+
+        notes = await connector().pull(None, save)
+
+        assert notes["creatives_capped"] == 2
+
+    async def test_an_advertiser_under_the_cap_is_not_noted(self, estate, save, stored):
+        estate(
+            {
+                HUBSPOT_ID: {
+                    None: ads_page([creative("CR1", "video")], next_page_token="t2"),
+                    "t2": ads_page([creative("CR2", "video")]),
+                }
+            }
+        )
+
+        notes = await connector().pull(None, save)
+
+        assert [s["source_id"] for s in of_type(stored, "creatives")] == ["CR1", "CR2"]
+        assert notes is None
+
+
 class TestEveryCompetitorWithAnIdIsAsked:
     async def test_the_three_shipped_advertisers_are_asked_once_each(
         self, estate, save
@@ -323,7 +392,7 @@ class TestEveryCompetitorWithAnIdIsAsked:
 
         for request in searches(seen):
             assert request.url.params["engine"] == ADS_ENGINE
-            assert request.url.params["num"] == "100"
+            assert request.url.params["num"] == "40"
             assert request.url.params["api_key"] == "mock_serpapi_key"
 
     async def test_a_competitor_without_an_id_is_skipped(
