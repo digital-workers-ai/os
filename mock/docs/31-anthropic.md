@@ -4,19 +4,15 @@
 
 Claude answers one tracked query per request with the `web_search` server tool
 switched on. The API runs the search on Anthropic's side and returns, in one
-message, the search it made, the pages it read and an answer whose sentences
-cite those pages. This is the only Anthropic surface the estate reads.
+message, the search it made, the pages it read and an answer whose claims cite
+those pages. This is the only Anthropic surface the estate reads.
 
-Where this contract comes from: the key in `app/.env` was rejected by the API
-on 2026-09-15 (`authentication_error`, "API key is invalid."; the stored value
-is 39 characters, a real key is about 108), so there is no live capture yet.
-The request below is the one the plan specifies and the docs show. The
-response shape is the documented example from the web search tool page,
-cross-checked against the field lists of the `anthropic` Python SDK 1.5.0
-(`Message`, `Usage`, `ServerToolUseBlock`, `WebSearchToolResultBlock`,
-`WebSearchResultBlock`, `TextBlock`, `CitationsWebSearchResultLocation`). The
-two authentication bodies were captured live; they need no valid key. A
-capture with a working key should replace the example response here.
+Captured on 2026-09-15 with `claude-haiku-4-5` and the tool
+`web_search_20250305`: two queries, plus the three error bodies below. The
+model id is an alias; the response names the snapshot it resolved to,
+`claude-haiku-4-5-20251001`. One of the two queries ("crm with ai assistant")
+came back without any search at all, see [Answers without a
+search](#answers-without-a-search).
 
 ## Base URL
 
@@ -37,7 +33,8 @@ anthropic-version: 2023-06-01
 content-type: application/json
 ```
 
-Without the key, 401 (captured):
+Without the key, 401. The key check runs first: a request with neither header
+gets this body.
 
 ```json
 {
@@ -50,8 +47,7 @@ Without the key, 401 (captured):
 }
 ```
 
-With a key the API does not recognise, 401 (captured), and `request_id` is
-null:
+With a key the API does not recognise, 401, and `request_id` is null:
 
 ```json
 {
@@ -64,12 +60,18 @@ null:
 }
 ```
 
-The key check runs first: a request with neither header gets the `x-api-key`
-body (captured), so the missing-`anthropic-version` body could not be captured
-without a valid key. The versioning page says the header is required. The
-stand-in answers 400 with the same envelope and the message
-`anthropic-version header is required`; that message follows the phrasing of
-the captured key body and is unverified.
+With a valid key and no `anthropic-version`, 400:
+
+```json
+{
+  "type": "error",
+  "error": {
+    "type": "invalid_request_error",
+    "message": "anthropic-version: header is required"
+  },
+  "request_id": "req_011Cf6QoXLEGEje5dUH2hNPY"
+}
+```
 
 The stand-in accepts any non-empty key.
 
@@ -111,65 +113,107 @@ curl https://api.anthropic.com/v1/messages \
   }'
 ```
 
-**Example Response** (the documented example, trimmed; `type`, `model` and
-`stop_sequence` are always present and the docs leave them out):
+**Example Response** (real, trimmed: two of six search results, eight of
+twenty-two content blocks, encrypted fields cut short):
 ```json
 {
-  "id": "msg_a930390d3a",
+  "model": "claude-haiku-4-5-20251001",
+  "id": "msg_011Cf6Qnc6D6oXqDtPLcxLcm",
   "type": "message",
   "role": "assistant",
-  "model": "claude-haiku-4-5",
   "content": [
     {
       "type": "text",
-      "text": "I'll search for when Claude Shannon was born."
+      "text": "I'll search for current information about the best CRM options for small businesses."
     },
     {
       "type": "server_tool_use",
-      "id": "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE",
+      "id": "srvtoolu_01Js6anQWAzUPu3zpJ4M1oJn",
       "name": "web_search",
       "input": {
-        "query": "claude shannon birth date"
+        "query": "best CRM for small business 2026"
       }
     },
     {
       "type": "web_search_tool_result",
-      "tool_use_id": "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE",
+      "tool_use_id": "srvtoolu_01Js6anQWAzUPu3zpJ4M1oJn",
       "content": [
         {
           "type": "web_search_result",
-          "url": "https://en.wikipedia.org/wiki/Claude_Shannon",
-          "title": "Claude Shannon - Wikipedia",
-          "encrypted_content": "EqgfCioIARgBIiQ3YTAwMjY1Mi1mZjM5LTQ1NGUtODgxNC1kNjNjNTk1ZWI3Y...",
-          "page_age": "April 30, 2025"
+          "title": "Best Small Business CRM in 2026 | Salesforce",
+          "url": "https://www.salesforce.com/crm/crm-for-small-business/best-crm/",
+          "encrypted_content": "EsQICioIExgCIiQ2NzI0ZDFj…",
+          "page_age": "3 weeks ago"
+        },
+        {
+          "type": "web_search_result",
+          "title": "Best CRM for Small Business in 2026 | Slack",
+          "url": "https://slack.com/blog/crm/best-crm-for-small-business",
+          "encrypted_content": "EuAQCioIExgCIiQ2NzI0ZDFj…",
+          "page_age": null
         }
-      ]
+      ],
+      "caller": {
+        "type": "direct"
+      }
     },
     {
       "type": "text",
-      "text": "Based on the search results, "
+      "text": "Based on recent information, here are some of the best CRM options for small businesses:\n\n## Top Recommendations\n\n**Salesforce Starter**\n"
     },
     {
-      "type": "text",
-      "text": "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan",
       "citations": [
         {
           "type": "web_search_result_location",
-          "url": "https://en.wikipedia.org/wiki/Claude_Shannon",
-          "title": "Claude Shannon - Wikipedia",
-          "encrypted_index": "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..",
-          "cited_text": "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i..."
+          "cited_text": "Best for most small businesses, in most cases: Salesforce\n\nSalesforce is the go-to CRM for many small businesses and for good reason. The platform can...",
+          "url": "https://www.techradar.com/uk/news/software/-devices-based-around-software-we-can-t-control-it-s-terrifying-1206500",
+          "title": "Best small business CRM of 2026",
+          "encrypted_index": "EpMBCioIExgCIiQ2NzI0ZDFj…"
         }
-      ]
+      ],
+      "type": "text",
+      "text": "Salesforce is the go-to CRM for many small businesses, with a strong combination of ease-of-use, pricing, and extensive range of tools and features."
+    },
+    {
+      "type": "text",
+      "text": " "
+    },
+    {
+      "citations": [
+        {
+          "type": "web_search_result_location",
+          "cited_text": "Salesforce Starter Suite provides smaller teams with a powerful platform, simplified into a ready-to-use solution that takes minutes to set up. ",
+          "url": "https://www.salesforce.com/crm/crm-for-small-business/best-crm/",
+          "title": "Best Small Business CRM in 2026 | Salesforce",
+          "encrypted_index": "Eo8BCioIExgCIiQ2NzI0ZDFj…"
+        }
+      ],
+      "type": "text",
+      "text": "It provides smaller teams with a powerful platform that takes minutes to set up."
+    },
+    {
+      "type": "text",
+      "text": " Consider your budget, team size, and which tools you're already using when making your decision."
     }
   ],
+  "container": null,
   "stop_reason": "end_turn",
   "stop_sequence": null,
+  "stop_details": null,
   "usage": {
-    "input_tokens": 6039,
-    "output_tokens": 931,
+    "input_tokens": 8875,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 586,
+    "service_tier": "standard",
+    "inference_geo": "not_available",
     "server_tool_use": {
-      "web_search_requests": 1
+      "web_search_requests": 1,
+      "web_fetch_requests": 0
     }
   }
 }
@@ -177,59 +221,107 @@ curl https://api.anthropic.com/v1/messages \
 
 ### Fields
 
-**Message:**
+**Message**, keys in the order the API writes them:
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `model` | string | The snapshot that answered, `claude-haiku-4-5-20251001` for the alias |
 | `id` | string | `msg_` followed by 26 characters |
 | `type` | string | Always `message` |
 | `role` | string | Always `assistant` |
-| `model` | string | The model that answered |
 | `content` | array | Content blocks, in the order they were produced |
+| `container` | null | Only set when code execution ran |
 | `stop_reason` | string | `end_turn` when the answer is complete; `max_tokens`, `pause_turn`, `tool_use`, `refusal` otherwise |
-| `stop_sequence` | string or null | Null unless a custom stop sequence fired |
+| `stop_sequence` | null | Set only when a custom stop sequence fired |
+| `stop_details` | null | Set only on `refusal` |
 | `usage` | object | Token and search counts |
 
 **Content blocks**, in the order the API produces them:
 
 | Block `type` | Keys | Description |
 |--------------|------|-------------|
-| `text` (leading) | `type`, `text` | Optional. Claude announcing the search; no `citations` key |
-| `server_tool_use` | `type`, `id`, `name`, `input` | One per search. `id` is `srvtoolu_` + 26 characters, `name` is `web_search`, `input.query` is the search Claude wrote, not the user's text verbatim |
-| `web_search_tool_result` | `type`, `tool_use_id`, `content` | One per search; `tool_use_id` points at its `server_tool_use`. `content` is a list of `web_search_result`, or a single error object |
-| `text` (answer) | `type`, `text`, `citations` | One block per cited span, `citations` a list of `web_search_result_location`. Uncited spans come as `text` blocks with no `citations` key |
+| `text` (leading) | `type`, `text` | Claude announcing the search, in its own words |
+| `server_tool_use` | `type`, `id`, `name`, `input` | One per search. `id` is `srvtoolu_` + 26 characters, `name` is `web_search`, `input.query` is the search Claude wrote (it added the year), not the user's text |
+| `web_search_tool_result` | `type`, `tool_use_id`, `content`, `caller` | One per search; `tool_use_id` points at its `server_tool_use`; `caller` is `{"type": "direct"}`. `content` is a list of `web_search_result` (six for one search here), or a single error object |
+| `text` (cited) | `citations`, `type`, `text` | One block per cited claim, a sentence or part of one, with one citation |
+| `text` (uncited) | `type`, `text` | Everything between cited claims: the intro, a lone `" "`, markdown headings such as `"\n\n**Zoho CRM**\n"`, the closing sentence |
 
 **`web_search_result`** — one per page read:
 
 | Key | Type | Description |
 |-----|------|-------------|
 | `type` | string | `web_search_result` |
-| `url` | string | Page URL |
 | `title` | string | Page title |
-| `encrypted_content` | string | Opaque blob to pass back on later turns |
-| `page_age` | string or null | When the page was last updated, e.g. `April 30, 2025` |
+| `url` | string | Page URL |
+| `encrypted_content` | string | Opaque blob, 1,300 to 2,900 characters, to pass back on later turns |
+| `page_age` | string or null | `3 weeks ago`, `June 19, 2026`, or null |
 
-**`web_search_result_location`** — one per source a span rests on:
+**`web_search_result_location`** — the citation on a cited block:
 
 | Key | Type | Description |
 |-----|------|-------------|
 | `type` | string | `web_search_result_location` |
-| `url` | string | Cited page URL |
-| `title` | string or null | Cited page title |
-| `encrypted_index` | string | Opaque reference to pass back on later turns |
-| `cited_text` | string | Up to 150 characters of the cited page, not of the answer |
+| `cited_text` | string | A quote of the source page, not of the answer: up to 150 characters, then `...` when cut |
+| `url` | string | Cited page URL, always one of the `web_search_result` urls |
+| `title` | string | Cited page title |
+| `encrypted_index` | string | Opaque reference, about 200 characters, to pass back on later turns |
 
-**`usage`:**
+**`usage`**, keys in order:
 
 | Key | Type | Description |
 |-----|------|-------------|
 | `input_tokens` | int | Includes the search results Claude read |
-| `output_tokens` | int | |
 | `cache_creation_input_tokens` | int | |
 | `cache_read_input_tokens` | int | |
 | `cache_creation` | object | `ephemeral_5m_input_tokens`, `ephemeral_1h_input_tokens` |
-| `service_tier` | string | `standard`, `priority` or `batch` |
-| `server_tool_use` | object | `web_search_requests`, `web_fetch_requests` |
+| `output_tokens` | int | |
+| `service_tier` | string | `standard` |
+| `inference_geo` | string | `not_available` |
+| `server_tool_use` | object | `web_search_requests`, `web_fetch_requests`; absent when nothing was searched |
+
+### Answers without a search
+
+Claude decides whether to search. For "crm with ai assistant" it did not, and
+asked what the user meant instead. The message then has one `text` block with
+no `citations`, no `server_tool_use` or `web_search_tool_result`, and no
+`server_tool_use` in `usage`:
+
+```json
+{
+  "model": "claude-haiku-4-5-20251001",
+  "id": "msg_011Cf6QoBVsfpFUEdUjiDvLC",
+  "type": "message",
+  "role": "assistant",
+  "content": [
+    {
+      "type": "text",
+      "text": "I'd be happy to help you with information about CRM with AI assistants! To give you the most relevant and current information, could you clarify what you're looking for?\n\nAre you interested in:\n\n1. **Overview of CRM systems with AI capabilities** - How AI is being integrated into customer relationship management platforms?\n\n…"
+    }
+  ],
+  "container": null,
+  "stop_reason": "end_turn",
+  "stop_sequence": null,
+  "stop_details": null,
+  "usage": {
+    "input_tokens": 2218,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 176,
+    "service_tier": "standard",
+    "inference_geo": "not_available"
+  }
+}
+```
+
+A pull that concatenates `text` blocks and collects citation urls gets a plain
+answer with zero sources from such a message; that is a real outcome, not a
+failure.
+
+### Search errors
 
 A search that fails does not raise: the message is still 200 and the
 `web_search_tool_result.content` is one object instead of a list:
@@ -259,14 +351,27 @@ with `type` and `message`, and a `request_id`.
 | 400 | `invalid_request_error` | Bad body or header, web search disabled for the organization, both domain lists at once |
 | 401 | `authentication_error` | Missing, malformed or revoked key |
 | 403 | `permission_error` | Key not allowed to use the resource |
-| 404 | `not_found_error` | Unknown route, or a model the organization cannot use: message `model: <id>` |
+| 404 | `not_found_error` | Unknown route, or a model the organization cannot use |
 | 413 | `request_too_large` | Body over 32 MB |
 | 429 | `rate_limit_error` | Rate limit or spend cap; `retry-after` header |
 | 500 | `api_error` | Anthropic-side failure |
 | 529 | `overloaded_error` | Temporary overload |
 
-A model the API does not serve and a model the organization cannot use return
-the same 404, so the message never reveals whether the id exists.
+A model the API does not serve, 404 (captured):
+
+```json
+{
+  "type": "error",
+  "error": {
+    "type": "not_found_error",
+    "message": "model: claude-haiku-9-9"
+  },
+  "request_id": "req_011Cf6QoNKW4BTkQS6aE7oXR"
+}
+```
+
+A model the organization cannot use answers the same way, so the message never
+reveals whether the id exists.
 
 ## Pricing
 
@@ -274,8 +379,9 @@ Web search costs **$10 per 1,000 searches** on top of tokens. Each search
 counts once whatever it returns, a failed search is not billed, and the results
 Claude reads count as input tokens on this turn and on every later turn that
 carries them. Claude Haiku 4.5 is $1 per million input tokens and $5 per
-million output tokens. Citation fields (`cited_text`, `title`, `url`) are not
-billed.
+million output tokens; the searched answer above cost about 2.2 cents and the
+unsearched one about 0.3 cents. Citation fields (`cited_text`, `title`, `url`)
+are not billed.
 
 ## Notes
 
@@ -284,40 +390,42 @@ billed.
   need Claude 4.6 or later; on those versions the tool defaults to being
   called from code execution, and a model without programmatic tool calling
   needs `allowed_callers: ["direct"]` or the request answers 400
-- `max_uses` is a ceiling, not a count: Claude may search fewer times, and a
-  comparative query can produce several `server_tool_use` and
-  `web_search_tool_result` pairs before the answer
-- A hook that concatenates every `text` block also picks up the leading
-  "I'll search for..." block when Claude emits one
+- `max_uses` is a ceiling, not a count: this capture searched once for a
+  ceiling of three, and Claude may also not search at all
+- A hook that concatenates every `text` block also gets the leading
+  announcement and the markdown headings between cited claims
+- A cited claim can be part of a sentence, with the rest of the sentence in the
+  next uncited block, so cited blocks do not split the answer at sentence
+  boundaries
 - `encrypted_content` and `encrypted_index` only matter when the message is
   sent back for another turn; a single-turn pull can ignore them
-- `model` in the response may be the dated snapshot the alias resolves to; not
-  verified without a working key
 
 ## What the stand-in leaves out
 
-- Exactly one search per request, and `input.query` is the user's text
-  verbatim; the real API rewrites the query and may search up to `max_uses`
-  times
-- No leading uncited "I'll search" text block
-- The answer comes as exactly two `text` blocks, each carrying one citation per
-  sentence that names a cited company; the real API cuts a new block at every
-  cited span. `cited_text` is the answer sentence (at most 150 characters)
-  because the world has no page text to quote; the real API quotes the page
-- `encrypted_content` and `encrypted_index` are deterministic hashes (344 and
-  44 characters); real ones are far longer and only the real API can decrypt
-  them, so a stand-in message cannot be replayed to `api.anthropic.com`
-- `container` and `stop_details` on the message, `inference_geo` and
-  `output_tokens_details` in `usage`, all null or absent on a plain request,
-  are not sent
-- Eight model ids are accepted (`claude-haiku-4-5`,
-  `claude-haiku-4-5-20251001`, `claude-sonnet-4-6`, `claude-sonnet-5`,
-  `claude-opus-4-6`, `claude-opus-4-7`, `claude-opus-4-8`, `claude-opus-5`);
-  the response echoes the requested id
+- Exactly one search per request with three results; the real API may search
+  up to `max_uses` times, return six or more results, or not search at all
+- The leading text block is one fixed sentence that never names the query or a
+  company; the real one paraphrases the query. `input.query` is the user's
+  text with the year appended, a stand-in for Claude's rewrite
+- Answer blocks cut at whole sentences: a sentence naming a cited company is
+  one cited block carrying one citation per such company, and everything
+  between two cited sentences is one uncited block. The real API cites
+  claims, not sentences, one citation per block
+- `cited_text` is the page title, a blank line and the sentence, cut at 150
+  characters with `...`; the real one quotes the page. The world has no page
+  text to quote
+- `encrypted_content` and `encrypted_index` are deterministic hashes (1,368
+  and 216 characters); only the real API can decrypt real ones, so a stand-in
+  message cannot be replayed to `api.anthropic.com`
+- `page_age` is always `Month D, YYYY`; the real one is also `3 weeks ago` or
+  null
+- Two model ids are accepted, `claude-haiku-4-5` and
+  `claude-haiku-4-5-20251001`, both answering as the snapshot
 - No streaming, no `system`, `tool_choice`, `allowed_domains`,
   `blocked_domains` or `user_location`, no rate limiting, no search-level
   error objects
-- `request_id` in error bodies is deterministic
+- `request_id` in error bodies is deterministic; the real ids are unique per
+  request, and null on an invalid key
 
 ## Reference
 

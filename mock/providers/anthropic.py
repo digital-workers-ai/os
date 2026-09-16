@@ -12,15 +12,11 @@ from seeds import world
 router = APIRouter()
 
 _MODELS = {
-    "claude-haiku-4-5",
-    "claude-haiku-4-5-20251001",
-    "claude-sonnet-4-6",
-    "claude-sonnet-5",
-    "claude-opus-4-6",
-    "claude-opus-4-7",
-    "claude-opus-4-8",
-    "claude-opus-5",
+    "claude-haiku-4-5": "claude-haiku-4-5-20251001",
+    "claude-haiku-4-5-20251001": "claude-haiku-4-5-20251001",
 }
+_PREAMBLE = "I'll search for current information to answer this."
+_CITED_TEXT_LIMIT = 150
 
 
 def _digest(*parts):
@@ -79,36 +75,56 @@ def _result(seed, source):
     day = world.SPY_ANCHOR - timedelta(days=_digest(seed, source["url"])[0] % 90)
     return {
         "type": "web_search_result",
-        "url": source["url"],
         "title": source["title"],
-        "encrypted_content": _blob(seed, source["url"], repeat=8),
+        "url": source["url"],
+        "encrypted_content": _blob(seed, source["url"], repeat=32),
         "page_age": f"{day:%B} {day.day}, {day.year}",
     }
+
+
+def _quote(sentence, source):
+    text = f"{source['title']}\n\n{sentence}"
+    return text if len(text) <= _CITED_TEXT_LIMIT else text[:_CITED_TEXT_LIMIT] + "..."
 
 
 def _citation(seed, sentence, source):
     return {
         "type": "web_search_result_location",
+        "cited_text": _quote(sentence, source),
         "url": source["url"],
         "title": source["title"],
-        "encrypted_index": _blob(seed, sentence, source["url"]),
-        "cited_text": sentence[:150],
+        "encrypted_index": _blob(seed, sentence, source["url"], repeat=5),
     }
 
 
-def _text_block(seed, sentences, sources):
-    block = {"type": "text", "text": " ".join(sentences)}
-    citations = [
-        _citation(seed, sentence, source)
-        for sentence in sentences
-        for source in sources
-        if any(
-            re.search(rf"\b{re.escape(name)}\b", sentence) for name in _names(source)
-        )
+def _cited(sentence, sources):
+    return [
+        s
+        for s in sources
+        if any(re.search(rf"\b{re.escape(n)}\b", sentence) for n in _names(s))
     ]
-    if citations:
-        block["citations"] = citations
-    return block
+
+
+def _answer_blocks(seed, text, sources):
+    blocks, plain = [], ""
+    for piece in re.split(r"((?<=[.!?])\s+)", text):
+        cited = _cited(piece, sources)
+        if not cited:
+            plain += piece
+            continue
+        if plain:
+            blocks.append({"type": "text", "text": plain})
+            plain = ""
+        blocks.append(
+            {
+                "citations": [_citation(seed, piece, s) for s in cited],
+                "type": "text",
+                "text": piece,
+            }
+        )
+    if plain:
+        blocks.append({"type": "text", "text": plain})
+    return blocks
 
 
 def _usage(seed, text):
@@ -122,6 +138,7 @@ def _usage(seed, text):
         },
         "output_tokens": len(text) // 4 + 40,
         "service_tier": "standard",
+        "inference_geo": "not_available",
         "server_tool_use": {"web_search_requests": 1, "web_fetch_requests": 0},
     }
 
@@ -132,43 +149,42 @@ async def create_message(request: Request):
         return _error(401, "authentication_error", "x-api-key header is required")
     if not request.headers.get("anthropic-version"):
         return _error(
-            400, "invalid_request_error", "anthropic-version header is required"
+            400, "invalid_request_error", "anthropic-version: header is required"
         )
     body = await request.json()
-    model = body.get("model") or ""
-    if model not in _MODELS:
-        return _error(404, "not_found_error", f"model: {model}")
+    requested = body.get("model") or ""
+    if requested not in _MODELS:
+        return _error(404, "not_found_error", f"model: {requested}")
+    model = _MODELS[requested]
     query = _query(body.get("messages") or [])
     answer = world.spy_answer("claude", query)
     seed = f"{model}|{query}"
-    sentences = re.split(r"(?<=[.!?])\s+", answer["text"])
-    half = (len(sentences) + 1) // 2
     tool_id = "srvtoolu_01" + _token(seed, "tool")
     content = [
+        {"type": "text", "text": _PREAMBLE},
         {
             "type": "server_tool_use",
             "id": tool_id,
             "name": "web_search",
-            "input": {"query": query},
+            "input": {"query": f"{query} {world.SPY_ANCHOR.year}"},
         },
         {
             "type": "web_search_tool_result",
             "tool_use_id": tool_id,
             "content": [_result(seed, source) for source in answer["sources"]],
+            "caller": {"type": "direct"},
         },
-        *[
-            _text_block(seed, group, answer["sources"])
-            for group in (sentences[:half], sentences[half:])
-            if group
-        ],
+        *_answer_blocks(seed, answer["text"], answer["sources"]),
     ]
     return {
+        "model": model,
         "id": "msg_01" + _token(seed, "message"),
         "type": "message",
         "role": "assistant",
-        "model": model,
         "content": content,
+        "container": None,
         "stop_reason": "end_turn",
         "stop_sequence": None,
+        "stop_details": None,
         "usage": _usage(seed, answer["text"]),
     }
