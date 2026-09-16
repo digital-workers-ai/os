@@ -42,12 +42,12 @@ ALL_SOURCES = {
     "pinterest",
     "linkedin",
     "google_ads_transparency",
-    "google_ads_transparency",
     "linkedin_posts",
     "google_serp",
     "chatgpt",
     "perplexity",
     "claude",
+    "gemini",
 }
 
 
