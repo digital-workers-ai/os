@@ -47,12 +47,12 @@ def source_status(lines=None) -> dict:
     status = {}
     for source in sorted(registry.discover()):
         entities = entities_by_source.get(source, set())
-        if source in replayed:
-            label = "provider-validated"
-        elif entities:
-            label = "mock-validated"
-        else:
+        if not entities:
             label = "unmapped"
+        elif source in replayed:
+            label = "provider-validated"
+        else:
+            label = "mock-validated"
         status[source] = {"status": label, "entities": sorted(entities)}
     return status
 
