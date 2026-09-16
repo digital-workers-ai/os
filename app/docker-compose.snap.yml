@@ -13,12 +13,17 @@ services:
       COACHING_ENABLED: "false"
       EMBEDDINGS_ENABLED: "false"
       RERANK_ENABLED: "false"
+      STUDIO_ENABLED: "false"
+      MARKETER_DAILY: "false"
       CLOCK_PINNED_AT: "2026-09-04T12:00:00Z"
 
   console:
     ports: !reset []
 
   dashboard:
+    ports: !reset []
+
+  studio:
     ports: !reset []
 
   playwright:
@@ -28,4 +33,4 @@ services:
 volumes:
   console_node_modules:
     external: true
-    name: os_console_node_modules
+    name: os_studio_console_node_modules
