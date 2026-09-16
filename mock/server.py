@@ -13,6 +13,7 @@ from seeds.providers import (
 from seeds.providers import openrouter
 from seeds.providers import brightdata
 from seeds.providers import anthropic
+from seeds.providers import serpapi
 
 app = FastAPI(title="OS Mock Providers")
 
@@ -47,6 +48,7 @@ routers = {
     "/openrouter": openrouter,
     "/brightdata": brightdata,
     "/anthropic": anthropic,
+    "/serpapi": serpapi,
 }
 
 for prefix, mod in routers.items():
