@@ -11,7 +11,8 @@
 - No comments anywhere: no `#` comments, no docstrings, no YAML/shell/TOML comments.
 - Code must explain itself through naming and structure.
 - Commit messages and PR descriptions carry the rationale instead.
-- One exception — DB schema definitions: every column gets a trailing comment on the same line — short explanation (5 words max) plus 2–3 example values, e.g. `source_id = Column(String(256), nullable=False)  # object id in source: cus_000001, deal_88`.
+- Two exceptions — the DB schema in `app/backend/app/models.py` and the validation patterns in `app/backend/app/engine/spy.py`: every column and every pattern gets a trailing comment on the same line — short explanation (5 words max) plus 2–3 example values, e.g. `source_id = Column(String(256), nullable=False)  # object id in source: cus_000001, deal_88`.
+- Both files sit in `[tool.ruff.format] exclude`, so neither is auto-formatted: the comment carries the line past 88 characters and the formatter would otherwise split the declaration to fit.
 
 ## Minimalism
 

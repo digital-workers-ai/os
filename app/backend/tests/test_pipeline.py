@@ -537,3 +537,71 @@ class TestAHookNoteFiresOnlyWhenTheFieldIsPresent:
         assert out == {}
         assert report.skips["domain/hubspot/partial"] == 1
         assert not any(key.startswith("hook_note/") for key in report.counts)
+
+
+class TestAHookMayNameTheEntityItProjects:
+    def _entities(self, kit, monkeypatch, records):
+        monkeypatch.setattr(
+            hooks, "reshape", lambda source, object_type, payload: records
+        )
+        return pipeline.project_payload(
+            source="hubspot",
+            object_type="companies",
+            source_id="raw-id",
+            payload={},
+            raw_event_id="raw-1",
+            ingested_at=INGESTED,
+            seq=1,
+            onto=kit.onto,
+            line_index=kit.line_index,
+            transform_map=kit.transform_map,
+            report=SyncReport(),
+            connector_module=kit.connectors.get("hubspot"),
+        )
+
+    def test_two_records_with_their_own_ids_project_two_entities(
+        self, kit, monkeypatch
+    ):
+        entities = self._entities(
+            kit,
+            monkeypatch,
+            [
+                {"properties": {"domain": "acme.io"}, "_source_id": "acme"},
+                {"properties": {"domain": "globex.io"}, "_source_id": "globex"},
+            ],
+        )
+        assert [(e.entity_type, e.source_id) for e in entities] == [
+            ("company", "acme"),
+            ("company", "globex"),
+        ]
+        assert [e.facts["domain"].value for e in entities] == ["acme.io", "globex.io"]
+        assert {e.key for e in entities} == {
+            ("hubspot", "company", "acme"),
+            ("hubspot", "company", "globex"),
+        }
+
+    def test_a_record_without_an_id_keeps_the_raw_rows(self, kit, monkeypatch):
+        [entity] = self._entities(
+            kit, monkeypatch, [{"properties": {"domain": "acme.io"}}]
+        )
+        assert entity.source_id == "raw-id"
+
+    def test_an_empty_id_keeps_the_raw_rows(self, kit, monkeypatch):
+        [entity] = self._entities(
+            kit, monkeypatch, [{"properties": {"domain": "acme.io"}, "_source_id": ""}]
+        )
+        assert entity.source_id == "raw-id"
+
+    def test_an_id_that_is_not_a_string_keeps_the_raw_rows(self, kit, monkeypatch):
+        [entity] = self._entities(
+            kit, monkeypatch, [{"properties": {"domain": "acme.io"}, "_source_id": 7}]
+        )
+        assert entity.source_id == "raw-id"
+
+    def test_the_id_itself_is_never_a_fact(self, kit, monkeypatch):
+        [entity] = self._entities(
+            kit,
+            monkeypatch,
+            [{"properties": {"domain": "acme.io"}, "_source_id": "acme"}],
+        )
+        assert set(entity.facts) == {"domain"}

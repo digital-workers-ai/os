@@ -1,6 +1,6 @@
 # Seeds — Mock Provider Server
 
-> Faithful replicas of 29 third-party APIs on a single FastAPI process, backed by a shared ground-truth world.
+> Faithful replicas of 33 third-party APIs on a single FastAPI process, backed by a shared ground-truth world.
 
 ---
 
@@ -23,7 +23,7 @@ mock:8100/meta/v25.0/act_{id}/campaigns            → graph.facebook.com/v25.0/
 mock:8100/salesforce/services/data/v67.0/query      → {instance}.salesforce.com/services/data/v67.0/query
 ```
 
-All 27 provider modules share a single ground-truth dataset (`world.py`) and a shared library of auth decorators and pagination helpers (`helpers.py`). Each module renders the same underlying entities in its provider-specific response format.
+All 31 provider modules share a single ground-truth dataset (`world.py`) and a shared library of auth decorators and pagination helpers (`helpers.py`). Each module renders the same underlying entities in its provider-specific response format.
 
 ---
 
@@ -66,13 +66,21 @@ mock/
 │   ├── segment.py               # Sources, destinations, profiles, tracking plans
 │   ├── intercom.py              # Contacts, conversations, companies, notes
 │   ├── zendesk.py               # Tickets, users, organizations, search
+│   ├── serpapi.py               # Google Search, AI Overview, Ads Transparency Center
+│   ├── openrouter.py            # Chat completions: ChatGPT, Perplexity, Gemini, ad-text reads
+│   ├── anthropic.py             # Messages with web search (Claude)
+│   ├── brightdata.py            # Dataset trigger, progress, snapshot (LinkedIn company posts)
 │   └── zoom.py                  # Meetings, recordings, VTT transcripts (no numbered doc)
 │
 └── docs/                        # API contracts (the source of truth)
     ├── 01-hubspot.md
     ├── 02-stripe.md
     ├── ...
-    └── 28-zendesk.md
+    ├── 28-zendesk.md
+    ├── 29-serpapi.md
+    ├── 30-openrouter.md
+    ├── 31-anthropic.md
+    └── 32-brightdata.md
 ```
 
 ---
@@ -80,6 +88,8 @@ mock/
 ## 4. Ground Truth — `world.py`
 
 All providers render the same canonical dataset. The entities are defined as Python dataclasses and imported by each provider module.
+
+The Spy corpus lives here too: `SPY_BRAND`, `SPY_COMPETITORS` and `SPY_QUERIES`, plus the generators that render an engine's answer, a results page, an AI Overview, an advertiser's creatives, a creative's text and a company's posts, each deterministic from an md5 of its inputs.
 
 ### 4.1 Entity Counts
 
@@ -186,9 +196,13 @@ The server mounts each provider's router with a prefix that absorbs the API vers
 | 26 | Segment | `/segment` | Bearer | `26-segment.md` |
 | 27 | Intercom | `/intercom` | Bearer + `Intercom-Version` | `27-intercom.md` |
 | 28 | Zendesk | `/zendesk/api/v2` | Bearer or Basic Auth | `28-zendesk.md` |
-| 29 | Zoom | `/zoom` | Bearer | — |
+| — | Zoom | `/zoom` | Bearer | — |
+| 29 | SerpApi | `/serpapi` | `api_key` query param | `29-serpapi.md` |
+| 30 | OpenRouter | `/openrouter` | Bearer | `30-openrouter.md` |
+| 31 | Anthropic | `/anthropic` | `x-api-key` + `anthropic-version` | `31-anthropic.md` |
+| 32 | Bright Data | `/brightdata` | Bearer | `32-brightdata.md` |
 
-28 numbered contracts plus Zoom, 27 modules — Meta Ads, FB Organic, and IG Organic share one module (`meta.py`) because they share the Graph API. Route conflicts (e.g., `/{id}/insights` matching ads, pages, and IG accounts) are resolved by dispatching on ID prefix (`act_`, `page_`, `ig_`).
+32 numbered contracts plus Zoom, 31 modules — Meta Ads, FB Organic, and IG Organic share one module (`meta.py`) because they share the Graph API. Route conflicts (e.g., `/{id}/insights` matching ads, pages, and IG accounts) are resolved by dispatching on ID prefix (`act_`, `page_`, `ig_`).
 
 ---
 

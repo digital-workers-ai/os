@@ -1,0 +1,562 @@
+[
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "chatgpt",
+        "model": "openai/gpt-5.6-luna",
+        "query": "best crm for small business"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "annotations": [
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 82,
+                    "start_index": 0,
+                    "title": "Freshsales: AI-powered Sales CRM",
+                    "url": "https://www.freshworks.com/crm/sales/?utm_source=openai"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 188,
+                    "start_index": 83,
+                    "title": "Pipedrive: Sales CRM and Pipeline Management Software",
+                    "url": "https://www.pipedrive.com/en/features/sales-pipeline?utm_source=openai"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 188,
+                    "start_index": 83,
+                    "title": "Best CRM Software in 2026: Compare Reviews on 900+ Tools",
+                    "url": "https://www.g2.com/categories/crm?utm_source=openai"
+                  }
+                }
+              ],
+              "content": "For a fast rollout, Freshsales is usually the first recommendation reviewers make. Reviewers put Pipedrive ahead on reporting depth, while Zoho CRM wins on price for teams under ten seats. HubSpot is worth a look when the team also needs email sequences and a free tier to start on. Each offers a two-week trial, so the practical test is importing a real pipeline and checking the automation limits.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-260e82b84de610e43f24",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 100,
+          "cost": 0.0101224,
+          "is_byok": false,
+          "prompt_tokens": 12,
+          "total_tokens": 112
+        }
+      }
+    },
+    "source_id": "best-crm-for-small-business|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "chatgpt",
+        "model": "openai/gpt-5.6-luna",
+        "query": "crm with ai assistant"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "annotations": [
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 204,
+                    "start_index": 99,
+                    "title": "HubSpot CRM Software for Sales Teams",
+                    "url": "https://www.hubspot.com/products/crm?utm_source=openai"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 204,
+                    "start_index": 99,
+                    "title": "Freshsales: AI-powered Sales CRM",
+                    "url": "https://www.freshworks.com/crm/sales/?utm_source=openai"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 204,
+                    "start_index": 99,
+                    "title": "Best CRM Software 2026 | Reviews of the Most Popular Tools",
+                    "url": "https://www.capterra.com/crm-software/?utm_source=openai"
+                  }
+                }
+              ],
+              "content": "Most comparisons start with Zoho CRM, which keeps contacts, deals and email tracking in one place. Reviewers put HubSpot ahead on reporting depth, while Freshsales wins on price for teams under ten seats. Reporting is where the differences show, so it pays to test the dashboards before committing. The right choice depends on whether the team needs marketing tools in the same product or just a clean sales pipeline.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-985c7a9f8e4f85aae79b",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 105,
+          "cost": 0.0101282,
+          "is_byok": false,
+          "prompt_tokens": 11,
+          "total_tokens": 116
+        }
+      }
+    },
+    "source_id": "crm-with-ai-assistant|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "chatgpt",
+        "model": "openai/gpt-5.6-luna",
+        "query": "pipeline management software"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "annotations": [
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 103,
+                    "start_index": 0,
+                    "title": "Pipedrive: Sales CRM and Pipeline Management Software",
+                    "url": "https://www.pipedrive.com/en/features/sales-pipeline?utm_source=openai"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 103,
+                    "start_index": 0,
+                    "title": "Best CRM Software in 2026: Compare Reviews on 900+ Tools",
+                    "url": "https://www.g2.com/categories/crm?utm_source=openai"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 199,
+                    "start_index": 104,
+                    "title": "Zoho CRM: Top-rated Sales CRM Software",
+                    "url": "https://www.zoho.com/crm/sales-automation.html?utm_source=openai"
+                  }
+                }
+              ],
+              "content": "Pipedrive tends to lead the shortlist because its per-seat pricing stays predictable as the team grows. Zoho CRM is often chosen for its built-in calling and workflow automation on the mid-tier plan. Migration from a spreadsheet takes an afternoon with any of them. Integration counts are similar across the group, so support quality and the mobile apps tend to decide it.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-7d0a9e509902e8e129d8",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 94,
+          "cost": 0.0101154,
+          "is_byok": false,
+          "prompt_tokens": 13,
+          "total_tokens": 107
+        }
+      }
+    },
+    "source_id": "pipeline-management-software|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "chatgpt",
+        "model": "openai/gpt-5.6-luna",
+        "query": "sales crm for startups"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "annotations": [
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 99,
+                    "start_index": 0,
+                    "title": "Best CRM Software 2026 | Reviews of the Most Popular Tools",
+                    "url": "https://www.capterra.com/crm-software/?utm_source=openai"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 306,
+                    "start_index": 213,
+                    "title": "HubSpot CRM Software for Sales Teams",
+                    "url": "https://www.hubspot.com/products/crm?utm_source=openai"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 99,
+                    "start_index": 0,
+                    "title": "Pipedrive: Sales CRM and Pipeline Management Software",
+                    "url": "https://www.pipedrive.com/en/features/sales-pipeline?utm_source=openai"
+                  }
+                }
+              ],
+              "content": "Most comparisons start with Pipedrive, which keeps contacts, deals and email tracking in one place. Freshsales offers the broader free tier, but Zoho CRM is easier to customise once the process gets more complex. HubSpot is worth a look when the team also needs email sequences and a free tier to start on. Migration from a spreadsheet takes an afternoon with any of them. Integration counts are similar across the group, so support quality and the mobile apps tend to decide it.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-168f6dbb863e88f73f65",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 120,
+          "cost": 0.0101462,
+          "is_byok": false,
+          "prompt_tokens": 11,
+          "total_tokens": 131
+        }
+      }
+    },
+    "source_id": "sales-crm-for-startups|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "chatgpt",
+        "model": "openai/gpt-5.6-luna",
+        "query": "crm with email automation"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "annotations": [
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 192,
+                    "start_index": 101,
+                    "title": "HubSpot CRM Software for Sales Teams",
+                    "url": "https://www.hubspot.com/products/crm?utm_source=openai"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 192,
+                    "start_index": 101,
+                    "title": "Best CRM Software 2026 | Reviews of the Most Popular Tools",
+                    "url": "https://www.capterra.com/crm-software/?utm_source=openai"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 100,
+                    "start_index": 0,
+                    "title": "Zoho CRM: Top-rated Sales CRM Software",
+                    "url": "https://www.zoho.com/crm/sales-automation.html?utm_source=openai"
+                  }
+                }
+              ],
+              "content": "Zoho CRM is the name that comes up first for teams that want a visual pipeline without a long setup. HubSpot covers the same ground with stronger marketing tools bundled into the same product. All of them sync with Gmail and Outlook, and most add a two-way calendar sync on the second tier. Entry plans start around fifteen dollars per user per month, with AI features gated to the mid tiers.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-147a7e1d4a968c4ec76b",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 99,
+          "cost": 0.0101212,
+          "is_byok": false,
+          "prompt_tokens": 12,
+          "total_tokens": 111
+        }
+      }
+    },
+    "source_id": "crm-with-email-automation|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "chatgpt",
+        "model": "openai/gpt-5.6-luna",
+        "query": "affordable crm for sales teams"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "annotations": [
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 208,
+                    "start_index": 103,
+                    "title": "Best CRM Software in 2026: Compare Reviews on 900+ Tools",
+                    "url": "https://www.g2.com/categories/crm?utm_source=openai"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 208,
+                    "start_index": 103,
+                    "title": "Freshsales: AI-powered Sales CRM",
+                    "url": "https://www.freshworks.com/crm/sales/?utm_source=openai"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 208,
+                    "start_index": 103,
+                    "title": "HubSpot CRM Software for Sales Teams",
+                    "url": "https://www.hubspot.com/products/crm?utm_source=openai"
+                  }
+                }
+              ],
+              "content": "Zoho CRM tends to lead the shortlist because its per-seat pricing stays predictable as the team grows. Reviewers put HubSpot ahead on reporting depth, while Freshsales wins on price for teams under ten seats. Reporting is where the differences show, so it pays to test the dashboards before committing. The right choice depends on whether the team needs marketing tools in the same product or just a clean sales pipeline.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-7ef6381d2814be9deb63",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 106,
+          "cost": 0.0101298,
+          "is_byok": false,
+          "prompt_tokens": 13,
+          "total_tokens": 119
+        }
+      }
+    },
+    "source_id": "affordable-crm-for-sales-teams|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "chatgpt",
+        "model": "openai/gpt-5.6-luna",
+        "query": "hubspot alternatives"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "annotations": [
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 103,
+                    "start_index": 0,
+                    "title": "Best CRM Software 2026 | Reviews of the Most Popular Tools",
+                    "url": "https://www.capterra.com/crm-software/?utm_source=openai"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 215,
+                    "start_index": 104,
+                    "title": "Freshsales: AI-powered Sales CRM",
+                    "url": "https://www.freshworks.com/crm/sales/?utm_source=openai"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 215,
+                    "start_index": 104,
+                    "title": "HubSpot CRM Software for Sales Teams",
+                    "url": "https://www.hubspot.com/products/crm?utm_source=openai"
+                  }
+                }
+              ],
+              "content": "Pipedrive tends to lead the shortlist because its per-seat pricing stays predictable as the team grows. Freshsales offers the broader free tier, but HubSpot is easier to customise once the process gets more complex. Each offers a two-week trial, so the practical test is importing a real pipeline and checking the automation limits.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-242564a0b2770676f6da",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 84,
+          "cost": 0.010103,
+          "is_byok": false,
+          "prompt_tokens": 11,
+          "total_tokens": 95
+        }
+      }
+    },
+    "source_id": "hubspot-alternatives|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "chatgpt",
+        "model": "openai/gpt-5.6-luna",
+        "query": "crm with built in calling"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "annotations": [
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 207,
+                    "start_index": 102,
+                    "title": "Pipedrive: Sales CRM and Pipeline Management Software",
+                    "url": "https://www.pipedrive.com/en/features/sales-pipeline?utm_source=openai"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 101,
+                    "start_index": 0,
+                    "title": "HubSpot CRM Software for Sales Teams",
+                    "url": "https://www.hubspot.com/products/crm?utm_source=openai"
+                  }
+                },
+                {
+                  "type": "url_citation",
+                  "url_citation": {
+                    "end_index": 207,
+                    "start_index": 102,
+                    "title": "Best CRM Software in 2026: Compare Reviews on 900+ Tools",
+                    "url": "https://www.g2.com/categories/crm?utm_source=openai"
+                  }
+                }
+              ],
+              "content": "HubSpot tends to lead the shortlist because its per-seat pricing stays predictable as the team grows. Reviewers put Zoho CRM ahead on reporting depth, while Pipedrive wins on price for teams under ten seats. Integration counts are similar across the group, so support quality and the mobile apps tend to decide it.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-2b4a9ec513cce113737a",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 79,
+          "cost": 0.0100972,
+          "is_byok": false,
+          "prompt_tokens": 12,
+          "total_tokens": 91
+        }
+      }
+    },
+    "source_id": "crm-with-built-in-calling|2026-09-04"
+  }
+]

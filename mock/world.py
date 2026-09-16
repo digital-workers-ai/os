@@ -6,8 +6,9 @@ support tickets, events) that each provider renders in its own format. Deliberat
 variations in names/emails test entity resolution.
 """
 
+import hashlib
 from dataclasses import dataclass, field
-from datetime import date, datetime
+from datetime import date, datetime, timedelta, timezone
 from typing import Optional
 
 
@@ -461,3 +462,296 @@ SALES_CALLS = [
 ]
 
 SALES_CALLS_BY_ID = {c.id: c for c in SALES_CALLS}
+
+
+# --- Spy (brand, competitors, tracked queries) ---
+
+SPY_BRAND = {"name": "Pipedrive", "domain": "pipedrive.com", "aliases": []}
+SPY_COMPETITORS = [
+    {"name": "HubSpot", "domain": "hubspot.com", "aliases": ["HubSpot CRM"], "linkedin": "hubspot", "google_advertiser_id": "AR10072600183532683265"},
+    {"name": "Zoho CRM", "domain": "zoho.com", "aliases": ["Zoho"], "linkedin": "zoho", "google_advertiser_id": "AR07034216898162065409"},
+    {"name": "Freshsales", "domain": "freshworks.com", "aliases": ["Freshworks", "Freshworks CRM"], "linkedin": "freshworks-inc", "google_advertiser_id": "AR03035893441289519105"},
+]
+SPY_QUERIES = [
+    "best crm for small business",
+    "crm with ai assistant",
+    "pipeline management software",
+    "sales crm for startups",
+    "crm with email automation",
+    "affordable crm for sales teams",
+    "hubspot alternatives",
+    "crm with built in calling",
+]
+SPY_ANCHOR = date(2026, 9, 4)
+SPY_ENGINES = ("google", "ai_overview", "chatgpt", "perplexity", "claude", "gemini")
+SPY_COMPANIES = [SPY_BRAND, *SPY_COMPETITORS]
+
+_SPY_PAGES = {
+    "pipedrive.com": ("Pipedrive: Sales CRM and Pipeline Management Software", "https://www.pipedrive.com/en/features/sales-pipeline"),
+    "hubspot.com": ("HubSpot CRM Software for Sales Teams", "https://www.hubspot.com/products/crm"),
+    "zoho.com": ("Zoho CRM: Top-rated Sales CRM Software", "https://www.zoho.com/crm/sales-automation.html"),
+    "freshworks.com": ("Freshsales: AI-powered Sales CRM", "https://www.freshworks.com/crm/sales/"),
+}
+_SPY_SNIPPETS = {
+    "pipedrive.com": "Pipedrive is the easy-to-use CRM built for salespeople. Track deals in a visual pipeline, automate follow-ups and forecast revenue. Try it free for 14 days.",
+    "hubspot.com": "HubSpot gives sales teams a free CRM with contact management, deal tracking and email templates, with paid tiers that add automation and reporting.",
+    "zoho.com": "Zoho CRM helps sales teams close more deals with AI-assisted lead scoring, workflow automation and built-in telephony, from $14 per user per month.",
+    "freshworks.com": "Freshsales is an AI-powered sales CRM with built-in phone, email and chat, so reps work every lead from one screen. Free plan for up to three users.",
+}
+_SPY_NEUTRAL = [
+    {"source": "G2", "title": "Best CRM Software in 2026: Compare Reviews on 900+ Tools", "link": "https://www.g2.com/categories/crm", "displayed_link": "https://www.g2.com › categories › crm", "snippet": "Choose the best CRM software for your business. Compare verified reviews, pricing and features to find the right fit for your sales team."},
+    {"source": "Capterra", "title": "Best CRM Software 2026 | Reviews of the Most Popular Tools", "link": "https://www.capterra.com/crm-software/", "displayed_link": "https://www.capterra.com › crm-software", "snippet": "Find the best CRM software for your organisation. Compare top CRM systems with customer reviews, pricing and free demos."},
+    {"source": "TechRadar", "title": "The best CRM software of 2026", "link": "https://www.techradar.com/best/the-best-crm-software", "displayed_link": "https://www.techradar.com › best › the-best-crm-software", "snippet": "We test and rank the best CRM platforms for small businesses and growing sales teams, from free tiers to enterprise suites."},
+    {"source": "Forbes", "title": "Best CRM Software Of 2026 – Forbes Advisor", "link": "https://www.forbes.com/advisor/business/software/best-crm-software/", "displayed_link": "https://www.forbes.com › advisor › business › software", "snippet": "Our picks for the best CRM software this year, rated on pricing, ease of use, automation and customer support."},
+    {"source": "Zapier", "title": "The 10 best CRM software in 2026", "link": "https://zapier.com/blog/best-crm-app/", "displayed_link": "https://zapier.com › blog › best-crm-app", "snippet": "We spent weeks testing dozens of CRM apps. These are the ten that stood out for small teams, startups and sales-led companies."},
+    {"source": "PCMag", "title": "The Best CRM Software for 2026", "link": "https://www.pcmag.com/picks/the-best-crm-software", "displayed_link": "https://www.pcmag.com › picks › the-best-crm-software", "snippet": "Customer relationship management software keeps your sales pipeline organised. These are the top-rated tools we have tested."},
+    {"source": "Software Advice", "title": "Best CRM Software - 2026 Reviews, Pricing and Demos", "link": "https://www.softwareadvice.com/crm/", "displayed_link": "https://www.softwareadvice.com › crm", "snippet": "Compare CRM software with verified user reviews and pricing. Get free recommendations from our advisors in minutes."},
+    {"source": "Reddit", "title": "What CRM does everyone actually use? : r/sales", "link": "https://www.reddit.com/r/sales/comments/1f2k9x/what_crm_does_everyone_actually_use/", "displayed_link": "https://www.reddit.com › r › sales › comments", "snippet": "Small team here, five reps. We have outgrown the spreadsheet and want something with a real pipeline view and email sync. What are people using?"},
+    {"source": "Gartner", "title": "Sales Force Automation Platforms Reviews and Ratings", "link": "https://www.gartner.com/reviews/market/sales-force-automation-platforms", "displayed_link": "https://www.gartner.com › reviews › market", "snippet": "Read verified reviews of sales force automation platforms from real users, with ratings on pipeline management, forecasting and mobile."},
+    {"source": "Business News Daily", "title": "The Best CRM Software of 2026", "link": "https://www.businessnewsdaily.com/best-crm-software", "displayed_link": "https://www.businessnewsdaily.com › best-crm-software", "snippet": "A CRM keeps every customer interaction in one place. We compared the leading platforms on price, features and support for small businesses."},
+]
+
+_SPY_OPENERS = (
+    "{a} is the name that comes up first for teams that want a visual pipeline without a long setup.",
+    "Most comparisons start with {a}, which keeps contacts, deals and email tracking in one place.",
+    "{a} tends to lead the shortlist because its per-seat pricing stays predictable as the team grows.",
+    "For a fast rollout, {a} is usually the first recommendation reviewers make.",
+)
+_SPY_PAIRS = (
+    "{b} and {c} both ship AI assistants that draft follow-ups and score deals, though {c} keeps its cheaper plans leaner.",
+    "Reviewers put {b} ahead on reporting depth, while {c} wins on price for teams under ten seats.",
+    "{b} is the usual alternative when marketing automation matters, and {c} is the pick when calling has to live inside the CRM.",
+    "{c} offers the broader free tier, but {b} is easier to customise once the process gets more complex.",
+)
+_SPY_SINGLES = (
+    "{b} is worth a look when the team also needs email sequences and a free tier to start on.",
+    "{b} adds an AI assistant that summarises calls and suggests the next step on every deal.",
+    "{b} is often chosen for its built-in calling and workflow automation on the mid-tier plan.",
+    "{b} covers the same ground with stronger marketing tools bundled into the same product.",
+)
+_SPY_EXTRAS = (
+    "Migration from a spreadsheet takes an afternoon with any of them.",
+    "All of them sync with Gmail and Outlook, and most add a two-way calendar sync on the second tier.",
+    "Reporting is where the differences show, so it pays to test the dashboards before committing.",
+)
+_SPY_CLOSERS = (
+    "Entry plans start around fifteen dollars per user per month, with AI features gated to the mid tiers.",
+    "Each offers a two-week trial, so the practical test is importing a real pipeline and checking the automation limits.",
+    "The right choice depends on whether the team needs marketing tools in the same product or just a clean sales pipeline.",
+    "Integration counts are similar across the group, so support quality and the mobile apps tend to decide it.",
+)
+_SPY_OVERVIEW_OPENERS = (
+    "Several CRMs fit this need, and the ones that come up most often are {names}.",
+    "The most recommended options are {names}, each with a free trial and a pipeline view.",
+    "{names} are the tools reviewers mention most, differing mainly on price and automation depth.",
+)
+_SPY_OVERVIEW_ITEMS = (
+    "{a} offers a visual pipeline, email tracking and automation on its entry plan.",
+    "{a} includes an AI assistant that drafts follow-ups and scores deals.",
+    "{a} bundles calling and email sequences, with a free tier for small teams.",
+    "{a} is strong on reporting and customisable workflows for growing teams.",
+)
+_SPY_AD_SIZES = ((300, 250), (336, 280), (728, 90), (160, 600), (320, 50), (348, 451), (970, 250), (300, 600))
+_SPY_AD_HEADLINES = (
+    "Close More Deals With Less Admin",
+    "The CRM Your Sales Team Will Actually Use",
+    "See Every Deal In One Pipeline",
+    "AI That Writes The Follow-Up For You",
+    "Stop Losing Leads In Spreadsheets",
+    "Sales CRM Built For Small Teams",
+)
+_SPY_AD_LINES = (
+    "Start your free 14-day trial. No credit card required.",
+    "Automate follow-ups, forecast revenue and hit quota every month.",
+    "Set up in minutes, with built-in calling and email sync.",
+    "Plans from $14 per user per month. Cancel anytime.",
+    "Track calls, emails and meetings without leaving the CRM.",
+)
+_SPY_POST_TEXTS = (
+    "We just shipped {feature} in {name}. Reps can now {benefit} without leaving the deal view. Read the release notes on our blog.",
+    "New in {name}: {feature}. Early customers say it helps them {benefit}. Rolling out to all plans this month.",
+    "Customer story of the week: how a 40-person sales team used {name} to {benefit}. Full case study in the comments.",
+    "Join us next Thursday for a live session on {feature}. We will show how teams use {name} to {benefit}, with questions at the end.",
+    "{feature} is here. Teams on {name} can {benefit} and see the result on the pipeline dashboard the same day.",
+)
+_SPY_FEATURES = ("AI deal summaries", "email sequences", "built-in calling", "revenue forecasting", "workflow automation", "a redesigned mobile app")
+_SPY_BENEFITS = ("cut manual data entry in half", "follow up with every lead the same day", "forecast the quarter with confidence", "close deals faster", "keep every conversation in one thread")
+_SPY_HASHTAGS = ("#CRM", "#Sales", "#SalesTech", "#AI", "#ProductUpdate", "#Startups")
+_SPY_FOLLOWERS = {"hubspot": 1240000, "zoho": 812000, "freshworks-inc": 396000}
+_SPY_ADVERTISERS = {c["google_advertiser_id"]: c for c in SPY_COMPETITORS}
+_SPY_LINKEDIN = {c["linkedin"]: c for c in SPY_COMPETITORS}
+
+
+def _spy_digest(*parts: str) -> int:
+    return int(hashlib.md5("|".join(parts).encode()).hexdigest(), 16)
+
+
+def _spy_pick(seed: str, salt: str, pool):
+    return pool[_spy_digest(seed, salt) % len(pool)]
+
+
+def _spy_order(seed: str, items: list, key: Optional[str] = None) -> list:
+    return sorted(items, key=lambda item: _spy_digest(seed, item if key is None else item[key]))
+
+
+def _spy_forced(kind: str, query: str) -> bool:
+    return query in SPY_QUERIES and SPY_QUERIES.index(query) == _spy_digest(kind) % len(SPY_QUERIES)
+
+
+def _spy_join(names: list[str]) -> str:
+    return names[0] if len(names) == 1 else ", ".join(names[:-1]) + " and " + names[-1]
+
+
+def _spy_mentions(engine: str, query: str) -> list[dict]:
+    seed = f"mentions|{engine}|{query}"
+    absent = _spy_digest(seed, "brand") % 100 < 30 or _spy_forced(f"absent|{engine}", query)
+    competitors = _spy_order(seed, SPY_COMPETITORS, "name")
+    count = 2 + _spy_digest(seed, "count") % 3
+    chosen = competitors[:count] if absent else competitors[: count - 1] + [SPY_BRAND]
+    return _spy_order(seed + "|order", chosen, "name")
+
+
+def _spy_company_result(company: dict) -> dict:
+    title, link = _SPY_PAGES[company["domain"]]
+    path = link.split(company["domain"], 1)[1]
+    return {
+        "title": title,
+        "link": link,
+        "displayed_link": f"https://www.{company['domain']} › " + " › ".join(p for p in path.split("/") if p),
+        "snippet": _SPY_SNIPPETS[company["domain"]],
+        "source": company["name"],
+    }
+
+
+def _spy_reference(index: int, row: dict) -> dict:
+    return {"title": row["title"], "link": row["link"], "snippet": row["snippet"], "source": row["source"], "index": index}
+
+
+def spy_answer(engine: str, query: str) -> dict:
+    seed = f"answer|{engine}|{query}"
+    mentioned = _spy_mentions(engine, query)
+    names = [c["name"] for c in mentioned]
+    sentences = [_spy_pick(seed, "open", _SPY_OPENERS).format(a=names[0])]
+    rest = names[1:]
+    if len(rest) >= 2:
+        sentences.append(_spy_pick(seed, "pair", _SPY_PAIRS).format(b=rest[0], c=rest[1]))
+        rest = rest[2:]
+    for name in rest:
+        sentences.append(_spy_pick(seed, "single", _SPY_SINGLES).format(b=name))
+    if _spy_digest(seed, "extra") % 2:
+        sentences.append(_spy_pick(seed, "extra", _SPY_EXTRAS))
+    sentences.append(_spy_pick(seed, "close", _SPY_CLOSERS))
+    cited = _spy_order(seed + "|cite", mentioned, "domain")[:2]
+    neutral = _spy_pick(seed, "neutral", _SPY_NEUTRAL[:3])
+    sources = [{"url": _SPY_PAGES[c["domain"]][1], "title": _SPY_PAGES[c["domain"]][0]} for c in cited]
+    sources.insert(_spy_digest(seed, "slot") % 3, {"url": neutral["link"], "title": neutral["title"]})
+    return {"text": " ".join(sentences), "sources": sources}
+
+
+def spy_serp(query: str) -> list[dict]:
+    seed = f"serp|{query}"
+    companies = [c for c in SPY_COMPETITORS if _spy_digest(seed, c["domain"]) % 4]
+    if _spy_digest(seed, "brand") % 5 and not _spy_forced("serp-absent", query):
+        companies.append(SPY_BRAND)
+    rows = [_spy_company_result(c) for c in companies]
+    rows += _spy_order(seed + "|neutral", _SPY_NEUTRAL, "link")[: 10 - len(rows)]
+    rows = _spy_order(seed + "|rank", rows, "link")
+    return [{"position": i + 1, **{k: row[k] for k in ("title", "link", "displayed_link", "snippet", "source")}} for i, row in enumerate(rows)]
+
+
+def spy_ai_overview_mode(query: str) -> str:
+    return ("inline", "token", "absent")[_spy_digest(query) % 3]
+
+
+def spy_ai_overview(query: str) -> Optional[dict]:
+    if spy_ai_overview_mode(query) == "absent":
+        return None
+    seed = f"ai_overview|{query}"
+    mentioned = _spy_mentions("ai_overview", query)
+    names = [c["name"] for c in mentioned]
+    references = [_spy_reference(i, _spy_company_result(c)) for i, c in enumerate(mentioned)]
+    references.append(_spy_reference(len(mentioned), _spy_pick(seed, "neutral", _SPY_NEUTRAL[:3])))
+    paragraph = {
+        "type": "paragraph",
+        "snippet": _spy_pick(seed, "para", _SPY_OVERVIEW_OPENERS).format(names=_spy_join(names)),
+        "reference_indexes": [len(mentioned)],
+    }
+    items = [
+        {"title": c["name"], "snippet": _spy_pick(seed, c["domain"], _SPY_OVERVIEW_ITEMS).format(a=c["name"]), "reference_indexes": [i]}
+        for i, c in enumerate(mentioned)
+    ]
+    return {"text_blocks": [paragraph, {"type": "list", "list": items}], "references": references}
+
+
+def spy_ads(advertiser_id: str) -> list[dict]:
+    if advertiser_id not in _SPY_ADVERTISERS:
+        return []
+    anchor = int(datetime(SPY_ANCHOR.year, SPY_ANCHOR.month, SPY_ANCHOR.day, tzinfo=timezone.utc).timestamp())
+    creatives = []
+    for i in range(4 + _spy_digest(advertiser_id, "count") % 9):
+        seed = f"creative|{advertiser_id}|{i}"
+        creative_id = "CR" + str(_spy_digest(seed, "id") % 10**20).zfill(20)
+        kind = _spy_digest(seed, "format") % 4
+        fmt = "video" if kind == 0 else "image" if kind == 1 else "text"
+        first_age = _spy_digest(seed, "first") % (120 * 86400)
+        last_age = _spy_digest(seed, "last") % (7 * 86400 if i % 3 == 0 else first_age + 1)
+        row = {"ad_creative_id": creative_id, "format": fmt}
+        if fmt != "video":
+            row["image"] = "https://tpc.googlesyndication.com/archive/simgad/" + str(_spy_digest(seed, "image") % 10**20)
+            row["width"], row["height"] = _spy_pick(seed, "size", _SPY_AD_SIZES)
+        row["first_shown"] = anchor - first_age
+        row["last_shown"] = anchor - min(last_age, first_age)
+        row["details_link"] = f"https://adstransparency.google.com/advertiser/{advertiser_id}/creative/{creative_id}?region=US"
+        creatives.append(row)
+    return creatives
+
+
+def spy_ad_text(creative_id: str) -> str:
+    return _spy_pick(creative_id, "headline", _SPY_AD_HEADLINES) + "\n" + _spy_pick(creative_id, "line", _SPY_AD_LINES)
+
+
+def spy_posts(slug: str) -> list[dict]:
+    company = _SPY_LINKEDIN.get(slug)
+    if company is None:
+        return []
+    anchor = datetime(SPY_ANCHOR.year, SPY_ANCHOR.month, SPY_ANCHOR.day, tzinfo=timezone.utc)
+    count = 3 + _spy_digest(slug, "count") % 7
+    posts = []
+    for i in range(count):
+        seed = f"post|{slug}|{i}"
+        post_id = str(10**18 + _spy_digest(seed, "id") % (9 * 10**18))
+        age_days = i * 60 // count + _spy_digest(seed, "day") % max(1, 60 // count)
+        posted = anchor - timedelta(days=age_days, hours=2 + _spy_digest(seed, "hour") % 14, minutes=_spy_digest(seed, "minute") % 60)
+        text = _spy_pick(seed, "text", _SPY_POST_TEXTS).format(
+            name=company["name"],
+            feature=_spy_pick(seed, "feature", _SPY_FEATURES),
+            benefit=_spy_pick(seed, "benefit", _SPY_BENEFITS),
+        )
+        tags = _spy_order(seed + "|tags", list(_SPY_HASHTAGS))[: 1 + _spy_digest(seed, "tags") % 3]
+        words = "-".join(tag[1:].lower() for tag in tags)
+        images = []
+        if _spy_digest(seed, "images") % 2:
+            images.append(f"https://media.licdn.com/dms/image/v2/D4E22AQ{_spy_digest(seed, 'img') % 10**12:012d}/feedshare-shrink_800/0/{int(posted.timestamp())}?e=2147483647&v=beta")
+        posts.append({
+            "id": post_id,
+            "url": f"https://www.linkedin.com/posts/{slug}_{words}-activity-{post_id}-{hashlib.md5(seed.encode()).hexdigest()[:4]}",
+            "user_id": slug,
+            "use_url": f"https://www.linkedin.com/company/{slug}",
+            "title": company["name"],
+            "post_text": text,
+            "post_text_html": "<p>" + text + "</p>",
+            "date_posted": posted.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+            "hashtags": tags,
+            "embedded_links": [],
+            "images": images,
+            "videos": None,
+            "num_likes": 20 + _spy_digest(seed, "likes") % 900,
+            "num_comments": _spy_digest(seed, "comments") % 60,
+            "user_followers": _SPY_FOLLOWERS[slug],
+            "post_type": "post",
+            "account_type": "Organization",
+            "repost": None,
+            "tagged_companies": [],
+            "tagged_people": [],
+        })
+    return posts

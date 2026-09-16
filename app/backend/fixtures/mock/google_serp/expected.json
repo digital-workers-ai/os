@@ -1,0 +1,398 @@
+{
+  "clears": {},
+  "extracted": {
+    "ai_overviews": {
+      "visibility_check": {
+        "ai_overview|affordable-crm-for-sales-teams|2026-09-04": {
+          "answer": "Pipedrive, HubSpot, Zoho CRM and Freshsales are the tools reviewers mention most, differing mainly on price and automation depth. Pipedrive Pipedrive is strong on reporting and customisable workflows for growing teams. HubSpot HubSpot is strong on reporting and customisable workflows for growing teams. Zoho CRM Zoho CRM includes an AI assistant that drafts follow-ups and scores deals. Freshsales Freshsales bundles calling and email sequences, with a free tier for small teams.",
+          "brand_rank": "1.0",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "ai_overview",
+          "query": "affordable crm for sales teams",
+          "sources": "5.0"
+        },
+        "ai_overview|crm-with-built-in-calling|2026-09-04": {
+          "answer": "Several CRMs fit this need, and the ones that come up most often are Zoho CRM, Freshsales and HubSpot. Zoho CRM Zoho CRM is strong on reporting and customisable workflows for growing teams. Freshsales Freshsales includes an AI assistant that drafts follow-ups and scores deals. HubSpot HubSpot includes an AI assistant that drafts follow-ups and scores deals.",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "ai_overview",
+          "query": "crm with built in calling",
+          "sources": "4.0"
+        },
+        "ai_overview|crm-with-email-automation|2026-09-04": {
+          "answer": "Pipedrive, Zoho CRM and HubSpot are the tools reviewers mention most, differing mainly on price and automation depth. Pipedrive Pipedrive offers a visual pipeline, email tracking and automation on its entry plan. Zoho CRM Zoho CRM bundles calling and email sequences, with a free tier for small teams. HubSpot HubSpot is strong on reporting and customisable workflows for growing teams.",
+          "brand_rank": "1.0",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "ai_overview",
+          "query": "crm with email automation",
+          "sources": "4.0"
+        },
+        "ai_overview|hubspot-alternatives|2026-09-04": {
+          "answer": "Several CRMs fit this need, and the ones that come up most often are Freshsales, HubSpot and Zoho CRM. Freshsales Freshsales includes an AI assistant that drafts follow-ups and scores deals. HubSpot HubSpot offers a visual pipeline, email tracking and automation on its entry plan. Zoho CRM Zoho CRM includes an AI assistant that drafts follow-ups and scores deals.",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "ai_overview",
+          "query": "hubspot alternatives",
+          "sources": "4.0"
+        },
+        "ai_overview|sales-crm-for-startups|2026-09-04": {
+          "answer": "The most recommended options are Pipedrive and Zoho CRM, each with a free trial and a pipeline view. Pipedrive Pipedrive is strong on reporting and customisable workflows for growing teams. Zoho CRM Zoho CRM bundles calling and email sequences, with a free tier for small teams.",
+          "brand_rank": "1.0",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "ai_overview",
+          "query": "sales crm for startups",
+          "sources": "3.0"
+        }
+      },
+      "visibility_mention": {
+        "ai_overview|affordable-crm-for-sales-teams|2026-09-04|freshworks.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "ai_overview",
+          "query": "affordable crm for sales teams",
+          "rank": "4.0",
+          "role": "competitor"
+        },
+        "ai_overview|affordable-crm-for-sales-teams|2026-09-04|hubspot.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "ai_overview",
+          "query": "affordable crm for sales teams",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "ai_overview|affordable-crm-for-sales-teams|2026-09-04|pipedrive.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "ai_overview",
+          "query": "affordable crm for sales teams",
+          "rank": "1.0",
+          "role": "brand"
+        },
+        "ai_overview|affordable-crm-for-sales-teams|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "ai_overview",
+          "query": "affordable crm for sales teams",
+          "rank": "3.0",
+          "role": "competitor"
+        },
+        "ai_overview|crm-with-built-in-calling|2026-09-04|freshworks.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "ai_overview",
+          "query": "crm with built in calling",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "ai_overview|crm-with-built-in-calling|2026-09-04|hubspot.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "ai_overview",
+          "query": "crm with built in calling",
+          "rank": "3.0",
+          "role": "competitor"
+        },
+        "ai_overview|crm-with-built-in-calling|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "ai_overview",
+          "query": "crm with built in calling",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "ai_overview|crm-with-email-automation|2026-09-04|hubspot.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "ai_overview",
+          "query": "crm with email automation",
+          "rank": "3.0",
+          "role": "competitor"
+        },
+        "ai_overview|crm-with-email-automation|2026-09-04|pipedrive.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "ai_overview",
+          "query": "crm with email automation",
+          "rank": "1.0",
+          "role": "brand"
+        },
+        "ai_overview|crm-with-email-automation|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "ai_overview",
+          "query": "crm with email automation",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "ai_overview|hubspot-alternatives|2026-09-04|freshworks.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "ai_overview",
+          "query": "hubspot alternatives",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "ai_overview|hubspot-alternatives|2026-09-04|hubspot.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "ai_overview",
+          "query": "hubspot alternatives",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "ai_overview|hubspot-alternatives|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "ai_overview",
+          "query": "hubspot alternatives",
+          "rank": "3.0",
+          "role": "competitor"
+        },
+        "ai_overview|sales-crm-for-startups|2026-09-04|pipedrive.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "ai_overview",
+          "query": "sales crm for startups",
+          "rank": "1.0",
+          "role": "brand"
+        },
+        "ai_overview|sales-crm-for-startups|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "ai_overview",
+          "query": "sales crm for startups",
+          "rank": "2.0",
+          "role": "competitor"
+        }
+      }
+    },
+    "searches": {
+      "visibility_check": {
+        "google|affordable-crm-for-sales-teams|2026-09-04": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "google",
+          "query": "affordable crm for sales teams",
+          "sources": "10.0"
+        },
+        "google|best-crm-for-small-business|2026-09-04": {
+          "brand_rank": "2.0",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "google",
+          "query": "best crm for small business",
+          "sources": "10.0"
+        },
+        "google|crm-with-ai-assistant|2026-09-04": {
+          "brand_rank": "4.0",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "google",
+          "query": "crm with ai assistant",
+          "sources": "10.0"
+        },
+        "google|crm-with-built-in-calling|2026-09-04": {
+          "brand_rank": "4.0",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "google",
+          "query": "crm with built in calling",
+          "sources": "10.0"
+        },
+        "google|crm-with-email-automation|2026-09-04": {
+          "brand_rank": "5.0",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "google",
+          "query": "crm with email automation",
+          "sources": "10.0"
+        },
+        "google|hubspot-alternatives|2026-09-04": {
+          "brand_rank": "10.0",
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "google",
+          "query": "hubspot alternatives",
+          "sources": "10.0"
+        },
+        "google|pipeline-management-software|2026-09-04": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "google",
+          "query": "pipeline management software",
+          "sources": "10.0"
+        },
+        "google|sales-crm-for-startups|2026-09-04": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "engine": "google",
+          "query": "sales crm for startups",
+          "sources": "10.0"
+        }
+      },
+      "visibility_mention": {
+        "google|affordable-crm-for-sales-teams|2026-09-04|hubspot.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "google",
+          "query": "affordable crm for sales teams",
+          "rank": "9.0",
+          "role": "competitor"
+        },
+        "google|best-crm-for-small-business|2026-09-04|pipedrive.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "google",
+          "query": "best crm for small business",
+          "rank": "2.0",
+          "role": "brand"
+        },
+        "google|best-crm-for-small-business|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "google",
+          "query": "best crm for small business",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "google|crm-with-ai-assistant|2026-09-04|freshworks.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "google",
+          "query": "crm with ai assistant",
+          "rank": "10.0",
+          "role": "competitor"
+        },
+        "google|crm-with-ai-assistant|2026-09-04|pipedrive.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "google",
+          "query": "crm with ai assistant",
+          "rank": "4.0",
+          "role": "brand"
+        },
+        "google|crm-with-ai-assistant|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "google",
+          "query": "crm with ai assistant",
+          "rank": "6.0",
+          "role": "competitor"
+        },
+        "google|crm-with-built-in-calling|2026-09-04|freshworks.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "google",
+          "query": "crm with built in calling",
+          "rank": "8.0",
+          "role": "competitor"
+        },
+        "google|crm-with-built-in-calling|2026-09-04|hubspot.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "google",
+          "query": "crm with built in calling",
+          "rank": "3.0",
+          "role": "competitor"
+        },
+        "google|crm-with-built-in-calling|2026-09-04|pipedrive.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "google",
+          "query": "crm with built in calling",
+          "rank": "4.0",
+          "role": "brand"
+        },
+        "google|crm-with-built-in-calling|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "google",
+          "query": "crm with built in calling",
+          "rank": "7.0",
+          "role": "competitor"
+        },
+        "google|crm-with-email-automation|2026-09-04|freshworks.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "google",
+          "query": "crm with email automation",
+          "rank": "4.0",
+          "role": "competitor"
+        },
+        "google|crm-with-email-automation|2026-09-04|hubspot.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "google",
+          "query": "crm with email automation",
+          "rank": "9.0",
+          "role": "competitor"
+        },
+        "google|crm-with-email-automation|2026-09-04|pipedrive.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "google",
+          "query": "crm with email automation",
+          "rank": "5.0",
+          "role": "brand"
+        },
+        "google|crm-with-email-automation|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "google",
+          "query": "crm with email automation",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "google|hubspot-alternatives|2026-09-04|freshworks.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "google",
+          "query": "hubspot alternatives",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "google|hubspot-alternatives|2026-09-04|pipedrive.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "google",
+          "query": "hubspot alternatives",
+          "rank": "10.0",
+          "role": "brand"
+        },
+        "google|hubspot-alternatives|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "google",
+          "query": "hubspot alternatives",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "google|pipeline-management-software|2026-09-04|freshworks.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "google",
+          "query": "pipeline management software",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "google|pipeline-management-software|2026-09-04|zoho.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "google",
+          "query": "pipeline management software",
+          "rank": "6.0",
+          "role": "competitor"
+        },
+        "google|sales-crm-for-startups|2026-09-04|freshworks.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "google",
+          "query": "sales crm for startups",
+          "rank": "3.0",
+          "role": "competitor"
+        },
+        "google|sales-crm-for-startups|2026-09-04|hubspot.com": {
+          "checked_at": "2026-09-04T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "google",
+          "query": "sales crm for startups",
+          "rank": "1.0",
+          "role": "competitor"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "google_serp"
+}

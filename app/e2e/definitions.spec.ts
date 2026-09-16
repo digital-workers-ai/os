@@ -123,6 +123,19 @@ test('dashboards', async ({ page }) => {
   await snap(page, 'definitions-dashboards')
 })
 
+test('spy', async ({ page }) => {
+  await openTab(page, 'spy')
+  const spy = await (await page.request.get('/api/definitions/spy')).json()
+  await expect(page.getByTestId('definitions-spy-brand')).toContainText(spy.brand.name)
+  const competitors = page.getByTestId('definitions-spy-competitors')
+  await expect(counted(competitors, 'Competitor')).toBeVisible()
+  await expect(competitors.locator('tbody tr')).toHaveCount(spy.competitors.length)
+  const queries = page.getByTestId('definitions-spy-queries')
+  await expect(queries).toContainText(`Queries (${spy.queries.length})`)
+  await expect(queries.locator('li')).toHaveCount(spy.queries.length)
+  await snap(page, 'definitions-spy')
+})
+
 test('error', async ({ page }) => {
   await mockJson(page, '**/api/definitions/*', { detail: 'definitions unavailable' }, 500)
   await visit(page, '/definitions')

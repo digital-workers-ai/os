@@ -31,6 +31,7 @@ DEFINITIONS = (
     "goals",
     "enrichment",
     "derived",
+    "spy",
 )
 URIS = {f"definitions://{name}" for name in DEFINITIONS}
 READ_ONLY = {
@@ -128,7 +129,7 @@ class TestTools:
 
 
 class TestResources:
-    async def test_the_nine_definition_files_are_resources(self, client):
+    async def test_the_ten_definition_files_are_resources(self, client):
         resources = await client.list_resources()
         assert {str(resource.uri) for resource in resources} == URIS
         assert {resource.mime_type for resource in resources} == {"application/yaml"}
@@ -138,6 +139,12 @@ class TestResources:
         assert content.mime_type == "application/yaml"
         assert content.text == (DEFINITIONS_DIR / "metrics.yaml").read_text()
         assert content.text.startswith("mrr:\n")
+
+    async def test_the_spy_definition_is_a_resource_too(self, client):
+        [content] = await client.read_resource("definitions://spy")
+        assert content.mime_type == "application/yaml"
+        assert content.text == (DEFINITIONS_DIR / "spy.yaml").read_text()
+        assert content.text.startswith("brand:\n")
 
 
 class TestPrompts:
@@ -188,7 +195,7 @@ class TestHttp:
         assert all(prompt["description"] for prompt in body["prompts"])
         assert (len(body["tools"]), len(body["resources"]), len(body["prompts"])) == (
             7,
-            9,
+            10,
             2,
         )
 

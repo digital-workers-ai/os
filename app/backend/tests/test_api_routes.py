@@ -16,7 +16,17 @@ from app.api import (
     sources_api,
 )
 from app.db import get_session
-from app.engine import dashboards, goals, mappings, metrics, ontology, rules, run
+from app.engine import (
+    checks,
+    dashboards,
+    goals,
+    mappings,
+    metrics,
+    ontology,
+    rules,
+    run,
+    spy,
+)
 from app.engine.transforms import TRANSFORM_TYPES, TRANSFORMS
 from app.main import app
 from app.models import (
@@ -29,7 +39,7 @@ from app.models import (
     RawEvent,
     SyncRun,
 )
-from app.sources import hooks
+from app.sources import hooks, registry
 from tests.conftest import NOW
 
 SELF_TRANSACTING = (
@@ -142,8 +152,7 @@ class TestSources:
 
     async def test_the_catalog_lists_every_source_in_order(self, api):
         rows = (await api.get("/api/sources")).json()["sources"]
-        assert len(rows) == 27
-        assert [r["source"] for r in rows] == sorted(r["source"] for r in rows)
+        assert [r["source"] for r in rows] == sorted(registry.discover())
 
     async def test_every_row_carries_its_metadata_and_status(self, api):
         rows = (await api.get("/api/sources")).json()["sources"]
@@ -174,12 +183,30 @@ class TestSources:
     async def test_the_validation_coverage_summary_counts_every_source(self, api):
         body = (await api.get("/api/sources")).json()
         coverage = body["validation_coverage"]
-        assert coverage["total"] == 27
-        assert sum(coverage["by_status"].values()) == 27
+        assert coverage["total"] == len(registry.discover())
+        assert sum(coverage["by_status"].values()) == len(registry.discover())
         assert coverage["provider_validated"] == sum(
             1 for r in body["sources"] if r["validation"] == "provider-validated"
         )
         assert coverage["detail"]
+
+    async def test_the_detail_counts_the_sources_that_replayed_a_provider_payload(
+        self, api
+    ):
+        coverage = (await api.get("/api/sources")).json()["validation_coverage"]
+        provider, total = coverage["provider_validated"], coverage["total"]
+        assert provider
+        assert coverage["detail"] == (
+            f"{provider} of {total} sources have replayed a real provider payload"
+        )
+
+    async def test_without_a_real_fixture_the_detail_names_the_gap(
+        self, api, tmp_path, monkeypatch
+    ):
+        monkeypatch.setattr(checks, "REAL_FIXTURES", tmp_path)
+        coverage = (await api.get("/api/sources")).json()["validation_coverage"]
+        assert coverage["provider_validated"] == 0
+        assert "mock-validated only" in coverage["detail"]
 
     async def test_a_never_synced_source_reports_zero_attempts(self, api):
         rows = (await api.get("/api/sources")).json()["sources"]
@@ -2190,6 +2217,41 @@ class TestDefinitions:
         body = (await api.get("/api/definitions/dashboards")).json()
         assert body["dashboards"]["social"]["parent"] is None
         assert body["dashboards"]["facebook"]["parent"] == "social"
+
+    async def test_the_spy_definition_is_served_with_its_engines(self, api):
+        response = await api.get("/api/definitions/spy")
+        assert response.status_code == 200, response.text
+        body = response.json()
+        tracked = spy.definition()
+        assert set(body) == {
+            "brand",
+            "competitors",
+            "queries",
+            "country",
+            "language",
+            "engines",
+        }
+        assert body["brand"] == {
+            "name": "Pipedrive",
+            "domain": "pipedrive.com",
+            "aliases": [],
+        }
+        assert [c["name"] for c in body["competitors"]] == [
+            c.name for c in tracked.competitors
+        ]
+        hubspot = body["competitors"][0]
+        assert hubspot == {
+            "name": "HubSpot",
+            "domain": "hubspot.com",
+            "aliases": ["HubSpot CRM"],
+            "linkedin": "hubspot",
+            "google_advertiser_id": tracked.competitors[0].google_advertiser_id,
+        }
+        assert body["queries"] == list(tracked.queries)
+        assert len(body["queries"]) == 8
+        assert body["country"] == "US"
+        assert body["language"] == "en"
+        assert body["engines"] == list(spy.ENGINES)
 
     async def test_there_is_no_checks_endpoint(self, api):
         assert (await api.get("/api/definitions/checks")).status_code == 404

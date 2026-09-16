@@ -2,15 +2,16 @@
 
 **An AI Operating System for small businesses, built as code your company owns and evolves.**
 
-- Connects 27 sales, billing, support, marketing and analytics tools
+- Connects 34 sales, billing, support, marketing and analytics tools
 - Raw data kept as it arrived; everything rebuilt from it
 - Joins the same customer across tools, with a review queue
 - Every number traces to its tool, records and missing fields
-- Business logic in nine plain definition files your company owns
+- Business logic in eleven plain definition files your company owns
 - Rules flag what needs attention; goals judge your targets
 - Briefings per role, written by a model from finished numbers
 - Ask questions in plain English over the same reviewed numbers
 - Search everything by words, or by meaning when enabled
+- Tracks your brand in Google and AI answers, and competitors' ads and posts
 - Any AI assistant can read it all through MCP
 - A nightly AI engineer proposes fixes; a person approves
 
@@ -37,6 +38,7 @@ Every night, an AI agent reviews what changed and opens a GitHub issue for each 
 - [Entity Resolution](#entity-resolution)
 - [Your Business as Code You Own](#your-business-as-code-you-own)
 - [The Dashboard](#the-dashboard)
+- [Spy](#spy)
 - [MCP Support](#mcp-support)
 - [The Nightly AI Engineer Agent](#the-nightly-ai-engineer-agent)
 - [An Engineer in Your Loop](#an-engineer-in-your-loop)
@@ -71,7 +73,7 @@ curl -X POST localhost:8092/api/rebuild
 open http://localhost:3092
 ```
 
-The two `curl` commands pull from every stand-in tool and then build every record out of what arrived; the last command opens the console on your home page; the dashboard is at http://localhost:3093.
+The two `curl` commands pull from every stand-in tool and then build every record out of what arrived; the last command opens the console on your home page; the dashboard is at http://localhost:3093 and Spy at http://localhost:3094.
 
 ## Connectors
 
@@ -88,6 +90,7 @@ In this repository, all of them are answered by stand-ins rather than the real p
 | Advertising            | Meta, Google Ads, LinkedIn, Pinterest, Snapchat, Twitter | Ad accounts, campaigns, spend, conversions |
 | Analytics and product  | Google Analytics, Mixpanel, Amplitude, Segment, Smartlook | Traffic, events, event definitions    |
 | Meetings and messaging | Calendly, Zoom, Twilio                                  | Meetings, call transcripts, messages  |
+| Competitors and visibility | Google Search (with AI Overviews), ChatGPT, Perplexity, Claude, Gemini, Google Ads Transparency, LinkedIn company posts | Brand rank and mentions, cited sources, competitor creatives and posts |
 
 Adding a tool is one package under `app/backend/app/sources/`, its lines in `definitions/mappings.yaml`, and a saved sample response the test suite can replay. Deletions in a provider are not currently detected—a record that disappears upstream stays in the graph.
 
@@ -96,7 +99,7 @@ Adding a tool is one package under `app/backend/app/sources/`, its lines in `def
 ```mermaid
 flowchart TD
 
-    SRC["1 · 27 connectors"]
+    SRC["1 · 34 connectors"]
     RAW["2 · Raw store<br/>every event as it arrived"]
     QUEUE["8 · Review queue<br/>look-alike pairs, a person confirms or rejects"]
 
@@ -137,9 +140,11 @@ flowchart TD
     subgraph SURF["Surfaces"]
         direction LR
         UI["21 · Console"]
-        SE["22 · Search<br/>words, with a typo fallback"]
-        MCP["23 · MCP"]
-        UI ~~~ SE ~~~ MCP
+        DASH["22 · Dashboard"]
+        SPY["23 · Spy"]
+        SE["24 · Search<br/>words, with a typo fallback"]
+        MCP["25 · MCP"]
+        UI ~~~ DASH ~~~ SPY ~~~ SE ~~~ MCP
     end
 
     SRC -->|sync| RAW
@@ -184,8 +189,9 @@ flowchart TD
 
 21. **Console:** The web app: a home page with goals and findings, plus pages for activity, metrics, records, the AI parts, definitions, settings, and search.
 22. **Dashboard:** A second web app for readers: the pages `dashboards.yaml` declares, one card per metric, over any date range.
-23. **Search:** One search box over everything stored: names, emails, ids, statuses, transcript passages, briefings, and the definitions themselves.
-24. **MCP:** The door for AI assistants. Any assistant on your machine can read the same numbers, definitions, and briefing prompts as the console, and every call is logged.
+23. **Spy:** A third web app: how the brand comes up in Google and AI answers for the tracked queries, and what competitors run and post.
+24. **Search:** One search box over everything stored: names, emails, ids, statuses, transcript passages, briefings, and the definitions themselves.
+25. **MCP:** The door for AI assistants. Any assistant on your machine can read the same numbers, definitions, and briefing prompts as the console, and every call is logged.
 
 ## Entity Resolution
 
@@ -230,7 +236,7 @@ two records, same kind          (today: people; companies declare no ladder)
 
 ## Your Business as Code You Own
 
-Everything here is code your company owns: ten definition files that describe the business, and the software underneath that connects to your tools, joins the records, calculates the numbers, and writes the briefings.
+Everything here is code your company owns: eleven definition files that describe the business, and the software underneath that connects to your tools, joins the records, calculates the numbers, and writes the briefings.
 
 The definitions are where most changes happen. They hold what counts as a customer, which fields matter, how revenue is calculated, what counts as a problem, what the targets are, and what questions an AI model is allowed to ask about your text. Every time the system starts, and every time it rebuilds, it checks the files against each other. If one file mentions a field another does not have, or a number over data nothing produces, or a target with a setting that makes no sense, the system refuses to start and says which file and which line. It will not run on definitions it knows are broken.
 
@@ -262,6 +268,8 @@ Because all of it lives in a repository, your business is versioned. Changing wh
 │ dashboards.yaml │ The pages of the dashboard, and which numbers each one shows                         │
 ├─────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
 │ enrichment.yaml │ The questions a model may ask of your text, and the answers it may give              │
+├─────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
+│ spy.yaml        │ The brand, the competitors and the queries Spy tracks                                 │
 └─────────────────┴───────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -274,6 +282,12 @@ The console is for whoever operates it. The dashboard is for whoever runs the bu
 Adding a page is adding lines to `dashboards.yaml`. The same check that guards the other definition files guards this one: a card that names no metric, a metric listed twice on one page, or a metric on a ranged page that has no date to range over fails the build with a message naming the page — never a blank card. The console lists every page and card under Definitions → Dashboards, so what the dashboard shows is as reviewable as how each number is calculated.
 
 It installs as an app on an iPhone, an Android phone or a desktop: the shell is cached so the pages open offline, the numbers never are.
+
+## Spy
+
+Spy is a third web app, at http://localhost:3094, for whoever looks after the brand. It shows how the brand comes up in Google results, Google AI Overviews, ChatGPT, Perplexity, Claude and Gemini for a fixed list of queries, which competitors those answers name and which sites they cite, what each competitor is running in Google Ads Transparency, and what each posts on its LinkedIn company page. Five pages: an overview, the visibility matrix per engine, the ads, the posts, and the competitors as defined.
+
+`definitions/spy.yaml` holds the brand (name, domain, aliases), the competitors (name, domain, aliases, LinkedIn slug, Google advertiser id), the queries, the country and the language. It is checked at boot and before every rebuild like the other definition files, and the console shows it under Definitions → Spy. To change what Spy tracks, edit the file and rebuild. The shipped file names real companies, Pipedrive against HubSpot, Zoho CRM and Freshsales, so the stand-ins and the saved real responses have something to find.
 
 ## MCP Support
 
@@ -364,11 +378,18 @@ A source reads its real API once every variable it names is set, and the stand-i
 | ActiveCampaign | `ACTIVECAMPAIGN_BASE_URL`, `ACTIVECAMPAIGN_API_KEY`                                           |
 | Amplitude      | `AMPLITUDE_API_KEY`, `AMPLITUDE_SECRET_KEY`                                                   |
 | Calendly       | `CALENDLY_ACCESS_TOKEN`, `CALENDLY_USER_URI`                                                  |
+| ChatGPT        | `OPENROUTER_API_KEY`                                                                          |
+| Claude         | `ANTHROPIC_API_KEY`                                                                           |
+| Gemini         | `OPENROUTER_API_KEY`                                                                          |
+| Google Ads Transparency | `SERPAPI_API_KEY`, `OPENROUTER_API_KEY`                                             |
+| Google Search  | `SERPAPI_API_KEY`                                                                             |
 | HubSpot        | `HUBSPOT_ACCESS_TOKEN`                                                                        |
 | Intercom       | `INTERCOM_ACCESS_TOKEN`                                                                       |
 | Klaviyo        | `KLAVIYO_API_KEY`                                                                             |
+| LinkedIn Company Posts | `BRIGHTDATA_API_KEY`                                                                  |
 | Mailchimp      | `MAILCHIMP_API_KEY`                                                                           |
 | Mixpanel       | `MIXPANEL_SERVICE_ACCOUNT_USERNAME`, `MIXPANEL_SERVICE_ACCOUNT_SECRET`, `MIXPANEL_PROJECT_ID` |
+| Perplexity     | `OPENROUTER_API_KEY`                                                                          |
 | Shopify        | `SHOPIFY_STORE_DOMAIN`, `SHOPIFY_ACCESS_TOKEN`                                                |
 | Stripe         | `STRIPE_API_KEY`                                                                              |
 | Twilio         | `TWILIO_ACCOUNT_SID`, `TWILIO_API_KEY_SID`, `TWILIO_API_KEY_SECRET`                           |

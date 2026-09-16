@@ -710,7 +710,7 @@ class TestEverySourceWithRealCredentialsStillHasAStandIn:
     def test_each_real_entry_names_a_mock_entry(self):
         assert set(creds._REAL) <= set(creds._MOCK)
 
-    def test_the_twelve_configured_sources_are_the_ones_the_environment_names(self):
+    def test_the_nineteen_configured_sources_are_the_ones_the_environment_names(self):
         assert set(creds._REAL) == {
             "hubspot",
             "stripe",
@@ -724,6 +724,13 @@ class TestEverySourceWithRealCredentialsStillHasAStandIn:
             "mixpanel",
             "activecampaign",
             "twitter",
+            "google_ads_transparency",
+            "chatgpt",
+            "perplexity",
+            "gemini",
+            "linkedin_posts",
+            "google_serp",
+            "claude",
         }
 
 
@@ -801,3 +808,23 @@ class TestStandInsOnlyOutranksTheEnvironment:
         found = creds.credentials_for(source)
         assert found.base_url == f"https://{source}.example.test"
         assert not found.base_url.startswith(settings.MOCK_BASE_URL)
+
+
+class TestCredentialsSayWhetherTheyAreReal:
+    def test_the_flag_defaults_off(self):
+        assert creds.Credentials(base_url="http://x").real is False
+
+    def test_a_stand_in_is_not_real(self, clean_env):
+        assert creds.credentials_for("hubspot").real is False
+
+    def test_a_source_with_no_real_entry_is_not_real(self):
+        assert creds.credentials_for("zendesk").real is False
+
+    def test_the_environment_makes_them_real(self, clean_env, monkeypatch):
+        monkeypatch.setenv("HUBSPOT_ACCESS_TOKEN", TOKEN)
+        assert creds.credentials_for("hubspot").real is True
+
+    def test_stand_ins_only_keeps_them_unreal(
+        self, every_real_credential, stand_ins_only
+    ):
+        assert creds.credentials_for("hubspot").real is False

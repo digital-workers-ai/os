@@ -1,0 +1,397 @@
+[
+  {
+    "payload": {
+      "ai_overview": {
+        "references": [
+          {
+            "index": 0,
+            "link": "https://www.pipedrive.com/en/features/sales-pipeline",
+            "snippet": "Pipedrive is the easy-to-use CRM built for salespeople. Track deals in a visual pipeline, automate follow-ups and forecast revenue. Try it free for 14 days.",
+            "source": "Pipedrive",
+            "title": "Pipedrive: Sales CRM and Pipeline Management Software"
+          },
+          {
+            "index": 1,
+            "link": "https://www.zoho.com/crm/sales-automation.html",
+            "snippet": "Zoho CRM helps sales teams close more deals with AI-assisted lead scoring, workflow automation and built-in telephony, from $14 per user per month.",
+            "source": "Zoho CRM",
+            "title": "Zoho CRM: Top-rated Sales CRM Software"
+          },
+          {
+            "index": 2,
+            "link": "https://www.g2.com/categories/crm",
+            "snippet": "Choose the best CRM software for your business. Compare verified reviews, pricing and features to find the right fit for your sales team.",
+            "source": "G2",
+            "title": "Best CRM Software in 2026: Compare Reviews on 900+ Tools"
+          }
+        ],
+        "text_blocks": [
+          {
+            "reference_indexes": [
+              2
+            ],
+            "snippet": "The most recommended options are Pipedrive and Zoho CRM, each with a free trial and a pipeline view.",
+            "type": "paragraph"
+          },
+          {
+            "list": [
+              {
+                "reference_indexes": [
+                  0
+                ],
+                "snippet": "Pipedrive is strong on reporting and customisable workflows for growing teams.",
+                "title": "Pipedrive"
+              },
+              {
+                "reference_indexes": [
+                  1
+                ],
+                "snippet": "Zoho CRM bundles calling and email sequences, with a free tier for small teams.",
+                "title": "Zoho CRM"
+              }
+            ],
+            "type": "list"
+          }
+        ]
+      },
+      "request": {
+        "checked_at": "2026-09-04",
+        "country": "US",
+        "engine": "ai_overview",
+        "language": "en",
+        "query": "sales crm for startups"
+      }
+    },
+    "source_id": "sales-crm-for-startups|2026-09-04"
+  },
+  {
+    "payload": {
+      "ai_overview": {
+        "references": [
+          {
+            "index": 0,
+            "link": "https://www.pipedrive.com/en/features/sales-pipeline",
+            "snippet": "Pipedrive is the easy-to-use CRM built for salespeople. Track deals in a visual pipeline, automate follow-ups and forecast revenue. Try it free for 14 days.",
+            "source": "Pipedrive",
+            "title": "Pipedrive: Sales CRM and Pipeline Management Software"
+          },
+          {
+            "index": 1,
+            "link": "https://www.zoho.com/crm/sales-automation.html",
+            "snippet": "Zoho CRM helps sales teams close more deals with AI-assisted lead scoring, workflow automation and built-in telephony, from $14 per user per month.",
+            "source": "Zoho CRM",
+            "title": "Zoho CRM: Top-rated Sales CRM Software"
+          },
+          {
+            "index": 2,
+            "link": "https://www.hubspot.com/products/crm",
+            "snippet": "HubSpot gives sales teams a free CRM with contact management, deal tracking and email templates, with paid tiers that add automation and reporting.",
+            "source": "HubSpot",
+            "title": "HubSpot CRM Software for Sales Teams"
+          },
+          {
+            "index": 3,
+            "link": "https://www.g2.com/categories/crm",
+            "snippet": "Choose the best CRM software for your business. Compare verified reviews, pricing and features to find the right fit for your sales team.",
+            "source": "G2",
+            "title": "Best CRM Software in 2026: Compare Reviews on 900+ Tools"
+          }
+        ],
+        "text_blocks": [
+          {
+            "reference_indexes": [
+              3
+            ],
+            "snippet": "Pipedrive, Zoho CRM and HubSpot are the tools reviewers mention most, differing mainly on price and automation depth.",
+            "type": "paragraph"
+          },
+          {
+            "list": [
+              {
+                "reference_indexes": [
+                  0
+                ],
+                "snippet": "Pipedrive offers a visual pipeline, email tracking and automation on its entry plan.",
+                "title": "Pipedrive"
+              },
+              {
+                "reference_indexes": [
+                  1
+                ],
+                "snippet": "Zoho CRM bundles calling and email sequences, with a free tier for small teams.",
+                "title": "Zoho CRM"
+              },
+              {
+                "reference_indexes": [
+                  2
+                ],
+                "snippet": "HubSpot is strong on reporting and customisable workflows for growing teams.",
+                "title": "HubSpot"
+              }
+            ],
+            "type": "list"
+          }
+        ]
+      },
+      "request": {
+        "checked_at": "2026-09-04",
+        "country": "US",
+        "engine": "ai_overview",
+        "language": "en",
+        "query": "crm with email automation"
+      }
+    },
+    "source_id": "crm-with-email-automation|2026-09-04"
+  },
+  {
+    "payload": {
+      "ai_overview": {
+        "references": [
+          {
+            "index": 0,
+            "link": "https://www.pipedrive.com/en/features/sales-pipeline",
+            "snippet": "Pipedrive is the easy-to-use CRM built for salespeople. Track deals in a visual pipeline, automate follow-ups and forecast revenue. Try it free for 14 days.",
+            "source": "Pipedrive",
+            "title": "Pipedrive: Sales CRM and Pipeline Management Software"
+          },
+          {
+            "index": 1,
+            "link": "https://www.hubspot.com/products/crm",
+            "snippet": "HubSpot gives sales teams a free CRM with contact management, deal tracking and email templates, with paid tiers that add automation and reporting.",
+            "source": "HubSpot",
+            "title": "HubSpot CRM Software for Sales Teams"
+          },
+          {
+            "index": 2,
+            "link": "https://www.zoho.com/crm/sales-automation.html",
+            "snippet": "Zoho CRM helps sales teams close more deals with AI-assisted lead scoring, workflow automation and built-in telephony, from $14 per user per month.",
+            "source": "Zoho CRM",
+            "title": "Zoho CRM: Top-rated Sales CRM Software"
+          },
+          {
+            "index": 3,
+            "link": "https://www.freshworks.com/crm/sales/",
+            "snippet": "Freshsales is an AI-powered sales CRM with built-in phone, email and chat, so reps work every lead from one screen. Free plan for up to three users.",
+            "source": "Freshsales",
+            "title": "Freshsales: AI-powered Sales CRM"
+          },
+          {
+            "index": 4,
+            "link": "https://www.techradar.com/best/the-best-crm-software",
+            "snippet": "We test and rank the best CRM platforms for small businesses and growing sales teams, from free tiers to enterprise suites.",
+            "source": "TechRadar",
+            "title": "The best CRM software of 2026"
+          }
+        ],
+        "text_blocks": [
+          {
+            "reference_indexes": [
+              4
+            ],
+            "snippet": "Pipedrive, HubSpot, Zoho CRM and Freshsales are the tools reviewers mention most, differing mainly on price and automation depth.",
+            "type": "paragraph"
+          },
+          {
+            "list": [
+              {
+                "reference_indexes": [
+                  0
+                ],
+                "snippet": "Pipedrive is strong on reporting and customisable workflows for growing teams.",
+                "title": "Pipedrive"
+              },
+              {
+                "reference_indexes": [
+                  1
+                ],
+                "snippet": "HubSpot is strong on reporting and customisable workflows for growing teams.",
+                "title": "HubSpot"
+              },
+              {
+                "reference_indexes": [
+                  2
+                ],
+                "snippet": "Zoho CRM includes an AI assistant that drafts follow-ups and scores deals.",
+                "title": "Zoho CRM"
+              },
+              {
+                "reference_indexes": [
+                  3
+                ],
+                "snippet": "Freshsales bundles calling and email sequences, with a free tier for small teams.",
+                "title": "Freshsales"
+              }
+            ],
+            "type": "list"
+          }
+        ]
+      },
+      "request": {
+        "checked_at": "2026-09-04",
+        "country": "US",
+        "engine": "ai_overview",
+        "language": "en",
+        "query": "affordable crm for sales teams"
+      }
+    },
+    "source_id": "affordable-crm-for-sales-teams|2026-09-04"
+  },
+  {
+    "payload": {
+      "ai_overview": {
+        "references": [
+          {
+            "index": 0,
+            "link": "https://www.freshworks.com/crm/sales/",
+            "snippet": "Freshsales is an AI-powered sales CRM with built-in phone, email and chat, so reps work every lead from one screen. Free plan for up to three users.",
+            "source": "Freshsales",
+            "title": "Freshsales: AI-powered Sales CRM"
+          },
+          {
+            "index": 1,
+            "link": "https://www.hubspot.com/products/crm",
+            "snippet": "HubSpot gives sales teams a free CRM with contact management, deal tracking and email templates, with paid tiers that add automation and reporting.",
+            "source": "HubSpot",
+            "title": "HubSpot CRM Software for Sales Teams"
+          },
+          {
+            "index": 2,
+            "link": "https://www.zoho.com/crm/sales-automation.html",
+            "snippet": "Zoho CRM helps sales teams close more deals with AI-assisted lead scoring, workflow automation and built-in telephony, from $14 per user per month.",
+            "source": "Zoho CRM",
+            "title": "Zoho CRM: Top-rated Sales CRM Software"
+          },
+          {
+            "index": 3,
+            "link": "https://www.techradar.com/best/the-best-crm-software",
+            "snippet": "We test and rank the best CRM platforms for small businesses and growing sales teams, from free tiers to enterprise suites.",
+            "source": "TechRadar",
+            "title": "The best CRM software of 2026"
+          }
+        ],
+        "text_blocks": [
+          {
+            "reference_indexes": [
+              3
+            ],
+            "snippet": "Several CRMs fit this need, and the ones that come up most often are Freshsales, HubSpot and Zoho CRM.",
+            "type": "paragraph"
+          },
+          {
+            "list": [
+              {
+                "reference_indexes": [
+                  0
+                ],
+                "snippet": "Freshsales includes an AI assistant that drafts follow-ups and scores deals.",
+                "title": "Freshsales"
+              },
+              {
+                "reference_indexes": [
+                  1
+                ],
+                "snippet": "HubSpot offers a visual pipeline, email tracking and automation on its entry plan.",
+                "title": "HubSpot"
+              },
+              {
+                "reference_indexes": [
+                  2
+                ],
+                "snippet": "Zoho CRM includes an AI assistant that drafts follow-ups and scores deals.",
+                "title": "Zoho CRM"
+              }
+            ],
+            "type": "list"
+          }
+        ]
+      },
+      "request": {
+        "checked_at": "2026-09-04",
+        "country": "US",
+        "engine": "ai_overview",
+        "language": "en",
+        "query": "hubspot alternatives"
+      }
+    },
+    "source_id": "hubspot-alternatives|2026-09-04"
+  },
+  {
+    "payload": {
+      "ai_overview": {
+        "references": [
+          {
+            "index": 0,
+            "link": "https://www.zoho.com/crm/sales-automation.html",
+            "snippet": "Zoho CRM helps sales teams close more deals with AI-assisted lead scoring, workflow automation and built-in telephony, from $14 per user per month.",
+            "source": "Zoho CRM",
+            "title": "Zoho CRM: Top-rated Sales CRM Software"
+          },
+          {
+            "index": 1,
+            "link": "https://www.freshworks.com/crm/sales/",
+            "snippet": "Freshsales is an AI-powered sales CRM with built-in phone, email and chat, so reps work every lead from one screen. Free plan for up to three users.",
+            "source": "Freshsales",
+            "title": "Freshsales: AI-powered Sales CRM"
+          },
+          {
+            "index": 2,
+            "link": "https://www.hubspot.com/products/crm",
+            "snippet": "HubSpot gives sales teams a free CRM with contact management, deal tracking and email templates, with paid tiers that add automation and reporting.",
+            "source": "HubSpot",
+            "title": "HubSpot CRM Software for Sales Teams"
+          },
+          {
+            "index": 3,
+            "link": "https://www.techradar.com/best/the-best-crm-software",
+            "snippet": "We test and rank the best CRM platforms for small businesses and growing sales teams, from free tiers to enterprise suites.",
+            "source": "TechRadar",
+            "title": "The best CRM software of 2026"
+          }
+        ],
+        "text_blocks": [
+          {
+            "reference_indexes": [
+              3
+            ],
+            "snippet": "Several CRMs fit this need, and the ones that come up most often are Zoho CRM, Freshsales and HubSpot.",
+            "type": "paragraph"
+          },
+          {
+            "list": [
+              {
+                "reference_indexes": [
+                  0
+                ],
+                "snippet": "Zoho CRM is strong on reporting and customisable workflows for growing teams.",
+                "title": "Zoho CRM"
+              },
+              {
+                "reference_indexes": [
+                  1
+                ],
+                "snippet": "Freshsales includes an AI assistant that drafts follow-ups and scores deals.",
+                "title": "Freshsales"
+              },
+              {
+                "reference_indexes": [
+                  2
+                ],
+                "snippet": "HubSpot includes an AI assistant that drafts follow-ups and scores deals.",
+                "title": "HubSpot"
+              }
+            ],
+            "type": "list"
+          }
+        ]
+      },
+      "request": {
+        "checked_at": "2026-09-04",
+        "country": "US",
+        "engine": "ai_overview",
+        "language": "en",
+        "query": "crm with built in calling"
+      }
+    },
+    "source_id": "crm-with-built-in-calling|2026-09-04"
+  }
+]

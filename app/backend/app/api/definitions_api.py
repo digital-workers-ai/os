@@ -7,6 +7,7 @@ from app.engine import (
     mappings,
     metrics,
     ontology,
+    spy,
     transforms,
 )
 from app.sources import hooks
@@ -179,4 +180,32 @@ async def get_dashboards():
             }
             for page in dashboards.pages(dashboards.definitions())
         }
+    }
+
+
+def _tracked(company) -> dict:
+    return {
+        "name": company.name,
+        "domain": company.domain,
+        "aliases": list(company.aliases),
+    }
+
+
+@router.get("/spy")
+async def get_spy():
+    tracked = spy.definition()
+    return {
+        "brand": _tracked(tracked.brand),
+        "competitors": [
+            {
+                **_tracked(company),
+                "linkedin": company.linkedin,
+                "google_advertiser_id": company.google_advertiser_id,
+            }
+            for company in tracked.competitors
+        ],
+        "queries": list(tracked.queries),
+        "country": tracked.country,
+        "language": tracked.language,
+        "engines": list(spy.ENGINES),
     }

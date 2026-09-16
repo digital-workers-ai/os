@@ -1,0 +1,92 @@
+{
+  "clears": {},
+  "extracted": {
+    "checks": {
+      "visibility_check": {
+        "perplexity|crm-with-email-automation|2026-09-16": {
+          "answer": "If you want a **CRM with email automation**, the main thing to look for is a system that can **store contact and deal data** and **trigger personalized email sequences** based on behavior, timing, or pipeline stage.[5][12][15] Common good-fit options include **HubSpot** for an all-in-one platform, **ActiveCampaign** for deeper automation, **Brevo** for low-cost high-volume sending, and **Klaviyo** if you are focused on B2C/ecommerce lifecycle messaging.[5][7][9] What \u201cCRM with email automation\u201d usually means: - A CRM keeps your contacts, deals, and history in one place.[5][7] - Email automation sends messages automatically when someone takes an action or reaches a stage, such as form submission, demo booking, or deal progression.[1][5][12] - The best setups log opens, replies, and clicks back into the CRM so future messages can be more targeted.[4][12][17] What to check before choosing one: - **Native email integration** with Gmail or Outlook for two-way sync.[4][6][8] - **Flexible triggers** such as time-based, behavior-based, and pipeline-stage automations.[6][10][12] - **Personalization** using CRM fields like name, company, deal stage, or last touchpoint.[2][8][17] - **Reporting** that connects email activity to sales outcomes and revenue.[7][10] - **Ease of setup** so you can build workflows without heavy IT help.[7][10] If you want, I can narrow this down to: - **best free CRM with email automation** - **best for small business** - **best for sales follow-up** - **best for ecommerce** - **best for Gmail/Outlook integration**",
+          "checked_at": "2026-09-16T00:00:00Z",
+          "engine": "perplexity",
+          "query": "crm with email automation",
+          "sources": "20.0"
+        },
+        "perplexity|hubspot-alternatives|2026-09-16": {
+          "answer": "If you want **HubSpot alternatives**, the best choice depends on what you use HubSpot for: **Zoho CRM** for an affordable all-in-one CRM, **Pipedrive** for sales pipelines, **ActiveCampaign** for marketing automation, and **Brevo** or **EngageBay** for lower-cost email/CRM setups.[2][4][5][18] A practical short list is: - **Zoho CRM** \u2014 strong all-rounder and good for customization.[2][5][9][18] - **Pipedrive** \u2014 sales-focused, simple, and easy to use.[2][4][8][18] - **ActiveCampaign** \u2014 better for automation, funnels, and reporting.[2][4][17] - **Brevo** \u2014 affordable option for email, SMS, and basic CRM needs.[4][8][18] - **EngageBay** \u2014 popular free or low-cost all-in-one alternative.[4][13][16][18] - **Freshsales** \u2014 budget-friendly CRM with AI features for sales teams.[2][4][14][19] - **Zendesk** \u2014 better if your priority is customer support/ticketing rather than full CRM.[4][6][9][13] If you want the **closest HubSpot replacement**, the sources most often point to **Zoho CRM**, **EngageBay**, and **Pipedrive** for SMBs, while **Salesforce** and **Microsoft Dynamics 365** are more enterprise-oriented.[5][8][9][19] If you want, I can also give you a **best HubSpot alternative by use case** (sales, marketing, support, startup, or enterprise) or a **price comparison table**.",
+          "brand_rank": "3.0",
+          "checked_at": "2026-09-16T00:00:00Z",
+          "engine": "perplexity",
+          "query": "hubspot alternatives",
+          "sources": "20.0"
+        },
+        "perplexity|pipeline-management-software|2026-09-16": {
+          "answer": "**Pipeline management software** is software used to track, organize, and optimize work as it moves through defined stages; in sales, it manages deals from first contact to close, while in oil and gas it can support pipeline operations, integrity, compliance, and scheduling workflows.[2][4][17][19] The term is used in a few different ways: - **Sales pipeline management software** helps teams visualize deals, automate follow-ups, track activity, forecast revenue, and spot stalled opportunities.[2][5][16][20] - **Industrial/oil & gas pipeline software** supports functions such as nominations, scheduling, capacity rights, settlement, SCADA, leak detection, integrity management, and hydraulic analysis.[1][4][10][14][19] - **Pipeline project/construction management software** tracks project progress, tasks, footage, and communication so stakeholders can see where work stands.[7][18] Common features across sales-focused tools include: - **Stage-based tracking** - **Customizable pipelines** - **Automation and reminders** - **Forecasting and reporting** - **Activity timelines and notes** - **Integrations with email, calendar, chat, and CRM systems**[2][5][11][17][20] If you want, I can also give you: - a **list of the best pipeline management software tools**, - a **comparison by use case** like sales vs oil & gas vs construction, or - a **recommendation based on your team size and budget**.",
+          "brand_rank": "1.0",
+          "checked_at": "2026-09-16T00:00:00Z",
+          "engine": "perplexity",
+          "query": "pipeline management software",
+          "sources": "20.0"
+        }
+      },
+      "visibility_mention": {
+        "perplexity|crm-with-email-automation|2026-09-16|hubspot.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "perplexity",
+          "query": "crm with email automation",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "perplexity|hubspot-alternatives|2026-09-16|freshworks.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "perplexity",
+          "query": "hubspot alternatives",
+          "rank": "4.0",
+          "role": "competitor"
+        },
+        "perplexity|hubspot-alternatives|2026-09-16|hubspot.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "perplexity",
+          "query": "hubspot alternatives",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "perplexity|hubspot-alternatives|2026-09-16|pipedrive.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "perplexity",
+          "query": "hubspot alternatives",
+          "rank": "3.0",
+          "role": "brand"
+        },
+        "perplexity|hubspot-alternatives|2026-09-16|zoho.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "perplexity",
+          "query": "hubspot alternatives",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "perplexity|pipeline-management-software|2026-09-16|hubspot.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "perplexity",
+          "query": "pipeline management software",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "perplexity|pipeline-management-software|2026-09-16|pipedrive.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "perplexity",
+          "query": "pipeline management software",
+          "rank": "1.0",
+          "role": "brand"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "perplexity"
+}

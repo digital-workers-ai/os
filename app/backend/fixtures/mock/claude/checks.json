@@ -1,0 +1,914 @@
+[
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "claude",
+        "model": "claude-haiku-4-5",
+        "query": "best crm for small business"
+      },
+      "response": {
+        "container": null,
+        "content": [
+          {
+            "text": "I'll search for current information to answer this.",
+            "type": "text"
+          },
+          {
+            "id": "srvtoolu_01f05b3418d59f141a2a82f7c6",
+            "input": {
+              "query": "best crm for small business 2026"
+            },
+            "name": "web_search",
+            "type": "server_tool_use"
+          },
+          {
+            "caller": {
+              "type": "direct"
+            },
+            "content": [
+              {
+                "encrypted_content": "/fkwIur0SCtkitYCWX3Dvxus25Pisxsf5U+vznj32Vf9+TAi6vRIK2SK1gJZfcO/G6zbk+KzGx/lT6/OePfZV/35MCLq9EgrZIrWAll9w78brNuT4rMbH+VPr85499lX/fkwIur0SCtkitYCWX3Dvxus25Pisxsf5U+vznj32Vf9+TAi6vRIK2SK1gJZfcO/G6zbk+KzGx/lT6/OePfZV/35MCLq9EgrZIrWAll9w78brNuT4rMbH+VPr85499lX/fkwIur0SCtkitYCWX3Dvxus25Pisxsf5U+vznj32Vf9+TAi6vRIK2SK1gJZfcO/G6zbk+KzGx/lT6/OePfZV/35MCLq9EgrZIrWAll9w78brNuT4rMbH+VPr85499lX/fkwIur0SCtkitYCWX3Dvxus25Pisxsf5U+vznj32Vf9+TAi6vRIK2SK1gJZfcO/G6zbk+KzGx/lT6/OePfZV/35MCLq9EgrZIrWAll9w78brNuT4rMbH+VPr85499lX/fkwIur0SCtkitYCWX3Dvxus25Pisxsf5U+vznj32Vf9+TAi6vRIK2SK1gJZfcO/G6zbk+KzGx/lT6/OePfZV/35MCLq9EgrZIrWAll9w78brNuT4rMbH+VPr85499lX/fkwIur0SCtkitYCWX3Dvxus25Pisxsf5U+vznj32Vf9+TAi6vRIK2SK1gJZfcO/G6zbk+KzGx/lT6/OePfZV/35MCLq9EgrZIrWAll9w78brNuT4rMbH+VPr85499lX/fkwIur0SCtkitYCWX3Dvxus25Pisxsf5U+vznj32Vf9+TAi6vRIK2SK1gJZfcO/G6zbk+KzGx/lT6/OePfZV/35MCLq9EgrZIrWAll9w78brNuT4rMbH+VPr85499lX/fkwIur0SCtkitYCWX3Dvxus25Pisxsf5U+vznj32Vf9+TAi6vRIK2SK1gJZfcO/G6zbk+KzGx/lT6/OePfZV/35MCLq9EgrZIrWAll9w78brNuT4rMbH+VPr85499lX/fkwIur0SCtkitYCWX3Dvxus25Pisxsf5U+vznj32Vf9+TAi6vRIK2SK1gJZfcO/G6zbk+KzGx/lT6/OePfZV/35MCLq9EgrZIrWAll9w78brNuT4rMbH+VPr85499lX/fkwIur0SCtkitYCWX3Dvxus25Pisxsf5U+vznj32Vf9+TAi6vRIK2SK1gJZfcO/G6zbk+KzGx/lT6/OePfZV/35MCLq9EgrZIrWAll9w78brNuT4rMbH+VPr85499lX/fkwIur0SCtkitYCWX3Dvxus25Pisxsf5U+vznj32Vf9+TAi6vRIK2SK1gJZfcO/G6zbk+KzGx/lT6/OePfZVw==",
+                "page_age": "June 23, 2026",
+                "title": "Best CRM Software in 2026: Compare Reviews on 900+ Tools",
+                "type": "web_search_result",
+                "url": "https://www.g2.com/categories/crm"
+              },
+              {
+                "encrypted_content": "BNetwnCCpWa8KsqAqd2B0mZ/51ejgrHJD8p9D6KJXBUE163CcIKlZrwqyoCp3YHSZn/nV6OCsckPyn0PoolcFQTXrcJwgqVmvCrKgKndgdJmf+dXo4KxyQ/KfQ+iiVwVBNetwnCCpWa8KsqAqd2B0mZ/51ejgrHJD8p9D6KJXBUE163CcIKlZrwqyoCp3YHSZn/nV6OCsckPyn0PoolcFQTXrcJwgqVmvCrKgKndgdJmf+dXo4KxyQ/KfQ+iiVwVBNetwnCCpWa8KsqAqd2B0mZ/51ejgrHJD8p9D6KJXBUE163CcIKlZrwqyoCp3YHSZn/nV6OCsckPyn0PoolcFQTXrcJwgqVmvCrKgKndgdJmf+dXo4KxyQ/KfQ+iiVwVBNetwnCCpWa8KsqAqd2B0mZ/51ejgrHJD8p9D6KJXBUE163CcIKlZrwqyoCp3YHSZn/nV6OCsckPyn0PoolcFQTXrcJwgqVmvCrKgKndgdJmf+dXo4KxyQ/KfQ+iiVwVBNetwnCCpWa8KsqAqd2B0mZ/51ejgrHJD8p9D6KJXBUE163CcIKlZrwqyoCp3YHSZn/nV6OCsckPyn0PoolcFQTXrcJwgqVmvCrKgKndgdJmf+dXo4KxyQ/KfQ+iiVwVBNetwnCCpWa8KsqAqd2B0mZ/51ejgrHJD8p9D6KJXBUE163CcIKlZrwqyoCp3YHSZn/nV6OCsckPyn0PoolcFQTXrcJwgqVmvCrKgKndgdJmf+dXo4KxyQ/KfQ+iiVwVBNetwnCCpWa8KsqAqd2B0mZ/51ejgrHJD8p9D6KJXBUE163CcIKlZrwqyoCp3YHSZn/nV6OCsckPyn0PoolcFQTXrcJwgqVmvCrKgKndgdJmf+dXo4KxyQ/KfQ+iiVwVBNetwnCCpWa8KsqAqd2B0mZ/51ejgrHJD8p9D6KJXBUE163CcIKlZrwqyoCp3YHSZn/nV6OCsckPyn0PoolcFQTXrcJwgqVmvCrKgKndgdJmf+dXo4KxyQ/KfQ+iiVwVBNetwnCCpWa8KsqAqd2B0mZ/51ejgrHJD8p9D6KJXBUE163CcIKlZrwqyoCp3YHSZn/nV6OCsckPyn0PoolcFQTXrcJwgqVmvCrKgKndgdJmf+dXo4KxyQ/KfQ+iiVwVBNetwnCCpWa8KsqAqd2B0mZ/51ejgrHJD8p9D6KJXBUE163CcIKlZrwqyoCp3YHSZn/nV6OCsckPyn0PoolcFQTXrcJwgqVmvCrKgKndgdJmf+dXo4KxyQ/KfQ+iiVwVBNetwnCCpWa8KsqAqd2B0mZ/51ejgrHJD8p9D6KJXBUE163CcIKlZrwqyoCp3YHSZn/nV6OCsckPyn0PoolcFQ==",
+                "page_age": "August 31, 2026",
+                "title": "Freshsales: AI-powered Sales CRM",
+                "type": "web_search_result",
+                "url": "https://www.freshworks.com/crm/sales/"
+              },
+              {
+                "encrypted_content": "HIwf1J5y7DdsW0A19j2SMeXcLqUchDWKp55mSrSSQBAcjB/UnnLsN2xbQDX2PZIx5dwupRyENYqnnmZKtJJAEByMH9Secuw3bFtANfY9kjHl3C6lHIQ1iqeeZkq0kkAQHIwf1J5y7DdsW0A19j2SMeXcLqUchDWKp55mSrSSQBAcjB/UnnLsN2xbQDX2PZIx5dwupRyENYqnnmZKtJJAEByMH9Secuw3bFtANfY9kjHl3C6lHIQ1iqeeZkq0kkAQHIwf1J5y7DdsW0A19j2SMeXcLqUchDWKp55mSrSSQBAcjB/UnnLsN2xbQDX2PZIx5dwupRyENYqnnmZKtJJAEByMH9Secuw3bFtANfY9kjHl3C6lHIQ1iqeeZkq0kkAQHIwf1J5y7DdsW0A19j2SMeXcLqUchDWKp55mSrSSQBAcjB/UnnLsN2xbQDX2PZIx5dwupRyENYqnnmZKtJJAEByMH9Secuw3bFtANfY9kjHl3C6lHIQ1iqeeZkq0kkAQHIwf1J5y7DdsW0A19j2SMeXcLqUchDWKp55mSrSSQBAcjB/UnnLsN2xbQDX2PZIx5dwupRyENYqnnmZKtJJAEByMH9Secuw3bFtANfY9kjHl3C6lHIQ1iqeeZkq0kkAQHIwf1J5y7DdsW0A19j2SMeXcLqUchDWKp55mSrSSQBAcjB/UnnLsN2xbQDX2PZIx5dwupRyENYqnnmZKtJJAEByMH9Secuw3bFtANfY9kjHl3C6lHIQ1iqeeZkq0kkAQHIwf1J5y7DdsW0A19j2SMeXcLqUchDWKp55mSrSSQBAcjB/UnnLsN2xbQDX2PZIx5dwupRyENYqnnmZKtJJAEByMH9Secuw3bFtANfY9kjHl3C6lHIQ1iqeeZkq0kkAQHIwf1J5y7DdsW0A19j2SMeXcLqUchDWKp55mSrSSQBAcjB/UnnLsN2xbQDX2PZIx5dwupRyENYqnnmZKtJJAEByMH9Secuw3bFtANfY9kjHl3C6lHIQ1iqeeZkq0kkAQHIwf1J5y7DdsW0A19j2SMeXcLqUchDWKp55mSrSSQBAcjB/UnnLsN2xbQDX2PZIx5dwupRyENYqnnmZKtJJAEByMH9Secuw3bFtANfY9kjHl3C6lHIQ1iqeeZkq0kkAQHIwf1J5y7DdsW0A19j2SMeXcLqUchDWKp55mSrSSQBAcjB/UnnLsN2xbQDX2PZIx5dwupRyENYqnnmZKtJJAEByMH9Secuw3bFtANfY9kjHl3C6lHIQ1iqeeZkq0kkAQHIwf1J5y7DdsW0A19j2SMeXcLqUchDWKp55mSrSSQBAcjB/UnnLsN2xbQDX2PZIx5dwupRyENYqnnmZKtJJAEA==",
+                "page_age": "August 7, 2026",
+                "title": "Pipedrive: Sales CRM and Pipeline Management Software",
+                "type": "web_search_result",
+                "url": "https://www.pipedrive.com/en/features/sales-pipeline"
+              }
+            ],
+            "tool_use_id": "srvtoolu_01f05b3418d59f141a2a82f7c6",
+            "type": "web_search_tool_result"
+          },
+          {
+            "citations": [
+              {
+                "cited_text": "Freshsales: AI-powered Sales CRM\n\nFreshsales is the name that comes up first for teams that want a visual pipeline without a long setup.",
+                "encrypted_index": "lkMj0V3cdpsKqLDIvbpSfPNDHxBhnoN+3i18HdngRbOWQyPRXdx2mwqosMi9ulJ880MfEGGeg37eLXwd2eBFs5ZDI9Fd3HabCqiwyL26UnzzQx8QYZ6Dft4tfB3Z4EWzlkMj0V3cdpsKqLDIvbpSfPNDHxBhnoN+3i18HdngRbOWQyPRXdx2mwqosMi9ulJ880MfEGGeg37eLXwd2eBFsw==",
+                "title": "Freshsales: AI-powered Sales CRM",
+                "type": "web_search_result_location",
+                "url": "https://www.freshworks.com/crm/sales/"
+              }
+            ],
+            "text": "Freshsales is the name that comes up first for teams that want a visual pipeline without a long setup.",
+            "type": "text"
+          },
+          {
+            "text": " ",
+            "type": "text"
+          },
+          {
+            "citations": [
+              {
+                "cited_text": "Pipedrive: Sales CRM and Pipeline Management Software\n\nPipedrive offers the broader free tier, but Zoho CRM is easier to customise once the process ge...",
+                "encrypted_index": "INUrLwkGiC3gPfbVpSmlg5w51LQhTk13PiWnHr7YcfQg1SsvCQaILeA99tWlKaWDnDnUtCFOTXc+Jacevthx9CDVKy8JBogt4D321aUppYOcOdS0IU5Ndz4lpx6+2HH0INUrLwkGiC3gPfbVpSmlg5w51LQhTk13PiWnHr7YcfQg1SsvCQaILeA99tWlKaWDnDnUtCFOTXc+Jacevthx9A==",
+                "title": "Pipedrive: Sales CRM and Pipeline Management Software",
+                "type": "web_search_result_location",
+                "url": "https://www.pipedrive.com/en/features/sales-pipeline"
+              }
+            ],
+            "text": "Pipedrive offers the broader free tier, but Zoho CRM is easier to customise once the process gets more complex.",
+            "type": "text"
+          },
+          {
+            "text": " Entry plans start around fifteen dollars per user per month, with AI features gated to the mid tiers.",
+            "type": "text"
+          }
+        ],
+        "id": "msg_0108a267a6740e20a19df2b786",
+        "model": "claude-haiku-4-5-20251001",
+        "role": "assistant",
+        "stop_details": null,
+        "stop_reason": "end_turn",
+        "stop_sequence": null,
+        "type": "message",
+        "usage": {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "inference_geo": "not_available",
+          "input_tokens": 4984,
+          "output_tokens": 119,
+          "server_tool_use": {
+            "web_fetch_requests": 0,
+            "web_search_requests": 1
+          },
+          "service_tier": "standard"
+        }
+      }
+    },
+    "source_id": "best-crm-for-small-business|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "claude",
+        "model": "claude-haiku-4-5",
+        "query": "crm with ai assistant"
+      },
+      "response": {
+        "container": null,
+        "content": [
+          {
+            "text": "I'll search for current information to answer this.",
+            "type": "text"
+          },
+          {
+            "id": "srvtoolu_01f91e25c34516009a62d0b9cd",
+            "input": {
+              "query": "crm with ai assistant 2026"
+            },
+            "name": "web_search",
+            "type": "server_tool_use"
+          },
+          {
+            "caller": {
+              "type": "direct"
+            },
+            "content": [
+              {
+                "encrypted_content": "FxnKnX9tp8yO/3JMkYkRFPiaiZ9ZMbDQHYsvbLDtaVgXGcqdf22nzI7/ckyRiREU+JqJn1kxsNAdiy9ssO1pWBcZyp1/bafMjv9yTJGJERT4momfWTGw0B2LL2yw7WlYFxnKnX9tp8yO/3JMkYkRFPiaiZ9ZMbDQHYsvbLDtaVgXGcqdf22nzI7/ckyRiREU+JqJn1kxsNAdiy9ssO1pWBcZyp1/bafMjv9yTJGJERT4momfWTGw0B2LL2yw7WlYFxnKnX9tp8yO/3JMkYkRFPiaiZ9ZMbDQHYsvbLDtaVgXGcqdf22nzI7/ckyRiREU+JqJn1kxsNAdiy9ssO1pWBcZyp1/bafMjv9yTJGJERT4momfWTGw0B2LL2yw7WlYFxnKnX9tp8yO/3JMkYkRFPiaiZ9ZMbDQHYsvbLDtaVgXGcqdf22nzI7/ckyRiREU+JqJn1kxsNAdiy9ssO1pWBcZyp1/bafMjv9yTJGJERT4momfWTGw0B2LL2yw7WlYFxnKnX9tp8yO/3JMkYkRFPiaiZ9ZMbDQHYsvbLDtaVgXGcqdf22nzI7/ckyRiREU+JqJn1kxsNAdiy9ssO1pWBcZyp1/bafMjv9yTJGJERT4momfWTGw0B2LL2yw7WlYFxnKnX9tp8yO/3JMkYkRFPiaiZ9ZMbDQHYsvbLDtaVgXGcqdf22nzI7/ckyRiREU+JqJn1kxsNAdiy9ssO1pWBcZyp1/bafMjv9yTJGJERT4momfWTGw0B2LL2yw7WlYFxnKnX9tp8yO/3JMkYkRFPiaiZ9ZMbDQHYsvbLDtaVgXGcqdf22nzI7/ckyRiREU+JqJn1kxsNAdiy9ssO1pWBcZyp1/bafMjv9yTJGJERT4momfWTGw0B2LL2yw7WlYFxnKnX9tp8yO/3JMkYkRFPiaiZ9ZMbDQHYsvbLDtaVgXGcqdf22nzI7/ckyRiREU+JqJn1kxsNAdiy9ssO1pWBcZyp1/bafMjv9yTJGJERT4momfWTGw0B2LL2yw7WlYFxnKnX9tp8yO/3JMkYkRFPiaiZ9ZMbDQHYsvbLDtaVgXGcqdf22nzI7/ckyRiREU+JqJn1kxsNAdiy9ssO1pWBcZyp1/bafMjv9yTJGJERT4momfWTGw0B2LL2yw7WlYFxnKnX9tp8yO/3JMkYkRFPiaiZ9ZMbDQHYsvbLDtaVgXGcqdf22nzI7/ckyRiREU+JqJn1kxsNAdiy9ssO1pWBcZyp1/bafMjv9yTJGJERT4momfWTGw0B2LL2yw7WlYFxnKnX9tp8yO/3JMkYkRFPiaiZ9ZMbDQHYsvbLDtaVgXGcqdf22nzI7/ckyRiREU+JqJn1kxsNAdiy9ssO1pWA==",
+                "page_age": "August 12, 2026",
+                "title": "Pipedrive: Sales CRM and Pipeline Management Software",
+                "type": "web_search_result",
+                "url": "https://www.pipedrive.com/en/features/sales-pipeline"
+              },
+              {
+                "encrypted_content": "JQKtXIZhNiyBx4bl5g8RUjvLod3AyxwV6jTYZOSaVPUlAq1chmE2LIHHhuXmDxFSO8uh3cDLHBXqNNhk5JpU9SUCrVyGYTYsgceG5eYPEVI7y6HdwMscFeo02GTkmlT1JQKtXIZhNiyBx4bl5g8RUjvLod3AyxwV6jTYZOSaVPUlAq1chmE2LIHHhuXmDxFSO8uh3cDLHBXqNNhk5JpU9SUCrVyGYTYsgceG5eYPEVI7y6HdwMscFeo02GTkmlT1JQKtXIZhNiyBx4bl5g8RUjvLod3AyxwV6jTYZOSaVPUlAq1chmE2LIHHhuXmDxFSO8uh3cDLHBXqNNhk5JpU9SUCrVyGYTYsgceG5eYPEVI7y6HdwMscFeo02GTkmlT1JQKtXIZhNiyBx4bl5g8RUjvLod3AyxwV6jTYZOSaVPUlAq1chmE2LIHHhuXmDxFSO8uh3cDLHBXqNNhk5JpU9SUCrVyGYTYsgceG5eYPEVI7y6HdwMscFeo02GTkmlT1JQKtXIZhNiyBx4bl5g8RUjvLod3AyxwV6jTYZOSaVPUlAq1chmE2LIHHhuXmDxFSO8uh3cDLHBXqNNhk5JpU9SUCrVyGYTYsgceG5eYPEVI7y6HdwMscFeo02GTkmlT1JQKtXIZhNiyBx4bl5g8RUjvLod3AyxwV6jTYZOSaVPUlAq1chmE2LIHHhuXmDxFSO8uh3cDLHBXqNNhk5JpU9SUCrVyGYTYsgceG5eYPEVI7y6HdwMscFeo02GTkmlT1JQKtXIZhNiyBx4bl5g8RUjvLod3AyxwV6jTYZOSaVPUlAq1chmE2LIHHhuXmDxFSO8uh3cDLHBXqNNhk5JpU9SUCrVyGYTYsgceG5eYPEVI7y6HdwMscFeo02GTkmlT1JQKtXIZhNiyBx4bl5g8RUjvLod3AyxwV6jTYZOSaVPUlAq1chmE2LIHHhuXmDxFSO8uh3cDLHBXqNNhk5JpU9SUCrVyGYTYsgceG5eYPEVI7y6HdwMscFeo02GTkmlT1JQKtXIZhNiyBx4bl5g8RUjvLod3AyxwV6jTYZOSaVPUlAq1chmE2LIHHhuXmDxFSO8uh3cDLHBXqNNhk5JpU9SUCrVyGYTYsgceG5eYPEVI7y6HdwMscFeo02GTkmlT1JQKtXIZhNiyBx4bl5g8RUjvLod3AyxwV6jTYZOSaVPUlAq1chmE2LIHHhuXmDxFSO8uh3cDLHBXqNNhk5JpU9SUCrVyGYTYsgceG5eYPEVI7y6HdwMscFeo02GTkmlT1JQKtXIZhNiyBx4bl5g8RUjvLod3AyxwV6jTYZOSaVPUlAq1chmE2LIHHhuXmDxFSO8uh3cDLHBXqNNhk5JpU9Q==",
+                "page_age": "July 29, 2026",
+                "title": "Zoho CRM: Top-rated Sales CRM Software",
+                "type": "web_search_result",
+                "url": "https://www.zoho.com/crm/sales-automation.html"
+              },
+              {
+                "encrypted_content": "L+VBvw44M85yoyr6L63Qo52U4nS/0oc9k1eZcwCB3J0v5UG/DjgzznKjKvovrdCjnZTidL/Shz2TV5lzAIHcnS/lQb8OODPOcqMq+i+t0KOdlOJ0v9KHPZNXmXMAgdydL+VBvw44M85yoyr6L63Qo52U4nS/0oc9k1eZcwCB3J0v5UG/DjgzznKjKvovrdCjnZTidL/Shz2TV5lzAIHcnS/lQb8OODPOcqMq+i+t0KOdlOJ0v9KHPZNXmXMAgdydL+VBvw44M85yoyr6L63Qo52U4nS/0oc9k1eZcwCB3J0v5UG/DjgzznKjKvovrdCjnZTidL/Shz2TV5lzAIHcnS/lQb8OODPOcqMq+i+t0KOdlOJ0v9KHPZNXmXMAgdydL+VBvw44M85yoyr6L63Qo52U4nS/0oc9k1eZcwCB3J0v5UG/DjgzznKjKvovrdCjnZTidL/Shz2TV5lzAIHcnS/lQb8OODPOcqMq+i+t0KOdlOJ0v9KHPZNXmXMAgdydL+VBvw44M85yoyr6L63Qo52U4nS/0oc9k1eZcwCB3J0v5UG/DjgzznKjKvovrdCjnZTidL/Shz2TV5lzAIHcnS/lQb8OODPOcqMq+i+t0KOdlOJ0v9KHPZNXmXMAgdydL+VBvw44M85yoyr6L63Qo52U4nS/0oc9k1eZcwCB3J0v5UG/DjgzznKjKvovrdCjnZTidL/Shz2TV5lzAIHcnS/lQb8OODPOcqMq+i+t0KOdlOJ0v9KHPZNXmXMAgdydL+VBvw44M85yoyr6L63Qo52U4nS/0oc9k1eZcwCB3J0v5UG/DjgzznKjKvovrdCjnZTidL/Shz2TV5lzAIHcnS/lQb8OODPOcqMq+i+t0KOdlOJ0v9KHPZNXmXMAgdydL+VBvw44M85yoyr6L63Qo52U4nS/0oc9k1eZcwCB3J0v5UG/DjgzznKjKvovrdCjnZTidL/Shz2TV5lzAIHcnS/lQb8OODPOcqMq+i+t0KOdlOJ0v9KHPZNXmXMAgdydL+VBvw44M85yoyr6L63Qo52U4nS/0oc9k1eZcwCB3J0v5UG/DjgzznKjKvovrdCjnZTidL/Shz2TV5lzAIHcnS/lQb8OODPOcqMq+i+t0KOdlOJ0v9KHPZNXmXMAgdydL+VBvw44M85yoyr6L63Qo52U4nS/0oc9k1eZcwCB3J0v5UG/DjgzznKjKvovrdCjnZTidL/Shz2TV5lzAIHcnS/lQb8OODPOcqMq+i+t0KOdlOJ0v9KHPZNXmXMAgdydL+VBvw44M85yoyr6L63Qo52U4nS/0oc9k1eZcwCB3J0v5UG/DjgzznKjKvovrdCjnZTidL/Shz2TV5lzAIHcnQ==",
+                "page_age": "July 19, 2026",
+                "title": "Best CRM Software in 2026: Compare Reviews on 900+ Tools",
+                "type": "web_search_result",
+                "url": "https://www.g2.com/categories/crm"
+              }
+            ],
+            "tool_use_id": "srvtoolu_01f91e25c34516009a62d0b9cd",
+            "type": "web_search_tool_result"
+          },
+          {
+            "text": "Most comparisons start with Freshsales, which keeps contacts, deals and email tracking in one place. ",
+            "type": "text"
+          },
+          {
+            "citations": [
+              {
+                "cited_text": "Pipedrive: Sales CRM and Pipeline Management Software\n\nPipedrive is the usual alternative when marketing automation matters, and Zoho CRM is the pick ...",
+                "encrypted_index": "nB0XnimdnA8yTmZ103eJeTisDSTtjr+heDdZi/dq5hGcHReeKZ2cDzJOZnXTd4l5OKwNJO2Ov6F4N1mL92rmEZwdF54pnZwPMk5mddN3iXk4rA0k7Y6/oXg3WYv3auYRnB0XnimdnA8yTmZ103eJeTisDSTtjr+heDdZi/dq5hGcHReeKZ2cDzJOZnXTd4l5OKwNJO2Ov6F4N1mL92rmEQ==",
+                "title": "Pipedrive: Sales CRM and Pipeline Management Software",
+                "type": "web_search_result_location",
+                "url": "https://www.pipedrive.com/en/features/sales-pipeline"
+              },
+              {
+                "cited_text": "Zoho CRM: Top-rated Sales CRM Software\n\nPipedrive is the usual alternative when marketing automation matters, and Zoho CRM is the pick when calling ha...",
+                "encrypted_index": "ivzLFO7NtJ7cLcRksQEP7Pip1l9X7WVYq7YLU5ws3y6K/MsU7s20ntwtxGSxAQ/s+KnWX1ftZVirtgtTnCzfLor8yxTuzbSe3C3EZLEBD+z4qdZfV+1lWKu2C1OcLN8uivzLFO7NtJ7cLcRksQEP7Pip1l9X7WVYq7YLU5ws3y6K/MsU7s20ntwtxGSxAQ/s+KnWX1ftZVirtgtTnCzfLg==",
+                "title": "Zoho CRM: Top-rated Sales CRM Software",
+                "type": "web_search_result_location",
+                "url": "https://www.zoho.com/crm/sales-automation.html"
+              }
+            ],
+            "text": "Pipedrive is the usual alternative when marketing automation matters, and Zoho CRM is the pick when calling has to live inside the CRM.",
+            "type": "text"
+          },
+          {
+            "text": " HubSpot covers the same ground with stronger marketing tools bundled into the same product. All of them sync with Gmail and Outlook, and most add a two-way calendar sync on the second tier. The right choice depends on whether the team needs marketing tools in the same product or just a clean sales pipeline.",
+            "type": "text"
+          }
+        ],
+        "id": "msg_017fd2c34d85588529ff67f81e",
+        "model": "claude-haiku-4-5-20251001",
+        "role": "assistant",
+        "stop_details": null,
+        "stop_reason": "end_turn",
+        "stop_sequence": null,
+        "type": "message",
+        "usage": {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "inference_geo": "not_available",
+          "input_tokens": 3080,
+          "output_tokens": 176,
+          "server_tool_use": {
+            "web_fetch_requests": 0,
+            "web_search_requests": 1
+          },
+          "service_tier": "standard"
+        }
+      }
+    },
+    "source_id": "crm-with-ai-assistant|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "claude",
+        "model": "claude-haiku-4-5",
+        "query": "pipeline management software"
+      },
+      "response": {
+        "container": null,
+        "content": [
+          {
+            "text": "I'll search for current information to answer this.",
+            "type": "text"
+          },
+          {
+            "id": "srvtoolu_017981902fc020e07362c0eefe",
+            "input": {
+              "query": "pipeline management software 2026"
+            },
+            "name": "web_search",
+            "type": "server_tool_use"
+          },
+          {
+            "caller": {
+              "type": "direct"
+            },
+            "content": [
+              {
+                "encrypted_content": "VqKpNt3Twvnlas6vHvvT3Bz5K3+ZjLEw2+c/I8q+bOlWoqk23dPC+eVqzq8e+9PcHPkrf5mMsTDb5z8jyr5s6VaiqTbd08L55WrOrx7709wc+St/mYyxMNvnPyPKvmzpVqKpNt3Twvnlas6vHvvT3Bz5K3+ZjLEw2+c/I8q+bOlWoqk23dPC+eVqzq8e+9PcHPkrf5mMsTDb5z8jyr5s6VaiqTbd08L55WrOrx7709wc+St/mYyxMNvnPyPKvmzpVqKpNt3Twvnlas6vHvvT3Bz5K3+ZjLEw2+c/I8q+bOlWoqk23dPC+eVqzq8e+9PcHPkrf5mMsTDb5z8jyr5s6VaiqTbd08L55WrOrx7709wc+St/mYyxMNvnPyPKvmzpVqKpNt3Twvnlas6vHvvT3Bz5K3+ZjLEw2+c/I8q+bOlWoqk23dPC+eVqzq8e+9PcHPkrf5mMsTDb5z8jyr5s6VaiqTbd08L55WrOrx7709wc+St/mYyxMNvnPyPKvmzpVqKpNt3Twvnlas6vHvvT3Bz5K3+ZjLEw2+c/I8q+bOlWoqk23dPC+eVqzq8e+9PcHPkrf5mMsTDb5z8jyr5s6VaiqTbd08L55WrOrx7709wc+St/mYyxMNvnPyPKvmzpVqKpNt3Twvnlas6vHvvT3Bz5K3+ZjLEw2+c/I8q+bOlWoqk23dPC+eVqzq8e+9PcHPkrf5mMsTDb5z8jyr5s6VaiqTbd08L55WrOrx7709wc+St/mYyxMNvnPyPKvmzpVqKpNt3Twvnlas6vHvvT3Bz5K3+ZjLEw2+c/I8q+bOlWoqk23dPC+eVqzq8e+9PcHPkrf5mMsTDb5z8jyr5s6VaiqTbd08L55WrOrx7709wc+St/mYyxMNvnPyPKvmzpVqKpNt3Twvnlas6vHvvT3Bz5K3+ZjLEw2+c/I8q+bOlWoqk23dPC+eVqzq8e+9PcHPkrf5mMsTDb5z8jyr5s6VaiqTbd08L55WrOrx7709wc+St/mYyxMNvnPyPKvmzpVqKpNt3Twvnlas6vHvvT3Bz5K3+ZjLEw2+c/I8q+bOlWoqk23dPC+eVqzq8e+9PcHPkrf5mMsTDb5z8jyr5s6VaiqTbd08L55WrOrx7709wc+St/mYyxMNvnPyPKvmzpVqKpNt3Twvnlas6vHvvT3Bz5K3+ZjLEw2+c/I8q+bOlWoqk23dPC+eVqzq8e+9PcHPkrf5mMsTDb5z8jyr5s6VaiqTbd08L55WrOrx7709wc+St/mYyxMNvnPyPKvmzpVqKpNt3Twvnlas6vHvvT3Bz5K3+ZjLEw2+c/I8q+bOlWoqk23dPC+eVqzq8e+9PcHPkrf5mMsTDb5z8jyr5s6Q==",
+                "page_age": "June 10, 2026",
+                "title": "Best CRM Software in 2026: Compare Reviews on 900+ Tools",
+                "type": "web_search_result",
+                "url": "https://www.g2.com/categories/crm"
+              },
+              {
+                "encrypted_content": "xXs+tjefT++QTJkiGlOn3mu9dMN/ogGW0OkNxe8O+TfFez62N59P75BMmSIaU6fea710w3+iAZbQ6Q3F7w75N8V7PrY3n0/vkEyZIhpTp95rvXTDf6IBltDpDcXvDvk3xXs+tjefT++QTJkiGlOn3mu9dMN/ogGW0OkNxe8O+TfFez62N59P75BMmSIaU6fea710w3+iAZbQ6Q3F7w75N8V7PrY3n0/vkEyZIhpTp95rvXTDf6IBltDpDcXvDvk3xXs+tjefT++QTJkiGlOn3mu9dMN/ogGW0OkNxe8O+TfFez62N59P75BMmSIaU6fea710w3+iAZbQ6Q3F7w75N8V7PrY3n0/vkEyZIhpTp95rvXTDf6IBltDpDcXvDvk3xXs+tjefT++QTJkiGlOn3mu9dMN/ogGW0OkNxe8O+TfFez62N59P75BMmSIaU6fea710w3+iAZbQ6Q3F7w75N8V7PrY3n0/vkEyZIhpTp95rvXTDf6IBltDpDcXvDvk3xXs+tjefT++QTJkiGlOn3mu9dMN/ogGW0OkNxe8O+TfFez62N59P75BMmSIaU6fea710w3+iAZbQ6Q3F7w75N8V7PrY3n0/vkEyZIhpTp95rvXTDf6IBltDpDcXvDvk3xXs+tjefT++QTJkiGlOn3mu9dMN/ogGW0OkNxe8O+TfFez62N59P75BMmSIaU6fea710w3+iAZbQ6Q3F7w75N8V7PrY3n0/vkEyZIhpTp95rvXTDf6IBltDpDcXvDvk3xXs+tjefT++QTJkiGlOn3mu9dMN/ogGW0OkNxe8O+TfFez62N59P75BMmSIaU6fea710w3+iAZbQ6Q3F7w75N8V7PrY3n0/vkEyZIhpTp95rvXTDf6IBltDpDcXvDvk3xXs+tjefT++QTJkiGlOn3mu9dMN/ogGW0OkNxe8O+TfFez62N59P75BMmSIaU6fea710w3+iAZbQ6Q3F7w75N8V7PrY3n0/vkEyZIhpTp95rvXTDf6IBltDpDcXvDvk3xXs+tjefT++QTJkiGlOn3mu9dMN/ogGW0OkNxe8O+TfFez62N59P75BMmSIaU6fea710w3+iAZbQ6Q3F7w75N8V7PrY3n0/vkEyZIhpTp95rvXTDf6IBltDpDcXvDvk3xXs+tjefT++QTJkiGlOn3mu9dMN/ogGW0OkNxe8O+TfFez62N59P75BMmSIaU6fea710w3+iAZbQ6Q3F7w75N8V7PrY3n0/vkEyZIhpTp95rvXTDf6IBltDpDcXvDvk3xXs+tjefT++QTJkiGlOn3mu9dMN/ogGW0OkNxe8O+TfFez62N59P75BMmSIaU6fea710w3+iAZbQ6Q3F7w75Nw==",
+                "page_age": "August 18, 2026",
+                "title": "Freshsales: AI-powered Sales CRM",
+                "type": "web_search_result",
+                "url": "https://www.freshworks.com/crm/sales/"
+              },
+              {
+                "encrypted_content": "xTdJpfl2MO5ne7Nyo8BXSCCpvR1IQ2GaH0HaPdavK/DFN0ml+XYw7md7s3KjwFdIIKm9HUhDYZofQdo91q8r8MU3SaX5djDuZ3uzcqPAV0ggqb0dSENhmh9B2j3WryvwxTdJpfl2MO5ne7Nyo8BXSCCpvR1IQ2GaH0HaPdavK/DFN0ml+XYw7md7s3KjwFdIIKm9HUhDYZofQdo91q8r8MU3SaX5djDuZ3uzcqPAV0ggqb0dSENhmh9B2j3WryvwxTdJpfl2MO5ne7Nyo8BXSCCpvR1IQ2GaH0HaPdavK/DFN0ml+XYw7md7s3KjwFdIIKm9HUhDYZofQdo91q8r8MU3SaX5djDuZ3uzcqPAV0ggqb0dSENhmh9B2j3WryvwxTdJpfl2MO5ne7Nyo8BXSCCpvR1IQ2GaH0HaPdavK/DFN0ml+XYw7md7s3KjwFdIIKm9HUhDYZofQdo91q8r8MU3SaX5djDuZ3uzcqPAV0ggqb0dSENhmh9B2j3WryvwxTdJpfl2MO5ne7Nyo8BXSCCpvR1IQ2GaH0HaPdavK/DFN0ml+XYw7md7s3KjwFdIIKm9HUhDYZofQdo91q8r8MU3SaX5djDuZ3uzcqPAV0ggqb0dSENhmh9B2j3WryvwxTdJpfl2MO5ne7Nyo8BXSCCpvR1IQ2GaH0HaPdavK/DFN0ml+XYw7md7s3KjwFdIIKm9HUhDYZofQdo91q8r8MU3SaX5djDuZ3uzcqPAV0ggqb0dSENhmh9B2j3WryvwxTdJpfl2MO5ne7Nyo8BXSCCpvR1IQ2GaH0HaPdavK/DFN0ml+XYw7md7s3KjwFdIIKm9HUhDYZofQdo91q8r8MU3SaX5djDuZ3uzcqPAV0ggqb0dSENhmh9B2j3WryvwxTdJpfl2MO5ne7Nyo8BXSCCpvR1IQ2GaH0HaPdavK/DFN0ml+XYw7md7s3KjwFdIIKm9HUhDYZofQdo91q8r8MU3SaX5djDuZ3uzcqPAV0ggqb0dSENhmh9B2j3WryvwxTdJpfl2MO5ne7Nyo8BXSCCpvR1IQ2GaH0HaPdavK/DFN0ml+XYw7md7s3KjwFdIIKm9HUhDYZofQdo91q8r8MU3SaX5djDuZ3uzcqPAV0ggqb0dSENhmh9B2j3WryvwxTdJpfl2MO5ne7Nyo8BXSCCpvR1IQ2GaH0HaPdavK/DFN0ml+XYw7md7s3KjwFdIIKm9HUhDYZofQdo91q8r8MU3SaX5djDuZ3uzcqPAV0ggqb0dSENhmh9B2j3WryvwxTdJpfl2MO5ne7Nyo8BXSCCpvR1IQ2GaH0HaPdavK/DFN0ml+XYw7md7s3KjwFdIIKm9HUhDYZofQdo91q8r8A==",
+                "page_age": "August 18, 2026",
+                "title": "Pipedrive: Sales CRM and Pipeline Management Software",
+                "type": "web_search_result",
+                "url": "https://www.pipedrive.com/en/features/sales-pipeline"
+              }
+            ],
+            "tool_use_id": "srvtoolu_017981902fc020e07362c0eefe",
+            "type": "web_search_tool_result"
+          },
+          {
+            "citations": [
+              {
+                "cited_text": "Freshsales: AI-powered Sales CRM\n\nFreshsales tends to lead the shortlist because its per-seat pricing stays predictable as the team grows.",
+                "encrypted_index": "DeviBB+mgnr1fDTq+v3LiDiQKKpz8deyEnseTJm3QvIN6+IEH6aCevV8NOr6/cuIOJAoqnPx17ISex5MmbdC8g3r4gQfpoJ69Xw06vr9y4g4kCiqc/HXshJ7HkyZt0LyDeviBB+mgnr1fDTq+v3LiDiQKKpz8deyEnseTJm3QvIN6+IEH6aCevV8NOr6/cuIOJAoqnPx17ISex5MmbdC8g==",
+                "title": "Freshsales: AI-powered Sales CRM",
+                "type": "web_search_result_location",
+                "url": "https://www.freshworks.com/crm/sales/"
+              }
+            ],
+            "text": "Freshsales tends to lead the shortlist because its per-seat pricing stays predictable as the team grows.",
+            "type": "text"
+          },
+          {
+            "text": " ",
+            "type": "text"
+          },
+          {
+            "citations": [
+              {
+                "cited_text": "Pipedrive: Sales CRM and Pipeline Management Software\n\nReviewers put Pipedrive ahead on reporting depth, while HubSpot wins on price for teams under t...",
+                "encrypted_index": "kuIzofLf8VsrVNOAFZnUdXWMzQmY7AEMt0ui3wlEG7+S4jOh8t/xWytU04AVmdR1dYzNCZjsAQy3S6LfCUQbv5LiM6Hy3/FbK1TTgBWZ1HV1jM0JmOwBDLdLot8JRBu/kuIzofLf8VsrVNOAFZnUdXWMzQmY7AEMt0ui3wlEG7+S4jOh8t/xWytU04AVmdR1dYzNCZjsAQy3S6LfCUQbvw==",
+                "title": "Pipedrive: Sales CRM and Pipeline Management Software",
+                "type": "web_search_result_location",
+                "url": "https://www.pipedrive.com/en/features/sales-pipeline"
+              }
+            ],
+            "text": "Reviewers put Pipedrive ahead on reporting depth, while HubSpot wins on price for teams under ten seats.",
+            "type": "text"
+          },
+          {
+            "text": " All of them sync with Gmail and Outlook, and most add a two-way calendar sync on the second tier. Integration counts are similar across the group, so support quality and the mobile apps tend to decide it.",
+            "type": "text"
+          }
+        ],
+        "id": "msg_013a6890eab5d0ab58c9e43e5d",
+        "model": "claude-haiku-4-5-20251001",
+        "role": "assistant",
+        "stop_details": null,
+        "stop_reason": "end_turn",
+        "stop_sequence": null,
+        "type": "message",
+        "usage": {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "inference_geo": "not_available",
+          "input_tokens": 4152,
+          "output_tokens": 143,
+          "server_tool_use": {
+            "web_fetch_requests": 0,
+            "web_search_requests": 1
+          },
+          "service_tier": "standard"
+        }
+      }
+    },
+    "source_id": "pipeline-management-software|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "claude",
+        "model": "claude-haiku-4-5",
+        "query": "sales crm for startups"
+      },
+      "response": {
+        "container": null,
+        "content": [
+          {
+            "text": "I'll search for current information to answer this.",
+            "type": "text"
+          },
+          {
+            "id": "srvtoolu_01efd2ed69d1537e0f0aa9559d",
+            "input": {
+              "query": "sales crm for startups 2026"
+            },
+            "name": "web_search",
+            "type": "server_tool_use"
+          },
+          {
+            "caller": {
+              "type": "direct"
+            },
+            "content": [
+              {
+                "encrypted_content": "iyn/+gu/5iygWgBST4Uwyb6ZxXAOuBdcoqvFkkWlcWGLKf/6C7/mLKBaAFJPhTDJvpnFcA64F1yiq8WSRaVxYYsp//oLv+YsoFoAUk+FMMm+mcVwDrgXXKKrxZJFpXFhiyn/+gu/5iygWgBST4Uwyb6ZxXAOuBdcoqvFkkWlcWGLKf/6C7/mLKBaAFJPhTDJvpnFcA64F1yiq8WSRaVxYYsp//oLv+YsoFoAUk+FMMm+mcVwDrgXXKKrxZJFpXFhiyn/+gu/5iygWgBST4Uwyb6ZxXAOuBdcoqvFkkWlcWGLKf/6C7/mLKBaAFJPhTDJvpnFcA64F1yiq8WSRaVxYYsp//oLv+YsoFoAUk+FMMm+mcVwDrgXXKKrxZJFpXFhiyn/+gu/5iygWgBST4Uwyb6ZxXAOuBdcoqvFkkWlcWGLKf/6C7/mLKBaAFJPhTDJvpnFcA64F1yiq8WSRaVxYYsp//oLv+YsoFoAUk+FMMm+mcVwDrgXXKKrxZJFpXFhiyn/+gu/5iygWgBST4Uwyb6ZxXAOuBdcoqvFkkWlcWGLKf/6C7/mLKBaAFJPhTDJvpnFcA64F1yiq8WSRaVxYYsp//oLv+YsoFoAUk+FMMm+mcVwDrgXXKKrxZJFpXFhiyn/+gu/5iygWgBST4Uwyb6ZxXAOuBdcoqvFkkWlcWGLKf/6C7/mLKBaAFJPhTDJvpnFcA64F1yiq8WSRaVxYYsp//oLv+YsoFoAUk+FMMm+mcVwDrgXXKKrxZJFpXFhiyn/+gu/5iygWgBST4Uwyb6ZxXAOuBdcoqvFkkWlcWGLKf/6C7/mLKBaAFJPhTDJvpnFcA64F1yiq8WSRaVxYYsp//oLv+YsoFoAUk+FMMm+mcVwDrgXXKKrxZJFpXFhiyn/+gu/5iygWgBST4Uwyb6ZxXAOuBdcoqvFkkWlcWGLKf/6C7/mLKBaAFJPhTDJvpnFcA64F1yiq8WSRaVxYYsp//oLv+YsoFoAUk+FMMm+mcVwDrgXXKKrxZJFpXFhiyn/+gu/5iygWgBST4Uwyb6ZxXAOuBdcoqvFkkWlcWGLKf/6C7/mLKBaAFJPhTDJvpnFcA64F1yiq8WSRaVxYYsp//oLv+YsoFoAUk+FMMm+mcVwDrgXXKKrxZJFpXFhiyn/+gu/5iygWgBST4Uwyb6ZxXAOuBdcoqvFkkWlcWGLKf/6C7/mLKBaAFJPhTDJvpnFcA64F1yiq8WSRaVxYYsp//oLv+YsoFoAUk+FMMm+mcVwDrgXXKKrxZJFpXFhiyn/+gu/5iygWgBST4Uwyb6ZxXAOuBdcoqvFkkWlcWGLKf/6C7/mLKBaAFJPhTDJvpnFcA64F1yiq8WSRaVxYQ==",
+                "page_age": "July 17, 2026",
+                "title": "HubSpot CRM Software for Sales Teams",
+                "type": "web_search_result",
+                "url": "https://www.hubspot.com/products/crm"
+              },
+              {
+                "encrypted_content": "NouDF2yv3DwazcrcJVeRgvMalzcm0SMi767XdxiQe002i4MXbK/cPBrNytwlV5GC8xqXNybRIyLvrtd3GJB7TTaLgxdsr9w8Gs3K3CVXkYLzGpc3JtEjIu+u13cYkHtNNouDF2yv3DwazcrcJVeRgvMalzcm0SMi767XdxiQe002i4MXbK/cPBrNytwlV5GC8xqXNybRIyLvrtd3GJB7TTaLgxdsr9w8Gs3K3CVXkYLzGpc3JtEjIu+u13cYkHtNNouDF2yv3DwazcrcJVeRgvMalzcm0SMi767XdxiQe002i4MXbK/cPBrNytwlV5GC8xqXNybRIyLvrtd3GJB7TTaLgxdsr9w8Gs3K3CVXkYLzGpc3JtEjIu+u13cYkHtNNouDF2yv3DwazcrcJVeRgvMalzcm0SMi767XdxiQe002i4MXbK/cPBrNytwlV5GC8xqXNybRIyLvrtd3GJB7TTaLgxdsr9w8Gs3K3CVXkYLzGpc3JtEjIu+u13cYkHtNNouDF2yv3DwazcrcJVeRgvMalzcm0SMi767XdxiQe002i4MXbK/cPBrNytwlV5GC8xqXNybRIyLvrtd3GJB7TTaLgxdsr9w8Gs3K3CVXkYLzGpc3JtEjIu+u13cYkHtNNouDF2yv3DwazcrcJVeRgvMalzcm0SMi767XdxiQe002i4MXbK/cPBrNytwlV5GC8xqXNybRIyLvrtd3GJB7TTaLgxdsr9w8Gs3K3CVXkYLzGpc3JtEjIu+u13cYkHtNNouDF2yv3DwazcrcJVeRgvMalzcm0SMi767XdxiQe002i4MXbK/cPBrNytwlV5GC8xqXNybRIyLvrtd3GJB7TTaLgxdsr9w8Gs3K3CVXkYLzGpc3JtEjIu+u13cYkHtNNouDF2yv3DwazcrcJVeRgvMalzcm0SMi767XdxiQe002i4MXbK/cPBrNytwlV5GC8xqXNybRIyLvrtd3GJB7TTaLgxdsr9w8Gs3K3CVXkYLzGpc3JtEjIu+u13cYkHtNNouDF2yv3DwazcrcJVeRgvMalzcm0SMi767XdxiQe002i4MXbK/cPBrNytwlV5GC8xqXNybRIyLvrtd3GJB7TTaLgxdsr9w8Gs3K3CVXkYLzGpc3JtEjIu+u13cYkHtNNouDF2yv3DwazcrcJVeRgvMalzcm0SMi767XdxiQe002i4MXbK/cPBrNytwlV5GC8xqXNybRIyLvrtd3GJB7TTaLgxdsr9w8Gs3K3CVXkYLzGpc3JtEjIu+u13cYkHtNNouDF2yv3DwazcrcJVeRgvMalzcm0SMi767XdxiQe002i4MXbK/cPBrNytwlV5GC8xqXNybRIyLvrtd3GJB7TQ==",
+                "page_age": "July 12, 2026",
+                "title": "Zoho CRM: Top-rated Sales CRM Software",
+                "type": "web_search_result",
+                "url": "https://www.zoho.com/crm/sales-automation.html"
+              },
+              {
+                "encrypted_content": "S6GKiRalm1WgCCeqlg6nO3mEthBxRZZV3CCk/I4c2VpLoYqJFqWbVaAIJ6qWDqc7eYS2EHFFllXcIKT8jhzZWkuhiokWpZtVoAgnqpYOpzt5hLYQcUWWVdwgpPyOHNlaS6GKiRalm1WgCCeqlg6nO3mEthBxRZZV3CCk/I4c2VpLoYqJFqWbVaAIJ6qWDqc7eYS2EHFFllXcIKT8jhzZWkuhiokWpZtVoAgnqpYOpzt5hLYQcUWWVdwgpPyOHNlaS6GKiRalm1WgCCeqlg6nO3mEthBxRZZV3CCk/I4c2VpLoYqJFqWbVaAIJ6qWDqc7eYS2EHFFllXcIKT8jhzZWkuhiokWpZtVoAgnqpYOpzt5hLYQcUWWVdwgpPyOHNlaS6GKiRalm1WgCCeqlg6nO3mEthBxRZZV3CCk/I4c2VpLoYqJFqWbVaAIJ6qWDqc7eYS2EHFFllXcIKT8jhzZWkuhiokWpZtVoAgnqpYOpzt5hLYQcUWWVdwgpPyOHNlaS6GKiRalm1WgCCeqlg6nO3mEthBxRZZV3CCk/I4c2VpLoYqJFqWbVaAIJ6qWDqc7eYS2EHFFllXcIKT8jhzZWkuhiokWpZtVoAgnqpYOpzt5hLYQcUWWVdwgpPyOHNlaS6GKiRalm1WgCCeqlg6nO3mEthBxRZZV3CCk/I4c2VpLoYqJFqWbVaAIJ6qWDqc7eYS2EHFFllXcIKT8jhzZWkuhiokWpZtVoAgnqpYOpzt5hLYQcUWWVdwgpPyOHNlaS6GKiRalm1WgCCeqlg6nO3mEthBxRZZV3CCk/I4c2VpLoYqJFqWbVaAIJ6qWDqc7eYS2EHFFllXcIKT8jhzZWkuhiokWpZtVoAgnqpYOpzt5hLYQcUWWVdwgpPyOHNlaS6GKiRalm1WgCCeqlg6nO3mEthBxRZZV3CCk/I4c2VpLoYqJFqWbVaAIJ6qWDqc7eYS2EHFFllXcIKT8jhzZWkuhiokWpZtVoAgnqpYOpzt5hLYQcUWWVdwgpPyOHNlaS6GKiRalm1WgCCeqlg6nO3mEthBxRZZV3CCk/I4c2VpLoYqJFqWbVaAIJ6qWDqc7eYS2EHFFllXcIKT8jhzZWkuhiokWpZtVoAgnqpYOpzt5hLYQcUWWVdwgpPyOHNlaS6GKiRalm1WgCCeqlg6nO3mEthBxRZZV3CCk/I4c2VpLoYqJFqWbVaAIJ6qWDqc7eYS2EHFFllXcIKT8jhzZWkuhiokWpZtVoAgnqpYOpzt5hLYQcUWWVdwgpPyOHNlaS6GKiRalm1WgCCeqlg6nO3mEthBxRZZV3CCk/I4c2VpLoYqJFqWbVaAIJ6qWDqc7eYS2EHFFllXcIKT8jhzZWg==",
+                "page_age": "June 21, 2026",
+                "title": "Best CRM Software 2026 | Reviews of the Most Popular Tools",
+                "type": "web_search_result",
+                "url": "https://www.capterra.com/crm-software/"
+              }
+            ],
+            "tool_use_id": "srvtoolu_01efd2ed69d1537e0f0aa9559d",
+            "type": "web_search_tool_result"
+          },
+          {
+            "text": "Freshsales tends to lead the shortlist because its per-seat pricing stays predictable as the team grows. ",
+            "type": "text"
+          },
+          {
+            "citations": [
+              {
+                "cited_text": "HubSpot CRM Software for Sales Teams\n\nZoho CRM offers the broader free tier, but HubSpot is easier to customise once the process gets more complex.",
+                "encrypted_index": "7sTAkrscOb7pWVlC2mMcdg8kAZ5qdctldV6+b9m1iEfuxMCSuxw5vulZWULaYxx2DyQBnmp1y2V1Xr5v2bWIR+7EwJK7HDm+6VlZQtpjHHYPJAGeanXLZXVevm/ZtYhH7sTAkrscOb7pWVlC2mMcdg8kAZ5qdctldV6+b9m1iEfuxMCSuxw5vulZWULaYxx2DyQBnmp1y2V1Xr5v2bWIRw==",
+                "title": "HubSpot CRM Software for Sales Teams",
+                "type": "web_search_result_location",
+                "url": "https://www.hubspot.com/products/crm"
+              },
+              {
+                "cited_text": "Zoho CRM: Top-rated Sales CRM Software\n\nZoho CRM offers the broader free tier, but HubSpot is easier to customise once the process gets more complex.",
+                "encrypted_index": "5BiG3T+93UE8H4VzdBpHnsoy5QLjB8CNeWWS6QeSuy/kGIbdP73dQTwfhXN0GkeeyjLlAuMHwI15ZZLpB5K7L+QYht0/vd1BPB+Fc3QaR57KMuUC4wfAjXllkukHkrsv5BiG3T+93UE8H4VzdBpHnsoy5QLjB8CNeWWS6QeSuy/kGIbdP73dQTwfhXN0GkeeyjLlAuMHwI15ZZLpB5K7Lw==",
+                "title": "Zoho CRM: Top-rated Sales CRM Software",
+                "type": "web_search_result_location",
+                "url": "https://www.zoho.com/crm/sales-automation.html"
+              }
+            ],
+            "text": "Zoho CRM offers the broader free tier, but HubSpot is easier to customise once the process gets more complex.",
+            "type": "text"
+          },
+          {
+            "text": " Integration counts are similar across the group, so support quality and the mobile apps tend to decide it.",
+            "type": "text"
+          }
+        ],
+        "id": "msg_011ffa28b31f57815c59c10c24",
+        "model": "claude-haiku-4-5-20251001",
+        "role": "assistant",
+        "stop_details": null,
+        "stop_reason": "end_turn",
+        "stop_sequence": null,
+        "type": "message",
+        "usage": {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "inference_geo": "not_available",
+          "input_tokens": 3528,
+          "output_tokens": 120,
+          "server_tool_use": {
+            "web_fetch_requests": 0,
+            "web_search_requests": 1
+          },
+          "service_tier": "standard"
+        }
+      }
+    },
+    "source_id": "sales-crm-for-startups|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "claude",
+        "model": "claude-haiku-4-5",
+        "query": "crm with email automation"
+      },
+      "response": {
+        "container": null,
+        "content": [
+          {
+            "text": "I'll search for current information to answer this.",
+            "type": "text"
+          },
+          {
+            "id": "srvtoolu_0125c99533d1e11027d5933260",
+            "input": {
+              "query": "crm with email automation 2026"
+            },
+            "name": "web_search",
+            "type": "server_tool_use"
+          },
+          {
+            "caller": {
+              "type": "direct"
+            },
+            "content": [
+              {
+                "encrypted_content": "1HfXFq6sWJPKNmhSbooMjpijFO2l9E0UyXNqchSUxTTUd9cWrqxYk8o2aFJuigyOmKMU7aX0TRTJc2pyFJTFNNR31xaurFiTyjZoUm6KDI6YoxTtpfRNFMlzanIUlMU01HfXFq6sWJPKNmhSbooMjpijFO2l9E0UyXNqchSUxTTUd9cWrqxYk8o2aFJuigyOmKMU7aX0TRTJc2pyFJTFNNR31xaurFiTyjZoUm6KDI6YoxTtpfRNFMlzanIUlMU01HfXFq6sWJPKNmhSbooMjpijFO2l9E0UyXNqchSUxTTUd9cWrqxYk8o2aFJuigyOmKMU7aX0TRTJc2pyFJTFNNR31xaurFiTyjZoUm6KDI6YoxTtpfRNFMlzanIUlMU01HfXFq6sWJPKNmhSbooMjpijFO2l9E0UyXNqchSUxTTUd9cWrqxYk8o2aFJuigyOmKMU7aX0TRTJc2pyFJTFNNR31xaurFiTyjZoUm6KDI6YoxTtpfRNFMlzanIUlMU01HfXFq6sWJPKNmhSbooMjpijFO2l9E0UyXNqchSUxTTUd9cWrqxYk8o2aFJuigyOmKMU7aX0TRTJc2pyFJTFNNR31xaurFiTyjZoUm6KDI6YoxTtpfRNFMlzanIUlMU01HfXFq6sWJPKNmhSbooMjpijFO2l9E0UyXNqchSUxTTUd9cWrqxYk8o2aFJuigyOmKMU7aX0TRTJc2pyFJTFNNR31xaurFiTyjZoUm6KDI6YoxTtpfRNFMlzanIUlMU01HfXFq6sWJPKNmhSbooMjpijFO2l9E0UyXNqchSUxTTUd9cWrqxYk8o2aFJuigyOmKMU7aX0TRTJc2pyFJTFNNR31xaurFiTyjZoUm6KDI6YoxTtpfRNFMlzanIUlMU01HfXFq6sWJPKNmhSbooMjpijFO2l9E0UyXNqchSUxTTUd9cWrqxYk8o2aFJuigyOmKMU7aX0TRTJc2pyFJTFNNR31xaurFiTyjZoUm6KDI6YoxTtpfRNFMlzanIUlMU01HfXFq6sWJPKNmhSbooMjpijFO2l9E0UyXNqchSUxTTUd9cWrqxYk8o2aFJuigyOmKMU7aX0TRTJc2pyFJTFNNR31xaurFiTyjZoUm6KDI6YoxTtpfRNFMlzanIUlMU01HfXFq6sWJPKNmhSbooMjpijFO2l9E0UyXNqchSUxTTUd9cWrqxYk8o2aFJuigyOmKMU7aX0TRTJc2pyFJTFNNR31xaurFiTyjZoUm6KDI6YoxTtpfRNFMlzanIUlMU01HfXFq6sWJPKNmhSbooMjpijFO2l9E0UyXNqchSUxTTUd9cWrqxYk8o2aFJuigyOmKMU7aX0TRTJc2pyFJTFNA==",
+                "page_age": "August 3, 2026",
+                "title": "Freshsales: AI-powered Sales CRM",
+                "type": "web_search_result",
+                "url": "https://www.freshworks.com/crm/sales/"
+              },
+              {
+                "encrypted_content": "4+6Ld6YsJp/x3YxvWc1fPM09sRSsRzkGj3Aqtq02tcLj7ot3piwmn/HdjG9ZzV88zT2xFKxHOQaPcCq2rTa1wuPui3emLCaf8d2Mb1nNXzzNPbEUrEc5Bo9wKratNrXC4+6Ld6YsJp/x3YxvWc1fPM09sRSsRzkGj3Aqtq02tcLj7ot3piwmn/HdjG9ZzV88zT2xFKxHOQaPcCq2rTa1wuPui3emLCaf8d2Mb1nNXzzNPbEUrEc5Bo9wKratNrXC4+6Ld6YsJp/x3YxvWc1fPM09sRSsRzkGj3Aqtq02tcLj7ot3piwmn/HdjG9ZzV88zT2xFKxHOQaPcCq2rTa1wuPui3emLCaf8d2Mb1nNXzzNPbEUrEc5Bo9wKratNrXC4+6Ld6YsJp/x3YxvWc1fPM09sRSsRzkGj3Aqtq02tcLj7ot3piwmn/HdjG9ZzV88zT2xFKxHOQaPcCq2rTa1wuPui3emLCaf8d2Mb1nNXzzNPbEUrEc5Bo9wKratNrXC4+6Ld6YsJp/x3YxvWc1fPM09sRSsRzkGj3Aqtq02tcLj7ot3piwmn/HdjG9ZzV88zT2xFKxHOQaPcCq2rTa1wuPui3emLCaf8d2Mb1nNXzzNPbEUrEc5Bo9wKratNrXC4+6Ld6YsJp/x3YxvWc1fPM09sRSsRzkGj3Aqtq02tcLj7ot3piwmn/HdjG9ZzV88zT2xFKxHOQaPcCq2rTa1wuPui3emLCaf8d2Mb1nNXzzNPbEUrEc5Bo9wKratNrXC4+6Ld6YsJp/x3YxvWc1fPM09sRSsRzkGj3Aqtq02tcLj7ot3piwmn/HdjG9ZzV88zT2xFKxHOQaPcCq2rTa1wuPui3emLCaf8d2Mb1nNXzzNPbEUrEc5Bo9wKratNrXC4+6Ld6YsJp/x3YxvWc1fPM09sRSsRzkGj3Aqtq02tcLj7ot3piwmn/HdjG9ZzV88zT2xFKxHOQaPcCq2rTa1wuPui3emLCaf8d2Mb1nNXzzNPbEUrEc5Bo9wKratNrXC4+6Ld6YsJp/x3YxvWc1fPM09sRSsRzkGj3Aqtq02tcLj7ot3piwmn/HdjG9ZzV88zT2xFKxHOQaPcCq2rTa1wuPui3emLCaf8d2Mb1nNXzzNPbEUrEc5Bo9wKratNrXC4+6Ld6YsJp/x3YxvWc1fPM09sRSsRzkGj3Aqtq02tcLj7ot3piwmn/HdjG9ZzV88zT2xFKxHOQaPcCq2rTa1wuPui3emLCaf8d2Mb1nNXzzNPbEUrEc5Bo9wKratNrXC4+6Ld6YsJp/x3YxvWc1fPM09sRSsRzkGj3Aqtq02tcLj7ot3piwmn/HdjG9ZzV88zT2xFKxHOQaPcCq2rTa1wg==",
+                "page_age": "July 19, 2026",
+                "title": "Best CRM Software 2026 | Reviews of the Most Popular Tools",
+                "type": "web_search_result",
+                "url": "https://www.capterra.com/crm-software/"
+              },
+              {
+                "encrypted_content": "4oSMkaTzQx4APIJQSkVwPGr8EzRncxD3q6WuL0AOzy3ihIyRpPNDHgA8glBKRXA8avwTNGdzEPerpa4vQA7PLeKEjJGk80MeADyCUEpFcDxq/BM0Z3MQ96ulri9ADs8t4oSMkaTzQx4APIJQSkVwPGr8EzRncxD3q6WuL0AOzy3ihIyRpPNDHgA8glBKRXA8avwTNGdzEPerpa4vQA7PLeKEjJGk80MeADyCUEpFcDxq/BM0Z3MQ96ulri9ADs8t4oSMkaTzQx4APIJQSkVwPGr8EzRncxD3q6WuL0AOzy3ihIyRpPNDHgA8glBKRXA8avwTNGdzEPerpa4vQA7PLeKEjJGk80MeADyCUEpFcDxq/BM0Z3MQ96ulri9ADs8t4oSMkaTzQx4APIJQSkVwPGr8EzRncxD3q6WuL0AOzy3ihIyRpPNDHgA8glBKRXA8avwTNGdzEPerpa4vQA7PLeKEjJGk80MeADyCUEpFcDxq/BM0Z3MQ96ulri9ADs8t4oSMkaTzQx4APIJQSkVwPGr8EzRncxD3q6WuL0AOzy3ihIyRpPNDHgA8glBKRXA8avwTNGdzEPerpa4vQA7PLeKEjJGk80MeADyCUEpFcDxq/BM0Z3MQ96ulri9ADs8t4oSMkaTzQx4APIJQSkVwPGr8EzRncxD3q6WuL0AOzy3ihIyRpPNDHgA8glBKRXA8avwTNGdzEPerpa4vQA7PLeKEjJGk80MeADyCUEpFcDxq/BM0Z3MQ96ulri9ADs8t4oSMkaTzQx4APIJQSkVwPGr8EzRncxD3q6WuL0AOzy3ihIyRpPNDHgA8glBKRXA8avwTNGdzEPerpa4vQA7PLeKEjJGk80MeADyCUEpFcDxq/BM0Z3MQ96ulri9ADs8t4oSMkaTzQx4APIJQSkVwPGr8EzRncxD3q6WuL0AOzy3ihIyRpPNDHgA8glBKRXA8avwTNGdzEPerpa4vQA7PLeKEjJGk80MeADyCUEpFcDxq/BM0Z3MQ96ulri9ADs8t4oSMkaTzQx4APIJQSkVwPGr8EzRncxD3q6WuL0AOzy3ihIyRpPNDHgA8glBKRXA8avwTNGdzEPerpa4vQA7PLeKEjJGk80MeADyCUEpFcDxq/BM0Z3MQ96ulri9ADs8t4oSMkaTzQx4APIJQSkVwPGr8EzRncxD3q6WuL0AOzy3ihIyRpPNDHgA8glBKRXA8avwTNGdzEPerpa4vQA7PLeKEjJGk80MeADyCUEpFcDxq/BM0Z3MQ96ulri9ADs8t4oSMkaTzQx4APIJQSkVwPGr8EzRncxD3q6WuL0AOzy3ihIyRpPNDHgA8glBKRXA8avwTNGdzEPerpa4vQA7PLQ==",
+                "page_age": "July 20, 2026",
+                "title": "HubSpot CRM Software for Sales Teams",
+                "type": "web_search_result",
+                "url": "https://www.hubspot.com/products/crm"
+              }
+            ],
+            "tool_use_id": "srvtoolu_0125c99533d1e11027d5933260",
+            "type": "web_search_tool_result"
+          },
+          {
+            "citations": [
+              {
+                "cited_text": "Freshsales: AI-powered Sales CRM\n\nFor a fast rollout, Freshsales is usually the first recommendation reviewers make.",
+                "encrypted_index": "iYHByiww1T3kc2K+JvkDNkm6uNJR9RUqu3sonYv4HpKJgcHKLDDVPeRzYr4m+QM2Sbq40lH1FSq7eyidi/gekomBwcosMNU95HNivib5AzZJurjSUfUVKrt7KJ2L+B6SiYHByiww1T3kc2K+JvkDNkm6uNJR9RUqu3sonYv4HpKJgcHKLDDVPeRzYr4m+QM2Sbq40lH1FSq7eyidi/gekg==",
+                "title": "Freshsales: AI-powered Sales CRM",
+                "type": "web_search_result_location",
+                "url": "https://www.freshworks.com/crm/sales/"
+              }
+            ],
+            "text": "For a fast rollout, Freshsales is usually the first recommendation reviewers make.",
+            "type": "text"
+          },
+          {
+            "text": " ",
+            "type": "text"
+          },
+          {
+            "citations": [
+              {
+                "cited_text": "HubSpot CRM Software for Sales Teams\n\nHubSpot is worth a look when the team also needs email sequences and a free tier to start on.",
+                "encrypted_index": "C1BHw2Lm9MnUgGrsY8IG6ijCo0IVDQ6EdzEACly6jt8LUEfDYub0ydSAauxjwgbqKMKjQhUNDoR3MQAKXLqO3wtQR8Ni5vTJ1IBq7GPCBuoowqNCFQ0OhHcxAApcuo7fC1BHw2Lm9MnUgGrsY8IG6ijCo0IVDQ6EdzEACly6jt8LUEfDYub0ydSAauxjwgbqKMKjQhUNDoR3MQAKXLqO3w==",
+                "title": "HubSpot CRM Software for Sales Teams",
+                "type": "web_search_result_location",
+                "url": "https://www.hubspot.com/products/crm"
+              }
+            ],
+            "text": "HubSpot is worth a look when the team also needs email sequences and a free tier to start on.",
+            "type": "text"
+          },
+          {
+            "text": " All of them sync with Gmail and Outlook, and most add a two-way calendar sync on the second tier. Integration counts are similar across the group, so support quality and the mobile apps tend to decide it.",
+            "type": "text"
+          }
+        ],
+        "id": "msg_019fde490b6bc8f9de70796f84",
+        "model": "claude-haiku-4-5-20251001",
+        "role": "assistant",
+        "stop_details": null,
+        "stop_reason": "end_turn",
+        "stop_sequence": null,
+        "type": "message",
+        "usage": {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "inference_geo": "not_available",
+          "input_tokens": 4752,
+          "output_tokens": 135,
+          "server_tool_use": {
+            "web_fetch_requests": 0,
+            "web_search_requests": 1
+          },
+          "service_tier": "standard"
+        }
+      }
+    },
+    "source_id": "crm-with-email-automation|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "claude",
+        "model": "claude-haiku-4-5",
+        "query": "affordable crm for sales teams"
+      },
+      "response": {
+        "container": null,
+        "content": [
+          {
+            "text": "I'll search for current information to answer this.",
+            "type": "text"
+          },
+          {
+            "id": "srvtoolu_016a0d8ee1eacd192272e74ddd",
+            "input": {
+              "query": "affordable crm for sales teams 2026"
+            },
+            "name": "web_search",
+            "type": "server_tool_use"
+          },
+          {
+            "caller": {
+              "type": "direct"
+            },
+            "content": [
+              {
+                "encrypted_content": "vIMDn/SG/RYPyEhy0eqgk2/IASAoMpBZI3EC4I6LNrO8gwOf9Ib9Fg/ISHLR6qCTb8gBICgykFkjcQLgjos2s7yDA5/0hv0WD8hIctHqoJNvyAEgKDKQWSNxAuCOizazvIMDn/SG/RYPyEhy0eqgk2/IASAoMpBZI3EC4I6LNrO8gwOf9Ib9Fg/ISHLR6qCTb8gBICgykFkjcQLgjos2s7yDA5/0hv0WD8hIctHqoJNvyAEgKDKQWSNxAuCOizazvIMDn/SG/RYPyEhy0eqgk2/IASAoMpBZI3EC4I6LNrO8gwOf9Ib9Fg/ISHLR6qCTb8gBICgykFkjcQLgjos2s7yDA5/0hv0WD8hIctHqoJNvyAEgKDKQWSNxAuCOizazvIMDn/SG/RYPyEhy0eqgk2/IASAoMpBZI3EC4I6LNrO8gwOf9Ib9Fg/ISHLR6qCTb8gBICgykFkjcQLgjos2s7yDA5/0hv0WD8hIctHqoJNvyAEgKDKQWSNxAuCOizazvIMDn/SG/RYPyEhy0eqgk2/IASAoMpBZI3EC4I6LNrO8gwOf9Ib9Fg/ISHLR6qCTb8gBICgykFkjcQLgjos2s7yDA5/0hv0WD8hIctHqoJNvyAEgKDKQWSNxAuCOizazvIMDn/SG/RYPyEhy0eqgk2/IASAoMpBZI3EC4I6LNrO8gwOf9Ib9Fg/ISHLR6qCTb8gBICgykFkjcQLgjos2s7yDA5/0hv0WD8hIctHqoJNvyAEgKDKQWSNxAuCOizazvIMDn/SG/RYPyEhy0eqgk2/IASAoMpBZI3EC4I6LNrO8gwOf9Ib9Fg/ISHLR6qCTb8gBICgykFkjcQLgjos2s7yDA5/0hv0WD8hIctHqoJNvyAEgKDKQWSNxAuCOizazvIMDn/SG/RYPyEhy0eqgk2/IASAoMpBZI3EC4I6LNrO8gwOf9Ib9Fg/ISHLR6qCTb8gBICgykFkjcQLgjos2s7yDA5/0hv0WD8hIctHqoJNvyAEgKDKQWSNxAuCOizazvIMDn/SG/RYPyEhy0eqgk2/IASAoMpBZI3EC4I6LNrO8gwOf9Ib9Fg/ISHLR6qCTb8gBICgykFkjcQLgjos2s7yDA5/0hv0WD8hIctHqoJNvyAEgKDKQWSNxAuCOizazvIMDn/SG/RYPyEhy0eqgk2/IASAoMpBZI3EC4I6LNrO8gwOf9Ib9Fg/ISHLR6qCTb8gBICgykFkjcQLgjos2s7yDA5/0hv0WD8hIctHqoJNvyAEgKDKQWSNxAuCOizazvIMDn/SG/RYPyEhy0eqgk2/IASAoMpBZI3EC4I6LNrO8gwOf9Ib9Fg/ISHLR6qCTb8gBICgykFkjcQLgjos2sw==",
+                "page_age": "August 27, 2026",
+                "title": "Pipedrive: Sales CRM and Pipeline Management Software",
+                "type": "web_search_result",
+                "url": "https://www.pipedrive.com/en/features/sales-pipeline"
+              },
+              {
+                "encrypted_content": "gw5Y1PNxw79u2y/h9kufNj0TPLRlGKgVXkOsGKzmUb6DDljU83HDv27bL+H2S582PRM8tGUYqBVeQ6wYrOZRvoMOWNTzccO/btsv4fZLnzY9Ezy0ZRioFV5DrBis5lG+gw5Y1PNxw79u2y/h9kufNj0TPLRlGKgVXkOsGKzmUb6DDljU83HDv27bL+H2S582PRM8tGUYqBVeQ6wYrOZRvoMOWNTzccO/btsv4fZLnzY9Ezy0ZRioFV5DrBis5lG+gw5Y1PNxw79u2y/h9kufNj0TPLRlGKgVXkOsGKzmUb6DDljU83HDv27bL+H2S582PRM8tGUYqBVeQ6wYrOZRvoMOWNTzccO/btsv4fZLnzY9Ezy0ZRioFV5DrBis5lG+gw5Y1PNxw79u2y/h9kufNj0TPLRlGKgVXkOsGKzmUb6DDljU83HDv27bL+H2S582PRM8tGUYqBVeQ6wYrOZRvoMOWNTzccO/btsv4fZLnzY9Ezy0ZRioFV5DrBis5lG+gw5Y1PNxw79u2y/h9kufNj0TPLRlGKgVXkOsGKzmUb6DDljU83HDv27bL+H2S582PRM8tGUYqBVeQ6wYrOZRvoMOWNTzccO/btsv4fZLnzY9Ezy0ZRioFV5DrBis5lG+gw5Y1PNxw79u2y/h9kufNj0TPLRlGKgVXkOsGKzmUb6DDljU83HDv27bL+H2S582PRM8tGUYqBVeQ6wYrOZRvoMOWNTzccO/btsv4fZLnzY9Ezy0ZRioFV5DrBis5lG+gw5Y1PNxw79u2y/h9kufNj0TPLRlGKgVXkOsGKzmUb6DDljU83HDv27bL+H2S582PRM8tGUYqBVeQ6wYrOZRvoMOWNTzccO/btsv4fZLnzY9Ezy0ZRioFV5DrBis5lG+gw5Y1PNxw79u2y/h9kufNj0TPLRlGKgVXkOsGKzmUb6DDljU83HDv27bL+H2S582PRM8tGUYqBVeQ6wYrOZRvoMOWNTzccO/btsv4fZLnzY9Ezy0ZRioFV5DrBis5lG+gw5Y1PNxw79u2y/h9kufNj0TPLRlGKgVXkOsGKzmUb6DDljU83HDv27bL+H2S582PRM8tGUYqBVeQ6wYrOZRvoMOWNTzccO/btsv4fZLnzY9Ezy0ZRioFV5DrBis5lG+gw5Y1PNxw79u2y/h9kufNj0TPLRlGKgVXkOsGKzmUb6DDljU83HDv27bL+H2S582PRM8tGUYqBVeQ6wYrOZRvoMOWNTzccO/btsv4fZLnzY9Ezy0ZRioFV5DrBis5lG+gw5Y1PNxw79u2y/h9kufNj0TPLRlGKgVXkOsGKzmUb6DDljU83HDv27bL+H2S582PRM8tGUYqBVeQ6wYrOZRvg==",
+                "page_age": "July 25, 2026",
+                "title": "Best CRM Software 2026 | Reviews of the Most Popular Tools",
+                "type": "web_search_result",
+                "url": "https://www.capterra.com/crm-software/"
+              },
+              {
+                "encrypted_content": "oCDtWRSO+tQBXnqWEC5QKST0dd4VbaMmJ1oyVTyR/xqgIO1ZFI761AFeepYQLlApJPR13hVtoyYnWjJVPJH/GqAg7VkUjvrUAV56lhAuUCkk9HXeFW2jJidaMlU8kf8aoCDtWRSO+tQBXnqWEC5QKST0dd4VbaMmJ1oyVTyR/xqgIO1ZFI761AFeepYQLlApJPR13hVtoyYnWjJVPJH/GqAg7VkUjvrUAV56lhAuUCkk9HXeFW2jJidaMlU8kf8aoCDtWRSO+tQBXnqWEC5QKST0dd4VbaMmJ1oyVTyR/xqgIO1ZFI761AFeepYQLlApJPR13hVtoyYnWjJVPJH/GqAg7VkUjvrUAV56lhAuUCkk9HXeFW2jJidaMlU8kf8aoCDtWRSO+tQBXnqWEC5QKST0dd4VbaMmJ1oyVTyR/xqgIO1ZFI761AFeepYQLlApJPR13hVtoyYnWjJVPJH/GqAg7VkUjvrUAV56lhAuUCkk9HXeFW2jJidaMlU8kf8aoCDtWRSO+tQBXnqWEC5QKST0dd4VbaMmJ1oyVTyR/xqgIO1ZFI761AFeepYQLlApJPR13hVtoyYnWjJVPJH/GqAg7VkUjvrUAV56lhAuUCkk9HXeFW2jJidaMlU8kf8aoCDtWRSO+tQBXnqWEC5QKST0dd4VbaMmJ1oyVTyR/xqgIO1ZFI761AFeepYQLlApJPR13hVtoyYnWjJVPJH/GqAg7VkUjvrUAV56lhAuUCkk9HXeFW2jJidaMlU8kf8aoCDtWRSO+tQBXnqWEC5QKST0dd4VbaMmJ1oyVTyR/xqgIO1ZFI761AFeepYQLlApJPR13hVtoyYnWjJVPJH/GqAg7VkUjvrUAV56lhAuUCkk9HXeFW2jJidaMlU8kf8aoCDtWRSO+tQBXnqWEC5QKST0dd4VbaMmJ1oyVTyR/xqgIO1ZFI761AFeepYQLlApJPR13hVtoyYnWjJVPJH/GqAg7VkUjvrUAV56lhAuUCkk9HXeFW2jJidaMlU8kf8aoCDtWRSO+tQBXnqWEC5QKST0dd4VbaMmJ1oyVTyR/xqgIO1ZFI761AFeepYQLlApJPR13hVtoyYnWjJVPJH/GqAg7VkUjvrUAV56lhAuUCkk9HXeFW2jJidaMlU8kf8aoCDtWRSO+tQBXnqWEC5QKST0dd4VbaMmJ1oyVTyR/xqgIO1ZFI761AFeepYQLlApJPR13hVtoyYnWjJVPJH/GqAg7VkUjvrUAV56lhAuUCkk9HXeFW2jJidaMlU8kf8aoCDtWRSO+tQBXnqWEC5QKST0dd4VbaMmJ1oyVTyR/xqgIO1ZFI761AFeepYQLlApJPR13hVtoyYnWjJVPJH/Gg==",
+                "page_age": "June 26, 2026",
+                "title": "Freshsales: AI-powered Sales CRM",
+                "type": "web_search_result",
+                "url": "https://www.freshworks.com/crm/sales/"
+              }
+            ],
+            "tool_use_id": "srvtoolu_016a0d8ee1eacd192272e74ddd",
+            "type": "web_search_tool_result"
+          },
+          {
+            "citations": [
+              {
+                "cited_text": "Freshsales: AI-powered Sales CRM\n\nFreshsales is the name that comes up first for teams that want a visual pipeline without a long setup.",
+                "encrypted_index": "8KKcmcwHJc54WMS4gsqzeJUZ9JCDVQwxZETJzj418grwopyZzAclznhYxLiCyrN4lRn0kINVDDFkRMnOPjXyCvCinJnMByXOeFjEuILKs3iVGfSQg1UMMWREyc4+NfIK8KKcmcwHJc54WMS4gsqzeJUZ9JCDVQwxZETJzj418grwopyZzAclznhYxLiCyrN4lRn0kINVDDFkRMnOPjXyCg==",
+                "title": "Freshsales: AI-powered Sales CRM",
+                "type": "web_search_result_location",
+                "url": "https://www.freshworks.com/crm/sales/"
+              }
+            ],
+            "text": "Freshsales is the name that comes up first for teams that want a visual pipeline without a long setup.",
+            "type": "text"
+          },
+          {
+            "text": " ",
+            "type": "text"
+          },
+          {
+            "citations": [
+              {
+                "cited_text": "Pipedrive: Sales CRM and Pipeline Management Software\n\nPipedrive adds an AI assistant that summarises calls and suggests the next step on every deal.",
+                "encrypted_index": "7iywzTdR42yi1Tr/3Lb+7+JVhd5S7l8qV2ipSYnk2aXuLLDNN1HjbKLVOv/ctv7v4lWF3lLuXypXaKlJieTZpe4ssM03UeNsotU6/9y2/u/iVYXeUu5fKldoqUmJ5Nml7iywzTdR42yi1Tr/3Lb+7+JVhd5S7l8qV2ipSYnk2aXuLLDNN1HjbKLVOv/ctv7v4lWF3lLuXypXaKlJieTZpQ==",
+                "title": "Pipedrive: Sales CRM and Pipeline Management Software",
+                "type": "web_search_result_location",
+                "url": "https://www.pipedrive.com/en/features/sales-pipeline"
+              }
+            ],
+            "text": "Pipedrive adds an AI assistant that summarises calls and suggests the next step on every deal.",
+            "type": "text"
+          },
+          {
+            "text": " Each offers a two-week trial, so the practical test is importing a real pipeline and checking the automation limits.",
+            "type": "text"
+          }
+        ],
+        "id": "msg_01cc9b7df116bc797a3204e0f8",
+        "model": "claude-haiku-4-5-20251001",
+        "role": "assistant",
+        "stop_details": null,
+        "stop_reason": "end_turn",
+        "stop_sequence": null,
+        "type": "message",
+        "usage": {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "inference_geo": "not_available",
+          "input_tokens": 3528,
+          "output_tokens": 118,
+          "server_tool_use": {
+            "web_fetch_requests": 0,
+            "web_search_requests": 1
+          },
+          "service_tier": "standard"
+        }
+      }
+    },
+    "source_id": "affordable-crm-for-sales-teams|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "claude",
+        "model": "claude-haiku-4-5",
+        "query": "hubspot alternatives"
+      },
+      "response": {
+        "container": null,
+        "content": [
+          {
+            "text": "I'll search for current information to answer this.",
+            "type": "text"
+          },
+          {
+            "id": "srvtoolu_01c4c7aaf8444826204c5cc951",
+            "input": {
+              "query": "hubspot alternatives 2026"
+            },
+            "name": "web_search",
+            "type": "server_tool_use"
+          },
+          {
+            "caller": {
+              "type": "direct"
+            },
+            "content": [
+              {
+                "encrypted_content": "bpTVhXUERcfvi8Wux3t5qsX4nfdcu5ZtXV2qC2hwyEtulNWFdQRFx++Lxa7He3mqxfid91y7lm1dXaoLaHDIS26U1YV1BEXH74vFrsd7earF+J33XLuWbV1dqgtocMhLbpTVhXUERcfvi8Wux3t5qsX4nfdcu5ZtXV2qC2hwyEtulNWFdQRFx++Lxa7He3mqxfid91y7lm1dXaoLaHDIS26U1YV1BEXH74vFrsd7earF+J33XLuWbV1dqgtocMhLbpTVhXUERcfvi8Wux3t5qsX4nfdcu5ZtXV2qC2hwyEtulNWFdQRFx++Lxa7He3mqxfid91y7lm1dXaoLaHDIS26U1YV1BEXH74vFrsd7earF+J33XLuWbV1dqgtocMhLbpTVhXUERcfvi8Wux3t5qsX4nfdcu5ZtXV2qC2hwyEtulNWFdQRFx++Lxa7He3mqxfid91y7lm1dXaoLaHDIS26U1YV1BEXH74vFrsd7earF+J33XLuWbV1dqgtocMhLbpTVhXUERcfvi8Wux3t5qsX4nfdcu5ZtXV2qC2hwyEtulNWFdQRFx++Lxa7He3mqxfid91y7lm1dXaoLaHDIS26U1YV1BEXH74vFrsd7earF+J33XLuWbV1dqgtocMhLbpTVhXUERcfvi8Wux3t5qsX4nfdcu5ZtXV2qC2hwyEtulNWFdQRFx++Lxa7He3mqxfid91y7lm1dXaoLaHDIS26U1YV1BEXH74vFrsd7earF+J33XLuWbV1dqgtocMhLbpTVhXUERcfvi8Wux3t5qsX4nfdcu5ZtXV2qC2hwyEtulNWFdQRFx++Lxa7He3mqxfid91y7lm1dXaoLaHDIS26U1YV1BEXH74vFrsd7earF+J33XLuWbV1dqgtocMhLbpTVhXUERcfvi8Wux3t5qsX4nfdcu5ZtXV2qC2hwyEtulNWFdQRFx++Lxa7He3mqxfid91y7lm1dXaoLaHDIS26U1YV1BEXH74vFrsd7earF+J33XLuWbV1dqgtocMhLbpTVhXUERcfvi8Wux3t5qsX4nfdcu5ZtXV2qC2hwyEtulNWFdQRFx++Lxa7He3mqxfid91y7lm1dXaoLaHDIS26U1YV1BEXH74vFrsd7earF+J33XLuWbV1dqgtocMhLbpTVhXUERcfvi8Wux3t5qsX4nfdcu5ZtXV2qC2hwyEtulNWFdQRFx++Lxa7He3mqxfid91y7lm1dXaoLaHDIS26U1YV1BEXH74vFrsd7earF+J33XLuWbV1dqgtocMhLbpTVhXUERcfvi8Wux3t5qsX4nfdcu5ZtXV2qC2hwyEtulNWFdQRFx++Lxa7He3mqxfid91y7lm1dXaoLaHDISw==",
+                "page_age": "August 15, 2026",
+                "title": "Zoho CRM: Top-rated Sales CRM Software",
+                "type": "web_search_result",
+                "url": "https://www.zoho.com/crm/sales-automation.html"
+              },
+              {
+                "encrypted_content": "ErE2z0rK6JEvDbhCxh8cl/cmjjIbMJVrzv9Q4Fv5tZYSsTbPSsrokS8NuELGHxyX9yaOMhswlWvO/1DgW/m1lhKxNs9KyuiRLw24QsYfHJf3Jo4yGzCVa87/UOBb+bWWErE2z0rK6JEvDbhCxh8cl/cmjjIbMJVrzv9Q4Fv5tZYSsTbPSsrokS8NuELGHxyX9yaOMhswlWvO/1DgW/m1lhKxNs9KyuiRLw24QsYfHJf3Jo4yGzCVa87/UOBb+bWWErE2z0rK6JEvDbhCxh8cl/cmjjIbMJVrzv9Q4Fv5tZYSsTbPSsrokS8NuELGHxyX9yaOMhswlWvO/1DgW/m1lhKxNs9KyuiRLw24QsYfHJf3Jo4yGzCVa87/UOBb+bWWErE2z0rK6JEvDbhCxh8cl/cmjjIbMJVrzv9Q4Fv5tZYSsTbPSsrokS8NuELGHxyX9yaOMhswlWvO/1DgW/m1lhKxNs9KyuiRLw24QsYfHJf3Jo4yGzCVa87/UOBb+bWWErE2z0rK6JEvDbhCxh8cl/cmjjIbMJVrzv9Q4Fv5tZYSsTbPSsrokS8NuELGHxyX9yaOMhswlWvO/1DgW/m1lhKxNs9KyuiRLw24QsYfHJf3Jo4yGzCVa87/UOBb+bWWErE2z0rK6JEvDbhCxh8cl/cmjjIbMJVrzv9Q4Fv5tZYSsTbPSsrokS8NuELGHxyX9yaOMhswlWvO/1DgW/m1lhKxNs9KyuiRLw24QsYfHJf3Jo4yGzCVa87/UOBb+bWWErE2z0rK6JEvDbhCxh8cl/cmjjIbMJVrzv9Q4Fv5tZYSsTbPSsrokS8NuELGHxyX9yaOMhswlWvO/1DgW/m1lhKxNs9KyuiRLw24QsYfHJf3Jo4yGzCVa87/UOBb+bWWErE2z0rK6JEvDbhCxh8cl/cmjjIbMJVrzv9Q4Fv5tZYSsTbPSsrokS8NuELGHxyX9yaOMhswlWvO/1DgW/m1lhKxNs9KyuiRLw24QsYfHJf3Jo4yGzCVa87/UOBb+bWWErE2z0rK6JEvDbhCxh8cl/cmjjIbMJVrzv9Q4Fv5tZYSsTbPSsrokS8NuELGHxyX9yaOMhswlWvO/1DgW/m1lhKxNs9KyuiRLw24QsYfHJf3Jo4yGzCVa87/UOBb+bWWErE2z0rK6JEvDbhCxh8cl/cmjjIbMJVrzv9Q4Fv5tZYSsTbPSsrokS8NuELGHxyX9yaOMhswlWvO/1DgW/m1lhKxNs9KyuiRLw24QsYfHJf3Jo4yGzCVa87/UOBb+bWWErE2z0rK6JEvDbhCxh8cl/cmjjIbMJVrzv9Q4Fv5tZYSsTbPSsrokS8NuELGHxyX9yaOMhswlWvO/1DgW/m1lg==",
+                "page_age": "August 17, 2026",
+                "title": "Best CRM Software 2026 | Reviews of the Most Popular Tools",
+                "type": "web_search_result",
+                "url": "https://www.capterra.com/crm-software/"
+              },
+              {
+                "encrypted_content": "Latk+1c/oqMA16guN5lAckFt5H8SwNHVCO7GbxtSYYstq2T7Vz+iowDXqC43mUByQW3kfxLA0dUI7sZvG1Jhiy2rZPtXP6KjANeoLjeZQHJBbeR/EsDR1Qjuxm8bUmGLLatk+1c/oqMA16guN5lAckFt5H8SwNHVCO7GbxtSYYstq2T7Vz+iowDXqC43mUByQW3kfxLA0dUI7sZvG1Jhiy2rZPtXP6KjANeoLjeZQHJBbeR/EsDR1Qjuxm8bUmGLLatk+1c/oqMA16guN5lAckFt5H8SwNHVCO7GbxtSYYstq2T7Vz+iowDXqC43mUByQW3kfxLA0dUI7sZvG1Jhiy2rZPtXP6KjANeoLjeZQHJBbeR/EsDR1Qjuxm8bUmGLLatk+1c/oqMA16guN5lAckFt5H8SwNHVCO7GbxtSYYstq2T7Vz+iowDXqC43mUByQW3kfxLA0dUI7sZvG1Jhiy2rZPtXP6KjANeoLjeZQHJBbeR/EsDR1Qjuxm8bUmGLLatk+1c/oqMA16guN5lAckFt5H8SwNHVCO7GbxtSYYstq2T7Vz+iowDXqC43mUByQW3kfxLA0dUI7sZvG1Jhiy2rZPtXP6KjANeoLjeZQHJBbeR/EsDR1Qjuxm8bUmGLLatk+1c/oqMA16guN5lAckFt5H8SwNHVCO7GbxtSYYstq2T7Vz+iowDXqC43mUByQW3kfxLA0dUI7sZvG1Jhiy2rZPtXP6KjANeoLjeZQHJBbeR/EsDR1Qjuxm8bUmGLLatk+1c/oqMA16guN5lAckFt5H8SwNHVCO7GbxtSYYstq2T7Vz+iowDXqC43mUByQW3kfxLA0dUI7sZvG1Jhiy2rZPtXP6KjANeoLjeZQHJBbeR/EsDR1Qjuxm8bUmGLLatk+1c/oqMA16guN5lAckFt5H8SwNHVCO7GbxtSYYstq2T7Vz+iowDXqC43mUByQW3kfxLA0dUI7sZvG1Jhiy2rZPtXP6KjANeoLjeZQHJBbeR/EsDR1Qjuxm8bUmGLLatk+1c/oqMA16guN5lAckFt5H8SwNHVCO7GbxtSYYstq2T7Vz+iowDXqC43mUByQW3kfxLA0dUI7sZvG1Jhiy2rZPtXP6KjANeoLjeZQHJBbeR/EsDR1Qjuxm8bUmGLLatk+1c/oqMA16guN5lAckFt5H8SwNHVCO7GbxtSYYstq2T7Vz+iowDXqC43mUByQW3kfxLA0dUI7sZvG1Jhiy2rZPtXP6KjANeoLjeZQHJBbeR/EsDR1Qjuxm8bUmGLLatk+1c/oqMA16guN5lAckFt5H8SwNHVCO7GbxtSYYstq2T7Vz+iowDXqC43mUByQW3kfxLA0dUI7sZvG1Jhiw==",
+                "page_age": "July 21, 2026",
+                "title": "Freshsales: AI-powered Sales CRM",
+                "type": "web_search_result",
+                "url": "https://www.freshworks.com/crm/sales/"
+              }
+            ],
+            "tool_use_id": "srvtoolu_01c4c7aaf8444826204c5cc951",
+            "type": "web_search_tool_result"
+          },
+          {
+            "text": "Pipedrive tends to lead the shortlist because its per-seat pricing stays predictable as the team grows. ",
+            "type": "text"
+          },
+          {
+            "citations": [
+              {
+                "cited_text": "Freshsales: AI-powered Sales CRM\n\nReviewers put Freshsales ahead on reporting depth, while HubSpot wins on price for teams under ten seats.",
+                "encrypted_index": "cLB+tqPzLZ2rBm5F7XkTILtrkOM1Y447bFpLXPImEMdwsH62o/MtnasGbkXteRMgu2uQ4zVjjjtsWktc8iYQx3Cwfraj8y2dqwZuRe15EyC7a5DjNWOOO2xaS1zyJhDHcLB+tqPzLZ2rBm5F7XkTILtrkOM1Y447bFpLXPImEMdwsH62o/MtnasGbkXteRMgu2uQ4zVjjjtsWktc8iYQxw==",
+                "title": "Freshsales: AI-powered Sales CRM",
+                "type": "web_search_result_location",
+                "url": "https://www.freshworks.com/crm/sales/"
+              }
+            ],
+            "text": "Reviewers put Freshsales ahead on reporting depth, while HubSpot wins on price for teams under ten seats.",
+            "type": "text"
+          },
+          {
+            "text": " ",
+            "type": "text"
+          },
+          {
+            "citations": [
+              {
+                "cited_text": "Zoho CRM: Top-rated Sales CRM Software\n\nZoho CRM is worth a look when the team also needs email sequences and a free tier to start on.",
+                "encrypted_index": "0LJRzENpP5e/5CWsdXRfvPWVgsa96vU2enKFrK5+IVvQslHMQ2k/l7/kJax1dF+89ZWCxr3q9TZ6coWsrn4hW9CyUcxDaT+Xv+QlrHV0X7z1lYLGver1NnpyhayufiFb0LJRzENpP5e/5CWsdXRfvPWVgsa96vU2enKFrK5+IVvQslHMQ2k/l7/kJax1dF+89ZWCxr3q9TZ6coWsrn4hWw==",
+                "title": "Zoho CRM: Top-rated Sales CRM Software",
+                "type": "web_search_result_location",
+                "url": "https://www.zoho.com/crm/sales-automation.html"
+              }
+            ],
+            "text": "Zoho CRM is worth a look when the team also needs email sequences and a free tier to start on.",
+            "type": "text"
+          },
+          {
+            "text": " The right choice depends on whether the team needs marketing tools in the same product or just a clean sales pipeline.",
+            "type": "text"
+          }
+        ],
+        "id": "msg_01e7e9e847c75be8cb5d3854e7",
+        "model": "claude-haiku-4-5-20251001",
+        "role": "assistant",
+        "stop_details": null,
+        "stop_reason": "end_turn",
+        "stop_sequence": null,
+        "type": "message",
+        "usage": {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "inference_geo": "not_available",
+          "input_tokens": 4232,
+          "output_tokens": 145,
+          "server_tool_use": {
+            "web_fetch_requests": 0,
+            "web_search_requests": 1
+          },
+          "service_tier": "standard"
+        }
+      }
+    },
+    "source_id": "hubspot-alternatives|2026-09-04"
+  },
+  {
+    "payload": {
+      "request": {
+        "checked_at": "2026-09-04",
+        "engine": "claude",
+        "model": "claude-haiku-4-5",
+        "query": "crm with built in calling"
+      },
+      "response": {
+        "container": null,
+        "content": [
+          {
+            "text": "I'll search for current information to answer this.",
+            "type": "text"
+          },
+          {
+            "id": "srvtoolu_01c67fe53b443466ba8cf14fa9",
+            "input": {
+              "query": "crm with built in calling 2026"
+            },
+            "name": "web_search",
+            "type": "server_tool_use"
+          },
+          {
+            "caller": {
+              "type": "direct"
+            },
+            "content": [
+              {
+                "encrypted_content": "bVzARwxV/EIe0yZH3+4qiO+NeZItNbkp2lW67e9vvuttXMBHDFX8Qh7TJkff7iqI7415ki01uSnaVbrt72++621cwEcMVfxCHtMmR9/uKojvjXmSLTW5KdpVuu3vb77rbVzARwxV/EIe0yZH3+4qiO+NeZItNbkp2lW67e9vvuttXMBHDFX8Qh7TJkff7iqI7415ki01uSnaVbrt72++621cwEcMVfxCHtMmR9/uKojvjXmSLTW5KdpVuu3vb77rbVzARwxV/EIe0yZH3+4qiO+NeZItNbkp2lW67e9vvuttXMBHDFX8Qh7TJkff7iqI7415ki01uSnaVbrt72++621cwEcMVfxCHtMmR9/uKojvjXmSLTW5KdpVuu3vb77rbVzARwxV/EIe0yZH3+4qiO+NeZItNbkp2lW67e9vvuttXMBHDFX8Qh7TJkff7iqI7415ki01uSnaVbrt72++621cwEcMVfxCHtMmR9/uKojvjXmSLTW5KdpVuu3vb77rbVzARwxV/EIe0yZH3+4qiO+NeZItNbkp2lW67e9vvuttXMBHDFX8Qh7TJkff7iqI7415ki01uSnaVbrt72++621cwEcMVfxCHtMmR9/uKojvjXmSLTW5KdpVuu3vb77rbVzARwxV/EIe0yZH3+4qiO+NeZItNbkp2lW67e9vvuttXMBHDFX8Qh7TJkff7iqI7415ki01uSnaVbrt72++621cwEcMVfxCHtMmR9/uKojvjXmSLTW5KdpVuu3vb77rbVzARwxV/EIe0yZH3+4qiO+NeZItNbkp2lW67e9vvuttXMBHDFX8Qh7TJkff7iqI7415ki01uSnaVbrt72++621cwEcMVfxCHtMmR9/uKojvjXmSLTW5KdpVuu3vb77rbVzARwxV/EIe0yZH3+4qiO+NeZItNbkp2lW67e9vvuttXMBHDFX8Qh7TJkff7iqI7415ki01uSnaVbrt72++621cwEcMVfxCHtMmR9/uKojvjXmSLTW5KdpVuu3vb77rbVzARwxV/EIe0yZH3+4qiO+NeZItNbkp2lW67e9vvuttXMBHDFX8Qh7TJkff7iqI7415ki01uSnaVbrt72++621cwEcMVfxCHtMmR9/uKojvjXmSLTW5KdpVuu3vb77rbVzARwxV/EIe0yZH3+4qiO+NeZItNbkp2lW67e9vvuttXMBHDFX8Qh7TJkff7iqI7415ki01uSnaVbrt72++621cwEcMVfxCHtMmR9/uKojvjXmSLTW5KdpVuu3vb77rbVzARwxV/EIe0yZH3+4qiO+NeZItNbkp2lW67e9vvuttXMBHDFX8Qh7TJkff7iqI7415ki01uSnaVbrt72++6w==",
+                "page_age": "August 16, 2026",
+                "title": "The best CRM software of 2026",
+                "type": "web_search_result",
+                "url": "https://www.techradar.com/best/the-best-crm-software"
+              },
+              {
+                "encrypted_content": "uWkSDZZCyucnzo3CY/IXz+zIMcHHu3fBas7X24rr0Ki5aRINlkLK5yfOjcJj8hfP7Mgxwce7d8FqztfbiuvQqLlpEg2WQsrnJ86NwmPyF8/syDHBx7t3wWrO19uK69CouWkSDZZCyucnzo3CY/IXz+zIMcHHu3fBas7X24rr0Ki5aRINlkLK5yfOjcJj8hfP7Mgxwce7d8FqztfbiuvQqLlpEg2WQsrnJ86NwmPyF8/syDHBx7t3wWrO19uK69CouWkSDZZCyucnzo3CY/IXz+zIMcHHu3fBas7X24rr0Ki5aRINlkLK5yfOjcJj8hfP7Mgxwce7d8FqztfbiuvQqLlpEg2WQsrnJ86NwmPyF8/syDHBx7t3wWrO19uK69CouWkSDZZCyucnzo3CY/IXz+zIMcHHu3fBas7X24rr0Ki5aRINlkLK5yfOjcJj8hfP7Mgxwce7d8FqztfbiuvQqLlpEg2WQsrnJ86NwmPyF8/syDHBx7t3wWrO19uK69CouWkSDZZCyucnzo3CY/IXz+zIMcHHu3fBas7X24rr0Ki5aRINlkLK5yfOjcJj8hfP7Mgxwce7d8FqztfbiuvQqLlpEg2WQsrnJ86NwmPyF8/syDHBx7t3wWrO19uK69CouWkSDZZCyucnzo3CY/IXz+zIMcHHu3fBas7X24rr0Ki5aRINlkLK5yfOjcJj8hfP7Mgxwce7d8FqztfbiuvQqLlpEg2WQsrnJ86NwmPyF8/syDHBx7t3wWrO19uK69CouWkSDZZCyucnzo3CY/IXz+zIMcHHu3fBas7X24rr0Ki5aRINlkLK5yfOjcJj8hfP7Mgxwce7d8FqztfbiuvQqLlpEg2WQsrnJ86NwmPyF8/syDHBx7t3wWrO19uK69CouWkSDZZCyucnzo3CY/IXz+zIMcHHu3fBas7X24rr0Ki5aRINlkLK5yfOjcJj8hfP7Mgxwce7d8FqztfbiuvQqLlpEg2WQsrnJ86NwmPyF8/syDHBx7t3wWrO19uK69CouWkSDZZCyucnzo3CY/IXz+zIMcHHu3fBas7X24rr0Ki5aRINlkLK5yfOjcJj8hfP7Mgxwce7d8FqztfbiuvQqLlpEg2WQsrnJ86NwmPyF8/syDHBx7t3wWrO19uK69CouWkSDZZCyucnzo3CY/IXz+zIMcHHu3fBas7X24rr0Ki5aRINlkLK5yfOjcJj8hfP7Mgxwce7d8FqztfbiuvQqLlpEg2WQsrnJ86NwmPyF8/syDHBx7t3wWrO19uK69CouWkSDZZCyucnzo3CY/IXz+zIMcHHu3fBas7X24rr0Ki5aRINlkLK5yfOjcJj8hfP7Mgxwce7d8FqztfbiuvQqA==",
+                "page_age": "August 30, 2026",
+                "title": "Zoho CRM: Top-rated Sales CRM Software",
+                "type": "web_search_result",
+                "url": "https://www.zoho.com/crm/sales-automation.html"
+              },
+              {
+                "encrypted_content": "76bmr57js6HPRkOVwwm81ErEcERdh0QVkNx+BCyn4HjvpuavnuOzoc9GQ5XDCbzUSsRwRF2HRBWQ3H4ELKfgeO+m5q+e47Ohz0ZDlcMJvNRKxHBEXYdEFZDcfgQsp+B476bmr57js6HPRkOVwwm81ErEcERdh0QVkNx+BCyn4HjvpuavnuOzoc9GQ5XDCbzUSsRwRF2HRBWQ3H4ELKfgeO+m5q+e47Ohz0ZDlcMJvNRKxHBEXYdEFZDcfgQsp+B476bmr57js6HPRkOVwwm81ErEcERdh0QVkNx+BCyn4HjvpuavnuOzoc9GQ5XDCbzUSsRwRF2HRBWQ3H4ELKfgeO+m5q+e47Ohz0ZDlcMJvNRKxHBEXYdEFZDcfgQsp+B476bmr57js6HPRkOVwwm81ErEcERdh0QVkNx+BCyn4HjvpuavnuOzoc9GQ5XDCbzUSsRwRF2HRBWQ3H4ELKfgeO+m5q+e47Ohz0ZDlcMJvNRKxHBEXYdEFZDcfgQsp+B476bmr57js6HPRkOVwwm81ErEcERdh0QVkNx+BCyn4HjvpuavnuOzoc9GQ5XDCbzUSsRwRF2HRBWQ3H4ELKfgeO+m5q+e47Ohz0ZDlcMJvNRKxHBEXYdEFZDcfgQsp+B476bmr57js6HPRkOVwwm81ErEcERdh0QVkNx+BCyn4HjvpuavnuOzoc9GQ5XDCbzUSsRwRF2HRBWQ3H4ELKfgeO+m5q+e47Ohz0ZDlcMJvNRKxHBEXYdEFZDcfgQsp+B476bmr57js6HPRkOVwwm81ErEcERdh0QVkNx+BCyn4HjvpuavnuOzoc9GQ5XDCbzUSsRwRF2HRBWQ3H4ELKfgeO+m5q+e47Ohz0ZDlcMJvNRKxHBEXYdEFZDcfgQsp+B476bmr57js6HPRkOVwwm81ErEcERdh0QVkNx+BCyn4HjvpuavnuOzoc9GQ5XDCbzUSsRwRF2HRBWQ3H4ELKfgeO+m5q+e47Ohz0ZDlcMJvNRKxHBEXYdEFZDcfgQsp+B476bmr57js6HPRkOVwwm81ErEcERdh0QVkNx+BCyn4HjvpuavnuOzoc9GQ5XDCbzUSsRwRF2HRBWQ3H4ELKfgeO+m5q+e47Ohz0ZDlcMJvNRKxHBEXYdEFZDcfgQsp+B476bmr57js6HPRkOVwwm81ErEcERdh0QVkNx+BCyn4HjvpuavnuOzoc9GQ5XDCbzUSsRwRF2HRBWQ3H4ELKfgeO+m5q+e47Ohz0ZDlcMJvNRKxHBEXYdEFZDcfgQsp+B476bmr57js6HPRkOVwwm81ErEcERdh0QVkNx+BCyn4HjvpuavnuOzoc9GQ5XDCbzUSsRwRF2HRBWQ3H4ELKfgeA==",
+                "page_age": "July 7, 2026",
+                "title": "Pipedrive: Sales CRM and Pipeline Management Software",
+                "type": "web_search_result",
+                "url": "https://www.pipedrive.com/en/features/sales-pipeline"
+              }
+            ],
+            "tool_use_id": "srvtoolu_01c67fe53b443466ba8cf14fa9",
+            "type": "web_search_tool_result"
+          },
+          {
+            "citations": [
+              {
+                "cited_text": "Zoho CRM: Top-rated Sales CRM Software\n\nZoho CRM tends to lead the shortlist because its per-seat pricing stays predictable as the team grows.",
+                "encrypted_index": "oOua511gqkzN5t3RIClpurgG3Agzbyam3NuRVFUe706g65rnXWCqTM3m3dEgKWm6uAbcCDNvJqbc25FUVR7vTqDrmuddYKpMzebd0SApabq4BtwIM28mptzbkVRVHu9OoOua511gqkzN5t3RIClpurgG3Agzbyam3NuRVFUe706g65rnXWCqTM3m3dEgKWm6uAbcCDNvJqbc25FUVR7vTg==",
+                "title": "Zoho CRM: Top-rated Sales CRM Software",
+                "type": "web_search_result_location",
+                "url": "https://www.zoho.com/crm/sales-automation.html"
+              }
+            ],
+            "text": "Zoho CRM tends to lead the shortlist because its per-seat pricing stays predictable as the team grows.",
+            "type": "text"
+          },
+          {
+            "text": " ",
+            "type": "text"
+          },
+          {
+            "citations": [
+              {
+                "cited_text": "Pipedrive: Sales CRM and Pipeline Management Software\n\nPipedrive covers the same ground with stronger marketing tools bundled into the same product.",
+                "encrypted_index": "qzXF9Dx0k5cmzh7IMLSH2WadVKa25BAP/CdYHqs5viarNcX0PHSTlybOHsgwtIfZZp1UprbkEA/8J1geqzm+Jqs1xfQ8dJOXJs4eyDC0h9lmnVSmtuQQD/wnWB6rOb4mqzXF9Dx0k5cmzh7IMLSH2WadVKa25BAP/CdYHqs5viarNcX0PHSTlybOHsgwtIfZZp1UprbkEA/8J1geqzm+Jg==",
+                "title": "Pipedrive: Sales CRM and Pipeline Management Software",
+                "type": "web_search_result_location",
+                "url": "https://www.pipedrive.com/en/features/sales-pipeline"
+              }
+            ],
+            "text": "Pipedrive covers the same ground with stronger marketing tools bundled into the same product.",
+            "type": "text"
+          },
+          {
+            "text": " Migration from a spreadsheet takes an afternoon with any of them. The right choice depends on whether the team needs marketing tools in the same product or just a clean sales pipeline.",
+            "type": "text"
+          }
+        ],
+        "id": "msg_013fc71f4eb01f54bb7ff2043a",
+        "model": "claude-haiku-4-5-20251001",
+        "role": "assistant",
+        "stop_details": null,
+        "stop_reason": "end_turn",
+        "stop_sequence": null,
+        "type": "message",
+        "usage": {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "inference_geo": "not_available",
+          "input_tokens": 3128,
+          "output_tokens": 135,
+          "server_tool_use": {
+            "web_fetch_requests": 0,
+            "web_search_requests": 1
+          },
+          "service_tier": "standard"
+        }
+      }
+    },
+    "source_id": "crm-with-built-in-calling|2026-09-04"
+  }
+]
