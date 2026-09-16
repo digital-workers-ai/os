@@ -7,6 +7,8 @@ import { shortDate } from '@/lib/format'
 
 const platformLabel = (value: string) => PLATFORMS.find((option) => option.value === value)?.label ?? value
 
+const degenerate = ({ naturalWidth, naturalHeight }: HTMLImageElement) => naturalWidth <= 1 || naturalHeight <= 1
+
 function Preview({ ad }: { ad: Ad }) {
   const [broken, setBroken] = useState(false)
   if (!ad.preview || broken) {
@@ -22,6 +24,7 @@ function Preview({ ad }: { ad: Ad }) {
       alt={ad.name ?? 'ad preview'}
       className="h-40 w-full bg-wash object-contain"
       onError={() => setBroken(true)}
+      onLoad={(event) => setBroken(degenerate(event.currentTarget))}
     />
   )
 }
