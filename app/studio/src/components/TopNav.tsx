@@ -6,7 +6,6 @@ const TABS: [string, string][] = [
   ['Create', '/create'],
   ['Assets', '/assets'],
   ['Calendar', '/calendar'],
-  ['Today', '/today'],
 ]
 
 const navItem = (isActive: boolean) =>

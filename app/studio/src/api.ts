@@ -193,14 +193,6 @@ export interface AssetsResponse {
   total: number
 }
 
-export interface TodayResponse {
-  today: string
-  last_run: AgentRun | null
-  week: Slot[]
-  building: SkillRunRow[]
-  built_today: AssetRow[]
-}
-
 export interface CanvasNode {
   id: string
   asset_seq: number
@@ -332,8 +324,6 @@ export interface AssetFilters {
   offset?: number
 }
 
-export const getToday = () => get<TodayResponse>('/api/studio/today')
-
 export const getCalendar = (from: string, to: string) =>
   get<CalendarResponse>(`/api/studio/calendar${query([['from', from], ['to', to]])}`)
 
@@ -383,8 +373,6 @@ export const getSkillRuns = (limit: number, skill?: string) =>
   get<{ runs: SkillRunRow[] }>(`/api/skill-runs${query([['limit', limit], ['skill', skill]])}`)
 
 export const getSkillRun = (seq: number) => get<SkillRun>(`/api/skill-runs/${seq}`)
-
-export const getAgentRuns = (limit: number) => get<{ runs: AgentRun[] }>(`/api/agent-runs${query([['limit', limit]])}`)
 
 export const getLooks = () => get<LooksResponse>('/api/looks')
 

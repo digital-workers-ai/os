@@ -8,7 +8,7 @@ from app.api.routers import studio as router
 from app.db import get_session
 from app.models import Asset
 from app.skills import runner
-from app.studio import Missing, calendar, canvas, chat, rows, today
+from app.studio import Missing, calendar, canvas, chat, rows
 
 MAX_SPAN = timedelta(days=366)
 DEFAULT_FILL_DAYS = 14
@@ -33,11 +33,6 @@ async def _started(session, started) -> dict:
 
 def _schedule(background, started, ask) -> None:
     background.add_task(runner.execute_detached, started.skill_run.seq, ask)
-
-
-@router.get("/today")
-async def get_today(session=Depends(get_session)):
-    return await today.today(session)
 
 
 @router.get("/calendar")

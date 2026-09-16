@@ -200,14 +200,6 @@ async def _fresh_rows(sessionmaker_for_test, model):
         return (await fresh.execute(select(model))).scalars().all()
 
 
-class TestToday:
-    async def test_carries_the_five_keys(self, api, defs):
-        body = (await api.get("/api/studio/today")).json()
-        assert set(body) == {"today", "last_run", "week", "building", "built_today"}
-        assert body["today"] == "2026-09-04"
-        assert len(body["week"]) == 3
-
-
 class TestCalendar:
     async def test_expands_the_range_with_its_cadence(self, api, defs):
         response = await api.get("/api/studio/calendar?from=2026-09-01&to=2026-09-07")
