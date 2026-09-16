@@ -92,6 +92,10 @@ def _shopify(domain: str, token: str) -> tuple[dict, tuple | None, dict, dict]:
     return {"X-Shopify-Access-Token": token}, None, {}, {"domain": domain}
 
 
+def _serpapi(key: str) -> tuple[dict, tuple | None, dict, dict]:
+    return {}, None, {"api_key": key}, {}
+
+
 _REAL: dict[str, tuple[str, tuple[str, ...], Callable]] = {
     "hubspot": ("https://api.hubapi.com", ("HUBSPOT_ACCESS_TOKEN",), _bearer),
     "stripe": ("https://api.stripe.com", ("STRIPE_API_KEY",), _bearer),
@@ -136,6 +140,7 @@ _REAL: dict[str, tuple[str, tuple[str, ...], Callable]] = {
         ("TWITTER_BEARER_TOKEN", "TWITTER_USER_ID"),
         _twitter,
     ),
+    "google_serp": ("https://serpapi.com", ("SERPAPI_API_KEY",), _serpapi),
     "shopify": (
         "https://{domain}",
         ("SHOPIFY_STORE_DOMAIN", "SHOPIFY_ACCESS_TOKEN"),
@@ -253,6 +258,7 @@ _MOCK: dict[str, tuple[str, dict, tuple | None, dict]] = {
         None,
         {},
     ),
+    "google_serp": ("/serpapi", {}, None, {"api_key": "mock_serpapi_key"}),
     "pinterest": (
         "/pinterest/v5",
         {"Authorization": "Bearer mock_pinterest_token"},

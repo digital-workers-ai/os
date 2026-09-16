@@ -28,6 +28,7 @@ _META: dict[str, tuple[str, str, str]] = {
     "segment": ("Segment", "Analytics", "Event stream, identity"),
     "smartlook": ("Smartlook", "Analytics", "Session events"),
     "google_sheets": ("Google Sheets", "Other", "Custom tabular data"),
+    "google_serp": ("Google Search", "Spy", "Brand rank, AI Overview mentions"),
 }
 
 

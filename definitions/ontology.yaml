@@ -188,6 +188,26 @@ entities:
       follows: number
       unfollows: number
       profile_views: number
+  visibility_check:
+    description: One tracked query put to one search or answer engine on one day, with what came back.
+    synonyms: [check]
+    attrs:
+      engine: string
+      query: string
+      checked_at: date
+      answer: string
+      sources: number
+      brand_rank: number
+  visibility_mention:
+    description: One company found in one check, with where it came in the answer.
+    synonyms: [mention]
+    attrs:
+      engine: string
+      query: string
+      checked_at: date
+      company: string
+      role: string
+      rank: number
   data_source:
     description: An upstream system feeding the estate.
     attrs:
@@ -284,6 +304,24 @@ attributes:
     description: Followers lost on the reporting day.
   profile_views:
     description: Visits to the page or profile on the reporting day.
+  engine:
+    description: Which search or answer engine the query was put to.
+  query:
+    description: The tracked query, as Spy asked it.
+  checked_at:
+    description: The day the query was put to the engine.
+  answer:
+    description: The text the engine answered with.
+  sources:
+    description: How many distinct pages the engine showed or cited.
+  brand_rank:
+    description: Where the brand came in the answer, absent when it was not there.
+  company:
+    description: The tracked company the record is about, brand or competitor.
+  role:
+    description: Whether the company is the brand or a competitor.
+  rank:
+    description: Where the company came in the answer, first is one.
 
 source_priority:
   - salesforce
@@ -312,6 +350,7 @@ source_priority:
   - smartlook
   - google_analytics
   - google_sheets
+  - google_serp
 
 relationships:
   - rel: belongs_to

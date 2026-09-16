@@ -371,6 +371,7 @@ class TestDiscovery:
             "meta",
             "google_ads",
             "linkedin",
+            "google_serp",
             "twitter",
             "pinterest",
             "intercom",

@@ -301,3 +301,30 @@ audience:
   mailchimp.lists.stats.member_count: members
   customerio.segments.name: name
   customerio.segments.count: members
+
+visibility_check:
+  google_serp.searches._engine: engine
+  google_serp.searches._query: query
+  google_serp.searches._checked_at: checked_at
+  google_serp.searches._sources: sources
+  google_serp.searches._brand_rank: brand_rank
+  google_serp.ai_overviews._engine: engine
+  google_serp.ai_overviews._query: query
+  google_serp.ai_overviews._checked_at: checked_at
+  google_serp.ai_overviews._answer: answer
+  google_serp.ai_overviews._sources: sources
+  google_serp.ai_overviews._brand_rank: brand_rank
+
+visibility_mention:
+  google_serp.searches._mention_engine: engine
+  google_serp.searches._mention_query: query
+  google_serp.searches._mention_checked_at: checked_at
+  google_serp.searches._company: company
+  google_serp.searches._role: role
+  google_serp.searches._rank: rank
+  google_serp.ai_overviews._mention_engine: engine
+  google_serp.ai_overviews._mention_query: query
+  google_serp.ai_overviews._mention_checked_at: checked_at
+  google_serp.ai_overviews._company: company
+  google_serp.ai_overviews._role: role
+  google_serp.ai_overviews._rank: rank
