@@ -1581,8 +1581,9 @@ class TestStartupCredentials:
                 "ENRICHMENT_ENABLED",
                 "COACHING_ENABLED",
                 "CONVERSATION_ENABLED",
+                "STUDIO_ENABLED",
             ),
-            "OPENAI_API_KEY": ("EMBEDDINGS_ENABLED",),
+            "OPENAI_API_KEY": ("EMBEDDINGS_ENABLED", "STUDIO_ENABLED"),
             "ZEROENTROPY_API_KEY": ("RERANK_ENABLED",),
         }
         assert config.LLM_FLAGS == (
