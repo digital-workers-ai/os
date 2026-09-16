@@ -96,7 +96,9 @@ export function groupByDate(nodes: CanvasNode[]): [string, CanvasNode[]][] {
   return [...groups.entries()].sort(([a], [b]) => (a < b ? 1 : a > b ? -1 : 0))
 }
 
-const fixed = { draggable: false, selectable: false, connectable: false, focusable: false }
+const inert = { draggable: false, selectable: false, connectable: false, focusable: false }
+
+const clickable = { ...inert, selectable: true }
 
 export function buildNodes(groups: [string, CanvasNode[]][]): FlowNode[] {
   return groups.flatMap(([date, nodes], column) => {
@@ -106,7 +108,7 @@ export function buildNodes(groups: [string, CanvasNode[]][]): FlowNode[] {
       type: 'day',
       position: { x: left, y: 0 },
       data: { date, count: nodes.length },
-      ...fixed,
+      ...inert,
     }
     const cards: AssetFlowNode[] = nodes.map((node, i) => ({
       id: node.id,
@@ -116,7 +118,7 @@ export function buildNodes(groups: [string, CanvasNode[]][]): FlowNode[] {
         y: HEADER_HEIGHT + Math.floor(i / COLUMNS) * (CARD.height + GAP),
       },
       data: { node },
-      ...fixed,
+      ...clickable,
     }))
     return [header, ...cards]
   })

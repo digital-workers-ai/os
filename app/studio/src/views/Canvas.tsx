@@ -95,7 +95,7 @@ export function Canvas() {
               maxZoom={2}
               nodesDraggable={false}
               nodesConnectable={false}
-              elementsSelectable={false}
+              elementsSelectable
               zoomOnDoubleClick={false}
               onNodeDoubleClick={onDoubleClick}
               onNodeContextMenu={onContextMenu}
