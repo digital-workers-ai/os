@@ -5,7 +5,7 @@ import pytest
 import yaml
 
 from app import caches
-from app.engine import checks
+from app.engine import checks, mappings
 from app.sources.google_sheets import connector as google_sheets_connector
 from app.sources.hubspot import connector as hubspot_connector
 from app.sources.salesforce import connector as salesforce_connector
@@ -408,6 +408,25 @@ class TestValidationLabels:
         assert status["stripe"]["status"] == "provider-validated"
         assert status["zoom"]["status"] == "provider-validated"
         assert status["hubspot"]["status"] == "mock-validated"
+
+    def test_a_real_fixture_dir_without_mapping_lines_derives_unmapped(
+        self, tmp_path, monkeypatch
+    ):
+        (tmp_path / "stripe").mkdir()
+        monkeypatch.setattr(checks, "REAL_FIXTURES", tmp_path)
+        status = checks.source_status(lines=[])
+        assert status["stripe"]["status"] == "unmapped"
+        assert status["stripe"]["entities"] == []
+
+    def test_a_real_fixture_dir_with_mapping_lines_derives_provider_validated(
+        self, tmp_path, monkeypatch
+    ):
+        (tmp_path / "stripe").mkdir()
+        monkeypatch.setattr(checks, "REAL_FIXTURES", tmp_path)
+        lines = [line for line in mappings.load() if line.source == "stripe"]
+        status = checks.source_status(lines=lines)
+        assert status["stripe"]["status"] == "provider-validated"
+        assert status["stripe"]["entities"] == ["company", "person", "subscription"]
 
     def test_entities_derive_from_the_mapping_lines(self):
         status = checks.source_status()
