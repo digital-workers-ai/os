@@ -1,0 +1,125 @@
+{
+  "clears": {},
+  "extracted": {
+    "checks": {
+      "visibility_check": {
+        "chatgpt|best-crm-for-small-business|2026-09-16": {
+          "answer": "## Best CRM for most small businesses: **HubSpot CRM** It\u2019s the best default if you want to start free, organize contacts and deals, track emails/tasks, and later add marketing or customer support. HubSpot\u2019s free CRM is designed for small businesses and has room to expand, but paid features can become expensive as your team and automation needs grow. ([hubspot.com](https://www.hubspot.com/products/crm/small-business?utm_source=openai)) ### Best alternatives | CRM | Best for | Approx. starting price | |---|---|---:| | **HubSpot** | Best overall/free starting point; sales + marketing + support | Free; paid plans vary | | **Zoho CRM** | Best value and broad feature set | Free for up to 3 users; Standard around $14/user/month annually ([zoho.com](https://www.zoho.com/crm/zohocrm-pricing-free.html?source_from=crmpricing-enterprise&utm_source=openai)) | | **Pipedrive** | Best simple sales pipeline | $14/user/month annually; 14-day trial ([pipedrive.com](https://www.pipedrive.com/en/pricing?utm_source=openai)) | | **Freshsales** | Best affordable CRM with built-in chat, email, and phone | Free for up to 3 users; Growth $9/user/month annually ([freshworks.com](https://www.freshworks.com/crm/pricing/?utm_source=openai)) | | **Bigin by Zoho** | Best very small/solo business CRM | Low-cost, lightweight option | | **monday CRM** | Best if you prefer visual, customizable workflows | Typically starts around $12/user/month annually, with seat requirements ([blog.hubspot.com](https://blog.hubspot.com/sales/all-in-one-crm?afsrc=1&utm_source=openai)) | ### My practical recommendation - **Solo owner or 1\u20133 users:** HubSpot Free or Freshsales Free - **Small sales team that mainly needs follow-ups and deal tracking:** Pipedrive - **Budget-conscious team needing automation and customization:** Zoho CRM - **Marketing, sales, and support in one system:** HubSpot - **Service business needing a simple customer database:** Bigin or Freshsales **If I had to choose without knowing anything else:** start with **HubSpot Free**. If you dislike its complexity or expect to pay for many users, choose **Pipedrive** for simplicity or **Zoho CRM** for value. Avoid paying for advanced automation until your team has consistently adopted the basic CRM workflow.",
+          "brand_rank": "3.0",
+          "checked_at": "2026-09-16T00:00:00Z",
+          "engine": "chatgpt",
+          "query": "best crm for small business",
+          "sources": "5.0"
+        },
+        "chatgpt|crm-with-email-automation|2026-09-16": {
+          "answer": "If you\u2019re looking for a **CRM with built-in email automation**, these are strong options: | CRM | Best for | Email automation | |---|---|---| | **HubSpot** | Easiest all-in-one option | Automated follow-ups, forms, lead nurturing, workflows, email tracking; free CRM available, with advanced workflows on paid tiers. ([hubspot.com](https://www.hubspot.com/pricing?utm_source=openai)) | | **Zoho CRM** | Lower-cost, customizable CRM | Campaigns, email marketing, web forms, analytics, lead scoring, and workflow automation. ([help.zoho.com](https://help.zoho.com/portal/en/kb/crm/marketing-automation-tools/overview/articles/marketing-automation?utm_source=openai)) | | **ActiveCampaign** | Best if email automation is the priority | Advanced sequences, tagging, segmentation, behavioral triggers, and a built-in sales CRM. | | **Pipedrive** | Sales teams focused on pipelines | Automated sales activities and follow-up workflows, though you may need an add-on or integration for sophisticated marketing campaigns. | | **Salesforce** | Larger or complex organizations | Powerful automation and integrations, but typically requires more setup and administration. ([salesforce.com](https://www.salesforce.com/pricing/is-salesforce-affordable/?bc=OTH&utm_source=openai)) | ### My quick recommendation - **Small business / easiest setup:** HubSpot - **Best value and customization:** Zoho CRM - **Email sequences are the main goal:** ActiveCampaign - **Primarily sales pipeline management:** Pipedrive - **Large sales organization:** Salesforce For example, a typical automation could be: 1. New lead fills out a form 2. CRM creates the contact and assigns an owner 3. Immediate welcome email is sent 4. Follow-up emails go out after 2, 5, and 10 days 5. If the lead clicks a link, create a sales task 6. If there\u2019s no engagement, move them into a re-engagement campaign If you tell me your **number of users, monthly budget, and whether you need sales follow-ups or marketing newsletters**, I can narrow this to one or two options.",
+          "brand_rank": "3.0",
+          "checked_at": "2026-09-16T00:00:00Z",
+          "engine": "chatgpt",
+          "query": "crm with email automation",
+          "sources": "3.0"
+        },
+        "chatgpt|pipeline-management-software|2026-09-16": {
+          "answer": "**Pipeline management software** helps you track leads, opportunities, and deals through stages such as: **New lead \u2192 Qualified \u2192 Proposal \u2192 Negotiation \u2192 Won/Lost** Most pipeline tools are part of a **CRM** and typically include: - Visual drag-and-drop deal pipelines - Lead and contact management - Tasks, reminders, and follow-ups - Email, calling, and activity tracking - Sales forecasting and reporting - Workflow automation - Team collaboration and integrations ### Popular options | Software | Best for | |---|---| | **Pipedrive** | Simple, sales-focused pipeline management with an intuitive visual interface ([pipedrive.com](https://www.pipedrive.com/?utm_source=openai)) | | **HubSpot Sales Hub** | Businesses wanting CRM, marketing, communication tools, and AI features in one platform ([hubspot.com](https://www.hubspot.com/products/sales?gh_jid=4815410&utm_source=openai)) | | **Zoho CRM** | Broad functionality and customization, especially for cost-conscious small and midsize businesses ([zoho.com](https://www.zoho.com/en-us/crm/?utm_source=openai)) | | **Salesforce** | Larger organizations with complex sales processes, forecasting, integrations, and customization needs ([salesforce.com](https://www.salesforce.com/small-business/pipeline-management-software/?bc=OTH&utm_source=openai)) | | **Monday Sales CRM** | Teams that prefer flexible, spreadsheet-like workflows and project-style collaboration | | **Freshsales** | Startups and small businesses seeking built-in communication and pipeline features ([techradar.com](https://www.techradar.com/reviews/freshsales-crm-review?utm_source=openai)) | ### Quick recommendation - **Easiest to adopt:** Pipedrive - **Best all-in-one option:** HubSpot - **Best value/customization:** Zoho CRM - **Best for enterprise:** Salesforce - **Best for flexible workflows:** Monday Sales CRM For a small sales team, I\u2019d usually start by comparing **Pipedrive, HubSpot, and Zoho CRM**. The right choice depends mainly on team size, budget, number of pipelines, automation needs, and whether you also need marketing, support, or invoicing.",
+          "brand_rank": "1.0",
+          "checked_at": "2026-09-16T00:00:00Z",
+          "engine": "chatgpt",
+          "query": "pipeline management software",
+          "sources": "5.0"
+        }
+      },
+      "visibility_mention": {
+        "chatgpt|best-crm-for-small-business|2026-09-16|freshworks.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "chatgpt",
+          "query": "best crm for small business",
+          "rank": "4.0",
+          "role": "competitor"
+        },
+        "chatgpt|best-crm-for-small-business|2026-09-16|hubspot.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "chatgpt",
+          "query": "best crm for small business",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "chatgpt|best-crm-for-small-business|2026-09-16|pipedrive.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "chatgpt",
+          "query": "best crm for small business",
+          "rank": "3.0",
+          "role": "brand"
+        },
+        "chatgpt|best-crm-for-small-business|2026-09-16|zoho.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "chatgpt",
+          "query": "best crm for small business",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "chatgpt|crm-with-email-automation|2026-09-16|hubspot.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "chatgpt",
+          "query": "crm with email automation",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "chatgpt|crm-with-email-automation|2026-09-16|pipedrive.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "chatgpt",
+          "query": "crm with email automation",
+          "rank": "3.0",
+          "role": "brand"
+        },
+        "chatgpt|crm-with-email-automation|2026-09-16|zoho.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "chatgpt",
+          "query": "crm with email automation",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "chatgpt|pipeline-management-software|2026-09-16|freshworks.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "chatgpt",
+          "query": "pipeline management software",
+          "rank": "4.0",
+          "role": "competitor"
+        },
+        "chatgpt|pipeline-management-software|2026-09-16|hubspot.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "chatgpt",
+          "query": "pipeline management software",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "chatgpt|pipeline-management-software|2026-09-16|pipedrive.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "chatgpt",
+          "query": "pipeline management software",
+          "rank": "1.0",
+          "role": "brand"
+        },
+        "chatgpt|pipeline-management-software|2026-09-16|zoho.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "chatgpt",
+          "query": "pipeline management software",
+          "rank": "3.0",
+          "role": "competitor"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "chatgpt"
+}

@@ -5,6 +5,7 @@ from sqlalchemy import select, text
 from app import sync
 from app.engine import mappings, run
 from app.models import Base, Entity
+from app.sources import registry
 
 pytestmark = pytest.mark.e2e
 
@@ -47,7 +48,7 @@ class TestDeadPathsScopeToTheConnectedEstate:
         }
         assert present == set(CONNECTED)
         mapped = {line.source for line in mappings.load()}
-        assert len(mapped - present) == 24
+        assert len(mapped - present) == len(mapped) - len(CONNECTED)
 
 
 class TestPartialEstateIsStillCoherent:
@@ -59,4 +60,4 @@ class TestPartialEstateIsStillCoherent:
         assert rates["subscription belongs_to company"]["match_rate"] == 1.0
 
     def test_the_mapping_file_is_not_source_scoped(self, partial):
-        assert len({line.source for line in mappings.load()}) == 27
+        assert {line.source for line in mappings.load()} == set(registry.discover())

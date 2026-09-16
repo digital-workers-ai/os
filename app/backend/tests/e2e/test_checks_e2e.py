@@ -11,6 +11,7 @@ from app.api import entities_api, metrics_api, sources_api
 from app.db import get_session
 from app.engine import checks
 from app.main import app
+from app.sources import registry
 
 pytestmark = pytest.mark.e2e
 
@@ -22,6 +23,15 @@ ALL_FILES = (
     "metrics.yaml",
     "rules.yaml",
     "goals.yaml",
+)
+PROVIDER_VALIDATED = (
+    "chatgpt",
+    "claude",
+    "gemini",
+    "google_ads_transparency",
+    "google_serp",
+    "linkedin_posts",
+    "perplexity",
 )
 
 
@@ -83,8 +93,11 @@ class TestSources:
     async def test_every_source_reports_its_validation_level(self, api):
         body = (await api.get("/api/sources")).json()
         by_source = {s["source"]: s for s in body["sources"]}
-        assert len(by_source) == 27
-        assert {s["validation"] for s in body["sources"]} == {"mock-validated"}
+        assert len(by_source) == len(registry.discover())
+        assert {s["validation"] for s in body["sources"]} == {
+            "mock-validated",
+            "provider-validated",
+        }
         assert by_source["stripe"]["entities"] == [
             "company",
             "person",
@@ -96,12 +109,32 @@ class TestSources:
         assert "enabled_by_default" not in body
         assert all(s["enabled"] for s in body["sources"])
 
-    async def test_the_validation_gap_is_stated_as_a_number_not_implied(self, api):
+    async def test_the_validation_gap_is_stated_as_a_number_not_implied(
+        self, api, tmp_path, monkeypatch
+    ):
+        monkeypatch.setattr(checks, "REAL_FIXTURES", tmp_path)
         coverage = (await api.get("/api/sources")).json()["validation_coverage"]
-        assert coverage["total"] == 27
+        total = len(registry.discover())
+        assert coverage["total"] == total
         assert coverage["provider_validated"] == 0
-        assert coverage["by_status"] == {"mock-validated": 27}
+        assert coverage["by_status"] == {"mock-validated": total}
         assert "mock-validated only" in coverage["detail"]
+
+    async def test_a_replayed_provider_payload_shows_up_in_the_number(self, api):
+        body = (await api.get("/api/sources")).json()
+        coverage = body["validation_coverage"]
+        replayed = sorted(
+            s["source"]
+            for s in body["sources"]
+            if s["validation"] == "provider-validated"
+        )
+        assert replayed == sorted(PROVIDER_VALIDATED)
+        assert coverage["provider_validated"] == len(PROVIDER_VALIDATED)
+        assert coverage["by_status"] == {
+            "mock-validated": len(registry.discover()) - len(PROVIDER_VALIDATED),
+            "provider-validated": len(PROVIDER_VALIDATED),
+        }
+        assert "mock-validated only" not in coverage["detail"]
 
     async def test_the_summary_agrees_with_the_per_source_labels(self, api):
         body = (await api.get("/api/sources")).json()

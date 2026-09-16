@@ -1,0 +1,157 @@
+{
+  "clears": {},
+  "extracted": {
+    "ai_overviews": {
+      "visibility_check": {
+        "ai_overview|crm-with-ai-assistant|2026-09-16": {
+          "answer": "CRMs with built-in AI assistants use machine learning and natural language processing to automate data entry, draft emails, score leads, and summarize client interactions. Top CRM Platforms with AI Assistants HubSpot Smart CRM : Features Breeze Copilot, an AI assistant that drafts emails, summarizes records, generates reports, and automates tasks using your customer data. Salesforce AI CRM : Uses conversational AI like Slackbot and the Einstein Trust Layer to reason over business data, execute tasks, and streamline sales pipelines safely. Attio: Includes Ask Attio, a natural-language AI assistant that searches records across calls, emails, and notes, surfaces context, and builds automated workflows. Zoho CRM: Features Zia, an AI assistant that generates emails, summarizes meetings, predicts sales trends, and handles workflow suggestions. Freshsales: Powered by Freddy AI, which helps sales teams prioritize high-value leads, reduce admin work, and receive real-time next-step recommendations. Key Benefits of AI in CRM Data Entry Automation: Transcribes calls and logs meeting notes automatically. Lead Scoring : Ranks prospects based on conversion probability. Predictive Insights: Forecasts sales trends and suggests next actions for deals. If you let me know your team size and budget, I can recommend the best CRM option for your workflow.",
+          "checked_at": "2026-09-16T00:00:00Z",
+          "engine": "ai_overview",
+          "query": "crm with ai assistant",
+          "sources": "11.0"
+        },
+        "ai_overview|hubspot-alternatives|2026-09-16": {
+          "answer": "The top alternatives to HubSpot depend on your specific business goals, offering specialized features for sales, marketing, or budget-friendly use. Best All-in-One Alternatives Salesforce: Best for large enterprises needing a robust, scalable CRM and advanced reporting. Zoho CRM: Best for a budget-friendly, highly customizable platform with strong AI tools. EngageBay: Best for startups and small businesses looking for a low-cost, all-in-one marketing and sales CRM. Best Sales-Focused Alternatives Pipedrive: Best for visual sales pipeline management and heavy outbound sales. Freshsales: Best for straightforward, easy-to-use sales tracking. Best Marketing Automation Alternatives ActiveCampaign: Best for advanced email marketing and complex automated workflows. Brevo: Best for affordable multichannel communication including SMS, WhatsApp, and email. If you tell me your primary goal (sales, marketing, or customer support) and your team size, I can recommend the exact best fit for your budget.",
+          "brand_rank": "3.0",
+          "checked_at": "2026-09-16T00:00:00Z",
+          "engine": "ai_overview",
+          "query": "hubspot alternatives",
+          "sources": "9.0"
+        },
+        "ai_overview|pipeline-management-software|2026-09-16": {
+          "answer": "Pipeline management software helps sales teams track deals, automate workflows, forecast revenue, and spot bottlenecks from first contact to a closed sale. Top Pipeline Management Tools Pipedrive: Best for a simple, visual, drag-and-drop pipeline that keeps sales teams focused on daily activities. HubSpot Sales Hub: Best for small-to-midsize businesses needing a blend of free tools, contact tracking, and marketing workflows. Salesforce Sales Cloud: Best for large enterprises requiring deep customization, advanced AI forecasting, and massive data handling. Pipeline CRM: Best for small and mid-size teams in industries like construction and manufacturing needing straightforward deal tracking and automated reports. Salesloft: Best for cadence-driven sales teams that rely heavily on structured outreach sequences. Key Benefits Visibility: Gives leaders a real-time view of every deal stage and flags stalled or high-risk opportunities. Accuracy: Uses past activity data to improve revenue forecasting instead of relying on guesses. Efficiency: Automates data entry and follow-up reminders so reps spend more time selling. If you tell me your team size and budget, I can recommend the best software option for your business.",
+          "brand_rank": "1.0",
+          "checked_at": "2026-09-16T00:00:00Z",
+          "engine": "ai_overview",
+          "query": "pipeline management software",
+          "sources": "9.0"
+        }
+      },
+      "visibility_mention": {
+        "ai_overview|crm-with-ai-assistant|2026-09-16|freshworks.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "ai_overview",
+          "query": "crm with ai assistant",
+          "rank": "3.0",
+          "role": "competitor"
+        },
+        "ai_overview|crm-with-ai-assistant|2026-09-16|hubspot.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "ai_overview",
+          "query": "crm with ai assistant",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "ai_overview|crm-with-ai-assistant|2026-09-16|zoho.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "ai_overview",
+          "query": "crm with ai assistant",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "ai_overview|hubspot-alternatives|2026-09-16|freshworks.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "ai_overview",
+          "query": "hubspot alternatives",
+          "rank": "4.0",
+          "role": "competitor"
+        },
+        "ai_overview|hubspot-alternatives|2026-09-16|hubspot.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "ai_overview",
+          "query": "hubspot alternatives",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "ai_overview|hubspot-alternatives|2026-09-16|pipedrive.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "ai_overview",
+          "query": "hubspot alternatives",
+          "rank": "3.0",
+          "role": "brand"
+        },
+        "ai_overview|hubspot-alternatives|2026-09-16|zoho.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "ai_overview",
+          "query": "hubspot alternatives",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "ai_overview|pipeline-management-software|2026-09-16|hubspot.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "ai_overview",
+          "query": "pipeline management software",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "ai_overview|pipeline-management-software|2026-09-16|pipedrive.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "ai_overview",
+          "query": "pipeline management software",
+          "rank": "1.0",
+          "role": "brand"
+        }
+      }
+    },
+    "searches": {
+      "visibility_check": {
+        "google|affordable-crm-for-sales-teams|2026-09-16": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "engine": "google",
+          "query": "affordable crm for sales teams",
+          "sources": "5.0"
+        },
+        "google|crm-with-ai-assistant|2026-09-16": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "engine": "google",
+          "query": "crm with ai assistant",
+          "sources": "8.0"
+        },
+        "google|pipeline-management-software|2026-09-16": {
+          "brand_rank": "3.0",
+          "checked_at": "2026-09-16T00:00:00Z",
+          "engine": "google",
+          "query": "pipeline management software",
+          "sources": "9.0"
+        }
+      },
+      "visibility_mention": {
+        "google|crm-with-ai-assistant|2026-09-16|hubspot.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "google",
+          "query": "crm with ai assistant",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "google|pipeline-management-software|2026-09-16|hubspot.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "google",
+          "query": "pipeline management software",
+          "rank": "5.0",
+          "role": "competitor"
+        },
+        "google|pipeline-management-software|2026-09-16|pipedrive.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "google",
+          "query": "pipeline management software",
+          "rank": "3.0",
+          "role": "brand"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "google_serp"
+}

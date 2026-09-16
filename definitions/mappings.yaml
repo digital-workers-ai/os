@@ -301,3 +301,98 @@ audience:
   mailchimp.lists.stats.member_count: members
   customerio.segments.name: name
   customerio.segments.count: members
+
+visibility_check:
+  google_serp.searches._engine: engine
+  google_serp.searches._query: query
+  google_serp.searches._checked_at: checked_at
+  google_serp.searches._sources: sources
+  google_serp.searches._brand_rank: brand_rank
+  google_serp.ai_overviews._engine: engine
+  google_serp.ai_overviews._query: query
+  google_serp.ai_overviews._checked_at: checked_at
+  google_serp.ai_overviews._answer: answer
+  google_serp.ai_overviews._sources: sources
+  google_serp.ai_overviews._brand_rank: brand_rank
+  claude.checks._engine: engine
+  claude.checks._query: query
+  claude.checks._checked_at: checked_at
+  claude.checks._answer: answer
+  claude.checks._sources: sources
+  claude.checks._brand_rank: brand_rank
+  gemini.checks._engine: engine
+  gemini.checks._query: query
+  gemini.checks._checked_at: checked_at
+  gemini.checks._answer: answer
+  gemini.checks._sources: sources
+  gemini.checks._brand_rank: brand_rank
+  perplexity.checks._engine: engine
+  perplexity.checks._query: query
+  perplexity.checks._checked_at: checked_at
+  perplexity.checks._answer: answer
+  perplexity.checks._sources: sources
+  perplexity.checks._brand_rank: brand_rank
+  chatgpt.checks._engine: engine
+  chatgpt.checks._query: query
+  chatgpt.checks._checked_at: checked_at
+  chatgpt.checks._answer: answer
+  chatgpt.checks._sources: sources
+  chatgpt.checks._brand_rank: brand_rank
+
+visibility_mention:
+  google_serp.searches._mention_engine: engine
+  google_serp.searches._mention_query: query
+  google_serp.searches._mention_checked_at: checked_at
+  google_serp.searches._company: company
+  google_serp.searches._role: role
+  google_serp.searches._rank: rank
+  google_serp.ai_overviews._mention_engine: engine
+  google_serp.ai_overviews._mention_query: query
+  google_serp.ai_overviews._mention_checked_at: checked_at
+  google_serp.ai_overviews._company: company
+  google_serp.ai_overviews._role: role
+  google_serp.ai_overviews._rank: rank
+  claude.checks._mention_engine: engine
+  claude.checks._mention_query: query
+  claude.checks._mention_checked_at: checked_at
+  claude.checks._company: company
+  claude.checks._role: role
+  claude.checks._rank: rank
+  gemini.checks._mention_engine: engine
+  gemini.checks._mention_query: query
+  gemini.checks._mention_checked_at: checked_at
+  gemini.checks._company: company
+  gemini.checks._role: role
+  gemini.checks._rank: rank
+  perplexity.checks._mention_engine: engine
+  perplexity.checks._mention_query: query
+  perplexity.checks._mention_checked_at: checked_at
+  perplexity.checks._company: company
+  perplexity.checks._role: role
+  perplexity.checks._rank: rank
+  chatgpt.checks._mention_engine: engine
+  chatgpt.checks._mention_query: query
+  chatgpt.checks._mention_checked_at: checked_at
+  chatgpt.checks._company: company
+  chatgpt.checks._role: role
+  chatgpt.checks._rank: rank
+
+competitor_post:
+  linkedin_posts.posts._company: company
+  linkedin_posts.posts._platform: platform
+  linkedin_posts.posts.post_text: name
+  linkedin_posts.posts.post_type: category
+  linkedin_posts.posts.date_posted: posted_at
+  linkedin_posts.posts.num_likes: likes
+  linkedin_posts.posts.num_comments: comments
+  linkedin_posts.posts.url: url
+
+ad:
+  google_ads_transparency.creatives._company: company
+  google_ads_transparency.creatives._platform: platform
+  google_ads_transparency.creatives.creative.format: category
+  google_ads_transparency.creatives.creative.first_shown: first_seen
+  google_ads_transparency.creatives.creative.last_shown: last_seen
+  google_ads_transparency.creatives.creative.details_link: url
+  google_ads_transparency.creatives.creative.image: preview
+  google_ads_transparency.creative_texts._text: name

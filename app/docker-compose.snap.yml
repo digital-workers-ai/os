@@ -23,6 +23,9 @@ services:
   dashboard:
     ports: !reset []
 
+  spy:
+    ports: !reset []
+
   studio:
     ports: !reset []
 

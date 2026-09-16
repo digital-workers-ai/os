@@ -1,0 +1,241 @@
+{
+  "clears": {},
+  "extracted": {
+    "posts": {
+      "competitor_post": {
+        "1056523355129916344": {
+          "category": "post",
+          "comments": "8.0",
+          "company": "Zoho CRM",
+          "likes": "353.0",
+          "name": "Join us next Thursday for a live session on revenue forecasting. We will show how teams use Zoho CRM to forecast the quarter with confidence, with questions at the end.",
+          "platform": "linkedin",
+          "posted_at": "2026-08-07T15:58:00Z",
+          "url": "https://www.linkedin.com/posts/zoho_salestech-sales-activity-1056523355129916344-add4"
+        },
+        "1352482519463087946": {
+          "category": "post",
+          "comments": "31.0",
+          "company": "Freshsales",
+          "likes": "876.0",
+          "name": "We just shipped AI deal summaries in Freshsales. Reps can now cut manual data entry in half without leaving the deal view. Read the release notes on our blog.",
+          "platform": "linkedin",
+          "posted_at": "2026-08-27T21:17:00Z",
+          "url": "https://www.linkedin.com/posts/freshworks-inc_startups-salestech-sales-activity-1352482519463087946-84d7"
+        },
+        "1988156992965016703": {
+          "category": "post",
+          "comments": "20.0",
+          "company": "Freshsales",
+          "likes": "497.0",
+          "name": "built-in calling is here. Teams on Freshsales can close deals faster and see the result on the pipeline dashboard the same day.",
+          "platform": "linkedin",
+          "posted_at": "2026-08-12T11:01:00Z",
+          "url": "https://www.linkedin.com/posts/freshworks-inc_salestech-activity-1988156992965016703-022a"
+        },
+        "2226955897263037621": {
+          "category": "post",
+          "comments": "37.0",
+          "company": "Zoho CRM",
+          "likes": "326.0",
+          "name": "built-in calling is here. Teams on Zoho CRM can cut manual data entry in half and see the result on the pipeline dashboard the same day.",
+          "platform": "linkedin",
+          "posted_at": "2026-08-23T15:44:00Z",
+          "url": "https://www.linkedin.com/posts/zoho_ai-productupdate-activity-2226955897263037621-66f5"
+        },
+        "2516874929049826857": {
+          "category": "post",
+          "comments": "34.0",
+          "company": "Freshsales",
+          "likes": "241.0",
+          "name": "Customer story of the week: how a 40-person sales team used Freshsales to forecast the quarter with confidence. Full case study in the comments.",
+          "platform": "linkedin",
+          "posted_at": "2026-07-15T10:53:00Z",
+          "url": "https://www.linkedin.com/posts/freshworks-inc_startups-activity-2516874929049826857-b1c3"
+        },
+        "2632426290418782123": {
+          "category": "post",
+          "comments": "32.0",
+          "company": "Freshsales",
+          "likes": "580.0",
+          "name": "New in Freshsales: workflow automation. Early customers say it helps them follow up with every lead the same day. Rolling out to all plans this month.",
+          "platform": "linkedin",
+          "posted_at": "2026-07-26T14:24:00Z",
+          "url": "https://www.linkedin.com/posts/freshworks-inc_salestech-activity-2632426290418782123-ca3b"
+        },
+        "4131856096786257436": {
+          "category": "post",
+          "comments": "34.0",
+          "company": "Freshsales",
+          "likes": "427.0",
+          "name": "New in Freshsales: email sequences. Early customers say it helps them follow up with every lead the same day. Rolling out to all plans this month.",
+          "platform": "linkedin",
+          "posted_at": "2026-08-19T19:59:00Z",
+          "url": "https://www.linkedin.com/posts/freshworks-inc_crm-activity-4131856096786257436-0040"
+        },
+        "4146506158810932872": {
+          "category": "post",
+          "comments": "27.0",
+          "company": "HubSpot",
+          "likes": "689.0",
+          "name": "Customer story of the week: how a 40-person sales team used HubSpot to follow up with every lead the same day. Full case study in the comments.",
+          "platform": "linkedin",
+          "posted_at": "2026-07-09T08:36:00Z",
+          "url": "https://www.linkedin.com/posts/hubspot_startups-activity-4146506158810932872-ddc7"
+        },
+        "5275367885734062591": {
+          "category": "post",
+          "comments": "45.0",
+          "company": "Zoho CRM",
+          "likes": "635.0",
+          "name": "Customer story of the week: how a 40-person sales team used Zoho CRM to keep every conversation in one thread. Full case study in the comments.",
+          "platform": "linkedin",
+          "posted_at": "2026-08-21T12:54:00Z",
+          "url": "https://www.linkedin.com/posts/zoho_sales-activity-5275367885734062591-0236"
+        },
+        "5808447953004354257": {
+          "category": "post",
+          "comments": "52.0",
+          "company": "Zoho CRM",
+          "likes": "223.0",
+          "name": "AI deal summaries is here. Teams on Zoho CRM can forecast the quarter with confidence and see the result on the pipeline dashboard the same day.",
+          "platform": "linkedin",
+          "posted_at": "2026-07-17T13:28:00Z",
+          "url": "https://www.linkedin.com/posts/zoho_startups-crm-activity-5808447953004354257-9ac8"
+        },
+        "6082603578079325603": {
+          "category": "post",
+          "comments": "0.0",
+          "company": "HubSpot",
+          "likes": "327.0",
+          "name": "Customer story of the week: how a 40-person sales team used HubSpot to close deals faster. Full case study in the comments.",
+          "platform": "linkedin",
+          "posted_at": "2026-08-08T18:03:00Z",
+          "url": "https://www.linkedin.com/posts/hubspot_sales-startups-productupdate-activity-6082603578079325603-9a15"
+        },
+        "7071083298272311657": {
+          "category": "post",
+          "comments": "22.0",
+          "company": "HubSpot",
+          "likes": "288.0",
+          "name": "AI deal summaries is here. Teams on HubSpot can forecast the quarter with confidence and see the result on the pipeline dashboard the same day.",
+          "platform": "linkedin",
+          "posted_at": "2026-09-02T21:29:00Z",
+          "url": "https://www.linkedin.com/posts/hubspot_sales-activity-7071083298272311657-ba46"
+        },
+        "7255161406427691822": {
+          "category": "post",
+          "comments": "45.0",
+          "company": "Zoho CRM",
+          "likes": "179.0",
+          "name": "We just shipped revenue forecasting in Zoho CRM. Reps can now keep every conversation in one thread without leaving the deal view. Read the release notes on our blog.",
+          "platform": "linkedin",
+          "posted_at": "2026-07-10T17:03:00Z",
+          "url": "https://www.linkedin.com/posts/zoho_crm-ai-activity-7255161406427691822-037b"
+        },
+        "7407312689904809798": {
+          "category": "post",
+          "comments": "13.0",
+          "company": "Freshsales",
+          "likes": "283.0",
+          "name": "Join us next Thursday for a live session on AI deal summaries. We will show how teams use Freshsales to forecast the quarter with confidence, with questions at the end.",
+          "platform": "linkedin",
+          "posted_at": "2026-07-12T11:54:00Z",
+          "url": "https://www.linkedin.com/posts/freshworks-inc_ai-startups-sales-activity-7407312689904809798-94da"
+        },
+        "7425239029199839573": {
+          "category": "post",
+          "comments": "57.0",
+          "company": "Zoho CRM",
+          "likes": "376.0",
+          "name": "New in Zoho CRM: email sequences. Early customers say it helps them forecast the quarter with confidence. Rolling out to all plans this month.",
+          "platform": "linkedin",
+          "posted_at": "2026-07-31T11:41:00Z",
+          "url": "https://www.linkedin.com/posts/zoho_startups-sales-ai-activity-7425239029199839573-e0bb"
+        },
+        "8329329905005845785": {
+          "category": "post",
+          "comments": "8.0",
+          "company": "HubSpot",
+          "likes": "142.0",
+          "name": "AI deal summaries is here. Teams on HubSpot can cut manual data entry in half and see the result on the pipeline dashboard the same day.",
+          "platform": "linkedin",
+          "posted_at": "2026-07-22T22:00:00Z",
+          "url": "https://www.linkedin.com/posts/hubspot_ai-startups-productupdate-activity-8329329905005845785-ac18"
+        },
+        "8338099439308380339": {
+          "category": "post",
+          "comments": "28.0",
+          "company": "HubSpot",
+          "likes": "799.0",
+          "name": "New in HubSpot: AI deal summaries. Early customers say it helps them keep every conversation in one thread. Rolling out to all plans this month.",
+          "platform": "linkedin",
+          "posted_at": "2026-08-16T09:42:00Z",
+          "url": "https://www.linkedin.com/posts/hubspot_salestech-activity-8338099439308380339-d160"
+        },
+        "8804952404681107013": {
+          "category": "post",
+          "comments": "47.0",
+          "company": "Zoho CRM",
+          "likes": "513.0",
+          "name": "We just shipped AI deal summaries in Zoho CRM. Reps can now forecast the quarter with confidence without leaving the deal view. Read the release notes on our blog.",
+          "platform": "linkedin",
+          "posted_at": "2026-09-01T09:46:00Z",
+          "url": "https://www.linkedin.com/posts/zoho_productupdate-ai-activity-8804952404681107013-5458"
+        },
+        "8915378001344746367": {
+          "category": "post",
+          "comments": "13.0",
+          "company": "Zoho CRM",
+          "likes": "612.0",
+          "name": "Join us next Thursday for a live session on a redesigned mobile app. We will show how teams use Zoho CRM to keep every conversation in one thread, with questions at the end.",
+          "platform": "linkedin",
+          "posted_at": "2026-08-12T21:42:00Z",
+          "url": "https://www.linkedin.com/posts/zoho_productupdate-crm-ai-activity-8915378001344746367-21a6"
+        },
+        "8968378802667412489": {
+          "category": "post",
+          "comments": "59.0",
+          "company": "Zoho CRM",
+          "likes": "668.0",
+          "name": "Join us next Thursday for a live session on AI deal summaries. We will show how teams use Zoho CRM to keep every conversation in one thread, with questions at the end.",
+          "platform": "linkedin",
+          "posted_at": "2026-07-24T15:04:00Z",
+          "url": "https://www.linkedin.com/posts/zoho_crm-activity-8968378802667412489-a393"
+        },
+        "9012966376895636060": {
+          "category": "post",
+          "comments": "2.0",
+          "company": "Freshsales",
+          "likes": "533.0",
+          "name": "AI deal summaries is here. Teams on Freshsales can close deals faster and see the result on the pipeline dashboard the same day.",
+          "platform": "linkedin",
+          "posted_at": "2026-09-02T11:56:00Z",
+          "url": "https://www.linkedin.com/posts/freshworks-inc_crm-sales-salestech-activity-9012966376895636060-b86a"
+        },
+        "9749345382712730620": {
+          "category": "post",
+          "comments": "27.0",
+          "company": "HubSpot",
+          "likes": "810.0",
+          "name": "Join us next Thursday for a live session on built-in calling. We will show how teams use HubSpot to follow up with every lead the same day, with questions at the end.",
+          "platform": "linkedin",
+          "posted_at": "2026-07-27T19:27:00Z",
+          "url": "https://www.linkedin.com/posts/hubspot_crm-activity-9749345382712730620-7663"
+        },
+        "9859972053960548223": {
+          "category": "post",
+          "comments": "42.0",
+          "company": "Freshsales",
+          "likes": "151.0",
+          "name": "New in Freshsales: email sequences. Early customers say it helps them close deals faster. Rolling out to all plans this month.",
+          "platform": "linkedin",
+          "posted_at": "2026-08-02T14:35:00Z",
+          "url": "https://www.linkedin.com/posts/freshworks-inc_startups-sales-ai-activity-9859972053960548223-8221"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "linkedin_posts"
+}

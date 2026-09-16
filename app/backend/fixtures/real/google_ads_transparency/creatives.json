@@ -1,0 +1,48 @@
+[
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR06609143572560084993",
+        "advertiser": "Hubspot, Inc.",
+        "advertiser_id": "AR10072600183532683265",
+        "details_link": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR06609143572560084993?region=anywhere&domain=hubspot.com",
+        "first_shown": 1656541882,
+        "format": "text",
+        "height": 451,
+        "image": "https://tpc.googlesyndication.com/archive/simgad/11373552786331311574",
+        "last_shown": 1789525101,
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR10072600183532683265&creative_id=CR06609143572560084993&engine=google_ads_transparency_center_ad_details",
+        "target_domain": "hubspot.com",
+        "total_days_shown": 1540,
+        "width": 348
+      },
+      "request": {
+        "advertiser_id": "AR10072600183532683265",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "CR06609143572560084993"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR07984100738747858945",
+        "advertiser": "Hubspot, Inc.",
+        "advertiser_id": "AR10072600183532683265",
+        "details_link": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR07984100738747858945?region=anywhere&domain=hubspot.com",
+        "first_shown": 1781709978,
+        "format": "image",
+        "image": "https://tpc.googlesyndication.com/archive/simgad/15529968583071394590",
+        "last_shown": 1789524559,
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR10072600183532683265&creative_id=CR07984100738747858945&engine=google_ads_transparency_center_ad_details",
+        "target_domain": "hubspot.com",
+        "total_days_shown": 91
+      },
+      "request": {
+        "advertiser_id": "AR10072600183532683265",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "CR07984100738747858945"
+  }
+]

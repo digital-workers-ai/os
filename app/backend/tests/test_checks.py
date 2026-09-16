@@ -5,7 +5,7 @@ import pytest
 import yaml
 
 from app import caches
-from app.engine import checks
+from app.engine import checks, mappings
 from app.sources.google_sheets import connector as google_sheets_connector
 from app.sources.hubspot import connector as hubspot_connector
 from app.sources.salesforce import connector as salesforce_connector
@@ -20,6 +20,7 @@ ALL_FILES = (
     "goals.yaml",
     "enrichment.yaml",
     "dashboards.yaml",
+    "spy.yaml",
 )
 OPTIONAL_FILES = ("derived.yaml",)
 
@@ -50,6 +51,7 @@ def files(tmp_path):
                 "rules_path": tmp_path / "rules.yaml",
                 "goals_path": tmp_path / "goals.yaml",
                 "dashboards_path": tmp_path / "dashboards.yaml",
+                "spy_path": tmp_path / "spy.yaml",
             }
             if "derived.yaml" in optional:
                 kwargs["derived_path"] = tmp_path / "derived.yaml"
@@ -407,6 +409,25 @@ class TestValidationLabels:
         assert status["zoom"]["status"] == "provider-validated"
         assert status["hubspot"]["status"] == "mock-validated"
 
+    def test_a_real_fixture_dir_without_mapping_lines_derives_unmapped(
+        self, tmp_path, monkeypatch
+    ):
+        (tmp_path / "stripe").mkdir()
+        monkeypatch.setattr(checks, "REAL_FIXTURES", tmp_path)
+        status = checks.source_status(lines=[])
+        assert status["stripe"]["status"] == "unmapped"
+        assert status["stripe"]["entities"] == []
+
+    def test_a_real_fixture_dir_with_mapping_lines_derives_provider_validated(
+        self, tmp_path, monkeypatch
+    ):
+        (tmp_path / "stripe").mkdir()
+        monkeypatch.setattr(checks, "REAL_FIXTURES", tmp_path)
+        lines = [line for line in mappings.load() if line.source == "stripe"]
+        status = checks.source_status(lines=lines)
+        assert status["stripe"]["status"] == "provider-validated"
+        assert status["stripe"]["entities"] == ["company", "person", "subscription"]
+
     def test_entities_derive_from_the_mapping_lines(self):
         status = checks.source_status()
         assert status["stripe"]["entities"] == ["company", "person", "subscription"]
@@ -567,6 +588,87 @@ class TestDashboardsAreChecked:
         problems = files.problems()
         assert len(problems) == 1, problems
         assert "dashboards.yaml" in problems[0]
+
+
+class TestSpyIsChecked:
+    def test_an_alias_repeating_the_brands_name(self, files):
+        files.edit(
+            "spy.yaml",
+            lambda d: d["competitors"][0]["aliases"].append("pipedrive"),
+        )
+        problems = files.problems()
+        assert any(
+            p.startswith("spy.yaml:") and "'pipedrive'" in p for p in problems
+        ), problems
+
+    def test_a_missing_brand(self, files):
+        files.edit("spy.yaml", lambda d: d.pop("brand"))
+        problems = files.problems()
+        assert any(p.startswith("spy.yaml: brand") for p in problems), problems
+
+    def test_a_spy_file_that_is_not_a_mapping_is_one_problem(self, files):
+        (files.root / "spy.yaml").write_text("- a\n")
+        problems = files.problems()
+        assert len(problems) == 1, problems
+        assert "spy.yaml" in problems[0]
+
+    def test_a_spy_file_that_is_not_yaml_is_one_problem(self, files):
+        (files.root / "spy.yaml").write_text("brand: [\n")
+        problems = files.problems()
+        assert len(problems) == 1, problems
+        assert problems[0].startswith("spy.yaml: ")
+
+
+SPY_METRICS = (
+    "brand_mention_rate",
+    "brand_mentions_by_engine",
+    "checks_by_engine",
+    "mentions_by_company",
+    "brand_google_position",
+    "ai_overview_brand_mentions",
+    "brand_mentions_by_day",
+    "checks_by_day",
+    "competitor_ads",
+    "competitor_ads_by_company",
+    "competitor_posts",
+    "competitor_post_likes",
+)
+SPY_RULE = "brand_absent_from_answer"
+
+
+class TestSpyDefinitionsPassTheBuild:
+    def test_the_spy_metrics_and_rule_ship_and_the_build_names_none_of_them(self):
+        shipped_metrics = yaml.safe_load((DEFINITIONS / "metrics.yaml").read_text())
+        shipped_rules = yaml.safe_load((DEFINITIONS / "rules.yaml").read_text())
+        assert set(SPY_METRICS) <= set(shipped_metrics)
+        assert SPY_RULE in shipped_rules
+        named = [
+            p
+            for p in checks.run()
+            if any(f"{name!r}" in p for name in (*SPY_METRICS, SPY_RULE))
+        ]
+        assert named == [], named
+
+    def test_the_mention_rate_windows_on_the_check_not_the_mention(self, files):
+        files.edit(
+            "metrics.yaml",
+            lambda d: d["brand_mention_rate"].update({"window_attr": "rank"}),
+        )
+        problems = files.problems()
+        assert any(
+            "window_attr 'rank' is not an attr of visibility_check" in p
+            for p in problems
+        ), problems
+
+    def test_the_brand_absent_rule_reads_the_clock_off_a_date(self, files):
+        files.edit(
+            "rules.yaml",
+            lambda d: d[SPY_RULE]["all"].append({"attr": "answer", "within_days": 7}),
+        )
+        problems = files.problems()
+        assert any("within_days on visibility_check.answer" in p for p in problems), (
+            problems
+        )
 
 
 class TestStudioDefinitionsAreChecked:

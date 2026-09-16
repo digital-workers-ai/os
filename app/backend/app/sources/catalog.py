@@ -28,6 +28,25 @@ _META: dict[str, tuple[str, str, str]] = {
     "segment": ("Segment", "Analytics", "Event stream, identity"),
     "smartlook": ("Smartlook", "Analytics", "Session events"),
     "google_sheets": ("Google Sheets", "Other", "Custom tabular data"),
+    "claude": ("Claude", "Spy", "Brand and competitor mentions, cited sources"),
+    "chatgpt": ("ChatGPT", "Spy", "Brand and competitor mentions, cited sources"),
+    "perplexity": (
+        "Perplexity",
+        "Spy",
+        "Brand and competitor mentions, cited sources",
+    ),
+    "gemini": ("Gemini", "Spy", "Brand and competitor mentions, cited sources"),
+    "google_ads_transparency": (
+        "Google Ads Transparency",
+        "Spy",
+        "Competitor creatives, ad text",
+    ),
+    "linkedin_posts": (
+        "LinkedIn Company Posts",
+        "Spy",
+        "Competitor posts, engagement",
+    ),
+    "google_serp": ("Google Search", "Spy", "Brand rank, AI Overview mentions"),
 }
 
 

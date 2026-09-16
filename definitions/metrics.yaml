@@ -635,3 +635,114 @@ sends_by_day:
   group_by: sent_at
   grain: day
   window_attr: sent_at
+
+brand_mention_rate:
+  label: Brand Mention Rate
+  description: Checks in which the brand was mentioned, divided by checks run, over the window.
+  entity: visibility_check
+  op: "/"
+  terms:
+    - expression: COUNT(entity)
+      entity: visibility_mention
+      filter:
+        role: brand
+    - expression: COUNT(entity)
+      entity: visibility_check
+      filter: {}
+  window_attr: checked_at
+
+brand_mentions_by_engine:
+  label: Brand Mentions by Engine
+  description: Times the brand was mentioned, split by the engine that answered.
+  entity: visibility_mention
+  expression: COUNT(entity)
+  filter:
+    role: brand
+  group_by: engine
+  window_attr: checked_at
+
+checks_by_engine:
+  label: Checks by Engine
+  description: How many tracked queries were put to each engine in the window.
+  entity: visibility_check
+  expression: COUNT(entity)
+  group_by: engine
+  window_attr: checked_at
+
+mentions_by_company:
+  label: Mentions by Company
+  description: Times each tracked company was mentioned, brand and competitors alike.
+  synonyms: [share of voice]
+  entity: visibility_mention
+  expression: COUNT(entity)
+  group_by: company
+  window_attr: checked_at
+
+brand_google_position:
+  label: Brand Google Position
+  description: Where the brand came in Google's results on average, when it was there.
+  synonyms: [google rank]
+  entity: visibility_check
+  expression: AVG(brand_rank)
+  filter:
+    engine: google
+  window_attr: checked_at
+
+ai_overview_brand_mentions:
+  label: AI Overview Brand Mentions
+  description: Times Google's AI Overview mentioned the brand in the window.
+  entity: visibility_mention
+  expression: COUNT(entity)
+  filter:
+    role: brand
+    engine: ai_overview
+  window_attr: checked_at
+
+brand_mentions_by_day:
+  label: Brand Mentions by Day
+  description: Times the brand was mentioned, one bucket per day checked.
+  entity: visibility_mention
+  expression: COUNT(entity)
+  filter:
+    role: brand
+  group_by: checked_at
+  grain: day
+  window_attr: checked_at
+
+checks_by_day:
+  label: Checks by Day
+  description: How many tracked queries were put to the engines, one bucket per day.
+  entity: visibility_check
+  expression: COUNT(entity)
+  group_by: checked_at
+  grain: day
+  window_attr: checked_at
+
+competitor_ads:
+  label: Competitor Ads
+  description: How many competitor creatives the ads library saw running in the window.
+  entity: ad
+  expression: COUNT(entity)
+  window_attr: last_seen
+
+competitor_ads_by_company:
+  label: Competitor Ads by Company
+  description: How many creatives each competitor had running in the window.
+  entity: ad
+  expression: COUNT(entity)
+  group_by: company
+  window_attr: last_seen
+
+competitor_posts:
+  label: Competitor Posts
+  description: How many posts the competitors' company pages published in the window.
+  entity: competitor_post
+  expression: COUNT(entity)
+  window_attr: posted_at
+
+competitor_post_likes:
+  label: Competitor Post Likes
+  description: Likes the competitors' posts drew, summed over the window.
+  entity: competitor_post
+  expression: SUM(likes)
+  window_attr: posted_at

@@ -2,7 +2,10 @@ import hashlib
 import json
 from datetime import timedelta
 
+from sqlalchemy import select
+
 from app import clock
+from app.models import RawEvent
 from app.sources.client import SourceClient
 from app.sources.creds import credentials_for
 
@@ -93,3 +96,14 @@ async def store_all(
             raw_payload=r,
         )
     return notes
+
+
+async def stored_ids(session, source: str, object_type: str) -> set[str]:
+    if session is None:
+        return set()
+    rows = await session.execute(
+        select(RawEvent.source_id)
+        .where(RawEvent.source == source, RawEvent.object_type == object_type)
+        .distinct()
+    )
+    return set(rows.scalars())

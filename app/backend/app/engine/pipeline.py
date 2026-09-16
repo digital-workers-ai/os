@@ -184,6 +184,9 @@ def project_payload(
                 )
                 injected.add(entity_type)
 
+        record_source_id = record.get("_source_id")
+        if not (isinstance(record_source_id, str) and record_source_id):
+            record_source_id = source_id
         for entity_type, facts in by_entity.items():
             if not facts:
                 report.record_skip(source, object_type, f"no_facts/{entity_type}")
@@ -192,7 +195,7 @@ def project_payload(
                 ProjectedEntity(
                     source=source,
                     entity_type=entity_type,
-                    source_id=source_id,
+                    source_id=record_source_id,
                     object_type=object_type,
                     first_seq=seq if first_seq is None else first_seq,
                     facts=facts,

@@ -1,0 +1,83 @@
+{
+  "clears": {},
+  "extracted": {
+    "checks": {
+      "visibility_check": {
+        "claude|best-crm-for-small-business|2026-09-16": {
+          "answer": "I'll search for current information about the best CRM options for small businesses. Based on current 2026 reviews, here are the best CRM options for small businesses: ## Top Overall Options HubSpot is the best CRM for most small businesses thanks to a genuinely useful free tier with unlimited contacts, deal tracking, and email integration, plus paid plans starting around $15\u201320 per user per month. It's widely regarded as the top free option and particularly strong for businesses building content-rich strategies, with seamless website and email integrations. ## Budget-Friendly Alternatives Zoho CRM is the best budget pick at roughly $14/user/month with a free plan for up to 3 users, while Pipedrive suits small teams that just want simple pipeline tracking without a lot of setup overhead. Bigin (Zoho's streamlined sibling) earned PCMag's 2026 Editors' Choice for small businesses due to flexible dashboards, omni-channel support, and low cost scaling ($9/user). ## Specialized Options Insightly is a combined CRM and project management platform for small businesses that need to manage both the sale and the delivery of the work. ## Key Features to Look For When choosing a CRM, consider: the right CRM should grow with you, starting at a price point that makes sense for your current team size, with plans that scale reasonably as you add seats and capabilities , and the best CRMs connect effortlessly with the tools a small business already uses every day, including accounting software, standard email clients, and calendar applications.",
+          "brand_rank": "3.0",
+          "checked_at": "2026-09-16T00:00:00Z",
+          "engine": "claude",
+          "query": "best crm for small business",
+          "sources": "8.0"
+        },
+        "claude|crm-with-built-in-calling|2026-09-16": {
+          "answer": "I'll search for information about CRM systems with built-in calling features. Here are some popular CRM systems with built-in calling features: ## Top CRM Options with Built-In Calling **Close** Close's CRM calling features let you make and receive calls directly inside the platform\u2014no extra apps, integrations, or third-party tools required. Close's calling is built directly into the CRM, so you can start making calls as soon as you sign up, and you can use it from your desktop or mobile browser\u2014no additional downloads needed. **HubSpot** HubSpot's built-in dialer lets reps call directly from contact records, automatically log calls, and drop voicemails. **Freshsales** Freshsales is one of the few CRMs that ships with a genuinely built-in phone system with no third-party VoIP provider needed to get started, with reps able to call directly from the CRM, numbers provisioned in-app, and all call activity logged automatically. **Zoho CRM** Built-in telephony is designed to allow organizations to build their own telephony framework, manage subscriptions and payments, generate call reports, and record calls directly from CRM without any third-party dependencies. **Salesmate** Salesmate's built-in calling allows you to make, receive, and manage calls directly from your CRM-no third-party tools needed, streamlining communication, saving time, and ensuring every interaction is tracked automatically. **Copper CRM** Through its built in calling features and supported telephony partners, sales reps can place calls without leaving the CRM. Most of these platforms include features like automatic call logging, call recording, and integration with your contact management system, making it easier to manage customer interactions without switching between multiple tools.",
+          "checked_at": "2026-09-16T00:00:00Z",
+          "engine": "claude",
+          "query": "crm with built in calling",
+          "sources": "8.0"
+        },
+        "claude|pipeline-management-software|2026-09-16": {
+          "answer": "I'd be happy to help you with information about pipeline management software! Could you clarify what specific information you're looking for? For example: 1. **What type of pipeline?** Are you interested in: - Oil & gas pipeline management? - Software development/CI-CD pipelines? - Sales pipeline management? - Data pipeline management? - Project pipeline management? 2. **What aspect?** Such as: - Features and capabilities of different software solutions? - Popular/recommended tools and vendors? - Best practices for implementation? - Cost/pricing comparisons? - Current trends or recent releases? Once you provide more context about what you need, I can give you more targeted and useful information!",
+          "checked_at": "2026-09-16T00:00:00Z",
+          "engine": "claude",
+          "query": "pipeline management software",
+          "sources": "0.0"
+        }
+      },
+      "visibility_mention": {
+        "claude|best-crm-for-small-business|2026-09-16|hubspot.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "claude",
+          "query": "best crm for small business",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "claude|best-crm-for-small-business|2026-09-16|pipedrive.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "Pipedrive",
+          "engine": "claude",
+          "query": "best crm for small business",
+          "rank": "3.0",
+          "role": "brand"
+        },
+        "claude|best-crm-for-small-business|2026-09-16|zoho.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "claude",
+          "query": "best crm for small business",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "claude|crm-with-built-in-calling|2026-09-16|freshworks.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "Freshsales",
+          "engine": "claude",
+          "query": "crm with built in calling",
+          "rank": "2.0",
+          "role": "competitor"
+        },
+        "claude|crm-with-built-in-calling|2026-09-16|hubspot.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "HubSpot",
+          "engine": "claude",
+          "query": "crm with built in calling",
+          "rank": "1.0",
+          "role": "competitor"
+        },
+        "claude|crm-with-built-in-calling|2026-09-16|zoho.com": {
+          "checked_at": "2026-09-16T00:00:00Z",
+          "company": "Zoho CRM",
+          "engine": "claude",
+          "query": "crm with built in calling",
+          "rank": "3.0",
+          "role": "competitor"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "claude"
+}

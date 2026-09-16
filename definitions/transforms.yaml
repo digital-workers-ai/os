@@ -57,3 +57,14 @@ unfollows: normalize_number
 profile_views: normalize_number
 conversion_value: normalize_number
 landing_page_views: normalize_number
+engine: normalize_status
+query: normalize_text
+checked_at: normalize_date
+answer: normalize_text
+sources: normalize_number
+brand_rank: normalize_number
+company: normalize_text
+role: normalize_status
+rank: normalize_number
+first_seen: normalize_date
+last_seen: normalize_date

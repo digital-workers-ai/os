@@ -50,3 +50,11 @@ paying_company_with_open_tickets:
   all:
     - {attr: mrr, gte: 1000}
     - {attr: open_tickets, gte: 1}
+
+brand_absent_from_answer:
+  label: Brand Absent From A Recent Answer
+  entity: visibility_check
+  severity: medium
+  all:
+    - {attr: brand_rank, is_null: true}
+    - {attr: checked_at, within_days: 7}

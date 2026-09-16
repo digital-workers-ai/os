@@ -1,0 +1,649 @@
+[
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR79217284371835261294",
+        "advertiser": "HubSpot",
+        "advertiser_id": "AR10072600183532683265",
+        "details_link": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR79217284371835261294?region=US",
+        "first_shown": 1784907158,
+        "format": "text",
+        "height": 250,
+        "image": "https://tpc.googlesyndication.com/archive/simgad/13665124302499413897",
+        "last_shown": 1788188385,
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR10072600183532683265&creative_id=CR79217284371835261294&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 38,
+        "width": 300
+      },
+      "request": {
+        "advertiser_id": "AR10072600183532683265",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "CR79217284371835261294"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR94667557074674837776",
+        "advertiser": "HubSpot",
+        "advertiser_id": "AR10072600183532683265",
+        "details_link": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR94667557074674837776?region=US",
+        "first_shown": 1784258558,
+        "format": "text",
+        "height": 600,
+        "image": "https://tpc.googlesyndication.com/archive/simgad/63343832807583541638",
+        "last_shown": 1785185556,
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR10072600183532683265&creative_id=CR94667557074674837776&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 11,
+        "width": 160
+      },
+      "request": {
+        "advertiser_id": "AR10072600183532683265",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "CR94667557074674837776"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR59845918134738341438",
+        "advertiser": "HubSpot",
+        "advertiser_id": "AR10072600183532683265",
+        "details_link": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR59845918134738341438?region=US",
+        "first_shown": 1782200044,
+        "format": "video",
+        "last_shown": 1786220394,
+        "link": "https://displayads-formats.googleusercontent.com/ads/preview/content.js?client=ads-integrity-transparency&creativeId=598459181347",
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR10072600183532683265&creative_id=CR59845918134738341438&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 47
+      },
+      "request": {
+        "advertiser_id": "AR10072600183532683265",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "CR59845918134738341438"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR22225258535494341691",
+        "advertiser": "HubSpot",
+        "advertiser_id": "AR10072600183532683265",
+        "details_link": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR22225258535494341691?region=US",
+        "first_shown": 1782279767,
+        "format": "video",
+        "last_shown": 1787930335,
+        "link": "https://displayads-formats.googleusercontent.com/ads/preview/content.js?client=ads-integrity-transparency&creativeId=222252585354",
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR10072600183532683265&creative_id=CR22225258535494341691&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 66
+      },
+      "request": {
+        "advertiser_id": "AR10072600183532683265",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "CR22225258535494341691"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR55914150597794413613",
+        "advertiser": "HubSpot",
+        "advertiser_id": "AR10072600183532683265",
+        "details_link": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR55914150597794413613?region=US",
+        "first_shown": 1781359615,
+        "format": "image",
+        "height": 451,
+        "image": "https://tpc.googlesyndication.com/archive/simgad/82454801736808682018",
+        "last_shown": 1784182240,
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR10072600183532683265&creative_id=CR55914150597794413613&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 33,
+        "width": 348
+      },
+      "request": {
+        "advertiser_id": "AR10072600183532683265",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "CR55914150597794413613"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR11949106158659777447",
+        "advertiser": "HubSpot",
+        "advertiser_id": "AR10072600183532683265",
+        "details_link": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR11949106158659777447?region=US",
+        "first_shown": 1784873028,
+        "format": "image",
+        "height": 600,
+        "image": "https://tpc.googlesyndication.com/archive/simgad/31615296082982260349",
+        "last_shown": 1785926605,
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR10072600183532683265&creative_id=CR11949106158659777447&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 13,
+        "width": 160
+      },
+      "request": {
+        "advertiser_id": "AR10072600183532683265",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "CR11949106158659777447"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR47769459332998838171",
+        "advertiser": "HubSpot",
+        "advertiser_id": "AR10072600183532683265",
+        "details_link": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR47769459332998838171?region=US",
+        "first_shown": 1787559533,
+        "format": "text",
+        "height": 600,
+        "image": "https://tpc.googlesyndication.com/archive/simgad/22807628163388680199",
+        "last_shown": 1788363441,
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR10072600183532683265&creative_id=CR47769459332998838171&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 10,
+        "width": 300
+      },
+      "request": {
+        "advertiser_id": "AR10072600183532683265",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "CR47769459332998838171"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR38878416080007388563",
+        "advertiser": "HubSpot",
+        "advertiser_id": "AR10072600183532683265",
+        "details_link": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR38878416080007388563?region=US",
+        "first_shown": 1785858051,
+        "format": "video",
+        "last_shown": 1787830234,
+        "link": "https://displayads-formats.googleusercontent.com/ads/preview/content.js?client=ads-integrity-transparency&creativeId=388784160800",
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR10072600183532683265&creative_id=CR38878416080007388563&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 23
+      },
+      "request": {
+        "advertiser_id": "AR10072600183532683265",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "CR38878416080007388563"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR92411356618191017192",
+        "advertiser": "HubSpot",
+        "advertiser_id": "AR10072600183532683265",
+        "details_link": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR92411356618191017192?region=US",
+        "first_shown": 1782328622,
+        "format": "video",
+        "last_shown": 1784668474,
+        "link": "https://displayads-formats.googleusercontent.com/ads/preview/content.js?client=ads-integrity-transparency&creativeId=924113566181",
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR10072600183532683265&creative_id=CR92411356618191017192&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 28
+      },
+      "request": {
+        "advertiser_id": "AR10072600183532683265",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "CR92411356618191017192"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR36678596623366046842",
+        "advertiser": "HubSpot",
+        "advertiser_id": "AR10072600183532683265",
+        "details_link": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR36678596623366046842?region=US",
+        "first_shown": 1785140025,
+        "format": "image",
+        "height": 451,
+        "image": "https://tpc.googlesyndication.com/archive/simgad/61427974875666708430",
+        "last_shown": 1788157961,
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR10072600183532683265&creative_id=CR36678596623366046842&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 35,
+        "width": 348
+      },
+      "request": {
+        "advertiser_id": "AR10072600183532683265",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "CR36678596623366046842"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR76117609594135132649",
+        "advertiser": "HubSpot",
+        "advertiser_id": "AR10072600183532683265",
+        "details_link": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR76117609594135132649?region=US",
+        "first_shown": 1783459262,
+        "format": "image",
+        "height": 250,
+        "image": "https://tpc.googlesyndication.com/archive/simgad/84526885199550519247",
+        "last_shown": 1786088250,
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR10072600183532683265&creative_id=CR76117609594135132649&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 31,
+        "width": 300
+      },
+      "request": {
+        "advertiser_id": "AR10072600183532683265",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "CR76117609594135132649"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR06755359479685405365",
+        "advertiser": "HubSpot",
+        "advertiser_id": "AR10072600183532683265",
+        "details_link": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR06755359479685405365?region=US",
+        "first_shown": 1782507877,
+        "format": "image",
+        "height": 250,
+        "image": "https://tpc.googlesyndication.com/archive/simgad/10062553421714064723",
+        "last_shown": 1787826584,
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR10072600183532683265&creative_id=CR06755359479685405365&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 62,
+        "width": 970
+      },
+      "request": {
+        "advertiser_id": "AR10072600183532683265",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "CR06755359479685405365"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR55174021410985517552",
+        "advertiser": "Zoho CRM",
+        "advertiser_id": "AR07034216898162065409",
+        "details_link": "https://adstransparency.google.com/advertiser/AR07034216898162065409/creative/CR55174021410985517552?region=US",
+        "first_shown": 1784700581,
+        "format": "video",
+        "last_shown": 1788020530,
+        "link": "https://displayads-formats.googleusercontent.com/ads/preview/content.js?client=ads-integrity-transparency&creativeId=551740214109",
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR07034216898162065409&creative_id=CR55174021410985517552&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 39
+      },
+      "request": {
+        "advertiser_id": "AR07034216898162065409",
+        "company": "Zoho CRM"
+      }
+    },
+    "source_id": "CR55174021410985517552"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR37443830716091400993",
+        "advertiser": "Zoho CRM",
+        "advertiser_id": "AR07034216898162065409",
+        "details_link": "https://adstransparency.google.com/advertiser/AR07034216898162065409/creative/CR37443830716091400993?region=US",
+        "first_shown": 1785270573,
+        "format": "text",
+        "height": 250,
+        "image": "https://tpc.googlesyndication.com/archive/simgad/67212747740129911412",
+        "last_shown": 1787340506,
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR07034216898162065409&creative_id=CR37443830716091400993&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 24,
+        "width": 300
+      },
+      "request": {
+        "advertiser_id": "AR07034216898162065409",
+        "company": "Zoho CRM"
+      }
+    },
+    "source_id": "CR37443830716091400993"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR71583880969347944266",
+        "advertiser": "Zoho CRM",
+        "advertiser_id": "AR07034216898162065409",
+        "details_link": "https://adstransparency.google.com/advertiser/AR07034216898162065409/creative/CR71583880969347944266?region=US",
+        "first_shown": 1787776256,
+        "format": "text",
+        "height": 250,
+        "image": "https://tpc.googlesyndication.com/archive/simgad/3175122342188655291",
+        "last_shown": 1788026145,
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR07034216898162065409&creative_id=CR71583880969347944266&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 3,
+        "width": 970
+      },
+      "request": {
+        "advertiser_id": "AR07034216898162065409",
+        "company": "Zoho CRM"
+      }
+    },
+    "source_id": "CR71583880969347944266"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR51071653979669460686",
+        "advertiser": "Zoho CRM",
+        "advertiser_id": "AR07034216898162065409",
+        "details_link": "https://adstransparency.google.com/advertiser/AR07034216898162065409/creative/CR51071653979669460686?region=US",
+        "first_shown": 1781350200,
+        "format": "text",
+        "height": 250,
+        "image": "https://tpc.googlesyndication.com/archive/simgad/76844229477392733955",
+        "last_shown": 1788232959,
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR07034216898162065409&creative_id=CR51071653979669460686&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 80,
+        "width": 970
+      },
+      "request": {
+        "advertiser_id": "AR07034216898162065409",
+        "company": "Zoho CRM"
+      }
+    },
+    "source_id": "CR51071653979669460686"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR05631248955353711460",
+        "advertiser": "Zoho CRM",
+        "advertiser_id": "AR07034216898162065409",
+        "details_link": "https://adstransparency.google.com/advertiser/AR07034216898162065409/creative/CR05631248955353711460?region=US",
+        "first_shown": 1781839859,
+        "format": "text",
+        "height": 250,
+        "image": "https://tpc.googlesyndication.com/archive/simgad/88561119213100044169",
+        "last_shown": 1784045695,
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR07034216898162065409&creative_id=CR05631248955353711460&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 26,
+        "width": 970
+      },
+      "request": {
+        "advertiser_id": "AR07034216898162065409",
+        "company": "Zoho CRM"
+      }
+    },
+    "source_id": "CR05631248955353711460"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR06264841245098848145",
+        "advertiser": "Zoho CRM",
+        "advertiser_id": "AR07034216898162065409",
+        "details_link": "https://adstransparency.google.com/advertiser/AR07034216898162065409/creative/CR06264841245098848145?region=US",
+        "first_shown": 1781687326,
+        "format": "text",
+        "height": 600,
+        "image": "https://tpc.googlesyndication.com/archive/simgad/27248682338004607829",
+        "last_shown": 1785533611,
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR07034216898162065409&creative_id=CR06264841245098848145&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 45,
+        "width": 300
+      },
+      "request": {
+        "advertiser_id": "AR07034216898162065409",
+        "company": "Zoho CRM"
+      }
+    },
+    "source_id": "CR06264841245098848145"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR66783571292118901544",
+        "advertiser": "Zoho CRM",
+        "advertiser_id": "AR07034216898162065409",
+        "details_link": "https://adstransparency.google.com/advertiser/AR07034216898162065409/creative/CR66783571292118901544?region=US",
+        "first_shown": 1781375214,
+        "format": "video",
+        "last_shown": 1788374643,
+        "link": "https://displayads-formats.googleusercontent.com/ads/preview/content.js?client=ads-integrity-transparency&creativeId=667835712921",
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR07034216898162065409&creative_id=CR66783571292118901544&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 82
+      },
+      "request": {
+        "advertiser_id": "AR07034216898162065409",
+        "company": "Zoho CRM"
+      }
+    },
+    "source_id": "CR66783571292118901544"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR26969381278974807609",
+        "advertiser": "Zoho CRM",
+        "advertiser_id": "AR07034216898162065409",
+        "details_link": "https://adstransparency.google.com/advertiser/AR07034216898162065409/creative/CR26969381278974807609?region=US",
+        "first_shown": 1778125850,
+        "format": "text",
+        "height": 280,
+        "image": "https://tpc.googlesyndication.com/archive/simgad/66441344584228166641",
+        "last_shown": 1783084366,
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR07034216898162065409&creative_id=CR26969381278974807609&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 58,
+        "width": 336
+      },
+      "request": {
+        "advertiser_id": "AR07034216898162065409",
+        "company": "Zoho CRM"
+      }
+    },
+    "source_id": "CR26969381278974807609"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR36652682975972908970",
+        "advertiser": "Zoho CRM",
+        "advertiser_id": "AR07034216898162065409",
+        "details_link": "https://adstransparency.google.com/advertiser/AR07034216898162065409/creative/CR36652682975972908970?region=US",
+        "first_shown": 1779077512,
+        "format": "text",
+        "height": 50,
+        "image": "https://tpc.googlesyndication.com/archive/simgad/86161671104914554740",
+        "last_shown": 1785211281,
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR07034216898162065409&creative_id=CR36652682975972908970&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 71,
+        "width": 320
+      },
+      "request": {
+        "advertiser_id": "AR07034216898162065409",
+        "company": "Zoho CRM"
+      }
+    },
+    "source_id": "CR36652682975972908970"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR01492608284783609854",
+        "advertiser": "Zoho CRM",
+        "advertiser_id": "AR07034216898162065409",
+        "details_link": "https://adstransparency.google.com/advertiser/AR07034216898162065409/creative/CR01492608284783609854?region=US",
+        "first_shown": 1780234407,
+        "format": "image",
+        "height": 50,
+        "image": "https://tpc.googlesyndication.com/archive/simgad/81963599199904526018",
+        "last_shown": 1788088348,
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR07034216898162065409&creative_id=CR01492608284783609854&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 91,
+        "width": 320
+      },
+      "request": {
+        "advertiser_id": "AR07034216898162065409",
+        "company": "Zoho CRM"
+      }
+    },
+    "source_id": "CR01492608284783609854"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR49382339048468517840",
+        "advertiser": "Zoho CRM",
+        "advertiser_id": "AR07034216898162065409",
+        "details_link": "https://adstransparency.google.com/advertiser/AR07034216898162065409/creative/CR49382339048468517840?region=US",
+        "first_shown": 1788361188,
+        "format": "video",
+        "last_shown": 1788460485,
+        "link": "https://displayads-formats.googleusercontent.com/ads/preview/content.js?client=ads-integrity-transparency&creativeId=493823390484",
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR07034216898162065409&creative_id=CR49382339048468517840&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 2
+      },
+      "request": {
+        "advertiser_id": "AR07034216898162065409",
+        "company": "Zoho CRM"
+      }
+    },
+    "source_id": "CR49382339048468517840"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR96899241795369143996",
+        "advertiser": "Zoho CRM",
+        "advertiser_id": "AR07034216898162065409",
+        "details_link": "https://adstransparency.google.com/advertiser/AR07034216898162065409/creative/CR96899241795369143996?region=US",
+        "first_shown": 1780827808,
+        "format": "text",
+        "height": 250,
+        "image": "https://tpc.googlesyndication.com/archive/simgad/24920821383000503187",
+        "last_shown": 1782338009,
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR07034216898162065409&creative_id=CR96899241795369143996&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 18,
+        "width": 970
+      },
+      "request": {
+        "advertiser_id": "AR07034216898162065409",
+        "company": "Zoho CRM"
+      }
+    },
+    "source_id": "CR96899241795369143996"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR74364796894723752617",
+        "advertiser": "Freshsales",
+        "advertiser_id": "AR03035893441289519105",
+        "details_link": "https://adstransparency.google.com/advertiser/AR03035893441289519105/creative/CR74364796894723752617?region=US",
+        "first_shown": 1781678460,
+        "format": "text",
+        "height": 250,
+        "image": "https://tpc.googlesyndication.com/archive/simgad/32161745985679565654",
+        "last_shown": 1788216278,
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR03035893441289519105&creative_id=CR74364796894723752617&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 76,
+        "width": 300
+      },
+      "request": {
+        "advertiser_id": "AR03035893441289519105",
+        "company": "Freshsales"
+      }
+    },
+    "source_id": "CR74364796894723752617"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR40470478626675684278",
+        "advertiser": "Freshsales",
+        "advertiser_id": "AR03035893441289519105",
+        "details_link": "https://adstransparency.google.com/advertiser/AR03035893441289519105/creative/CR40470478626675684278?region=US",
+        "first_shown": 1785081886,
+        "format": "video",
+        "last_shown": 1787193968,
+        "link": "https://displayads-formats.googleusercontent.com/ads/preview/content.js?client=ads-integrity-transparency&creativeId=404704786266",
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR03035893441289519105&creative_id=CR40470478626675684278&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 25
+      },
+      "request": {
+        "advertiser_id": "AR03035893441289519105",
+        "company": "Freshsales"
+      }
+    },
+    "source_id": "CR40470478626675684278"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR52561324065896122791",
+        "advertiser": "Freshsales",
+        "advertiser_id": "AR03035893441289519105",
+        "details_link": "https://adstransparency.google.com/advertiser/AR03035893441289519105/creative/CR52561324065896122791?region=US",
+        "first_shown": 1778869980,
+        "format": "video",
+        "last_shown": 1779530323,
+        "link": "https://displayads-formats.googleusercontent.com/ads/preview/content.js?client=ads-integrity-transparency&creativeId=525613240658",
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR03035893441289519105&creative_id=CR52561324065896122791&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 8
+      },
+      "request": {
+        "advertiser_id": "AR03035893441289519105",
+        "company": "Freshsales"
+      }
+    },
+    "source_id": "CR52561324065896122791"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR81926240467233546919",
+        "advertiser": "Freshsales",
+        "advertiser_id": "AR03035893441289519105",
+        "details_link": "https://adstransparency.google.com/advertiser/AR03035893441289519105/creative/CR81926240467233546919?region=US",
+        "first_shown": 1785927024,
+        "format": "video",
+        "last_shown": 1787910885,
+        "link": "https://displayads-formats.googleusercontent.com/ads/preview/content.js?client=ads-integrity-transparency&creativeId=819262404672",
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR03035893441289519105&creative_id=CR81926240467233546919&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 23
+      },
+      "request": {
+        "advertiser_id": "AR03035893441289519105",
+        "company": "Freshsales"
+      }
+    },
+    "source_id": "CR81926240467233546919"
+  },
+  {
+    "payload": {
+      "creative": {
+        "ad_creative_id": "CR50710402611082527680",
+        "advertiser": "Freshsales",
+        "advertiser_id": "AR03035893441289519105",
+        "details_link": "https://adstransparency.google.com/advertiser/AR03035893441289519105/creative/CR50710402611082527680?region=US",
+        "first_shown": 1782318949,
+        "format": "text",
+        "height": 600,
+        "image": "https://tpc.googlesyndication.com/archive/simgad/83780842761159998046",
+        "last_shown": 1784877346,
+        "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR03035893441289519105&creative_id=CR50710402611082527680&engine=google_ads_transparency_center_ad_details",
+        "total_days_shown": 30,
+        "width": 300
+      },
+      "request": {
+        "advertiser_id": "AR03035893441289519105",
+        "company": "Freshsales"
+      }
+    },
+    "source_id": "CR50710402611082527680"
+  }
+]

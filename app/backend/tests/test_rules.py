@@ -496,3 +496,58 @@ class TestTheShippedRulesAreSound:
             "lte",
             "starts_with",
         }, f"shipped-rule operator coverage changed: {sorted(unused)}"
+
+
+class TestTheBrandAbsentRule:
+    def test_it_is_a_medium_rule_on_a_recent_check_with_no_brand_rank(self):
+        rule = rules.definitions()["brand_absent_from_answer"]
+        assert rule.entity == "visibility_check"
+        assert rule.severity == "medium"
+        assert rule.label == "Brand Absent From A Recent Answer"
+        assert {(c.attr, c.op, c.operand) for c in rule.all_of} == {
+            ("brand_rank", "is_null", True),
+            ("checked_at", "within_days", 7),
+        }
+        assert rule.any_of == ()
+
+    async def test_a_recent_check_with_no_brand_rank_is_flagged(
+        self, session, canonical
+    ):
+        await canonical(
+            "visibility_check",
+            {"engine": "google", "checked_at": "2026-07-30T00:00:00Z"},
+        )
+        finding = next(
+            f
+            for f in await rules.evaluate(session, now=NOW)
+            if f.rule == "brand_absent_from_answer"
+        )
+        assert finding.severity == "medium"
+        assert finding.evidence == {
+            "brand_rank": None,
+            "checked_at": "2026-07-30T00:00:00Z",
+        }
+
+    async def test_a_recent_check_that_ranks_the_brand_is_not_flagged(
+        self, session, canonical
+    ):
+        await canonical(
+            "visibility_check",
+            {
+                "engine": "google",
+                "checked_at": "2026-07-30T00:00:00Z",
+                "brand_rank": "3",
+            },
+        )
+        findings = await rules.evaluate(session, now=NOW)
+        assert "brand_absent_from_answer" not in {f.rule for f in findings}
+
+    async def test_a_stale_check_with_no_brand_rank_is_not_flagged(
+        self, session, canonical
+    ):
+        await canonical(
+            "visibility_check",
+            {"engine": "google", "checked_at": "2026-01-01T00:00:00Z"},
+        )
+        findings = await rules.evaluate(session, now=NOW)
+        assert "brand_absent_from_answer" not in {f.rule for f in findings}

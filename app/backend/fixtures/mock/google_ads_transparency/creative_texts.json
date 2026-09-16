@@ -1,0 +1,781 @@
+[
+  {
+    "payload": {
+      "request": {
+        "creative_id": "CR79217284371835261294",
+        "image": "https://tpc.googlesyndication.com/archive/simgad/13665124302499413897",
+        "model": "openai/gpt-5.6-luna",
+        "prompt_version": "2026-09-15.1"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "Sales CRM Built For Small Teams\nPlans from $14 per user per month. Cancel anytime.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-61e6e81e9e19e61e5d46",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 21,
+          "cost": 0.0001102,
+          "is_byok": false,
+          "prompt_tokens": 425,
+          "total_tokens": 446
+        }
+      }
+    },
+    "source_id": "CR79217284371835261294"
+  },
+  {
+    "payload": {
+      "request": {
+        "creative_id": "CR94667557074674837776",
+        "image": "https://tpc.googlesyndication.com/archive/simgad/63343832807583541638",
+        "model": "openai/gpt-5.6-luna",
+        "prompt_version": "2026-09-15.1"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "Sales CRM Built For Small Teams\nSet up in minutes, with built-in calling and email sync.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-c1c8930c53d1a85c6d77",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 23,
+          "cost": 0.0001126,
+          "is_byok": false,
+          "prompt_tokens": 425,
+          "total_tokens": 448
+        }
+      }
+    },
+    "source_id": "CR94667557074674837776"
+  },
+  {
+    "payload": {
+      "request": {
+        "creative_id": "CR55914150597794413613",
+        "image": "https://tpc.googlesyndication.com/archive/simgad/82454801736808682018",
+        "model": "openai/gpt-5.6-luna",
+        "prompt_version": "2026-09-15.1"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "Stop Losing Leads In Spreadsheets\nTrack calls, emails and meetings without leaving the CRM.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-c2e180340496515d44d7",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 23,
+          "cost": 0.0001126,
+          "is_byok": false,
+          "prompt_tokens": 425,
+          "total_tokens": 448
+        }
+      }
+    },
+    "source_id": "CR55914150597794413613"
+  },
+  {
+    "payload": {
+      "request": {
+        "creative_id": "CR11949106158659777447",
+        "image": "https://tpc.googlesyndication.com/archive/simgad/31615296082982260349",
+        "model": "openai/gpt-5.6-luna",
+        "prompt_version": "2026-09-15.1"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "Stop Losing Leads In Spreadsheets\nAutomate follow-ups, forecast revenue and hit quota every month.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-9269a6c659ed0d6dfb14",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 25,
+          "cost": 0.000115,
+          "is_byok": false,
+          "prompt_tokens": 425,
+          "total_tokens": 450
+        }
+      }
+    },
+    "source_id": "CR11949106158659777447"
+  },
+  {
+    "payload": {
+      "request": {
+        "creative_id": "CR47769459332998838171",
+        "image": "https://tpc.googlesyndication.com/archive/simgad/22807628163388680199",
+        "model": "openai/gpt-5.6-luna",
+        "prompt_version": "2026-09-15.1"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "Sales CRM Built For Small Teams\nAutomate follow-ups, forecast revenue and hit quota every month.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-66a310511ca95a16416d",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 25,
+          "cost": 0.000115,
+          "is_byok": false,
+          "prompt_tokens": 425,
+          "total_tokens": 450
+        }
+      }
+    },
+    "source_id": "CR47769459332998838171"
+  },
+  {
+    "payload": {
+      "request": {
+        "creative_id": "CR36678596623366046842",
+        "image": "https://tpc.googlesyndication.com/archive/simgad/61427974875666708430",
+        "model": "openai/gpt-5.6-luna",
+        "prompt_version": "2026-09-15.1"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "The CRM Your Sales Team Will Actually Use\nStart your free 14-day trial. No credit card required.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-7a2d317702cd995da553",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 25,
+          "cost": 0.000115,
+          "is_byok": false,
+          "prompt_tokens": 425,
+          "total_tokens": 450
+        }
+      }
+    },
+    "source_id": "CR36678596623366046842"
+  },
+  {
+    "payload": {
+      "request": {
+        "creative_id": "CR76117609594135132649",
+        "image": "https://tpc.googlesyndication.com/archive/simgad/84526885199550519247",
+        "model": "openai/gpt-5.6-luna",
+        "prompt_version": "2026-09-15.1"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "Close More Deals With Less Admin\nAutomate follow-ups, forecast revenue and hit quota every month.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-72dd8b82166fc713237c",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 25,
+          "cost": 0.000115,
+          "is_byok": false,
+          "prompt_tokens": 425,
+          "total_tokens": 450
+        }
+      }
+    },
+    "source_id": "CR76117609594135132649"
+  },
+  {
+    "payload": {
+      "request": {
+        "creative_id": "CR06755359479685405365",
+        "image": "https://tpc.googlesyndication.com/archive/simgad/10062553421714064723",
+        "model": "openai/gpt-5.6-luna",
+        "prompt_version": "2026-09-15.1"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "Close More Deals With Less Admin\nStart your free 14-day trial. No credit card required.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-3023935c69f005765663",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 22,
+          "cost": 0.0001114,
+          "is_byok": false,
+          "prompt_tokens": 425,
+          "total_tokens": 447
+        }
+      }
+    },
+    "source_id": "CR06755359479685405365"
+  },
+  {
+    "payload": {
+      "request": {
+        "creative_id": "CR37443830716091400993",
+        "image": "https://tpc.googlesyndication.com/archive/simgad/67212747740129911412",
+        "model": "openai/gpt-5.6-luna",
+        "prompt_version": "2026-09-15.1"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "AI That Writes The Follow-Up For You\nPlans from $14 per user per month. Cancel anytime.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-d06acf2ba44ec670e839",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 22,
+          "cost": 0.0001114,
+          "is_byok": false,
+          "prompt_tokens": 425,
+          "total_tokens": 447
+        }
+      }
+    },
+    "source_id": "CR37443830716091400993"
+  },
+  {
+    "payload": {
+      "request": {
+        "creative_id": "CR71583880969347944266",
+        "image": "https://tpc.googlesyndication.com/archive/simgad/3175122342188655291",
+        "model": "openai/gpt-5.6-luna",
+        "prompt_version": "2026-09-15.1"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "Stop Losing Leads In Spreadsheets\nSet up in minutes, with built-in calling and email sync.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-ec89794ac159c1256fcc",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 23,
+          "cost": 0.0001126,
+          "is_byok": false,
+          "prompt_tokens": 425,
+          "total_tokens": 448
+        }
+      }
+    },
+    "source_id": "CR71583880969347944266"
+  },
+  {
+    "payload": {
+      "request": {
+        "creative_id": "CR51071653979669460686",
+        "image": "https://tpc.googlesyndication.com/archive/simgad/76844229477392733955",
+        "model": "openai/gpt-5.6-luna",
+        "prompt_version": "2026-09-15.1"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "AI That Writes The Follow-Up For You\nAutomate follow-ups, forecast revenue and hit quota every month.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-fc334479a775ffb799bd",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 26,
+          "cost": 0.0001162,
+          "is_byok": false,
+          "prompt_tokens": 425,
+          "total_tokens": 451
+        }
+      }
+    },
+    "source_id": "CR51071653979669460686"
+  },
+  {
+    "payload": {
+      "request": {
+        "creative_id": "CR05631248955353711460",
+        "image": "https://tpc.googlesyndication.com/archive/simgad/88561119213100044169",
+        "model": "openai/gpt-5.6-luna",
+        "prompt_version": "2026-09-15.1"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "Close More Deals With Less Admin\nAutomate follow-ups, forecast revenue and hit quota every month.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-8b2a1cb478d6ea3ba548",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 25,
+          "cost": 0.000115,
+          "is_byok": false,
+          "prompt_tokens": 425,
+          "total_tokens": 450
+        }
+      }
+    },
+    "source_id": "CR05631248955353711460"
+  },
+  {
+    "payload": {
+      "request": {
+        "creative_id": "CR06264841245098848145",
+        "image": "https://tpc.googlesyndication.com/archive/simgad/27248682338004607829",
+        "model": "openai/gpt-5.6-luna",
+        "prompt_version": "2026-09-15.1"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "Close More Deals With Less Admin\nSet up in minutes, with built-in calling and email sync.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-b8bd2285ed54b3562424",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 23,
+          "cost": 0.0001126,
+          "is_byok": false,
+          "prompt_tokens": 425,
+          "total_tokens": 448
+        }
+      }
+    },
+    "source_id": "CR06264841245098848145"
+  },
+  {
+    "payload": {
+      "request": {
+        "creative_id": "CR26969381278974807609",
+        "image": "https://tpc.googlesyndication.com/archive/simgad/66441344584228166641",
+        "model": "openai/gpt-5.6-luna",
+        "prompt_version": "2026-09-15.1"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "The CRM Your Sales Team Will Actually Use\nSet up in minutes, with built-in calling and email sync.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-1bc1654936084b04505c",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 25,
+          "cost": 0.000115,
+          "is_byok": false,
+          "prompt_tokens": 425,
+          "total_tokens": 450
+        }
+      }
+    },
+    "source_id": "CR26969381278974807609"
+  },
+  {
+    "payload": {
+      "request": {
+        "creative_id": "CR36652682975972908970",
+        "image": "https://tpc.googlesyndication.com/archive/simgad/86161671104914554740",
+        "model": "openai/gpt-5.6-luna",
+        "prompt_version": "2026-09-15.1"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "Sales CRM Built For Small Teams\nTrack calls, emails and meetings without leaving the CRM.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-475dfd6e2dcd2801f4e4",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 23,
+          "cost": 0.0001126,
+          "is_byok": false,
+          "prompt_tokens": 425,
+          "total_tokens": 448
+        }
+      }
+    },
+    "source_id": "CR36652682975972908970"
+  },
+  {
+    "payload": {
+      "request": {
+        "creative_id": "CR01492608284783609854",
+        "image": "https://tpc.googlesyndication.com/archive/simgad/81963599199904526018",
+        "model": "openai/gpt-5.6-luna",
+        "prompt_version": "2026-09-15.1"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "AI That Writes The Follow-Up For You\nTrack calls, emails and meetings without leaving the CRM.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-9f970a6f8ba9ffeee269",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 24,
+          "cost": 0.0001138,
+          "is_byok": false,
+          "prompt_tokens": 425,
+          "total_tokens": 449
+        }
+      }
+    },
+    "source_id": "CR01492608284783609854"
+  },
+  {
+    "payload": {
+      "request": {
+        "creative_id": "CR96899241795369143996",
+        "image": "https://tpc.googlesyndication.com/archive/simgad/24920821383000503187",
+        "model": "openai/gpt-5.6-luna",
+        "prompt_version": "2026-09-15.1"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "Sales CRM Built For Small Teams\nSet up in minutes, with built-in calling and email sync.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-b0a32250f5f262c9f173",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 23,
+          "cost": 0.0001126,
+          "is_byok": false,
+          "prompt_tokens": 425,
+          "total_tokens": 448
+        }
+      }
+    },
+    "source_id": "CR96899241795369143996"
+  },
+  {
+    "payload": {
+      "request": {
+        "creative_id": "CR74364796894723752617",
+        "image": "https://tpc.googlesyndication.com/archive/simgad/32161745985679565654",
+        "model": "openai/gpt-5.6-luna",
+        "prompt_version": "2026-09-15.1"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "The CRM Your Sales Team Will Actually Use\nPlans from $14 per user per month. Cancel anytime.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-f35bd8a6f6c5c0e59fab",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 24,
+          "cost": 0.0001138,
+          "is_byok": false,
+          "prompt_tokens": 425,
+          "total_tokens": 449
+        }
+      }
+    },
+    "source_id": "CR74364796894723752617"
+  },
+  {
+    "payload": {
+      "request": {
+        "creative_id": "CR50710402611082527680",
+        "image": "https://tpc.googlesyndication.com/archive/simgad/83780842761159998046",
+        "model": "openai/gpt-5.6-luna",
+        "prompt_version": "2026-09-15.1"
+      },
+      "response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "The CRM Your Sales Team Will Actually Use\nSet up in minutes, with built-in calling and email sync.",
+              "reasoning": null,
+              "refusal": null,
+              "role": "assistant"
+            },
+            "native_finish_reason": "completed"
+          }
+        ],
+        "created": 1788523200,
+        "id": "gen-1788523200-0ec93f8d747c59f7b37e",
+        "model": "openai/gpt-5.6-luna",
+        "object": "chat.completion",
+        "provider": "OpenAI",
+        "service_tier": "default",
+        "system_fingerprint": null,
+        "usage": {
+          "completion_tokens": 25,
+          "cost": 0.000115,
+          "is_byok": false,
+          "prompt_tokens": 425,
+          "total_tokens": 450
+        }
+      }
+    },
+    "source_id": "CR50710402611082527680"
+  }
+]

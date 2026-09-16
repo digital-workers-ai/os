@@ -12,6 +12,7 @@ class Credentials:
     auth: tuple | None = None
     params: dict = field(default_factory=dict)
     values: dict = field(default_factory=dict)
+    real: bool = False
 
 
 class CredentialsError(RuntimeError):
@@ -91,6 +92,20 @@ def _shopify(domain: str, token: str) -> tuple[dict, tuple | None, dict, dict]:
     return {"X-Shopify-Access-Token": token}, None, {}, {"domain": domain}
 
 
+def _serpapi_read_by_openrouter(
+    key: str, _reader_key: str
+) -> tuple[dict, tuple | None, dict, dict]:
+    return {}, None, {"api_key": key}, {}
+
+
+def _serpapi(key: str) -> tuple[dict, tuple | None, dict, dict]:
+    return {}, None, {"api_key": key}, {}
+
+
+def _anthropic(key: str) -> tuple[dict, tuple | None, dict, dict]:
+    return {"x-api-key": key, "anthropic-version": "2023-06-01"}, None, {}, {}
+
+
 _REAL: dict[str, tuple[str, tuple[str, ...], Callable]] = {
     "hubspot": ("https://api.hubapi.com", ("HUBSPOT_ACCESS_TOKEN",), _bearer),
     "stripe": ("https://api.stripe.com", ("STRIPE_API_KEY",), _bearer),
@@ -135,6 +150,21 @@ _REAL: dict[str, tuple[str, tuple[str, ...], Callable]] = {
         ("TWITTER_BEARER_TOKEN", "TWITTER_USER_ID"),
         _twitter,
     ),
+    "google_ads_transparency": (
+        "https://serpapi.com",
+        ("SERPAPI_API_KEY", "OPENROUTER_API_KEY"),
+        _serpapi_read_by_openrouter,
+    ),
+    "chatgpt": ("https://openrouter.ai", ("OPENROUTER_API_KEY",), _bearer),
+    "perplexity": ("https://openrouter.ai", ("OPENROUTER_API_KEY",), _bearer),
+    "gemini": ("https://openrouter.ai", ("OPENROUTER_API_KEY",), _bearer),
+    "linkedin_posts": (
+        "https://api.brightdata.com",
+        ("BRIGHTDATA_API_KEY",),
+        _bearer,
+    ),
+    "google_serp": ("https://serpapi.com", ("SERPAPI_API_KEY",), _serpapi),
+    "claude": ("https://api.anthropic.com", ("ANTHROPIC_API_KEY",), _anthropic),
     "shopify": (
         "https://{domain}",
         ("SHOPIFY_STORE_DOMAIN", "SHOPIFY_ACCESS_TOKEN"),
@@ -252,6 +282,38 @@ _MOCK: dict[str, tuple[str, dict, tuple | None, dict]] = {
         None,
         {},
     ),
+    "google_ads_transparency": ("/serpapi", {}, None, {"api_key": "mock_serpapi_key"}),
+    "chatgpt": (
+        "/openrouter",
+        {"Authorization": "Bearer mock_openrouter_key"},
+        None,
+        {},
+    ),
+    "perplexity": (
+        "/openrouter",
+        {"Authorization": "Bearer mock_openrouter_key"},
+        None,
+        {},
+    ),
+    "gemini": (
+        "/openrouter",
+        {"Authorization": "Bearer mock_openrouter_key"},
+        None,
+        {},
+    ),
+    "linkedin_posts": (
+        "/brightdata",
+        {"Authorization": "Bearer mock_brightdata_key"},
+        None,
+        {},
+    ),
+    "google_serp": ("/serpapi", {}, None, {"api_key": "mock_serpapi_key"}),
+    "claude": (
+        "/anthropic",
+        {"x-api-key": "mock_anthropic_key", "anthropic-version": "2023-06-01"},
+        None,
+        {},
+    ),
     "pinterest": (
         "/pinterest/v5",
         {"Authorization": "Bearer mock_pinterest_token"},
@@ -311,6 +373,7 @@ def _real(source: str) -> Credentials | None:
         auth=auth,
         params=params,
         values=values,
+        real=True,
     )
 
 

@@ -10,6 +10,10 @@ from seeds.providers import (
     woocommerce, mixpanel, amplitude, segment, intercom, zendesk,
     zoom,
 )
+from seeds.providers import openrouter
+from seeds.providers import brightdata
+from seeds.providers import anthropic
+from seeds.providers import serpapi
 
 app = FastAPI(title="OS Mock Providers")
 
@@ -41,6 +45,10 @@ routers = {
     "/intercom": intercom,
     "/zendesk/api/v2": zendesk,
     "/zoom": zoom,
+    "/openrouter": openrouter,
+    "/brightdata": brightdata,
+    "/anthropic": anthropic,
+    "/serpapi": serpapi,
 }
 
 for prefix, mod in routers.items():

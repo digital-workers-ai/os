@@ -11,23 +11,23 @@ curl -X POST localhost:8092/api/sync
 curl -X POST localhost:8092/api/rebuild
 ```
 
-The example env is empty and that runs: every knob has a default. The compose project is `os`: postgres on :5442, the mock providers on :8192, the backend on :8092, the console on :3092, the dashboard on :3093, the studio on :3094. The Configuration section of `README.md` lists every variable.
+The example env is empty and that runs: every knob has a default. The compose project is `os`: postgres on :5442, the mock providers on :8192, the backend on :8092, the console on :3092, the dashboard on :3093, Spy on :3094, the studio on :3095. The Configuration section of `README.md` lists every variable.
 
 ## The gate
 
 ```
 ./test.sh unit           ruff check + ruff format --check, then pytest at 100% line and branch coverage
 ./test.sh e2e            the e2e-marked suite against the live mock providers
-./test.sh snap           Playwright screenshots of every console and studio page against the committed baselines
+./test.sh snap           Playwright screenshots of every console, dashboard, Spy and studio page against the committed baselines
 ./test.sh snap-update    accept new baselines
 ./format.sh              apply what ruff can fix
 ```
 
-`unit` runs inside the backend container and starts the stack when it is down. `snap` builds a fresh stack under its own compose project and now also screenshots the studio on :3094, with `STUDIO_ENABLED` off and the run routes mocked: run it alone, never overlapping the unit suite, whenever anything under `app/console/` or `app/studio/` changes, and ship the updated baselines in the same PR. Nothing is committed on red.
+`unit` runs inside the backend container and starts the stack when it is down. `snap` builds a fresh stack under its own compose project and covers `app/console/`, `app/dashboard/`, `app/spy/` and `app/studio/`, the studio on :3095 with `STUDIO_ENABLED` off and the run routes mocked: run it alone, never overlapping the unit suite, whenever anything under those four changes, and ship the updated baselines in the same PR. Nothing is committed on red.
 
 ## Rules
 
-**No comments.** No `#` comments, no docstrings, no YAML, shell or TOML comments. Code explains itself through naming and structure; commit messages and PR descriptions carry the rationale. The one exception is the DB schema in `app/backend/app/models.py`: every column gets a trailing comment, five words at most plus two or three example values.
+**No comments.** No `#` comments, no docstrings, no YAML, shell or TOML comments. Code explains itself through naming and structure; commit messages and PR descriptions carry the rationale. There are two exceptions, the DB schema in `app/backend/app/models.py` and the validation patterns in `app/backend/app/engine/spy.py`: every column and every pattern gets a trailing comment, five words at most plus two or three example values. Both files are listed in `[tool.ruff.format] exclude` in `app/backend/pyproject.toml`, because the comment carries the line past 88 characters and the formatter would split the declaration underneath it to fit — a file that carries this style is not auto-formatted, and `./format.sh` leaves it alone.
 
 **Minimalism.** Ship only what the change needs: no speculative fields, flags, endpoints or config. Anything aspirational, an invariant not yet enforced or a knob nothing reads, waits for the PR that enforces or reads it.
 

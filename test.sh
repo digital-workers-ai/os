@@ -59,12 +59,13 @@ except urllib.error.HTTPError as e:
 }
 
 if [ -n "${snap_script:-}" ]; then
-  echo "==> fresh snap stack (postgres, mock, backend, render, console, studio)"
+  echo "==> fresh snap stack (postgres, mock, backend, render, console, spy, studio)"
   docker volume create os_console_node_modules >/dev/null
   compose_snap down -v --remove-orphans
   compose_snap up -d --build --wait postgres mock backend render
-  compose_snap up -d --build console studio
+  compose_snap up -d --build console spy studio
   wait_for console
+  wait_for spy
   wait_for studio
   echo "==> sync + rebuild"
   post_api sync
@@ -98,7 +99,7 @@ compose exec -T backend ruff format --check app tests tools alembic
 echo "==> $mode suite"
 
 if [ "$mode" = "e2e" ]; then
-  compose exec -T backend python -u -m pytest "${pytest_args[@]}" \
+  compose exec -T -e STAND_INS_ONLY=true backend python -u -m pytest "${pytest_args[@]}" \
     -v --tb=short "$@"
 else
   compose exec -T backend python -u -m pytest "${pytest_args[@]}" \

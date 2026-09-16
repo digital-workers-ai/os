@@ -61,12 +61,13 @@ extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Body"]
 
 [tool.ruff.lint.per-file-ignores]
 "app/models.py" = ["E501"]
+"app/engine/spy.py" = ["E501"]
 "alembic/versions/*.py" = ["E501"]
 "app/clock.py" = ["TID251"]
 "tests/test_clock.py" = ["TID251"]
 
 [tool.ruff.format]
-exclude = ["app/models.py"]
+exclude = ["app/models.py", "app/engine/spy.py"]
 
 [tool.coverage.run]
 source = ["app"]

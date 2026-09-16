@@ -1,0 +1,323 @@
+{
+  "clears": {},
+  "extracted": {
+    "creative_texts": {
+      "ad": {
+        "CR01492608284783609854": {
+          "name": "AI That Writes The Follow-Up For You Track calls, emails and meetings without leaving the CRM."
+        },
+        "CR05631248955353711460": {
+          "name": "Close More Deals With Less Admin Automate follow-ups, forecast revenue and hit quota every month."
+        },
+        "CR06264841245098848145": {
+          "name": "Close More Deals With Less Admin Set up in minutes, with built-in calling and email sync."
+        },
+        "CR06755359479685405365": {
+          "name": "Close More Deals With Less Admin Start your free 14-day trial. No credit card required."
+        },
+        "CR11949106158659777447": {
+          "name": "Stop Losing Leads In Spreadsheets Automate follow-ups, forecast revenue and hit quota every month."
+        },
+        "CR26969381278974807609": {
+          "name": "The CRM Your Sales Team Will Actually Use Set up in minutes, with built-in calling and email sync."
+        },
+        "CR36652682975972908970": {
+          "name": "Sales CRM Built For Small Teams Track calls, emails and meetings without leaving the CRM."
+        },
+        "CR36678596623366046842": {
+          "name": "The CRM Your Sales Team Will Actually Use Start your free 14-day trial. No credit card required."
+        },
+        "CR37443830716091400993": {
+          "name": "AI That Writes The Follow-Up For You Plans from $14 per user per month. Cancel anytime."
+        },
+        "CR47769459332998838171": {
+          "name": "Sales CRM Built For Small Teams Automate follow-ups, forecast revenue and hit quota every month."
+        },
+        "CR50710402611082527680": {
+          "name": "The CRM Your Sales Team Will Actually Use Set up in minutes, with built-in calling and email sync."
+        },
+        "CR51071653979669460686": {
+          "name": "AI That Writes The Follow-Up For You Automate follow-ups, forecast revenue and hit quota every month."
+        },
+        "CR55914150597794413613": {
+          "name": "Stop Losing Leads In Spreadsheets Track calls, emails and meetings without leaving the CRM."
+        },
+        "CR71583880969347944266": {
+          "name": "Stop Losing Leads In Spreadsheets Set up in minutes, with built-in calling and email sync."
+        },
+        "CR74364796894723752617": {
+          "name": "The CRM Your Sales Team Will Actually Use Plans from $14 per user per month. Cancel anytime."
+        },
+        "CR76117609594135132649": {
+          "name": "Close More Deals With Less Admin Automate follow-ups, forecast revenue and hit quota every month."
+        },
+        "CR79217284371835261294": {
+          "name": "Sales CRM Built For Small Teams Plans from $14 per user per month. Cancel anytime."
+        },
+        "CR94667557074674837776": {
+          "name": "Sales CRM Built For Small Teams Set up in minutes, with built-in calling and email sync."
+        },
+        "CR96899241795369143996": {
+          "name": "Sales CRM Built For Small Teams Set up in minutes, with built-in calling and email sync."
+        }
+      }
+    },
+    "creatives": {
+      "ad": {
+        "CR01492608284783609854": {
+          "category": "image",
+          "company": "Zoho CRM",
+          "first_seen": "2026-05-31T13:33:27Z",
+          "last_seen": "2026-08-30T11:12:28Z",
+          "platform": "google",
+          "preview": "https://tpc.googlesyndication.com/archive/simgad/81963599199904526018",
+          "url": "https://adstransparency.google.com/advertiser/AR07034216898162065409/creative/CR01492608284783609854?region=US"
+        },
+        "CR05631248955353711460": {
+          "category": "text",
+          "company": "Zoho CRM",
+          "first_seen": "2026-06-19T03:30:59Z",
+          "last_seen": "2026-07-14T16:14:55Z",
+          "platform": "google",
+          "preview": "https://tpc.googlesyndication.com/archive/simgad/88561119213100044169",
+          "url": "https://adstransparency.google.com/advertiser/AR07034216898162065409/creative/CR05631248955353711460?region=US"
+        },
+        "CR06264841245098848145": {
+          "category": "text",
+          "company": "Zoho CRM",
+          "first_seen": "2026-06-17T09:08:46Z",
+          "last_seen": "2026-07-31T21:33:31Z",
+          "platform": "google",
+          "preview": "https://tpc.googlesyndication.com/archive/simgad/27248682338004607829",
+          "url": "https://adstransparency.google.com/advertiser/AR07034216898162065409/creative/CR06264841245098848145?region=US"
+        },
+        "CR06755359479685405365": {
+          "category": "image",
+          "company": "HubSpot",
+          "first_seen": "2026-06-26T21:04:37Z",
+          "last_seen": "2026-08-27T10:29:44Z",
+          "platform": "google",
+          "preview": "https://tpc.googlesyndication.com/archive/simgad/10062553421714064723",
+          "url": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR06755359479685405365?region=US"
+        },
+        "CR11949106158659777447": {
+          "category": "image",
+          "company": "HubSpot",
+          "first_seen": "2026-07-24T06:03:48Z",
+          "last_seen": "2026-08-05T10:43:25Z",
+          "platform": "google",
+          "preview": "https://tpc.googlesyndication.com/archive/simgad/31615296082982260349",
+          "url": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR11949106158659777447?region=US"
+        },
+        "CR22225258535494341691": {
+          "category": "video",
+          "company": "HubSpot",
+          "first_seen": "2026-06-24T05:42:47Z",
+          "last_seen": "2026-08-28T15:18:55Z",
+          "platform": "google",
+          "url": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR22225258535494341691?region=US"
+        },
+        "CR26969381278974807609": {
+          "category": "text",
+          "company": "Zoho CRM",
+          "first_seen": "2026-05-07T03:50:50Z",
+          "last_seen": "2026-07-03T13:12:46Z",
+          "platform": "google",
+          "preview": "https://tpc.googlesyndication.com/archive/simgad/66441344584228166641",
+          "url": "https://adstransparency.google.com/advertiser/AR07034216898162065409/creative/CR26969381278974807609?region=US"
+        },
+        "CR36652682975972908970": {
+          "category": "text",
+          "company": "Zoho CRM",
+          "first_seen": "2026-05-18T04:11:52Z",
+          "last_seen": "2026-07-28T04:01:21Z",
+          "platform": "google",
+          "preview": "https://tpc.googlesyndication.com/archive/simgad/86161671104914554740",
+          "url": "https://adstransparency.google.com/advertiser/AR07034216898162065409/creative/CR36652682975972908970?region=US"
+        },
+        "CR36678596623366046842": {
+          "category": "image",
+          "company": "HubSpot",
+          "first_seen": "2026-07-27T08:13:45Z",
+          "last_seen": "2026-08-31T06:32:41Z",
+          "platform": "google",
+          "preview": "https://tpc.googlesyndication.com/archive/simgad/61427974875666708430",
+          "url": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR36678596623366046842?region=US"
+        },
+        "CR37443830716091400993": {
+          "category": "text",
+          "company": "Zoho CRM",
+          "first_seen": "2026-07-28T20:29:33Z",
+          "last_seen": "2026-08-21T19:28:26Z",
+          "platform": "google",
+          "preview": "https://tpc.googlesyndication.com/archive/simgad/67212747740129911412",
+          "url": "https://adstransparency.google.com/advertiser/AR07034216898162065409/creative/CR37443830716091400993?region=US"
+        },
+        "CR38878416080007388563": {
+          "category": "video",
+          "company": "HubSpot",
+          "first_seen": "2026-08-04T15:40:51Z",
+          "last_seen": "2026-08-27T11:30:34Z",
+          "platform": "google",
+          "url": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR38878416080007388563?region=US"
+        },
+        "CR40470478626675684278": {
+          "category": "video",
+          "company": "Freshsales",
+          "first_seen": "2026-07-26T16:04:46Z",
+          "last_seen": "2026-08-20T02:46:08Z",
+          "platform": "google",
+          "url": "https://adstransparency.google.com/advertiser/AR03035893441289519105/creative/CR40470478626675684278?region=US"
+        },
+        "CR47769459332998838171": {
+          "category": "text",
+          "company": "HubSpot",
+          "first_seen": "2026-08-24T08:18:53Z",
+          "last_seen": "2026-09-02T15:37:21Z",
+          "platform": "google",
+          "preview": "https://tpc.googlesyndication.com/archive/simgad/22807628163388680199",
+          "url": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR47769459332998838171?region=US"
+        },
+        "CR49382339048468517840": {
+          "category": "video",
+          "company": "Zoho CRM",
+          "first_seen": "2026-09-02T14:59:48Z",
+          "last_seen": "2026-09-03T18:34:45Z",
+          "platform": "google",
+          "url": "https://adstransparency.google.com/advertiser/AR07034216898162065409/creative/CR49382339048468517840?region=US"
+        },
+        "CR50710402611082527680": {
+          "category": "text",
+          "company": "Freshsales",
+          "first_seen": "2026-06-24T16:35:49Z",
+          "last_seen": "2026-07-24T07:15:46Z",
+          "platform": "google",
+          "preview": "https://tpc.googlesyndication.com/archive/simgad/83780842761159998046",
+          "url": "https://adstransparency.google.com/advertiser/AR03035893441289519105/creative/CR50710402611082527680?region=US"
+        },
+        "CR51071653979669460686": {
+          "category": "text",
+          "company": "Zoho CRM",
+          "first_seen": "2026-06-13T11:30:00Z",
+          "last_seen": "2026-09-01T03:22:39Z",
+          "platform": "google",
+          "preview": "https://tpc.googlesyndication.com/archive/simgad/76844229477392733955",
+          "url": "https://adstransparency.google.com/advertiser/AR07034216898162065409/creative/CR51071653979669460686?region=US"
+        },
+        "CR52561324065896122791": {
+          "category": "video",
+          "company": "Freshsales",
+          "first_seen": "2026-05-15T18:33:00Z",
+          "last_seen": "2026-05-23T09:58:43Z",
+          "platform": "google",
+          "url": "https://adstransparency.google.com/advertiser/AR03035893441289519105/creative/CR52561324065896122791?region=US"
+        },
+        "CR55174021410985517552": {
+          "category": "video",
+          "company": "Zoho CRM",
+          "first_seen": "2026-07-22T06:09:41Z",
+          "last_seen": "2026-08-29T16:22:10Z",
+          "platform": "google",
+          "url": "https://adstransparency.google.com/advertiser/AR07034216898162065409/creative/CR55174021410985517552?region=US"
+        },
+        "CR55914150597794413613": {
+          "category": "image",
+          "company": "HubSpot",
+          "first_seen": "2026-06-13T14:06:55Z",
+          "last_seen": "2026-07-16T06:10:40Z",
+          "platform": "google",
+          "preview": "https://tpc.googlesyndication.com/archive/simgad/82454801736808682018",
+          "url": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR55914150597794413613?region=US"
+        },
+        "CR59845918134738341438": {
+          "category": "video",
+          "company": "HubSpot",
+          "first_seen": "2026-06-23T07:34:04Z",
+          "last_seen": "2026-08-08T20:19:54Z",
+          "platform": "google",
+          "url": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR59845918134738341438?region=US"
+        },
+        "CR66783571292118901544": {
+          "category": "video",
+          "company": "Zoho CRM",
+          "first_seen": "2026-06-13T18:26:54Z",
+          "last_seen": "2026-09-02T18:44:03Z",
+          "platform": "google",
+          "url": "https://adstransparency.google.com/advertiser/AR07034216898162065409/creative/CR66783571292118901544?region=US"
+        },
+        "CR71583880969347944266": {
+          "category": "text",
+          "company": "Zoho CRM",
+          "first_seen": "2026-08-26T20:30:56Z",
+          "last_seen": "2026-08-29T17:55:45Z",
+          "platform": "google",
+          "preview": "https://tpc.googlesyndication.com/archive/simgad/3175122342188655291",
+          "url": "https://adstransparency.google.com/advertiser/AR07034216898162065409/creative/CR71583880969347944266?region=US"
+        },
+        "CR74364796894723752617": {
+          "category": "text",
+          "company": "Freshsales",
+          "first_seen": "2026-06-17T06:41:00Z",
+          "last_seen": "2026-08-31T22:44:38Z",
+          "platform": "google",
+          "preview": "https://tpc.googlesyndication.com/archive/simgad/32161745985679565654",
+          "url": "https://adstransparency.google.com/advertiser/AR03035893441289519105/creative/CR74364796894723752617?region=US"
+        },
+        "CR76117609594135132649": {
+          "category": "image",
+          "company": "HubSpot",
+          "first_seen": "2026-07-07T21:21:02Z",
+          "last_seen": "2026-08-07T07:37:30Z",
+          "platform": "google",
+          "preview": "https://tpc.googlesyndication.com/archive/simgad/84526885199550519247",
+          "url": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR76117609594135132649?region=US"
+        },
+        "CR79217284371835261294": {
+          "category": "text",
+          "company": "HubSpot",
+          "first_seen": "2026-07-24T15:32:38Z",
+          "last_seen": "2026-08-31T14:59:45Z",
+          "platform": "google",
+          "preview": "https://tpc.googlesyndication.com/archive/simgad/13665124302499413897",
+          "url": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR79217284371835261294?region=US"
+        },
+        "CR81926240467233546919": {
+          "category": "video",
+          "company": "Freshsales",
+          "first_seen": "2026-08-05T10:50:24Z",
+          "last_seen": "2026-08-28T09:54:45Z",
+          "platform": "google",
+          "url": "https://adstransparency.google.com/advertiser/AR03035893441289519105/creative/CR81926240467233546919?region=US"
+        },
+        "CR92411356618191017192": {
+          "category": "video",
+          "company": "HubSpot",
+          "first_seen": "2026-06-24T19:17:02Z",
+          "last_seen": "2026-07-21T21:14:34Z",
+          "platform": "google",
+          "url": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR92411356618191017192?region=US"
+        },
+        "CR94667557074674837776": {
+          "category": "text",
+          "company": "HubSpot",
+          "first_seen": "2026-07-17T03:22:38Z",
+          "last_seen": "2026-07-27T20:52:36Z",
+          "platform": "google",
+          "preview": "https://tpc.googlesyndication.com/archive/simgad/63343832807583541638",
+          "url": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR94667557074674837776?region=US"
+        },
+        "CR96899241795369143996": {
+          "category": "text",
+          "company": "Zoho CRM",
+          "first_seen": "2026-06-07T10:23:28Z",
+          "last_seen": "2026-06-24T21:53:29Z",
+          "platform": "google",
+          "preview": "https://tpc.googlesyndication.com/archive/simgad/24920821383000503187",
+          "url": "https://adstransparency.google.com/advertiser/AR07034216898162065409/creative/CR96899241795369143996?region=US"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "google_ads_transparency"
+}
