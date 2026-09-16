@@ -39,18 +39,21 @@ async def _rebuilt(session, sessionmaker_for_test):
     return await run.rebuild(session)
 
 
-async def test_the_sync_stores_the_whole_twenty_seven_source_estate(
+async def test_the_sync_stores_the_whole_thirty_four_source_estate(
     session, sessionmaker_for_test
 ):
     result = await sync.run_all(sessionmaker_for_test, SOURCES)
     assert result["failed"] == 0, result
-    assert result["rows_written"] == 2227
+    assert all(r["ok"] for r in result["results"]), result
     assert all(r["truncated"] is False for r in result["results"]), result
+    assert {r["source"] for r in result["results"] if r["rows_written"] > 0} == set(
+        SOURCES
+    ), result
 
     total = (
         await session.execute(select(func.count()).select_from(RawEvent))
     ).scalar_one()
-    assert total == 2227
+    assert total == result["rows_written"]
 
 
 async def test_the_rebuild_resolves_the_batch_four_entities(
@@ -89,8 +92,12 @@ async def test_the_rebuild_resolves_the_batch_four_entities(
         "social_report": 360,
         "traffic_report": 540,
         "data_source": 3,
+        "ad": 29,
+        "competitor_post": 23,
+        "visibility_check": 45,
+        "visibility_mention": 132,
     }
-    assert sum(canonical_by_type.values()) == 1889
+    assert sum(canonical_by_type.values()) == 2118
 
 
 async def test_the_estate_is_clean_apart_from_its_counted_clears(
