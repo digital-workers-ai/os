@@ -12,6 +12,7 @@ class Credentials:
     auth: tuple | None = None
     params: dict = field(default_factory=dict)
     values: dict = field(default_factory=dict)
+    real: bool = False
 
 
 class CredentialsError(RuntimeError):
@@ -311,6 +312,7 @@ def _real(source: str) -> Credentials | None:
         auth=auth,
         params=params,
         values=values,
+        real=True,
     )
 
 
