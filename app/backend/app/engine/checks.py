@@ -2,10 +2,13 @@ import yaml
 
 from app.caches import BACKEND_DIR
 from app.engine import (
+    brand,
+    calendar,
     candidates,
     dashboards,
     derived,
     goals,
+    looks,
     mappings,
     metrics,
     ontology,
@@ -100,6 +103,9 @@ def run(
     enrichment_paths=None,
     derived_path=None,
     dashboards_path=None,
+    brand_dir=None,
+    calendar_path=None,
+    looks_dir=None,
 ) -> list[str]:
     problems: list[str] = []
 
@@ -391,6 +397,10 @@ def run(
         problems += dashboards.check(dashboards.load(dashboards_path), defs, attrs_of)
     except (dashboards.DashboardError, yaml.YAMLError) as e:
         problems.append(f"dashboards.yaml: {e}")
+
+    problems += brand.check(brand_dir)
+    problems += calendar.check(calendar_path)
+    problems += looks.check(looks_dir)
 
     return problems
 
