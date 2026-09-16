@@ -1,6 +1,6 @@
 ---
 title: Audiences
-updated: 2026-09-15
+updated: 2026-09-16
 ---
 # Audiences
 
@@ -30,13 +30,14 @@ queue, and change a definition line when a tool renames a field.
 - Do not: reduce their work to "automation"; hide what a rebuild does and does not touch.
 - Open with: the concrete task, then how the system carries it.
 
-## The engineer
+## The head of sales
 
-Evaluates before anyone signs. Will clone the repository, read the
-definitions, run the gate, and check the license before replying.
+Carries a number every quarter and works from named deals, not totals.
+Lives in the CRM, and finds out late that a deal went quiet or that a
+customer mid-negotiation has been raising tickets all week.
 
-- Wants: to know what runs where, what is deterministic, and what the model is allowed to read.
-- Reads: README.md, definitions/, the tests, LICENSE.
-- Cares about: AGPL-3.0; Docker on their own machine; 100% line and branch coverage; the model handed finished numbers, never the database.
-- Do not: say "AI-powered" without naming the layer and what it reads; round a number.
-- Open with: the design decision, then the file that proves it.
+- Wants: to know which deal needs them today, and why it surfaced.
+- Reads: a post about a deal that stalled; a briefing that names companies.
+- Cares about: deals past their own close date; a customer whose tickets and pipeline disagree; whether their figure matches the one finance quotes.
+- Do not: talk in funnels and aggregates; rank their deals for them; say "insights".
+- Open with: a named deal or customer, then what the system noticed about it.
