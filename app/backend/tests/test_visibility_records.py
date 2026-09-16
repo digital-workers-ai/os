@@ -30,7 +30,9 @@ class TestTheCheckRecord:
 
     def test_the_answer_is_the_text_and_the_sources_count_the_links(self):
         links = ["https://www.g2.com/crm", "https://www.capterra.com/crm"]
-        check = check_records("chatgpt", QUERY, TODAY, {}, text="Nothing.", links=links)[0]
+        check = check_records(
+            "chatgpt", QUERY, TODAY, {}, text="Nothing.", links=links
+        )[0]
         assert check["_answer"] == "Nothing."
         assert check["_sources"] == 2
 
@@ -76,7 +78,9 @@ class TestTheCheckRecord:
     def test_the_brand_rank_is_absent_when_the_brand_is_not_found(self):
         text = "HubSpot leads."
         links = ["https://www.hubspot.com/products/crm"]
-        check, *found = check_records("chatgpt", QUERY, TODAY, {}, text=text, links=links)
+        check, *found = check_records(
+            "chatgpt", QUERY, TODAY, {}, text=text, links=links
+        )
         assert "_brand_rank" not in check
         assert [m["_role"] for m in found] == ["competitor"]
 
