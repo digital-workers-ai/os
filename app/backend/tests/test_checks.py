@@ -516,9 +516,9 @@ class TestGlossaryTypesAndCollisions:
             lambda d: d.update({"attributes": {"foo": {"description": "nothing"}}}),
         )
         problems = files.problems()
-        assert any(
-            "is not a declared attr of any entity" in p for p in problems
-        ), problems
+        assert any("is not a declared attr of any entity" in p for p in problems), (
+            problems
+        )
 
     def test_an_attribute_synonym_that_is_a_label_collides(self, files):
         files.edit(
