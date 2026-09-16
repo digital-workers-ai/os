@@ -5,7 +5,6 @@ import { Card } from '@/components/ui/card'
 import { Empty } from '@/components/ui/empty'
 import { Mono } from '@/components/ui/mono'
 import { Pill } from '@/components/ui/pill'
-import { consoleUrl } from '@/lib/console'
 import { num } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
@@ -106,12 +105,6 @@ export function Competitors() {
       <StateSection id="competitors-sources" label="Spy sources" queries={[sources]} className="mt-8">
         <Card>{sources.data && <Sources sources={sources.data.sources.filter(isSpy)} />}</Card>
       </StateSection>
-      <p className="mt-6 text-xs text-muted">
-        <a href={consoleUrl('/definitions/spy')} className="underline" target="_blank" rel="noreferrer" data-testid="competitors-edit">
-          Edit definitions/spy.yaml
-        </a>
-        , then rebuild.
-      </p>
     </>
   )
 }
