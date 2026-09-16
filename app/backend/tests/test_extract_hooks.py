@@ -378,9 +378,9 @@ class TestDiscovery:
             "pinterest",
             "intercom",
             "google_ads_transparency",
+            "google_ads_transparency",
             "perplexity",
             "claude",
-            "gemini",
         }
 
     def test_a_package_without_an_extract_module_contributes_no_hook(self, monkeypatch):

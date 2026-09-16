@@ -66,3 +66,5 @@ brand_rank: normalize_number
 company: normalize_text
 role: normalize_status
 rank: normalize_number
+first_seen: normalize_date
+last_seen: normalize_date

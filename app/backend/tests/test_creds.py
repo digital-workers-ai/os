@@ -724,6 +724,8 @@ class TestEverySourceWithRealCredentialsStillHasAStandIn:
             "mixpanel",
             "activecampaign",
             "twitter",
+            "google_ads_transparency",
+            "chatgpt",
         }
 
 

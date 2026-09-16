@@ -92,6 +92,12 @@ def _shopify(domain: str, token: str) -> tuple[dict, tuple | None, dict, dict]:
     return {"X-Shopify-Access-Token": token}, None, {}, {"domain": domain}
 
 
+def _serpapi_read_by_openrouter(
+    key: str, _reader_key: str
+) -> tuple[dict, tuple | None, dict, dict]:
+    return {}, None, {"api_key": key}, {}
+
+
 def _serpapi(key: str) -> tuple[dict, tuple | None, dict, dict]:
     return {}, None, {"api_key": key}, {}
 
@@ -140,6 +146,12 @@ _REAL: dict[str, tuple[str, tuple[str, ...], Callable]] = {
         ("TWITTER_BEARER_TOKEN", "TWITTER_USER_ID"),
         _twitter,
     ),
+    "google_ads_transparency": (
+        "https://serpapi.com",
+        ("SERPAPI_API_KEY", "OPENROUTER_API_KEY"),
+        _serpapi_read_by_openrouter,
+    ),
+    "chatgpt": ("https://openrouter.ai", ("OPENROUTER_API_KEY",), _bearer),
     "linkedin_posts": (
         "https://api.brightdata.com",
         ("BRIGHTDATA_API_KEY",),
@@ -260,6 +272,13 @@ _MOCK: dict[str, tuple[str, dict, tuple | None, dict]] = {
     "twitter": (
         "/twitter",
         {"Authorization": "Bearer mock_twitter_token"},
+        None,
+        {},
+    ),
+    "google_ads_transparency": ("/serpapi", {}, None, {"api_key": "mock_serpapi_key"}),
+    "chatgpt": (
+        "/openrouter",
+        {"Authorization": "Bearer mock_openrouter_key"},
         None,
         {},
     ),

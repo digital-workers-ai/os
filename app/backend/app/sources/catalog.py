@@ -28,6 +28,11 @@ _META: dict[str, tuple[str, str, str]] = {
     "segment": ("Segment", "Analytics", "Event stream, identity"),
     "smartlook": ("Smartlook", "Analytics", "Session events"),
     "google_sheets": ("Google Sheets", "Other", "Custom tabular data"),
+    "google_ads_transparency": (
+        "Google Ads Transparency",
+        "Spy",
+        "Competitor creatives, ad text",
+    ),
     "linkedin_posts": (
         "LinkedIn Company Posts",
         "Spy",

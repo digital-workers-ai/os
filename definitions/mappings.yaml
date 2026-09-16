@@ -338,3 +338,13 @@ competitor_post:
   linkedin_posts.posts.num_likes: likes
   linkedin_posts.posts.num_comments: comments
   linkedin_posts.posts.url: url
+
+ad:
+  google_ads_transparency.creatives._company: company
+  google_ads_transparency.creatives._platform: platform
+  google_ads_transparency.creatives.creative.format: category
+  google_ads_transparency.creatives.creative.first_shown: first_seen
+  google_ads_transparency.creatives.creative.last_shown: last_seen
+  google_ads_transparency.creatives.creative.details_link: url
+  google_ads_transparency.creatives.creative.image: preview
+  google_ads_transparency.creative_texts._text: name

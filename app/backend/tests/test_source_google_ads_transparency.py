@@ -42,7 +42,6 @@ HOOK_READ_PATHS = (
     "creative.ad_creative_id",
     "creative.format",
     "creative.image",
-    "creative.link",
     "creative.first_shown",
     "creative.last_shown",
     "creative.details_link",
@@ -289,7 +288,9 @@ class TestTheWalkFollowsNextPageToken:
         await connector().pull(None, save)
 
         hubspot = [
-            r for r in searches(two_pages) if r.url.params["advertiser_id"] == HUBSPOT_ID
+            r
+            for r in searches(two_pages)
+            if r.url.params["advertiser_id"] == HUBSPOT_ID
         ]
         assert [r.url.params.get("next_page_token") for r in hubspot] == [None, "t2"]
 
@@ -331,7 +332,9 @@ class TestEveryCompetitorWithAnIdIsAsked:
         seen = estate()
         doc = spy.load()
         doc["competitors"][1] = {
-            k: v for k, v in doc["competitors"][1].items() if k != "google_advertiser_id"
+            k: v
+            for k, v in doc["competitors"][1].items()
+            if k != "google_advertiser_id"
         }
         monkeypatch.setattr(spy, "definition", lambda: spy.parse(doc))
 
@@ -480,7 +483,7 @@ class TestOnlyReadableCreativesAreRead:
         await connector().pull(None, save)
 
         (request,) = reads(seen)
-        assert request.headers["Authorization"] == "Bearer mock_openrouter_token"
+        assert request.headers["Authorization"] == "Bearer mock_openrouter_key"
         assert json.loads(request.content) == {
             "model": "openai/gpt-5.6-luna",
             "messages": [
@@ -630,7 +633,9 @@ class TestTheCreativesHook:
 
 class TestTheCreativeTextsHook:
     def test_the_content_becomes_the_text_stripped(self):
-        (record,) = reshape("creative_texts", text_payload("  Grow better  \nStart free\n"))
+        (record,) = reshape(
+            "creative_texts", text_payload("  Grow better  \nStart free\n")
+        )
         assert record["_text"] == "Grow better  \nStart free"
 
     @pytest.mark.parametrize("content", ["NONE", "none", " None \n"])
@@ -722,7 +727,10 @@ class TestTheStandInFixtureCarriesTheRealShapes:
         for payload in payloads("mock", "creatives"):
             assert set(payload) == {"request", "creative"}
             assert payload["request"]["advertiser_id"] in ADVERTISER_IDS
-            assert payload["creative"]["advertiser_id"] == payload["request"]["advertiser_id"]
+            assert (
+                payload["creative"]["advertiser_id"]
+                == payload["request"]["advertiser_id"]
+            )
 
     def test_the_shown_stamps_are_unix_seconds_integers(self):
         types = key_types(payloads("mock", "creatives"))
@@ -776,10 +784,18 @@ class TestTheRealCaptureAgreesWithTheStandIn:
         for path in TEXT_READ_PATHS:
             assert real[path] == mock[path], path
 
-    def test_the_real_capture_keeps_a_video_and_a_still(self):
-        formats = {p["creative"]["format"] for p in payloads("real", "creatives")}
-        assert "video" in formats
-        assert formats & {"text", "image"}
+    def test_the_real_capture_keeps_a_still_with_its_preview(self):
+        stills = [
+            p["creative"]
+            for p in payloads("real", "creatives")
+            if p["creative"]["format"] in ("text", "image")
+        ]
+        assert stills
+        assert all(still["image"].startswith("https://") for still in stills)
+
+    def test_every_real_creative_belongs_to_a_tracked_competitor(self):
+        for payload in payloads("real", "creatives"):
+            assert spy.definition().by_advertiser(payload["creative"]["advertiser_id"])
 
     def test_the_real_capture_keeps_a_read_with_words_in_it(self):
         texts = [

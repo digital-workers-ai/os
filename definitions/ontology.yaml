@@ -219,6 +219,18 @@ entities:
       likes: number
       comments: number
       url: string
+  ad:
+    description: One creative a competitor is running, as the public ads library shows it.
+    synonyms: [creative]
+    attrs:
+      company: string
+      platform: string
+      name: string
+      category: string
+      first_seen: date
+      last_seen: date
+      url: string
+      preview: string
   data_source:
     description: An upstream system feeding the estate.
     attrs:
@@ -333,6 +345,14 @@ attributes:
     description: Whether the company is the brand or a competitor.
   rank:
     description: Where the company came in the answer, first is one.
+  first_seen:
+    description: When the ads library first saw the creative running.
+  last_seen:
+    description: When the ads library last saw the creative running.
+  url:
+    description: Where the record lives on the platform that published it.
+  preview:
+    description: The rendered preview image of the creative, where the platform provides one.
 
 source_priority:
   - salesforce
@@ -361,6 +381,7 @@ source_priority:
   - smartlook
   - google_analytics
   - google_sheets
+  - google_ads_transparency
   - linkedin_posts
   - google_serp
 
