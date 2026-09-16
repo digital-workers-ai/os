@@ -1,0 +1,39 @@
+{
+  "clears": {},
+  "extracted": {
+    "creative_texts": {
+      "ad": {
+        "CR06609143572560084993": {
+          "name": "HubSpot CRM Platform - Increase Leads - Accelerate Sales Generate leads, close deals, and create remarkable customer experiences. Learn how to grow your business with a demo of HubSpot's software. CRM for Small Business Pricing Packages HubSpot Smart CRM Breeze | AI by HubSpot Less Busywork. More Growth. HubSpot www.hubspot.com/demo"
+        },
+        "CR07984100738747858945": {
+          "name": "HubSpot turns leads into revenue Replace the guesswork with clear, AI-powered insights your team can act on. Learn More Generate quality leads that convert. Get a demo Personalization Manage Suggestions Analyze Landing Page Overview VIEWS 40,021 21% SUBMISSIONS 5446 18% Highest performing personalized landing pages Date range: 01/01/2025 to 01/30/2025 Personalization performance comparison (views) Date range: 01/01/2025 to 01/30/2025 HubSpot"
+        }
+      }
+    },
+    "creatives": {
+      "ad": {
+        "CR06609143572560084993": {
+          "category": "text",
+          "company": "HubSpot",
+          "first_seen": "2022-06-29T22:31:22Z",
+          "last_seen": "2026-09-16T02:18:21Z",
+          "platform": "google",
+          "preview": "https://tpc.googlesyndication.com/archive/simgad/11373552786331311574",
+          "url": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR06609143572560084993?region=anywhere&domain=hubspot.com"
+        },
+        "CR07984100738747858945": {
+          "category": "image",
+          "company": "HubSpot",
+          "first_seen": "2026-06-17T15:26:18Z",
+          "last_seen": "2026-09-16T02:09:19Z",
+          "platform": "google",
+          "preview": "https://tpc.googlesyndication.com/archive/simgad/15529968583071394590",
+          "url": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR07984100738747858945?region=anywhere&domain=hubspot.com"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "google_ads_transparency"
+}
