@@ -9,8 +9,8 @@ EMBEDDINGS_CREDENTIAL_ENV = "OPENAI_API_KEY"
 RERANK_CREDENTIAL_ENV = "ZEROENTROPY_API_KEY"
 LLM_FLAGS = ("ENRICHMENT_ENABLED", "COACHING_ENABLED", "CONVERSATION_ENABLED")
 CREDENTIALS = {
-    ANTHROPIC_CREDENTIAL_ENV: LLM_FLAGS,
-    EMBEDDINGS_CREDENTIAL_ENV: ("EMBEDDINGS_ENABLED",),
+    ANTHROPIC_CREDENTIAL_ENV: (*LLM_FLAGS, "STUDIO_ENABLED"),
+    EMBEDDINGS_CREDENTIAL_ENV: ("EMBEDDINGS_ENABLED", "STUDIO_ENABLED"),
     RERANK_CREDENTIAL_ENV: ("RERANK_ENABLED",),
 }
 
@@ -49,6 +49,15 @@ class Settings(BaseSettings):
     RERANK_MODEL: str = "zerank-2"
     RERANK_TOP: int = 20
     SEARCH_CHUNK_CHARS: int = 1200
+    STUDIO_ENABLED: bool = False
+    STUDIO_MODEL: str = "claude-opus-5"
+    STUDIO_MAX_TOKENS: int = 8000
+    STUDIO_MAX_TURNS: int = 16
+    PAINT_MODEL: str = "gpt-image-2"
+    MEDIA_DIR: str = "/media"
+    RENDER_URL: str = "http://localhost:8200"
+    MARKETER_DAILY: bool = False
+    MARKETER_HOUR: int = 6
     CLOCK_PINNED_AT: datetime | None = None
 
     model_config = {"env_file": ".env", "extra": "ignore"}

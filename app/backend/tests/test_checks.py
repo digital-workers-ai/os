@@ -669,3 +669,30 @@ class TestSpyDefinitionsPassTheBuild:
         assert any("within_days on visibility_check.answer" in p for p in problems), (
             problems
         )
+
+
+class TestStudioDefinitionsAreChecked:
+    def test_the_shipped_brand_calendar_and_looks_are_clean(self, files):
+        problems = files.problems(
+            brand_dir=DEFINITIONS / "brand",
+            calendar_path=DEFINITIONS / "calendar.yaml",
+            looks_dir=DEFINITIONS / "looks",
+        )
+        assert problems == []
+
+    def test_an_empty_brand_dir_is_named(self, files):
+        (files.root / "brand").mkdir()
+        problems = files.problems(brand_dir=files.root / "brand")
+        assert any("brand/voice.md" in p for p in problems), problems
+
+    def test_a_calendar_that_is_not_a_mapping_is_named(self, files):
+        (files.root / "calendar.yaml").write_text("- a\n")
+        problems = files.problems(calendar_path=files.root / "calendar.yaml")
+        assert len(problems) == 1, problems
+        assert "calendar.yaml" in problems[0]
+
+    def test_a_look_without_a_manifest_is_named(self, files):
+        (files.root / "looks" / "stat-card").mkdir(parents=True)
+        problems = files.problems(looks_dir=files.root / "looks")
+        assert len(problems) == 1, problems
+        assert "looks/stat-card/look.yaml" in problems[0]

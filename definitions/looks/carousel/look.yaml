@@ -1,0 +1,8 @@
+name: carousel
+medium: carousel
+ratios: ["1:1", "4:5"]
+slides: {min: 3, max: 10}
+slots:
+  cover: [{name: title, max: 60}, {name: kicker, max: 40}]
+  slide: [{name: title, max: 40}, {name: body, max: 160}]
+  closing: [{name: title, max: 40}, {name: cta, max: 40}]

@@ -2,7 +2,13 @@ import os
 
 import pytest
 
-from app.config import CREDENTIALS, Settings, settings
+from app.config import (
+    CREDENTIALS,
+    Settings,
+    StartupError,
+    settings,
+    validate_startup,
+)
 from app.sources import creds
 
 
@@ -70,6 +76,7 @@ class TestNoModelLayerIsOnInATest:
             "EMBEDDINGS_ENABLED",
             "ENRICHMENT_ENABLED",
             "RERANK_ENABLED",
+            "STUDIO_ENABLED",
         ]
 
     @pytest.mark.parametrize("flag", flag_names())
@@ -80,6 +87,34 @@ class TestNoModelLayerIsOnInATest:
     def test_a_flag_a_test_turns_on_stays_on(self, flag, monkeypatch):
         monkeypatch.setattr(settings, flag, True)
         assert getattr(settings, flag) is True
+
+
+class TestStudioNeedsBothVendorKeys:
+    @pytest.fixture(autouse=True)
+    def studio_on(self, monkeypatch):
+        monkeypatch.setattr(settings, "STUDIO_ENABLED", True)
+
+    def test_studio_on_without_the_anthropic_key_refuses_the_boot(self):
+        with pytest.raises(StartupError, match="STUDIO_ENABLED") as info:
+            validate_startup(env={"OPENAI_API_KEY": "sk"})
+        assert "ANTHROPIC_API_KEY" in str(info.value)
+
+    def test_studio_on_without_the_openai_key_refuses_the_boot(self):
+        with pytest.raises(StartupError, match="STUDIO_ENABLED") as info:
+            validate_startup(env={"ANTHROPIC_API_KEY": "k"})
+        assert "OPENAI_API_KEY" in str(info.value)
+
+    def test_studio_on_without_any_key_names_the_first_missing_one(self):
+        with pytest.raises(StartupError, match="STUDIO_ENABLED"):
+            validate_startup(env={})
+
+    def test_studio_on_with_both_keys_boots(self):
+        both = {"ANTHROPIC_API_KEY": "k", "OPENAI_API_KEY": "sk"}
+        assert validate_startup(env=both) is None
+
+    def test_studio_off_needs_no_key(self, monkeypatch):
+        monkeypatch.setattr(settings, "STUDIO_ENABLED", False)
+        assert validate_startup(env={}) is None
 
 
 class TestNoVendorCredentialIsVisibleToATest:

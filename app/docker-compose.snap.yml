@@ -13,6 +13,8 @@ services:
       COACHING_ENABLED: "false"
       EMBEDDINGS_ENABLED: "false"
       RERANK_ENABLED: "false"
+      STUDIO_ENABLED: "false"
+      MARKETER_DAILY: "false"
       CLOCK_PINNED_AT: "2026-09-04T12:00:00Z"
 
   console:
@@ -22,6 +24,9 @@ services:
     ports: !reset []
 
   spy:
+    ports: !reset []
+
+  studio:
     ports: !reset []
 
   playwright:

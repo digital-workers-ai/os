@@ -39,12 +39,14 @@ Every night, an AI agent reviews what changed and opens a GitHub issue for each 
 - [Your Business as Code You Own](#your-business-as-code-you-own)
 - [The Dashboard](#the-dashboard)
 - [Spy](#spy)
+- [The Studio](#the-studio)
 - [MCP Support](#mcp-support)
 - [The Nightly AI Engineer Agent](#the-nightly-ai-engineer-agent)
 - [An Engineer in Your Loop](#an-engineer-in-your-loop)
 - [For Developers](#for-developers)
 - [Configuration](#configuration)
 - [Operator Variables](#operator-variables)
+- [Studio Agent Variables](#studio-agent-variables)
 - [How a Rebuild Works](#how-a-rebuild-works)
 - [Contact](#contact)
 - [License](#license)
@@ -73,7 +75,7 @@ curl -X POST localhost:8092/api/rebuild
 open http://localhost:3092
 ```
 
-The two `curl` commands pull from every stand-in tool and then build every record out of what arrived; the last command opens the console on your home page; the dashboard is at http://localhost:3093 and Spy at http://localhost:3094.
+The two `curl` commands pull from every stand-in tool and then build every record out of what arrived; the last command opens the console on your home page; the dashboard is at http://localhost:3093, Spy at http://localhost:3094 and the studio at http://localhost:3095.
 
 ## Connectors
 
@@ -190,8 +192,9 @@ flowchart TD
 21. **Console:** The web app: a home page with goals and findings, plus pages for activity, metrics, records, the AI parts, definitions, settings, and search.
 22. **Dashboard:** A second web app for readers: the pages `dashboards.yaml` declares, one card per metric, over any date range.
 23. **Spy:** A third web app: how the brand comes up in Google and AI answers for the tracked queries, and what competitors run and post.
-24. **Search:** One search box over everything stored: names, emails, ids, statuses, transcript passages, briefings, and the definitions themselves.
-25. **MCP:** The door for AI assistants. Any assistant on your machine can read the same numbers, definitions, and briefing prompts as the console, and every call is logged.
+24. **Studio:** A fourth web app for whoever markets the business: a canvas of what it has made, a chat that makes more through the content skills, the calendar and the asset library.
+25. **Search:** One search box over everything stored: names, emails, ids, statuses, transcript passages, briefings, and the definitions themselves.
+26. **MCP:** The door for AI assistants. Any assistant on your machine can read the same numbers, definitions, and briefing prompts as the console, and every call is logged.
 
 ## Entity Resolution
 
@@ -236,9 +239,9 @@ two records, same kind          (today: people; companies declare no ladder)
 
 ## Your Business as Code You Own
 
-Everything here is code your company owns: eleven definition files that describe the business, and the software underneath that connects to your tools, joins the records, calculates the numbers, and writes the briefings.
+Everything here is code your company owns: twelve definition files that describe the business, the brand and looks folders beside them that describe how it sounds and looks, and the software underneath that connects to your tools, joins the records, calculates the numbers, writes the briefings and makes the marketing.
 
-The definitions are where most changes happen. They hold what counts as a customer, which fields matter, how revenue is calculated, what counts as a problem, what the targets are, and what questions an AI model is allowed to ask about your text. Every time the system starts, and every time it rebuilds, it checks the files against each other. If one file mentions a field another does not have, or a number over data nothing produces, or a target with a setting that makes no sense, the system refuses to start and says which file and which line. It will not run on definitions it knows are broken.
+The definitions are where most changes happen. They hold what counts as a customer, which fields matter, how revenue is calculated, what counts as a problem, what the targets are, what questions an AI model is allowed to ask about your text, and what the studio makes and when. Every time the system starts, and every time it rebuilds, it checks the files against each other. If one file mentions a field another does not have, or a number over data nothing produces, or a target with a setting that makes no sense, the system refuses to start and says which file and which line. It will not run on definitions it knows are broken.
 
 A business does not stand still, so the code follows it. A tool renames a field and a mapping line changes. A new status appears and a synonym line folds it in. You start caring about a number you never tracked and a metric line defines it. You sign up for a tool nobody supports yet and a connector gets written. What you run on day one is tailored to your company, and a year later it is still tailored, because it has changed every time the company did.
 
@@ -263,13 +266,19 @@ Because all of it lives in a repository, your business is versioned. Changing wh
 ├─────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
 │ rules.yaml      │ What counts as worth a person's attention                                             │
 ├─────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
-│ goals.yaml      │ The targets, and how each one is judged                                              │
+│ goals.yaml      │ The targets, and how each one is judged                                               │
 ├─────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
-│ dashboards.yaml │ The pages of the dashboard, and which numbers each one shows                         │
+│ dashboards.yaml │ The pages of the dashboard, and which numbers each one shows                          │
 ├─────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
-│ enrichment.yaml │ The questions a model may ask of your text, and the answers it may give              │
+│ enrichment.yaml │ The questions a model may ask of your text, and the answers it may give               │
 ├─────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
 │ spy.yaml        │ The brand, the competitors and the queries Spy tracks                                 │
+├─────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
+│ calendar.yaml   │ What the studio makes and when: each slot's kind, skill, cadence, look and theme      │
+├─────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
+│ brand/          │ How the company sounds and what it can prove, plus the colors, fonts and logo         │
+├─────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
+│ looks/          │ The layouts an image or a carousel can take, and the slots each one fills             │
 └─────────────────┴───────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -289,9 +298,27 @@ Spy is a third web app, at http://localhost:3094, for whoever looks after the br
 
 `definitions/spy.yaml` holds the brand (name, domain, aliases), the competitors (name, domain, aliases, LinkedIn slug, Google advertiser id), the queries, the country and the language. It is checked at boot and before every rebuild like the other definition files, and the console shows it under Definitions → Spy. To change what Spy tracks, edit the file and rebuild. The shipped file names real companies, Pipedrive against HubSpot, Zoho CRM and Freshsales, so the stand-ins and the saved real responses have something to find.
 
+## The Studio
+
+The dashboard is for whoever runs the business. The studio is for whoever markets it: a fourth web app with a canvas of everything the company has made, grouped by day, and a chat that makes more of it. Nothing on the canvas came from a template. Every piece was made by a content skill, one of the five `dw-*` skills under `.claude/skills/`: a post, a newsletter, a blog post, an image or a carousel. A skill is a plain file that says what it reads, the steps it takes and the rules it keeps, and the same five skills answer over MCP, so an assistant on your machine can ask for a post the way the chat does.
+
+The skill reads the brand files, takes every number from `proof.md` and every quote word for word from a call transcript or a brand file, writes down each claim and where it came from, paints a picture and renders the card over it when the piece carries one, and the result lands in the library with its files, its claims and its evidence. A run that cannot source a number is held rather than finished, and says what it was missing.
+
+An edit is a sentence in the chat. It goes back through the same skill, which keeps everything the sentence did not name and makes a new version with a fresh image; a resize does the same at the new ratio. Every version is kept, with the note that asked for it, and a person can leave feedback on any finished piece.
+
+The brand is files your company owns, checked at startup like the other definitions. `definitions/brand/` holds what the company is (`brand-brain.md`), how it sounds (`voice.md`, `language.md`), who it serves and what it stands for (`pillars.md`, `audiences.md`, `objections.md`), what it can prove (`proof.md`), and `tokens.yaml`, the colors, fonts and logo every image reads, with the fonts and the logo themselves in `assets/` beside it. `definitions/calendar.yaml` says what gets made and when—a weekly newsletter, two posts a week, a blog post every fortnight, a carousel a month—each slot with a theme. `definitions/looks/` holds the layouts an image can take: three cards in four ratios, and a carousel.
+
+Each morning, when `MARKETER_DAILY` is on, a marketer routine reads the calendar and fills every empty slot in the fortnight ahead; each asset it makes carries a badge saying so, and a person can skip a slot or run one early. Each night a taste agent reads the feedback people left and the notes they typed to get the next version, and when the same correction has shown up three times across one skill's assets it appends one line to that skill's `## Lessons` and opens a pull request carrying the evidence. A person merges, or does not. Its model and brief are in `agents/taste.yaml`; it is off until a person switches it on, see [Studio Agent Variables](#studio-agent-variables).
+
+Nothing publishes. An asset exports as its files, and where it goes from there is a person's decision. The studio is off until a person sets `STUDIO_ENABLED`, which needs both `ANTHROPIC_API_KEY` and `OPENAI_API_KEY`; the app refuses to start with the flag on and either key missing.
+
+```bash
+open http://localhost:3095
+```
+
 ## MCP Support
 
-Any AI assistant can use DW-OS as a tool. It gets read-only access to the same reviewed numbers the console shows, so when you ask your assistant about revenue it reports the number your system agreed on rather than guessing over raw tables. It can also read the definition files, so it can check what a number means before quoting it.
+Any AI assistant can use DW-OS as a tool. It gets read-only access to the same reviewed numbers the console shows, so when you ask your assistant about revenue it reports the number your system agreed on rather than guessing over raw tables. It can also read the definition files, so it can check what a number means before quoting it. The studio adds four tools that only read, `assets_list`, `assets_read`, `brand_read` and `looks_read`, and one tool per content skill, `dw_linkedin_post`, `dw_newsletter`, `dw_blog`, `dw_image` and `dw_carousel`, which are not read-only: each one runs the skill and lands a new asset in the library.
 
 ```
 claude mcp add --transport http os http://localhost:3092/mcp
@@ -363,13 +390,22 @@ Everything is read from the environment, and `app/.env` is loaded first. Every s
 | `RERANK_MODEL`             | `zerank-2`                                      | Reranker model                                                         |
 | `RERANK_TOP`               | `20`                                            | Results sent to the reranker                                           |
 | `SEARCH_CHUNK_CHARS`       | `1200`                                          | Target size of a transcript chunk                                      |
+| `STUDIO_ENABLED`           | `false`                                         | The studio's skill runs; needs `ANTHROPIC_API_KEY` and `OPENAI_API_KEY` |
+| `STUDIO_MODEL`             | `claude-opus-5`                                 | Model that runs a content skill                                        |
+| `STUDIO_MAX_TOKENS`        | `8000`                                          | Output cap per skill turn                                              |
+| `STUDIO_MAX_TURNS`         | `16`                                            | Tool-call rounds per skill run                                         |
+| `PAINT_MODEL`              | `gpt-image-2`                                   | OpenAI image model that paints a picture                               |
+| `MEDIA_DIR`                | `/media`                                        | Where asset files are written; compose mounts a volume there           |
+| `RENDER_URL`               | `http://localhost:8200`                         | Where the renderer answers; compose points it at the `render` service  |
+| `MARKETER_DAILY`           | `false`                                         | Fill the calendar's empty slots every morning                          |
+| `MARKETER_HOUR`            | `6`                                             | UTC hour the daily fill runs                                           |
 | `CLOCK_PINNED_AT`          | unset                                           | Pins the app clock at one instant                                      |
 
-| Key                   | Needed by                                  |
-|-----------------------|--------------------------------------------|
-| `ANTHROPIC_API_KEY`   | Reading text, briefings, asking questions  |
-| `OPENAI_API_KEY`      | Meaning search                             |
-| `ZEROENTROPY_API_KEY` | Reranking                                  |
+| Key                   | Needed by                                                      |
+|-----------------------|----------------------------------------------------------------|
+| `ANTHROPIC_API_KEY`   | Reading text, briefings, asking questions, the studio's skills |
+| `OPENAI_API_KEY`      | Meaning search, the studio's pictures                          |
+| `ZEROENTROPY_API_KEY` | Reranking                                                      |
 
 A source reads its real API once every variable it names is set, and the stand-in when none is. A partial set is refused, naming what is missing. `<SOURCE>_BASE_URL` overrides the host.
 
@@ -409,6 +445,14 @@ The nightly agent and its builder run only when the repository variable `OPERATO
 | `OPERATOR_GCP_SERVICE_ACCOUNT`            | variable | Service account it impersonates to read the dump                             |
 | `ANTHROPIC_API_KEY`                       | secret   | The operator's model                                                         |
 | `OPERATOR_GITHUB_PAT`                     | secret   | Token the operator uses to open issues and the builder to open pull requests |
+
+## Studio Agent Variables
+
+The taste agent runs only when the repository variable `STUDIO_AGENTS_ENABLED` is `true`; until then `.github/workflows/taste.yml` is skipped. Like the operator it is a Claude Code session in GitHub Actions, scheduled at 02:00 UTC, with the repository checked out and last night's database copy restored beside it, and it reaches that copy through the operator's variables: `OPERATOR_SNAPSHOT_S3` with `OPERATOR_AWS_ROLE_ARN`, or `OPERATOR_SNAPSHOT_GCS` with `OPERATOR_GCP_WORKLOAD_IDENTITY_PROVIDER` and `OPERATOR_GCP_SERVICE_ACCOUNT`, never both. With neither set the copy is empty and the night finds nothing. `ANTHROPIC_API_KEY` is its model and `OPERATOR_GITHUB_PAT` opens its pull requests, on branches under `taste/`.
+
+| Variable                | Kind     | What it does                                                                  |
+|-------------------------|----------|-------------------------------------------------------------------------------|
+| `STUDIO_AGENTS_ENABLED` | variable | `true` switches the taste workflow on; anything else and every run is skipped |
 
 ## How a Rebuild Works
 

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>carousel closing</title>
+<style>
+@font-face { font-family: "Sans"; src: url("{{ fonts.sans }}") format("woff2"); font-weight: 400 700; }
+@font-face { font-family: "Display"; src: url("{{ fonts.display }}") format("woff2"); font-weight: 500; }
+html { font-size: calc({{ [width, height] | min }}px / 100); }
+html, body { margin: 0; padding: 0; }
+body { position: relative; width: {{ width }}px; height: {{ height }}px; overflow: hidden; background: {{ tokens.colors.wash }}; color: {{ tokens.colors.ink }}; font-family: "Sans", sans-serif; -webkit-font-smoothing: antialiased; }
+.picture { position: absolute; inset: 0; background: url("{{ picture }}") center / cover no-repeat; }
+.card { position: absolute; inset: 6rem; display: flex; flex-direction: column; box-sizing: border-box; padding: 7rem; background: {{ tokens.colors.paper }}; border: 0.25rem solid {{ tokens.colors.line }}; border-radius: 2.5rem; }
+.body { display: flex; flex-direction: column; align-items: flex-start; margin: auto 0; }
+.title { margin: 0; font-family: "Display", sans-serif; font-weight: 500; font-size: 9.5rem; line-height: 0.95; letter-spacing: -0.015em; overflow-wrap: anywhere; }
+.cta { margin-top: 5rem; padding: 2.2rem 3.6rem; border-radius: 10rem; background: {{ tokens.colors.accent }}; color: {{ tokens.colors.paper }}; font-size: 3.6rem; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+.footer { display: flex; align-items: center; justify-content: space-between; padding-top: 3rem; border-top: 0.25rem solid {{ tokens.colors.line }}; }
+.footer img { height: 3.2rem; }
+.footer span { font-size: 2.6rem; color: {{ tokens.colors.muted }}; letter-spacing: 0.04em; }
+</style>
+</head>
+<body>
+{% if picture %}<div class="picture"></div>{% endif %}
+<main class="card">
+  <section class="body">
+    <h1 class="title">{{ slots.title }}</h1>
+    <div class="cta">{{ slots.cta }}</div>
+  </section>
+  <footer class="footer">
+    <img src="{{ logo }}" alt="Digital Workers">
+    <span>{{ page }} / {{ pages }}</span>
+  </footer>
+</main>
+</body>
+</html>

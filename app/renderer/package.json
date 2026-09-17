@@ -1,0 +1,13 @@
+{
+  "name": "dw-renderer",
+  "version": "0.0.0",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "playwright": "1.62.1"
+  }
+}

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>list-card</title>
+<style>
+@font-face { font-family: "Sans"; src: url("{{ fonts.sans }}") format("woff2"); font-weight: 400 700; }
+@font-face { font-family: "Display"; src: url("{{ fonts.display }}") format("woff2"); font-weight: 500; }
+html { font-size: calc({{ [width, height] | min }}px / 100); }
+html, body { margin: 0; padding: 0; }
+body { position: relative; width: {{ width }}px; height: {{ height }}px; overflow: hidden; background: {{ tokens.colors.wash }}; color: {{ tokens.colors.ink }}; font-family: "Sans", sans-serif; -webkit-font-smoothing: antialiased; }
+.picture { position: absolute; inset: 0; background: url("{{ picture }}") center / cover no-repeat; }
+.card { position: absolute; inset: 6rem; display: flex; flex-direction: column; box-sizing: border-box; padding: 7rem; background: {{ tokens.colors.paper }}; border: 0.25rem solid {{ tokens.colors.line }}; border-radius: 2.5rem; }
+.body { display: flex; flex-direction: column; margin: auto 0; }
+.title { margin: 0 0 3rem; font-family: "Display", sans-serif; font-weight: 500; font-size: 8rem; line-height: 1; letter-spacing: -0.01em; }
+ol { list-style: none; margin: 0; padding: 0; counter-reset: item; display: flex; flex-direction: column; }
+li { counter-increment: item; display: grid; grid-template-columns: 10rem 1fr; column-gap: 2rem; align-items: baseline; padding: 3rem 0; border-top: 0.25rem solid {{ tokens.colors.line }}; font-size: 4.2rem; line-height: 1.25; overflow-wrap: anywhere; }
+li::before { content: counter(item, decimal-leading-zero); font-family: "Display", sans-serif; font-weight: 500; font-size: 5rem; white-space: nowrap; color: {{ tokens.colors.accent }}; }
+.footer { display: flex; align-items: center; justify-content: space-between; padding-top: 3rem; border-top: 0.25rem solid {{ tokens.colors.line }}; }
+.footer img { height: 3.2rem; }
+.footer span { font-size: 2.4rem; color: {{ tokens.colors.muted }}; letter-spacing: 0.04em; }
+.landscape ol { flex-direction: row; gap: 4rem; }
+.landscape li { flex: 1; grid-template-columns: 1fr; row-gap: 2rem; padding: 0 0 0 3rem; border-top: none; border-left: 0.25rem solid {{ tokens.colors.line }}; }
+</style>
+</head>
+<body class="{{ 'landscape' if width > height else 'portrait' }}">
+{% if picture %}<div class="picture"></div>{% endif %}
+<main class="card">
+  <section class="body">
+    <h1 class="title">{{ slots.title }}</h1>
+    <ol>
+      <li>{{ slots.item1 }}</li>
+      <li>{{ slots.item2 }}</li>
+      <li>{{ slots.item3 }}</li>
+    </ol>
+  </section>
+  <footer class="footer">
+    <img src="{{ logo }}" alt="Digital Workers">
+    <span>DW-OS</span>
+  </footer>
+</main>
+</body>
+</html>

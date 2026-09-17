@@ -1,0 +1,4 @@
+name: list-card
+medium: image
+ratios: ["1:1", "4:5", "9:16", "16:9"]
+slots: [{name: title, max: 40}, {name: item1, max: 60}, {name: item2, max: 60}, {name: item3, max: 60}]

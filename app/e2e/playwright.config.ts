@@ -29,8 +29,9 @@ export default defineConfig({
     toHaveScreenshot: { animations: 'disabled', caret: 'hide', maxDiffPixels: 0 },
   },
   projects: [
-    { name: 'chromium', testIgnore: [...ignored, 'dashboard/**', 'spy/**'] },
+    { name: 'chromium', testIgnore: [...ignored, 'dashboard/**', 'spy/**', 'studio/**'] },
     { name: 'dashboard', testMatch: 'dashboard/**/*.spec.ts', use: { baseURL: process.env.DASHBOARD_URL ?? 'http://localhost:3093' } },
     { name: 'spy', testMatch: 'spy/**/*.spec.ts', use: { baseURL: process.env.SPY_URL ?? 'http://localhost:3094' } },
+    { name: 'studio', testMatch: 'studio/**/*.spec.ts', use: { baseURL: process.env.STUDIO_URL ?? 'http://localhost:3095' } },
   ],
 })

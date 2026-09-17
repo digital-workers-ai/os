@@ -27,14 +27,14 @@ if ! docker info >/dev/null 2>&1; then
   exit 1
 fi
 
-wait_for_console() {
+wait_for() {
   for _ in $(seq 60); do
-    if compose_snap exec -T console wget -qO- http://127.0.0.1:3000 >/dev/null 2>&1; then
+    if compose_snap exec -T "$1" wget -qO- http://127.0.0.1:3000 >/dev/null 2>&1; then
       return 0
     fi
     sleep 5
   done
-  echo "console did not answer within 5 minutes" >&2
+  echo "$1 did not answer within 5 minutes" >&2
   return 1
 }
 
@@ -59,12 +59,14 @@ except urllib.error.HTTPError as e:
 }
 
 if [ -n "${snap_script:-}" ]; then
-  echo "==> fresh snap stack (postgres, mock, backend, console)"
+  echo "==> fresh snap stack (postgres, mock, backend, render, console, spy, studio)"
   docker volume create os_console_node_modules >/dev/null
   compose_snap down -v --remove-orphans
-  compose_snap up -d --build --wait postgres mock backend
-  compose_snap up -d --build console
-  wait_for_console
+  compose_snap up -d --build --wait postgres mock backend render
+  compose_snap up -d --build console spy studio
+  wait_for console
+  wait_for spy
+  wait_for studio
   echo "==> sync + rebuild"
   post_api sync
   post_api rebuild

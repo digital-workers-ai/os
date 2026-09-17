@@ -2,10 +2,13 @@ import yaml
 
 from app.caches import BACKEND_DIR
 from app.engine import (
+    brand,
+    calendar,
     candidates,
     dashboards,
     derived,
     goals,
+    looks,
     mappings,
     metrics,
     ontology,
@@ -102,6 +105,9 @@ def run(
     derived_path=None,
     dashboards_path=None,
     spy_path=None,
+    brand_dir=None,
+    calendar_path=None,
+    looks_dir=None,
 ) -> list[str]:
     problems: list[str] = []
 
@@ -397,6 +403,10 @@ def run(
         problems += spy.check(spy.load(spy_path))
     except (spy.SpyError, yaml.YAMLError) as e:
         problems.append(f"spy.yaml: {e}")
+
+    problems += brand.check(brand_dir)
+    problems += calendar.check(calendar_path)
+    problems += looks.check(looks_dir)
 
     return problems
 

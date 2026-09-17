@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>carousel cover</title>
+<style>
+@font-face { font-family: "Sans"; src: url("{{ fonts.sans }}") format("woff2"); font-weight: 400 700; }
+@font-face { font-family: "Display"; src: url("{{ fonts.display }}") format("woff2"); font-weight: 500; }
+html { font-size: calc({{ [width, height] | min }}px / 100); }
+html, body { margin: 0; padding: 0; }
+body { position: relative; width: {{ width }}px; height: {{ height }}px; overflow: hidden; background: {{ tokens.colors.wash }}; color: {{ tokens.colors.ink }}; font-family: "Sans", sans-serif; -webkit-font-smoothing: antialiased; }
+.picture { position: absolute; inset: 0; background: url("{{ picture }}") center / cover no-repeat; }
+.card { position: absolute; inset: 6rem; display: flex; flex-direction: column; box-sizing: border-box; padding: 7rem; background: {{ tokens.colors.paper }}; border: 0.25rem solid {{ tokens.colors.line }}; border-radius: 2.5rem; }
+.body { display: flex; flex-direction: column; margin: auto 0; }
+.kicker { font-size: 3rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: {{ tokens.colors.accent }}; }
+.title { margin: 3rem 0 0; font-family: "Display", sans-serif; font-weight: 500; font-size: 11rem; line-height: 0.95; letter-spacing: -0.015em; overflow-wrap: anywhere; }
+.footer { display: flex; align-items: center; justify-content: space-between; padding-top: 3rem; border-top: 0.25rem solid {{ tokens.colors.line }}; }
+.footer img { height: 3.2rem; }
+.dots { display: flex; gap: 1.2rem; }
+.dots i { display: block; width: 1.6rem; height: 1.6rem; border-radius: 0.8rem; background: {{ tokens.colors.line }}; }
+.dots i.on { width: 4.8rem; background: {{ tokens.colors.accent }}; }
+</style>
+</head>
+<body>
+{% if picture %}<div class="picture"></div>{% endif %}
+<main class="card">
+  <section class="body">
+    <div class="kicker">{{ slots.kicker }}</div>
+    <h1 class="title">{{ slots.title }}</h1>
+  </section>
+  <footer class="footer">
+    <img src="{{ logo }}" alt="Digital Workers">
+    <div class="dots" aria-label="page {{ page }} of {{ pages }}">
+      {% for number in range(1, pages + 1) %}<i class="{{ 'on' if number == page else '' }}"></i>{% endfor %}
+    </div>
+  </footer>
+</main>
+</body>
+</html>

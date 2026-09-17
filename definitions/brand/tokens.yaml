@@ -1,0 +1,3 @@
+logo: assets/logo.svg
+colors: {ink: "#1A1A1A", paper: "#FFFFFF", wash: "#F5F3EB", line: "#E0DCC1", muted: "#807F74", accent: "#FD4E00"}
+fonts: {sans: assets/space-grotesk.woff2, display: assets/science-gothic-500.woff2}

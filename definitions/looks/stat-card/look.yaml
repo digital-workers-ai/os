@@ -1,0 +1,4 @@
+name: stat-card
+medium: image
+ratios: ["1:1", "4:5", "9:16", "16:9"]
+slots: [{name: stat, max: 6}, {name: label, max: 28}, {name: support, max: 96}]

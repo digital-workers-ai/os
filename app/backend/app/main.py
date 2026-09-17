@@ -1,13 +1,15 @@
+import asyncio
 import logging
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from urllib.parse import unquote
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
 from app import mcp
+from app.agents import marketer
 from app.api import register_routes
-from app.config import validate_startup
+from app.config import settings, validate_startup
 from app.db import create_schema
 from app.engine import checks
 
@@ -23,8 +25,13 @@ async def lifespan(app):
     if problems:
         raise checks.BuildCheckError(problems)
     logger.info("build checks: ok")
+    daily = asyncio.create_task(marketer.daily()) if settings.MARKETER_DAILY else None
     async with mcp.http_app.lifespan(mcp.http_app):
         yield
+    if daily is not None:
+        daily.cancel()
+        with suppress(asyncio.CancelledError):
+            await daily
 
 
 app = FastAPI(title="OS", lifespan=lifespan)

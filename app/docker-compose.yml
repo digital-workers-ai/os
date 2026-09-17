@@ -28,6 +28,8 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://os:os@postgres:5432/os
       MOCK_BASE_URL: http://mock:8100
+      RENDER_URL: http://render:8200
+      MEDIA_DIR: /media
     depends_on:
       postgres:
         condition: service_healthy
@@ -38,6 +40,8 @@ services:
       - ../definitions:/app/definitions
       - ../mock:/adversarial/seeds:ro
       - ./.env.example:/.env.example:ro
+      - media:/media
+      - ../.claude/skills:/app/.claude/skills:ro
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')\""]
       interval: 5s
@@ -57,6 +61,16 @@ services:
       interval: 5s
       timeout: 5s
       retries: 15
+
+  render:
+    build:
+      context: ./renderer
+      dockerfile: Dockerfile
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8200/health >/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
 
   console:
     build:
@@ -116,6 +130,27 @@ services:
       timeout: 5s
       retries: 90
 
+  studio:
+    build:
+      context: ./studio
+      dockerfile: Dockerfile
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 3000"
+    ports:
+      - "3095:3000"
+    environment:
+      BACKEND_URL: http://backend:8000
+    volumes:
+      - ./studio:/app
+      - studio_node_modules:/app/node_modules
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000 >/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 90
+
   playwright:
     image: mcr.microsoft.com/playwright:v1.62.1-noble
     profiles: ["snap"]
@@ -128,6 +163,7 @@ services:
       BASE_URL: http://console:3000
       DASHBOARD_URL: http://dashboard:3000
       SPY_URL: http://spy:3000
+      STUDIO_URL: http://studio:3000
       CI: "1"
     depends_on:
       console:
@@ -136,11 +172,15 @@ services:
         condition: service_healthy
       spy:
         condition: service_healthy
+      studio:
+        condition: service_healthy
     ipc: host
 
 volumes:
   pgdata:
+  media:
   console_node_modules:
   dashboard_node_modules:
   spy_node_modules:
+  studio_node_modules:
   e2e_node_modules:
