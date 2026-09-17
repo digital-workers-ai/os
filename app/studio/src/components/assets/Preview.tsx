@@ -10,9 +10,10 @@ const size = (bytes: number) =>
 
 const basename = (path: string) => path.split('/').pop() ?? path
 
+const CLAIMS_FILE = 'claims.md'
+
 const FILE_HINTS: Record<string, string> = {
   'build.md': 'The skill wrote this account of its own run: what it made and what it cost.',
-  'claims.md': 'One line per sentence in the piece that asserts something, with the source that backs it.',
   'held.md': 'What the skill needed and could not find, which is why it stopped.',
 }
 
@@ -37,6 +38,7 @@ function FileView({ file }: { file: AssetFile }) {
 
 export function Preview({ version }: { version: AssetVersion }) {
   const files = version.files
+  const panels = files.filter((file) => basename(file.path) !== CLAIMS_FILE)
   const downloadAll = () => {
     for (const file of files) {
       const link = document.createElement('a')
@@ -51,7 +53,7 @@ export function Preview({ version }: { version: AssetVersion }) {
       {files.length === 0 ? (
         <Empty testId="asset-files-empty">no files yet</Empty>
       ) : (
-        files.map((file) => (
+        panels.map((file) => (
           <figure key={file.path} className="flex flex-col gap-1">
             <figcaption>
               <Mono className="text-muted">{file.path}</Mono>

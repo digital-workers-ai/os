@@ -35,7 +35,7 @@ import { cn } from '@/lib/utils'
 const link = 'text-ink underline underline-offset-2'
 
 const FILL_HINT =
-  'Runs the marketer now instead of waiting for the daily fill: every slot in the next fourteen days that is still empty and not skipped has its skill run on its theme. Each slot filled is one paid model run, an image run too where the piece carries a picture, and lands in the library as an asset marked marketer.'
+  'Runs the marketer AI agent now rather than waiting for its daily run: it fills every slot in the next fourteen days that is still empty and not skipped, one paid model run each.'
 
 const RUN_HINT = 'Runs the skill this slot names on its theme, now, as one paid model run; the asset opens while it is still building.'
 

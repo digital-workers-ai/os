@@ -68,7 +68,8 @@ test('two versions', async ({ page }) => {
 
   await expect(page.getByTestId('asset-lineage')).toContainText('dw-image')
   await expect(page.getByTestId('asset-read')).toContainText('proof.md')
-  await expect(page.getByTestId('asset-preview')).toContainText('nothing is committed on red')
+  await expect(page.getByTestId('asset-claim')).toHaveCount(3)
+  await expect(page.getByTestId('asset-claim').first()).toContainText('✓')
   await expect(page.getByTestId('edit-input')).toBeVisible()
   await expect(page.getByTestId('resize-4-5')).toHaveText('4:5')
   await expect(page.getByTestId('resize-9-16')).toHaveText('9:16')
