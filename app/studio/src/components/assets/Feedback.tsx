@@ -4,7 +4,10 @@ import { asApiError, sendFeedback, type Asset } from '@/api'
 import { Textarea } from '@/components/chat/Composer'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Button } from '@/components/ui/button'
+import { Hint } from '@/components/ui/hint'
 import { cn } from '@/lib/utils'
+
+const FEEDBACK_HINT = 'A note kept with the asset and read by the nightly taste agent, which turns a correction that keeps coming back into a lesson in the skill.'
 
 export function Feedback({ asset }: { asset: Asset }) {
   const queryClient = useQueryClient()
@@ -25,7 +28,10 @@ export function Feedback({ asset }: { asset: Asset }) {
   return (
     <section className="flex flex-col gap-2" data-testid="asset-feedback">
       <div className="flex items-center justify-between border-b border-line pb-2">
-        <h2 className="text-xs font-medium uppercase tracking-wide text-muted">Feedback</h2>
+        <h2 className="text-xs font-medium uppercase tracking-wide text-muted">
+          Feedback
+          <Hint text={FEEDBACK_HINT} />
+        </h2>
         {!editing && (
           <Button variant="ghost" size="sm" className="h-7 px-2" onClick={open} aria-label="edit feedback" data-testid="feedback-edit">
             ✎

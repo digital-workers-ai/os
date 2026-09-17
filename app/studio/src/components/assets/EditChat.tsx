@@ -5,6 +5,9 @@ import { Textarea } from '@/components/chat/Composer'
 import { RunProgress, useSkillRun } from '@/components/chat/RunCard'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Button } from '@/components/ui/button'
+import { Hint } from '@/components/ui/hint'
+
+const EDIT_HINT = 'A sentence here runs the same skill again, keeping everything the sentence did not name, and writes a new version rather than overwriting this one.'
 
 const RATIOS = ['1:1', '4:5', '9:16', '16:9']
 
@@ -34,7 +37,10 @@ export function EditChat({ asset, onVersion }: { asset: Asset; onVersion: () => 
 
   return (
     <section className="flex flex-col gap-2" data-testid="asset-edit">
-      <h2 className="border-b border-line pb-2 text-xs font-medium uppercase tracking-wide text-muted">Edit</h2>
+      <h2 className="border-b border-line pb-2 text-xs font-medium uppercase tracking-wide text-muted">
+        Edit
+        <Hint text={EDIT_HINT} />
+      </h2>
       {error && <ErrorBanner error={asApiError(error)} />}
       <form
         className="flex flex-col gap-2"

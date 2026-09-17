@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowLeft } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
-import { asApiError, getAsset, type AssetVersion } from '@/api'
+import { asApiError, getAsset, type AssetVersion, type Origin, type RunStatus } from '@/api'
 import { OriginPill, StatusPill } from '@/components/assets/Card'
 import { EditChat } from '@/components/assets/EditChat'
 import { Feedback } from '@/components/assets/Feedback'
@@ -11,7 +11,21 @@ import { Preview } from '@/components/assets/Preview'
 import { Versions } from '@/components/assets/Versions'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Empty } from '@/components/ui/empty'
+import { Hint } from '@/components/ui/hint'
 import { Loading } from '@/components/ui/loading'
+
+const ORIGIN_HINTS: Record<Origin, string> = {
+  chat: 'A person asked for this in Create.',
+  marketer: 'The daily routine asked for this to fill a slot on the calendar.',
+  mcp: 'An assistant asked for this over MCP, on behalf of a person.',
+}
+
+const STATUS_HINTS: Record<RunStatus, string> = {
+  running: 'The skill is still working; the files land when it finishes.',
+  ok: 'The run finished and every claim it wrote cites a source: proof or a transcript, and the line it came from.',
+  held: 'The skill stopped rather than guess, because something it needed was missing or a claim had no source, so the piece is unfinished rather than broken.',
+  failed: 'The run hit an error before it finished.',
+}
 
 export function AssetDetail() {
   const { seq } = useParams()
@@ -39,10 +53,12 @@ export function AssetDetail() {
               {data.name}
             </h1>
             <span className="text-sm text-muted" data-testid="asset-meta">
-              {[data.kind, data.look, data.ratio].filter(Boolean).join(' · ')}
+              {[...new Set([data.kind, data.look, data.ratio].filter(Boolean))].join(' · ')}
             </span>
             <OriginPill origin={data.origin} />
+            <Hint text={ORIGIN_HINTS[data.origin]} />
             <StatusPill status={data.status} />
+            <Hint text={STATUS_HINTS[data.status]} />
           </header>
           <div className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
             <div className="flex min-w-0 flex-col gap-5">

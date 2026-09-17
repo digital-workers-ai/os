@@ -1,14 +1,20 @@
 import type { AssetVersion } from '@/api'
+import { Hint } from '@/components/ui/hint'
 import { Mono } from '@/components/ui/mono'
 import { shortDate } from '@/lib/format'
 import { cn } from '@/lib/utils'
+
+const VERSIONS_HINT = 'Every build of this asset, newest first, each with the note that asked for it; version 1 carries the original ask.'
 
 const when = (iso: string) => `${shortDate(iso.slice(0, 10))} ${iso.slice(11, 16)}`
 
 export function Versions({ versions, selected, onSelect }: { versions: AssetVersion[]; selected: number; onSelect: (version: number) => void }) {
   return (
     <section className="flex flex-col gap-2" data-testid="asset-versions">
-      <h2 className="border-b border-line pb-2 text-xs font-medium uppercase tracking-wide text-muted">Versions</h2>
+      <h2 className="border-b border-line pb-2 text-xs font-medium uppercase tracking-wide text-muted">
+        Versions
+        <Hint text={VERSIONS_HINT} />
+      </h2>
       <ul className="flex flex-col gap-0.5">
         {versions.map((version) => (
           <li key={version.version}>

@@ -7,6 +7,7 @@ import { ErrorBanner } from '@/components/ui/banner'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogClose, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Empty } from '@/components/ui/empty'
+import { Hint } from '@/components/ui/hint'
 import { Loading } from '@/components/ui/loading'
 import { Mono } from '@/components/ui/mono'
 import { Pill } from '@/components/ui/pill'
@@ -32,6 +33,15 @@ import { shortDate } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 const link = 'text-ink underline underline-offset-2'
+
+const FILL_HINT =
+  'Runs the marketer now instead of waiting for the daily fill: every slot in the next fourteen days that is still empty and not skipped has its skill run on its theme. Each slot filled is one paid model run, an image run too where the piece carries a picture, and lands in the library as an asset marked marketer.'
+
+const RUN_HINT = 'Runs the skill this slot names on its theme, now, as one paid model run; the asset opens while it is still building.'
+
+const SKIP_HINT = 'Records that this slot is not to be made, so both the daily fill and Fill next 14 days pass over it.'
+
+const CADENCE_HINT = 'For the range in view, how many slots of each kind are built out of those planned; a skipped slot counts in neither.'
 
 const option = (active: boolean) =>
   cn('rounded-md px-2.5 py-1 text-xs font-medium transition-colors', active ? 'bg-paper text-ink shadow-[0_1px_3px_rgba(0,0,0,0.06)]' : 'text-muted hover:text-ink')
@@ -227,13 +237,15 @@ function SlotBody({ slot, onClose }: { slot: Slot; onClose: () => void }) {
         </Link>
       )}
       {error && <ErrorBanner error={asApiError(error)} testId="slot-error" />}
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
         <Button onClick={() => run.mutate()} disabled={busy || slot.state === 'built'} data-testid="slot-run">
           {run.isPending ? 'running…' : 'Run now'}
         </Button>
+        <Hint text={RUN_HINT} />
         <Button variant="ghost" onClick={() => skip.mutate()} disabled={busy || slot.state !== 'empty'} data-testid="slot-skip">
           Skip
         </Button>
+        <Hint text={SKIP_HINT} />
       </div>
     </DialogContent>
   )
@@ -249,7 +261,10 @@ function Footer({ cadence }: { cadence: Cadence[] }) {
           </span>
         ))}
       </span>
-      <span data-testid="calendar-cadence">{cadence.map((c) => `${c.done}/${c.planned} ${c.kind}`).join(' · ')}</span>
+      <span data-testid="calendar-cadence">
+        {cadence.map((c) => `${c.done}/${c.planned} ${c.kind}`).join(' · ')}
+        <Hint text={CADENCE_HINT} />
+      </span>
     </div>
   )
 }
@@ -292,6 +307,7 @@ export function Calendar() {
         <Button size="sm" className="ml-auto h-8" onClick={() => fill.mutate()} disabled={fill.isPending} data-testid="calendar-fill">
           {fill.isPending ? 'filling…' : 'Fill next 14 days'}
         </Button>
+        <Hint text={FILL_HINT} />
       </div>
       {fill.error && <ErrorBanner error={asApiError(fill.error)} testId="calendar-fill-error" />}
       {query.isPending ? (

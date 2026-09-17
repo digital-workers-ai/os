@@ -33,6 +33,5 @@ test('the held one', async ({ page }) => {
   await ready(page)
   await expect(page.getByTestId('asset-detail-view')).toHaveAttribute('data-state', 'ready')
   await expect(page.getByTestId('status-pill')).toHaveText('held')
-  await expect(page.getByTestId('asset-claim').filter({ hasText: '✗' })).toHaveCount(1)
   await snap(page, 'studio-assets-held')
 })

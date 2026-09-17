@@ -1,8 +1,8 @@
-import { useState } from 'react'
-import { Copy, Download } from 'lucide-react'
+import { Download } from 'lucide-react'
 import type { AssetFile, AssetVersion } from '@/api'
 import { Button } from '@/components/ui/button'
 import { Empty } from '@/components/ui/empty'
+import { Hint } from '@/components/ui/hint'
 import { Mono } from '@/components/ui/mono'
 
 const size = (bytes: number) =>
@@ -10,9 +10,17 @@ const size = (bytes: number) =>
 
 const basename = (path: string) => path.split('/').pop() ?? path
 
+const FILE_HINTS: Record<string, string> = {
+  'build.md': 'The skill wrote this account of its own run: what it made and what it cost.',
+  'claims.md': 'One line per sentence in the piece that asserts something, with the source that backs it.',
+  'held.md': 'What the skill needed and could not find, which is why it stopped.',
+}
+
+const fileHint = (path: string) => FILE_HINTS[basename(path)] ?? 'The asset itself, as the skill wrote it.'
+
 function FileView({ file }: { file: AssetFile }) {
   if (file.media_type.startsWith('image/')) {
-    return <img src={file.url} alt={file.path} className="max-h-[70vh] w-auto max-w-full rounded-lg border border-line bg-paper" data-testid="asset-preview-image" />
+    return <img src={file.url} alt={file.path} className="max-h-[70vh] w-auto max-w-full self-start rounded-lg border border-line bg-paper" data-testid="asset-preview-image" />
   }
   if (file.media_type === 'text/html') {
     return <iframe src={file.url} title={file.path} sandbox="" className="h-[70vh] w-full rounded-lg border border-line bg-paper" data-testid="asset-preview-html" />
@@ -28,9 +36,7 @@ function FileView({ file }: { file: AssetFile }) {
 }
 
 export function Preview({ version }: { version: AssetVersion }) {
-  const [copied, setCopied] = useState(false)
   const files = version.files
-  const text = files.find((file) => file.text !== null)
   const downloadAll = () => {
     for (const file of files) {
       const link = document.createElement('a')
@@ -38,13 +44,6 @@ export function Preview({ version }: { version: AssetVersion }) {
       link.download = basename(file.path)
       link.click()
     }
-  }
-  const copy = () => {
-    if (!text?.text) return
-    navigator.clipboard.writeText(text.text).then(() => {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    })
   }
 
   return (
@@ -56,6 +55,7 @@ export function Preview({ version }: { version: AssetVersion }) {
           <figure key={file.path} className="flex flex-col gap-1">
             <figcaption>
               <Mono className="text-muted">{file.path}</Mono>
+              <Hint text={fileHint(file.path)} />
             </figcaption>
             <FileView file={file} />
           </figure>
@@ -78,9 +78,6 @@ export function Preview({ version }: { version: AssetVersion }) {
       <div className="flex flex-wrap gap-2">
         <Button size="sm" onClick={downloadAll} disabled={files.length === 0} data-testid="asset-download-all">
           <Download size={14} /> Download all
-        </Button>
-        <Button size="sm" onClick={copy} disabled={!text?.text} data-testid="asset-copy-text">
-          <Copy size={14} /> {copied ? 'copied' : 'Copy text'}
         </Button>
       </div>
     </section>
