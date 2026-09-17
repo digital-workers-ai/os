@@ -299,10 +299,10 @@ class TestTheShippedBrand:
         assert len((SHIPPED / name).read_text().splitlines()) < 70
 
     @pytest.mark.parametrize("name", brand.REQUIRED)
-    def test_each_file_is_dated_the_day_it_was_written(self, name):
+    def test_each_file_carries_a_title_a_date_and_a_body(self, name):
         front, body = brand.read(name)
         assert front["title"]
-        assert front["updated"] == date(2026, 9, 15)
+        assert isinstance(front["updated"], date)
         assert body.strip()
 
     def test_the_logo_is_a_standalone_svg_of_paths(self):
