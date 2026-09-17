@@ -24,7 +24,9 @@ STAT = {
     "label": "tools, one connector each",
     "support": "Every record kept as it arrived.",
 }
-ASK = runner.Ask("dw-post", "chat", "Three numbers from the quarter\n\nFor Monday.")
+ASK = runner.Ask(
+    "dw-linkedin-post", "chat", "Three numbers from the quarter\n\nFor Monday."
+)
 
 
 def _skill(name, makes, lessons=""):
@@ -40,7 +42,11 @@ def skills(tmp_path, monkeypatch):
     root = tmp_path / "skills"
     monkeypatch.setattr(catalog, "SKILLS_DIR", root)
     for name, makes, lessons in (
-        ("dw-post", "post", "- Say the number first.\n- Cut the second idea.\n"),
+        (
+            "dw-linkedin-post",
+            "post",
+            "- Say the number first.\n- Cut the second idea.\n",
+        ),
         ("dw-image", "image", ""),
     ):
         (root / name).mkdir(parents=True)
@@ -143,7 +149,7 @@ class TestTheContract:
         assert runner.SkillError is catalog.SkillError
 
     def test_an_ask_is_frozen_with_its_optional_parts_empty(self):
-        ask = runner.Ask("dw-post", "chat", "words")
+        ask = runner.Ask("dw-linkedin-post", "chat", "words")
         assert (ask.look, ask.ratio, ask.slot_date, ask.slot_name, ask.asset_seq) == (
             None,
             None,
@@ -167,12 +173,14 @@ class TestOpenRun:
 
     async def test_an_unknown_caller_is_refused(self, session, enabled):
         with pytest.raises(runner.SkillError, match="'cron'"):
-            await runner.open_run(session, runner.Ask("dw-post", "cron", "words"))
+            await runner.open_run(
+                session, runner.Ask("dw-linkedin-post", "cron", "words")
+            )
 
     @pytest.mark.parametrize("text", ["", "  \n\n "])
     async def test_an_empty_ask_is_refused(self, session, enabled, text):
         with pytest.raises(runner.SkillError, match="empty"):
-            await runner.open_run(session, runner.Ask("dw-post", "chat", text))
+            await runner.open_run(session, runner.Ask("dw-linkedin-post", "chat", text))
 
     async def test_a_new_asset_is_named_by_the_first_line_of_the_ask(
         self, session, enabled
@@ -181,7 +189,11 @@ class TestOpenRun:
         assert started.version == 1
         asset = await session.get(Asset, started.asset_seq)
         assert asset.name == "Three numbers from the quarter"
-        assert (asset.kind, asset.skill, asset.origin) == ("post", "dw-post", "chat")
+        assert (asset.kind, asset.skill, asset.origin) == (
+            "post",
+            "dw-linkedin-post",
+            "chat",
+        )
         assert (asset.look, asset.ratio, asset.slot_date, asset.slot_name) == (
             None,
             None,
@@ -191,8 +203,12 @@ class TestOpenRun:
         [version] = await _rows(session, AssetVersion, asset_seq=asset.seq)
         assert (version.version, version.note) == (1, ASK.input)
         run = await _run(session, started.skill_run)
-        assert (run.skill, run.caller, run.status) == ("dw-post", "chat", "running")
-        assert run.skill_sha == catalog.load("dw-post").sha
+        assert (run.skill, run.caller, run.status) == (
+            "dw-linkedin-post",
+            "chat",
+            "running",
+        )
+        assert run.skill_sha == catalog.load("dw-linkedin-post").sha
         assert (run.asset_seq, run.version) == (asset.seq, 1)
         assert run.started_at.isoformat() == "2026-09-04T12:00:00+00:00"
 
@@ -215,14 +231,16 @@ class TestOpenRun:
 
     async def test_a_long_first_line_is_cut_to_the_column(self, session, enabled):
         started = await runner.open_run(
-            session, runner.Ask("dw-post", "mcp", "x" * 300)
+            session, runner.Ask("dw-linkedin-post", "mcp", "x" * 300)
         )
         asset = await session.get(Asset, started.asset_seq)
         assert asset.name == "x" * 256
 
     async def test_an_existing_asset_gets_the_next_version(self, session, enabled):
         first = await runner.open_run(session, ASK)
-        again = runner.Ask("dw-post", "chat", "Shorter", asset_seq=first.asset_seq)
+        again = runner.Ask(
+            "dw-linkedin-post", "chat", "Shorter", asset_seq=first.asset_seq
+        )
         second = await runner.open_run(session, again)
         assert second.asset_seq == first.asset_seq
         assert second.version == 2
@@ -255,13 +273,13 @@ class TestOpenRun:
     async def test_an_unknown_asset_is_refused(self, session, enabled):
         with pytest.raises(runner.SkillError, match="asset 77"):
             await runner.open_run(
-                session, runner.Ask("dw-post", "chat", "words", asset_seq=77)
+                session, runner.Ask("dw-linkedin-post", "chat", "words", asset_seq=77)
             )
 
 
 class TestThePrompt:
     def test_the_system_prompt_carries_every_part_in_order(self, skills):
-        system = runner.build_system(catalog.load("dw-post"), "chat")
+        system = runner.build_system(catalog.load("dw-linkedin-post"), "chat")
         parts = [
             runner.SAFETY,
             "# Skill: Post",
@@ -293,7 +311,7 @@ class TestThePrompt:
         ],
     )
     def test_each_caller_has_its_note(self, skills, caller, phrase):
-        assert phrase in runner.build_system(catalog.load("dw-post"), caller)
+        assert phrase in runner.build_system(catalog.load("dw-linkedin-post"), caller)
 
     def test_the_opening_names_the_caller_and_the_ask_only(self):
         assert runner.opening(ASK) == (
@@ -320,7 +338,9 @@ class TestThePrompt:
         assert lines[-1] == "Asked for: A card"
 
     def test_a_slot_without_a_date_is_still_named(self):
-        ask = runner.Ask("dw-post", "chat", "A post", slot_name="linkedin_post")
+        ask = runner.Ask(
+            "dw-linkedin-post", "chat", "A post", slot_name="linkedin_post"
+        )
         assert "Slot: linkedin_post\n" in runner.opening(ask)
 
 
@@ -384,7 +404,9 @@ class TestExecute:
         [sent] = model.sent
         assert sent["model"] == "claude-studio"
         assert sent["max_tokens"] == 777
-        assert sent["system"] == runner.build_system(catalog.load("dw-post"), "chat")
+        assert sent["system"] == runner.build_system(
+            catalog.load("dw-linkedin-post"), "chat"
+        )
         assert sent["tools"] == toolbelt.schemas()
         assert sent["messages"] == [{"role": "user", "content": runner.opening(ASK)}]
 

@@ -38,7 +38,7 @@ SLOTS = {
     },
     "linkedin_post": {
         "kind": "post",
-        "skill": "dw-post",
+        "skill": "dw-linkedin-post",
         "when": "weekly",
         "days": ["tue", "fri"],
         "time": "06:00",
@@ -54,7 +54,7 @@ STAT = {
     "slots": [{"name": "stat", "max": 6}],
 }
 POST = chat.Choice(
-    skill="dw-post",
+    skill="dw-linkedin-post",
     look="stat-card",
     ratio="1:1",
     ask="A post on MRR",
@@ -95,9 +95,9 @@ def defs(tmp_path, monkeypatch):
     path.write_text(yaml.safe_dump({"slots": SLOTS}, sort_keys=False))
     monkeypatch.setattr(declared, "DEFAULT_CALENDAR", path)
     skills = tmp_path / "skills"
-    (skills / "dw-post").mkdir(parents=True)
-    (skills / "dw-post" / "SKILL.md").write_text(
-        "---\nname: dw-post\ndescription: Make one post.\nmakes: post\n---\n"
+    (skills / "dw-linkedin-post").mkdir(parents=True)
+    (skills / "dw-linkedin-post" / "SKILL.md").write_text(
+        "---\nname: dw-linkedin-post\ndescription: Make one post.\nmakes: post\n---\n"
         "# Skill\n\n## Lessons\n"
     )
     root = tmp_path / "looks"

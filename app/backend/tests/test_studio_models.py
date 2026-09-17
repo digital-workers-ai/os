@@ -33,7 +33,7 @@ async def _asset(session, **overrides):
     fields = {
         "name": "Three numbers from the quarter",
         "kind": "post",
-        "skill": "dw-post",
+        "skill": "dw-linkedin-post",
         "origin": "chat",
     }
     return await _stored(session, Asset(**{**fields, **overrides}))
@@ -43,7 +43,7 @@ async def _skill_run(session, asset=None):
     return await _stored(
         session,
         SkillRun(
-            skill="dw-post",
+            skill="dw-linkedin-post",
             skill_sha=SHA,
             caller="chat",
             asset_seq=None if asset is None else asset.seq,

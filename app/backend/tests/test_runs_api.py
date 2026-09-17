@@ -73,7 +73,7 @@ async def _stored(session, row):
     return row
 
 
-async def _run(session, skill="dw-post", **overrides):
+async def _run(session, skill="dw-linkedin-post", **overrides):
     fields = {"skill": skill, "skill_sha": SHA, "caller": "chat", "status": "ok"}
     return await _stored(session, SkillRun(**{**fields, **overrides}))
 
@@ -91,7 +91,9 @@ async def _agent_run(session, **overrides):
 async def _asset(session):
     asset = await _stored(
         session,
-        Asset(name="Three numbers", kind="post", skill="dw-post", origin="chat"),
+        Asset(
+            name="Three numbers", kind="post", skill="dw-linkedin-post", origin="chat"
+        ),
     )
     await _stored(session, AssetVersion(asset_seq=asset.seq, version=1, note="v1"))
     return asset
@@ -122,9 +124,11 @@ class TestSkillRuns:
         for _ in range(3):
             await _run(session)
         await _run(session, skill="dw-image")
-        by_skill = (await api.get("/api/skill-runs?skill=dw-post")).json()["runs"]
+        by_skill = (await api.get("/api/skill-runs?skill=dw-linkedin-post")).json()[
+            "runs"
+        ]
         assert [row["seq"] for row in by_skill] == [3, 2, 1]
-        page = await api.get("/api/skill-runs?skill=dw-post&limit=1&offset=1")
+        page = await api.get("/api/skill-runs?skill=dw-linkedin-post&limit=1&offset=1")
         assert [row["seq"] for row in page.json()["runs"]] == [2]
 
     @pytest.mark.parametrize("query", ["limit=0", "limit=501", f"offset={2**63}"])

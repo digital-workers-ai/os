@@ -24,7 +24,13 @@ AGENT_TOOLS = {
     "get_entity",
     "slice_metric",
 }
-SKILL_TOOLS = {"dw_post", "dw_newsletter", "dw_blog", "dw_image", "dw_carousel"}
+SKILL_TOOLS = {
+    "dw_linkedin_post",
+    "dw_newsletter",
+    "dw_blog",
+    "dw_image",
+    "dw_carousel",
+}
 READ_TOOLS = {"assets_list", "assets_read", "brand_read", "looks_read"}
 TOOLS = AGENT_TOOLS | SKILL_TOOLS | READ_TOOLS
 ASK = {
@@ -145,7 +151,9 @@ class TestTools:
 
 
 async def _asset_with_files(session) -> Asset:
-    asset = Asset(name="Three numbers", kind="post", skill="dw-post", origin="mcp")
+    asset = Asset(
+        name="Three numbers", kind="post", skill="dw-linkedin-post", origin="mcp"
+    )
     session.add(asset)
     await session.flush()
     for version, path, media_type, size in (
@@ -175,7 +183,7 @@ class TestStudioTools:
         tools = {tool.name: tool for tool in await client.list_tools()}
         assert {name for name in tools if name.startswith("dw_")} == SKILL_TOOLS
         for name in SKILL_TOOLS:
-            skill = catalog.load(name.replace("_", "-", 1))
+            skill = catalog.load(name.replace("_", "-"))
             assert tools[name].description == skill.description
             assert tools[name].input_schema == ASK
             assert tools[name].annotations is None
@@ -212,7 +220,8 @@ class TestStudioTools:
         monkeypatch.setattr(mcp.rows, "file_row", file_row)
 
         result = await client.call_tool(
-            "dw_post", {"ask": "Three numbers", "look": "stat-card", "ratio": "1:1"}
+            "dw_linkedin_post",
+            {"ask": "Three numbers", "look": "stat-card", "ratio": "1:1"},
         )
         assert result.structured_content == {
             "seq": asset.seq,
@@ -233,7 +242,11 @@ class TestStudioTools:
             "status": "held",
         }
         [ask] = asks
-        assert (ask.skill, ask.caller, ask.input) == ("dw-post", "mcp", "Three numbers")
+        assert (ask.skill, ask.caller, ask.input) == (
+            "dw-linkedin-post",
+            "mcp",
+            "Three numbers",
+        )
         assert (ask.look, ask.ratio) == ("stat-card", "1:1")
         assert executed == [7]
 
@@ -256,7 +269,7 @@ class TestStudioTools:
         monkeypatch.setattr(mcp.runner, "open_run", open_run)
         monkeypatch.setattr(mcp.runner, "execute", execute)
         result = await client.call_tool(
-            "dw_post", {"ask": "Three numbers"}, raise_on_error=False
+            "dw_linkedin_post", {"ask": "Three numbers"}, raise_on_error=False
         )
         assert result.is_error
         assert "STUDIO_ENABLED is off" in result.content[0].text
@@ -264,7 +277,7 @@ class TestStudioTools:
         [(kind, name, ok, arguments, error)] = await _logged(session)
         assert (kind, name, ok, arguments) == (
             "tool",
-            "dw_post",
+            "dw_linkedin_post",
             False,
             {"ask": "Three numbers"},
         )

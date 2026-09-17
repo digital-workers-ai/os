@@ -298,7 +298,7 @@ STUDIO_ASSETS = (
     {
         "name": "A spreadsheet has no test gate",
         "kind": "post",
-        "skill": "dw-post",
+        "skill": "dw-linkedin-post",
         "look": "stat-card",
         "ratio": "1:1",
         "origin": "marketer",

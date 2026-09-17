@@ -318,7 +318,7 @@ open http://localhost:3095
 
 ## MCP Support
 
-Any AI assistant can use DW-OS as a tool. It gets read-only access to the same reviewed numbers the console shows, so when you ask your assistant about revenue it reports the number your system agreed on rather than guessing over raw tables. It can also read the definition files, so it can check what a number means before quoting it. The studio adds four tools that only read, `assets_list`, `assets_read`, `brand_read` and `looks_read`, and one tool per content skill, `dw_post`, `dw_newsletter`, `dw_blog`, `dw_image` and `dw_carousel`, which are not read-only: each one runs the skill and lands a new asset in the library.
+Any AI assistant can use DW-OS as a tool. It gets read-only access to the same reviewed numbers the console shows, so when you ask your assistant about revenue it reports the number your system agreed on rather than guessing over raw tables. It can also read the definition files, so it can check what a number means before quoting it. The studio adds four tools that only read, `assets_list`, `assets_read`, `brand_read` and `looks_read`, and one tool per content skill, `dw_linkedin_post`, `dw_newsletter`, `dw_blog`, `dw_image` and `dw_carousel`, which are not read-only: each one runs the skill and lands a new asset in the library.
 
 ```
 claude mcp add --transport http os http://localhost:3092/mcp

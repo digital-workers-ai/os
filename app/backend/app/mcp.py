@@ -139,7 +139,7 @@ ASK = {
 class StudioTool(Tool):
     async def run(self, arguments: dict) -> ToolResult:
         ask = runner.Ask(
-            self.name.replace("_", "-", 1),
+            self.name.replace("_", "-"),
             caller="mcp",
             input=arguments["ask"],
             look=arguments.get("look"),
@@ -261,7 +261,7 @@ class StudioReadTool(Tool):
 for skill in catalog.names():
     server.add_tool(
         StudioTool(
-            name=skill.replace("-", "_", 1),
+            name=skill.replace("-", "_"),
             description=catalog.load(skill).description,
             parameters=ASK,
         )

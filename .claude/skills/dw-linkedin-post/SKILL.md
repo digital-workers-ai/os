@@ -1,12 +1,12 @@
 ---
-name: dw-post
+name: dw-linkedin-post
 description: Write one LinkedIn post on one idea and render its image on a look, with every number taken from proof
 makes: post
 user-invocable: true
 argument-hint: "[the idea, the slot theme, or a call to quote]"
 ---
 
-# Skill: Post
+# Skill: LinkedIn post
 
 Make one LinkedIn post from the ask and one image to carry it. The ask is
 an idea, a calendar slot's theme, or a call to quote from. The post is the

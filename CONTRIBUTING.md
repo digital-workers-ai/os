@@ -70,7 +70,7 @@ The `dw-*` skills under `.claude/skills/` are the in-repo workflow for Claude Co
 
 The five content skills are the ones Studio runs; each carries `makes:` in its front matter, and the taste agent appends to its `## Lessons`:
 
-- `dw-post` writes one LinkedIn post and renders its image on a look
+- `dw-linkedin-post` writes one LinkedIn post and renders its image on a look
 - `dw-newsletter` writes one issue of the newsletter as Markdown and HTML
 - `dw-blog` writes one blog post with front matter
 - `dw-image` paints a wordless picture and renders the brand's words over it on a look

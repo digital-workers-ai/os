@@ -45,7 +45,7 @@ test('the seeded thread', async ({ page }) => {
   await expect(page.locator('[data-testid="turn"][data-role="person"]')).toContainText('Make a post about the coverage gate')
   await expect(page.locator('[data-testid="turn"][data-role="studio"]')).toContainText('Writing one post on the test gate')
   await expect(page.getByTestId('run-card')).toHaveAttribute('data-status', 'ok')
-  await expect(page.getByTestId('run-progress')).toContainText('dw-post')
+  await expect(page.getByTestId('run-progress')).toContainText('dw-linkedin-post')
   await expect(page.getByTestId('run-asset')).toContainText('A spreadsheet has no test gate')
   await expect(page.getByTestId('run-claims')).toHaveText('3/3 claims verified')
 

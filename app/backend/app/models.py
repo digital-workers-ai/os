@@ -421,7 +421,7 @@ class Asset(Base):
     seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic asset counter: 1, 2, 3
     name = Column(String(256), nullable=False)  # first line of the ask: "Three numbers from the quarter", "Why churn fell"
     kind = Column(String(16), nullable=False)  # what was made: post, newsletter, carousel
-    skill = Column(String(64), nullable=False)  # skill that made it: dw-post, dw-newsletter
+    skill = Column(String(64), nullable=False)  # skill that made it: dw-linkedin-post, dw-newsletter
     look = Column(String(64))  # image look, null for text: stat-card, carousel, null
     ratio = Column(String(8))  # image ratio, null for text: 1:1, 4:5, null
     origin = Column(String(16), nullable=False)  # who asked for it: chat, marketer, mcp
@@ -497,7 +497,7 @@ class SkillRun(Base):
     __tablename__ = "skill_run"
 
     seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic run counter: 1, 2, 3
-    skill = Column(String(64), nullable=False)  # skill that ran: dw-post, dw-carousel
+    skill = Column(String(64), nullable=False)  # skill that ran: dw-linkedin-post, dw-carousel
     skill_sha = Column(String(64), nullable=False)  # SHA-256 of SKILL.md: "a3f9…", "0c7a…"
     caller = Column(String(16), nullable=False)  # who started it: chat, marketer, mcp
     asset_seq = Column(BigInteger, ForeignKey("asset.seq", ondelete="SET NULL"))  # asset built, null once deleted: 1, 42, null
@@ -541,7 +541,7 @@ class AgentRun(Base):
     made = Column(Integer, nullable=False, server_default=text("0"))  # assets it built: 0, 2
     duration_ms = Column(Integer, nullable=False, server_default=text("0"))  # run wall time: 12, 90000
     ok = Column(Boolean, nullable=False)  # every skill run succeeded: true, false
-    error = Column(Text)  # failure detail: "SkillError: dw-post unknown", null
+    error = Column(Text)  # failure detail: "SkillError: dw-linkedin-post unknown", null
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # run timestamp: app clock, 2026-09-04T06:00:00Z
 
 

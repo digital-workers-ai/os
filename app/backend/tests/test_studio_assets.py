@@ -56,7 +56,7 @@ async def _asset(session, **overrides):
     fields = {
         "name": "Three numbers from the quarter",
         "kind": "post",
-        "skill": "dw-post",
+        "skill": "dw-linkedin-post",
         "origin": "chat",
     }
     asset = await _stored(session, Asset(**{**fields, **overrides}))
@@ -300,7 +300,7 @@ class TestEdit:
         started, ask = await assets.edit(session, asset.seq, "Make it shorter")
         assert opened == [ask]
         assert (ask.skill, ask.caller, ask.input) == (
-            "dw-post",
+            "dw-linkedin-post",
             "chat",
             "Make it shorter",
         )

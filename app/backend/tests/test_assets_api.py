@@ -60,7 +60,7 @@ async def _asset(session, **overrides):
     fields = {
         "name": "Three numbers from the quarter",
         "kind": "post",
-        "skill": "dw-post",
+        "skill": "dw-linkedin-post",
         "origin": "chat",
     }
     asset = await _stored(session, Asset(**{**fields, **overrides}))

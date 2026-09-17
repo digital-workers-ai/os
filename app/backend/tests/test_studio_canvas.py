@@ -12,7 +12,7 @@ async def _asset(session, created_at=NOW, **overrides):
     fields = {
         "name": "Made",
         "kind": "post",
-        "skill": "dw-post",
+        "skill": "dw-linkedin-post",
         "origin": "chat",
         "created_at": created_at,
     }
@@ -50,7 +50,7 @@ class TestNodes:
         session.add(AssetVersion(asset_seq=asset.seq, version=2, note="again"))
         session.add(
             SkillRun(
-                skill="dw-post",
+                skill="dw-linkedin-post",
                 skill_sha=SHA,
                 caller="marketer",
                 asset_seq=asset.seq,
@@ -70,7 +70,7 @@ class TestNodes:
             "media_type": "image/png",
             "url": f"/api/assets/{asset.seq}/versions/2/files/image.png",
             "origin": "marketer",
-            "skill": "dw-post",
+            "skill": "dw-linkedin-post",
             "look": "stat-card",
             "status": "held",
         }

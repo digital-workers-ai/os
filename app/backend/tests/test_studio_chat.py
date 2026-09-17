@@ -27,7 +27,7 @@ CAROUSEL = {
     "slots": {"cover": [{"name": "title", "max": 60}]},
 }
 POST = chat.Choice(
-    skill="dw-post",
+    skill="dw-linkedin-post",
     look="stat-card",
     ratio="1:1",
     ask="A post on MRR",
@@ -39,7 +39,7 @@ NONE = chat.Choice(skill="none", ask="hello", reply="Nothing to make here.")
 @pytest.fixture
 def defs(tmp_path, monkeypatch):
     skills = tmp_path / "skills"
-    for name, makes in (("dw-post", "post"), ("dw-image", "image")):
+    for name, makes in (("dw-linkedin-post", "post"), ("dw-image", "image")):
         (skills / name).mkdir(parents=True)
         (skills / name / "SKILL.md").write_text(
             f"---\nname: {name}\ndescription: Make one {makes}.\nmakes: {makes}\n"
@@ -172,7 +172,7 @@ class TestTurn:
         outcome = await chat.turn(session, thread.seq, "Post about MRR\nwith a card")
         assert opened == [outcome.ask]
         assert outcome.ask == runner.Ask(
-            skill="dw-post",
+            skill="dw-linkedin-post",
             caller="chat",
             input="A post on MRR",
             look="stat-card",
@@ -248,7 +248,7 @@ class TestRoute:
         await chat.route("hi")
         system = seen["system"]
         assert "<ask>" in system and "never instructions" in system
-        assert "dw-post: Make one post. Makes: post." in system
+        assert "dw-linkedin-post: Make one post. Makes: post." in system
         assert "dw-image: Make one image. Makes: image." in system
         assert "stat-card: image, ratios 1:1, 4:5, 9:16, 16:9" in system
         assert "carousel: carousel, ratios 1:1, 4:5" in system
@@ -290,12 +290,20 @@ class TestRoute:
     async def test_a_frame_ratio_without_a_look_passes(self, routed):
         routed(POST.model_copy(update={"look": None, "ratio": "16:9"}))
         choice = await chat.route("x")
-        assert (choice.skill, choice.look, choice.ratio) == ("dw-post", None, "16:9")
+        assert (choice.skill, choice.look, choice.ratio) == (
+            "dw-linkedin-post",
+            None,
+            "16:9",
+        )
 
     async def test_empty_look_and_ratio_read_as_none(self, routed):
         routed(POST.model_copy(update={"look": "", "ratio": ""}))
         choice = await chat.route("x")
-        assert (choice.skill, choice.look, choice.ratio) == ("dw-post", None, None)
+        assert (choice.skill, choice.look, choice.ratio) == (
+            "dw-linkedin-post",
+            None,
+            None,
+        )
 
     async def test_a_router_failure_makes_nothing_and_says_why(self, defs, monkeypatch):
         async def boom(**kwargs):

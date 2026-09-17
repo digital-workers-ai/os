@@ -24,7 +24,7 @@ def _slot(name="linkedin_post", state="empty", day=TODAY, **overrides):
         "date": day.isoformat(),
         "name": name,
         "kind": "post",
-        "skill": "dw-post",
+        "skill": "dw-linkedin-post",
         "look": "stat-card",
         "ratio": "1:1",
         "theme": "One number from the quarter",
@@ -114,7 +114,7 @@ class TestFill:
         ]
         run = await marketer.fill(session)
         [ask] = studio.opened
-        assert (ask.skill, ask.caller) == ("dw-post", "marketer")
+        assert (ask.skill, ask.caller) == ("dw-linkedin-post", "marketer")
         assert ask.input == "One number from the quarter"
         assert (ask.look, ask.ratio) == ("stat-card", "1:1")
         assert (ask.slot_date, ask.slot_name) == (date(2026, 9, 4), "linkedin_post")

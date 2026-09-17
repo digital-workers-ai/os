@@ -22,7 +22,7 @@ async def _asset(session, **overrides):
     fields = {
         "name": "Three numbers",
         "kind": "post",
-        "skill": "dw-post",
+        "skill": "dw-linkedin-post",
         "origin": "chat",
     }
     return await _stored(session, Asset(**{**fields, **overrides}))
@@ -32,7 +32,7 @@ async def _run(session, asset, status="ok"):
     return await _stored(
         session,
         SkillRun(
-            skill="dw-post",
+            skill="dw-linkedin-post",
             skill_sha=SHA,
             caller="chat",
             asset_seq=asset.seq,
@@ -64,7 +64,7 @@ class TestSkillRunRow:
     def test_carries_every_wire_field(self):
         run = SkillRun(
             seq=7,
-            skill="dw-post",
+            skill="dw-linkedin-post",
             skill_sha=SHA,
             caller="marketer",
             asset_seq=3,
@@ -81,7 +81,7 @@ class TestSkillRunRow:
         )
         assert rows.skill_run_row(run) == {
             "seq": 7,
-            "skill": "dw-post",
+            "skill": "dw-linkedin-post",
             "skill_sha": SHA,
             "caller": "marketer",
             "asset_seq": 3,
@@ -100,7 +100,7 @@ class TestSkillRunRow:
     def test_a_running_run_has_no_finish(self):
         run = SkillRun(
             seq=1,
-            skill="dw-post",
+            skill="dw-linkedin-post",
             skill_sha=SHA,
             caller="chat",
             status="running",
@@ -129,7 +129,7 @@ class TestAgentRunRow:
             made=2,
             duration_ms=90000,
             ok=False,
-            error="SkillError: dw-post unknown",
+            error="SkillError: dw-linkedin-post unknown",
             created_at=NOW,
         )
         assert rows.agent_run_row(run) == {
@@ -140,7 +140,7 @@ class TestAgentRunRow:
             "made": 2,
             "duration_ms": 90000,
             "ok": False,
-            "error": "SkillError: dw-post unknown",
+            "error": "SkillError: dw-linkedin-post unknown",
             "created_at": "2026-09-04T12:00:00+00:00",
         }
 
@@ -151,7 +151,7 @@ class TestAssetRow:
             seq=5,
             name="Why churn fell",
             kind="post",
-            skill="dw-post",
+            skill="dw-linkedin-post",
             look="stat-card",
             ratio="1:1",
             origin="marketer",
@@ -165,7 +165,7 @@ class TestAssetRow:
             "seq": 5,
             "name": "Why churn fell",
             "kind": "post",
-            "skill": "dw-post",
+            "skill": "dw-linkedin-post",
             "look": "stat-card",
             "ratio": "1:1",
             "origin": "marketer",

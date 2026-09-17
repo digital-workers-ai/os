@@ -21,7 +21,7 @@ NEWSLETTER = {
 }
 POST = {
     "kind": "post",
-    "skill": "dw-post",
+    "skill": "dw-linkedin-post",
     "when": "weekly",
     "days": ["tue", "fri"],
     "time": "06:00",
@@ -302,11 +302,11 @@ class TestCheckNamesWhatIsWrong:
     def test_a_skill_outside_the_given_list(self, tmp_path):
         problems = _problems(tmp_path, POST, skills=["dw-newsletter"])
         assert len(problems) == 1, problems
-        assert "dw-post" in problems[0]
+        assert "dw-linkedin-post" in problems[0]
         assert "dw-newsletter" in problems[0]
 
     def test_a_skill_in_the_given_list_passes(self, tmp_path):
-        assert _problems(tmp_path, POST, skills=["dw-post"]) == []
+        assert _problems(tmp_path, POST, skills=["dw-linkedin-post"]) == []
 
     def test_without_a_list_any_dw_skill_passes(self, tmp_path):
         assert _problems(tmp_path, _slot(skill="dw-anything")) == []
@@ -332,7 +332,7 @@ class TestTheShippedCalendar:
         ]
         assert [slot["skill"] for slot in slots.values()] == [
             "dw-newsletter",
-            "dw-post",
+            "dw-linkedin-post",
             "dw-blog",
             "dw-carousel",
         ]

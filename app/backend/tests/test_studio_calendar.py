@@ -22,7 +22,7 @@ SLOTS = {
     },
     "linkedin_post": {
         "kind": "post",
-        "skill": "dw-post",
+        "skill": "dw-linkedin-post",
         "when": "weekly",
         "days": ["tue", "fri"],
         "time": "06:00",
@@ -102,7 +102,7 @@ async def _filled(session, day, name, **overrides):
     fields = {
         "name": "Filled",
         "kind": "post",
-        "skill": "dw-post",
+        "skill": "dw-linkedin-post",
         "origin": "marketer",
         "slot_date": day,
         "slot_name": name,
@@ -142,7 +142,7 @@ class TestSlots:
             "time": "06:00",
             "name": "linkedin_post",
             "kind": "post",
-            "skill": "dw-post",
+            "skill": "dw-linkedin-post",
             "look": "stat-card",
             "ratio": "1:1",
             "theme": "One thing a spreadsheet cannot do.",
@@ -232,7 +232,7 @@ class TestRun:
         started, ask = await calendar.run(session, FRIDAY, "linkedin_post")
         assert opened == [ask]
         assert ask == runner.Ask(
-            skill="dw-post",
+            skill="dw-linkedin-post",
             caller="chat",
             input="One thing a spreadsheet cannot do.",
             look="stat-card",

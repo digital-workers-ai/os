@@ -122,10 +122,10 @@ class TestList:
     async def test_every_row_counts_its_runs_and_its_lessons(
         self, api, session, skills
     ):
-        skills("dw-post", "post")
+        skills("dw-linkedin-post", "post")
         skills("dw-image", "image", body=NO_LESSONS)
-        await _run(session, "dw-post")
-        await _run(session, "dw-post", caller="mcp")
+        await _run(session, "dw-linkedin-post")
+        await _run(session, "dw-linkedin-post", caller="mcp")
         await _run(session, "dw-gone")
         assert (await api.get("/api/skills")).json() == {
             "skills": [
@@ -137,7 +137,7 @@ class TestList:
                     "lessons": 0,
                 },
                 {
-                    "name": "dw-post",
+                    "name": "dw-linkedin-post",
                     "description": "Make one post",
                     "makes": "post",
                     "runs": 2,
@@ -149,9 +149,9 @@ class TestList:
     async def test_the_runs_are_counted_in_one_query(
         self, api, session, skills, count_queries
     ):
-        skills("dw-post", "post")
+        skills("dw-linkedin-post", "post")
         skills("dw-image", "image", body=NO_LESSONS)
-        await _run(session, "dw-post")
+        await _run(session, "dw-linkedin-post")
         with count_queries() as counter:
             body = (await api.get("/api/skills")).json()
         assert [row["runs"] for row in body["skills"]] == [0, 1]
@@ -162,11 +162,11 @@ class TestDetail:
     async def test_the_detail_adds_the_body_the_lessons_and_the_sha(
         self, api, session, skills
     ):
-        text = skills("dw-post", "post")
-        await _run(session, "dw-post")
+        text = skills("dw-linkedin-post", "post")
+        await _run(session, "dw-linkedin-post")
         await _run(session, "dw-image")
-        assert (await api.get("/api/skills/dw-post")).json() == {
-            "name": "dw-post",
+        assert (await api.get("/api/skills/dw-linkedin-post")).json() == {
+            "name": "dw-linkedin-post",
             "description": "Make one post",
             "makes": "post",
             "runs": 1,
@@ -185,10 +185,10 @@ class TestRun:
     async def test_a_run_opens_for_chat_and_executes_after_the_reply(
         self, api, skills, runner_fakes, sessionmaker_for_test
     ):
-        skills("dw-post", "post")
+        skills("dw-linkedin-post", "post")
         asks, detached = runner_fakes
         response = await api.post(
-            "/api/skills/dw-post/run",
+            "/api/skills/dw-linkedin-post/run",
             json={"input": "Why churn fell\nand what changed", "look": "stat-card"},
         )
         assert response.status_code == 200
@@ -201,7 +201,7 @@ class TestRun:
         assert body["skill_run"]["status"] == "running"
         [ask] = asks
         assert (ask.skill, ask.caller, ask.input) == (
-            "dw-post",
+            "dw-linkedin-post",
             "chat",
             "Why churn fell\nand what changed",
         )
@@ -229,19 +229,21 @@ class TestRun:
     async def test_a_refusal_from_the_runner_is_a_409_with_its_message(
         self, api, skills, runner_fakes, monkeypatch
     ):
-        skills("dw-post", "post")
+        skills("dw-linkedin-post", "post")
 
         async def refuse(session, ask):
             raise runner.SkillError("Studio is off")
 
         monkeypatch.setattr(runner, "open_run", refuse)
-        response = await api.post("/api/skills/dw-post/run", json={"input": "x"})
+        response = await api.post(
+            "/api/skills/dw-linkedin-post/run", json={"input": "x"}
+        )
         assert response.status_code == 409
         assert response.json()["detail"] == "Studio is off"
         assert runner_fakes[1] == []
 
     async def test_a_body_without_input_is_a_422(self, api, skills, runner_fakes):
-        skills("dw-post", "post")
-        response = await api.post("/api/skills/dw-post/run", json={})
+        skills("dw-linkedin-post", "post")
+        response = await api.post("/api/skills/dw-linkedin-post/run", json={})
         assert response.status_code == 422
         assert runner_fakes == ([], [])
