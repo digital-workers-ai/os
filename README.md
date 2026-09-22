@@ -239,7 +239,7 @@ two records, same kind          (today: people; companies declare no ladder)
 
 ## Your Business as Code You Own
 
-Everything here is code your company owns: twelve definition files that describe the business, the brand and looks folders beside them that describe how it sounds and looks, and the software underneath that connects to your tools, joins the records, calculates the numbers, writes the briefings and makes the marketing.
+Everything here is code your company owns: thirteen definition files that describe the business, the brand and looks folders beside them that describe how it sounds and looks, and the software underneath that connects to your tools, joins the records, calculates the numbers, writes the briefings and makes the marketing.
 
 The definitions are where most changes happen. They hold what counts as a customer, which fields matter, how revenue is calculated, what counts as a problem, what the targets are, what questions an AI model is allowed to ask about your text, and what the studio makes and when. Every time the system starts, and every time it rebuilds, it checks the files against each other. If one file mentions a field another does not have, or a number over data nothing produces, or a target with a setting that makes no sense, the system refuses to start and says which file and which line. It will not run on definitions it knows are broken.
 
@@ -275,6 +275,8 @@ Because all of it lives in a repository, your business is versioned. Changing wh
 │ spy.yaml        │ The brand, the competitors and the queries Spy tracks                                 │
 ├─────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
 │ calendar.yaml   │ What the studio makes and when: each slot's kind, skill, cadence, look and theme      │
+├─────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
+│ prompts.yaml    │ The words a model is given before it reads your data, and which text is data          │
 ├─────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
 │ brand/          │ How the company sounds and what it can prove, plus the colors, fonts and logo         │
 ├─────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤

@@ -1,3 +1,4 @@
+from app import prompts
 from app.engine import spy
 from app.sources.client import ConnectorError
 from app.sources.creds import credentials_for
@@ -10,11 +11,8 @@ READER = "chatgpt"
 OBSERVED_AT = {"creatives": "creative.last_shown"}
 
 MODEL = "openai/gpt-5.6-luna"
-PROMPT = (
-    "Read the advertisement in this image. Reply with only the words visible in "
-    "the ad, headline first, in reading order. Reply NONE when there is no text."
-)
-PROMPT_VERSION = "2026-09-15.1"
+PROMPT = prompts.text("ad_reader", "ask")
+PROMPT_VERSION = prompts.version("ad_reader")
 READS_PER_PULL = 50
 OPENROUTER_PATH = "/api/v1/chat/completions"
 ADS_ENGINE = "google_ads_transparency_center"
