@@ -1,0 +1,15 @@
+name: cla
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  cla:
+    runs-on: ubuntu-latest
+    if: ${{ !contains(fromJSON('["OWNER", "MEMBER"]'), github.event.pull_request.author_association) }}
+    steps:
+      - if: ${{ !contains(github.event.pull_request.body, '[x] I have read [CLA.md](CLA.md) and agree to it') }}
+        run: |
+          echo "::error::Tick the CLA line in the pull request description: [x] I have read [CLA.md](CLA.md) and agree to it"
+          exit 1
