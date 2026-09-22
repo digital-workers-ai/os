@@ -191,11 +191,13 @@ class TestSources:
         assert coverage["detail"]
 
     async def test_the_detail_counts_the_sources_that_replayed_a_provider_payload(
-        self, api
+        self, api, tmp_path, monkeypatch
     ):
+        (tmp_path / "hubspot").mkdir()
+        monkeypatch.setattr(checks, "REAL_FIXTURES", tmp_path)
         coverage = (await api.get("/api/sources")).json()["validation_coverage"]
         provider, total = coverage["provider_validated"], coverage["total"]
-        assert provider
+        assert provider == 1
         assert coverage["detail"] == (
             f"{provider} of {total} sources have replayed a real provider payload"
         )
