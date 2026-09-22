@@ -7,7 +7,7 @@ on:
 jobs:
   cla:
     runs-on: ubuntu-latest
-    if: ${{ !contains(fromJSON('["OWNER", "MEMBER"]'), github.event.pull_request.author_association) }}
+    if: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
     steps:
       - if: ${{ !contains(github.event.pull_request.body, '[x] I have read [CLA.md](CLA.md) and agree to it') }}
         run: |

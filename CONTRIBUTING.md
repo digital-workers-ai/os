@@ -79,7 +79,7 @@ The five content skills are the ones Studio runs; each carries `makes:` in its f
 
 ## Licensing
 
-The code is published under the AGPL-3.0 in `LICENSE`, and Digital Worker LLC also licenses it commercially. To keep both possible, every outside contribution is accepted under the Contributor License Agreement in `CLA.md`, which grants Digital Worker LLC the right to distribute the contribution under any license while the public repository keeps it under AGPL. Agreeing takes one tick: the pull request template carries the line, and the `cla` check passes once it is ticked. Pull requests from the repository's own members skip the check.
+The code is published under the AGPL-3.0 in `LICENSE`, and Digital Worker LLC also licenses it commercially. To keep both possible, every outside contribution is accepted under the Contributor License Agreement in `CLA.md`, which grants Digital Worker LLC the right to distribute the contribution under any license while the public repository keeps it under AGPL. Agreeing takes one tick: the pull request template carries the line, and the `cla` check passes once it is ticked. Pull requests opened from a branch in this repository skip the check, since only collaborators can push one; pull requests from forks run it.
 
 ## Reporting
 
