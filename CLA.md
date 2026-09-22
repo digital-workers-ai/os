@@ -1,6 +1,6 @@
 # Contributor License Agreement
 
-Thank you for contributing to DW-OS. This agreement records what you give Digital Worker LLC ("Digital Workers") when you contribute, and what stays yours. You agree to it by ticking the line in the pull request template; the `cla` check on the pull request records the tick.
+Thank you for contributing to DW-OS. This agreement records what you give Digital Workers LLC ("Digital Workers") when you contribute, and what stays yours. You agree to it by ticking the line in the pull request template; the `cla` check on the pull request records the tick.
 
 ## Definitions
 

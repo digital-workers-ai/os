@@ -473,7 +473,7 @@ Email: hello@hiredigitalworkers.com
 
 ## License
 
-Copyright (C) 2026 Digital Worker LLC.
+Copyright (C) 2026 Digital Workers LLC.
 
 DW-OS is free software under the GNU Affero General Public License v3.0, see `LICENSE`. You can run it, change it, and keep your changes to yourself. What the license asks is that anyone you give a modified copy to, or let use one over a network, can get its source.
 
