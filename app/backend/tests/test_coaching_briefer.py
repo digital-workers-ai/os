@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from sqlalchemy import select
 
-from app import llm
+from app import llm, prompts
 from app.coaching import briefer
 from app.config import settings
 from app.engine import run
@@ -103,8 +103,8 @@ class TestRoles:
     def test_the_system_prompt_carries_the_safety_preamble(self):
         assert briefer.SAFETY in briefer.build_system("ceo")
 
-    def test_the_safety_text_lives_in_code_not_in_a_prompt_file(self):
-        assert briefer.SAFETY
+    def test_the_safety_text_lives_in_prompts_yaml_not_in_a_brief_file(self):
+        assert briefer.SAFETY == prompts.text("coaching", "safety")
         paths = list(briefer.PROMPTS.glob("*.md"))
         assert paths
         for path in paths:
