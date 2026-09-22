@@ -1,5 +1,3 @@
-SOURCE = "meta"
-
 _PLATFORMS = {
     "page_posts": "facebook",
     "page_insights": "facebook",

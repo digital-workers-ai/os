@@ -1,5 +1,3 @@
-SOURCE = "pinterest"
-
 PLATFORM = "pinterest"
 
 _PIN_LABELS = {"IMPRESSION": "_impressions", "SAVE": "_saves"}

@@ -18,6 +18,10 @@ DATASET_ID = "gd_lyy3tktm25m4avu764"
 INGESTED = datetime(2026, 9, 14, tzinfo=UTC)
 MOCK_FIXTURES = checks.REAL_FIXTURES.parent / "mock" / SOURCE
 REAL_FIXTURES = checks.REAL_FIXTURES / SOURCE
+needs_real_capture = pytest.mark.skipif(
+    not REAL_FIXTURES.is_dir(),
+    reason=f"no real capture under fixtures/real/{SOURCE}",
+)
 
 TRIGGER_PARAMS = {
     "dataset_id": DATASET_ID,
@@ -497,11 +501,13 @@ class TestTheFixtures:
             assert set(payload) == set(RECORD_KEYS)
             assert len(payload) == 40
 
+    @needs_real_capture
     def test_the_real_capture_covers_two_companies_in_three_posts_at_most(self):
         real = payloads(REAL_FIXTURES)
         assert 2 <= len(real) <= 3
         assert len({p["user_id"] for p in real}) >= 2
 
+    @needs_real_capture
     def test_the_real_and_mock_captures_agree_on_the_hook_and_mapped_fields(self):
         real = key_types(payloads(REAL_FIXTURES))
         mock = key_types(payloads(MOCK_FIXTURES))

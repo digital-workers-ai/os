@@ -1,5 +1,3 @@
-SOURCE = "twitter"
-
 PLATFORM = "x"
 
 _LABELS = {

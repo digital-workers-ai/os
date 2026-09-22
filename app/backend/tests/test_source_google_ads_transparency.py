@@ -841,6 +841,11 @@ class TestTheStandInFixtureCarriesTheRealShapes:
 
 
 class TestTheRealCaptureAgreesWithTheStandIn:
+    pytestmark = pytest.mark.skipif(
+        not (FIXTURES / "real" / SOURCE).is_dir(),
+        reason=f"no real capture under fixtures/real/{SOURCE}",
+    )
+
     def test_the_creative_fields_the_hook_reads_have_one_type_on_both(self):
         real = key_types(payloads("real", "creatives"))
         mock = key_types(payloads("mock", "creatives"))

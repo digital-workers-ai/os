@@ -4,8 +4,6 @@ from datetime import UTC, datetime, timedelta
 from app.engine.resolver import FREE_MAIL_DOMAINS
 from app.engine.transforms import MAX_TRANSCRIPT_CHARS
 
-SOURCE = "zoom"
-
 _CUE_TIME = re.compile(r"^[\d:.]+\s*-->\s*[\d:.]+")
 _SPEAKER = re.compile(r"^(?P<speaker>[^:]{1,80}):\s*(?P<text>.+)$")
 

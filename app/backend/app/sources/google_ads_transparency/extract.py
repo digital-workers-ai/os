@@ -1,7 +1,5 @@
 from app.engine import spy
 
-SOURCE = "google_ads_transparency"
-
 PLATFORM = "google"
 NO_TEXT = "NONE"
 

@@ -1,8 +1,6 @@
 from app.sources.google_analytics.connector import REPORT_SCHEMA
 from app.sources.hooks import ExtractError
 
-SOURCE = "google_analytics"
-
 
 def reshape(object_type: str, payload: dict) -> list[dict]:
     if object_type != "report_rows":
