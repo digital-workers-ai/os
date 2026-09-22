@@ -473,4 +473,10 @@ Email: hello@hiredigitalworkers.com
 
 ## License
 
-AGPL-3.0, see `LICENSE`.
+Copyright (C) 2026 Digital Workers LLC.
+
+DW-OS is free software under the GNU Affero General Public License v3.0, see `LICENSE`. You can run it, change it, and keep your changes to yourself. What the license asks is that anyone you give a modified copy to, or let use one over a network, can get its source.
+
+A commercial license is available for companies that need to keep their changes private, or want custom development and support: hello@hiredigitalworkers.com.
+
+Outside contributions are accepted under `CLA.md`.
