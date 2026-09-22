@@ -6,13 +6,13 @@ from dataclasses import dataclass, field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import media
+from app import media, prompts
 from app.engine import brand, calendar, looks
 from app.models import Asset, AssetVersion, FactCurrent, SkillRunToolCall
 from app.render import image
 from app.render.client import Painter, Render, RenderError
 
-FENCE_OPEN, FENCE_CLOSE = "<studio_data>", "</studio_data>"
+FENCE_OPEN, FENCE_CLOSE = prompts.fence("studio_skill")
 DETAIL_CHARS = 200
 TOOL_CHARS = 64
 MEETING, NAME, TRANSCRIPT = "meeting", "name", "transcript"
