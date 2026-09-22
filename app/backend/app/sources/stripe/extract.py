@@ -1,5 +1,3 @@
-SOURCE = "stripe"
-
 _MONTHS = {"day": 1 / 30.437, "week": 1 / 4.348, "month": 1.0, "year": 12.0}
 
 _ZERO_DECIMAL = frozenset(

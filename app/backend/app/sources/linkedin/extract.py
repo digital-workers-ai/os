@@ -1,7 +1,5 @@
 from datetime import UTC, datetime
 
-SOURCE = "linkedin"
-
 PLATFORM = "linkedin"
 
 _SHARE_LABELS = {

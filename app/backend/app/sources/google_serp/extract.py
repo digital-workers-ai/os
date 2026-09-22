@@ -1,7 +1,5 @@
 from app.sources.visibility import check_records, distinct
 
-SOURCE = "google_serp"
-
 ENGINES = {"searches": "google", "ai_overviews": "ai_overview"}
 
 

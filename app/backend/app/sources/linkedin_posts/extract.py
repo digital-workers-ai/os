@@ -2,8 +2,6 @@ from urllib.parse import urlsplit
 
 from app.engine import spy
 
-SOURCE = "linkedin_posts"
-
 PLATFORM = "linkedin"
 
 
