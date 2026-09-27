@@ -1,11 +1,10 @@
 import { useState } from 'react'
+import { Play } from 'lucide-react'
 import type { Ad } from '@/api'
 import { Card } from '@/components/ui/card'
 import { Pill } from '@/components/ui/pill'
-import { PLATFORMS } from '@/lib/engines'
+import { platformLabel } from '@/lib/engines'
 import { shortDate } from '@/lib/format'
-
-const platformLabel = (value: string) => PLATFORMS.find((option) => option.value === value)?.label ?? value
 
 const degenerate = ({ naturalWidth, naturalHeight }: HTMLImageElement) => naturalWidth <= 1 || naturalHeight <= 1
 
@@ -36,11 +35,18 @@ export function AdCard({ ad }: { ad: Ad }) {
       <div className="flex flex-1 flex-col gap-2 p-3 text-sm">
         <div className="flex items-center justify-between gap-2">
           <Pill>{platformLabel(ad.platform)}</Pill>
-          {ad.url && (
-            <a href={ad.url} target="_blank" rel="noreferrer" className="text-xs text-muted underline-offset-4 hover:text-ink hover:underline">
-              View
-            </a>
-          )}
+          <div className="flex items-center gap-3">
+            {ad.media && (
+              <a data-testid="ad-media" href={ad.media} target="_blank" rel="noreferrer" aria-label="play" className="text-muted hover:text-ink">
+                <Play size={14} />
+              </a>
+            )}
+            {ad.url && (
+              <a href={ad.url} target="_blank" rel="noreferrer" className="text-xs text-muted underline-offset-4 hover:text-ink hover:underline">
+                View
+              </a>
+            )}
+          </div>
         </div>
         {ad.name ? (
           <p className="line-clamp-2 text-ink" title={ad.name}>

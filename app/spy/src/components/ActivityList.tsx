@@ -2,6 +2,7 @@ import { ExternalLink } from 'lucide-react'
 import type { Ad, Post } from '@/api'
 import { Empty } from '@/components/ui/empty'
 import { Pill } from '@/components/ui/pill'
+import { platformLabel } from '@/lib/engines'
 import { shortDate } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
@@ -18,7 +19,7 @@ interface Item {
 
 const newest = <T,>(rows: T[], date: (row: T) => string) => [...rows].sort((a, b) => date(b).localeCompare(date(a))).slice(0, NEWEST)
 
-const fromAd = (ad: Ad): Item => ({ key: `ad|${ad.canonical_id}`, company: ad.company, kind: 'Google ad', name: ad.name, date: ad.last_seen, url: ad.url })
+const fromAd = (ad: Ad): Item => ({ key: `ad|${ad.canonical_id}`, company: ad.company, kind: `${platformLabel(ad.platform)} ad`, name: ad.name, date: ad.last_seen, url: ad.url })
 
 const fromPost = (post: Post): Item => ({
   key: `post|${post.canonical_id}`,

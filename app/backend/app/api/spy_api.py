@@ -21,6 +21,7 @@ AD_ATTRS = (
     "last_seen",
     "url",
     "preview",
+    "media",
 )
 POST_ATTRS = (
     "company",
