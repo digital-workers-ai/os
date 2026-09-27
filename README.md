@@ -92,7 +92,7 @@ In this repository, all of them are answered by stand-ins rather than the real p
 | Advertising            | Meta, Google Ads, LinkedIn, Pinterest, Snapchat, Twitter | Ad accounts, campaigns, spend, conversions |
 | Analytics and product  | Google Analytics, Mixpanel, Amplitude, Segment, Smartlook | Traffic, events, event definitions    |
 | Meetings and messaging | Calendly, Zoom, Twilio                                  | Meetings, call transcripts, messages  |
-| Competitors and visibility | Google Search (with AI Overviews), ChatGPT, Perplexity, Claude, Gemini, Google Ads Transparency, LinkedIn company posts | Brand rank and mentions, cited sources, competitor creatives and posts |
+| Competitors and visibility | Google Search (with AI Overviews), ChatGPT, Perplexity, Claude, Gemini, Google Ads Transparency, LinkedIn company posts, X profile posts | Brand rank and mentions, cited sources, competitor creatives and posts |
 
 Adding a tool is one package under `app/backend/app/sources/`, its lines in `definitions/mappings.yaml`, and a saved sample response the test suite can replay. Deletions in a provider are not currently detected—a record that disappears upstream stays in the graph.
 
@@ -296,7 +296,7 @@ It installs as an app on an iPhone, an Android phone or a desktop: the shell is 
 
 ## Spy
 
-Spy is a third web app, at http://localhost:3094, for whoever looks after the brand. It shows how the brand comes up in Google results, Google AI Overviews, ChatGPT, Perplexity, Claude and Gemini for a fixed list of queries, which competitors those answers name and which sites they cite, what each competitor is running in Google Ads Transparency, and what each posts on its LinkedIn company page. Five pages: an overview, the visibility matrix per engine, the ads, the posts, and the competitors as defined.
+Spy is a third web app, at http://localhost:3094, for whoever looks after the brand. It shows how the brand comes up in Google results, Google AI Overviews, ChatGPT, Perplexity, Claude and Gemini for a fixed list of queries, which competitors those answers name and which sites they cite, what each competitor is running in Google Ads Transparency, and what each posts on its LinkedIn company page and X profile. Five pages: an overview, the visibility matrix per engine, the ads, the posts, and the competitors as defined.
 
 `definitions/spy.yaml` holds the brand (name, domain, aliases), the competitors (name, domain, aliases, LinkedIn slug, Google advertiser id), the queries, the country and the language. It is checked at boot and before every rebuild like the other definition files, and the console shows it under Definitions → Spy. To change what Spy tracks, edit the file and rebuild. The shipped file names real companies, Pipedrive against HubSpot, Zoho CRM and Freshsales, so the stand-ins and the saved real responses have something to find.
 
@@ -435,6 +435,7 @@ A source reads its real API once every variable it names is set, and the stand-i
 | TikTok Ads Library | `SEARCHAPI_API_KEY`                                                                       |
 | Twilio         | `TWILIO_ACCOUNT_SID`, `TWILIO_API_KEY_SID`, `TWILIO_API_KEY_SECRET`                           |
 | Twitter        | `TWITTER_BEARER_TOKEN`, `TWITTER_USER_ID`                                                     |
+| X Posts        | `BRIGHTDATA_API_KEY`                                                                          |
 
 ## Operator Variables
 

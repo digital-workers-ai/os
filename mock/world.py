@@ -471,9 +471,9 @@ SALES_CALLS_BY_ID = {c.id: c for c in SALES_CALLS}
 
 SPY_BRAND = {"name": "Pipedrive", "domain": "pipedrive.com", "aliases": []}
 SPY_COMPETITORS = [
-    {"name": "HubSpot", "domain": "hubspot.com", "aliases": ["HubSpot CRM"], "linkedin": "hubspot", "google_advertiser_id": "AR10072600183532683265", "tiktok_advertiser_id": "6948549846680732417", "tiktok_advertiser_name": "HUBSPOT, INC.", "meta_page_id": "6039999393"},
-    {"name": "Zoho CRM", "domain": "zoho.com", "aliases": ["Zoho"], "linkedin": "zoho", "google_advertiser_id": "AR07034216898162065409", "meta_page_id": "231460215383"},
-    {"name": "Freshsales", "domain": "freshworks.com", "aliases": ["Freshworks", "Freshworks CRM"], "linkedin": "freshworks-inc", "google_advertiser_id": "AR03035893441289519105", "meta_page_id": "300722220374123"},
+    {"name": "HubSpot", "domain": "hubspot.com", "aliases": ["HubSpot CRM"], "linkedin": "hubspot", "x": "HubSpot", "google_advertiser_id": "AR10072600183532683265", "tiktok_advertiser_id": "6948549846680732417", "tiktok_advertiser_name": "HUBSPOT, INC.", "meta_page_id": "6039999393"},
+    {"name": "Zoho CRM", "domain": "zoho.com", "aliases": ["Zoho"], "linkedin": "zoho", "x": "Zoho", "google_advertiser_id": "AR07034216898162065409", "meta_page_id": "231460215383"},
+    {"name": "Freshsales", "domain": "freshworks.com", "aliases": ["Freshworks", "Freshworks CRM"], "linkedin": "freshworks-inc", "x": "FreshworksInc", "google_advertiser_id": "AR03035893441289519105", "meta_page_id": "300722220374123"},
 ]
 SPY_QUERIES = [
     "best crm for small business",
@@ -583,6 +583,12 @@ _SPY_HASHTAGS = ("#CRM", "#Sales", "#SalesTech", "#AI", "#ProductUpdate", "#Star
 _SPY_FOLLOWERS = {"hubspot": 1240000, "zoho": 812000, "freshworks-inc": 396000}
 _SPY_ADVERTISERS = {c["google_advertiser_id"]: c for c in SPY_COMPETITORS}
 _SPY_LINKEDIN = {c["linkedin"]: c for c in SPY_COMPETITORS}
+_SPY_X = {c["x"].lower(): c for c in SPY_COMPETITORS}
+_SPY_X_PROFILES = {
+    "hubspot": ("HubSpot", "14458280", 890000, 38557, 90163, "gold", "The agentic customer platform to scale your business."),
+    "zoho": ("Zoho", "5827392", 138570, 121, 21145, "gold", "A unique and powerful software suite to transform the way you work; built by a company that values your privacy."),
+    "freshworksinc": ("Freshworks Inc", "869782118380871680", 18984, 527, 7753, "blue", "The AI-powered, unified service operations platform for agile enterprises. NASDAQ: FRSH."),
+}
 _SPY_LINKEDIN_TYPES = ("image", "image", "image", "video", "text", "document")
 _SPY_LINKEDIN_FORMATS = {"image": "Single Image Ad", "video": "Video Ad", "text": "Text Ad", "document": "Document Ad", "message": "Message Ad"}
 _SPY_LINKEDIN_UNPUBLISHED = ("ad_format", "ad_type", "advertiser", "content", "id", "link", "paid_for_by")
@@ -771,6 +777,89 @@ def spy_posts(slug: str) -> list[dict]:
             "repost": None,
             "tagged_companies": [],
             "tagged_people": [],
+        })
+    return posts
+
+
+def spy_x_posts(handle: str) -> list[dict]:
+    company = _SPY_X.get(handle.lower())
+    if company is None:
+        return []
+    name, user_id, followers, following, posts_count, badge, biography = _SPY_X_PROFILES[handle.lower()]
+    anchor = datetime(SPY_ANCHOR.year, SPY_ANCHOR.month, SPY_ANCHOR.day, tzinfo=timezone.utc)
+    count = 5 + _spy_digest(handle.lower(), "x_count") % 8
+    posts = []
+    for i in range(count):
+        seed = f"x_post|{handle.lower()}|{i}"
+        post_id = str(10**18 + _spy_digest(seed, "id") % (9 * 10**18))
+        age_days = i * 120 // count + _spy_digest(seed, "day") % max(1, 120 // count)
+        posted = anchor - timedelta(days=age_days, hours=2 + _spy_digest(seed, "hour") % 14, minutes=_spy_digest(seed, "minute") % 60)
+        stamp = posted.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        tags = [tag[1:] for tag in _spy_order(seed + "|tags", list(_SPY_HASHTAGS))[: _spy_digest(seed, "tags") % 3]]
+        repost = _spy_digest(seed, "repost") % 3 == 0
+        parent = {"date_posted": stamp, "post_id": post_id, "profile_id": user_id, "profile_name": name}
+        tagged = None
+        if repost:
+            source = _spy_pick(seed, "parent", _SPY_NEUTRAL[:6])["source"]
+            reposter = source.replace(" ", "")
+            parent = {
+                "date_posted": (posted - timedelta(hours=1 + _spy_digest(seed, "lag") % 72)).strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+                "post_id": str(10**18 + _spy_digest(seed, "parent_id") % (9 * 10**18)),
+                "profile_id": str(10**6 + _spy_digest(reposter, "profile") % (9 * 10**8)),
+                "profile_name": source,
+            }
+            tagged = [{"biography": None, "followers": None, "following": None, "is_verified": None, "profile_id": parent["profile_id"], "profile_name": source, "url": f"https://x.com/{reposter}"}]
+            text = f"RT @{reposter}: " + _spy_pick(seed, "single", _SPY_SINGLES).format(b=company["name"])
+        else:
+            text = _spy_pick(seed, "text", _SPY_POST_TEXTS).format(
+                name=company["name"],
+                feature=_spy_pick(seed, "feature", _SPY_FEATURES),
+                benefit=_spy_pick(seed, "benefit", _SPY_BENEFITS),
+            )
+        if tags:
+            text += "\n\n" + " ".join("#" + tag for tag in tags)
+        kind = _spy_digest(seed, "media") % 6
+        photos = [f"https://pbs.twimg.com/media/{_spy_digest(seed, 'photo', str(n)) % 16**15:015x}.jpg" for n in range(1 + kind % 2)] if kind < 2 else None
+        videos = None
+        if kind == 2:
+            videos = [{"duration": 5000 + _spy_digest(seed, "duration") % 60000, "video_url": f"https://video.twimg.com/amplify_video/{int(post_id) - 10**9}/vid/avc1/1080x1920/{_spy_digest(seed, 'video') % 16**15:015x}.mp4?tag=16"}]
+        likes = 5 + _spy_digest(seed, "likes") % 300
+        posts.append({
+            "id": post_id,
+            "url": f"https://x.com/{handle.lower()}/status/{post_id}",
+            "user_posted": company["x"],
+            "name": name,
+            "user_id": user_id,
+            "description": text,
+            "date_posted": stamp,
+            "hashtags": tags or None,
+            "photos": photos,
+            "videos": videos,
+            "quoted_post": {"photos": None, "videos": None},
+            "is_repost": repost,
+            "parent_post_details": parent,
+            "tagged_users": tagged,
+            "external_url": _SPY_PAGES[company["domain"]][1] if _spy_digest(seed, "link") % 5 == 0 else None,
+            "external_image_urls": None,
+            "external_video_urls": None,
+            "ai_generated_images": None,
+            "context_added": None,
+            "likes": likes,
+            "replies": _spy_digest(seed, "replies") % 12,
+            "reposts": _spy_digest(seed, "reposts") % 60,
+            "quotes": _spy_digest(seed, "quotes") % 5,
+            "bookmarks": _spy_digest(seed, "bookmarks") % 15,
+            "views": 400 + likes * 20 + _spy_digest(seed, "views") % 3000,
+            "followers": followers,
+            "following": following,
+            "posts_count": posts_count,
+            "is_verified": True,
+            "verification_type": badge,
+            "biography": biography,
+            "profile_image_link": f"https://pbs.twimg.com/profile_images/{10**18 + _spy_digest(user_id, 'avatar') % (9 * 10**18)}/{_spy_digest(user_id, 'avatar', 'name') % 16**8:08x}_normal.jpg",
+            "timestamp": f"{SPY_ANCHOR.isoformat()}T12:00:00.000Z",
+            "input": {"url": f"https://x.com/{handle.lower()}/status/{post_id}"},
+            "discovery_input": {"url": f"https://x.com/{handle}", "start_date": "", "end_date": ""},
         })
     return posts
 

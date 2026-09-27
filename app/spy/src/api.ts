@@ -117,6 +117,7 @@ export interface Brand {
 
 export interface Competitor extends Brand {
   linkedin: string | null
+  x: string | null
   google_advertiser_id: string | null
   tiktok_advertiser_id: string | null
   tiktok_advertiser_name: string | null
@@ -215,6 +216,8 @@ export interface Post {
   posted_at: string
   likes: number
   comments: number
+  shares: number | null
+  views: number | null
   url: string
   preview: string | null
 }

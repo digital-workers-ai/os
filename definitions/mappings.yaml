@@ -387,6 +387,17 @@ competitor_post:
   linkedin_posts.posts.num_comments: comments
   linkedin_posts.posts.url: url
   linkedin_posts.posts._preview: preview
+  x_posts.posts._company: company
+  x_posts.posts._platform: platform
+  x_posts.posts.description: name
+  x_posts.posts._category: category
+  x_posts.posts.date_posted: posted_at
+  x_posts.posts.likes: likes
+  x_posts.posts.replies: comments
+  x_posts.posts.reposts: shares
+  x_posts.posts.views: views
+  x_posts.posts._preview: preview
+  x_posts.posts.url: url
 
 ad:
   google_ads_transparency.creatives._company: company
