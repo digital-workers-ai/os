@@ -164,6 +164,7 @@ _REAL: dict[str, tuple[str, tuple[str, ...], Callable]] = {
         _bearer,
     ),
     "linkedin_ads": ("https://www.searchapi.io", ("SEARCHAPI_API_KEY",), _bearer),
+    "tiktok_ads": ("https://www.searchapi.io", ("SEARCHAPI_API_KEY",), _bearer),
     "google_serp": ("https://serpapi.com", ("SERPAPI_API_KEY",), _serpapi),
     "claude": ("https://api.anthropic.com", ("ANTHROPIC_API_KEY",), _anthropic),
     "shopify": (
@@ -309,6 +310,12 @@ _MOCK: dict[str, tuple[str, dict, tuple | None, dict]] = {
         {},
     ),
     "linkedin_ads": (
+        "/searchapi",
+        {"Authorization": "Bearer mock_searchapi_key"},
+        None,
+        {},
+    ),
+    "tiktok_ads": (
         "/searchapi",
         {"Authorization": "Bearer mock_searchapi_key"},
         None,

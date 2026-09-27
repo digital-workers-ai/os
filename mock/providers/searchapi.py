@@ -1,11 +1,14 @@
+import base64
 import hashlib
+import json
+from datetime import date
 from urllib.parse import quote_plus
 
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
 from seeds import world
-from seeds.helpers import token_paginate
+from seeds.helpers import day_ms, token_paginate
 
 router = APIRouter()
 
@@ -14,6 +17,25 @@ STAMP = f"{world.SPY_ANCHOR.isoformat()}T12:00:00Z"
 ADS_PAGE = 24
 AD_LIBRARY = "https://www.linkedin.com/ad-library"
 DETAILS_ENGINE = "linkedin_ad_library_ad_details"
+TIKTOK_ENGINE = "tiktok_ads_library"
+TIKTOK_ADVERTISERS_ENGINE = "tiktok_ads_library_advertiser_search"
+TIKTOK_NO_RESULTS = "TikTok ads library didn't return any results."
+TIKTOK_NO_ADVERTISERS = (
+    "TikTok ads library advertiser search didn't return any results."
+)
+TIKTOK_MISSING_Q = (
+    "Missing required parameter q. When searching by advertiser_id, you must also "
+    "provide the advertiser's name via q (or use advertiser_token, which bundles "
+    "both). You can look up advertisers with the "
+    "tiktok_ads_library_advertiser_search engine."
+)
+TIKTOK_LIBRARY = "https://library.tiktok.com/ads"
+TIKTOK_PAGE = 12
+TIKTOK_SORT = "last_shown_date_newest_to_oldest"
+TIKTOK_PERIOD = (
+    f"{world.SPY_ANCHOR.replace(year=world.SPY_ANCHOR.year - 1).isoformat()}"
+    f"..{world.SPY_ANCHOR.isoformat()}"
+)
 
 
 def _error(status, message):
@@ -40,6 +62,18 @@ def _metadata(seed, request_url):
     }
 
 
+def _listing(body, ads, page_token, page_size, no_results):
+    if not ads:
+        body["error"] = no_results
+        return body
+    page, next_token = token_paginate(ads, page_token, page_size)
+    body["search_information"] = {"total_results": len(ads)}
+    body["ads"] = page
+    if next_token:
+        body["pagination"] = {"next_page_token": next_token}
+    return body
+
+
 def _ad_library(params):
     advertiser = params.get("advertiser")
     if not advertiser:
@@ -58,15 +92,7 @@ def _ad_library(params):
         "search_parameters": echoed,
     }
     ads = world.spy_linkedin_ads(advertiser)
-    if not ads:
-        body["error"] = NO_RESULTS
-        return body
-    page, next_token = token_paginate(ads, page_token, ADS_PAGE)
-    body["search_information"] = {"total_results": len(ads)}
-    body["ads"] = page
-    if next_token:
-        body["pagination"] = {"next_page_token": next_token}
-    return body
+    return _listing(body, ads, page_token, ADS_PAGE, NO_RESULTS)
 
 
 def _ad_details(params):
@@ -85,6 +111,78 @@ def _ad_details(params):
     return body
 
 
+def _tiktok_ads(params):
+    given = {
+        key: params[key]
+        for key in ("advertiser_token", "q", "advertiser_id")
+        if key in params
+    }
+    if "advertiser_token" in given:
+        advertiser = json.loads(base64.b64decode(given["advertiser_token"]))
+        advertiser_id, name = advertiser["id"], advertiser["name"]
+    else:
+        advertiser_id, name = given.get("advertiser_id"), given.get("q")
+        if not name:
+            return _error(400, TIKTOK_MISSING_Q) if advertiser_id else _missing("q")
+    country = params.get("country", "all")
+    period = params.get("time_period", TIKTOK_PERIOD)
+    page_token = params.get("next_page_token")
+    start, end = (day_ms(date.fromisoformat(day)) for day in period.split(".."))
+    request_url = (
+        f"{TIKTOK_LIBRARY}?region={country}&start_time={start}&end_time={end}"
+        f"&sort_type=last_shown_date%2Cdesc&adv_name={quote_plus(name)}"
+        f"&adv_biz_ids={advertiser_id or ''}&query_type={2 if advertiser_id else 1}"
+    )
+    if advertiser_id:
+        ads = [
+            a for a in world.spy_tiktok_ads(advertiser_id) if a["advertiser"] == name
+        ]
+    else:
+        ads = [
+            ad
+            for found in world.spy_tiktok_advertisers(name)
+            for ad in world.spy_tiktok_ads(found["id"])
+        ]
+    body = {
+        "search_metadata": _metadata(
+            f"tiktok|{advertiser_id}|{name}|{country}|{period}|{page_token}",
+            request_url,
+        ),
+        "search_parameters": {
+            "engine": TIKTOK_ENGINE,
+            **given,
+            "country": country,
+            "time_period": period,
+            "sort_by": params.get("sort_by", TIKTOK_SORT),
+        },
+    }
+    return _listing(body, ads, page_token, TIKTOK_PAGE, TIKTOK_NO_RESULTS)
+
+
+def _tiktok_advertisers(params):
+    query = params.get("q")
+    if not query:
+        return _missing("q")
+    body = {
+        "search_metadata": _metadata(f"tiktok_advertisers|{query}", TIKTOK_LIBRARY),
+        "search_parameters": {"engine": TIKTOK_ADVERTISERS_ENGINE, "q": query},
+    }
+    advertisers = world.spy_tiktok_advertisers(query)
+    if advertisers:
+        body["advertisers"] = advertisers
+    else:
+        body["error"] = TIKTOK_NO_ADVERTISERS
+    return body
+
+
+ENGINES = {
+    "linkedin_ad_library": _ad_library,
+    DETAILS_ENGINE: _ad_details,
+    TIKTOK_ENGINE: _tiktok_ads,
+    TIKTOK_ADVERTISERS_ENGINE: _tiktok_advertisers,
+}
+
+
 @router.get("/api/v1/search")
 async def search(request: Request):
     auth = request.headers.get("authorization", "")
@@ -94,8 +192,7 @@ async def search(request: Request):
     engine = params.get("engine")
     if not engine:
         return _missing("engine")
-    if engine == "linkedin_ad_library":
-        return _ad_library(params)
-    if engine == DETAILS_ENGINE:
-        return _ad_details(params)
-    return _error(400, f"Unsupported engine: `{engine}`.")
+    handler = ENGINES.get(engine)
+    if handler is None:
+        return _error(400, f"Unsupported engine: `{engine}`.")
+    return handler(params)

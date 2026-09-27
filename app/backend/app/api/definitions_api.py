@@ -201,6 +201,8 @@ async def get_spy():
                 **_tracked(company),
                 "linkedin": company.linkedin,
                 "google_advertiser_id": company.google_advertiser_id,
+                "tiktok_advertiser_id": company.tiktok_advertiser_id,
+                "tiktok_advertiser_name": company.tiktok_advertiser_name,
             }
             for company in tracked.competitors
         ],

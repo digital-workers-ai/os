@@ -431,6 +431,7 @@ A source reads its real API once every variable it names is set, and the stand-i
 | Perplexity     | `OPENROUTER_API_KEY`                                                                          |
 | Shopify        | `SHOPIFY_STORE_DOMAIN`, `SHOPIFY_ACCESS_TOKEN`                                                |
 | Stripe         | `STRIPE_API_KEY`                                                                              |
+| TikTok Ads Library | `SEARCHAPI_API_KEY`                                                                       |
 | Twilio         | `TWILIO_ACCOUNT_SID`, `TWILIO_API_KEY_SID`, `TWILIO_API_KEY_SECRET`                           |
 | Twitter        | `TWITTER_BEARER_TOKEN`, `TWITTER_USER_ID`                                                     |
 

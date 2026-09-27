@@ -389,6 +389,7 @@ source_priority:
   - google_sheets
   - google_ads_transparency
   - linkedin_ads
+  - tiktok_ads
   - linkedin_posts
   - google_serp
 

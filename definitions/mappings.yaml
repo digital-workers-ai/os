@@ -408,3 +408,12 @@ ad:
   linkedin_ads.ad_details._platform: platform
   linkedin_ads.ad_details.ad.first_shown_date: first_seen
   linkedin_ads.ad_details.ad.external_link: landing_url
+  tiktok_ads.ads._company: company
+  tiktok_ads.ads._platform: platform
+  tiktok_ads.ads.ad.title: name
+  tiktok_ads.ads.ad.format: category
+  tiktok_ads.ads._preview: preview
+  tiktok_ads.ads.ad.video_link: media
+  tiktok_ads.ads.ad.first_shown_datetime: first_seen
+  tiktok_ads.ads.ad.last_shown_datetime: last_seen
+  tiktok_ads.ads._url: url

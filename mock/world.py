@@ -6,7 +6,10 @@ support tickets, events) that each provider renders in its own format. Deliberat
 variations in names/emails test entity resolution.
 """
 
+import base64
 import hashlib
+import json
+import uuid
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta, timezone
 from typing import Optional
@@ -468,7 +471,7 @@ SALES_CALLS_BY_ID = {c.id: c for c in SALES_CALLS}
 
 SPY_BRAND = {"name": "Pipedrive", "domain": "pipedrive.com", "aliases": []}
 SPY_COMPETITORS = [
-    {"name": "HubSpot", "domain": "hubspot.com", "aliases": ["HubSpot CRM"], "linkedin": "hubspot", "google_advertiser_id": "AR10072600183532683265"},
+    {"name": "HubSpot", "domain": "hubspot.com", "aliases": ["HubSpot CRM"], "linkedin": "hubspot", "google_advertiser_id": "AR10072600183532683265", "tiktok_advertiser_id": "6948549846680732417", "tiktok_advertiser_name": "HUBSPOT, INC."},
     {"name": "Zoho CRM", "domain": "zoho.com", "aliases": ["Zoho"], "linkedin": "zoho", "google_advertiser_id": "AR07034216898162065409"},
     {"name": "Freshsales", "domain": "freshworks.com", "aliases": ["Freshworks", "Freshworks CRM"], "linkedin": "freshworks-inc", "google_advertiser_id": "AR03035893441289519105"},
 ]
@@ -588,6 +591,9 @@ _SPY_LINKEDIN_CTAS = ("Learn more", "Sign up", "Download", "Register")
 _SPY_LINKEDIN_BANDS = (("< 1k", None, 1000), ("1k-5k", 1000, 5000), ("5k-10k", 5000, 10000), ("10k-50k", 10000, 50000))
 _SPY_LINKEDIN_COUNTRIES = ("United States", "United Kingdom", "Canada", "Australia", "India", "Germany", "Ireland")
 _SPY_LINKEDIN_TARGETING = (("Audience", True), ("Demographic", False), ("Company", True), ("Education", False), ("Job", True), ("Member Interests and Traits", False))
+_SPY_TIKTOK = {c["tiktok_advertiser_id"]: c for c in SPY_COMPETITORS if "tiktok_advertiser_id" in c}
+_SPY_TIKTOK_BANDS = (("0-1K", 0, 1000), ("1K-10K", 1000, 10000), ("10K-100K", 10000, 100000), ("100K-1M", 100000, 1000000))
+_SPY_TIKTOK_STAMP = int(datetime(SPY_ANCHOR.year, SPY_ANCHOR.month, SPY_ANCHOR.day, 12, tzinfo=timezone.utc).timestamp())
 
 
 def _spy_digest(*parts: str) -> int:
@@ -847,3 +853,62 @@ def spy_linkedin_ad_detail(ad_id: str) -> Optional[dict]:
             if ad["id"] == ad_id:
                 return _spy_linkedin_detail(company, ad)
     return None
+
+
+def _spy_tiktok_token(advertiser_id: str, name: str) -> str:
+    return base64.b64encode(json.dumps({"id": advertiser_id, "name": name}, separators=(",", ":")).encode()).decode()
+
+
+def spy_tiktok_advertisers(query: str) -> list[dict]:
+    needle = query.lower()
+    return [
+        {"id": advertiser_id, "name": company["tiktok_advertiser_name"], "advertiser_token": _spy_tiktok_token(advertiser_id, company["tiktok_advertiser_name"])}
+        for advertiser_id, company in _SPY_TIKTOK.items()
+        if needle in company["tiktok_advertiser_name"].lower()
+    ]
+
+
+def _spy_tiktok_image(seed: str, salt: str, folder: str) -> str:
+    digest = f"{_spy_digest(seed, salt) % 16**32:032x}"
+    return f"https://p16-common-sign.tiktokcdn.com/{folder}/{digest}~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token={digest[:8]}&x-expires={_SPY_TIKTOK_STAMP}&x-signature={digest[8:]}%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1"
+
+
+def _spy_tiktok_video(seed: str) -> str:
+    digest = _spy_digest(seed, "video")
+    source = base64.b64encode(f"https://v77.tiktokcdn.com/{digest % 16**32:032x}/video/tos/alisg/".encode()).decode()
+    return f"https://library.tiktok.com/api/v1/cdn/{_SPY_TIKTOK_STAMP}/video/{source}/{uuid.UUID(int=digest % 2**128)}?a=475769&bt=386&mime_type=video_mp4&vvpl=1"
+
+
+def spy_tiktok_ads(advertiser_id: str) -> list[dict]:
+    company = _SPY_TIKTOK.get(advertiser_id)
+    if company is None:
+        return []
+    name = company["tiktok_advertiser_name"]
+    token = _spy_tiktok_token(advertiser_id, name)
+    ads = []
+    for i in range(14 + _spy_digest(advertiser_id, "tiktok_count") % 7):
+        seed = f"tiktok_ad|{advertiser_id}|{i}"
+        fmt = "video" if _spy_digest(seed, "format") % 10 < 7 else "image"
+        first_age = 1 + _spy_digest(seed, "first") % 120
+        last_age = _spy_digest(seed, "last") % (first_age + 1)
+        label, low, high = _spy_pick(seed, "band", _SPY_TIKTOK_BANDS)
+        ad = {
+            "id": str(10**15 + _spy_digest(seed, "id") % (9 * 10**15)),
+            "advertiser_id": advertiser_id,
+            "advertiser": name,
+            "advertiser_token": token,
+            "title": f"{_spy_pick(seed, 'headline', _SPY_AD_HEADLINES)}. {_spy_pick(seed, 'line', _SPY_AD_LINES)}",
+            "format": fmt,
+            "first_shown_datetime": (SPY_ANCHOR - timedelta(days=first_age)).isoformat() + "T00:00:00Z",
+            "last_shown_datetime": (SPY_ANCHOR - timedelta(days=last_age)).isoformat() + "T00:00:00Z",
+        }
+        if fmt == "video":
+            ad["video_link"] = _spy_tiktok_video(seed)
+            ad["cover_image"] = _spy_tiktok_image(seed, "cover", "tos-alisg-p-0051c001-sg")
+            ad["image_urls"] = [ad["cover_image"]]
+        else:
+            ad["image_urls"] = [_spy_tiktok_image(seed, f"image{n}", "ad-site-i18n-sg") for n in range(1 + _spy_digest(seed, "images") % 3)]
+        ad.update({"estimated_audience": label, "estimated_audience_min": low, "estimated_audience_max": high})
+        ads.append(ad)
+    ads.sort(key=lambda ad: ad["last_shown_datetime"], reverse=True)
+    return [{"position": position, **ad} for position, ad in enumerate(ads, 1)]
