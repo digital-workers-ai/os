@@ -8,6 +8,8 @@ competitors:
     aliases: [HubSpot CRM]
     linkedin: hubspot
     google_advertiser_id: AR10072600183532683265
+    tiktok_advertiser_id: "6948549846680732417"
+    tiktok_advertiser_name: "HUBSPOT, INC."
   - name: Zoho CRM
     domain: zoho.com
     aliases: [Zoho]

@@ -118,6 +118,8 @@ export interface Brand {
 export interface Competitor extends Brand {
   linkedin: string | null
   google_advertiser_id: string | null
+  tiktok_advertiser_id: string | null
+  tiktok_advertiser_name: string | null
 }
 
 export interface SpyDefinition {

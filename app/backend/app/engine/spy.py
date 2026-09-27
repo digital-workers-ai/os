@@ -10,14 +10,21 @@ ROLES = ("brand", "competitor")
 
 TOP_KEYS = frozenset({"brand", "competitors", "queries", "country", "language"})
 BRAND_KEYS = frozenset({"name", "domain", "aliases"})
-COMPETITOR_KEYS = BRAND_KEYS | {"linkedin", "google_advertiser_id"}
+COMPETITOR_KEYS = BRAND_KEYS | {
+    "linkedin",
+    "google_advertiser_id",
+    "tiktok_advertiser_id",
+    "tiktok_advertiser_name",
+}
+TIKTOK_PAIR = ("tiktok_advertiser_id", "tiktok_advertiser_name")
 
 _DOMAIN_RE = re.compile(r"^[a-z0-9-]+(\.[a-z0-9-]+)+$")  # lowercase host, no scheme: acme.io, crm.zoho.com
 _LINKEDIN_RE = re.compile(r"^[a-z0-9-]+$")  # company page slug: hubspot, freshworks-inc
 _ADVERTISER_RE = re.compile(r"^AR\d+$")  # google advertiser id: AR10072600…, AR07034216…
+_TIKTOK_ADVERTISER_RE = re.compile(r"^\d+$")  # tiktok advertiser id: 6948549846…, 7561940026…
 _COUNTRY_RE = re.compile(r"^[A-Z]{2}$")  # two-letter country code: US, GB
 _LANGUAGE_RE = re.compile(r"^[a-z]{2}$")  # two-letter language code: en, es
-_CODED_KEYS = (("linkedin", _LINKEDIN_RE), ("google_advertiser_id", _ADVERTISER_RE))  # optional keys, refused when malformed
+_CODED_KEYS = (("linkedin", _LINKEDIN_RE), ("google_advertiser_id", _ADVERTISER_RE), ("tiktok_advertiser_id", _TIKTOK_ADVERTISER_RE))  # optional keys, refused when malformed
 _SLUG_RE = re.compile(r"[^a-z0-9]+")  # non-alphanumeric runs become dashes: best crm → best-crm
 _HOST_RE = re.compile(r"^(?:[a-z][a-z0-9+.-]*://)?(?:www\.)?([^/:?#]*)")  # host only, www dropped: zoho.com, crm.zoho.com
 
@@ -33,6 +40,8 @@ class Company:
     aliases: tuple[str, ...]
     linkedin: str | None
     google_advertiser_id: str | None
+    tiktok_advertiser_id: str | None
+    tiktok_advertiser_name: str | None
     role: str
 
     @property
@@ -65,6 +74,13 @@ class Definition:
             c.google_advertiser_id: c
             for c in self.competitors
             if c.google_advertiser_id
+        }.get(advertiser_id)
+
+    def by_tiktok_advertiser(self, advertiser_id) -> Company | None:
+        return {
+            c.tiktok_advertiser_id: c
+            for c in self.competitors
+            if c.tiktok_advertiser_id
         }.get(advertiser_id)
 
 
@@ -128,6 +144,8 @@ def _company_problems(label, spec, keys) -> list[str]:
     for key, pattern in _CODED_KEYS:
         if key in keys and key in spec:
             problems += _pattern_problems(f"{label} {key}", spec[key], pattern)
+    if set(TIKTOK_PAIR) <= keys and len(set(TIKTOK_PAIR) & set(spec)) == 1:
+        problems.append(_problem(f"{label} {' and '.join(TIKTOK_PAIR)} travel together"))
     return problems
 
 
@@ -211,6 +229,8 @@ def _company(spec, role) -> Company:
         aliases=tuple(spec.get("aliases", ())),
         linkedin=spec.get("linkedin"),
         google_advertiser_id=spec.get("google_advertiser_id"),
+        tiktok_advertiser_id=spec.get("tiktok_advertiser_id"),
+        tiktok_advertiser_name=spec.get("tiktok_advertiser_name"),
         role=role,
     )
 

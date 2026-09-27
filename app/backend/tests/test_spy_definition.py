@@ -11,6 +11,8 @@ HUBSPOT = {
     "aliases": ["HubSpot CRM"],
     "linkedin": "hubspot",
     "google_advertiser_id": "AR123",
+    "tiktok_advertiser_id": "6948549846680732417",
+    "tiktok_advertiser_name": "HUBSPOT, INC.",
 }
 ZOHO = {
     "name": "Zoho CRM",
@@ -72,7 +74,7 @@ class TestConstants:
 class TestParse:
     def test_a_valid_document_parses_into_a_definition(self, tracked):
         assert tracked.brand == spy.Company(
-            "Pipedrive", "pipedrive.com", (), None, None, "brand"
+            "Pipedrive", "pipedrive.com", (), None, None, None, None, "brand"
         )
         assert tracked.competitors == (
             spy.Company(
@@ -81,9 +83,20 @@ class TestParse:
                 ("HubSpot CRM",),
                 "hubspot",
                 "AR123",
+                "6948549846680732417",
+                "HUBSPOT, INC.",
                 "competitor",
             ),
-            spy.Company("Zoho CRM", "zoho.com", ("Zoho",), "zoho", None, "competitor"),
+            spy.Company(
+                "Zoho CRM",
+                "zoho.com",
+                ("Zoho",),
+                "zoho",
+                None,
+                None,
+                None,
+                "competitor",
+            ),
         )
         assert tracked.queries == (
             "best crm for small business",
@@ -171,6 +184,28 @@ class TestEachRuleIsChecked:
                 _competitor(google_advertiser_id="123"),
                 "competitor 'HubSpot' google_advertiser_id '123'",
             ),
+            (
+                _competitor(tiktok_advertiser_id="abc"),
+                "competitor 'HubSpot' tiktok_advertiser_id 'abc'",
+            ),
+            (
+                _competitor(tiktok_advertiser_id=6948549846680732417),
+                "competitor 'HubSpot' tiktok_advertiser_id 6948549846680732417",
+            ),
+            (
+                _doc(competitors=[_without(HUBSPOT, "tiktok_advertiser_name"), ZOHO]),
+                "competitor 'HubSpot' tiktok_advertiser_id and "
+                "tiktok_advertiser_name travel together",
+            ),
+            (
+                _doc(competitors=[_without(HUBSPOT, "tiktok_advertiser_id"), ZOHO]),
+                "competitor 'HubSpot' tiktok_advertiser_id and "
+                "tiktok_advertiser_name travel together",
+            ),
+            (
+                _brand(tiktok_advertiser_id="1", tiktok_advertiser_name="Pipedrive"),
+                "brand has unknown key 'tiktok_advertiser_id'",
+            ),
             (_competitor(twitter="hubspot"), "competitor 'HubSpot' has unknown key"),
             (
                 _competitor(aliases=["pipedrive"]),
@@ -224,6 +259,11 @@ class TestEachRuleIsChecked:
             "competitor_linkedin_with_a_space",
             "competitor_linkedin_not_a_string",
             "competitor_advertiser_without_prefix",
+            "competitor_tiktok_advertiser_not_digits",
+            "competitor_tiktok_advertiser_unquoted",
+            "competitor_tiktok_id_without_name",
+            "competitor_tiktok_name_without_id",
+            "brand_tiktok_advertiser",
             "competitor_unknown_key",
             "alias_repeats_the_brand_case_insensitively",
             "competitor_repeats_another_case_insensitively",
@@ -255,6 +295,13 @@ class TestEachRuleIsChecked:
     def test_an_advertiser_id_of_the_declared_shape_passes(self):
         assert spy.check(_competitor(google_advertiser_id="AR01234567890")) == []
 
+    def test_a_tiktok_advertiser_travelling_with_its_name_passes(self):
+        doc = _competitor(
+            tiktok_advertiser_id="7561940026922336272",
+            tiktok_advertiser_name="hubspot100",
+        )
+        assert spy.check(doc) == []
+
     def test_a_linkedin_slug_with_digits_and_dashes_passes(self):
         assert spy.check(_competitor(linkedin="freshworks-inc-2")) == []
 
@@ -276,6 +323,16 @@ class TestLoading:
             "hubspot",
             "zoho",
             "freshworks-inc",
+        ]
+        assert [c.tiktok_advertiser_id for c in tracked.competitors] == [
+            "6948549846680732417",
+            None,
+            None,
+        ]
+        assert [c.tiktok_advertiser_name for c in tracked.competitors] == [
+            "HUBSPOT, INC.",
+            None,
+            None,
         ]
         assert len(tracked.queries) == 8
         assert tracked.queries[0] == "best crm for small business"
@@ -333,6 +390,17 @@ class TestLookups:
     def test_by_advertiser_finds_nothing_for_a_stranger_or_nothing(self, tracked):
         assert tracked.by_advertiser("AR999") is None
         assert tracked.by_advertiser(None) is None
+
+    def test_by_tiktok_advertiser_finds_a_competitor(self, tracked):
+        found = tracked.by_tiktok_advertiser("6948549846680732417")
+        assert found is tracked.competitors[0]
+        assert found.tiktok_advertiser_name == "HUBSPOT, INC."
+
+    def test_by_tiktok_advertiser_finds_nothing_for_a_stranger_or_nothing(
+        self, tracked
+    ):
+        assert tracked.by_tiktok_advertiser("7561940026922336272") is None
+        assert tracked.by_tiktok_advertiser(None) is None
 
 
 class TestSlug:

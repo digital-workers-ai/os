@@ -45,6 +45,7 @@ function Definition({ data }: { data: SpyDefinition }) {
                 <th className={HEAD}>Aliases</th>
                 <th className={HEAD}>LinkedIn</th>
                 <th className={HEAD}>Google advertiser</th>
+                <th className={HEAD}>TikTok advertiser</th>
               </tr>
             </thead>
             <tbody>
@@ -57,6 +58,16 @@ function Definition({ data }: { data: SpyDefinition }) {
                   </td>
                   <td className={CELL}>{competitor.linkedin ? <Mono>{competitor.linkedin}</Mono> : '—'}</td>
                   <td className={CELL}>{competitor.google_advertiser_id ? <Mono>{competitor.google_advertiser_id}</Mono> : '—'}</td>
+                  <td className={CELL}>
+                    {competitor.tiktok_advertiser_id && competitor.tiktok_advertiser_name ? (
+                      <span className="flex flex-col">
+                        <span>{competitor.tiktok_advertiser_name}</span>
+                        <Mono className="text-xs">{competitor.tiktok_advertiser_id}</Mono>
+                      </span>
+                    ) : (
+                      '—'
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

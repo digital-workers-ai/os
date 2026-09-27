@@ -1,0 +1,390 @@
+[
+  {
+    "payload": {
+      "ad": {
+        "advertiser": "HUBSPOT, INC.",
+        "advertiser_id": "6948549846680732417",
+        "advertiser_token": "eyJpZCI6IjY5NDg1NDk4NDY2ODA3MzI0MTciLCJuYW1lIjoiSFVCU1BPVCwgSU5DLiJ9",
+        "cover_image": "https://p16-common-sign.tiktokcdn.com/tos-alisg-p-0051c001-sg/cc04ef79f35036b34162fe0d3eac4066~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=cc04ef79&x-expires=1788523200&x-signature=f35036b34162fe0d3eac4066%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+        "estimated_audience": "1K-10K",
+        "estimated_audience_max": 10000,
+        "estimated_audience_min": 1000,
+        "first_shown_datetime": "2026-08-20T00:00:00Z",
+        "format": "video",
+        "id": "8127496382948198",
+        "image_urls": [
+          "https://p16-common-sign.tiktokcdn.com/tos-alisg-p-0051c001-sg/cc04ef79f35036b34162fe0d3eac4066~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=cc04ef79&x-expires=1788523200&x-signature=f35036b34162fe0d3eac4066%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1"
+        ],
+        "last_shown_datetime": "2026-09-03T00:00:00Z",
+        "position": 1,
+        "title": "See Every Deal In One Pipeline. Automate follow-ups, forecast revenue and hit quota every month.",
+        "video_link": "https://library.tiktok.com/api/v1/cdn/1788523200/video/aHR0cHM6Ly92NzcudGlrdG9rY2RuLmNvbS9hZTU3OTRjMzFkOTc5NTVkMDE0ZjAyMTFmYTk2MTZjNS92aWRlby90b3MvYWxpc2cv/ae5794c3-1d97-955d-014f-0211fa9616c5?a=475769&bt=386&mime_type=video_mp4&vvpl=1"
+      },
+      "request": {
+        "advertiser_id": "6948549846680732417",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "8127496382948198"
+  },
+  {
+    "payload": {
+      "ad": {
+        "advertiser": "HUBSPOT, INC.",
+        "advertiser_id": "6948549846680732417",
+        "advertiser_token": "eyJpZCI6IjY5NDg1NDk4NDY2ODA3MzI0MTciLCJuYW1lIjoiSFVCU1BPVCwgSU5DLiJ9",
+        "cover_image": "https://p16-common-sign.tiktokcdn.com/tos-alisg-p-0051c001-sg/79e4cbd5059546c89b5bae8d5a2eb6c1~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=79e4cbd5&x-expires=1788523200&x-signature=059546c89b5bae8d5a2eb6c1%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+        "estimated_audience": "100K-1M",
+        "estimated_audience_max": 1000000,
+        "estimated_audience_min": 100000,
+        "first_shown_datetime": "2026-09-01T00:00:00Z",
+        "format": "video",
+        "id": "5755173096321942",
+        "image_urls": [
+          "https://p16-common-sign.tiktokcdn.com/tos-alisg-p-0051c001-sg/79e4cbd5059546c89b5bae8d5a2eb6c1~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=79e4cbd5&x-expires=1788523200&x-signature=059546c89b5bae8d5a2eb6c1%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1"
+        ],
+        "last_shown_datetime": "2026-09-01T00:00:00Z",
+        "position": 2,
+        "title": "AI That Writes The Follow-Up For You. Track calls, emails and meetings without leaving the CRM.",
+        "video_link": "https://library.tiktok.com/api/v1/cdn/1788523200/video/aHR0cHM6Ly92NzcudGlrdG9rY2RuLmNvbS81MGI0MDcwMThjY2Q1ZWNkYzhkM2EyZDQzYTE5ZGZjOS92aWRlby90b3MvYWxpc2cv/50b40701-8ccd-5ecd-c8d3-a2d43a19dfc9?a=475769&bt=386&mime_type=video_mp4&vvpl=1"
+      },
+      "request": {
+        "advertiser_id": "6948549846680732417",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "5755173096321942"
+  },
+  {
+    "payload": {
+      "ad": {
+        "advertiser": "HUBSPOT, INC.",
+        "advertiser_id": "6948549846680732417",
+        "advertiser_token": "eyJpZCI6IjY5NDg1NDk4NDY2ODA3MzI0MTciLCJuYW1lIjoiSFVCU1BPVCwgSU5DLiJ9",
+        "cover_image": "https://p16-common-sign.tiktokcdn.com/tos-alisg-p-0051c001-sg/8e9fc119bd4b4ee7870d49bf3a290d42~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=8e9fc119&x-expires=1788523200&x-signature=bd4b4ee7870d49bf3a290d42%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+        "estimated_audience": "100K-1M",
+        "estimated_audience_max": 1000000,
+        "estimated_audience_min": 100000,
+        "first_shown_datetime": "2026-07-09T00:00:00Z",
+        "format": "video",
+        "id": "8570244123476731",
+        "image_urls": [
+          "https://p16-common-sign.tiktokcdn.com/tos-alisg-p-0051c001-sg/8e9fc119bd4b4ee7870d49bf3a290d42~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=8e9fc119&x-expires=1788523200&x-signature=bd4b4ee7870d49bf3a290d42%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1"
+        ],
+        "last_shown_datetime": "2026-09-01T00:00:00Z",
+        "position": 3,
+        "title": "The CRM Your Sales Team Will Actually Use. Track calls, emails and meetings without leaving the CRM.",
+        "video_link": "https://library.tiktok.com/api/v1/cdn/1788523200/video/aHR0cHM6Ly92NzcudGlrdG9rY2RuLmNvbS9lZGM4ZWY4NmQ5ODI3YTE0MjU0M2RlODlkZGY3MzBhMy92aWRlby90b3MvYWxpc2cv/edc8ef86-d982-7a14-2543-de89ddf730a3?a=475769&bt=386&mime_type=video_mp4&vvpl=1"
+      },
+      "request": {
+        "advertiser_id": "6948549846680732417",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "8570244123476731"
+  },
+  {
+    "payload": {
+      "ad": {
+        "advertiser": "HUBSPOT, INC.",
+        "advertiser_id": "6948549846680732417",
+        "advertiser_token": "eyJpZCI6IjY5NDg1NDk4NDY2ODA3MzI0MTciLCJuYW1lIjoiSFVCU1BPVCwgSU5DLiJ9",
+        "cover_image": "https://p16-common-sign.tiktokcdn.com/tos-alisg-p-0051c001-sg/2752d7bb33ab90f187f34d2c9e873cec~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=2752d7bb&x-expires=1788523200&x-signature=33ab90f187f34d2c9e873cec%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+        "estimated_audience": "100K-1M",
+        "estimated_audience_max": 1000000,
+        "estimated_audience_min": 100000,
+        "first_shown_datetime": "2026-07-06T00:00:00Z",
+        "format": "video",
+        "id": "9298867583911678",
+        "image_urls": [
+          "https://p16-common-sign.tiktokcdn.com/tos-alisg-p-0051c001-sg/2752d7bb33ab90f187f34d2c9e873cec~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=2752d7bb&x-expires=1788523200&x-signature=33ab90f187f34d2c9e873cec%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1"
+        ],
+        "last_shown_datetime": "2026-08-30T00:00:00Z",
+        "position": 4,
+        "title": "Stop Losing Leads In Spreadsheets. Plans from $14 per user per month. Cancel anytime.",
+        "video_link": "https://library.tiktok.com/api/v1/cdn/1788523200/video/aHR0cHM6Ly92NzcudGlrdG9rY2RuLmNvbS8xMDBiOTEzYThkOTI5ZmU5ZjJmZGRjNDg2M2YzNzk3Yy92aWRlby90b3MvYWxpc2cv/100b913a-8d92-9fe9-f2fd-dc4863f3797c?a=475769&bt=386&mime_type=video_mp4&vvpl=1"
+      },
+      "request": {
+        "advertiser_id": "6948549846680732417",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "9298867583911678"
+  },
+  {
+    "payload": {
+      "ad": {
+        "advertiser": "HUBSPOT, INC.",
+        "advertiser_id": "6948549846680732417",
+        "advertiser_token": "eyJpZCI6IjY5NDg1NDk4NDY2ODA3MzI0MTciLCJuYW1lIjoiSFVCU1BPVCwgSU5DLiJ9",
+        "cover_image": "https://p16-common-sign.tiktokcdn.com/tos-alisg-p-0051c001-sg/dc5cd588cb00ddd8ed04e0678f7952e2~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=dc5cd588&x-expires=1788523200&x-signature=cb00ddd8ed04e0678f7952e2%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+        "estimated_audience": "100K-1M",
+        "estimated_audience_max": 1000000,
+        "estimated_audience_min": 100000,
+        "first_shown_datetime": "2026-08-20T00:00:00Z",
+        "format": "video",
+        "id": "5239800610908721",
+        "image_urls": [
+          "https://p16-common-sign.tiktokcdn.com/tos-alisg-p-0051c001-sg/dc5cd588cb00ddd8ed04e0678f7952e2~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=dc5cd588&x-expires=1788523200&x-signature=cb00ddd8ed04e0678f7952e2%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1"
+        ],
+        "last_shown_datetime": "2026-08-26T00:00:00Z",
+        "position": 5,
+        "title": "Close More Deals With Less Admin. Automate follow-ups, forecast revenue and hit quota every month.",
+        "video_link": "https://library.tiktok.com/api/v1/cdn/1788523200/video/aHR0cHM6Ly92NzcudGlrdG9rY2RuLmNvbS9kZmUzMzY3MzI1Mzg5Nzg1Y2I0MTk5NWU5YTY4NjZjNi92aWRlby90b3MvYWxpc2cv/dfe33673-2538-9785-cb41-995e9a6866c6?a=475769&bt=386&mime_type=video_mp4&vvpl=1"
+      },
+      "request": {
+        "advertiser_id": "6948549846680732417",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "5239800610908721"
+  },
+  {
+    "payload": {
+      "ad": {
+        "advertiser": "HUBSPOT, INC.",
+        "advertiser_id": "6948549846680732417",
+        "advertiser_token": "eyJpZCI6IjY5NDg1NDk4NDY2ODA3MzI0MTciLCJuYW1lIjoiSFVCU1BPVCwgSU5DLiJ9",
+        "estimated_audience": "10K-100K",
+        "estimated_audience_max": 100000,
+        "estimated_audience_min": 10000,
+        "first_shown_datetime": "2026-08-11T00:00:00Z",
+        "format": "image",
+        "id": "4003774695714701",
+        "image_urls": [
+          "https://p16-common-sign.tiktokcdn.com/ad-site-i18n-sg/d7bac994d1969eb6673e18635f8553f2~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=d7bac994&x-expires=1788523200&x-signature=d1969eb6673e18635f8553f2%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1"
+        ],
+        "last_shown_datetime": "2026-08-20T00:00:00Z",
+        "position": 6,
+        "title": "The CRM Your Sales Team Will Actually Use. Automate follow-ups, forecast revenue and hit quota every month."
+      },
+      "request": {
+        "advertiser_id": "6948549846680732417",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "4003774695714701"
+  },
+  {
+    "payload": {
+      "ad": {
+        "advertiser": "HUBSPOT, INC.",
+        "advertiser_id": "6948549846680732417",
+        "advertiser_token": "eyJpZCI6IjY5NDg1NDk4NDY2ODA3MzI0MTciLCJuYW1lIjoiSFVCU1BPVCwgSU5DLiJ9",
+        "cover_image": "https://p16-common-sign.tiktokcdn.com/tos-alisg-p-0051c001-sg/cdbbe397ddc342b7c039017ed49b9c00~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=cdbbe397&x-expires=1788523200&x-signature=ddc342b7c039017ed49b9c00%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+        "estimated_audience": "1K-10K",
+        "estimated_audience_max": 10000,
+        "estimated_audience_min": 1000,
+        "first_shown_datetime": "2026-06-11T00:00:00Z",
+        "format": "video",
+        "id": "9681070520341099",
+        "image_urls": [
+          "https://p16-common-sign.tiktokcdn.com/tos-alisg-p-0051c001-sg/cdbbe397ddc342b7c039017ed49b9c00~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=cdbbe397&x-expires=1788523200&x-signature=ddc342b7c039017ed49b9c00%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1"
+        ],
+        "last_shown_datetime": "2026-08-20T00:00:00Z",
+        "position": 7,
+        "title": "See Every Deal In One Pipeline. Plans from $14 per user per month. Cancel anytime.",
+        "video_link": "https://library.tiktok.com/api/v1/cdn/1788523200/video/aHR0cHM6Ly92NzcudGlrdG9rY2RuLmNvbS9kNzk4YjBmZDIwZDMwNTg2ZmYyY2EyMTllNTQ1YjhjYi92aWRlby90b3MvYWxpc2cv/d798b0fd-20d3-0586-ff2c-a219e545b8cb?a=475769&bt=386&mime_type=video_mp4&vvpl=1"
+      },
+      "request": {
+        "advertiser_id": "6948549846680732417",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "9681070520341099"
+  },
+  {
+    "payload": {
+      "ad": {
+        "advertiser": "HUBSPOT, INC.",
+        "advertiser_id": "6948549846680732417",
+        "advertiser_token": "eyJpZCI6IjY5NDg1NDk4NDY2ODA3MzI0MTciLCJuYW1lIjoiSFVCU1BPVCwgSU5DLiJ9",
+        "cover_image": "https://p16-common-sign.tiktokcdn.com/tos-alisg-p-0051c001-sg/70be13e3b7c0ad39cf79fcbe09fb440f~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=70be13e3&x-expires=1788523200&x-signature=b7c0ad39cf79fcbe09fb440f%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+        "estimated_audience": "1K-10K",
+        "estimated_audience_max": 10000,
+        "estimated_audience_min": 1000,
+        "first_shown_datetime": "2026-07-14T00:00:00Z",
+        "format": "video",
+        "id": "5722867757552510",
+        "image_urls": [
+          "https://p16-common-sign.tiktokcdn.com/tos-alisg-p-0051c001-sg/70be13e3b7c0ad39cf79fcbe09fb440f~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=70be13e3&x-expires=1788523200&x-signature=b7c0ad39cf79fcbe09fb440f%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1"
+        ],
+        "last_shown_datetime": "2026-08-17T00:00:00Z",
+        "position": 8,
+        "title": "The CRM Your Sales Team Will Actually Use. Start your free 14-day trial. No credit card required.",
+        "video_link": "https://library.tiktok.com/api/v1/cdn/1788523200/video/aHR0cHM6Ly92NzcudGlrdG9rY2RuLmNvbS8xY2ViNGY3MTllMjAwZjBkNjg1ODAyMTBjNThkMzY5My92aWRlby90b3MvYWxpc2cv/1ceb4f71-9e20-0f0d-6858-0210c58d3693?a=475769&bt=386&mime_type=video_mp4&vvpl=1"
+      },
+      "request": {
+        "advertiser_id": "6948549846680732417",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "5722867757552510"
+  },
+  {
+    "payload": {
+      "ad": {
+        "advertiser": "HUBSPOT, INC.",
+        "advertiser_id": "6948549846680732417",
+        "advertiser_token": "eyJpZCI6IjY5NDg1NDk4NDY2ODA3MzI0MTciLCJuYW1lIjoiSFVCU1BPVCwgSU5DLiJ9",
+        "cover_image": "https://p16-common-sign.tiktokcdn.com/tos-alisg-p-0051c001-sg/d50cc6909478583a13ca4068bbe261cd~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=d50cc690&x-expires=1788523200&x-signature=9478583a13ca4068bbe261cd%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+        "estimated_audience": "0-1K",
+        "estimated_audience_max": 1000,
+        "estimated_audience_min": 0,
+        "first_shown_datetime": "2026-08-09T00:00:00Z",
+        "format": "video",
+        "id": "7163516508616071",
+        "image_urls": [
+          "https://p16-common-sign.tiktokcdn.com/tos-alisg-p-0051c001-sg/d50cc6909478583a13ca4068bbe261cd~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=d50cc690&x-expires=1788523200&x-signature=9478583a13ca4068bbe261cd%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1"
+        ],
+        "last_shown_datetime": "2026-08-14T00:00:00Z",
+        "position": 9,
+        "title": "Sales CRM Built For Small Teams. Plans from $14 per user per month. Cancel anytime.",
+        "video_link": "https://library.tiktok.com/api/v1/cdn/1788523200/video/aHR0cHM6Ly92NzcudGlrdG9rY2RuLmNvbS83ZmYzNThlMGRhYjNiODcxNTFhMmUyNzJhZTMxZjQ1Yi92aWRlby90b3MvYWxpc2cv/7ff358e0-dab3-b871-51a2-e272ae31f45b?a=475769&bt=386&mime_type=video_mp4&vvpl=1"
+      },
+      "request": {
+        "advertiser_id": "6948549846680732417",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "7163516508616071"
+  },
+  {
+    "payload": {
+      "ad": {
+        "advertiser": "HUBSPOT, INC.",
+        "advertiser_id": "6948549846680732417",
+        "advertiser_token": "eyJpZCI6IjY5NDg1NDk4NDY2ODA3MzI0MTciLCJuYW1lIjoiSFVCU1BPVCwgSU5DLiJ9",
+        "estimated_audience": "1K-10K",
+        "estimated_audience_max": 10000,
+        "estimated_audience_min": 1000,
+        "first_shown_datetime": "2026-08-11T00:00:00Z",
+        "format": "image",
+        "id": "3312165389960066",
+        "image_urls": [
+          "https://p16-common-sign.tiktokcdn.com/ad-site-i18n-sg/b98596d14624d334c1ed203be92712db~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=b98596d1&x-expires=1788523200&x-signature=4624d334c1ed203be92712db%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1"
+        ],
+        "last_shown_datetime": "2026-08-12T00:00:00Z",
+        "position": 10,
+        "title": "See Every Deal In One Pipeline. Automate follow-ups, forecast revenue and hit quota every month."
+      },
+      "request": {
+        "advertiser_id": "6948549846680732417",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "3312165389960066"
+  },
+  {
+    "payload": {
+      "ad": {
+        "advertiser": "HUBSPOT, INC.",
+        "advertiser_id": "6948549846680732417",
+        "advertiser_token": "eyJpZCI6IjY5NDg1NDk4NDY2ODA3MzI0MTciLCJuYW1lIjoiSFVCU1BPVCwgSU5DLiJ9",
+        "cover_image": "https://p16-common-sign.tiktokcdn.com/tos-alisg-p-0051c001-sg/d151467cb189babacff07b84d3346b8f~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=d151467c&x-expires=1788523200&x-signature=b189babacff07b84d3346b8f%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+        "estimated_audience": "0-1K",
+        "estimated_audience_max": 1000,
+        "estimated_audience_min": 0,
+        "first_shown_datetime": "2026-06-03T00:00:00Z",
+        "format": "video",
+        "id": "2039490219410160",
+        "image_urls": [
+          "https://p16-common-sign.tiktokcdn.com/tos-alisg-p-0051c001-sg/d151467cb189babacff07b84d3346b8f~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=d151467c&x-expires=1788523200&x-signature=b189babacff07b84d3346b8f%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1"
+        ],
+        "last_shown_datetime": "2026-07-24T00:00:00Z",
+        "position": 11,
+        "title": "The CRM Your Sales Team Will Actually Use. Set up in minutes, with built-in calling and email sync.",
+        "video_link": "https://library.tiktok.com/api/v1/cdn/1788523200/video/aHR0cHM6Ly92NzcudGlrdG9rY2RuLmNvbS84OWM2NGVkMWQyZTljODdiYzE4YWNlNTc5ZjAyNjNhNS92aWRlby90b3MvYWxpc2cv/89c64ed1-d2e9-c87b-c18a-ce579f0263a5?a=475769&bt=386&mime_type=video_mp4&vvpl=1"
+      },
+      "request": {
+        "advertiser_id": "6948549846680732417",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "2039490219410160"
+  },
+  {
+    "payload": {
+      "ad": {
+        "advertiser": "HUBSPOT, INC.",
+        "advertiser_id": "6948549846680732417",
+        "advertiser_token": "eyJpZCI6IjY5NDg1NDk4NDY2ODA3MzI0MTciLCJuYW1lIjoiSFVCU1BPVCwgSU5DLiJ9",
+        "estimated_audience": "10K-100K",
+        "estimated_audience_max": 100000,
+        "estimated_audience_min": 10000,
+        "first_shown_datetime": "2026-05-26T00:00:00Z",
+        "format": "image",
+        "id": "1347745268262671",
+        "image_urls": [
+          "https://p16-common-sign.tiktokcdn.com/ad-site-i18n-sg/0bc2d0a30962db352617008d35f36430~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=0bc2d0a3&x-expires=1788523200&x-signature=0962db352617008d35f36430%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+          "https://p16-common-sign.tiktokcdn.com/ad-site-i18n-sg/e4e87991c2ac1438ca3ce5f626ed9047~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=e4e87991&x-expires=1788523200&x-signature=c2ac1438ca3ce5f626ed9047%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+          "https://p16-common-sign.tiktokcdn.com/ad-site-i18n-sg/85a8722924837f278e61632735d13c62~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=85a87229&x-expires=1788523200&x-signature=24837f278e61632735d13c62%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1"
+        ],
+        "last_shown_datetime": "2026-07-09T00:00:00Z",
+        "position": 12,
+        "title": "Stop Losing Leads In Spreadsheets. Track calls, emails and meetings without leaving the CRM."
+      },
+      "request": {
+        "advertiser_id": "6948549846680732417",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "1347745268262671"
+  },
+  {
+    "payload": {
+      "ad": {
+        "advertiser": "HUBSPOT, INC.",
+        "advertiser_id": "6948549846680732417",
+        "advertiser_token": "eyJpZCI6IjY5NDg1NDk4NDY2ODA3MzI0MTciLCJuYW1lIjoiSFVCU1BPVCwgSU5DLiJ9",
+        "cover_image": "https://p16-common-sign.tiktokcdn.com/tos-alisg-p-0051c001-sg/7f1edb5aab51f87b36491b148af3d91c~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=7f1edb5a&x-expires=1788523200&x-signature=ab51f87b36491b148af3d91c%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+        "estimated_audience": "10K-100K",
+        "estimated_audience_max": 100000,
+        "estimated_audience_min": 10000,
+        "first_shown_datetime": "2026-05-29T00:00:00Z",
+        "format": "video",
+        "id": "9308166104159985",
+        "image_urls": [
+          "https://p16-common-sign.tiktokcdn.com/tos-alisg-p-0051c001-sg/7f1edb5aab51f87b36491b148af3d91c~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=7f1edb5a&x-expires=1788523200&x-signature=ab51f87b36491b148af3d91c%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1"
+        ],
+        "last_shown_datetime": "2026-06-30T00:00:00Z",
+        "position": 13,
+        "title": "AI That Writes The Follow-Up For You. Track calls, emails and meetings without leaving the CRM.",
+        "video_link": "https://library.tiktok.com/api/v1/cdn/1788523200/video/aHR0cHM6Ly92NzcudGlrdG9rY2RuLmNvbS8yNTBjZmUwZDVlODY0ZjE3Y2FjYmMwZmU5YTQ5OGY1Yy92aWRlby90b3MvYWxpc2cv/250cfe0d-5e86-4f17-cacb-c0fe9a498f5c?a=475769&bt=386&mime_type=video_mp4&vvpl=1"
+      },
+      "request": {
+        "advertiser_id": "6948549846680732417",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "9308166104159985"
+  },
+  {
+    "payload": {
+      "ad": {
+        "advertiser": "HUBSPOT, INC.",
+        "advertiser_id": "6948549846680732417",
+        "advertiser_token": "eyJpZCI6IjY5NDg1NDk4NDY2ODA3MzI0MTciLCJuYW1lIjoiSFVCU1BPVCwgSU5DLiJ9",
+        "cover_image": "https://p16-common-sign.tiktokcdn.com/tos-alisg-p-0051c001-sg/7d7ec994df85879e42a3d8ce92f71b15~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=7d7ec994&x-expires=1788523200&x-signature=df85879e42a3d8ce92f71b15%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+        "estimated_audience": "1K-10K",
+        "estimated_audience_max": 10000,
+        "estimated_audience_min": 1000,
+        "first_shown_datetime": "2026-05-13T00:00:00Z",
+        "format": "video",
+        "id": "1464487724629628",
+        "image_urls": [
+          "https://p16-common-sign.tiktokcdn.com/tos-alisg-p-0051c001-sg/7d7ec994df85879e42a3d8ce92f71b15~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=7d7ec994&x-expires=1788523200&x-signature=df85879e42a3d8ce92f71b15%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1"
+        ],
+        "last_shown_datetime": "2026-05-15T00:00:00Z",
+        "position": 14,
+        "title": "See Every Deal In One Pipeline. Start your free 14-day trial. No credit card required.",
+        "video_link": "https://library.tiktok.com/api/v1/cdn/1788523200/video/aHR0cHM6Ly92NzcudGlrdG9rY2RuLmNvbS84MDYwODg2ZGVhNzQyMzRkY2U2YjA2MjNhMzI5ZDZiNi92aWRlby90b3MvYWxpc2cv/8060886d-ea74-234d-ce6b-0623a329d6b6?a=475769&bt=386&mime_type=video_mp4&vvpl=1"
+      },
+      "request": {
+        "advertiser_id": "6948549846680732417",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "1464487724629628"
+  }
+]

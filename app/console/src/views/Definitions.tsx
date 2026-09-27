@@ -193,6 +193,8 @@ interface TrackedCompany {
 interface Competitor extends TrackedCompany {
   linkedin: string | null
   google_advertiser_id: string | null
+  tiktok_advertiser_id: string | null
+  tiktok_advertiser_name: string | null
 }
 
 interface Spy {
@@ -871,6 +873,7 @@ function SpyTab({ s }: { s: Spy }) {
               <TableHead hint="Other names an answer may use for the company">Aliases</TableHead>
               <TableHead className="w-40" hint="The company page whose posts are tracked">LinkedIn</TableHead>
               <TableHead className="w-56" hint="The Ads Transparency advertiser whose creatives are tracked">Google advertiser</TableHead>
+              <TableHead className="w-56" hint="The TikTok Ads Library advertiser whose creatives are tracked">TikTok advertiser</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -885,6 +888,16 @@ function SpyTab({ s }: { s: Spy }) {
                 <TableCell className="align-top">{chips(c.aliases)}</TableCell>
                 <TableCell className="align-top">{c.linkedin ? <Mono>{c.linkedin}</Mono> : '—'}</TableCell>
                 <TableCell className="align-top">{c.google_advertiser_id ? <Mono>{c.google_advertiser_id}</Mono> : '—'}</TableCell>
+                <TableCell className="align-top">
+                  {c.tiktok_advertiser_id && c.tiktok_advertiser_name ? (
+                    <span className="flex flex-col">
+                      <span>{c.tiktok_advertiser_name}</span>
+                      <Mono className="text-xs">{c.tiktok_advertiser_id}</Mono>
+                    </span>
+                  ) : (
+                    '—'
+                  )}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

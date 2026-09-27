@@ -15,6 +15,7 @@ export const ENGINES: Option[] = [
 export const PLATFORMS: Option[] = [
   { value: 'google', label: 'Google' },
   { value: 'linkedin', label: 'LinkedIn' },
+  { value: 'tiktok', label: 'TikTok' },
 ]
 
 export const known = (options: Option[], value?: string) => value === undefined || options.some((option) => option.value === value)
