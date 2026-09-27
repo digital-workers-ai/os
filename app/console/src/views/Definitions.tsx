@@ -195,6 +195,7 @@ interface Competitor extends TrackedCompany {
   google_advertiser_id: string | null
   tiktok_advertiser_id: string | null
   tiktok_advertiser_name: string | null
+  meta_page_id: string | null
 }
 
 interface Spy {
@@ -874,6 +875,7 @@ function SpyTab({ s }: { s: Spy }) {
               <TableHead className="w-40" hint="The company page whose posts are tracked">LinkedIn</TableHead>
               <TableHead className="w-56" hint="The Ads Transparency advertiser whose creatives are tracked">Google advertiser</TableHead>
               <TableHead className="w-56" hint="The TikTok Ads Library advertiser whose creatives are tracked">TikTok advertiser</TableHead>
+              <TableHead className="w-40" hint="The Meta Ad Library page whose creatives are tracked">Meta page</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -898,6 +900,7 @@ function SpyTab({ s }: { s: Spy }) {
                     '—'
                   )}
                 </TableCell>
+                <TableCell className="align-top">{c.meta_page_id ? <Mono>{c.meta_page_id}</Mono> : '—'}</TableCell>
               </TableRow>
             ))}
           </TableBody>

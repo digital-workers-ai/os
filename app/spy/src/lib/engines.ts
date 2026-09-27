@@ -16,6 +16,7 @@ export const PLATFORMS: Option[] = [
   { value: 'google', label: 'Google' },
   { value: 'linkedin', label: 'LinkedIn' },
   { value: 'tiktok', label: 'TikTok' },
+  { value: 'meta', label: 'Meta' },
 ]
 
 export const known = (options: Option[], value?: string) => value === undefined || options.some((option) => option.value === value)

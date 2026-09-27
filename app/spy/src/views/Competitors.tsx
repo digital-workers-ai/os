@@ -46,6 +46,7 @@ function Definition({ data }: { data: SpyDefinition }) {
                 <th className={HEAD}>LinkedIn</th>
                 <th className={HEAD}>Google advertiser</th>
                 <th className={HEAD}>TikTok advertiser</th>
+                <th className={HEAD}>Meta page</th>
               </tr>
             </thead>
             <tbody>
@@ -68,6 +69,7 @@ function Definition({ data }: { data: SpyDefinition }) {
                       '—'
                     )}
                   </td>
+                  <td className={CELL}>{competitor.meta_page_id ? <Mono>{competitor.meta_page_id}</Mono> : '—'}</td>
                 </tr>
               ))}
             </tbody>

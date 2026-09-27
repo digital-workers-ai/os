@@ -376,6 +376,7 @@ class TestDiscovery:
             "linkedin_posts",
             "linkedin_ads",
             "tiktok_ads",
+            "meta_ads",
             "twitter",
             "pinterest",
             "intercom",

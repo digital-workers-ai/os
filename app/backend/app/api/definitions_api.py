@@ -203,6 +203,7 @@ async def get_spy():
                 "google_advertiser_id": company.google_advertiser_id,
                 "tiktok_advertiser_id": company.tiktok_advertiser_id,
                 "tiktok_advertiser_name": company.tiktok_advertiser_name,
+                "meta_page_id": company.meta_page_id,
             }
             for company in tracked.competitors
         ],

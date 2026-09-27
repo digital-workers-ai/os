@@ -13,6 +13,7 @@ HUBSPOT = {
     "google_advertiser_id": "AR123",
     "tiktok_advertiser_id": "6948549846680732417",
     "tiktok_advertiser_name": "HUBSPOT, INC.",
+    "meta_page_id": "6039999393",
 }
 ZOHO = {
     "name": "Zoho CRM",
@@ -74,7 +75,7 @@ class TestConstants:
 class TestParse:
     def test_a_valid_document_parses_into_a_definition(self, tracked):
         assert tracked.brand == spy.Company(
-            "Pipedrive", "pipedrive.com", (), None, None, None, None, "brand"
+            "Pipedrive", "pipedrive.com", (), None, None, None, None, None, "brand"
         )
         assert tracked.competitors == (
             spy.Company(
@@ -85,6 +86,7 @@ class TestParse:
                 "AR123",
                 "6948549846680732417",
                 "HUBSPOT, INC.",
+                "6039999393",
                 "competitor",
             ),
             spy.Company(
@@ -92,6 +94,7 @@ class TestParse:
                 "zoho.com",
                 ("Zoho",),
                 "zoho",
+                None,
                 None,
                 None,
                 None,
@@ -206,6 +209,15 @@ class TestEachRuleIsChecked:
                 _brand(tiktok_advertiser_id="1", tiktok_advertiser_name="Pipedrive"),
                 "brand has unknown key 'tiktok_advertiser_id'",
             ),
+            (
+                _competitor(meta_page_id="abc"),
+                "competitor 'HubSpot' meta_page_id 'abc' must match ^\\d+$",
+            ),
+            (
+                _competitor(meta_page_id=6039999393),
+                "competitor 'HubSpot' meta_page_id 6039999393 must match",
+            ),
+            (_brand(meta_page_id="1"), "brand has unknown key 'meta_page_id'"),
             (_competitor(twitter="hubspot"), "competitor 'HubSpot' has unknown key"),
             (
                 _competitor(aliases=["pipedrive"]),
@@ -264,6 +276,9 @@ class TestEachRuleIsChecked:
             "competitor_tiktok_id_without_name",
             "competitor_tiktok_name_without_id",
             "brand_tiktok_advertiser",
+            "competitor_meta_page_not_digits",
+            "competitor_meta_page_unquoted",
+            "brand_meta_page",
             "competitor_unknown_key",
             "alias_repeats_the_brand_case_insensitively",
             "competitor_repeats_another_case_insensitively",
@@ -302,6 +317,9 @@ class TestEachRuleIsChecked:
         )
         assert spy.check(doc) == []
 
+    def test_a_meta_page_of_digits_passes(self):
+        assert spy.check(_competitor(meta_page_id="231460215383")) == []
+
     def test_a_linkedin_slug_with_digits_and_dashes_passes(self):
         assert spy.check(_competitor(linkedin="freshworks-inc-2")) == []
 
@@ -333,6 +351,11 @@ class TestLoading:
             "HUBSPOT, INC.",
             None,
             None,
+        ]
+        assert [c.meta_page_id for c in tracked.competitors] == [
+            "6039999393",
+            "231460215383",
+            "300722220374123",
         ]
         assert len(tracked.queries) == 8
         assert tracked.queries[0] == "best crm for small business"
@@ -401,6 +424,13 @@ class TestLookups:
     ):
         assert tracked.by_tiktok_advertiser("7561940026922336272") is None
         assert tracked.by_tiktok_advertiser(None) is None
+
+    def test_by_meta_page_finds_a_competitor(self, tracked):
+        assert tracked.by_meta_page("6039999393") is tracked.competitors[0]
+
+    def test_by_meta_page_finds_nothing_for_a_stranger_or_nothing(self, tracked):
+        assert tracked.by_meta_page("231460215383") is None
+        assert tracked.by_meta_page(None) is None
 
 
 class TestSlug:

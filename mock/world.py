@@ -471,9 +471,9 @@ SALES_CALLS_BY_ID = {c.id: c for c in SALES_CALLS}
 
 SPY_BRAND = {"name": "Pipedrive", "domain": "pipedrive.com", "aliases": []}
 SPY_COMPETITORS = [
-    {"name": "HubSpot", "domain": "hubspot.com", "aliases": ["HubSpot CRM"], "linkedin": "hubspot", "google_advertiser_id": "AR10072600183532683265", "tiktok_advertiser_id": "6948549846680732417", "tiktok_advertiser_name": "HUBSPOT, INC."},
-    {"name": "Zoho CRM", "domain": "zoho.com", "aliases": ["Zoho"], "linkedin": "zoho", "google_advertiser_id": "AR07034216898162065409"},
-    {"name": "Freshsales", "domain": "freshworks.com", "aliases": ["Freshworks", "Freshworks CRM"], "linkedin": "freshworks-inc", "google_advertiser_id": "AR03035893441289519105"},
+    {"name": "HubSpot", "domain": "hubspot.com", "aliases": ["HubSpot CRM"], "linkedin": "hubspot", "google_advertiser_id": "AR10072600183532683265", "tiktok_advertiser_id": "6948549846680732417", "tiktok_advertiser_name": "HUBSPOT, INC.", "meta_page_id": "6039999393"},
+    {"name": "Zoho CRM", "domain": "zoho.com", "aliases": ["Zoho"], "linkedin": "zoho", "google_advertiser_id": "AR07034216898162065409", "meta_page_id": "231460215383"},
+    {"name": "Freshsales", "domain": "freshworks.com", "aliases": ["Freshworks", "Freshworks CRM"], "linkedin": "freshworks-inc", "google_advertiser_id": "AR03035893441289519105", "meta_page_id": "300722220374123"},
 ]
 SPY_QUERIES = [
     "best crm for small business",
@@ -594,6 +594,10 @@ _SPY_LINKEDIN_TARGETING = (("Audience", True), ("Demographic", False), ("Company
 _SPY_TIKTOK = {c["tiktok_advertiser_id"]: c for c in SPY_COMPETITORS if "tiktok_advertiser_id" in c}
 _SPY_TIKTOK_BANDS = (("0-1K", 0, 1000), ("1K-10K", 1000, 10000), ("10K-100K", 10000, 100000), ("100K-1M", 100000, 1000000))
 _SPY_TIKTOK_STAMP = int(datetime(SPY_ANCHOR.year, SPY_ANCHOR.month, SPY_ANCHOR.day, 12, tzinfo=timezone.utc).timestamp())
+_SPY_META = {c["meta_page_id"]: c for c in SPY_COMPETITORS}
+_SPY_META_PLATFORMS = (("FACEBOOK", "INSTAGRAM"), ("FACEBOOK", "INSTAGRAM", "THREADS"), ("FACEBOOK", "INSTAGRAM", "AUDIENCE_NETWORK", "MESSENGER"), ("FACEBOOK", "INSTAGRAM", "AUDIENCE_NETWORK", "MESSENGER", "THREADS"))
+_SPY_META_CTAS = (("Learn more", "LEARN_MORE"), ("Sign up", "SIGN_UP"), ("Book now", "BOOK_NOW"), ("Get quote", "GET_QUOTE"))
+_SPY_META_REGULATION = {"finserv": {"is_deemed_finserv": False, "is_limited_delivery": False}, "tw_anti_scam": {"is_limited_delivery": False}}
 
 
 def _spy_digest(*parts: str) -> int:
@@ -855,8 +859,12 @@ def spy_linkedin_ad_detail(ad_id: str) -> Optional[dict]:
     return None
 
 
+def _spy_token(payload: dict) -> str:
+    return base64.b64encode(json.dumps(payload, separators=(",", ":")).encode()).decode()
+
+
 def _spy_tiktok_token(advertiser_id: str, name: str) -> str:
-    return base64.b64encode(json.dumps({"id": advertiser_id, "name": name}, separators=(",", ":")).encode()).decode()
+    return _spy_token({"id": advertiser_id, "name": name})
 
 
 def spy_tiktok_advertisers(query: str) -> list[dict]:
@@ -912,3 +920,127 @@ def spy_tiktok_ads(advertiser_id: str) -> list[dict]:
         ads.append(ad)
     ads.sort(key=lambda ad: ad["last_shown_datetime"], reverse=True)
     return [{"position": position, **ad} for position, ad in enumerate(ads, 1)]
+
+
+def _spy_fbcdn(seed: str, salt: str, folder: str, sizing: str = "") -> str:
+    digest = _spy_digest(seed, salt)
+    query = f"stp={sizing}&" if sizing else ""
+    return f"https://scontent-msp1-1.xx.fbcdn.net/v/{folder}/{digest % 10**9}_{digest // 10**9 % 10**16}_{digest // 10**25 % 10**19}_n.jpg?{query}_nc_cat={100 + digest % 12}&ccb=1-7&_nc_sid=c53f8f&oh=00_{digest:032x}&oe={digest % 16**8:08X}"
+
+
+def _spy_fbcdn_video(seed: str, salt: str, folder: str) -> str:
+    digest = _spy_digest(seed, salt)
+    return f"https://video-msp1-1.xx.fbcdn.net/o1/v/t2/f2/{folder}/AQO{digest:032x}.mp4?_nc_cat={100 + digest % 12}&_nc_sid=b66105&oh=00_{_spy_digest(seed, salt, 'oh'):032x}&oe={digest % 16**8:08X}"
+
+
+def _spy_meta_likes(page_id: str) -> int:
+    return 10**4 + _spy_digest(page_id, "likes") % (3 * 10**6)
+
+
+def spy_meta_pages(query: str) -> list[dict]:
+    needle = query.lower()
+    pages = []
+    for company in SPY_COMPETITORS:
+        if not any(needle in name.lower() for name in [company["name"], *company["aliases"]]):
+            continue
+        page_id = company["meta_page_id"]
+        alias = company["domain"].split(".")[0]
+        pages.append({
+            "page_id": page_id,
+            "category": "Software",
+            "image_uri": _spy_fbcdn(page_id, "avatar", "t39.30808-1", "dst-jpg_s100x100_tt6"),
+            "likes": _spy_meta_likes(page_id),
+            "verification": "BLUE_VERIFIED",
+            "name": company["name"],
+            "entity_type": "PERSON_PROFILE",
+            "ig_username": alias,
+            "ig_followers": 10**3 + _spy_digest(page_id, "followers") % 10**6,
+            "ig_verification": True,
+            "page_alias": alias,
+        })
+    return pages
+
+
+def spy_meta_ads(page_id: str) -> list[dict]:
+    company = _SPY_META.get(page_id)
+    if company is None:
+        return []
+    domain = company["domain"]
+    page = {
+        "page_id": page_id,
+        "page_is_deleted": False,
+        "page_profile_uri": f"https://www.facebook.com/{domain.split('.')[0]}/",
+        "page_name": company["name"],
+        "page_profile_picture_url": _spy_fbcdn(page_id, "avatar", "t39.35426-6", "dst-jpg_s60x60_tt6"),
+        "page_like_count": _spy_meta_likes(page_id),
+        "page_categories": ["Software"],
+    }
+    ads = []
+    for i in range(4 + _spy_digest(page_id, "count") % 7):
+        seed = f"meta_ad|{page_id}|{i}"
+        ad_id = str(10**15 + _spy_digest(seed, "id") % (9 * 10**15))
+        fmt = "IMAGE" if _spy_digest(seed, "format") % 4 else "VIDEO"
+        start_age = 1 + _spy_digest(seed, "start") % 120
+        active = _spy_digest(seed, "active") % 5 != 0
+        end_age = 0 if active else _spy_digest(seed, "end") % (start_age + 1)
+        cta_text, cta_type = _spy_pick(seed, "cta", _SPY_META_CTAS)
+        snapshot = {
+            **page,
+            "byline": None,
+            "caption": domain.upper(),
+            "cta_text": cta_text,
+            "cards": [],
+            "body": {"text": _spy_pick(seed, "line", _SPY_AD_LINES)},
+            "cta_type": cta_type,
+            "display_format": fmt,
+            "link_description": _SPY_PAGES[domain][0],
+            "link_url": f"{_SPY_PAGES[domain][1]}?utm_source=facebook&utm_medium=paid",
+            "images": [],
+            "title": _spy_pick(seed, "headline", _SPY_AD_HEADLINES),
+            "videos": [],
+            "is_reshared": False,
+            "extra_links": [],
+            "extra_texts": [],
+            "extra_images": [],
+            "extra_videos": [],
+            "ec_certificates": [],
+        }
+        if fmt == "IMAGE":
+            snapshot["images"].append({
+                "image_crops": [],
+                "original_image_url": _spy_fbcdn(seed, "original", "t39.35426-6"),
+                "resized_image_url": _spy_fbcdn(seed, "resized", "t39.35426-6", "dst-jpg_s600x600_tt6"),
+                "watermarked_resized_image_url": "",
+            })
+        else:
+            snapshot["videos"].append({
+                "video_hd_url": _spy_fbcdn_video(seed, "hd", "m366"),
+                "video_preview_image_url": _spy_fbcdn(seed, "preview", "t39.35426-6"),
+                "video_sd_url": _spy_fbcdn_video(seed, "sd", "m412"),
+            })
+        ads.append({
+            "ad_archive_id": ad_id,
+            "is_active": active,
+            "page_id": page_id,
+            "page_is_deleted": False,
+            "snapshot": snapshot,
+            "has_user_reported": False,
+            "menu_items": [],
+            "page_name": company["name"],
+            "impressions_with_index": {"impressions_index": -1},
+            "gated_type": "ELIGIBLE",
+            "categories": ["UNKNOWN"],
+            "is_aaa_eligible": _spy_digest(seed, "aaa") % 2 == 0,
+            "contains_digital_created_media": False,
+            "currency": "",
+            "end_date": (SPY_ANCHOR - timedelta(days=end_age)).isoformat() + "T07:00:00Z",
+            "publisher_platform": list(_spy_pick(seed, "platforms", _SPY_META_PLATFORMS)),
+            "start_date": (SPY_ANCHOR - timedelta(days=start_age)).isoformat() + "T07:00:00Z",
+            "contains_sensitive_content": False,
+            "regional_regulation_data": _SPY_META_REGULATION,
+            "hide_data_status": "NONE",
+            "targeted_or_reached_countries": [],
+            "ad_details_token": _spy_token({"ad_archive_id": ad_id, "page_id": page_id}),
+        })
+    ads.sort(key=lambda ad: ad["start_date"], reverse=True)
+    return ads

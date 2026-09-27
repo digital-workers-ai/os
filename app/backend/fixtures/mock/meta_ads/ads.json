@@ -1,0 +1,1555 @@
+[
+  {
+    "payload": {
+      "ad": {
+        "ad_archive_id": "7766813554022537",
+        "ad_details_token": "eyJhZF9hcmNoaXZlX2lkIjoiNzc2NjgxMzU1NDAyMjUzNyIsInBhZ2VfaWQiOiI2MDM5OTk5MzkzIn0=",
+        "categories": [
+          "UNKNOWN"
+        ],
+        "contains_digital_created_media": false,
+        "contains_sensitive_content": false,
+        "currency": "",
+        "end_date": "2026-09-04T07:00:00Z",
+        "gated_type": "ELIGIBLE",
+        "has_user_reported": false,
+        "hide_data_status": "NONE",
+        "impressions_with_index": {
+          "impressions_index": -1
+        },
+        "is_aaa_eligible": false,
+        "is_active": true,
+        "menu_items": [],
+        "page_id": "6039999393",
+        "page_is_deleted": false,
+        "page_name": "HubSpot",
+        "publisher_platform": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "AUDIENCE_NETWORK",
+          "MESSENGER"
+        ],
+        "regional_regulation_data": {
+          "finserv": {
+            "is_deemed_finserv": false,
+            "is_limited_delivery": false
+          },
+          "tw_anti_scam": {
+            "is_limited_delivery": false
+          }
+        },
+        "snapshot": {
+          "body": {
+            "text": "Set up in minutes, with built-in calling and email sync."
+          },
+          "byline": null,
+          "caption": "HUBSPOT.COM",
+          "cards": [],
+          "cta_text": "Get quote",
+          "cta_type": "GET_QUOTE",
+          "display_format": "VIDEO",
+          "ec_certificates": [],
+          "extra_images": [],
+          "extra_links": [],
+          "extra_texts": [],
+          "extra_videos": [],
+          "images": [],
+          "is_reshared": false,
+          "link_description": "HubSpot CRM Software for Sales Teams",
+          "link_url": "https://www.hubspot.com/products/crm?utm_source=facebook&utm_medium=paid",
+          "page_categories": [
+            "Software"
+          ],
+          "page_id": "6039999393",
+          "page_is_deleted": false,
+          "page_like_count": 1070462,
+          "page_name": "HubSpot",
+          "page_profile_picture_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/964968026_796280429558430_33722789126744_n.jpg?stp=dst-jpg_s60x60_tt6&_nc_cat=110&ccb=1-7&_nc_sid=c53f8f&oh=00_fdb3bab922d77d7a7fb4650ab6d0ea5a&oe=B6D0EA5A",
+          "page_profile_uri": "https://www.facebook.com/hubspot/",
+          "title": "See Every Deal In One Pipeline",
+          "videos": [
+            {
+              "video_hd_url": "https://video-msp1-1.xx.fbcdn.net/o1/v/t2/f2/m366/AQO4346181f3a89b6ce3b6bfc315257cd17.mp4?_nc_cat=107&_nc_sid=b66105&oh=00_18a2b020645860b6d663e3a24a0f07c1&oe=5257CD17",
+              "video_preview_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/872640361_9645223115402899_1614986161656_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=c53f8f&oh=00_0c2659a743c0b57a2e5e21c087316d69&oe=87316D69",
+              "video_sd_url": "https://video-msp1-1.xx.fbcdn.net/o1/v/t2/f2/m412/AQO4bd43b7444e2ca13241101d7cf30e2f9.mp4?_nc_cat=105&_nc_sid=b66105&oh=00_05b41872f018f8cb49acde47ca69813b&oe=CF30E2F9"
+            }
+          ]
+        },
+        "start_date": "2026-08-11T07:00:00Z",
+        "targeted_or_reached_countries": []
+      },
+      "request": {
+        "company": "HubSpot",
+        "page_id": "6039999393"
+      }
+    },
+    "source_id": "7766813554022537"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_archive_id": "3499358521681634",
+        "ad_details_token": "eyJhZF9hcmNoaXZlX2lkIjoiMzQ5OTM1ODUyMTY4MTYzNCIsInBhZ2VfaWQiOiI2MDM5OTk5MzkzIn0=",
+        "categories": [
+          "UNKNOWN"
+        ],
+        "contains_digital_created_media": false,
+        "contains_sensitive_content": false,
+        "currency": "",
+        "end_date": "2026-09-04T07:00:00Z",
+        "gated_type": "ELIGIBLE",
+        "has_user_reported": false,
+        "hide_data_status": "NONE",
+        "impressions_with_index": {
+          "impressions_index": -1
+        },
+        "is_aaa_eligible": true,
+        "is_active": true,
+        "menu_items": [],
+        "page_id": "6039999393",
+        "page_is_deleted": false,
+        "page_name": "HubSpot",
+        "publisher_platform": [
+          "FACEBOOK",
+          "INSTAGRAM"
+        ],
+        "regional_regulation_data": {
+          "finserv": {
+            "is_deemed_finserv": false,
+            "is_limited_delivery": false
+          },
+          "tw_anti_scam": {
+            "is_limited_delivery": false
+          }
+        },
+        "snapshot": {
+          "body": {
+            "text": "Plans from $14 per user per month. Cancel anytime."
+          },
+          "byline": null,
+          "caption": "HUBSPOT.COM",
+          "cards": [],
+          "cta_text": "Book now",
+          "cta_type": "BOOK_NOW",
+          "display_format": "IMAGE",
+          "ec_certificates": [],
+          "extra_images": [],
+          "extra_links": [],
+          "extra_texts": [],
+          "extra_videos": [],
+          "images": [
+            {
+              "image_crops": [],
+              "original_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/834315210_3176033880159784_25824190395047_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=c53f8f&oh=00_c24794e1dca48a04e85ab6c0038633ca&oe=038633CA",
+              "resized_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/12951421_9138975745093425_18952304683670_n.jpg?stp=dst-jpg_s600x600_tt6&_nc_cat=109&ccb=1-7&_nc_sid=c53f8f&oh=00_8e94cfa49b093835c7631ec4477c497d&oe=477C497D",
+              "watermarked_resized_image_url": ""
+            }
+          ],
+          "is_reshared": false,
+          "link_description": "HubSpot CRM Software for Sales Teams",
+          "link_url": "https://www.hubspot.com/products/crm?utm_source=facebook&utm_medium=paid",
+          "page_categories": [
+            "Software"
+          ],
+          "page_id": "6039999393",
+          "page_is_deleted": false,
+          "page_like_count": 1070462,
+          "page_name": "HubSpot",
+          "page_profile_picture_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/964968026_796280429558430_33722789126744_n.jpg?stp=dst-jpg_s60x60_tt6&_nc_cat=110&ccb=1-7&_nc_sid=c53f8f&oh=00_fdb3bab922d77d7a7fb4650ab6d0ea5a&oe=B6D0EA5A",
+          "page_profile_uri": "https://www.facebook.com/hubspot/",
+          "title": "AI That Writes The Follow-Up For You",
+          "videos": []
+        },
+        "start_date": "2026-08-06T07:00:00Z",
+        "targeted_or_reached_countries": []
+      },
+      "request": {
+        "company": "HubSpot",
+        "page_id": "6039999393"
+      }
+    },
+    "source_id": "3499358521681634"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_archive_id": "1036856831983664",
+        "ad_details_token": "eyJhZF9hcmNoaXZlX2lkIjoiMTAzNjg1NjgzMTk4MzY2NCIsInBhZ2VfaWQiOiI2MDM5OTk5MzkzIn0=",
+        "categories": [
+          "UNKNOWN"
+        ],
+        "contains_digital_created_media": false,
+        "contains_sensitive_content": false,
+        "currency": "",
+        "end_date": "2026-09-04T07:00:00Z",
+        "gated_type": "ELIGIBLE",
+        "has_user_reported": false,
+        "hide_data_status": "NONE",
+        "impressions_with_index": {
+          "impressions_index": -1
+        },
+        "is_aaa_eligible": false,
+        "is_active": true,
+        "menu_items": [],
+        "page_id": "6039999393",
+        "page_is_deleted": false,
+        "page_name": "HubSpot",
+        "publisher_platform": [
+          "FACEBOOK",
+          "INSTAGRAM"
+        ],
+        "regional_regulation_data": {
+          "finserv": {
+            "is_deemed_finserv": false,
+            "is_limited_delivery": false
+          },
+          "tw_anti_scam": {
+            "is_limited_delivery": false
+          }
+        },
+        "snapshot": {
+          "body": {
+            "text": "Automate follow-ups, forecast revenue and hit quota every month."
+          },
+          "byline": null,
+          "caption": "HUBSPOT.COM",
+          "cards": [],
+          "cta_text": "Sign up",
+          "cta_type": "SIGN_UP",
+          "display_format": "IMAGE",
+          "ec_certificates": [],
+          "extra_images": [],
+          "extra_links": [],
+          "extra_texts": [],
+          "extra_videos": [],
+          "images": [
+            {
+              "image_crops": [],
+              "original_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/355360376_6861682586562880_11968059509488_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=c53f8f&oh=00_5a09a4e957d364bfafe62029d08ade78&oe=D08ADE78",
+              "resized_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/763252706_7011723378128175_8235230795902_n.jpg?stp=dst-jpg_s600x600_tt6&_nc_cat=106&ccb=1-7&_nc_sid=c53f8f&oh=00_3df47a4341ef8a3519bd4878af3b65e2&oe=AF3B65E2",
+              "watermarked_resized_image_url": ""
+            }
+          ],
+          "is_reshared": false,
+          "link_description": "HubSpot CRM Software for Sales Teams",
+          "link_url": "https://www.hubspot.com/products/crm?utm_source=facebook&utm_medium=paid",
+          "page_categories": [
+            "Software"
+          ],
+          "page_id": "6039999393",
+          "page_is_deleted": false,
+          "page_like_count": 1070462,
+          "page_name": "HubSpot",
+          "page_profile_picture_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/964968026_796280429558430_33722789126744_n.jpg?stp=dst-jpg_s60x60_tt6&_nc_cat=110&ccb=1-7&_nc_sid=c53f8f&oh=00_fdb3bab922d77d7a7fb4650ab6d0ea5a&oe=B6D0EA5A",
+          "page_profile_uri": "https://www.facebook.com/hubspot/",
+          "title": "Sales CRM Built For Small Teams",
+          "videos": []
+        },
+        "start_date": "2026-07-12T07:00:00Z",
+        "targeted_or_reached_countries": []
+      },
+      "request": {
+        "company": "HubSpot",
+        "page_id": "6039999393"
+      }
+    },
+    "source_id": "1036856831983664"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_archive_id": "8985568560974810",
+        "ad_details_token": "eyJhZF9hcmNoaXZlX2lkIjoiODk4NTU2ODU2MDk3NDgxMCIsInBhZ2VfaWQiOiI2MDM5OTk5MzkzIn0=",
+        "categories": [
+          "UNKNOWN"
+        ],
+        "contains_digital_created_media": false,
+        "contains_sensitive_content": false,
+        "currency": "",
+        "end_date": "2026-09-04T07:00:00Z",
+        "gated_type": "ELIGIBLE",
+        "has_user_reported": false,
+        "hide_data_status": "NONE",
+        "impressions_with_index": {
+          "impressions_index": -1
+        },
+        "is_aaa_eligible": false,
+        "is_active": true,
+        "menu_items": [],
+        "page_id": "6039999393",
+        "page_is_deleted": false,
+        "page_name": "HubSpot",
+        "publisher_platform": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "THREADS"
+        ],
+        "regional_regulation_data": {
+          "finserv": {
+            "is_deemed_finserv": false,
+            "is_limited_delivery": false
+          },
+          "tw_anti_scam": {
+            "is_limited_delivery": false
+          }
+        },
+        "snapshot": {
+          "body": {
+            "text": "Start your free 14-day trial. No credit card required."
+          },
+          "byline": null,
+          "caption": "HUBSPOT.COM",
+          "cards": [],
+          "cta_text": "Get quote",
+          "cta_type": "GET_QUOTE",
+          "display_format": "IMAGE",
+          "ec_certificates": [],
+          "extra_images": [],
+          "extra_links": [],
+          "extra_texts": [],
+          "extra_videos": [],
+          "images": [
+            {
+              "image_crops": [],
+              "original_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/980665283_1882501790929362_1931625322229_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=c53f8f&oh=00_0e882cd009e4cb44b652a958b7d777c3&oe=B7D777C3",
+              "resized_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/838107062_3593946900848618_2226972175779_n.jpg?stp=dst-jpg_s600x600_tt6&_nc_cat=110&ccb=1-7&_nc_sid=c53f8f&oh=00_10c0fe0dd68531791f318617036723b6&oe=036723B6",
+              "watermarked_resized_image_url": ""
+            }
+          ],
+          "is_reshared": false,
+          "link_description": "HubSpot CRM Software for Sales Teams",
+          "link_url": "https://www.hubspot.com/products/crm?utm_source=facebook&utm_medium=paid",
+          "page_categories": [
+            "Software"
+          ],
+          "page_id": "6039999393",
+          "page_is_deleted": false,
+          "page_like_count": 1070462,
+          "page_name": "HubSpot",
+          "page_profile_picture_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/964968026_796280429558430_33722789126744_n.jpg?stp=dst-jpg_s60x60_tt6&_nc_cat=110&ccb=1-7&_nc_sid=c53f8f&oh=00_fdb3bab922d77d7a7fb4650ab6d0ea5a&oe=B6D0EA5A",
+          "page_profile_uri": "https://www.facebook.com/hubspot/",
+          "title": "AI That Writes The Follow-Up For You",
+          "videos": []
+        },
+        "start_date": "2026-07-03T07:00:00Z",
+        "targeted_or_reached_countries": []
+      },
+      "request": {
+        "company": "HubSpot",
+        "page_id": "6039999393"
+      }
+    },
+    "source_id": "8985568560974810"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_archive_id": "9628728930370458",
+        "ad_details_token": "eyJhZF9hcmNoaXZlX2lkIjoiOTYyODcyODkzMDM3MDQ1OCIsInBhZ2VfaWQiOiI2MDM5OTk5MzkzIn0=",
+        "categories": [
+          "UNKNOWN"
+        ],
+        "contains_digital_created_media": false,
+        "contains_sensitive_content": false,
+        "currency": "",
+        "end_date": "2026-09-04T07:00:00Z",
+        "gated_type": "ELIGIBLE",
+        "has_user_reported": false,
+        "hide_data_status": "NONE",
+        "impressions_with_index": {
+          "impressions_index": -1
+        },
+        "is_aaa_eligible": true,
+        "is_active": true,
+        "menu_items": [],
+        "page_id": "6039999393",
+        "page_is_deleted": false,
+        "page_name": "HubSpot",
+        "publisher_platform": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "AUDIENCE_NETWORK",
+          "MESSENGER"
+        ],
+        "regional_regulation_data": {
+          "finserv": {
+            "is_deemed_finserv": false,
+            "is_limited_delivery": false
+          },
+          "tw_anti_scam": {
+            "is_limited_delivery": false
+          }
+        },
+        "snapshot": {
+          "body": {
+            "text": "Set up in minutes, with built-in calling and email sync."
+          },
+          "byline": null,
+          "caption": "HUBSPOT.COM",
+          "cards": [],
+          "cta_text": "Book now",
+          "cta_type": "BOOK_NOW",
+          "display_format": "IMAGE",
+          "ec_certificates": [],
+          "extra_images": [],
+          "extra_links": [],
+          "extra_texts": [],
+          "extra_videos": [],
+          "images": [
+            {
+              "image_crops": [],
+              "original_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/349579683_9678211093145202_25700261536972_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=c53f8f&oh=00_c158e73ce02f290a2467168d9ec01da3&oe=9EC01DA3",
+              "resized_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/197418895_835004628502816_5388245171163_n.jpg?stp=dst-jpg_s600x600_tt6&_nc_cat=111&ccb=1-7&_nc_sid=c53f8f&oh=00_288961fa1fcdba85c4e0bf944b379f8f&oe=4B379F8F",
+              "watermarked_resized_image_url": ""
+            }
+          ],
+          "is_reshared": false,
+          "link_description": "HubSpot CRM Software for Sales Teams",
+          "link_url": "https://www.hubspot.com/products/crm?utm_source=facebook&utm_medium=paid",
+          "page_categories": [
+            "Software"
+          ],
+          "page_id": "6039999393",
+          "page_is_deleted": false,
+          "page_like_count": 1070462,
+          "page_name": "HubSpot",
+          "page_profile_picture_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/964968026_796280429558430_33722789126744_n.jpg?stp=dst-jpg_s60x60_tt6&_nc_cat=110&ccb=1-7&_nc_sid=c53f8f&oh=00_fdb3bab922d77d7a7fb4650ab6d0ea5a&oe=B6D0EA5A",
+          "page_profile_uri": "https://www.facebook.com/hubspot/",
+          "title": "Stop Losing Leads In Spreadsheets",
+          "videos": []
+        },
+        "start_date": "2026-05-23T07:00:00Z",
+        "targeted_or_reached_countries": []
+      },
+      "request": {
+        "company": "HubSpot",
+        "page_id": "6039999393"
+      }
+    },
+    "source_id": "9628728930370458"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_archive_id": "1630504847436585",
+        "ad_details_token": "eyJhZF9hcmNoaXZlX2lkIjoiMTYzMDUwNDg0NzQzNjU4NSIsInBhZ2VfaWQiOiI2MDM5OTk5MzkzIn0=",
+        "categories": [
+          "UNKNOWN"
+        ],
+        "contains_digital_created_media": false,
+        "contains_sensitive_content": false,
+        "currency": "",
+        "end_date": "2026-09-04T07:00:00Z",
+        "gated_type": "ELIGIBLE",
+        "has_user_reported": false,
+        "hide_data_status": "NONE",
+        "impressions_with_index": {
+          "impressions_index": -1
+        },
+        "is_aaa_eligible": true,
+        "is_active": true,
+        "menu_items": [],
+        "page_id": "6039999393",
+        "page_is_deleted": false,
+        "page_name": "HubSpot",
+        "publisher_platform": [
+          "FACEBOOK",
+          "INSTAGRAM"
+        ],
+        "regional_regulation_data": {
+          "finserv": {
+            "is_deemed_finserv": false,
+            "is_limited_delivery": false
+          },
+          "tw_anti_scam": {
+            "is_limited_delivery": false
+          }
+        },
+        "snapshot": {
+          "body": {
+            "text": "Track calls, emails and meetings without leaving the CRM."
+          },
+          "byline": null,
+          "caption": "HUBSPOT.COM",
+          "cards": [],
+          "cta_text": "Get quote",
+          "cta_type": "GET_QUOTE",
+          "display_format": "VIDEO",
+          "ec_certificates": [],
+          "extra_images": [],
+          "extra_links": [],
+          "extra_texts": [],
+          "extra_videos": [],
+          "images": [],
+          "is_reshared": false,
+          "link_description": "HubSpot CRM Software for Sales Teams",
+          "link_url": "https://www.hubspot.com/products/crm?utm_source=facebook&utm_medium=paid",
+          "page_categories": [
+            "Software"
+          ],
+          "page_id": "6039999393",
+          "page_is_deleted": false,
+          "page_like_count": 1070462,
+          "page_name": "HubSpot",
+          "page_profile_picture_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/964968026_796280429558430_33722789126744_n.jpg?stp=dst-jpg_s60x60_tt6&_nc_cat=110&ccb=1-7&_nc_sid=c53f8f&oh=00_fdb3bab922d77d7a7fb4650ab6d0ea5a&oe=B6D0EA5A",
+          "page_profile_uri": "https://www.facebook.com/hubspot/",
+          "title": "The CRM Your Sales Team Will Actually Use",
+          "videos": [
+            {
+              "video_hd_url": "https://video-msp1-1.xx.fbcdn.net/o1/v/t2/f2/m366/AQOc0619012c9bcca77af13cfd6039385cf.mp4?_nc_cat=107&_nc_sid=b66105&oh=00_59353e890682ffb51b73ffb0fe119ea2&oe=039385CF",
+              "video_preview_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/478495692_5453948446321353_16435199120139_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=c53f8f&oh=00_7ba50ac8dd381b3d673450902431ddcc&oe=2431DDCC",
+              "video_sd_url": "https://video-msp1-1.xx.fbcdn.net/o1/v/t2/f2/m412/AQO97c6e984e257d26f997fbc5b052cbbc1.mp4?_nc_cat=105&_nc_sid=b66105&oh=00_4971184cd20e0f7eb47ffb605e897f5c&oe=052CBBC1"
+            }
+          ]
+        },
+        "start_date": "2026-05-09T07:00:00Z",
+        "targeted_or_reached_countries": []
+      },
+      "request": {
+        "company": "HubSpot",
+        "page_id": "6039999393"
+      }
+    },
+    "source_id": "1630504847436585"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_archive_id": "6890167322403790",
+        "ad_details_token": "eyJhZF9hcmNoaXZlX2lkIjoiNjg5MDE2NzMyMjQwMzc5MCIsInBhZ2VfaWQiOiIyMzE0NjAyMTUzODMifQ==",
+        "categories": [
+          "UNKNOWN"
+        ],
+        "contains_digital_created_media": false,
+        "contains_sensitive_content": false,
+        "currency": "",
+        "end_date": "2026-09-04T07:00:00Z",
+        "gated_type": "ELIGIBLE",
+        "has_user_reported": false,
+        "hide_data_status": "NONE",
+        "impressions_with_index": {
+          "impressions_index": -1
+        },
+        "is_aaa_eligible": true,
+        "is_active": true,
+        "menu_items": [],
+        "page_id": "231460215383",
+        "page_is_deleted": false,
+        "page_name": "Zoho CRM",
+        "publisher_platform": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "AUDIENCE_NETWORK",
+          "MESSENGER"
+        ],
+        "regional_regulation_data": {
+          "finserv": {
+            "is_deemed_finserv": false,
+            "is_limited_delivery": false
+          },
+          "tw_anti_scam": {
+            "is_limited_delivery": false
+          }
+        },
+        "snapshot": {
+          "body": {
+            "text": "Plans from $14 per user per month. Cancel anytime."
+          },
+          "byline": null,
+          "caption": "ZOHO.COM",
+          "cards": [],
+          "cta_text": "Book now",
+          "cta_type": "BOOK_NOW",
+          "display_format": "IMAGE",
+          "ec_certificates": [],
+          "extra_images": [],
+          "extra_links": [],
+          "extra_texts": [],
+          "extra_videos": [],
+          "images": [
+            {
+              "image_crops": [],
+              "original_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/610442451_4130003871167986_17291368047258_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=c53f8f&oh=00_8215f6a80b0ea3faa54fd748190790d3&oe=190790D3",
+              "resized_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/329880611_4068608244272712_1756648272756_n.jpg?stp=dst-jpg_s600x600_tt6&_nc_cat=111&ccb=1-7&_nc_sid=c53f8f&oh=00_0d372e7774cca06b6b0c5baf92be6423&oe=92BE6423",
+              "watermarked_resized_image_url": ""
+            }
+          ],
+          "is_reshared": false,
+          "link_description": "Zoho CRM: Top-rated Sales CRM Software",
+          "link_url": "https://www.zoho.com/crm/sales-automation.html?utm_source=facebook&utm_medium=paid",
+          "page_categories": [
+            "Software"
+          ],
+          "page_id": "231460215383",
+          "page_is_deleted": false,
+          "page_like_count": 566018,
+          "page_name": "Zoho CRM",
+          "page_profile_picture_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/245895361_9882002146912713_33009235879309_n.jpg?stp=dst-jpg_s60x60_tt6&_nc_cat=105&ccb=1-7&_nc_sid=c53f8f&oh=00_f85579cf6cce26c548f705d3530aaac1&oe=530AAAC1",
+          "page_profile_uri": "https://www.facebook.com/zoho/",
+          "title": "AI That Writes The Follow-Up For You",
+          "videos": []
+        },
+        "start_date": "2026-08-21T07:00:00Z",
+        "targeted_or_reached_countries": []
+      },
+      "request": {
+        "company": "Zoho CRM",
+        "page_id": "231460215383"
+      }
+    },
+    "source_id": "6890167322403790"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_archive_id": "9914832334876091",
+        "ad_details_token": "eyJhZF9hcmNoaXZlX2lkIjoiOTkxNDgzMjMzNDg3NjA5MSIsInBhZ2VfaWQiOiIyMzE0NjAyMTUzODMifQ==",
+        "categories": [
+          "UNKNOWN"
+        ],
+        "contains_digital_created_media": false,
+        "contains_sensitive_content": false,
+        "currency": "",
+        "end_date": "2026-09-04T07:00:00Z",
+        "gated_type": "ELIGIBLE",
+        "has_user_reported": false,
+        "hide_data_status": "NONE",
+        "impressions_with_index": {
+          "impressions_index": -1
+        },
+        "is_aaa_eligible": true,
+        "is_active": true,
+        "menu_items": [],
+        "page_id": "231460215383",
+        "page_is_deleted": false,
+        "page_name": "Zoho CRM",
+        "publisher_platform": [
+          "FACEBOOK",
+          "INSTAGRAM"
+        ],
+        "regional_regulation_data": {
+          "finserv": {
+            "is_deemed_finserv": false,
+            "is_limited_delivery": false
+          },
+          "tw_anti_scam": {
+            "is_limited_delivery": false
+          }
+        },
+        "snapshot": {
+          "body": {
+            "text": "Automate follow-ups, forecast revenue and hit quota every month."
+          },
+          "byline": null,
+          "caption": "ZOHO.COM",
+          "cards": [],
+          "cta_text": "Get quote",
+          "cta_type": "GET_QUOTE",
+          "display_format": "IMAGE",
+          "ec_certificates": [],
+          "extra_images": [],
+          "extra_links": [],
+          "extra_texts": [],
+          "extra_videos": [],
+          "images": [
+            {
+              "image_crops": [],
+              "original_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/855372027_6162504409046798_12121188335150_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=c53f8f&oh=00_5b308f40632d013002c29ac8f668fcfb&oe=F668FCFB",
+              "resized_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/749775501_18032730356504_31181475011206_n.jpg?stp=dst-jpg_s600x600_tt6&_nc_cat=109&ccb=1-7&_nc_sid=c53f8f&oh=00_ea9556208dfb0f7fb056aa9868c19a8d&oe=68C19A8D",
+              "watermarked_resized_image_url": ""
+            }
+          ],
+          "is_reshared": false,
+          "link_description": "Zoho CRM: Top-rated Sales CRM Software",
+          "link_url": "https://www.zoho.com/crm/sales-automation.html?utm_source=facebook&utm_medium=paid",
+          "page_categories": [
+            "Software"
+          ],
+          "page_id": "231460215383",
+          "page_is_deleted": false,
+          "page_like_count": 566018,
+          "page_name": "Zoho CRM",
+          "page_profile_picture_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/245895361_9882002146912713_33009235879309_n.jpg?stp=dst-jpg_s60x60_tt6&_nc_cat=105&ccb=1-7&_nc_sid=c53f8f&oh=00_f85579cf6cce26c548f705d3530aaac1&oe=530AAAC1",
+          "page_profile_uri": "https://www.facebook.com/zoho/",
+          "title": "AI That Writes The Follow-Up For You",
+          "videos": []
+        },
+        "start_date": "2026-07-30T07:00:00Z",
+        "targeted_or_reached_countries": []
+      },
+      "request": {
+        "company": "Zoho CRM",
+        "page_id": "231460215383"
+      }
+    },
+    "source_id": "9914832334876091"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_archive_id": "7027408174918548",
+        "ad_details_token": "eyJhZF9hcmNoaXZlX2lkIjoiNzAyNzQwODE3NDkxODU0OCIsInBhZ2VfaWQiOiIyMzE0NjAyMTUzODMifQ==",
+        "categories": [
+          "UNKNOWN"
+        ],
+        "contains_digital_created_media": false,
+        "contains_sensitive_content": false,
+        "currency": "",
+        "end_date": "2026-07-21T07:00:00Z",
+        "gated_type": "ELIGIBLE",
+        "has_user_reported": false,
+        "hide_data_status": "NONE",
+        "impressions_with_index": {
+          "impressions_index": -1
+        },
+        "is_aaa_eligible": true,
+        "is_active": false,
+        "menu_items": [],
+        "page_id": "231460215383",
+        "page_is_deleted": false,
+        "page_name": "Zoho CRM",
+        "publisher_platform": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "THREADS"
+        ],
+        "regional_regulation_data": {
+          "finserv": {
+            "is_deemed_finserv": false,
+            "is_limited_delivery": false
+          },
+          "tw_anti_scam": {
+            "is_limited_delivery": false
+          }
+        },
+        "snapshot": {
+          "body": {
+            "text": "Start your free 14-day trial. No credit card required."
+          },
+          "byline": null,
+          "caption": "ZOHO.COM",
+          "cards": [],
+          "cta_text": "Sign up",
+          "cta_type": "SIGN_UP",
+          "display_format": "IMAGE",
+          "ec_certificates": [],
+          "extra_images": [],
+          "extra_links": [],
+          "extra_texts": [],
+          "extra_videos": [],
+          "images": [
+            {
+              "image_crops": [],
+              "original_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/264925319_1063657867774955_10463010052857_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=c53f8f&oh=00_4eb7063d0fb446f292e8c7bd5d8fde87&oe=5D8FDE87",
+              "resized_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/532454224_8856494025533842_17807105470597_n.jpg?stp=dst-jpg_s600x600_tt6&_nc_cat=100&ccb=1-7&_nc_sid=c53f8f&oh=00_85f73cd68b574abb4073670de1ddcf50&oe=E1DDCF50",
+              "watermarked_resized_image_url": ""
+            }
+          ],
+          "is_reshared": false,
+          "link_description": "Zoho CRM: Top-rated Sales CRM Software",
+          "link_url": "https://www.zoho.com/crm/sales-automation.html?utm_source=facebook&utm_medium=paid",
+          "page_categories": [
+            "Software"
+          ],
+          "page_id": "231460215383",
+          "page_is_deleted": false,
+          "page_like_count": 566018,
+          "page_name": "Zoho CRM",
+          "page_profile_picture_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/245895361_9882002146912713_33009235879309_n.jpg?stp=dst-jpg_s60x60_tt6&_nc_cat=105&ccb=1-7&_nc_sid=c53f8f&oh=00_f85579cf6cce26c548f705d3530aaac1&oe=530AAAC1",
+          "page_profile_uri": "https://www.facebook.com/zoho/",
+          "title": "Stop Losing Leads In Spreadsheets",
+          "videos": []
+        },
+        "start_date": "2026-05-31T07:00:00Z",
+        "targeted_or_reached_countries": []
+      },
+      "request": {
+        "company": "Zoho CRM",
+        "page_id": "231460215383"
+      }
+    },
+    "source_id": "7027408174918548"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_archive_id": "5219798558782649",
+        "ad_details_token": "eyJhZF9hcmNoaXZlX2lkIjoiNTIxOTc5ODU1ODc4MjY0OSIsInBhZ2VfaWQiOiIyMzE0NjAyMTUzODMifQ==",
+        "categories": [
+          "UNKNOWN"
+        ],
+        "contains_digital_created_media": false,
+        "contains_sensitive_content": false,
+        "currency": "",
+        "end_date": "2026-09-04T07:00:00Z",
+        "gated_type": "ELIGIBLE",
+        "has_user_reported": false,
+        "hide_data_status": "NONE",
+        "impressions_with_index": {
+          "impressions_index": -1
+        },
+        "is_aaa_eligible": false,
+        "is_active": true,
+        "menu_items": [],
+        "page_id": "231460215383",
+        "page_is_deleted": false,
+        "page_name": "Zoho CRM",
+        "publisher_platform": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "AUDIENCE_NETWORK",
+          "MESSENGER",
+          "THREADS"
+        ],
+        "regional_regulation_data": {
+          "finserv": {
+            "is_deemed_finserv": false,
+            "is_limited_delivery": false
+          },
+          "tw_anti_scam": {
+            "is_limited_delivery": false
+          }
+        },
+        "snapshot": {
+          "body": {
+            "text": "Start your free 14-day trial. No credit card required."
+          },
+          "byline": null,
+          "caption": "ZOHO.COM",
+          "cards": [],
+          "cta_text": "Book now",
+          "cta_type": "BOOK_NOW",
+          "display_format": "IMAGE",
+          "ec_certificates": [],
+          "extra_images": [],
+          "extra_links": [],
+          "extra_texts": [],
+          "extra_videos": [],
+          "images": [
+            {
+              "image_crops": [],
+              "original_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/188020195_8234676236796278_4714223633308_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=c53f8f&oh=00_237743b3a55385ed9e3fd6917fd811e3&oe=7FD811E3",
+              "resized_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/805776739_4413395440537421_21407937182239_n.jpg?stp=dst-jpg_s600x600_tt6&_nc_cat=107&ccb=1-7&_nc_sid=c53f8f&oh=00_a10e2ff0b827955aaa4e5d1a626bef63&oe=626BEF63",
+              "watermarked_resized_image_url": ""
+            }
+          ],
+          "is_reshared": false,
+          "link_description": "Zoho CRM: Top-rated Sales CRM Software",
+          "link_url": "https://www.zoho.com/crm/sales-automation.html?utm_source=facebook&utm_medium=paid",
+          "page_categories": [
+            "Software"
+          ],
+          "page_id": "231460215383",
+          "page_is_deleted": false,
+          "page_like_count": 566018,
+          "page_name": "Zoho CRM",
+          "page_profile_picture_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/245895361_9882002146912713_33009235879309_n.jpg?stp=dst-jpg_s60x60_tt6&_nc_cat=105&ccb=1-7&_nc_sid=c53f8f&oh=00_f85579cf6cce26c548f705d3530aaac1&oe=530AAAC1",
+          "page_profile_uri": "https://www.facebook.com/zoho/",
+          "title": "See Every Deal In One Pipeline",
+          "videos": []
+        },
+        "start_date": "2026-05-23T07:00:00Z",
+        "targeted_or_reached_countries": []
+      },
+      "request": {
+        "company": "Zoho CRM",
+        "page_id": "231460215383"
+      }
+    },
+    "source_id": "5219798558782649"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_archive_id": "8813220675286691",
+        "ad_details_token": "eyJhZF9hcmNoaXZlX2lkIjoiODgxMzIyMDY3NTI4NjY5MSIsInBhZ2VfaWQiOiIyMzE0NjAyMTUzODMifQ==",
+        "categories": [
+          "UNKNOWN"
+        ],
+        "contains_digital_created_media": false,
+        "contains_sensitive_content": false,
+        "currency": "",
+        "end_date": "2026-09-04T07:00:00Z",
+        "gated_type": "ELIGIBLE",
+        "has_user_reported": false,
+        "hide_data_status": "NONE",
+        "impressions_with_index": {
+          "impressions_index": -1
+        },
+        "is_aaa_eligible": false,
+        "is_active": true,
+        "menu_items": [],
+        "page_id": "231460215383",
+        "page_is_deleted": false,
+        "page_name": "Zoho CRM",
+        "publisher_platform": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "AUDIENCE_NETWORK",
+          "MESSENGER"
+        ],
+        "regional_regulation_data": {
+          "finserv": {
+            "is_deemed_finserv": false,
+            "is_limited_delivery": false
+          },
+          "tw_anti_scam": {
+            "is_limited_delivery": false
+          }
+        },
+        "snapshot": {
+          "body": {
+            "text": "Track calls, emails and meetings without leaving the CRM."
+          },
+          "byline": null,
+          "caption": "ZOHO.COM",
+          "cards": [],
+          "cta_text": "Sign up",
+          "cta_type": "SIGN_UP",
+          "display_format": "IMAGE",
+          "ec_certificates": [],
+          "extra_images": [],
+          "extra_links": [],
+          "extra_texts": [],
+          "extra_videos": [],
+          "images": [
+            {
+              "image_crops": [],
+              "original_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/380724626_5951894652764835_21553287876335_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=c53f8f&oh=00_a2261f5d89d639ec5d91cb4695540392&oe=95540392",
+              "resized_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/860672740_5996267714456270_1076922036829_n.jpg?stp=dst-jpg_s600x600_tt6&_nc_cat=104&ccb=1-7&_nc_sid=c53f8f&oh=00_081a138eda259fde993a87c22aff5ee4&oe=2AFF5EE4",
+              "watermarked_resized_image_url": ""
+            }
+          ],
+          "is_reshared": false,
+          "link_description": "Zoho CRM: Top-rated Sales CRM Software",
+          "link_url": "https://www.zoho.com/crm/sales-automation.html?utm_source=facebook&utm_medium=paid",
+          "page_categories": [
+            "Software"
+          ],
+          "page_id": "231460215383",
+          "page_is_deleted": false,
+          "page_like_count": 566018,
+          "page_name": "Zoho CRM",
+          "page_profile_picture_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/245895361_9882002146912713_33009235879309_n.jpg?stp=dst-jpg_s60x60_tt6&_nc_cat=105&ccb=1-7&_nc_sid=c53f8f&oh=00_f85579cf6cce26c548f705d3530aaac1&oe=530AAAC1",
+          "page_profile_uri": "https://www.facebook.com/zoho/",
+          "title": "Stop Losing Leads In Spreadsheets",
+          "videos": []
+        },
+        "start_date": "2026-05-09T07:00:00Z",
+        "targeted_or_reached_countries": []
+      },
+      "request": {
+        "company": "Zoho CRM",
+        "page_id": "231460215383"
+      }
+    },
+    "source_id": "8813220675286691"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_archive_id": "5785893728901631",
+        "ad_details_token": "eyJhZF9hcmNoaXZlX2lkIjoiNTc4NTg5MzcyODkwMTYzMSIsInBhZ2VfaWQiOiIzMDA3MjIyMjAzNzQxMjMifQ==",
+        "categories": [
+          "UNKNOWN"
+        ],
+        "contains_digital_created_media": false,
+        "contains_sensitive_content": false,
+        "currency": "",
+        "end_date": "2026-09-04T07:00:00Z",
+        "gated_type": "ELIGIBLE",
+        "has_user_reported": false,
+        "hide_data_status": "NONE",
+        "impressions_with_index": {
+          "impressions_index": -1
+        },
+        "is_aaa_eligible": false,
+        "is_active": true,
+        "menu_items": [],
+        "page_id": "300722220374123",
+        "page_is_deleted": false,
+        "page_name": "Freshsales",
+        "publisher_platform": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "THREADS"
+        ],
+        "regional_regulation_data": {
+          "finserv": {
+            "is_deemed_finserv": false,
+            "is_limited_delivery": false
+          },
+          "tw_anti_scam": {
+            "is_limited_delivery": false
+          }
+        },
+        "snapshot": {
+          "body": {
+            "text": "Plans from $14 per user per month. Cancel anytime."
+          },
+          "byline": null,
+          "caption": "FRESHWORKS.COM",
+          "cards": [],
+          "cta_text": "Book now",
+          "cta_type": "BOOK_NOW",
+          "display_format": "VIDEO",
+          "ec_certificates": [],
+          "extra_images": [],
+          "extra_links": [],
+          "extra_texts": [],
+          "extra_videos": [],
+          "images": [],
+          "is_reshared": false,
+          "link_description": "Freshsales: AI-powered Sales CRM",
+          "link_url": "https://www.freshworks.com/crm/sales/?utm_source=facebook&utm_medium=paid",
+          "page_categories": [
+            "Software"
+          ],
+          "page_id": "300722220374123",
+          "page_is_deleted": false,
+          "page_like_count": 906956,
+          "page_name": "Freshsales",
+          "page_profile_picture_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/36568703_7366057353931993_33463310540924_n.jpg?stp=dst-jpg_s60x60_tt6&_nc_cat=111&ccb=1-7&_nc_sid=c53f8f&oh=00_fbbffde7336f1d6c53a65c6d8c9b387f&oe=8C9B387F",
+          "page_profile_uri": "https://www.facebook.com/freshworks/",
+          "title": "The CRM Your Sales Team Will Actually Use",
+          "videos": [
+            {
+              "video_hd_url": "https://video-msp1-1.xx.fbcdn.net/o1/v/t2/f2/m366/AQO267530c93d6a77fc6527b06e3af4ba66.mp4?_nc_cat=102&_nc_sid=b66105&oh=00_9b0e90d191c4573b7437ce78456f3f8a&oe=3AF4BA66",
+              "video_preview_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/228304066_5465044627018220_32556776699766_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=c53f8f&oh=00_f4ee1236272a4ea0e6fee0e63337dcc2&oe=3337DCC2",
+              "video_sd_url": "https://video-msp1-1.xx.fbcdn.net/o1/v/t2/f2/m412/AQO4c9968fb2f5230f583a5a2462bb09e6a.mp4?_nc_cat=110&_nc_sid=b66105&oh=00_73fc499db5e3d983602f71f7dca96d2d&oe=2BB09E6A"
+            }
+          ]
+        },
+        "start_date": "2026-08-30T07:00:00Z",
+        "targeted_or_reached_countries": []
+      },
+      "request": {
+        "company": "Freshsales",
+        "page_id": "300722220374123"
+      }
+    },
+    "source_id": "5785893728901631"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_archive_id": "4344798596834121",
+        "ad_details_token": "eyJhZF9hcmNoaXZlX2lkIjoiNDM0NDc5ODU5NjgzNDEyMSIsInBhZ2VfaWQiOiIzMDA3MjIyMjAzNzQxMjMifQ==",
+        "categories": [
+          "UNKNOWN"
+        ],
+        "contains_digital_created_media": false,
+        "contains_sensitive_content": false,
+        "currency": "",
+        "end_date": "2026-09-04T07:00:00Z",
+        "gated_type": "ELIGIBLE",
+        "has_user_reported": false,
+        "hide_data_status": "NONE",
+        "impressions_with_index": {
+          "impressions_index": -1
+        },
+        "is_aaa_eligible": false,
+        "is_active": true,
+        "menu_items": [],
+        "page_id": "300722220374123",
+        "page_is_deleted": false,
+        "page_name": "Freshsales",
+        "publisher_platform": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "AUDIENCE_NETWORK",
+          "MESSENGER",
+          "THREADS"
+        ],
+        "regional_regulation_data": {
+          "finserv": {
+            "is_deemed_finserv": false,
+            "is_limited_delivery": false
+          },
+          "tw_anti_scam": {
+            "is_limited_delivery": false
+          }
+        },
+        "snapshot": {
+          "body": {
+            "text": "Start your free 14-day trial. No credit card required."
+          },
+          "byline": null,
+          "caption": "FRESHWORKS.COM",
+          "cards": [],
+          "cta_text": "Book now",
+          "cta_type": "BOOK_NOW",
+          "display_format": "IMAGE",
+          "ec_certificates": [],
+          "extra_images": [],
+          "extra_links": [],
+          "extra_texts": [],
+          "extra_videos": [],
+          "images": [
+            {
+              "image_crops": [],
+              "original_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/286216538_3540380654330848_6505674579339_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=c53f8f&oh=00_30f179360975e009d02be7e9b49e115a&oe=B49E115A",
+              "resized_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/345538042_2953035171588383_8667411573499_n.jpg?stp=dst-jpg_s600x600_tt6&_nc_cat=110&ccb=1-7&_nc_sid=c53f8f&oh=00_4134d3d65df37c436c0c42433130f3fa&oe=3130F3FA",
+              "watermarked_resized_image_url": ""
+            }
+          ],
+          "is_reshared": false,
+          "link_description": "Freshsales: AI-powered Sales CRM",
+          "link_url": "https://www.freshworks.com/crm/sales/?utm_source=facebook&utm_medium=paid",
+          "page_categories": [
+            "Software"
+          ],
+          "page_id": "300722220374123",
+          "page_is_deleted": false,
+          "page_like_count": 906956,
+          "page_name": "Freshsales",
+          "page_profile_picture_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/36568703_7366057353931993_33463310540924_n.jpg?stp=dst-jpg_s60x60_tt6&_nc_cat=111&ccb=1-7&_nc_sid=c53f8f&oh=00_fbbffde7336f1d6c53a65c6d8c9b387f&oe=8C9B387F",
+          "page_profile_uri": "https://www.facebook.com/freshworks/",
+          "title": "Sales CRM Built For Small Teams",
+          "videos": []
+        },
+        "start_date": "2026-08-17T07:00:00Z",
+        "targeted_or_reached_countries": []
+      },
+      "request": {
+        "company": "Freshsales",
+        "page_id": "300722220374123"
+      }
+    },
+    "source_id": "4344798596834121"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_archive_id": "3294711861589059",
+        "ad_details_token": "eyJhZF9hcmNoaXZlX2lkIjoiMzI5NDcxMTg2MTU4OTA1OSIsInBhZ2VfaWQiOiIzMDA3MjIyMjAzNzQxMjMifQ==",
+        "categories": [
+          "UNKNOWN"
+        ],
+        "contains_digital_created_media": false,
+        "contains_sensitive_content": false,
+        "currency": "",
+        "end_date": "2026-09-04T07:00:00Z",
+        "gated_type": "ELIGIBLE",
+        "has_user_reported": false,
+        "hide_data_status": "NONE",
+        "impressions_with_index": {
+          "impressions_index": -1
+        },
+        "is_aaa_eligible": false,
+        "is_active": true,
+        "menu_items": [],
+        "page_id": "300722220374123",
+        "page_is_deleted": false,
+        "page_name": "Freshsales",
+        "publisher_platform": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "AUDIENCE_NETWORK",
+          "MESSENGER"
+        ],
+        "regional_regulation_data": {
+          "finserv": {
+            "is_deemed_finserv": false,
+            "is_limited_delivery": false
+          },
+          "tw_anti_scam": {
+            "is_limited_delivery": false
+          }
+        },
+        "snapshot": {
+          "body": {
+            "text": "Set up in minutes, with built-in calling and email sync."
+          },
+          "byline": null,
+          "caption": "FRESHWORKS.COM",
+          "cards": [],
+          "cta_text": "Get quote",
+          "cta_type": "GET_QUOTE",
+          "display_format": "IMAGE",
+          "ec_certificates": [],
+          "extra_images": [],
+          "extra_links": [],
+          "extra_texts": [],
+          "extra_videos": [],
+          "images": [
+            {
+              "image_crops": [],
+              "original_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/594033209_1475545040754797_20836068056262_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=c53f8f&oh=00_9cc0ceb14c2af58c497d08500d403c39&oe=0D403C39",
+              "resized_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/320474769_7428894636041355_32032909580770_n.jpg?stp=dst-jpg_s600x600_tt6&_nc_cat=101&ccb=1-7&_nc_sid=c53f8f&oh=00_f0fd23c7ccc8eb9f378d8c7ba40dbc91&oe=A40DBC91",
+              "watermarked_resized_image_url": ""
+            }
+          ],
+          "is_reshared": false,
+          "link_description": "Freshsales: AI-powered Sales CRM",
+          "link_url": "https://www.freshworks.com/crm/sales/?utm_source=facebook&utm_medium=paid",
+          "page_categories": [
+            "Software"
+          ],
+          "page_id": "300722220374123",
+          "page_is_deleted": false,
+          "page_like_count": 906956,
+          "page_name": "Freshsales",
+          "page_profile_picture_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/36568703_7366057353931993_33463310540924_n.jpg?stp=dst-jpg_s60x60_tt6&_nc_cat=111&ccb=1-7&_nc_sid=c53f8f&oh=00_fbbffde7336f1d6c53a65c6d8c9b387f&oe=8C9B387F",
+          "page_profile_uri": "https://www.facebook.com/freshworks/",
+          "title": "Stop Losing Leads In Spreadsheets",
+          "videos": []
+        },
+        "start_date": "2026-07-31T07:00:00Z",
+        "targeted_or_reached_countries": []
+      },
+      "request": {
+        "company": "Freshsales",
+        "page_id": "300722220374123"
+      }
+    },
+    "source_id": "3294711861589059"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_archive_id": "9970139480728122",
+        "ad_details_token": "eyJhZF9hcmNoaXZlX2lkIjoiOTk3MDEzOTQ4MDcyODEyMiIsInBhZ2VfaWQiOiIzMDA3MjIyMjAzNzQxMjMifQ==",
+        "categories": [
+          "UNKNOWN"
+        ],
+        "contains_digital_created_media": false,
+        "contains_sensitive_content": false,
+        "currency": "",
+        "end_date": "2026-09-04T07:00:00Z",
+        "gated_type": "ELIGIBLE",
+        "has_user_reported": false,
+        "hide_data_status": "NONE",
+        "impressions_with_index": {
+          "impressions_index": -1
+        },
+        "is_aaa_eligible": false,
+        "is_active": true,
+        "menu_items": [],
+        "page_id": "300722220374123",
+        "page_is_deleted": false,
+        "page_name": "Freshsales",
+        "publisher_platform": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "AUDIENCE_NETWORK",
+          "MESSENGER",
+          "THREADS"
+        ],
+        "regional_regulation_data": {
+          "finserv": {
+            "is_deemed_finserv": false,
+            "is_limited_delivery": false
+          },
+          "tw_anti_scam": {
+            "is_limited_delivery": false
+          }
+        },
+        "snapshot": {
+          "body": {
+            "text": "Start your free 14-day trial. No credit card required."
+          },
+          "byline": null,
+          "caption": "FRESHWORKS.COM",
+          "cards": [],
+          "cta_text": "Sign up",
+          "cta_type": "SIGN_UP",
+          "display_format": "IMAGE",
+          "ec_certificates": [],
+          "extra_images": [],
+          "extra_links": [],
+          "extra_texts": [],
+          "extra_videos": [],
+          "images": [
+            {
+              "image_crops": [],
+              "original_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/619903396_53254165427280_7329347195969_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=c53f8f&oh=00_3723cf2a30ca93724275fc162fda19a4&oe=2FDA19A4",
+              "resized_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/51387690_3257786515738687_31251286407260_n.jpg?stp=dst-jpg_s600x600_tt6&_nc_cat=106&ccb=1-7&_nc_sid=c53f8f&oh=00_eb1bc9cd874509ace6d457ca6147d32a&oe=6147D32A",
+              "watermarked_resized_image_url": ""
+            }
+          ],
+          "is_reshared": false,
+          "link_description": "Freshsales: AI-powered Sales CRM",
+          "link_url": "https://www.freshworks.com/crm/sales/?utm_source=facebook&utm_medium=paid",
+          "page_categories": [
+            "Software"
+          ],
+          "page_id": "300722220374123",
+          "page_is_deleted": false,
+          "page_like_count": 906956,
+          "page_name": "Freshsales",
+          "page_profile_picture_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/36568703_7366057353931993_33463310540924_n.jpg?stp=dst-jpg_s60x60_tt6&_nc_cat=111&ccb=1-7&_nc_sid=c53f8f&oh=00_fbbffde7336f1d6c53a65c6d8c9b387f&oe=8C9B387F",
+          "page_profile_uri": "https://www.facebook.com/freshworks/",
+          "title": "See Every Deal In One Pipeline",
+          "videos": []
+        },
+        "start_date": "2026-07-10T07:00:00Z",
+        "targeted_or_reached_countries": []
+      },
+      "request": {
+        "company": "Freshsales",
+        "page_id": "300722220374123"
+      }
+    },
+    "source_id": "9970139480728122"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_archive_id": "2884823901152685",
+        "ad_details_token": "eyJhZF9hcmNoaXZlX2lkIjoiMjg4NDgyMzkwMTE1MjY4NSIsInBhZ2VfaWQiOiIzMDA3MjIyMjAzNzQxMjMifQ==",
+        "categories": [
+          "UNKNOWN"
+        ],
+        "contains_digital_created_media": false,
+        "contains_sensitive_content": false,
+        "currency": "",
+        "end_date": "2026-09-04T07:00:00Z",
+        "gated_type": "ELIGIBLE",
+        "has_user_reported": false,
+        "hide_data_status": "NONE",
+        "impressions_with_index": {
+          "impressions_index": -1
+        },
+        "is_aaa_eligible": false,
+        "is_active": true,
+        "menu_items": [],
+        "page_id": "300722220374123",
+        "page_is_deleted": false,
+        "page_name": "Freshsales",
+        "publisher_platform": [
+          "FACEBOOK",
+          "INSTAGRAM"
+        ],
+        "regional_regulation_data": {
+          "finserv": {
+            "is_deemed_finserv": false,
+            "is_limited_delivery": false
+          },
+          "tw_anti_scam": {
+            "is_limited_delivery": false
+          }
+        },
+        "snapshot": {
+          "body": {
+            "text": "Automate follow-ups, forecast revenue and hit quota every month."
+          },
+          "byline": null,
+          "caption": "FRESHWORKS.COM",
+          "cards": [],
+          "cta_text": "Learn more",
+          "cta_type": "LEARN_MORE",
+          "display_format": "IMAGE",
+          "ec_certificates": [],
+          "extra_images": [],
+          "extra_links": [],
+          "extra_texts": [],
+          "extra_videos": [],
+          "images": [
+            {
+              "image_crops": [],
+              "original_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/535155597_5736254688036484_15863670176759_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=c53f8f&oh=00_7758514285c7cf287ce59a9b3971fb8d&oe=3971FB8D",
+              "resized_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/19496881_7605229725395721_4048061159646_n.jpg?stp=dst-jpg_s600x600_tt6&_nc_cat=101&ccb=1-7&_nc_sid=c53f8f&oh=00_1e74483e86b744ecf4ce0184108899b1&oe=108899B1",
+              "watermarked_resized_image_url": ""
+            }
+          ],
+          "is_reshared": false,
+          "link_description": "Freshsales: AI-powered Sales CRM",
+          "link_url": "https://www.freshworks.com/crm/sales/?utm_source=facebook&utm_medium=paid",
+          "page_categories": [
+            "Software"
+          ],
+          "page_id": "300722220374123",
+          "page_is_deleted": false,
+          "page_like_count": 906956,
+          "page_name": "Freshsales",
+          "page_profile_picture_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/36568703_7366057353931993_33463310540924_n.jpg?stp=dst-jpg_s60x60_tt6&_nc_cat=111&ccb=1-7&_nc_sid=c53f8f&oh=00_fbbffde7336f1d6c53a65c6d8c9b387f&oe=8C9B387F",
+          "page_profile_uri": "https://www.facebook.com/freshworks/",
+          "title": "See Every Deal In One Pipeline",
+          "videos": []
+        },
+        "start_date": "2026-07-01T07:00:00Z",
+        "targeted_or_reached_countries": []
+      },
+      "request": {
+        "company": "Freshsales",
+        "page_id": "300722220374123"
+      }
+    },
+    "source_id": "2884823901152685"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_archive_id": "5248918277339019",
+        "ad_details_token": "eyJhZF9hcmNoaXZlX2lkIjoiNTI0ODkxODI3NzMzOTAxOSIsInBhZ2VfaWQiOiIzMDA3MjIyMjAzNzQxMjMifQ==",
+        "categories": [
+          "UNKNOWN"
+        ],
+        "contains_digital_created_media": false,
+        "contains_sensitive_content": false,
+        "currency": "",
+        "end_date": "2026-07-25T07:00:00Z",
+        "gated_type": "ELIGIBLE",
+        "has_user_reported": false,
+        "hide_data_status": "NONE",
+        "impressions_with_index": {
+          "impressions_index": -1
+        },
+        "is_aaa_eligible": false,
+        "is_active": false,
+        "menu_items": [],
+        "page_id": "300722220374123",
+        "page_is_deleted": false,
+        "page_name": "Freshsales",
+        "publisher_platform": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "AUDIENCE_NETWORK",
+          "MESSENGER",
+          "THREADS"
+        ],
+        "regional_regulation_data": {
+          "finserv": {
+            "is_deemed_finserv": false,
+            "is_limited_delivery": false
+          },
+          "tw_anti_scam": {
+            "is_limited_delivery": false
+          }
+        },
+        "snapshot": {
+          "body": {
+            "text": "Plans from $14 per user per month. Cancel anytime."
+          },
+          "byline": null,
+          "caption": "FRESHWORKS.COM",
+          "cards": [],
+          "cta_text": "Get quote",
+          "cta_type": "GET_QUOTE",
+          "display_format": "VIDEO",
+          "ec_certificates": [],
+          "extra_images": [],
+          "extra_links": [],
+          "extra_texts": [],
+          "extra_videos": [],
+          "images": [],
+          "is_reshared": false,
+          "link_description": "Freshsales: AI-powered Sales CRM",
+          "link_url": "https://www.freshworks.com/crm/sales/?utm_source=facebook&utm_medium=paid",
+          "page_categories": [
+            "Software"
+          ],
+          "page_id": "300722220374123",
+          "page_is_deleted": false,
+          "page_like_count": 906956,
+          "page_name": "Freshsales",
+          "page_profile_picture_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/36568703_7366057353931993_33463310540924_n.jpg?stp=dst-jpg_s60x60_tt6&_nc_cat=111&ccb=1-7&_nc_sid=c53f8f&oh=00_fbbffde7336f1d6c53a65c6d8c9b387f&oe=8C9B387F",
+          "page_profile_uri": "https://www.facebook.com/freshworks/",
+          "title": "See Every Deal In One Pipeline",
+          "videos": [
+            {
+              "video_hd_url": "https://video-msp1-1.xx.fbcdn.net/o1/v/t2/f2/m366/AQOa3cfe0a9813bf0a1d4416359aadbf68c.mp4?_nc_cat=100&_nc_sid=b66105&oh=00_157e014c284c2e8f0efa66fe228d7d7b&oe=AADBF68C",
+              "video_preview_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/921433224_3183409869616812_855274275035_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=c53f8f&oh=00_066f32c635ed9ce76a73be7b0d07ac88&oe=0D07AC88",
+              "video_sd_url": "https://video-msp1-1.xx.fbcdn.net/o1/v/t2/f2/m412/AQO94ef829fff5111015a417527a2380b00.mp4?_nc_cat=104&_nc_sid=b66105&oh=00_372533ad6ea0f16d4c89df9fafb91ddf&oe=A2380B00"
+            }
+          ]
+        },
+        "start_date": "2026-06-06T07:00:00Z",
+        "targeted_or_reached_countries": []
+      },
+      "request": {
+        "company": "Freshsales",
+        "page_id": "300722220374123"
+      }
+    },
+    "source_id": "5248918277339019"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_archive_id": "3856116262982140",
+        "ad_details_token": "eyJhZF9hcmNoaXZlX2lkIjoiMzg1NjExNjI2Mjk4MjE0MCIsInBhZ2VfaWQiOiIzMDA3MjIyMjAzNzQxMjMifQ==",
+        "categories": [
+          "UNKNOWN"
+        ],
+        "contains_digital_created_media": false,
+        "contains_sensitive_content": false,
+        "currency": "",
+        "end_date": "2026-09-04T07:00:00Z",
+        "gated_type": "ELIGIBLE",
+        "has_user_reported": false,
+        "hide_data_status": "NONE",
+        "impressions_with_index": {
+          "impressions_index": -1
+        },
+        "is_aaa_eligible": false,
+        "is_active": true,
+        "menu_items": [],
+        "page_id": "300722220374123",
+        "page_is_deleted": false,
+        "page_name": "Freshsales",
+        "publisher_platform": [
+          "FACEBOOK",
+          "INSTAGRAM",
+          "AUDIENCE_NETWORK",
+          "MESSENGER",
+          "THREADS"
+        ],
+        "regional_regulation_data": {
+          "finserv": {
+            "is_deemed_finserv": false,
+            "is_limited_delivery": false
+          },
+          "tw_anti_scam": {
+            "is_limited_delivery": false
+          }
+        },
+        "snapshot": {
+          "body": {
+            "text": "Plans from $14 per user per month. Cancel anytime."
+          },
+          "byline": null,
+          "caption": "FRESHWORKS.COM",
+          "cards": [],
+          "cta_text": "Learn more",
+          "cta_type": "LEARN_MORE",
+          "display_format": "VIDEO",
+          "ec_certificates": [],
+          "extra_images": [],
+          "extra_links": [],
+          "extra_texts": [],
+          "extra_videos": [],
+          "images": [],
+          "is_reshared": false,
+          "link_description": "Freshsales: AI-powered Sales CRM",
+          "link_url": "https://www.freshworks.com/crm/sales/?utm_source=facebook&utm_medium=paid",
+          "page_categories": [
+            "Software"
+          ],
+          "page_id": "300722220374123",
+          "page_is_deleted": false,
+          "page_like_count": 906956,
+          "page_name": "Freshsales",
+          "page_profile_picture_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/36568703_7366057353931993_33463310540924_n.jpg?stp=dst-jpg_s60x60_tt6&_nc_cat=111&ccb=1-7&_nc_sid=c53f8f&oh=00_fbbffde7336f1d6c53a65c6d8c9b387f&oe=8C9B387F",
+          "page_profile_uri": "https://www.facebook.com/freshworks/",
+          "title": "AI That Writes The Follow-Up For You",
+          "videos": [
+            {
+              "video_hd_url": "https://video-msp1-1.xx.fbcdn.net/o1/v/t2/f2/m366/AQO0b3a812a42c065cbd610c13019ce0433.mp4?_nc_cat=111&_nc_sid=b66105&oh=00_e0b7fe3b4688586e855caf34b50c29d3&oe=19CE0433",
+              "video_preview_image_url": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/315243283_3992439638595280_31174328231531_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=c53f8f&oh=00_ea87927e2428de290ef94fd4afea5b13&oe=AFEA5B13",
+              "video_sd_url": "https://video-msp1-1.xx.fbcdn.net/o1/v/t2/f2/m412/AQOa8e6f62c77e5c933b4457dc335e9e8b9.mp4?_nc_cat=101&_nc_sid=b66105&oh=00_509781260a664fca7c5b8b55a4dfe5c8&oe=35E9E8B9"
+            }
+          ]
+        },
+        "start_date": "2026-05-28T07:00:00Z",
+        "targeted_or_reached_countries": []
+      },
+      "request": {
+        "company": "Freshsales",
+        "page_id": "300722220374123"
+      }
+    },
+    "source_id": "3856116262982140"
+  }
+]

@@ -120,6 +120,7 @@ export interface Competitor extends Brand {
   google_advertiser_id: string | null
   tiktok_advertiser_id: string | null
   tiktok_advertiser_name: string | null
+  meta_page_id: string | null
 }
 
 export interface SpyDefinition {

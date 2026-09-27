@@ -58,7 +58,7 @@ MISSING_Q = (
     "both). You can look up advertisers with the "
     "tiktok_ads_library_advertiser_search engine."
 )
-ENV_COMMENT = "# linkedin_ads, tiktok_ads — https://www.searchapi.io"
+ENV_COMMENT = "# linkedin_ads, tiktok_ads, meta_ads — https://www.searchapi.io"
 ADS_READ_PATHS = (
     "request.company",
     "request.advertiser_id",
