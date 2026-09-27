@@ -1,6 +1,6 @@
 import importlib
 import json
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 import httpx
 import pytest
@@ -10,6 +10,7 @@ from app.engine import checks, mappings, ontology, pipeline, spy, transforms
 from app.engine.pipeline import observed_at_for
 from app.engine.report import SyncReport
 from app.sources import catalog, client, creds, hooks, registry
+from tests.conftest import NOW
 from tests.test_env_example import documented_keys
 from tests.test_fixture_replay import replay
 from tools.pull_source import key_types
@@ -21,6 +22,7 @@ SEARCH = "/api/v1/search"
 FIXTURES = checks.REAL_FIXTURES.parent
 MOCK_FIXTURES = FIXTURES / "mock" / SOURCE
 INGESTED = datetime(2026, 9, 14, tzinfo=UTC)
+SEEN_AT = NOW.isoformat()
 AD_ID = "1558385343"
 COMPETITORS = ("HubSpot", "Zoho CRM", "Freshsales")
 THUMBNAIL = (
@@ -51,9 +53,19 @@ FULL_HEADLINE = (
 )
 CTA = "Raw notes in. Post-ready drafts out."
 NO_RESULTS = "LinkedIn Ad Library didn't return any results."
+UNPUBLISHED = (
+    "ad_format",
+    "ad_type",
+    "advertiser",
+    "content",
+    "id",
+    "link",
+    "paid_for_by",
+)
 ADS_READ_PATHS = (
     "request.company",
     "request.advertiser",
+    "seen_at",
     "ad.id",
     "ad.ad_type",
     "ad.advertiser",
@@ -68,7 +80,6 @@ DETAILS_READ_PATHS = (
     "ad.id",
     "ad.external_link",
     "ad.first_shown_date",
-    "ad.last_shown_date",
 )
 MAPPED = {
     ("ads", "_company", "company"),
@@ -77,10 +88,10 @@ MAPPED = {
     ("ads", "ad.content.headline", "name"),
     ("ads", "_preview", "preview"),
     ("ads", "ad.link", "url"),
+    ("ads", "seen_at", "last_seen"),
     ("ad_details", "_company", "company"),
     ("ad_details", "_platform", "platform"),
     ("ad_details", "ad.first_shown_date", "first_seen"),
-    ("ad_details", "ad.last_shown_date", "last_seen"),
     ("ad_details", "ad.external_link", "landing_url"),
 }
 
@@ -193,6 +204,7 @@ def ad_payload(item=None, company="HubSpot"):
     return {
         "request": {"company": company, "advertiser": company},
         "ad": item if item is not None else ad(),
+        "seen_at": SEEN_AT,
     }
 
 
@@ -201,6 +213,12 @@ def details_payload(ad_id=AD_ID, company="HubSpot", **overrides):
         "request": {"company": company, "ad_id": ad_id},
         "ad": detail(ad_id, **overrides),
     }
+
+
+def unpublished_payload(ad_id=AD_ID, company="HubSpot"):
+    payload = details_payload(ad_id, company)
+    payload["ad"] = {k: v for k, v in payload["ad"].items() if k in UNPUBLISHED}
+    return payload
 
 
 def payloads(fixture_class, name):
@@ -283,7 +301,10 @@ class TestTheConstantsTheContractNames:
     def test_the_source_and_the_observation_path(self):
         module = connector()
         assert module.SOURCE == SOURCE
-        assert module.OBSERVED_AT == {"ad_details": "ad.last_shown_date"}
+        assert module.OBSERVED_AT == {
+            "ads": "seen_at",
+            "ad_details": "ad.last_shown_date",
+        }
 
     def test_the_two_engines_and_the_caps(self):
         module = connector()
@@ -463,9 +484,31 @@ class TestAdsAreStoredWithTheirRequest:
                 "raw_payload": {
                     "request": {"company": "HubSpot", "advertiser": "HubSpot"},
                     "ad": item,
+                    "seen_at": SEEN_AT,
                 },
             }
         ]
+
+    async def test_one_sighting_stamps_every_ad_of_the_pull(
+        self, library, save, stored, monkeypatch
+    ):
+        ticks = iter(range(10))
+        monkeypatch.setattr(
+            connector().clock, "now", lambda: NOW + timedelta(seconds=next(ticks))
+        )
+        library(
+            {
+                "HubSpot": {None: ads_page([ad("1"), ad("2")])},
+                "Zoho CRM": {None: ads_page([ad("3", advertiser="Zoho")])},
+            }
+        )
+
+        await connector().pull(None, save)
+
+        assert ids(stored, "ads") == ["1", "2", "3"]
+        assert {s["raw_payload"]["seen_at"] for s in of_type(stored, "ads")} == {
+            SEEN_AT
+        }
 
     async def test_an_ad_without_an_id_is_counted_and_not_read(
         self, library, save, stored
@@ -652,7 +695,8 @@ class TestTheAdsHook:
         (record,) = reshape("ads", payload)
         assert record["ad"] == payload["ad"]
         assert record["request"] == payload["request"]
-        assert set(payload) == {"request", "ad"}
+        assert record["seen_at"] == SEEN_AT
+        assert set(payload) == {"request", "ad", "seen_at"}
 
     def test_an_ad_that_is_not_a_mapping_never_raises(self):
         (record,) = reshape("ads", {"request": {"company": "HubSpot"}, "ad": "nope"})
@@ -672,7 +716,7 @@ class TestTheDetailsHook:
         assert reshape("advertisers", payload) == [payload]
 
 
-class TestTheObservationComesFromLastShown:
+class TestWhenTheAdWasObserved:
     def test_the_details_date_themselves_from_the_provider(self):
         observed, which = observed_at_for(
             connector(), "ad_details", details_payload(), INGESTED
@@ -687,9 +731,10 @@ class TestTheObservationComesFromLastShown:
         assert which == "ingested"
         assert observed == INGESTED
 
-    def test_a_listed_ad_is_dated_by_ingestion(self):
+    def test_a_listed_ad_is_dated_by_its_sighting(self):
         observed, which = observed_at_for(connector(), "ads", ad_payload(), INGESTED)
-        assert which == "ingested"
+        assert which == "provider"
+        assert observed == NOW
 
 
 class TestTheDefinitions:
@@ -714,7 +759,9 @@ class TestTheDefinitions:
 
 
 class TestTheMappedFactsOnTheAd:
-    def test_a_listed_ad_lands_its_copy_its_preview_and_its_library_link(self):
+    def test_a_listed_ad_lands_its_copy_its_preview_its_link_and_its_sighting(
+        self,
+    ):
         (entity,) = project("ads", ad_payload())
         assert entity.entity_type == "ad"
         assert entity.source_id == AD_ID
@@ -725,6 +772,7 @@ class TestTheMappedFactsOnTheAd:
             "name": HEADLINE,
             "preview": IMAGE,
             "url": f"https://www.linkedin.com/ad-library/detail/{AD_ID}",
+            "last_seen": "2026-09-04T12:00:00Z",
         }
 
     def test_a_document_lands_its_first_page_as_the_preview(self):
@@ -732,7 +780,7 @@ class TestTheMappedFactsOnTheAd:
         assert entity.facts["preview"].value == PAGES[0]
         assert entity.facts["category"].value == "document"
 
-    def test_the_details_land_the_dates_and_the_landing_url(self):
+    def test_the_details_land_the_first_shown_date_and_the_landing_url(self):
         (entity,) = project("ad_details", details_payload())
         assert entity.entity_type == "ad"
         assert entity.source_id == AD_ID
@@ -740,8 +788,15 @@ class TestTheMappedFactsOnTheAd:
             "company": "HubSpot",
             "platform": "linkedin",
             "first_seen": "2026-09-24T00:00:00Z",
-            "last_seen": "2026-09-26T00:00:00Z",
             "landing_url": LANDING,
+        }
+
+    def test_an_unpublished_detail_lands_only_the_company_and_the_platform(self):
+        (entity,) = project("ad_details", unpublished_payload(company="Zoho CRM"))
+        assert entity.source_id == AD_ID
+        assert {attr: fact.value for attr, fact in entity.facts.items()} == {
+            "company": "Zoho CRM",
+            "platform": "linkedin",
         }
 
 
@@ -757,28 +812,42 @@ class TestTheStandInFixtureCarriesTheRealShapes:
         by_name = {company.name: company for company in spy.definition().competitors}
         ads = payloads("mock", "ads")
         assert ads
+        assert len({payload["seen_at"] for payload in ads}) == 1
+        assert "message" in {payload["ad"]["ad_type"] for payload in ads}
         for payload in ads:
-            assert set(payload) == {"request", "ad"}
+            assert set(payload) == {"request", "ad", "seen_at"}
+            datetime.fromisoformat(payload["seen_at"])
             company = by_name[payload["request"]["company"]]
             assert payload["request"]["advertiser"] == company.name
             assert payload["ad"]["advertiser"]["name"].lower() in {
                 name.lower() for name in company.names
             }
-            assert payload["ad"]["ad_type"] in {"image", "video", "text", "document"}
+            assert payload["ad"]["ad_type"] in {
+                "image",
+                "video",
+                "text",
+                "document",
+                "message",
+            }
             assert payload["ad"]["id"]
             assert payload["ad"]["link"].startswith(
                 "https://www.linkedin.com/ad-library/detail/"
             )
 
-    def test_every_detail_carries_its_dates_and_a_landing(self):
+    def test_a_detail_is_published_with_its_dates_and_a_landing_or_bare(self):
         details = payloads("mock", "ad_details")
-        assert details
+        published = [p for p in details if "external_link" in p["ad"]]
+        bare = [p for p in details if "external_link" not in p["ad"]]
+        assert published and bare
         for payload in details:
             assert set(payload) == {"request", "ad"}
             assert payload["request"]["ad_id"] == payload["ad"]["id"]
+        for payload in published:
             assert payload["ad"]["external_link"].startswith("https://")
             for stamp in ("first_shown_date", "last_shown_date"):
                 datetime.strptime(payload["ad"][stamp], "%Y-%m-%d").replace(tzinfo=UTC)
+        for payload in bare:
+            assert set(payload["ad"]) == set(UNPUBLISHED)
 
     def test_the_capture_replays_to_the_expectation(self):
         expected = json.loads((MOCK_FIXTURES / "expected.json").read_text())
@@ -786,9 +855,12 @@ class TestTheStandInFixtureCarriesTheRealShapes:
         assert extracted == expected["extracted"]
         assert dict(report.skips) == expected["skips"]
         assert report.dead_paths() == []
+        ads = extracted["ads"]["ad"].values()
+        assert ads
+        assert all("last_seen" in facts for facts in ads)
         details = extracted["ad_details"]["ad"].values()
-        assert details
-        assert all("landing_url" in facts for facts in details)
+        assert any("landing_url" in facts for facts in details)
+        assert any("landing_url" not in facts for facts in details)
 
 
 class TestTheRealCaptureAgreesWithTheStandIn:
