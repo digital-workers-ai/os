@@ -374,6 +374,7 @@ class TestDiscovery:
             "google_serp",
             "chatgpt",
             "linkedin_posts",
+            "x_posts",
             "linkedin_ads",
             "tiktok_ads",
             "meta_ads",

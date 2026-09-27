@@ -521,6 +521,8 @@ class TestPosts:
             comments=3,
             url="https://www.linkedin.com/posts/hubspot_1",
             preview=POST_PREVIEW,
+            shares=3,
+            views=1200,
         )
         bare = await canonical("competitor_post", {"posted_at": D1})
         body = (await api.get("/api/spy/posts")).json()
@@ -536,6 +538,8 @@ class TestPosts:
                 "comments": 3,
                 "url": "https://www.linkedin.com/posts/hubspot_1",
                 "preview": POST_PREVIEW,
+                "shares": 3,
+                "views": 1200,
             },
             {
                 "canonical_id": str(bare),
@@ -548,6 +552,8 @@ class TestPosts:
                 "comments": None,
                 "url": None,
                 "preview": None,
+                "shares": None,
+                "views": None,
             },
         ]
         assert isinstance(body["posts"][0]["likes"], int | float)

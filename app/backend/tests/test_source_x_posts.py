@@ -9,15 +9,18 @@ from app.engine import checks, mappings, ontology, spy
 from app.engine.pipeline import observed_at_for
 from app.sources import catalog, client, creds, registry
 from app.sources.client import ConnectorError
-from app.sources.linkedin_posts import connector, extract
+from app.sources.x_posts import connector, extract
 from tools.pull_source import key_types
 
-SOURCE = "linkedin_posts"
-SNAPSHOT = "sd_mu3j5zf4i64vu5aoj"
-DATASET_ID = "gd_lyy3tktm25m4avu764"
-INGESTED = datetime(2026, 9, 14, tzinfo=UTC)
-THUMBNAIL = "https://media.licdn.com/dms/image/v2/thumb.jpg"
-IMAGE = "https://media.licdn.com/dms/image/v2/first.jpg"
+SOURCE = "x_posts"
+SNAPSHOT = "sd_mx4k2p7qd9r1t8vw3z"
+DATASET_ID = "gd_lwxkxvnf1cynvib9co"
+INGESTED = datetime(2026, 9, 27, tzinfo=UTC)
+PHOTO = "https://pbs.twimg.com/media/HSgCBVmagAA49ih.jpg"
+VIDEO = {
+    "video_url": "https://video.twimg.com/amplify_video/2102971355063078912/vid/avc1/1080x1920/MjD_BXQvs0vcyjvu.mp4?tag=29",
+    "duration": 40830,
+}
 MOCK_FIXTURES = checks.REAL_FIXTURES.parent / "mock" / SOURCE
 REAL_FIXTURES = checks.REAL_FIXTURES / SOURCE
 needs_real_capture = pytest.mark.skipif(
@@ -28,93 +31,102 @@ needs_real_capture = pytest.mark.skipif(
 TRIGGER_PARAMS = {
     "dataset_id": DATASET_ID,
     "type": "discover_new",
-    "discover_by": "company_url",
+    "discover_by": "profile_url",
     "format": "json",
     "include_errors": "true",
     "limit_per_input": "50",
 }
-COMPANY_URLS = [
-    "https://www.linkedin.com/company/hubspot",
-    "https://www.linkedin.com/company/zoho",
-    "https://www.linkedin.com/company/freshworks-inc",
+PROFILE_URLS = [
+    "https://x.com/HubSpot",
+    "https://x.com/Zoho",
+    "https://x.com/FreshworksInc",
 ]
 RECORD_KEYS = (
-    "url",
-    "id",
-    "user_id",
-    "use_url",
-    "title",
-    "headline",
-    "post_text",
+    "ai_generated_images",
+    "biography",
+    "bookmarks",
+    "context_added",
     "date_posted",
-    "hashtags",
-    "embedded_links",
-    "images",
-    "videos",
-    "num_likes",
-    "num_comments",
-    "more_articles_by_user",
-    "more_relevant_posts",
-    "top_visible_comments",
-    "user_followers",
-    "user_posts",
-    "user_articles",
-    "post_type",
-    "account_type",
-    "post_text_html",
-    "repost",
-    "tagged_companies",
-    "tagged_people",
-    "user_title",
-    "author_profile_pic",
-    "num_connections",
-    "video_duration",
-    "external_link_data",
-    "video_thumbnail",
-    "document_cover_image",
-    "document_page_count",
-    "user_profile_pic",
-    "user_name",
-    "original_post_text",
-    "timestamp",
-    "input",
+    "description",
     "discovery_input",
+    "external_image_urls",
+    "external_url",
+    "external_video_urls",
+    "followers",
+    "following",
+    "hashtags",
+    "id",
+    "input",
+    "is_repost",
+    "is_verified",
+    "likes",
+    "name",
+    "parent_post_details",
+    "photos",
+    "posts_count",
+    "profile_image_link",
+    "quoted_post",
+    "quotes",
+    "replies",
+    "reposts",
+    "tagged_users",
+    "timestamp",
+    "url",
+    "user_id",
+    "user_posted",
+    "verification_type",
+    "videos",
+    "views",
 )
 MAPPED = {
     ("_company", "company"),
     ("_platform", "platform"),
-    ("post_text", "name"),
-    ("post_type", "category"),
+    ("description", "name"),
+    ("_category", "category"),
     ("date_posted", "posted_at"),
-    ("num_likes", "likes"),
-    ("num_comments", "comments"),
-    ("url", "url"),
+    ("likes", "likes"),
+    ("replies", "comments"),
+    ("reposts", "shares"),
+    ("views", "views"),
     ("_preview", "preview"),
+    ("url", "url"),
 }
+
+
+def discovered(handle):
+    return {"url": f"https://x.com/{handle}", "start_date": "", "end_date": ""}
 
 
 def post(**overrides):
     record = {
-        "url": "https://www.linkedin.com/posts/hubspot_x-activity-7503504518433878017-WAjk",
-        "id": "7503504518433878017",
-        "user_id": "hubspot",
-        "use_url": "https://www.linkedin.com/company/hubspot?trk=public_post_feed-actor-image",
-        "title": "Fantasy football is actually just pipeline management | HubSpot",
-        "post_text": "Fantasy football is actually just pipeline management",
-        "date_posted": "2026-09-09T17:28:05.539Z",
-        "num_likes": 454,
-        "num_comments": 26,
-        "post_type": "post",
+        "id": "2100955544362058048",
+        "url": "https://x.com/hubspot/status/2100955544362058048",
+        "user_id": "14458280",
+        "user_posted": "HubSpot",
+        "name": "HubSpot",
+        "description": "Overheard at UNBOUND: what if the CRM updated you?",
+        "date_posted": "2026-09-18T13:13:26.000Z",
+        "likes": 10,
+        "replies": 7,
+        "reposts": 3,
+        "views": 4011,
+        "quotes": 2,
+        "bookmarks": 2,
+        "followers": 782863,
+        "is_repost": False,
+        "photos": None,
+        "videos": None,
+        "discovery_input": discovered("HubSpot"),
     }
     record.update(overrides)
     return record
 
 
-def dead_page(slug="zq-no-such-company"):
+def dead_page(handle="Freshworks"):
     return {
-        "timestamp": "2026-09-16T03:21:49.135Z",
-        "input": {"url": f"https://www.linkedin.com/company/{slug}"},
-        "error": "4XX page - dead page.",
+        "timestamp": "2026-09-27T19:39:15.561Z",
+        "input": discovered(handle),
+        "error": "No public posts were found in the profile.",
         "error_code": "dead_page",
     }
 
@@ -187,22 +199,22 @@ class TestTheTrigger:
         assert trigger.url.path == "/datasets/v3/trigger"
         assert dict(trigger.url.params) == TRIGGER_PARAMS
 
-    async def test_the_body_is_the_bare_list_of_company_urls(self, brightdata):
+    async def test_the_body_is_the_bare_list_of_profile_urls(self, brightdata):
         seen = brightdata()
         await run()
-        assert json.loads(seen[0].content) == [{"url": u} for u in COMPANY_URLS]
+        assert json.loads(seen[0].content) == [{"url": u} for u in PROFILE_URLS]
 
-    async def test_the_urls_come_from_the_competitors_linkedin_handles(self):
-        assert connector.company_urls() == COMPANY_URLS
+    async def test_the_urls_come_from_the_competitors_x_handles(self):
+        assert connector.profile_urls() == PROFILE_URLS
 
     async def test_no_handles_is_a_note_and_no_request(self, brightdata, monkeypatch):
         seen = brightdata()
         doc = spy.load()
         for competitor in doc["competitors"]:
-            competitor.pop("linkedin")
+            competitor.pop("x")
         monkeypatch.setattr(spy, "definition", lambda: spy.parse(doc))
         notes, stored = await run()
-        assert notes == {"no_linkedin_handles": 1}
+        assert notes == {"no_x_handles": 1}
         assert seen == []
         assert stored == []
 
@@ -225,7 +237,7 @@ class TestRecords:
             {
                 "source": SOURCE,
                 "object_type": "posts",
-                "source_id": "7503504518433878017",
+                "source_id": "2100955544362058048",
                 "raw_payload": post(),
             }
         ]
@@ -238,7 +250,7 @@ class TestRecords:
         brightdata(snapshot=([dead_page(), post(), dead_page("other")],))
         notes, stored = await run()
         assert notes == {"dead_pages": 2}
-        assert [s["source_id"] for s in stored] == ["7503504518433878017"]
+        assert [s["source_id"] for s in stored] == ["2100955544362058048"]
 
     async def test_an_error_code_alone_marks_a_dead_page(self, brightdata):
         brightdata(snapshot=([{"error_code": "dead_page", "id": "1"}],))
@@ -260,99 +272,102 @@ class TestRecords:
 
 
 class TestTheHook:
-    def test_the_company_comes_from_the_handle(self):
-        record = extract.reshape("posts", post(user_id="zoho"))[0]
+    def test_the_company_comes_from_the_discovered_profile(self):
+        record = extract.reshape(
+            "posts", post(discovery_input=discovered("zoho"), user_posted="someone")
+        )[0]
         assert record["_company"] == "Zoho CRM"
 
-    def test_the_company_falls_back_to_use_url_with_its_query(self):
+    @pytest.mark.parametrize(
+        "url", ["https://x.com/Zoho/", "https://x.com/zoho?x=1"], ids=["slash", "query"]
+    )
+    def test_a_trailing_slash_or_a_query_still_resolves(self, url):
         record = extract.reshape(
             "posts",
-            post(
-                user_id="someone-else",
-                use_url="https://www.linkedin.com/company/freshworks-inc?trk=public_post_feed-actor-image",
-            ),
+            post(discovery_input={"url": url}, user_posted="someone"),
+        )[0]
+        assert record["_company"] == "Zoho CRM"
+
+    def test_the_discovered_handle_resolves_case_insensitively(self):
+        record = extract.reshape(
+            "posts",
+            post(discovery_input=discovered("HUBSPOT"), user_posted="someone"),
+        )[0]
+        assert record["_company"] == "HubSpot"
+
+    def test_the_company_falls_back_to_the_posting_handle(self):
+        record = extract.reshape(
+            "posts",
+            post(discovery_input=discovered("nobody"), user_posted="FreshworksInc"),
         )[0]
         assert record["_company"] == "Freshsales"
 
-    def test_the_company_falls_back_to_use_url_when_the_handle_is_absent(self):
-        payload = post(use_url="https://www.linkedin.com/company/zoho/")
-        del payload["user_id"]
-        assert extract.reshape("posts", payload)[0]["_company"] == "Zoho CRM"
-
-    def test_a_sub_brand_repost_resolves_through_the_discovered_page(self):
+    def test_the_company_falls_back_to_the_display_name(self):
         record = extract.reshape(
             "posts",
             post(
-                user_id="zoho-sprints",
-                use_url="https://www.linkedin.com/showcase/zoho-sprints/?trk=public_post_feed-actor-image",
-                discovery_input={"url": "https://www.linkedin.com/company/zoho"},
-                title="See Zoho's activity on LinkedIn",
-            ),
-        )[0]
-        assert record["_company"] == "Zoho CRM"
-
-    def test_a_discovery_input_without_a_url_string_is_ignored(self):
-        record = extract.reshape(
-            "posts",
-            post(user_id="nobody", use_url=None, discovery_input={"url": 5}, title="T"),
-        )[0]
-        assert record["_company"] == "T"
-
-    def test_the_company_falls_back_to_the_title(self):
-        record = extract.reshape(
-            "posts",
-            post(
-                user_id="nobody",
-                use_url="https://www.linkedin.com/company/nobody",
-                title="Nobody Inc",
+                discovery_input=discovered("nobody"),
+                user_posted="nobody",
+                name="Nobody Inc",
             ),
         )[0]
         assert record["_company"] == "Nobody Inc"
 
-    def test_no_company_when_nothing_resolves(self):
-        record = extract.reshape(
-            "posts", post(user_id="nobody", use_url=None, title=None)
-        )[0]
-        assert "_company" not in record
-
-    def test_a_blank_title_does_not_resolve(self):
-        record = extract.reshape(
-            "posts", post(user_id="nobody", use_url="https://x.test/", title="  ")
-        )[0]
-        assert "_company" not in record
-
-    def test_a_malformed_shape_never_raises(self):
+    @pytest.mark.parametrize("name", ["  ", None, 7], ids=["blank", "none", "number"])
+    def test_no_company_when_nothing_resolves(self, name):
         record = extract.reshape(
             "posts",
-            post(user_id=["hubspot"], use_url=7, discovery_input=[], title={"x": 1}),
+            post(discovery_input=discovered("nobody"), user_posted="nobody", name=name),
         )[0]
         assert "_company" not in record
-        assert record["_platform"] == "linkedin"
 
-    def test_the_platform_is_linkedin(self):
-        assert extract.reshape("posts", post())[0]["_platform"] == "linkedin"
+    def test_no_company_when_the_name_is_missing(self):
+        payload = post(discovery_input=discovered("nobody"), user_posted="nobody")
+        del payload["name"]
+        assert "_company" not in extract.reshape("posts", payload)[0]
 
-    def test_the_preview_is_the_video_thumbnail_when_set(self):
+    @pytest.mark.parametrize(
+        "discovery_input", [[], {"url": 5}, "x"], ids=["list", "number_url", "string"]
+    )
+    def test_a_malformed_discovery_input_is_ignored(self, discovery_input):
         record = extract.reshape(
-            "posts", post(video_thumbnail=THUMBNAIL, images=[IMAGE])
+            "posts", post(discovery_input=discovery_input, user_posted="Zoho")
         )[0]
-        assert record["_preview"] == THUMBNAIL
+        assert record["_company"] == "Zoho CRM"
 
-    def test_the_preview_falls_back_to_the_first_image(self):
-        record = extract.reshape(
-            "posts",
-            post(video_thumbnail=None, images=["", IMAGE, "https://x.test/second.jpg"]),
-        )[0]
-        assert record["_preview"] == IMAGE
+    @pytest.mark.parametrize(
+        ("overrides", "category"),
+        [
+            ({"is_repost": True, "videos": [VIDEO]}, "repost"),
+            ({"videos": [VIDEO]}, "video"),
+            ({"photos": [PHOTO]}, "image"),
+            ({}, "text"),
+        ],
+        ids=["repost", "video", "image", "text"],
+    )
+    def test_the_category_is_repost_video_image_or_text(self, overrides, category):
+        assert extract.reshape("posts", post(**overrides))[0]["_category"] == category
 
-    def test_no_preview_when_neither_is_set(self):
-        record = extract.reshape("posts", post(video_thumbnail=None, images=[]))[0]
+    def test_empty_media_lists_are_text(self):
+        record = extract.reshape("posts", post(videos=[], photos=[]))[0]
+        assert record["_category"] == "text"
+
+    def test_the_preview_is_the_first_non_empty_photo(self):
+        record = extract.reshape("posts", post(photos=["", PHOTO]))[0]
+        assert record["_preview"] == PHOTO
+
+    def test_no_preview_for_a_video_only_post(self):
+        record = extract.reshape("posts", post(videos=[VIDEO]))[0]
+        assert record["_category"] == "video"
         assert "_preview" not in record
 
-    @pytest.mark.parametrize("images", ["x", [None, 5, ""], {}])
-    def test_a_malformed_images_value_never_raises_and_gives_no_preview(self, images):
-        record = extract.reshape("posts", post(video_thumbnail="", images=images))[0]
+    @pytest.mark.parametrize("photos", ["x", [None, 5]], ids=["string", "junk_list"])
+    def test_a_malformed_photos_value_never_raises_and_gives_no_preview(self, photos):
+        record = extract.reshape("posts", post(photos=photos))[0]
         assert "_preview" not in record
+
+    def test_the_platform_is_x(self):
+        assert extract.reshape("posts", post())[0]["_platform"] == "x"
 
     def test_the_payload_is_kept_verbatim(self):
         record = extract.reshape("posts", post())[0]
@@ -376,7 +391,7 @@ class TestObservedAt:
             registry.get(SOURCE), "posts", post(), INGESTED
         )
         assert which == "provider"
-        assert observed == datetime(2026, 9, 9, 17, 28, 5, tzinfo=UTC)
+        assert observed == datetime(2026, 9, 18, 13, 13, 26, tzinfo=UTC)
 
 
 class TestCredentialsAndCatalog:
@@ -396,7 +411,7 @@ class TestCredentialsAndCatalog:
     def test_the_catalog_files_it_under_spy(self):
         assert catalog.entry(SOURCE) == {
             "source": SOURCE,
-            "label": "LinkedIn Company Posts",
+            "label": "X Posts",
             "category": "Spy",
             "unlocks": "Competitor posts, engagement",
         }
@@ -419,9 +434,9 @@ class TestTheDefinitions:
             "views": "number",
         }
 
-    def test_the_source_follows_google_sheets_in_priority(self):
+    def test_the_source_follows_linkedin_posts_in_priority(self):
         priority = ontology.load().source_priority
-        assert priority.index(SOURCE) > priority.index("google_sheets")
+        assert priority.index(SOURCE) > priority.index("linkedin_posts")
 
     def test_every_mapping_line_reads_the_posts_object(self):
         lines = [line for line in mappings.load() if line.source == SOURCE]
@@ -435,21 +450,20 @@ def payloads(root):
 
 
 class TestTheFixtures:
-    def test_every_mock_post_carries_the_forty_documented_keys(self):
+    def test_every_mock_post_carries_the_thirty_five_documented_keys(self):
         for payload in payloads(MOCK_FIXTURES):
             assert set(payload) == set(RECORD_KEYS)
-            assert len(payload) == 40
-
-    @needs_real_capture
-    def test_the_real_capture_covers_two_companies_in_three_posts_at_most(self):
-        real = payloads(REAL_FIXTURES)
-        assert 2 <= len(real) <= 3
-        assert len({p["user_id"] for p in real}) >= 2
+            assert len(payload) == 35
 
     @needs_real_capture
     def test_the_real_and_mock_captures_agree_on_the_hook_and_mapped_fields(self):
         real = key_types(payloads(REAL_FIXTURES))
         mock = key_types(payloads(MOCK_FIXTURES))
-        for field in ("user_id", "use_url", "title", *(path for path, _ in MAPPED)):
+        for field in (
+            "user_posted",
+            "name",
+            "discovery_input",
+            *(path for path, _ in MAPPED),
+        ):
             if not field.startswith("_"):
                 assert real[field] == mock[field], field
