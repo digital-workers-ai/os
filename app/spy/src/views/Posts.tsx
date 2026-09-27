@@ -1,14 +1,17 @@
 import { useState } from 'react'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { Navigate, useParams } from 'react-router-dom'
 import { asApiError, getPosts } from '@/api'
 import { CompanySummary } from '@/cards/CompanySummary'
 import { PostRow } from '@/cards/PostRow'
 import { EmptyPage } from '@/components/EmptyPage'
+import { SubNav } from '@/components/SubNav'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Card } from '@/components/ui/card'
 import { Empty } from '@/components/ui/empty'
 import { Loading } from '@/components/ui/loading'
 import { Pager } from '@/components/ui/pager'
+import { known, POST_PLATFORMS } from '@/lib/engines'
 import type { Bounds } from '@/lib/range'
 import { cn } from '@/lib/utils'
 import { Pending, spanOf, type RangedProps } from '@/views/ranged'
@@ -34,13 +37,13 @@ function Option({ company, on, onClick }: { company: string; on: boolean; onClic
   )
 }
 
-function Paged({ span }: { span: Bounds }) {
+function Paged({ span, platform }: { span: Bounds; platform?: string }) {
   const [filter, setFilter] = useState<string | null>(null)
   const [offset, setOffset] = useState(0)
   const [size, setSize] = useState(SIZE)
   const query = useQuery({
-    queryKey: ['posts', filter, size, offset, span],
-    queryFn: () => getPosts({ company: filter ?? undefined, limit: size, offset }, span),
+    queryKey: ['posts', platform ?? 'all', filter, size, offset, span],
+    queryFn: () => getPosts({ company: filter ?? undefined, limit: size, offset, platform }, span),
     placeholderData: keepPreviousData,
   })
   const data = query.data
@@ -101,7 +104,15 @@ function Paged({ span }: { span: Bounds }) {
 }
 
 export function Posts(props: RangedProps) {
+  const { platform } = useParams()
   const span = spanOf(props)
+  const valid = known(POST_PLATFORMS, platform)
+  if (!valid) return <Navigate to="/posts" replace />
   if (!span) return <Pending error={props.todayError} />
-  return <Paged key={`${span.from}|${span.to}`} span={span} />
+  return (
+    <>
+      <SubNav base="posts" options={POST_PLATFORMS} />
+      <Paged key={`${platform ?? 'all'}|${span.from}|${span.to}`} span={span} platform={platform} />
+    </>
+  )
 }

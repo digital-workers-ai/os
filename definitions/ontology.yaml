@@ -219,6 +219,7 @@ entities:
       likes: number
       comments: number
       url: string
+      preview: string
   ad:
     description: One creative a competitor is running, as the public ads library shows it.
     synonyms: [creative]

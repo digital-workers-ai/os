@@ -33,6 +33,7 @@ POST_ATTRS = (
     "likes",
     "comments",
     "url",
+    "preview",
 )
 
 
@@ -223,6 +224,7 @@ async def ads(
 
 @router.get("/posts")
 async def posts(
+    platform: str | None = None,
     company: str | None = None,
     from_: date | None = Query(None, alias="from"),
     to: date | None = Query(None),
@@ -231,8 +233,9 @@ async def posts(
     session=Depends(get_session),
 ):
     window = _window("posted_at", from_, to)
+    filt = {} if platform is None else {"platform": platform}
     rows = _newest_first(
-        await _rows(session, "competitor_post", POST_ATTRS, {}, window), "posted_at"
+        await _rows(session, "competitor_post", POST_ATTRS, filt, window), "posted_at"
     )
     matching = _matching(rows, "company", company)
     return {

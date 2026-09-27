@@ -386,6 +386,7 @@ competitor_post:
   linkedin_posts.posts.num_likes: likes
   linkedin_posts.posts.num_comments: comments
   linkedin_posts.posts.url: url
+  linkedin_posts.posts._preview: preview
 
 ad:
   google_ads_transparency.creatives._company: company
