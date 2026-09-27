@@ -9,6 +9,14 @@ export const delta = (value: number | null, previous: number | null) =>
 
 export const pct = (d: number) => `${(Math.round(Math.abs(d) * 1000) / 10).toLocaleString()}%`
 
+export const host = (url: string) => {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '')
+  } catch {
+    return url
+  }
+}
+
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 export function shortDate(iso: string): string {

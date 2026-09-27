@@ -232,6 +232,7 @@ entities:
       url: string
       preview: string
       media: string
+      landing_url: string
   data_source:
     description: An upstream system feeding the estate.
     attrs:
@@ -356,6 +357,8 @@ attributes:
     description: The rendered preview image of the creative, where the platform provides one.
   media:
     description: The video or animated creative file, where the platform provides one.
+  landing_url:
+    description: Where a click on the creative lands.
 
 source_priority:
   - salesforce
@@ -385,6 +388,7 @@ source_priority:
   - google_analytics
   - google_sheets
   - google_ads_transparency
+  - linkedin_ads
   - linkedin_posts
   - google_serp
 

@@ -179,11 +179,12 @@ export interface Ad {
   platform: string
   name: string | null
   category: string
-  first_seen: string
+  first_seen: string | null
   last_seen: string
   url: string
   preview: string | null
   media: string | null
+  landing_url: string | null
 }
 
 export interface AdsResponse {

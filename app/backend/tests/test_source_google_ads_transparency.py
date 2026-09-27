@@ -807,6 +807,7 @@ class TestTheDefinitions:
             "url": "string",
             "preview": "string",
             "media": "string",
+            "landing_url": "string",
         }
 
     def test_every_mapping_line_lands_on_the_ad(self):

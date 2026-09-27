@@ -4,7 +4,7 @@ import type { Ad } from '@/api'
 import { Card } from '@/components/ui/card'
 import { Pill } from '@/components/ui/pill'
 import { platformLabel } from '@/lib/engines'
-import { shortDate } from '@/lib/format'
+import { host, shortDate } from '@/lib/format'
 
 const degenerate = ({ naturalWidth, naturalHeight }: HTMLImageElement) => naturalWidth <= 1 || naturalHeight <= 1
 
@@ -55,8 +55,19 @@ export function AdCard({ ad }: { ad: Ad }) {
         ) : (
           <p className="text-muted">text not read yet</p>
         )}
+        {ad.landing_url && (
+          <a
+            data-testid="ad-landing"
+            href={ad.landing_url}
+            target="_blank"
+            rel="noreferrer"
+            className="truncate text-xs text-muted underline-offset-4 hover:text-ink hover:underline"
+          >
+            Lands {host(ad.landing_url)}
+          </a>
+        )}
         <p className="mt-auto text-xs text-muted">
-          first {shortDate(ad.first_seen.slice(0, 10))} · last {shortDate(ad.last_seen.slice(0, 10))}
+          {ad.first_seen && `first ${shortDate(ad.first_seen.slice(0, 10))} · `}last {shortDate(ad.last_seen.slice(0, 10))}
         </p>
       </div>
     </Card>

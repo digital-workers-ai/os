@@ -424,6 +424,7 @@ A source reads its real API once every variable it names is set, and the stand-i
 | HubSpot        | `HUBSPOT_ACCESS_TOKEN`                                                                        |
 | Intercom       | `INTERCOM_ACCESS_TOKEN`                                                                       |
 | Klaviyo        | `KLAVIYO_API_KEY`                                                                             |
+| LinkedIn Ad Library | `SEARCHAPI_API_KEY`                                                                      |
 | LinkedIn Company Posts | `BRIGHTDATA_API_KEY`                                                                  |
 | Mailchimp      | `MAILCHIMP_API_KEY`                                                                           |
 | Mixpanel       | `MIXPANEL_SERVICE_ACCOUNT_USERNAME`, `MIXPANEL_SERVICE_ACCOUNT_SECRET`, `MIXPANEL_PROJECT_ID` |
