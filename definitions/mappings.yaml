@@ -417,3 +417,13 @@ ad:
   tiktok_ads.ads.ad.first_shown_datetime: first_seen
   tiktok_ads.ads.ad.last_shown_datetime: last_seen
   tiktok_ads.ads._url: url
+  meta_ads.ads._company: company
+  meta_ads.ads._platform: platform
+  meta_ads.ads._name: name
+  meta_ads.ads._category: category
+  meta_ads.ads._preview: preview
+  meta_ads.ads._media: media
+  meta_ads.ads.ad.snapshot.link_url: landing_url
+  meta_ads.ads.ad.start_date: first_seen
+  meta_ads.ads.ad.end_date: last_seen
+  meta_ads.ads._url: url

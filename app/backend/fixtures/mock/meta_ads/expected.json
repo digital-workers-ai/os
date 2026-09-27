@@ -1,0 +1,214 @@
+{
+  "clears": {},
+  "extracted": {
+    "ads": {
+      "ad": {
+        "1036856831983664": {
+          "category": "image",
+          "company": "HubSpot",
+          "first_seen": "2026-07-12T07:00:00Z",
+          "landing_url": "https://www.hubspot.com/products/crm?utm_source=facebook&utm_medium=paid",
+          "last_seen": "2026-09-04T07:00:00Z",
+          "name": "Automate follow-ups, forecast revenue and hit quota every month.",
+          "platform": "meta",
+          "preview": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/355360376_6861682586562880_11968059509488_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=c53f8f&oh=00_5a09a4e957d364bfafe62029d08ade78&oe=D08ADE78",
+          "url": "https://www.facebook.com/ads/library/?id=1036856831983664"
+        },
+        "1630504847436585": {
+          "category": "video",
+          "company": "HubSpot",
+          "first_seen": "2026-05-09T07:00:00Z",
+          "landing_url": "https://www.hubspot.com/products/crm?utm_source=facebook&utm_medium=paid",
+          "last_seen": "2026-09-04T07:00:00Z",
+          "media": "https://video-msp1-1.xx.fbcdn.net/o1/v/t2/f2/m366/AQOc0619012c9bcca77af13cfd6039385cf.mp4?_nc_cat=107&_nc_sid=b66105&oh=00_59353e890682ffb51b73ffb0fe119ea2&oe=039385CF",
+          "name": "Track calls, emails and meetings without leaving the CRM.",
+          "platform": "meta",
+          "preview": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/478495692_5453948446321353_16435199120139_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=c53f8f&oh=00_7ba50ac8dd381b3d673450902431ddcc&oe=2431DDCC",
+          "url": "https://www.facebook.com/ads/library/?id=1630504847436585"
+        },
+        "2884823901152685": {
+          "category": "image",
+          "company": "Freshsales",
+          "first_seen": "2026-07-01T07:00:00Z",
+          "landing_url": "https://www.freshworks.com/crm/sales/?utm_source=facebook&utm_medium=paid",
+          "last_seen": "2026-09-04T07:00:00Z",
+          "name": "Automate follow-ups, forecast revenue and hit quota every month.",
+          "platform": "meta",
+          "preview": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/535155597_5736254688036484_15863670176759_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=c53f8f&oh=00_7758514285c7cf287ce59a9b3971fb8d&oe=3971FB8D",
+          "url": "https://www.facebook.com/ads/library/?id=2884823901152685"
+        },
+        "3294711861589059": {
+          "category": "image",
+          "company": "Freshsales",
+          "first_seen": "2026-07-31T07:00:00Z",
+          "landing_url": "https://www.freshworks.com/crm/sales/?utm_source=facebook&utm_medium=paid",
+          "last_seen": "2026-09-04T07:00:00Z",
+          "name": "Set up in minutes, with built-in calling and email sync.",
+          "platform": "meta",
+          "preview": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/594033209_1475545040754797_20836068056262_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=c53f8f&oh=00_9cc0ceb14c2af58c497d08500d403c39&oe=0D403C39",
+          "url": "https://www.facebook.com/ads/library/?id=3294711861589059"
+        },
+        "3499358521681634": {
+          "category": "image",
+          "company": "HubSpot",
+          "first_seen": "2026-08-06T07:00:00Z",
+          "landing_url": "https://www.hubspot.com/products/crm?utm_source=facebook&utm_medium=paid",
+          "last_seen": "2026-09-04T07:00:00Z",
+          "name": "Plans from $14 per user per month. Cancel anytime.",
+          "platform": "meta",
+          "preview": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/834315210_3176033880159784_25824190395047_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=c53f8f&oh=00_c24794e1dca48a04e85ab6c0038633ca&oe=038633CA",
+          "url": "https://www.facebook.com/ads/library/?id=3499358521681634"
+        },
+        "3856116262982140": {
+          "category": "video",
+          "company": "Freshsales",
+          "first_seen": "2026-05-28T07:00:00Z",
+          "landing_url": "https://www.freshworks.com/crm/sales/?utm_source=facebook&utm_medium=paid",
+          "last_seen": "2026-09-04T07:00:00Z",
+          "media": "https://video-msp1-1.xx.fbcdn.net/o1/v/t2/f2/m366/AQO0b3a812a42c065cbd610c13019ce0433.mp4?_nc_cat=111&_nc_sid=b66105&oh=00_e0b7fe3b4688586e855caf34b50c29d3&oe=19CE0433",
+          "name": "Plans from $14 per user per month. Cancel anytime.",
+          "platform": "meta",
+          "preview": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/315243283_3992439638595280_31174328231531_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=c53f8f&oh=00_ea87927e2428de290ef94fd4afea5b13&oe=AFEA5B13",
+          "url": "https://www.facebook.com/ads/library/?id=3856116262982140"
+        },
+        "4344798596834121": {
+          "category": "image",
+          "company": "Freshsales",
+          "first_seen": "2026-08-17T07:00:00Z",
+          "landing_url": "https://www.freshworks.com/crm/sales/?utm_source=facebook&utm_medium=paid",
+          "last_seen": "2026-09-04T07:00:00Z",
+          "name": "Start your free 14-day trial. No credit card required.",
+          "platform": "meta",
+          "preview": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/286216538_3540380654330848_6505674579339_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=c53f8f&oh=00_30f179360975e009d02be7e9b49e115a&oe=B49E115A",
+          "url": "https://www.facebook.com/ads/library/?id=4344798596834121"
+        },
+        "5219798558782649": {
+          "category": "image",
+          "company": "Zoho CRM",
+          "first_seen": "2026-05-23T07:00:00Z",
+          "landing_url": "https://www.zoho.com/crm/sales-automation.html?utm_source=facebook&utm_medium=paid",
+          "last_seen": "2026-09-04T07:00:00Z",
+          "name": "Start your free 14-day trial. No credit card required.",
+          "platform": "meta",
+          "preview": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/188020195_8234676236796278_4714223633308_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=c53f8f&oh=00_237743b3a55385ed9e3fd6917fd811e3&oe=7FD811E3",
+          "url": "https://www.facebook.com/ads/library/?id=5219798558782649"
+        },
+        "5248918277339019": {
+          "category": "video",
+          "company": "Freshsales",
+          "first_seen": "2026-06-06T07:00:00Z",
+          "landing_url": "https://www.freshworks.com/crm/sales/?utm_source=facebook&utm_medium=paid",
+          "last_seen": "2026-07-25T07:00:00Z",
+          "media": "https://video-msp1-1.xx.fbcdn.net/o1/v/t2/f2/m366/AQOa3cfe0a9813bf0a1d4416359aadbf68c.mp4?_nc_cat=100&_nc_sid=b66105&oh=00_157e014c284c2e8f0efa66fe228d7d7b&oe=AADBF68C",
+          "name": "Plans from $14 per user per month. Cancel anytime.",
+          "platform": "meta",
+          "preview": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/921433224_3183409869616812_855274275035_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=c53f8f&oh=00_066f32c635ed9ce76a73be7b0d07ac88&oe=0D07AC88",
+          "url": "https://www.facebook.com/ads/library/?id=5248918277339019"
+        },
+        "5785893728901631": {
+          "category": "video",
+          "company": "Freshsales",
+          "first_seen": "2026-08-30T07:00:00Z",
+          "landing_url": "https://www.freshworks.com/crm/sales/?utm_source=facebook&utm_medium=paid",
+          "last_seen": "2026-09-04T07:00:00Z",
+          "media": "https://video-msp1-1.xx.fbcdn.net/o1/v/t2/f2/m366/AQO267530c93d6a77fc6527b06e3af4ba66.mp4?_nc_cat=102&_nc_sid=b66105&oh=00_9b0e90d191c4573b7437ce78456f3f8a&oe=3AF4BA66",
+          "name": "Plans from $14 per user per month. Cancel anytime.",
+          "platform": "meta",
+          "preview": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/228304066_5465044627018220_32556776699766_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=c53f8f&oh=00_f4ee1236272a4ea0e6fee0e63337dcc2&oe=3337DCC2",
+          "url": "https://www.facebook.com/ads/library/?id=5785893728901631"
+        },
+        "6890167322403790": {
+          "category": "image",
+          "company": "Zoho CRM",
+          "first_seen": "2026-08-21T07:00:00Z",
+          "landing_url": "https://www.zoho.com/crm/sales-automation.html?utm_source=facebook&utm_medium=paid",
+          "last_seen": "2026-09-04T07:00:00Z",
+          "name": "Plans from $14 per user per month. Cancel anytime.",
+          "platform": "meta",
+          "preview": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/610442451_4130003871167986_17291368047258_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=c53f8f&oh=00_8215f6a80b0ea3faa54fd748190790d3&oe=190790D3",
+          "url": "https://www.facebook.com/ads/library/?id=6890167322403790"
+        },
+        "7027408174918548": {
+          "category": "image",
+          "company": "Zoho CRM",
+          "first_seen": "2026-05-31T07:00:00Z",
+          "landing_url": "https://www.zoho.com/crm/sales-automation.html?utm_source=facebook&utm_medium=paid",
+          "last_seen": "2026-07-21T07:00:00Z",
+          "name": "Start your free 14-day trial. No credit card required.",
+          "platform": "meta",
+          "preview": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/264925319_1063657867774955_10463010052857_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=c53f8f&oh=00_4eb7063d0fb446f292e8c7bd5d8fde87&oe=5D8FDE87",
+          "url": "https://www.facebook.com/ads/library/?id=7027408174918548"
+        },
+        "7766813554022537": {
+          "category": "video",
+          "company": "HubSpot",
+          "first_seen": "2026-08-11T07:00:00Z",
+          "landing_url": "https://www.hubspot.com/products/crm?utm_source=facebook&utm_medium=paid",
+          "last_seen": "2026-09-04T07:00:00Z",
+          "media": "https://video-msp1-1.xx.fbcdn.net/o1/v/t2/f2/m366/AQO4346181f3a89b6ce3b6bfc315257cd17.mp4?_nc_cat=107&_nc_sid=b66105&oh=00_18a2b020645860b6d663e3a24a0f07c1&oe=5257CD17",
+          "name": "Set up in minutes, with built-in calling and email sync.",
+          "platform": "meta",
+          "preview": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/872640361_9645223115402899_1614986161656_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=c53f8f&oh=00_0c2659a743c0b57a2e5e21c087316d69&oe=87316D69",
+          "url": "https://www.facebook.com/ads/library/?id=7766813554022537"
+        },
+        "8813220675286691": {
+          "category": "image",
+          "company": "Zoho CRM",
+          "first_seen": "2026-05-09T07:00:00Z",
+          "landing_url": "https://www.zoho.com/crm/sales-automation.html?utm_source=facebook&utm_medium=paid",
+          "last_seen": "2026-09-04T07:00:00Z",
+          "name": "Track calls, emails and meetings without leaving the CRM.",
+          "platform": "meta",
+          "preview": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/380724626_5951894652764835_21553287876335_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=c53f8f&oh=00_a2261f5d89d639ec5d91cb4695540392&oe=95540392",
+          "url": "https://www.facebook.com/ads/library/?id=8813220675286691"
+        },
+        "8985568560974810": {
+          "category": "image",
+          "company": "HubSpot",
+          "first_seen": "2026-07-03T07:00:00Z",
+          "landing_url": "https://www.hubspot.com/products/crm?utm_source=facebook&utm_medium=paid",
+          "last_seen": "2026-09-04T07:00:00Z",
+          "name": "Start your free 14-day trial. No credit card required.",
+          "platform": "meta",
+          "preview": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/980665283_1882501790929362_1931625322229_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=c53f8f&oh=00_0e882cd009e4cb44b652a958b7d777c3&oe=B7D777C3",
+          "url": "https://www.facebook.com/ads/library/?id=8985568560974810"
+        },
+        "9628728930370458": {
+          "category": "image",
+          "company": "HubSpot",
+          "first_seen": "2026-05-23T07:00:00Z",
+          "landing_url": "https://www.hubspot.com/products/crm?utm_source=facebook&utm_medium=paid",
+          "last_seen": "2026-09-04T07:00:00Z",
+          "name": "Set up in minutes, with built-in calling and email sync.",
+          "platform": "meta",
+          "preview": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/349579683_9678211093145202_25700261536972_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=c53f8f&oh=00_c158e73ce02f290a2467168d9ec01da3&oe=9EC01DA3",
+          "url": "https://www.facebook.com/ads/library/?id=9628728930370458"
+        },
+        "9914832334876091": {
+          "category": "image",
+          "company": "Zoho CRM",
+          "first_seen": "2026-07-30T07:00:00Z",
+          "landing_url": "https://www.zoho.com/crm/sales-automation.html?utm_source=facebook&utm_medium=paid",
+          "last_seen": "2026-09-04T07:00:00Z",
+          "name": "Automate follow-ups, forecast revenue and hit quota every month.",
+          "platform": "meta",
+          "preview": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/855372027_6162504409046798_12121188335150_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=c53f8f&oh=00_5b308f40632d013002c29ac8f668fcfb&oe=F668FCFB",
+          "url": "https://www.facebook.com/ads/library/?id=9914832334876091"
+        },
+        "9970139480728122": {
+          "category": "image",
+          "company": "Freshsales",
+          "first_seen": "2026-07-10T07:00:00Z",
+          "landing_url": "https://www.freshworks.com/crm/sales/?utm_source=facebook&utm_medium=paid",
+          "last_seen": "2026-09-04T07:00:00Z",
+          "name": "Start your free 14-day trial. No credit card required.",
+          "platform": "meta",
+          "preview": "https://scontent-msp1-1.xx.fbcdn.net/v/t39.35426-6/619903396_53254165427280_7329347195969_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=c53f8f&oh=00_3723cf2a30ca93724275fc162fda19a4&oe=2FDA19A4",
+          "url": "https://www.facebook.com/ads/library/?id=9970139480728122"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "meta_ads"
+}

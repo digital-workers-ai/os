@@ -56,6 +56,11 @@ _META: dict[str, tuple[str, str, str]] = {
         "Spy",
         "Competitor video creatives, audience bands",
     ),
+    "meta_ads": (
+        "Meta Ad Library",
+        "Spy",
+        "Competitor creatives, copy, landing pages, platforms",
+    ),
     "google_serp": ("Google Search", "Spy", "Brand rank, AI Overview mentions"),
 }
 

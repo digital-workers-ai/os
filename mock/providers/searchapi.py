@@ -36,6 +36,19 @@ TIKTOK_PERIOD = (
     f"{world.SPY_ANCHOR.replace(year=world.SPY_ANCHOR.year - 1).isoformat()}"
     f"..{world.SPY_ANCHOR.isoformat()}"
 )
+META_ENGINE = "meta_ad_library"
+META_PAGES_ENGINE = "meta_ad_library_page_search"
+META_NO_RESULTS = "Meta Ad Library didn't return any results."
+META_NO_PAGES = "Meta Ad Library page search didn't return any results."
+META_LIBRARY = "https://www.facebook.com/ads/library"
+META_PAGE = 30
+META_SORT = "impressions_high_to_low"
+META_PAGE_INFO = {
+    "related_pages": [],
+    "has_blank_ads": False,
+    "hidden_ads": 0,
+    "page_is_deleted": False,
+}
 
 
 def _error(status, message):
@@ -175,11 +188,67 @@ def _tiktok_advertisers(params):
     return body
 
 
+def _meta_ads(params):
+    page_id = params.get("page_id")
+    if not page_id:
+        return _missing("page_id")
+    country = params.get("country", "ALL")
+    status = params.get("active_status", "active")
+    media_type = params.get("media_type", "all")
+    sort_by = params.get("sort_by", META_SORT)
+    page_token = params.get("next_page_token")
+    request_url = (
+        f"{META_LIBRARY}/?active_status={status}&ad_type=all&country={country}"
+        f"&media_type={media_type}&view_all_page_id={page_id}"
+        f"&sort_data[direction]=desc&sort_data[mode]={sort_by}"
+    )
+    body = {
+        "search_metadata": _metadata(
+            f"meta|{page_id}|{country}|{status}|{media_type}|{sort_by}|{page_token}",
+            request_url,
+        ),
+        "search_parameters": {
+            "engine": META_ENGINE,
+            "page_id": page_id,
+            "country": country,
+            "active_status": status,
+            "media_type": media_type,
+            "sort_by": sort_by,
+        },
+    }
+    ads = world.spy_meta_ads(page_id)
+    listing = _listing(body, ads, page_token, META_PAGE, META_NO_RESULTS)
+    if ads:
+        listing["search_information"].update(
+            ad_library_page_info=META_PAGE_INFO,
+            page={"name": ads[0]["page_name"], "id": page_id},
+        )
+    return listing
+
+
+def _meta_pages(params):
+    query = params.get("q")
+    if not query:
+        return _missing("q")
+    body = {
+        "search_metadata": _metadata(f"meta_pages|{query}", META_LIBRARY),
+        "search_parameters": {"engine": META_PAGES_ENGINE, "q": query},
+    }
+    pages = world.spy_meta_pages(query)
+    if pages:
+        body["page_results"] = pages
+    else:
+        body["error"] = META_NO_PAGES
+    return body
+
+
 ENGINES = {
     "linkedin_ad_library": _ad_library,
     DETAILS_ENGINE: _ad_details,
     TIKTOK_ENGINE: _tiktok_ads,
     TIKTOK_ADVERTISERS_ENGINE: _tiktok_advertisers,
+    META_ENGINE: _meta_ads,
+    META_PAGES_ENGINE: _meta_pages,
 }
 
 

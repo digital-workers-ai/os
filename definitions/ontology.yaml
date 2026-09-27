@@ -390,6 +390,7 @@ source_priority:
   - google_ads_transparency
   - linkedin_ads
   - tiktok_ads
+  - meta_ads
   - linkedin_posts
   - google_serp
 

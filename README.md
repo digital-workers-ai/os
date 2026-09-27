@@ -427,6 +427,7 @@ A source reads its real API once every variable it names is set, and the stand-i
 | LinkedIn Ad Library | `SEARCHAPI_API_KEY`                                                                      |
 | LinkedIn Company Posts | `BRIGHTDATA_API_KEY`                                                                  |
 | Mailchimp      | `MAILCHIMP_API_KEY`                                                                           |
+| Meta Ad Library | `SEARCHAPI_API_KEY`                                                                          |
 | Mixpanel       | `MIXPANEL_SERVICE_ACCOUNT_USERNAME`, `MIXPANEL_SERVICE_ACCOUNT_SECRET`, `MIXPANEL_PROJECT_ID` |
 | Perplexity     | `OPENROUTER_API_KEY`                                                                          |
 | Shopify        | `SHOPIFY_STORE_DOMAIN`, `SHOPIFY_ACCESS_TOKEN`                                                |
