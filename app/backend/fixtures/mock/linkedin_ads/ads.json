@@ -2,24 +2,23 @@
   {
     "payload": {
       "ad": {
-        "ad_type": "image",
+        "ad_type": "message",
         "advertiser": {
           "name": "HubSpot",
           "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ569322549320/company-logo_100_100/0/1759322549320?e=2147483647&v=beta"
         },
         "content": {
-          "cta": "The CRM Your Sales Team Will Actually Use",
-          "headline": "See Every Deal In One Pipeline\nAutomate follow-ups, forecast revenue and hit quota every month.",
-          "image": "https://media.licdn.com/dms/image/v2/D4E10AQ017460530086/image-shrink_1280/0/1757460530086?e=2147483647&v=beta"
+          "headline": "See Every Deal In One Pipeline\nAutomate follow-ups, forecast revenue and hit quota every month."
         },
         "id": "8700794242",
-        "link": "https://www.linkedin.com/ad-library/detail/8700794242?trk=ad_library_ad_preview_content_image",
+        "link": "https://www.linkedin.com/ad-library/detail/8700794242",
         "position": 1
       },
       "request": {
         "advertiser": "HubSpot",
         "company": "HubSpot"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "8700794242"
   },
@@ -43,7 +42,8 @@
       "request": {
         "advertiser": "HubSpot",
         "company": "HubSpot"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "9306046653"
   },
@@ -65,7 +65,8 @@
       "request": {
         "advertiser": "HubSpot",
         "company": "HubSpot"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "7572016715"
   },
@@ -89,7 +90,8 @@
       "request": {
         "advertiser": "HubSpot",
         "company": "HubSpot"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "6829329431"
   },
@@ -113,7 +115,8 @@
       "request": {
         "advertiser": "HubSpot",
         "company": "HubSpot"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "1791623428"
   },
@@ -137,7 +140,8 @@
       "request": {
         "advertiser": "HubSpot",
         "company": "HubSpot"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "4906531854"
   },
@@ -161,7 +165,8 @@
       "request": {
         "advertiser": "HubSpot",
         "company": "HubSpot"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "2197763009"
   },
@@ -183,7 +188,8 @@
       "request": {
         "advertiser": "HubSpot",
         "company": "HubSpot"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "6894604938"
   },
@@ -205,7 +211,8 @@
       "request": {
         "advertiser": "HubSpot",
         "company": "HubSpot"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "5052914789"
   },
@@ -229,7 +236,8 @@
       "request": {
         "advertiser": "HubSpot",
         "company": "HubSpot"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "6465786158"
   },
@@ -251,22 +259,21 @@
       "request": {
         "advertiser": "HubSpot",
         "company": "HubSpot"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "2932059036"
   },
   {
     "payload": {
       "ad": {
-        "ad_type": "video",
+        "ad_type": "message",
         "advertiser": {
           "name": "Zoho CRM",
           "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ161708950256/company-logo_100_100/0/1751708950256?e=2147483647&v=beta"
         },
         "content": {
-          "cta": "Stop Losing Leads In Spreadsheets",
-          "headline": "Stop Losing Leads In Spreadsheets\nPlans from $14 per user per month. Cancel anytime.",
-          "image": "https://media.licdn.com/dms/image/v2/D4E10AQ954192429295/videocover-high/0/1754192429295?e=2147483647&v=beta"
+          "headline": "Stop Losing Leads In Spreadsheets\nPlans from $14 per user per month. Cancel anytime."
         },
         "id": "6155742185",
         "link": "https://www.linkedin.com/ad-library/detail/6155742185",
@@ -275,7 +282,8 @@
       "request": {
         "advertiser": "Zoho CRM",
         "company": "Zoho CRM"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "6155742185"
   },
@@ -299,7 +307,8 @@
       "request": {
         "advertiser": "Zoho CRM",
         "company": "Zoho CRM"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "3533554871"
   },
@@ -323,7 +332,8 @@
       "request": {
         "advertiser": "Zoho CRM",
         "company": "Zoho CRM"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "3538524515"
   },
@@ -349,7 +359,8 @@
       "request": {
         "advertiser": "Zoho CRM",
         "company": "Zoho CRM"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "7420896946"
   },
@@ -373,7 +384,8 @@
       "request": {
         "advertiser": "Zoho CRM",
         "company": "Zoho CRM"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "1280276277"
   },
@@ -399,7 +411,8 @@
       "request": {
         "advertiser": "Zoho CRM",
         "company": "Zoho CRM"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "4955401867"
   },
@@ -421,7 +434,8 @@
       "request": {
         "advertiser": "Zoho CRM",
         "company": "Zoho CRM"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "9483880790"
   },
@@ -443,7 +457,8 @@
       "request": {
         "advertiser": "Zoho CRM",
         "company": "Zoho CRM"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "5160321384"
   },
@@ -467,7 +482,8 @@
       "request": {
         "advertiser": "Zoho CRM",
         "company": "Zoho CRM"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "4766639381"
   },
@@ -495,7 +511,8 @@
       "request": {
         "advertiser": "Zoho CRM",
         "company": "Zoho CRM"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "7048803987"
   },
@@ -517,7 +534,8 @@
       "request": {
         "advertiser": "Zoho CRM",
         "company": "Zoho CRM"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "1609385864"
   },
@@ -539,14 +557,15 @@
       "request": {
         "advertiser": "Zoho CRM",
         "company": "Zoho CRM"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "9601643849"
   },
   {
     "payload": {
       "ad": {
-        "ad_type": "text",
+        "ad_type": "message",
         "advertiser": {
           "name": "Freshsales",
           "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ597253753783/company-logo_100_100/0/1757253753783?e=2147483647&v=beta"
@@ -561,7 +580,8 @@
       "request": {
         "advertiser": "Freshsales",
         "company": "Freshsales"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "5401823291"
   },
@@ -583,7 +603,8 @@
       "request": {
         "advertiser": "Freshsales",
         "company": "Freshsales"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "2948448045"
   },
@@ -607,7 +628,8 @@
       "request": {
         "advertiser": "Freshsales",
         "company": "Freshsales"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "7944441444"
   },
@@ -631,7 +653,8 @@
       "request": {
         "advertiser": "Freshsales",
         "company": "Freshsales"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "3551798340"
   },
@@ -655,7 +678,8 @@
       "request": {
         "advertiser": "Freshsales",
         "company": "Freshsales"
-      }
+      },
+      "seen_at": "2026-09-27T14:39:01.424328+00:00"
     },
     "source_id": "4487120773"
   }

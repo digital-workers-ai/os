@@ -2,8 +2,8 @@
   {
     "payload": {
       "ad": {
-        "ad_format": "Single Image Ad",
-        "ad_type": "image",
+        "ad_format": "Message Ad",
+        "ad_type": "message",
         "advertiser": {
           "link": "https://www.linkedin.com/company/71209195?trk=ad_library_about_ad_advertiser",
           "name": "HubSpot",
@@ -11,9 +11,7 @@
         },
         "content": {
           "call_to_action": "Register",
-          "cta": "The CRM Your Sales Team Will Actually Use",
-          "headline": "See Every Deal In One Pipeline\nAutomate follow-ups, forecast revenue and hit quota every month.",
-          "image": "https://media.licdn.com/dms/image/v2/D4E10AQ017460530086/image-shrink_1280/0/1757460530086?e=2147483647&v=beta"
+          "headline": "See Every Deal In One Pipeline\nAutomate follow-ups, forecast revenue and hit quota every month."
         },
         "external_link": "https://www.hubspot.com/products/crm?utm_source=linkedin&utm_medium=paid&hsa_ad=8700794242&hsa_net=linkedin",
         "first_shown_date": "2026-06-02",
@@ -124,92 +122,9 @@
           "headline": "The CRM Your Sales Team Will Actually Use\nSet up in minutes, with built-in calling and email sync.",
           "image": "https://media.licdn.com/dms/image/v2/D4E10AQ348861929009/image-shrink_1280/0/1758861929009?e=2147483647&v=beta"
         },
-        "external_link": "https://www.hubspot.com/products/crm?utm_source=linkedin&utm_medium=paid&hsa_ad=9306046653&hsa_net=linkedin",
-        "first_shown_date": "2026-07-18",
         "id": "9306046653",
-        "impressions_by_country": [
-          {
-            "country": "United Kingdom",
-            "percentage": 24,
-            "percentage_display": "24%"
-          },
-          {
-            "country": "Germany",
-            "percentage": 24,
-            "percentage_display": "24%"
-          },
-          {
-            "country": "Canada",
-            "percentage": 24,
-            "percentage_display": "24%"
-          },
-          {
-            "country": "Ireland",
-            "percentage": 18,
-            "percentage_display": "18%"
-          },
-          {
-            "country": "India",
-            "percentage": 9,
-            "percentage_display": "9%"
-          }
-        ],
-        "last_shown_date": "2026-09-03",
         "link": "https://www.linkedin.com/ad-library/detail/9306046653",
-        "paid_for_by": "HubSpot",
-        "targeting": [
-          {
-            "included": [
-              "English"
-            ],
-            "name": "Language"
-          },
-          {
-            "included": [
-              "Canada",
-              "Ireland",
-              "United Kingdom",
-              "India",
-              "Germany"
-            ],
-            "name": "Location"
-          }
-        ],
-        "targeting_parameters": [
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Audience"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Demographic"
-          },
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Company"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Education"
-          },
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Job"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Member Interests and Traits"
-          }
-        ],
-        "total_impressions": "5k-10k",
-        "total_impressions_max": 10000,
-        "total_impressions_min": 5000
+        "paid_for_by": "HubSpot"
       },
       "request": {
         "ad_id": "9306046653",
@@ -330,86 +245,9 @@
           "headline": "AI That Writes The Follow-Up For You\nAutomate follow-ups, forecast revenue and hit quota every month.",
           "image": "https://media.licdn.com/dms/image/v2/D4E10AQ570413221470/image-shrink_1280/0/1750413221470?e=2147483647&v=beta"
         },
-        "external_link": "https://www.hubspot.com/products/crm?utm_source=linkedin&utm_medium=paid&hsa_ad=6829329431&hsa_net=linkedin",
-        "first_shown_date": "2026-08-26",
         "id": "6829329431",
-        "impressions_by_country": [
-          {
-            "country": "India",
-            "percentage": 37,
-            "percentage_display": "37%"
-          },
-          {
-            "country": "Australia",
-            "percentage": 25,
-            "percentage_display": "25%"
-          },
-          {
-            "country": "United Kingdom",
-            "percentage": 20,
-            "percentage_display": "20%"
-          },
-          {
-            "country": "Ireland",
-            "percentage": 16,
-            "percentage_display": "16%"
-          }
-        ],
-        "last_shown_date": "2026-09-03",
         "link": "https://www.linkedin.com/ad-library/detail/6829329431",
-        "paid_for_by": "HubSpot",
-        "targeting": [
-          {
-            "included": [
-              "English"
-            ],
-            "name": "Language"
-          },
-          {
-            "included": [
-              "Ireland",
-              "India",
-              "Australia",
-              "United Kingdom"
-            ],
-            "name": "Location"
-          }
-        ],
-        "targeting_parameters": [
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Audience"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Demographic"
-          },
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Company"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Education"
-          },
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Job"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Member Interests and Traits"
-          }
-        ],
-        "total_impressions": "10k-50k",
-        "total_impressions_max": 50000,
-        "total_impressions_min": 10000
+        "paid_for_by": "HubSpot"
       },
       "request": {
         "ad_id": "6829329431",
@@ -845,80 +683,9 @@
           "call_to_action": "Register",
           "headline": "See Every Deal In One Pipeline\nAutomate follow-ups, forecast revenue and hit quota every month."
         },
-        "external_link": "https://www.hubspot.com/products/crm?utm_source=linkedin&utm_medium=paid&hsa_ad=5052914789&hsa_net=linkedin",
-        "first_shown_date": "2026-05-25",
         "id": "5052914789",
-        "impressions_by_country": [
-          {
-            "country": "United States",
-            "percentage": 56,
-            "percentage_display": "56%"
-          },
-          {
-            "country": "India",
-            "percentage": 37,
-            "percentage_display": "37%"
-          },
-          {
-            "country": "Germany",
-            "percentage": 6,
-            "percentage_display": "6%"
-          }
-        ],
-        "last_shown_date": "2026-09-03",
         "link": "https://www.linkedin.com/ad-library/detail/5052914789",
-        "paid_for_by": "HubSpot",
-        "targeting": [
-          {
-            "included": [
-              "English"
-            ],
-            "name": "Language"
-          },
-          {
-            "included": [
-              "India",
-              "United States",
-              "Germany"
-            ],
-            "name": "Location"
-          }
-        ],
-        "targeting_parameters": [
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Audience"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Demographic"
-          },
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Company"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Education"
-          },
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Job"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Member Interests and Traits"
-          }
-        ],
-        "total_impressions": "5k-10k",
-        "total_impressions_max": 10000,
-        "total_impressions_min": 5000
+        "paid_for_by": "HubSpot"
       },
       "request": {
         "ad_id": "5052914789",
@@ -1135,8 +902,8 @@
   {
     "payload": {
       "ad": {
-        "ad_format": "Video Ad",
-        "ad_type": "video",
+        "ad_format": "Message Ad",
+        "ad_type": "message",
         "advertiser": {
           "link": "https://www.linkedin.com/company/17906005?trk=ad_library_about_ad_advertiser",
           "name": "Zoho CRM",
@@ -1144,90 +911,11 @@
         },
         "content": {
           "call_to_action": "Sign up",
-          "cta": "Stop Losing Leads In Spreadsheets",
-          "headline": "Stop Losing Leads In Spreadsheets\nPlans from $14 per user per month. Cancel anytime.",
-          "image": "https://media.licdn.com/dms/image/v2/D4E10AQ954192429295/videocover-high/0/1754192429295?e=2147483647&v=beta"
+          "headline": "Stop Losing Leads In Spreadsheets\nPlans from $14 per user per month. Cancel anytime."
         },
-        "external_link": "https://www.zoho.com/crm/sales-automation.html?utm_source=linkedin&utm_medium=paid&hsa_ad=6155742185&hsa_net=linkedin",
-        "first_shown_date": "2026-06-18",
         "id": "6155742185",
-        "impressions_by_country": [
-          {
-            "country": "Canada",
-            "percentage": 38,
-            "percentage_display": "38%"
-          },
-          {
-            "country": "United States",
-            "percentage": 33,
-            "percentage_display": "33%"
-          },
-          {
-            "country": "Ireland",
-            "percentage": 16,
-            "percentage_display": "16%"
-          },
-          {
-            "country": "Australia",
-            "percentage": 11,
-            "percentage_display": "11%"
-          }
-        ],
-        "last_shown_date": "2026-07-17",
         "link": "https://www.linkedin.com/ad-library/detail/6155742185",
-        "paid_for_by": "Zoho CRM",
-        "targeting": [
-          {
-            "included": [
-              "English"
-            ],
-            "name": "Language"
-          },
-          {
-            "included": [
-              "Australia",
-              "Canada",
-              "Ireland",
-              "United States"
-            ],
-            "name": "Location"
-          }
-        ],
-        "targeting_parameters": [
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Audience"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Demographic"
-          },
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Company"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Education"
-          },
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Job"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Member Interests and Traits"
-          }
-        ],
-        "total_impressions": "1k-5k",
-        "total_impressions_max": 5000,
-        "total_impressions_min": 1000
+        "paid_for_by": "Zoho CRM"
       },
       "request": {
         "ad_id": "6155742185",
@@ -1252,92 +940,9 @@
           "headline": "Sales CRM Built For Small Teams\nSet up in minutes, with built-in calling and email sync.",
           "image": "https://media.licdn.com/dms/image/v2/D4E10AQ202551416319/image-shrink_1280/0/1752551416319?e=2147483647&v=beta"
         },
-        "external_link": "https://www.zoho.com/crm/sales-automation.html?utm_source=linkedin&utm_medium=paid&hsa_ad=3533554871&hsa_net=linkedin",
-        "first_shown_date": "2026-06-23",
         "id": "3533554871",
-        "impressions_by_country": [
-          {
-            "country": "Australia",
-            "percentage": 35,
-            "percentage_display": "35%"
-          },
-          {
-            "country": "Germany",
-            "percentage": 25,
-            "percentage_display": "25%"
-          },
-          {
-            "country": "United States",
-            "percentage": 15,
-            "percentage_display": "15%"
-          },
-          {
-            "country": "United Kingdom",
-            "percentage": 15,
-            "percentage_display": "15%"
-          },
-          {
-            "country": "Canada",
-            "percentage": 10,
-            "percentage_display": "10%"
-          }
-        ],
-        "last_shown_date": "2026-07-09",
         "link": "https://www.linkedin.com/ad-library/detail/3533554871",
-        "paid_for_by": "Zoho CRM",
-        "targeting": [
-          {
-            "included": [
-              "English"
-            ],
-            "name": "Language"
-          },
-          {
-            "included": [
-              "United States",
-              "Australia",
-              "United Kingdom",
-              "Canada",
-              "Germany"
-            ],
-            "name": "Location"
-          }
-        ],
-        "targeting_parameters": [
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Audience"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Demographic"
-          },
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Company"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Education"
-          },
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Job"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Member Interests and Traits"
-          }
-        ],
-        "total_impressions": "10k-50k",
-        "total_impressions_max": 50000,
-        "total_impressions_min": 10000
+        "paid_for_by": "Zoho CRM"
       },
       "request": {
         "ad_id": "3533554871",
@@ -1474,85 +1079,9 @@
           ],
           "title": "AI That Writes The Follow-Up For You"
         },
-        "external_link": "https://www.zoho.com/crm/sales-automation.html?utm_source=linkedin&utm_medium=paid&hsa_ad=7420896946&hsa_net=linkedin",
-        "first_shown_date": "2026-07-21",
         "id": "7420896946",
-        "impressions_by_country": [
-          {
-            "country": "Ireland",
-            "percentage": 33,
-            "percentage_display": "33%"
-          },
-          {
-            "country": "Germany",
-            "percentage": 33,
-            "percentage_display": "33%"
-          },
-          {
-            "country": "United Kingdom",
-            "percentage": 29,
-            "percentage_display": "29%"
-          },
-          {
-            "country": "India",
-            "percentage": 4,
-            "percentage_display": "4%"
-          }
-        ],
-        "last_shown_date": "2026-09-01",
         "link": "https://www.linkedin.com/ad-library/detail/7420896946",
-        "paid_for_by": "Zoho CRM",
-        "targeting": [
-          {
-            "included": [
-              "English"
-            ],
-            "name": "Language"
-          },
-          {
-            "included": [
-              "Germany",
-              "Ireland",
-              "India",
-              "United Kingdom"
-            ],
-            "name": "Location"
-          }
-        ],
-        "targeting_parameters": [
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Audience"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Demographic"
-          },
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Company"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Education"
-          },
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Job"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Member Interests and Traits"
-          }
-        ],
-        "total_impressions": "< 1k",
-        "total_impressions_max": 1000
+        "paid_for_by": "Zoho CRM"
       },
       "request": {
         "ad_id": "7420896946",
@@ -1688,79 +1217,9 @@
           ],
           "title": "See Every Deal In One Pipeline"
         },
-        "external_link": "https://www.zoho.com/crm/sales-automation.html?utm_source=linkedin&utm_medium=paid&hsa_ad=4955401867&hsa_net=linkedin",
-        "first_shown_date": "2026-07-01",
         "id": "4955401867",
-        "impressions_by_country": [
-          {
-            "country": "India",
-            "percentage": 54,
-            "percentage_display": "54%"
-          },
-          {
-            "country": "Ireland",
-            "percentage": 27,
-            "percentage_display": "27%"
-          },
-          {
-            "country": "Australia",
-            "percentage": 18,
-            "percentage_display": "18%"
-          }
-        ],
-        "last_shown_date": "2026-09-03",
         "link": "https://www.linkedin.com/ad-library/detail/4955401867",
-        "paid_for_by": "Zoho CRM",
-        "targeting": [
-          {
-            "included": [
-              "English"
-            ],
-            "name": "Language"
-          },
-          {
-            "included": [
-              "Ireland",
-              "Australia",
-              "India"
-            ],
-            "name": "Location"
-          }
-        ],
-        "targeting_parameters": [
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Audience"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Demographic"
-          },
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Company"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Education"
-          },
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Job"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Member Interests and Traits"
-          }
-        ],
-        "total_impressions": "< 1k",
-        "total_impressions_max": 1000
+        "paid_for_by": "Zoho CRM"
       },
       "request": {
         "ad_id": "4955401867",
@@ -1783,80 +1242,9 @@
           "call_to_action": "Learn more",
           "headline": "See Every Deal In One Pipeline\nAutomate follow-ups, forecast revenue and hit quota every month."
         },
-        "external_link": "https://www.zoho.com/crm/sales-automation.html?utm_source=linkedin&utm_medium=paid&hsa_ad=9483880790&hsa_net=linkedin",
-        "first_shown_date": "2026-06-01",
         "id": "9483880790",
-        "impressions_by_country": [
-          {
-            "country": "Germany",
-            "percentage": 52,
-            "percentage_display": "52%"
-          },
-          {
-            "country": "Ireland",
-            "percentage": 23,
-            "percentage_display": "23%"
-          },
-          {
-            "country": "Australia",
-            "percentage": 23,
-            "percentage_display": "23%"
-          }
-        ],
-        "last_shown_date": "2026-07-13",
         "link": "https://www.linkedin.com/ad-library/detail/9483880790",
-        "paid_for_by": "Zoho CRM",
-        "targeting": [
-          {
-            "included": [
-              "English"
-            ],
-            "name": "Language"
-          },
-          {
-            "included": [
-              "Germany",
-              "Ireland",
-              "Australia"
-            ],
-            "name": "Location"
-          }
-        ],
-        "targeting_parameters": [
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Audience"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Demographic"
-          },
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Company"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Education"
-          },
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Job"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Member Interests and Traits"
-          }
-        ],
-        "total_impressions": "1k-5k",
-        "total_impressions_max": 5000,
-        "total_impressions_min": 1000
+        "paid_for_by": "Zoho CRM"
       },
       "request": {
         "ad_id": "9483880790",
@@ -2090,73 +1478,9 @@
           ],
           "title": "See Every Deal In One Pipeline"
         },
-        "external_link": "https://www.zoho.com/crm/sales-automation.html?utm_source=linkedin&utm_medium=paid&hsa_ad=7048803987&hsa_net=linkedin",
-        "first_shown_date": "2026-08-21",
         "id": "7048803987",
-        "impressions_by_country": [
-          {
-            "country": "United Kingdom",
-            "percentage": 88,
-            "percentage_display": "88%"
-          },
-          {
-            "country": "United States",
-            "percentage": 11,
-            "percentage_display": "11%"
-          }
-        ],
-        "last_shown_date": "2026-08-31",
         "link": "https://www.linkedin.com/ad-library/detail/7048803987",
-        "paid_for_by": "Zoho CRM",
-        "targeting": [
-          {
-            "included": [
-              "English"
-            ],
-            "name": "Language"
-          },
-          {
-            "included": [
-              "United States",
-              "United Kingdom"
-            ],
-            "name": "Location"
-          }
-        ],
-        "targeting_parameters": [
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Audience"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Demographic"
-          },
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Company"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Education"
-          },
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Job"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Member Interests and Traits"
-          }
-        ],
-        "total_impressions": "< 1k",
-        "total_impressions_max": 1000
+        "paid_for_by": "Zoho CRM"
       },
       "request": {
         "ad_id": "7048803987",
@@ -2287,92 +1611,9 @@
           "call_to_action": "Sign up",
           "headline": "Stop Losing Leads In Spreadsheets\nSet up in minutes, with built-in calling and email sync."
         },
-        "external_link": "https://www.zoho.com/crm/sales-automation.html?utm_source=linkedin&utm_medium=paid&hsa_ad=9601643849&hsa_net=linkedin",
-        "first_shown_date": "2026-08-30",
         "id": "9601643849",
-        "impressions_by_country": [
-          {
-            "country": "United States",
-            "percentage": 36,
-            "percentage_display": "36%"
-          },
-          {
-            "country": "United Kingdom",
-            "percentage": 32,
-            "percentage_display": "32%"
-          },
-          {
-            "country": "Germany",
-            "percentage": 20,
-            "percentage_display": "20%"
-          },
-          {
-            "country": "Canada",
-            "percentage": 8,
-            "percentage_display": "8%"
-          },
-          {
-            "country": "Australia",
-            "percentage": 4,
-            "percentage_display": "4%"
-          }
-        ],
-        "last_shown_date": "2026-09-03",
         "link": "https://www.linkedin.com/ad-library/detail/9601643849",
-        "paid_for_by": "Zoho CRM",
-        "targeting": [
-          {
-            "included": [
-              "English"
-            ],
-            "name": "Language"
-          },
-          {
-            "included": [
-              "United States",
-              "United Kingdom",
-              "Canada",
-              "Germany",
-              "Australia"
-            ],
-            "name": "Location"
-          }
-        ],
-        "targeting_parameters": [
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Audience"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Demographic"
-          },
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Company"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Education"
-          },
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Job"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Member Interests and Traits"
-          }
-        ],
-        "total_impressions": "10k-50k",
-        "total_impressions_max": 50000,
-        "total_impressions_min": 10000
+        "paid_for_by": "Zoho CRM"
       },
       "request": {
         "ad_id": "9601643849",
@@ -2384,8 +1625,8 @@
   {
     "payload": {
       "ad": {
-        "ad_format": "Text Ad",
-        "ad_type": "text",
+        "ad_format": "Message Ad",
+        "ad_type": "message",
         "advertiser": {
           "link": "https://www.linkedin.com/company/17578847?trk=ad_library_about_ad_advertiser",
           "name": "Freshsales",
@@ -2576,79 +1817,9 @@
           "headline": "AI That Writes The Follow-Up For You\nPlans from $14 per user per month. Cancel anytime.",
           "image": "https://media.licdn.com/dms/image/v2/D4E10AQ960096893065/videocover-high/0/1750096893065?e=2147483647&v=beta"
         },
-        "external_link": "https://www.freshworks.com/crm/sales/?utm_source=linkedin&utm_medium=paid&hsa_ad=7944441444&hsa_net=linkedin",
-        "first_shown_date": "2026-06-16",
         "id": "7944441444",
-        "impressions_by_country": [
-          {
-            "country": "United States",
-            "percentage": 46,
-            "percentage_display": "46%"
-          },
-          {
-            "country": "Ireland",
-            "percentage": 46,
-            "percentage_display": "46%"
-          },
-          {
-            "country": "Germany",
-            "percentage": 7,
-            "percentage_display": "7%"
-          }
-        ],
-        "last_shown_date": "2026-08-06",
         "link": "https://www.linkedin.com/ad-library/detail/7944441444",
-        "paid_for_by": "Freshsales, Inc.",
-        "targeting": [
-          {
-            "included": [
-              "English"
-            ],
-            "name": "Language"
-          },
-          {
-            "included": [
-              "Ireland",
-              "United States",
-              "Germany"
-            ],
-            "name": "Location"
-          }
-        ],
-        "targeting_parameters": [
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Audience"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Demographic"
-          },
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Company"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Education"
-          },
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Job"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Member Interests and Traits"
-          }
-        ],
-        "total_impressions": "< 1k",
-        "total_impressions_max": 1000
+        "paid_for_by": "Freshsales, Inc."
       },
       "request": {
         "ad_id": "7944441444",
@@ -2771,92 +1942,9 @@
           "headline": "Close More Deals With Less Admin\nAutomate follow-ups, forecast revenue and hit quota every month.",
           "image": "https://media.licdn.com/dms/image/v2/D4E10AQ845790417252/image-shrink_1280/0/1755790417252?e=2147483647&v=beta"
         },
-        "external_link": "https://www.freshworks.com/crm/sales/?utm_source=linkedin&utm_medium=paid&hsa_ad=4487120773&hsa_net=linkedin",
-        "first_shown_date": "2026-05-28",
         "id": "4487120773",
-        "impressions_by_country": [
-          {
-            "country": "Canada",
-            "percentage": 32,
-            "percentage_display": "32%"
-          },
-          {
-            "country": "Germany",
-            "percentage": 28,
-            "percentage_display": "28%"
-          },
-          {
-            "country": "United Kingdom",
-            "percentage": 17,
-            "percentage_display": "17%"
-          },
-          {
-            "country": "United States",
-            "percentage": 10,
-            "percentage_display": "10%"
-          },
-          {
-            "country": "India",
-            "percentage": 10,
-            "percentage_display": "10%"
-          }
-        ],
-        "last_shown_date": "2026-09-03",
         "link": "https://www.linkedin.com/ad-library/detail/4487120773",
-        "paid_for_by": "Freshsales, Inc.",
-        "targeting": [
-          {
-            "included": [
-              "English"
-            ],
-            "name": "Language"
-          },
-          {
-            "included": [
-              "Canada",
-              "United States",
-              "India",
-              "Germany",
-              "United Kingdom"
-            ],
-            "name": "Location"
-          }
-        ],
-        "targeting_parameters": [
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Audience"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Demographic"
-          },
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Company"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Education"
-          },
-          {
-            "is_excluded": true,
-            "is_targeted": true,
-            "name": "Job"
-          },
-          {
-            "is_excluded": false,
-            "is_targeted": false,
-            "name": "Member Interests and Traits"
-          }
-        ],
-        "total_impressions": "1k-5k",
-        "total_impressions_max": 5000,
-        "total_impressions_min": 1000
+        "paid_for_by": "Freshsales, Inc."
       },
       "request": {
         "ad_id": "4487120773",

@@ -403,8 +403,8 @@ ad:
   linkedin_ads.ads.ad.content.headline: name
   linkedin_ads.ads._preview: preview
   linkedin_ads.ads.ad.link: url
+  linkedin_ads.ads.seen_at: last_seen
   linkedin_ads.ad_details._company: company
   linkedin_ads.ad_details._platform: platform
   linkedin_ads.ad_details.ad.first_shown_date: first_seen
-  linkedin_ads.ad_details.ad.last_shown_date: last_seen
   linkedin_ads.ad_details.ad.external_link: landing_url

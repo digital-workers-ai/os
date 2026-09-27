@@ -67,7 +67,7 @@ export function AdCard({ ad }: { ad: Ad }) {
           </a>
         )}
         <p className="mt-auto text-xs text-muted">
-          first {shortDate(ad.first_seen.slice(0, 10))} · last {shortDate(ad.last_seen.slice(0, 10))}
+          {ad.first_seen && `first ${shortDate(ad.first_seen.slice(0, 10))} · `}last {shortDate(ad.last_seen.slice(0, 10))}
         </p>
       </div>
     </Card>

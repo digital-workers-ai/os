@@ -581,7 +581,8 @@ _SPY_FOLLOWERS = {"hubspot": 1240000, "zoho": 812000, "freshworks-inc": 396000}
 _SPY_ADVERTISERS = {c["google_advertiser_id"]: c for c in SPY_COMPETITORS}
 _SPY_LINKEDIN = {c["linkedin"]: c for c in SPY_COMPETITORS}
 _SPY_LINKEDIN_TYPES = ("image", "image", "image", "video", "text", "document")
-_SPY_LINKEDIN_FORMATS = {"image": "Single Image Ad", "video": "Video Ad", "text": "Text Ad", "document": "Document Ad"}
+_SPY_LINKEDIN_FORMATS = {"image": "Single Image Ad", "video": "Video Ad", "text": "Text Ad", "document": "Document Ad", "message": "Message Ad"}
+_SPY_LINKEDIN_UNPUBLISHED = ("ad_format", "ad_type", "advertiser", "content", "id", "link", "paid_for_by")
 _SPY_LINKEDIN_PEOPLE = (("Maya Lindqvist", "CEO"), ("Tomas Reyes", "CMO"), ("Priya Natarajan", "VP of Sales"))
 _SPY_LINKEDIN_CTAS = ("Learn more", "Sign up", "Download", "Register")
 _SPY_LINKEDIN_BANDS = (("< 1k", None, 1000), ("1k-5k", 1000, 5000), ("5k-10k", 5000, 10000), ("10k-50k", 10000, 50000))
@@ -787,7 +788,7 @@ def spy_linkedin_ads(advertiser: str) -> list[dict]:
     for i in range(count + 1):
         seed = f"linkedin_ad|{slug}|{i}"
         ad_id = str(10**9 + _spy_digest(seed, "id") % (9 * 10**9))
-        ad_type = _spy_pick(seed, "type", _SPY_LINKEDIN_TYPES)
+        ad_type = "message" if i == 0 else _spy_pick(seed, "type", _SPY_LINKEDIN_TYPES)
         content = {"headline": spy_ad_text(ad_id)}
         if ad_type in ("image", "video"):
             content["image"] = _spy_licdn(seed, "media", "image-shrink_1280" if ad_type == "image" else "videocover-high")
@@ -835,6 +836,8 @@ def _spy_linkedin_detail(company: dict, ad: dict) -> dict:
     detail["impressions_by_country"] = [{"country": c, "percentage": p, "percentage_display": f"{p}%"} for p, c in shares]
     detail["targeting"] = [{"name": "Language", "included": ["English"]}, {"name": "Location", "included": countries}]
     detail["targeting_parameters"] = [{"name": n, "is_targeted": t, "is_excluded": t} for n, t in _SPY_LINKEDIN_TARGETING]
+    if _spy_digest(seed, "published") % 3 == 0:
+        return {key: detail[key] for key in _SPY_LINKEDIN_UNPUBLISHED}
     return detail
 
 

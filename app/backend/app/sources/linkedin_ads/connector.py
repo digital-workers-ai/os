@@ -1,10 +1,11 @@
+from app import clock
 from app.engine import spy
 from app.sources.searchapi import SEARCH_PATH, TokenPage
 from app.sources.util import client_for, pick_id, store_all, stored_ids
 
 SOURCE = "linkedin_ads"
 
-OBSERVED_AT = {"ad_details": "ad.last_shown_date"}
+OBSERVED_AT = {"ads": "seen_at", "ad_details": "ad.last_shown_date"}
 
 ENGINE = "linkedin_ad_library"
 DETAILS_ENGINE = "linkedin_ad_library_ad_details"
@@ -68,6 +69,7 @@ async def pull(session, store):
     api = client_for(SOURCE)
     definition = spy.definition()
     notes: dict = {}
+    seen_at = clock.now().isoformat()
     ads = []
     for company in definition.competitors:
         walk = TokenPage("ads", PAGES_PER_ADVERTISER)
@@ -93,6 +95,7 @@ async def pull(session, store):
                 {
                     "request": {"company": company.name, "advertiser": company.name},
                     "ad": item,
+                    "seen_at": seen_at,
                 }
             )
     await store_all(
