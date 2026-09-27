@@ -374,6 +374,7 @@ class TestDiscovery:
             "google_serp",
             "chatgpt",
             "linkedin_posts",
+            "linkedin_ads",
             "twitter",
             "pinterest",
             "intercom",

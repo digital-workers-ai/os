@@ -43,6 +43,7 @@ ALL_SOURCES = {
     "linkedin",
     "google_ads_transparency",
     "linkedin_posts",
+    "linkedin_ads",
     "google_serp",
     "chatgpt",
     "perplexity",

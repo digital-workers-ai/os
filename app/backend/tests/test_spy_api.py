@@ -29,6 +29,7 @@ D1, D2, D3 = "2026-08-20T00:00:00Z", "2026-09-01T00:00:00Z", "2026-09-02T00:00:0
 AD_URL = "https://adstransparency.google.com/advertiser/AR123/creative/CR1"
 PREVIEW = "https://tpc.googlesyndication.com/archive/CR1.png"
 MEDIA = "https://tpc.googlesyndication.com/archive/CR1/creative.mp4"
+LANDING = "https://www.hubspot.com/startups/resources/gtm/founder-led-brand-toolkit"
 
 
 @pytest_asyncio.fixture
@@ -385,6 +386,7 @@ class TestAds:
             url=AD_URL,
             preview=PREVIEW,
             media=MEDIA,
+            landing_url=LANDING,
         )
         bare = await ad(company="Zoho CRM", last_seen=D1)
         body = (await api.get("/api/spy/ads")).json()
@@ -400,6 +402,7 @@ class TestAds:
                 "url": AD_URL,
                 "preview": PREVIEW,
                 "media": MEDIA,
+                "landing_url": LANDING,
             },
             {
                 "canonical_id": str(bare),
@@ -412,6 +415,7 @@ class TestAds:
                 "url": None,
                 "preview": None,
                 "media": None,
+                "landing_url": None,
             },
         ]
 
