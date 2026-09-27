@@ -28,6 +28,7 @@ SEPTEMBER = "from=2026-09-01&to=2026-09-30"
 D1, D2, D3 = "2026-08-20T00:00:00Z", "2026-09-01T00:00:00Z", "2026-09-02T00:00:00Z"
 AD_URL = "https://adstransparency.google.com/advertiser/AR123/creative/CR1"
 PREVIEW = "https://tpc.googlesyndication.com/archive/CR1.png"
+MEDIA = "https://tpc.googlesyndication.com/archive/CR1/creative.mp4"
 
 
 @pytest_asyncio.fixture
@@ -383,6 +384,7 @@ class TestAds:
             first_seen=D1,
             url=AD_URL,
             preview=PREVIEW,
+            media=MEDIA,
         )
         bare = await ad(company="Zoho CRM", last_seen=D1)
         body = (await api.get("/api/spy/ads")).json()
@@ -397,6 +399,7 @@ class TestAds:
                 "last_seen": D2,
                 "url": AD_URL,
                 "preview": PREVIEW,
+                "media": MEDIA,
             },
             {
                 "canonical_id": str(bare),
@@ -408,6 +411,7 @@ class TestAds:
                 "last_seen": D1,
                 "url": None,
                 "preview": None,
+                "media": None,
             },
         ]
 
