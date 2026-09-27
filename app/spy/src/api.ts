@@ -183,6 +183,7 @@ export interface Ad {
   last_seen: string
   url: string
   preview: string | null
+  media: string | null
 }
 
 export interface AdsResponse {

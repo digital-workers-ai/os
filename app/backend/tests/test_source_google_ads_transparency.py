@@ -5,8 +5,9 @@ import httpx
 import pytest
 
 from app import store
-from app.engine import checks, spy
+from app.engine import checks, mappings, ontology, pipeline, spy, transforms
 from app.engine.pipeline import observed_at_for
+from app.engine.report import SyncReport
 from app.sources import catalog, client, creds, hooks, registry, util
 from tools.pull_source import key_types
 
@@ -42,6 +43,7 @@ HOOK_READ_PATHS = (
     "creative.ad_creative_id",
     "creative.format",
     "creative.image",
+    "creative.link",
     "creative.first_shown",
     "creative.last_shown",
     "creative.details_link",
@@ -55,6 +57,17 @@ TEXT_READ_PATHS = (
     "response.choices[].message",
     "response.choices[].message.content",
 )
+MAPPED = {
+    ("_company", "company"),
+    ("_platform", "platform"),
+    ("creative.format", "category"),
+    ("creative.first_shown", "first_seen"),
+    ("creative.last_shown", "last_seen"),
+    ("creative.details_link", "url"),
+    ("creative.image", "preview"),
+    ("creative.link", "media"),
+    ("_text", "name"),
+}
 
 
 def connector():
@@ -203,6 +216,23 @@ def reads(seen):
 
 def of_type(stored, object_type):
     return [s for s in stored if s["object_type"] == object_type]
+
+
+def project(payload, source_id="CR1"):
+    return pipeline.project_payload(
+        source=SOURCE,
+        object_type="creatives",
+        source_id=source_id,
+        payload=payload,
+        raw_event_id=None,
+        ingested_at=INGESTED,
+        seq=1,
+        onto=ontology.load(),
+        line_index=mappings.by_object(mappings.load()),
+        transform_map=transforms.load_map(),
+        report=SyncReport(),
+        connector_module=connector(),
+    )
 
 
 class TestTheConstantsTheContractNames:
@@ -762,6 +792,48 @@ class TestTheObservationComesFromLastShown:
             connector(), "creative_texts", text_payload("x"), INGESTED
         )
         assert which == "ingested"
+
+
+class TestTheDefinitions:
+    def test_the_ad_entity_is_declared(self):
+        spec = ontology.load().entities["ad"]
+        assert spec.attrs == {
+            "company": "string",
+            "platform": "string",
+            "name": "string",
+            "category": "string",
+            "first_seen": "date",
+            "last_seen": "date",
+            "url": "string",
+            "preview": "string",
+            "media": "string",
+        }
+
+    def test_every_mapping_line_lands_on_the_ad(self):
+        lines = [line for line in mappings.load() if line.source == SOURCE]
+        assert {(".".join(line.path), line.label) for line in lines} == MAPPED
+        assert {line.object_type for line in lines} == {"creatives", "creative_texts"}
+        assert {line.entity for line in lines} == {"ad"}
+
+
+class TestTheVideoLinkIsTheMedia:
+    def _payload(self, fmt):
+        return {
+            "request": {"company": "HubSpot", "advertiser_id": HUBSPOT_ID},
+            "creative": creative(fmt=fmt),
+        }
+
+    def test_a_video_creative_lands_its_player_link_as_media(self):
+        (ad,) = project(self._payload("video"))
+        assert ad.entity_type == "ad"
+        assert ad.facts["media"].value == PLAYER
+        assert "preview" not in ad.facts
+
+    @pytest.mark.parametrize("fmt", ["text", "image"])
+    def test_a_still_creative_keeps_its_preview_and_gets_no_media(self, fmt):
+        (ad,) = project(self._payload(fmt))
+        assert ad.facts["preview"].value == PREVIEW
+        assert "media" not in ad.facts
 
 
 class TestStoredIds:
