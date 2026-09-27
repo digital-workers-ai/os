@@ -149,9 +149,31 @@ def _x_records(handles: list[str]) -> list[dict]:
     return records
 
 
+def _instagram_records(handles: list[str]) -> list[dict]:
+    records = []
+    for handle in handles:
+        posts = world.spy_instagram_posts(handle)
+        records.extend(
+            posts
+            or [
+                _dead(
+                    {
+                        "url": f"https://www.instagram.com/{handle}/",
+                        "start_date": "",
+                        "end_date": "",
+                        "post_type": "",
+                    },
+                    "4XX page - dead page.",
+                )
+            ]
+        )
+    return records
+
+
 _DATASETS = {
     "gd_lyy3tktm25m4avu764": ("company_url", _linkedin_records),
     "gd_lwxkxvnf1cynvib9co": ("profile_url", _x_records),
+    "gd_lk5ns7kz21pck8jpis": ("url", _instagram_records),
 }
 
 

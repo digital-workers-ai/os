@@ -471,9 +471,9 @@ SALES_CALLS_BY_ID = {c.id: c for c in SALES_CALLS}
 
 SPY_BRAND = {"name": "Pipedrive", "domain": "pipedrive.com", "aliases": []}
 SPY_COMPETITORS = [
-    {"name": "HubSpot", "domain": "hubspot.com", "aliases": ["HubSpot CRM"], "linkedin": "hubspot", "x": "HubSpot", "google_advertiser_id": "AR10072600183532683265", "tiktok_advertiser_id": "6948549846680732417", "tiktok_advertiser_name": "HUBSPOT, INC.", "meta_page_id": "6039999393"},
-    {"name": "Zoho CRM", "domain": "zoho.com", "aliases": ["Zoho"], "linkedin": "zoho", "x": "Zoho", "google_advertiser_id": "AR07034216898162065409", "meta_page_id": "231460215383"},
-    {"name": "Freshsales", "domain": "freshworks.com", "aliases": ["Freshworks", "Freshworks CRM"], "linkedin": "freshworks-inc", "x": "FreshworksInc", "google_advertiser_id": "AR03035893441289519105", "meta_page_id": "300722220374123"},
+    {"name": "HubSpot", "domain": "hubspot.com", "aliases": ["HubSpot CRM"], "linkedin": "hubspot", "x": "HubSpot", "instagram": "hubspot", "google_advertiser_id": "AR10072600183532683265", "tiktok_advertiser_id": "6948549846680732417", "tiktok_advertiser_name": "HUBSPOT, INC.", "meta_page_id": "6039999393"},
+    {"name": "Zoho CRM", "domain": "zoho.com", "aliases": ["Zoho"], "linkedin": "zoho", "x": "Zoho", "instagram": "zoho", "google_advertiser_id": "AR07034216898162065409", "meta_page_id": "231460215383"},
+    {"name": "Freshsales", "domain": "freshworks.com", "aliases": ["Freshworks", "Freshworks CRM"], "linkedin": "freshworks-inc", "x": "FreshworksInc", "instagram": "freshworksinc", "google_advertiser_id": "AR03035893441289519105", "meta_page_id": "300722220374123"},
 ]
 SPY_QUERIES = [
     "best crm for small business",
@@ -589,6 +589,21 @@ _SPY_X_PROFILES = {
     "zoho": ("Zoho", "5827392", 138570, 121, 21145, "gold", "A unique and powerful software suite to transform the way you work; built by a company that values your privacy."),
     "freshworksinc": ("Freshworks Inc", "869782118380871680", 18984, 527, 7753, "blue", "The AI-powered, unified service operations platform for agile enterprises. NASDAQ: FRSH."),
 }
+_SPY_INSTAGRAM = {c["instagram"]: c for c in SPY_COMPETITORS}
+_SPY_INSTAGRAM_PROFILES = {
+    "hubspot": ("HubSpot", "12180963", 659000, 3269, True),
+    "zoho": ("Zoho", "1104072340", 231000, 1717, True),
+    "freshworksinc": ("Freshworks", "761160706", 26000, 660, True),
+    "unboundevent": ("UNBOUND", "4703343770", 31000, 1711, True),
+    "zoholics_events": ("Zoholics Events", "24637665020", 13000, 465, False),
+    "freshworks_events": ("Freshworks Events", "58211479306", 4200, 138, False),
+}
+_SPY_INSTAGRAM_EVENTS = {"hubspot": "unboundevent", "zoho": "zoholics_events", "freshworksinc": "freshworks_events"}
+_SPY_INSTAGRAM_TYPES = (("Reel", "clips"), ("Image", "feed"), ("Carousel", "carousel_container"), ("Reel", "clips"), ("Carousel", "carousel_container"), ("Reel", "clips"))
+_SPY_INSTAGRAM_POPS = ("atl3-2", "ord5-1", "lax3-2", "dfw5-1", "sjc6-1", "iad6-1", "bos5-1", "sea5-1")
+_SPY_INSTAGRAM_COMMENTS = ("Love this!", "Congrats to the team 🎉", "When does this reach EU accounts?", "Been waiting for this one.", "Great session, thanks for sharing.")
+_SPY_INSTAGRAM_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+_SPY_INSTAGRAM_EPOCH_MS = 1314220021721
 _SPY_LINKEDIN_TYPES = ("image", "image", "image", "video", "text", "document")
 _SPY_LINKEDIN_FORMATS = {"image": "Single Image Ad", "video": "Video Ad", "text": "Text Ad", "document": "Document Ad", "message": "Message Ad"}
 _SPY_LINKEDIN_UNPUBLISHED = ("ad_format", "ad_type", "advertiser", "content", "id", "link", "paid_for_by")
@@ -860,6 +875,138 @@ def spy_x_posts(handle: str) -> list[dict]:
             "timestamp": f"{SPY_ANCHOR.isoformat()}T12:00:00.000Z",
             "input": {"url": f"https://x.com/{handle.lower()}/status/{post_id}"},
             "discovery_input": {"url": f"https://x.com/{handle}", "start_date": "", "end_date": ""},
+        })
+    return posts
+
+
+def _spy_instagram_host(seed: str) -> str:
+    return f"scontent-{_spy_pick(seed, 'pop', _SPY_INSTAGRAM_POPS)}.cdninstagram.com"
+
+
+def _spy_instagram_signed(seed: str, host: str) -> str:
+    return f"_nc_cat={100 + _spy_digest(seed, 'cat') % 12}&ccb=7-5&_nc_ohc={_spy_digest(seed, 'ohc') % 16**22:022x}&_nc_ht={host}&oh=00_{_spy_digest(seed, 'oh') % 16**32:032x}&oe={_spy_digest(seed, 'oe') % 16**8:08X}"
+
+
+def _spy_instagram_image(seed: str, folder: str, size: str) -> str:
+    host = _spy_instagram_host(seed)
+    stem = f"{_spy_digest(seed, 'a') % 10**9:09d}_{_spy_digest(seed, 'b') % 10**17:017d}_{_spy_digest(seed, 'c') % 10**19:019d}_n.jpg"
+    return f"https://{host}/v/{folder}/{stem}?stp=dst-jpg_{size}_tt6&{_spy_instagram_signed(seed, host)}"
+
+
+def _spy_instagram_video(seed: str) -> str:
+    host = _spy_instagram_host(seed)
+    token = base64.urlsafe_b64encode(hashlib.sha512(seed.encode()).digest()).decode().rstrip("=")
+    return f"https://{host}/o1/v/t2/f2/m86/AQ{token}.mp4?{_spy_instagram_signed(seed, host)}"
+
+
+def _spy_instagram_shortcode(pk: int) -> str:
+    code = ""
+    while pk:
+        pk, digit = divmod(pk, 64)
+        code = _SPY_INSTAGRAM_ALPHABET[digit] + code
+    return code
+
+
+def spy_instagram_posts(handle: str) -> list[dict]:
+    company = _SPY_INSTAGRAM.get(handle.lower())
+    if company is None:
+        return []
+    slug = handle.lower()
+    anchor = datetime(SPY_ANCHOR.year, SPY_ANCHOR.month, SPY_ANCHOR.day, tzinfo=timezone.utc)
+    count = 5 + _spy_digest(slug, "instagram_count") % 8
+    collab = _spy_digest(slug, "instagram_collab") % count
+    posts = []
+    for i in range(count):
+        seed = f"instagram_post|{slug}|{i}"
+        author = _SPY_INSTAGRAM_EVENTS[slug] if i == collab else slug
+        name, user_id, followers, posts_count, verified = _SPY_INSTAGRAM_PROFILES[author]
+        age_days = i * 120 // count + _spy_digest(seed, "day") % max(1, 120 // count)
+        posted = anchor - timedelta(days=age_days, hours=2 + _spy_digest(seed, "hour") % 14, minutes=_spy_digest(seed, "minute") % 60)
+        pk = (int(posted.timestamp()) * 1000 - _SPY_INSTAGRAM_EPOCH_MS) << 23 | _spy_digest(seed, "id") % 2**23
+        shortcode = _spy_instagram_shortcode(pk)
+        content_type, product_type = _SPY_INSTAGRAM_TYPES[(i + _spy_digest(slug, "instagram_kind")) % len(_SPY_INSTAGRAM_TYPES)]
+        url = f"https://www.instagram.com/{'reel' if content_type == 'Reel' else 'p'}/{shortcode}/"
+        alt_text = f"{'Video' if content_type == 'Reel' else 'Photo'} by {name} on {posted.strftime('%B %d, %Y')}."
+        tags = _spy_order(seed + "|tags", list(_SPY_HASHTAGS))[: _spy_digest(seed, "tags") % 3]
+        text = _spy_pick(seed, "text", _SPY_POST_TEXTS).format(
+            name=company["name"],
+            feature=_spy_pick(seed, "feature", _SPY_FEATURES),
+            benefit=_spy_pick(seed, "benefit", _SPY_BENEFITS),
+        )
+        if tags:
+            text += "\n\n" + " ".join(tags)
+        if content_type == "Reel":
+            video = _spy_instagram_video(seed)
+            thumbnail = _spy_instagram_image(seed + "|thumbnail", "t51.82787-15", "e35_s640x640")
+            photos = None
+            images = []
+            videos = [video]
+            videos_duration = [{"url": video, "video_duration": 5 + _spy_digest(seed, "duration") % 120 + _spy_digest(seed, "frames") % 10**6 / 10**6}]
+            post_content = [{"alt_text": alt_text, "id": str(pk), "index": 0, "thumbnail": thumbnail, "type": "Video", "url": video}]
+            thumbnail_array = [thumbnail]
+        else:
+            photos = [_spy_instagram_image(f"{seed}|photo|{n}", "t51.82787-15", "e35_s640x640") for n in range(1 if content_type == "Image" else 2 + _spy_digest(seed, "photos") % 3)]
+            children = [str(pk)] if len(photos) == 1 else [str(pk - 2**33 + n * 2**23) for n in range(len(photos))]
+            images = [{"id": child, "url": photo} for child, photo in zip(children, photos)]
+            post_content = [{"alt_text": alt_text, "id": child, "index": n, "thumbnail": photo, "type": "Photo", "url": photo} for n, (child, photo) in enumerate(zip(children, photos))]
+            thumbnail = photos[0]
+            thumbnail_array = photos
+            videos = None
+            videos_duration = None
+        comments = []
+        for n in range(_spy_digest(seed, "comments") % 3):
+            comment_id = str(17 * 10**15 + _spy_digest(seed, "comment", str(n)) % 10**15)
+            comments.append({
+                "comment_id": comment_id,
+                "comment_url": f"{url}?comment_id={comment_id}",
+                "comments": _spy_pick(seed, f"comment_text_{n}", _SPY_INSTAGRAM_COMMENTS),
+                "date_of_comment": (posted + timedelta(days=n)).strftime("%Y-%m-%d"),
+                "likes": _spy_digest(seed, "comment_likes", str(n)) % 3,
+                "profile_picture": _spy_instagram_image(f"{seed}|commenter|{n}", "t51.2885-19", "s150x150"),
+            })
+        tagged = None
+        if author != slug:
+            tagged = [{"full_name": _SPY_INSTAGRAM_PROFILES[slug][0], "id": _SPY_INSTAGRAM_PROFILES[slug][1], "is_verified": True, "profile_pic_url": _spy_instagram_image(f"instagram_avatar|{slug}", "t51.2885-19", "s150x150"), "username": slug}]
+        posts.append({
+            "alt_text": alt_text,
+            "audio": None,
+            "audio_url": None,
+            "coauthor_producers": [slug] if author != slug else None,
+            "content_id": shortcode,
+            "content_type": content_type,
+            "date_posted": posted.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+            "description": text,
+            "discovery_input": {"url": f"https://www.instagram.com/{handle}/", "start_date": "", "end_date": "", "post_type": ""},
+            "followers": followers,
+            "hashtags": tags or None,
+            "images": images,
+            "input": {"url": url},
+            "is_verified": verified,
+            "latest_comments": comments,
+            "likes": 25 + _spy_digest(seed, "likes") % 1700,
+            "location": None,
+            "location_details": None,
+            "num_comments": len(comments) + _spy_digest(seed, "num_comments") % 12,
+            "partnership_details": None,
+            "photos": photos,
+            "photos_number": len(photos or []),
+            "pk": str(pk),
+            "post_content": post_content,
+            "post_id": str(pk),
+            "posts_count": posts_count,
+            "product_type": product_type,
+            "profile_image_link": _spy_instagram_image(f"instagram_avatar|{author}", "t51.2885-19", "s150x150"),
+            "profile_url": f"https://www.instagram.com/{author}",
+            "shortcode": shortcode,
+            "tagged_users": tagged,
+            "thumbnail": thumbnail,
+            "thumbnail_array": thumbnail_array,
+            "timestamp": f"{SPY_ANCHOR.isoformat()}T12:00:00.000Z",
+            "url": url,
+            "user_posted": author,
+            "user_posted_id": user_id,
+            "videos": videos,
+            "videos_duration": videos_duration,
         })
     return posts
 

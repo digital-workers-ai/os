@@ -8,6 +8,7 @@ competitors:
     aliases: [HubSpot CRM]
     linkedin: hubspot
     x: HubSpot
+    instagram: hubspot
     google_advertiser_id: AR10072600183532683265
     tiktok_advertiser_id: "6948549846680732417"
     tiktok_advertiser_name: "HUBSPOT, INC."
@@ -17,6 +18,7 @@ competitors:
     aliases: [Zoho]
     linkedin: zoho
     x: Zoho
+    instagram: zoho
     google_advertiser_id: AR07034216898162065409
     meta_page_id: "231460215383"
   - name: Freshsales
@@ -24,6 +26,7 @@ competitors:
     aliases: [Freshworks, Freshworks CRM]
     linkedin: freshworks-inc
     x: FreshworksInc
+    instagram: freshworksinc
     google_advertiser_id: AR03035893441289519105
     meta_page_id: "300722220374123"
 queries:
