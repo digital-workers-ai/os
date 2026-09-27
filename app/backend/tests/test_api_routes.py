@@ -2248,7 +2248,12 @@ class TestDefinitions:
             "aliases": ["HubSpot CRM"],
             "linkedin": "hubspot",
             "google_advertiser_id": tracked.competitors[0].google_advertiser_id,
+            "tiktok_advertiser_id": "6948549846680732417",
+            "tiktok_advertiser_name": "HUBSPOT, INC.",
         }
+        zoho = body["competitors"][1]
+        assert zoho["tiktok_advertiser_id"] is None
+        assert zoho["tiktok_advertiser_name"] is None
         assert body["queries"] == list(tracked.queries)
         assert len(body["queries"]) == 8
         assert body["country"] == "US"

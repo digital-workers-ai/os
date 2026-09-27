@@ -44,6 +44,7 @@ ALL_SOURCES = {
     "google_ads_transparency",
     "linkedin_posts",
     "linkedin_ads",
+    "tiktok_ads",
     "google_serp",
     "chatgpt",
     "perplexity",
@@ -483,7 +484,7 @@ class TestCredentials:
 
 class TestRegistry:
     def test_every_connector_module_is_discovered(self):
-        assert len(ALL_SOURCES) == 35
+        assert len(ALL_SOURCES) == 36
         assert set(registry.discover()) == ALL_SOURCES
 
     def test_discovery_is_cached(self):
