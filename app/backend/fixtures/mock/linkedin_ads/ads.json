@@ -1,0 +1,662 @@
+[
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "image",
+        "advertiser": {
+          "name": "HubSpot",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ569322549320/company-logo_100_100/0/1759322549320?e=2147483647&v=beta"
+        },
+        "content": {
+          "cta": "The CRM Your Sales Team Will Actually Use",
+          "headline": "See Every Deal In One Pipeline\nAutomate follow-ups, forecast revenue and hit quota every month.",
+          "image": "https://media.licdn.com/dms/image/v2/D4E10AQ017460530086/image-shrink_1280/0/1757460530086?e=2147483647&v=beta"
+        },
+        "id": "8700794242",
+        "link": "https://www.linkedin.com/ad-library/detail/8700794242?trk=ad_library_ad_preview_content_image",
+        "position": 1
+      },
+      "request": {
+        "advertiser": "HubSpot",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "8700794242"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "image",
+        "advertiser": {
+          "name": "HubSpot",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ569322549320/company-logo_100_100/0/1759322549320?e=2147483647&v=beta"
+        },
+        "content": {
+          "cta": "See Every Deal In One Pipeline",
+          "headline": "The CRM Your Sales Team Will Actually Use\nSet up in minutes, with built-in calling and email sync.",
+          "image": "https://media.licdn.com/dms/image/v2/D4E10AQ348861929009/image-shrink_1280/0/1758861929009?e=2147483647&v=beta"
+        },
+        "id": "9306046653",
+        "link": "https://www.linkedin.com/ad-library/detail/9306046653?trk=ad_library_ad_preview_content_image",
+        "position": 2
+      },
+      "request": {
+        "advertiser": "HubSpot",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "9306046653"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "text",
+        "advertiser": {
+          "name": "HubSpot",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ569322549320/company-logo_100_100/0/1759322549320?e=2147483647&v=beta"
+        },
+        "content": {
+          "headline": "See Every Deal In One Pipeline\nAutomate follow-ups, forecast revenue and hit quota every month."
+        },
+        "id": "7572016715",
+        "link": "https://www.linkedin.com/ad-library/detail/7572016715",
+        "position": 3
+      },
+      "request": {
+        "advertiser": "HubSpot",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "7572016715"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "image",
+        "advertiser": {
+          "name": "HubSpot",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ569322549320/company-logo_100_100/0/1759322549320?e=2147483647&v=beta"
+        },
+        "content": {
+          "cta": "Sales CRM Built For Small Teams",
+          "headline": "AI That Writes The Follow-Up For You\nAutomate follow-ups, forecast revenue and hit quota every month.",
+          "image": "https://media.licdn.com/dms/image/v2/D4E10AQ570413221470/image-shrink_1280/0/1750413221470?e=2147483647&v=beta"
+        },
+        "id": "6829329431",
+        "link": "https://www.linkedin.com/ad-library/detail/6829329431?trk=ad_library_ad_preview_content_image",
+        "position": 4
+      },
+      "request": {
+        "advertiser": "HubSpot",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "6829329431"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "image",
+        "advertiser": {
+          "name": "HubSpot",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ569322549320/company-logo_100_100/0/1759322549320?e=2147483647&v=beta"
+        },
+        "content": {
+          "cta": "Stop Losing Leads In Spreadsheets",
+          "headline": "Close More Deals With Less Admin\nSet up in minutes, with built-in calling and email sync.",
+          "image": "https://media.licdn.com/dms/image/v2/D4E10AQ184520905410/image-shrink_1280/0/1754520905410?e=2147483647&v=beta"
+        },
+        "id": "1791623428",
+        "link": "https://www.linkedin.com/ad-library/detail/1791623428?trk=ad_library_ad_preview_content_image",
+        "position": 5
+      },
+      "request": {
+        "advertiser": "HubSpot",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "1791623428"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "image",
+        "advertiser": {
+          "name": "HubSpot",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ569322549320/company-logo_100_100/0/1759322549320?e=2147483647&v=beta"
+        },
+        "content": {
+          "cta": "Sales CRM Built For Small Teams",
+          "headline": "Sales CRM Built For Small Teams\nStart your free 14-day trial. No credit card required.",
+          "image": "https://media.licdn.com/dms/image/v2/D4E10AQ615442019042/image-shrink_1280/0/1755442019042?e=2147483647&v=beta"
+        },
+        "id": "4906531854",
+        "link": "https://www.linkedin.com/ad-library/detail/4906531854?trk=ad_library_ad_preview_content_image",
+        "position": 6
+      },
+      "request": {
+        "advertiser": "HubSpot",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "4906531854"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "image",
+        "advertiser": {
+          "name": "HubSpot",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ569322549320/company-logo_100_100/0/1759322549320?e=2147483647&v=beta"
+        },
+        "content": {
+          "cta": "Close More Deals With Less Admin",
+          "headline": "Sales CRM Built For Small Teams\nStart your free 14-day trial. No credit card required.",
+          "image": "https://media.licdn.com/dms/image/v2/D4E10AQ351878522032/image-shrink_1280/0/1751878522032?e=2147483647&v=beta"
+        },
+        "id": "2197763009",
+        "link": "https://www.linkedin.com/ad-library/detail/2197763009?trk=ad_library_ad_preview_content_image",
+        "position": 7
+      },
+      "request": {
+        "advertiser": "HubSpot",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "2197763009"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "text",
+        "advertiser": {
+          "name": "HubSpot",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ569322549320/company-logo_100_100/0/1759322549320?e=2147483647&v=beta"
+        },
+        "content": {
+          "headline": "Stop Losing Leads In Spreadsheets\nStart your free 14-day trial. No credit card required."
+        },
+        "id": "6894604938",
+        "link": "https://www.linkedin.com/ad-library/detail/6894604938",
+        "position": 8
+      },
+      "request": {
+        "advertiser": "HubSpot",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "6894604938"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "text",
+        "advertiser": {
+          "name": "HubSpot",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ569322549320/company-logo_100_100/0/1759322549320?e=2147483647&v=beta"
+        },
+        "content": {
+          "headline": "See Every Deal In One Pipeline\nAutomate follow-ups, forecast revenue and hit quota every month."
+        },
+        "id": "5052914789",
+        "link": "https://www.linkedin.com/ad-library/detail/5052914789",
+        "position": 9
+      },
+      "request": {
+        "advertiser": "HubSpot",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "5052914789"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "video",
+        "advertiser": {
+          "name": "HubSpot",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ569322549320/company-logo_100_100/0/1759322549320?e=2147483647&v=beta"
+        },
+        "content": {
+          "cta": "Close More Deals With Less Admin",
+          "headline": "Sales CRM Built For Small Teams\nTrack calls, emails and meetings without leaving the CRM.",
+          "image": "https://media.licdn.com/dms/image/v2/D4E10AQ146746139379/videocover-high/0/1756746139379?e=2147483647&v=beta"
+        },
+        "id": "6465786158",
+        "link": "https://www.linkedin.com/ad-library/detail/6465786158",
+        "position": 10
+      },
+      "request": {
+        "advertiser": "HubSpot",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "6465786158"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "text",
+        "advertiser": {
+          "name": "HubSpot",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ569322549320/company-logo_100_100/0/1759322549320?e=2147483647&v=beta"
+        },
+        "content": {
+          "headline": "AI That Writes The Follow-Up For You\nStart your free 14-day trial. No credit card required."
+        },
+        "id": "2932059036",
+        "link": "https://www.linkedin.com/ad-library/detail/2932059036",
+        "position": 11
+      },
+      "request": {
+        "advertiser": "HubSpot",
+        "company": "HubSpot"
+      }
+    },
+    "source_id": "2932059036"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "video",
+        "advertiser": {
+          "name": "Zoho CRM",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ161708950256/company-logo_100_100/0/1751708950256?e=2147483647&v=beta"
+        },
+        "content": {
+          "cta": "Stop Losing Leads In Spreadsheets",
+          "headline": "Stop Losing Leads In Spreadsheets\nPlans from $14 per user per month. Cancel anytime.",
+          "image": "https://media.licdn.com/dms/image/v2/D4E10AQ954192429295/videocover-high/0/1754192429295?e=2147483647&v=beta"
+        },
+        "id": "6155742185",
+        "link": "https://www.linkedin.com/ad-library/detail/6155742185",
+        "position": 1
+      },
+      "request": {
+        "advertiser": "Zoho CRM",
+        "company": "Zoho CRM"
+      }
+    },
+    "source_id": "6155742185"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "image",
+        "advertiser": {
+          "name": "Zoho CRM",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ161708950256/company-logo_100_100/0/1751708950256?e=2147483647&v=beta"
+        },
+        "content": {
+          "cta": "AI That Writes The Follow-Up For You",
+          "headline": "Sales CRM Built For Small Teams\nSet up in minutes, with built-in calling and email sync.",
+          "image": "https://media.licdn.com/dms/image/v2/D4E10AQ202551416319/image-shrink_1280/0/1752551416319?e=2147483647&v=beta"
+        },
+        "id": "3533554871",
+        "link": "https://www.linkedin.com/ad-library/detail/3533554871?trk=ad_library_ad_preview_content_image",
+        "position": 2
+      },
+      "request": {
+        "advertiser": "Zoho CRM",
+        "company": "Zoho CRM"
+      }
+    },
+    "source_id": "3533554871"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "image",
+        "advertiser": {
+          "name": "Zoho CRM",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ161708950256/company-logo_100_100/0/1751708950256?e=2147483647&v=beta"
+        },
+        "content": {
+          "cta": "See Every Deal In One Pipeline",
+          "headline": "AI That Writes The Follow-Up For You\nPlans from $14 per user per month. Cancel anytime.",
+          "image": "https://media.licdn.com/dms/image/v2/D4E10AQ351933654478/image-shrink_1280/0/1751933654478?e=2147483647&v=beta"
+        },
+        "id": "3538524515",
+        "link": "https://www.linkedin.com/ad-library/detail/3538524515?trk=ad_library_ad_preview_content_image",
+        "position": 3
+      },
+      "request": {
+        "advertiser": "Zoho CRM",
+        "company": "Zoho CRM"
+      }
+    },
+    "source_id": "3538524515"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "document",
+        "advertiser": {
+          "name": "Zoho CRM",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ161708950256/company-logo_100_100/0/1751708950256?e=2147483647&v=beta"
+        },
+        "content": {
+          "headline": "Sales CRM Built For Small Teams\nPlans from $14 per user per month. Cancel anytime.",
+          "pages": [
+            "https://media.licdn.com/dms/image/v2/D4E10AQ908529669311/ads-document-cover-images_480/0/1758529669311?e=2147483647&v=beta"
+          ],
+          "title": "AI That Writes The Follow-Up For You"
+        },
+        "id": "7420896946",
+        "link": "https://www.linkedin.com/ad-library/detail/7420896946",
+        "position": 4
+      },
+      "request": {
+        "advertiser": "Zoho CRM",
+        "company": "Zoho CRM"
+      }
+    },
+    "source_id": "7420896946"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "video",
+        "advertiser": {
+          "name": "Zoho CRM",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ161708950256/company-logo_100_100/0/1751708950256?e=2147483647&v=beta"
+        },
+        "content": {
+          "cta": "AI That Writes The Follow-Up For You",
+          "headline": "Close More Deals With Less Admin\nSet up in minutes, with built-in calling and email sync.",
+          "image": "https://media.licdn.com/dms/image/v2/D4E10AQ263897368236/videocover-high/0/1753897368236?e=2147483647&v=beta"
+        },
+        "id": "1280276277",
+        "link": "https://www.linkedin.com/ad-library/detail/1280276277",
+        "position": 5
+      },
+      "request": {
+        "advertiser": "Zoho CRM",
+        "company": "Zoho CRM"
+      }
+    },
+    "source_id": "1280276277"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "document",
+        "advertiser": {
+          "name": "Zoho CRM",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ161708950256/company-logo_100_100/0/1751708950256?e=2147483647&v=beta"
+        },
+        "content": {
+          "headline": "Sales CRM Built For Small Teams\nStart your free 14-day trial. No credit card required.",
+          "pages": [
+            "https://media.licdn.com/dms/image/v2/D4E10AQ464205853819/ads-document-cover-images_480/0/1754205853819?e=2147483647&v=beta"
+          ],
+          "title": "See Every Deal In One Pipeline"
+        },
+        "id": "4955401867",
+        "link": "https://www.linkedin.com/ad-library/detail/4955401867",
+        "position": 6
+      },
+      "request": {
+        "advertiser": "Zoho CRM",
+        "company": "Zoho CRM"
+      }
+    },
+    "source_id": "4955401867"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "text",
+        "advertiser": {
+          "name": "Zoho CRM",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ161708950256/company-logo_100_100/0/1751708950256?e=2147483647&v=beta"
+        },
+        "content": {
+          "headline": "See Every Deal In One Pipeline\nAutomate follow-ups, forecast revenue and hit quota every month."
+        },
+        "id": "9483880790",
+        "link": "https://www.linkedin.com/ad-library/detail/9483880790",
+        "position": 7
+      },
+      "request": {
+        "advertiser": "Zoho CRM",
+        "company": "Zoho CRM"
+      }
+    },
+    "source_id": "9483880790"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "text",
+        "advertiser": {
+          "name": "Zoho CRM",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ161708950256/company-logo_100_100/0/1751708950256?e=2147483647&v=beta"
+        },
+        "content": {
+          "headline": "Stop Losing Leads In Spreadsheets\nPlans from $14 per user per month. Cancel anytime."
+        },
+        "id": "5160321384",
+        "link": "https://www.linkedin.com/ad-library/detail/5160321384",
+        "position": 8
+      },
+      "request": {
+        "advertiser": "Zoho CRM",
+        "company": "Zoho CRM"
+      }
+    },
+    "source_id": "5160321384"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "video",
+        "advertiser": {
+          "name": "Zoho CRM",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ161708950256/company-logo_100_100/0/1751708950256?e=2147483647&v=beta"
+        },
+        "content": {
+          "cta": "Stop Losing Leads In Spreadsheets",
+          "headline": "The CRM Your Sales Team Will Actually Use\nTrack calls, emails and meetings without leaving the CRM.",
+          "image": "https://media.licdn.com/dms/image/v2/D4E10AQ635634823376/videocover-high/0/1755634823376?e=2147483647&v=beta"
+        },
+        "id": "4766639381",
+        "link": "https://www.linkedin.com/ad-library/detail/4766639381",
+        "position": 9
+      },
+      "request": {
+        "advertiser": "Zoho CRM",
+        "company": "Zoho CRM"
+      }
+    },
+    "source_id": "4766639381"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "document",
+        "advertiser": {
+          "name": "Zoho CRM",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ161708950256/company-logo_100_100/0/1751708950256?e=2147483647&v=beta"
+        },
+        "content": {
+          "headline": "The CRM Your Sales Team Will Actually Use\nTrack calls, emails and meetings without leaving the CRM.",
+          "pages": [
+            "https://media.licdn.com/dms/image/v2/D4E10AQ372101291091/ads-document-cover-images_480/0/1752101291091?e=2147483647&v=beta",
+            "https://media.licdn.com/dms/image/v2/D4E10AQ372101291091/ads-document-cover-images_480/1/1752101291091?e=2147483647&v=beta",
+            "https://media.licdn.com/dms/image/v2/D4E10AQ372101291091/ads-document-cover-images_480/2/1752101291091?e=2147483647&v=beta"
+          ],
+          "title": "See Every Deal In One Pipeline"
+        },
+        "id": "7048803987",
+        "link": "https://www.linkedin.com/ad-library/detail/7048803987",
+        "position": 10
+      },
+      "request": {
+        "advertiser": "Zoho CRM",
+        "company": "Zoho CRM"
+      }
+    },
+    "source_id": "7048803987"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "text",
+        "advertiser": {
+          "name": "Zoho CRM",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ161708950256/company-logo_100_100/0/1751708950256?e=2147483647&v=beta"
+        },
+        "content": {
+          "headline": "AI That Writes The Follow-Up For You\nTrack calls, emails and meetings without leaving the CRM."
+        },
+        "id": "1609385864",
+        "link": "https://www.linkedin.com/ad-library/detail/1609385864",
+        "position": 11
+      },
+      "request": {
+        "advertiser": "Zoho CRM",
+        "company": "Zoho CRM"
+      }
+    },
+    "source_id": "1609385864"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "text",
+        "advertiser": {
+          "name": "Zoho CRM",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ161708950256/company-logo_100_100/0/1751708950256?e=2147483647&v=beta"
+        },
+        "content": {
+          "headline": "Stop Losing Leads In Spreadsheets\nSet up in minutes, with built-in calling and email sync."
+        },
+        "id": "9601643849",
+        "link": "https://www.linkedin.com/ad-library/detail/9601643849",
+        "position": 12
+      },
+      "request": {
+        "advertiser": "Zoho CRM",
+        "company": "Zoho CRM"
+      }
+    },
+    "source_id": "9601643849"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "text",
+        "advertiser": {
+          "name": "Freshsales",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ597253753783/company-logo_100_100/0/1757253753783?e=2147483647&v=beta"
+        },
+        "content": {
+          "headline": "Close More Deals With Less Admin\nPlans from $14 per user per month. Cancel anytime."
+        },
+        "id": "5401823291",
+        "link": "https://www.linkedin.com/ad-library/detail/5401823291",
+        "position": 1
+      },
+      "request": {
+        "advertiser": "Freshsales",
+        "company": "Freshsales"
+      }
+    },
+    "source_id": "5401823291"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "text",
+        "advertiser": {
+          "name": "Freshsales",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ597253753783/company-logo_100_100/0/1757253753783?e=2147483647&v=beta"
+        },
+        "content": {
+          "headline": "Stop Losing Leads In Spreadsheets\nAutomate follow-ups, forecast revenue and hit quota every month."
+        },
+        "id": "2948448045",
+        "link": "https://www.linkedin.com/ad-library/detail/2948448045",
+        "position": 2
+      },
+      "request": {
+        "advertiser": "Freshsales",
+        "company": "Freshsales"
+      }
+    },
+    "source_id": "2948448045"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "video",
+        "advertiser": {
+          "name": "Freshsales",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ597253753783/company-logo_100_100/0/1757253753783?e=2147483647&v=beta"
+        },
+        "content": {
+          "cta": "The CRM Your Sales Team Will Actually Use",
+          "headline": "AI That Writes The Follow-Up For You\nPlans from $14 per user per month. Cancel anytime.",
+          "image": "https://media.licdn.com/dms/image/v2/D4E10AQ960096893065/videocover-high/0/1750096893065?e=2147483647&v=beta"
+        },
+        "id": "7944441444",
+        "link": "https://www.linkedin.com/ad-library/detail/7944441444",
+        "position": 3
+      },
+      "request": {
+        "advertiser": "Freshsales",
+        "company": "Freshsales"
+      }
+    },
+    "source_id": "7944441444"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "image",
+        "advertiser": {
+          "name": "Freshsales",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ597253753783/company-logo_100_100/0/1757253753783?e=2147483647&v=beta"
+        },
+        "content": {
+          "cta": "The CRM Your Sales Team Will Actually Use",
+          "headline": "Sales CRM Built For Small Teams\nAutomate follow-ups, forecast revenue and hit quota every month.",
+          "image": "https://media.licdn.com/dms/image/v2/D4E10AQ078201956119/image-shrink_1280/0/1758201956119?e=2147483647&v=beta"
+        },
+        "id": "3551798340",
+        "link": "https://www.linkedin.com/ad-library/detail/3551798340?trk=ad_library_ad_preview_content_image",
+        "position": 4
+      },
+      "request": {
+        "advertiser": "Freshsales",
+        "company": "Freshsales"
+      }
+    },
+    "source_id": "3551798340"
+  },
+  {
+    "payload": {
+      "ad": {
+        "ad_type": "image",
+        "advertiser": {
+          "name": "Freshsales",
+          "thumbnail": "https://media.licdn.com/dms/image/v2/D4E10AQ597253753783/company-logo_100_100/0/1757253753783?e=2147483647&v=beta"
+        },
+        "content": {
+          "cta": "Close More Deals With Less Admin",
+          "headline": "Close More Deals With Less Admin\nAutomate follow-ups, forecast revenue and hit quota every month.",
+          "image": "https://media.licdn.com/dms/image/v2/D4E10AQ845790417252/image-shrink_1280/0/1755790417252?e=2147483647&v=beta"
+        },
+        "id": "4487120773",
+        "link": "https://www.linkedin.com/ad-library/detail/4487120773?trk=ad_library_ad_preview_content_image",
+        "position": 5
+      },
+      "request": {
+        "advertiser": "Freshsales",
+        "company": "Freshsales"
+      }
+    },
+    "source_id": "4487120773"
+  }
+]

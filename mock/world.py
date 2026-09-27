@@ -580,6 +580,13 @@ _SPY_HASHTAGS = ("#CRM", "#Sales", "#SalesTech", "#AI", "#ProductUpdate", "#Star
 _SPY_FOLLOWERS = {"hubspot": 1240000, "zoho": 812000, "freshworks-inc": 396000}
 _SPY_ADVERTISERS = {c["google_advertiser_id"]: c for c in SPY_COMPETITORS}
 _SPY_LINKEDIN = {c["linkedin"]: c for c in SPY_COMPETITORS}
+_SPY_LINKEDIN_TYPES = ("image", "image", "image", "video", "text", "document")
+_SPY_LINKEDIN_FORMATS = {"image": "Single Image Ad", "video": "Video Ad", "text": "Text Ad", "document": "Document Ad"}
+_SPY_LINKEDIN_PEOPLE = (("Maya Lindqvist", "CEO"), ("Tomas Reyes", "CMO"), ("Priya Natarajan", "VP of Sales"))
+_SPY_LINKEDIN_CTAS = ("Learn more", "Sign up", "Download", "Register")
+_SPY_LINKEDIN_BANDS = (("< 1k", None, 1000), ("1k-5k", 1000, 5000), ("5k-10k", 5000, 10000), ("10k-50k", 10000, 50000))
+_SPY_LINKEDIN_COUNTRIES = ("United States", "United Kingdom", "Canada", "Australia", "India", "Germany", "Ireland")
+_SPY_LINKEDIN_TARGETING = (("Audience", True), ("Demographic", False), ("Company", True), ("Education", False), ("Job", True), ("Member Interests and Traits", False))
 
 
 def _spy_digest(*parts: str) -> int:
@@ -755,3 +762,85 @@ def spy_posts(slug: str) -> list[dict]:
             "tagged_people": [],
         })
     return posts
+
+
+def _spy_company_named(name: str) -> Optional[dict]:
+    needle = name.lower()
+    for company in SPY_COMPETITORS:
+        if needle in [n.lower() for n in [company["name"], *company["aliases"]]]:
+            return company
+    return None
+
+
+def _spy_licdn(seed: str, salt: str, variant: str, page: int = 0) -> str:
+    digest = _spy_digest(seed, salt)
+    return f"https://media.licdn.com/dms/image/v2/D4E10AQ{digest % 10**12:012d}/{variant}/{page}/{1_750_000_000_000 + digest % 10**10}?e=2147483647&v=beta"
+
+
+def spy_linkedin_ads(advertiser: str) -> list[dict]:
+    company = _spy_company_named(advertiser)
+    if company is None:
+        return []
+    slug = company["linkedin"]
+    count = 5 + _spy_digest(slug, "linkedin_count") % 8
+    ads = []
+    for i in range(count + 1):
+        seed = f"linkedin_ad|{slug}|{i}"
+        ad_id = str(10**9 + _spy_digest(seed, "id") % (9 * 10**9))
+        ad_type = _spy_pick(seed, "type", _SPY_LINKEDIN_TYPES)
+        content = {"headline": spy_ad_text(ad_id)}
+        if ad_type in ("image", "video"):
+            content["image"] = _spy_licdn(seed, "media", "image-shrink_1280" if ad_type == "image" else "videocover-high")
+            content["cta"] = _spy_pick(seed, "cta", _SPY_AD_HEADLINES)
+        elif ad_type == "document":
+            content["title"] = _spy_pick(seed, "title", _SPY_AD_HEADLINES)
+            content["pages"] = [_spy_licdn(seed, "media", "ads-document-cover-images_480", page) for page in range(1 + _spy_digest(seed, "pages") % 3)]
+        owner = {"name": company["name"], "thumbnail": _spy_licdn(slug, "logo", "company-logo_100_100")}
+        if i == count:
+            person, role = _spy_pick(seed, "person", _SPY_LINKEDIN_PEOPLE)
+            owner = {"name": person, "position": f"{role} at {company['name']}", "promotor": company["name"], "thumbnail": _spy_licdn(seed, "photo", "profile-displayphoto-shrink_100_100")}
+        link = f"https://www.linkedin.com/ad-library/detail/{ad_id}"
+        if ad_type == "image":
+            link += "?trk=ad_library_ad_preview_content_image"
+        ads.append({"position": i + 1, "advertiser": owner, "ad_type": ad_type, "content": content, "link": link, "id": ad_id})
+    return ads
+
+
+def _spy_linkedin_detail(company: dict, ad: dict) -> dict:
+    seed = f"linkedin_detail|{ad['id']}"
+    first_age = 1 + _spy_digest(seed, "first") % 120
+    last_age = 1 if _spy_digest(seed, "running") % 3 == 0 else 1 + _spy_digest(seed, "last") % first_age
+    label, low, high = _spy_pick(seed, "band", _SPY_LINKEDIN_BANDS)
+    countries = _spy_order(seed, list(_SPY_LINKEDIN_COUNTRIES))[: 2 + _spy_digest(seed, "countries") % 4]
+    weights = {c: 1 + _spy_digest(seed, c, "share") % 9 for c in countries}
+    total = sum(weights.values())
+    shares = sorted(((w * 100 // total, c) for c, w in weights.items()), reverse=True)
+    company_id = 10**7 + _spy_digest(company["linkedin"], "company_id") % (9 * 10**7)
+    detail = {
+        "id": ad["id"],
+        "link": f"https://www.linkedin.com/ad-library/detail/{ad['id']}",
+        "external_link": f"{_SPY_PAGES[company['domain']][1]}?utm_source=linkedin&utm_medium=paid&hsa_ad={ad['id']}&hsa_net=linkedin",
+        "ad_type": ad["ad_type"],
+        "ad_format": _SPY_LINKEDIN_FORMATS[ad["ad_type"]],
+        "advertiser": {**ad["advertiser"], "link": f"https://www.linkedin.com/company/{company_id}?trk=ad_library_about_ad_advertiser"},
+        "content": {**ad["content"], "call_to_action": _spy_pick(seed, "call", _SPY_LINKEDIN_CTAS)},
+        "paid_for_by": company["name"] + (", Inc." if _spy_digest(company["name"], "inc") % 2 else ""),
+        "first_shown_date": (SPY_ANCHOR - timedelta(days=first_age)).isoformat(),
+        "last_shown_date": (SPY_ANCHOR - timedelta(days=last_age)).isoformat(),
+        "total_impressions": label,
+    }
+    if low:
+        detail["total_impressions_min"] = low
+    detail["total_impressions_max"] = high
+    detail["impressions_by_country"] = [{"country": c, "percentage": p, "percentage_display": f"{p}%"} for p, c in shares]
+    detail["targeting"] = [{"name": "Language", "included": ["English"]}, {"name": "Location", "included": countries}]
+    detail["targeting_parameters"] = [{"name": n, "is_targeted": t, "is_excluded": t} for n, t in _SPY_LINKEDIN_TARGETING]
+    return detail
+
+
+def spy_linkedin_ad_detail(ad_id: str) -> Optional[dict]:
+    for company in SPY_COMPETITORS:
+        for ad in spy_linkedin_ads(company["name"]):
+            if ad["id"] == ad_id:
+                return _spy_linkedin_detail(company, ad)
+    return None

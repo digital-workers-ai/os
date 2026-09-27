@@ -12,7 +12,10 @@ export const ENGINES: Option[] = [
   { value: 'gemini', label: 'Gemini' },
 ]
 
-export const PLATFORMS: Option[] = [{ value: 'google', label: 'Google' }]
+export const PLATFORMS: Option[] = [
+  { value: 'google', label: 'Google' },
+  { value: 'linkedin', label: 'LinkedIn' },
+]
 
 export const known = (options: Option[], value?: string) => value === undefined || options.some((option) => option.value === value)
 

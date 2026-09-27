@@ -22,6 +22,7 @@ AD_ATTRS = (
     "url",
     "preview",
     "media",
+    "landing_url",
 )
 POST_ATTRS = (
     "company",

@@ -184,6 +184,7 @@ export interface Ad {
   url: string
   preview: string | null
   media: string | null
+  landing_url: string | null
 }
 
 export interface AdsResponse {

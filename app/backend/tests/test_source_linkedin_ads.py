@@ -77,6 +77,8 @@ MAPPED = {
     ("ads", "ad.content.headline", "name"),
     ("ads", "_preview", "preview"),
     ("ads", "ad.link", "url"),
+    ("ad_details", "_company", "company"),
+    ("ad_details", "_platform", "platform"),
     ("ad_details", "ad.first_shown_date", "first_seen"),
     ("ad_details", "ad.last_shown_date", "last_seen"),
     ("ad_details", "ad.external_link", "landing_url"),
