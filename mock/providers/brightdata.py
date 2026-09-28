@@ -170,10 +170,36 @@ def _instagram_records(handles: list[str]) -> list[dict]:
     return records
 
 
+def _tiktok_records(slugs: list[str]) -> list[dict]:
+    records = []
+    for slug in slugs:
+        handle = slug.removeprefix("@")
+        posts = world.spy_tiktok_posts(handle)
+        records.extend(
+            posts
+            or [
+                _dead(
+                    {
+                        "url": f"https://www.tiktok.com/@{handle}",
+                        "start_date": "",
+                        "end_date": "",
+                        "what_to_collect": "",
+                        "post_type": "",
+                        "country": "",
+                        "sort_by": "",
+                    },
+                    "There are no public posts in the profile.",
+                )
+            ]
+        )
+    return records
+
+
 _DATASETS = {
     "gd_lyy3tktm25m4avu764": ("company_url", _linkedin_records),
     "gd_lwxkxvnf1cynvib9co": ("profile_url", _x_records),
     "gd_lk5ns7kz21pck8jpis": ("url", _instagram_records),
+    "gd_lu702nij2f790tmv9h": ("profile_url", _tiktok_records),
 }
 
 

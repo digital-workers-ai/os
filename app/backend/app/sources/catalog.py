@@ -48,6 +48,7 @@ _META: dict[str, tuple[str, str, str]] = {
     ),
     "x_posts": ("X Posts", "Spy", "Competitor posts, engagement"),
     "instagram_posts": ("Instagram Posts", "Spy", "Competitor posts, engagement"),
+    "tiktok_posts": ("TikTok Posts", "Spy", "Competitor videos, plays, engagement"),
     "linkedin_ads": (
         "LinkedIn Ad Library",
         "Spy",

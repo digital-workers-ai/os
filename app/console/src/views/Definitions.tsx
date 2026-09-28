@@ -194,6 +194,7 @@ interface Competitor extends TrackedCompany {
   linkedin: string | null
   x: string | null
   instagram: string | null
+  tiktok: string | null
   google_advertiser_id: string | null
   tiktok_advertiser_id: string | null
   tiktok_advertiser_name: string | null
@@ -879,6 +880,7 @@ function SpyTab({ s }: { s: Spy }) {
               <TableHead hint="The company page whose posts are tracked">LinkedIn</TableHead>
               <TableHead hint="The X profile whose posts are tracked">X</TableHead>
               <TableHead hint="The Instagram profile whose posts are tracked">Instagram</TableHead>
+              <TableHead hint="The TikTok profile whose posts are tracked">TikTok</TableHead>
               <TableHead hint="The Ads Transparency advertiser whose creatives are tracked">Google advertiser</TableHead>
               <TableHead hint="The TikTok Ads Library advertiser whose creatives are tracked">TikTok advertiser</TableHead>
               <TableHead hint="The Meta Ad Library page whose creatives are tracked">Meta page</TableHead>
@@ -897,6 +899,7 @@ function SpyTab({ s }: { s: Spy }) {
                 <TableCell className="whitespace-nowrap align-top">{c.linkedin ? <Mono>{c.linkedin}</Mono> : '—'}</TableCell>
                 <TableCell className="whitespace-nowrap align-top">{c.x ? <Mono>{c.x}</Mono> : '—'}</TableCell>
                 <TableCell className="whitespace-nowrap align-top">{c.instagram ? <Mono>{c.instagram}</Mono> : '—'}</TableCell>
+                <TableCell className="whitespace-nowrap align-top">{c.tiktok ? <Mono>{c.tiktok}</Mono> : '—'}</TableCell>
                 <TableCell className="whitespace-nowrap align-top">{c.google_advertiser_id ? <Mono>{c.google_advertiser_id}</Mono> : '—'}</TableCell>
                 <TableCell className="whitespace-nowrap align-top">
                   {c.tiktok_advertiser_id && c.tiktok_advertiser_name ? (

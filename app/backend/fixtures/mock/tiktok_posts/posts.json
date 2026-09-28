@@ -1,0 +1,1515 @@
+[
+  {
+    "payload": {
+      "account_id": "hubspot",
+      "carousel_images": null,
+      "cdn_link": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o05fb22c67d276e0cc3d14a714e013e3f8/?a=1988&bti=ODszNWYuMDE6&&bt=1572&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=5b596d0a1ce6bbeb07b88ed3c123cb57&tk=tt_chain_token&btag=e000f0000",
+      "cdn_url": "https://www.tiktok.com/599b25a9-f11d-af06-631e-0322b9e83be9",
+      "collect_count": 9,
+      "comment_count": 2,
+      "comments": [
+        {
+          "comment": "Saving this for my next pipeline review",
+          "comment_id": "7681267827548743697",
+          "comment_url": "https://www.tiktok.com/@hubspot/video/7680602968484588260?comment_id=7681267827548743697",
+          "date": "2026-09-03T11:22:12.000Z",
+          "likes": 2,
+          "num_of_replies": 0,
+          "user_handle": "growthlab.io",
+          "user_id": "6369534364153168249"
+        },
+        {
+          "comment": "Great tip, sharing with the team",
+          "comment_id": "7681561603636582383",
+          "comment_url": "https://www.tiktok.com/@hubspot/video/7680602968484588260?comment_id=7681561603636582383",
+          "date": "2026-09-04T06:22:12.000Z",
+          "likes": 2,
+          "num_of_replies": 0,
+          "user_handle": "salesnerd",
+          "user_id": "6928948147626558762"
+        }
+      ],
+      "commerce_info": null,
+      "create_time": "2026-09-01T16:22:12.000Z",
+      "description": "We just shipped workflow automation in HubSpot. Reps can now close deals faster without leaving the deal view. Read the release notes on our blog. #SalesTech",
+      "digg_count": 24,
+      "discovery_input": {
+        "country": "",
+        "end_date": "",
+        "post_type": "",
+        "sort_by": "",
+        "start_date": "",
+        "url": "https://www.tiktok.com/@hubspot",
+        "what_to_collect": ""
+      },
+      "hashtags": [
+        "SalesTech"
+      ],
+      "input": {
+        "discovery_input": null,
+        "url": "https://www.tiktok.com/@hubspot/video/7680602968484588260"
+      },
+      "is_verified": true,
+      "music": {
+        "authorname": "HubSpot",
+        "covermedium": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-avt-0068-tx/7351755011711303722~tplv-tiktokx-cropcenter:720:720.jpeg?dr=9640&refresh_token=b28fccc4&x-expires=1788523200&x-signature=0878b6aafbf76930b5bbe70c%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+        "id": "7680602969070093963",
+        "original": true,
+        "playurl": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0114b854600eee76cd81107bd85fb51a7/?a=1988&bti=ODszNWYuMDE6&&bt=1103&mime_type=audio_mpeg&expire=1788523200&ply_type=2&policy=2&signature=0485db70444de7a7fd95a3e05a281305&tk=tt_chain_token&btag=e000f0000",
+        "title": "original sound - HubSpot"
+      },
+      "num_share_count": 7,
+      "offical_item": false,
+      "original_item": false,
+      "original_sound": "HubSpot: original sound - HubSpot",
+      "play_count": 1357,
+      "post_id": "7680602968484588260",
+      "post_type": "video",
+      "preview_image": "https://p16-common-sign.tiktokcdn.com/tos-useast5-p-85c255-tx/2efcb5dc4347319298acedd097b93059~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=2efcb5dc&x-expires=1788523200&x-signature=4347319298acedd097b93059%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+      "profile_avatar": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-avt-0068-tx/7351755011711303722~tplv-tiktokx-cropcenter:1080:1080.jpeg?dr=9640&refresh_token=b31e4b62&x-expires=1788523200&x-signature=1eba6ab5ef0c69992b3ea14a%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+      "profile_biography": "The agentic customer platform to scale your business.",
+      "profile_followers": 43400,
+      "profile_id": "6921028957732193285",
+      "profile_url": "https://www.tiktok.com/@hubspot",
+      "profile_username": "HubSpot",
+      "ratio": "540p",
+      "region": "US",
+      "secu_id": "MS4wLjABAAAAuY18L_r3HfP3KEtK0txT2RPxDj1uSMSqbHZF33aYcGVAwL3PUA50WeQkR2o53xqr",
+      "share_count": "7",
+      "shortcode": "7680602968484588260",
+      "subtitle_format": "webvtt",
+      "subtitle_info": [
+        {
+          "format": "webvtt",
+          "language_code_name": "eng-US",
+          "language_id": "2",
+          "size": 3378,
+          "url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o09ba1193d0c5d6d953528ac0cf2ebf6d8/?a=1988&bti=ODszNWYuMDE6&&bt=1316&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=77eb7c84e1dc5e7044b3550e14ee390e&tk=tt_chain_token&btag=e000f0000",
+          "url_expire": "1788523200",
+          "version": "1:big_caption"
+        }
+      ],
+      "subtitle_url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o09ba1193d0c5d6d953528ac0cf2ebf6d8/?a=1988&bti=ODszNWYuMDE6&&bt=1316&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=77eb7c84e1dc5e7044b3550e14ee390e&tk=tt_chain_token&btag=e000f0000",
+      "tagged_user": null,
+      "timestamp": "2026-09-04T12:00:00.000Z",
+      "tt_chain_token": "FFNanfLXY7hxl3rA3Dy1VQ==",
+      "url": "https://www.tiktok.com/@hubspot/video/7680602968484588260",
+      "video_duration": 20,
+      "video_url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o075c373d503008da523cae3846fa83718/?a=1988&bti=ODszNWYuMDE6&&bt=1388&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=e9f56cd2bc026f75d5e085c626760829&tk=tt_chain_token&btag=e000f0000",
+      "width": 576
+    },
+    "source_id": "7680602968484588260"
+  },
+  {
+    "payload": {
+      "account_id": "hubspot",
+      "carousel_images": null,
+      "cdn_link": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0826d313352d5b150b272ec7f5bfaff74/?a=1988&bti=ODszNWYuMDE6&&bt=1788&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=041e9d2805bb7eac2f1e14296e6904b9&tk=tt_chain_token&btag=e000f0000",
+      "cdn_url": "https://www.tiktok.com/8f8a18dc-6b76-939d-da5e-010739384f45",
+      "collect_count": 9,
+      "comment_count": 3,
+      "comments": [
+        {
+          "comment": "The orange sneakers though",
+          "comment_id": "7678166546484266779",
+          "comment_url": "https://www.tiktok.com/@hubspot/video/7677594456994236988?comment_id=7678166546484266779",
+          "date": "2026-08-26T02:47:39.000Z",
+          "likes": 2,
+          "num_of_replies": 0,
+          "user_handle": "growthlab.io",
+          "user_id": "6091458345046046463"
+        },
+        {
+          "comment": "Saving this for my next pipeline review",
+          "comment_id": "7678491249332175778",
+          "comment_url": "https://www.tiktok.com/@hubspot/video/7677594456994236988?comment_id=7678491249332175778",
+          "date": "2026-08-26T23:47:39.000Z",
+          "likes": 1,
+          "num_of_replies": 0,
+          "user_handle": "studio.pixelizer",
+          "user_id": "6749442593291809777"
+        }
+      ],
+      "commerce_info": null,
+      "create_time": "2026-08-24T13:47:39.000Z",
+      "description": "workflow automation is here. Teams on HubSpot can forecast the quarter with confidence and see the result on the pipeline dashboard the same day.",
+      "digg_count": 59,
+      "discovery_input": {
+        "country": "",
+        "end_date": "",
+        "post_type": "",
+        "sort_by": "",
+        "start_date": "",
+        "url": "https://www.tiktok.com/@hubspot",
+        "what_to_collect": ""
+      },
+      "hashtags": null,
+      "input": {
+        "discovery_input": null,
+        "url": "https://www.tiktok.com/@hubspot/video/7677594456994236988"
+      },
+      "is_verified": true,
+      "music": {
+        "authorname": "HubSpot",
+        "covermedium": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-avt-0068-tx/7351755011711303722~tplv-tiktokx-cropcenter:720:720.jpeg?dr=9640&refresh_token=b28fccc4&x-expires=1788523200&x-signature=0878b6aafbf76930b5bbe70c%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+        "id": "7677594457455119476",
+        "original": true,
+        "playurl": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0a7a67abc854e81c1df5934f347f72438/?a=1988&bti=ODszNWYuMDE6&&bt=1288&mime_type=audio_mpeg&expire=1788523200&ply_type=2&policy=2&signature=505221675d5ab97a52b51b10570890d0&tk=tt_chain_token&btag=e000f0000",
+        "title": "original sound - HubSpot"
+      },
+      "num_share_count": 3,
+      "offical_item": false,
+      "original_item": false,
+      "original_sound": "HubSpot: original sound - HubSpot",
+      "play_count": 2710,
+      "post_id": "7677594456994236988",
+      "post_type": "video",
+      "preview_image": "https://p16-common-sign.tiktokcdn.com/tos-useast5-p-85c255-tx/b8ee8e82a6dbfb5fd695a51b2834fea7~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=b8ee8e82&x-expires=1788523200&x-signature=a6dbfb5fd695a51b2834fea7%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+      "profile_avatar": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-avt-0068-tx/7351755011711303722~tplv-tiktokx-cropcenter:1080:1080.jpeg?dr=9640&refresh_token=b31e4b62&x-expires=1788523200&x-signature=1eba6ab5ef0c69992b3ea14a%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+      "profile_biography": "The agentic customer platform to scale your business.",
+      "profile_followers": 43400,
+      "profile_id": "6921028957732193285",
+      "profile_url": "https://www.tiktok.com/@hubspot",
+      "profile_username": "HubSpot",
+      "ratio": "540p",
+      "region": "US",
+      "secu_id": "MS4wLjABAAAAuY18L_r3HfP3KEtK0txT2RPxDj1uSMSqbHZF33aYcGVAwL3PUA50WeQkR2o53xqr",
+      "share_count": "3",
+      "shortcode": "7677594456994236988",
+      "subtitle_format": null,
+      "subtitle_info": [],
+      "subtitle_url": null,
+      "tagged_user": null,
+      "timestamp": "2026-09-04T12:00:00.000Z",
+      "tt_chain_token": "hbMsNcr5dIK80ngwuRCCJg==",
+      "url": "https://www.tiktok.com/@hubspot/video/7677594456994236988",
+      "video_duration": 25,
+      "video_url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o061d2be56fe46358c6f4844b4ede881f5/?a=1988&bti=ODszNWYuMDE6&&bt=1829&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=e7185c940737337e593501e2fbf419b3&tk=tt_chain_token&btag=e000f0000",
+      "width": 576
+    },
+    "source_id": "7677594456994236988"
+  },
+  {
+    "payload": {
+      "account_id": "hubspot",
+      "carousel_images": null,
+      "cdn_link": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0a92bd793f0ab45ee01e093af1f64215c/?a=1988&bti=ODszNWYuMDE6&&bt=1460&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=47c50c5bfe6978c1e72a585bc31cc3b9&tk=tt_chain_token&btag=e000f0000",
+      "cdn_url": "https://www.tiktok.com/27574ecf-5442-41a1-1a29-90f4d765647c",
+      "collect_count": 9,
+      "comment_count": 4,
+      "comments": [
+        {
+          "comment": "this is so real",
+          "comment_id": "7673626058352917485",
+          "comment_url": "https://www.tiktok.com/@hubspot/video/7673069429378430757?comment_id=7673626058352917485",
+          "date": "2026-08-13T21:08:14.000Z",
+          "likes": 0,
+          "num_of_replies": 0,
+          "user_handle": "salesnerd",
+          "user_id": "6406432101540322630"
+        },
+        {
+          "comment": "Great tip, sharing with the team",
+          "comment_id": "7673904372262336735",
+          "comment_url": "https://www.tiktok.com/@hubspot/video/7673069429378430757?comment_id=7673904372262336735",
+          "date": "2026-08-14T15:08:14.000Z",
+          "likes": 0,
+          "num_of_replies": 0,
+          "user_handle": "salesnerd",
+          "user_id": "6908564719616183901"
+        }
+      ],
+      "commerce_info": null,
+      "create_time": "2026-08-12T09:08:14.000Z",
+      "description": "Customer story of the week: how a 40-person sales team used HubSpot to keep every conversation in one thread. Full case study in the comments. #AI",
+      "digg_count": 39,
+      "discovery_input": {
+        "country": "",
+        "end_date": "",
+        "post_type": "",
+        "sort_by": "",
+        "start_date": "",
+        "url": "https://www.tiktok.com/@hubspot",
+        "what_to_collect": ""
+      },
+      "hashtags": [
+        "AI"
+      ],
+      "input": {
+        "discovery_input": null,
+        "url": "https://www.tiktok.com/@hubspot/video/7673069429378430757"
+      },
+      "is_verified": true,
+      "music": {
+        "authorname": "HubSpot",
+        "covermedium": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-avt-0068-tx/7351755011711303722~tplv-tiktokx-cropcenter:720:720.jpeg?dr=9640&refresh_token=b28fccc4&x-expires=1788523200&x-signature=0878b6aafbf76930b5bbe70c%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+        "id": "7673069429912642228",
+        "original": true,
+        "playurl": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o09f4ca09bfb15609686f424e14bd9098f/?a=1988&bti=ODszNWYuMDE6&&bt=1771&mime_type=audio_mpeg&expire=1788523200&ply_type=2&policy=2&signature=9b53a831f8d6cf2e3491ce0fe34587db&tk=tt_chain_token&btag=e000f0000",
+        "title": "original sound - HubSpot"
+      },
+      "num_share_count": 0,
+      "offical_item": false,
+      "original_item": false,
+      "original_sound": "HubSpot: original sound - HubSpot",
+      "play_count": 1608,
+      "post_id": "7673069429378430757",
+      "post_type": "video",
+      "preview_image": "https://p16-common-sign.tiktokcdn.com/tos-useast5-p-85c255-tx/cd96558108c156e6e977cc01e78af252~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=cd965581&x-expires=1788523200&x-signature=08c156e6e977cc01e78af252%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+      "profile_avatar": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-avt-0068-tx/7351755011711303722~tplv-tiktokx-cropcenter:1080:1080.jpeg?dr=9640&refresh_token=b31e4b62&x-expires=1788523200&x-signature=1eba6ab5ef0c69992b3ea14a%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+      "profile_biography": "The agentic customer platform to scale your business.",
+      "profile_followers": 43400,
+      "profile_id": "6921028957732193285",
+      "profile_url": "https://www.tiktok.com/@hubspot",
+      "profile_username": "HubSpot",
+      "ratio": "720p",
+      "region": "US",
+      "secu_id": "MS4wLjABAAAAuY18L_r3HfP3KEtK0txT2RPxDj1uSMSqbHZF33aYcGVAwL3PUA50WeQkR2o53xqr",
+      "share_count": null,
+      "shortcode": "7673069429378430757",
+      "subtitle_format": "webvtt",
+      "subtitle_info": [
+        {
+          "format": "webvtt",
+          "language_code_name": "eng-US",
+          "language_id": "2",
+          "size": 739,
+          "url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0504e62207188f675c10175c6cfc56e3d/?a=1988&bti=ODszNWYuMDE6&&bt=1469&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=b3980e1de125884917706625d4b98ff9&tk=tt_chain_token&btag=e000f0000",
+          "url_expire": "1788523200",
+          "version": "1:big_caption"
+        }
+      ],
+      "subtitle_url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0504e62207188f675c10175c6cfc56e3d/?a=1988&bti=ODszNWYuMDE6&&bt=1469&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=b3980e1de125884917706625d4b98ff9&tk=tt_chain_token&btag=e000f0000",
+      "tagged_user": null,
+      "timestamp": "2026-09-04T12:00:00.000Z",
+      "tt_chain_token": "ijq208gtSBTeXgMlA1ke5Q==",
+      "url": "https://www.tiktok.com/@hubspot/video/7673069429378430757",
+      "video_duration": 39,
+      "video_url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0437042d21598e37c95547b5208ebbe66/?a=1988&bti=ODszNWYuMDE6&&bt=1782&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=0365dd6a1d0b4f0b6e941e5078018ee1&tk=tt_chain_token&btag=e000f0000",
+      "width": 720
+    },
+    "source_id": "7673069429378430757"
+  },
+  {
+    "payload": {
+      "account_id": "hubspot",
+      "carousel_images": null,
+      "cdn_link": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o04959de76f62ce6254e859b01ceb2742e/?a=1988&bti=ODszNWYuMDE6&&bt=1862&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=a26d440fe9f4c65686781a36c1adc42b&tk=tt_chain_token&btag=e000f0000",
+      "cdn_url": "https://www.tiktok.com/1cf69e68-f9c8-9048-6f93-0283e6c562d3",
+      "collect_count": 2,
+      "comment_count": 2,
+      "comments": [
+        {
+          "comment": "this is so real",
+          "comment_id": "7667338009690602035",
+          "comment_url": "https://www.tiktok.com/@hubspot/video/7666781378168194500?comment_id=7667338009690602035",
+          "date": "2026-07-27T22:27:23.000Z",
+          "likes": 2,
+          "num_of_replies": 0,
+          "user_handle": "maya.builds",
+          "user_id": "6399450503039527084"
+        }
+      ],
+      "commerce_info": null,
+      "create_time": "2026-07-26T10:27:23.000Z",
+      "description": "built-in calling is here. Teams on HubSpot can follow up with every lead the same day and see the result on the pipeline dashboard the same day. #Sales",
+      "digg_count": 23,
+      "discovery_input": {
+        "country": "",
+        "end_date": "",
+        "post_type": "",
+        "sort_by": "",
+        "start_date": "",
+        "url": "https://www.tiktok.com/@hubspot",
+        "what_to_collect": ""
+      },
+      "hashtags": [
+        "Sales"
+      ],
+      "input": {
+        "discovery_input": null,
+        "url": "https://www.tiktok.com/@hubspot/video/7666781378168194500"
+      },
+      "is_verified": true,
+      "music": {
+        "authorname": "HubSpot",
+        "covermedium": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-avt-0068-tx/7351755011711303722~tplv-tiktokx-cropcenter:720:720.jpeg?dr=9640&refresh_token=b28fccc4&x-expires=1788523200&x-signature=0878b6aafbf76930b5bbe70c%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+        "id": "7666781378418091917",
+        "original": true,
+        "playurl": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o00300c6fddc19594801dee01e16c889c9/?a=1988&bti=ODszNWYuMDE6&&bt=1517&mime_type=audio_mpeg&expire=1788523200&ply_type=2&policy=2&signature=946d549e41720d33357ae29b2fc4155c&tk=tt_chain_token&btag=e000f0000",
+        "title": "original sound - HubSpot"
+      },
+      "num_share_count": 0,
+      "offical_item": false,
+      "original_item": false,
+      "original_sound": "HubSpot: original sound - HubSpot",
+      "play_count": 984,
+      "post_id": "7666781378168194500",
+      "post_type": "video",
+      "preview_image": "https://p16-common-sign.tiktokcdn.com/tos-useast5-p-85c255-tx/74ed11866847b59ec9c97947432a4d6c~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=74ed1186&x-expires=1788523200&x-signature=6847b59ec9c97947432a4d6c%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+      "profile_avatar": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-avt-0068-tx/7351755011711303722~tplv-tiktokx-cropcenter:1080:1080.jpeg?dr=9640&refresh_token=b31e4b62&x-expires=1788523200&x-signature=1eba6ab5ef0c69992b3ea14a%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+      "profile_biography": "The agentic customer platform to scale your business.",
+      "profile_followers": 43400,
+      "profile_id": "6921028957732193285",
+      "profile_url": "https://www.tiktok.com/@hubspot",
+      "profile_username": "HubSpot",
+      "ratio": "720p",
+      "region": "US",
+      "secu_id": "MS4wLjABAAAAuY18L_r3HfP3KEtK0txT2RPxDj1uSMSqbHZF33aYcGVAwL3PUA50WeQkR2o53xqr",
+      "share_count": null,
+      "shortcode": "7666781378168194500",
+      "subtitle_format": "webvtt",
+      "subtitle_info": [
+        {
+          "format": "webvtt",
+          "language_code_name": "eng-US",
+          "language_id": "2",
+          "size": 2726,
+          "url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o09d1eadd683c93ac2701c576c1ecaf518/?a=1988&bti=ODszNWYuMDE6&&bt=1644&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=031eb67d3ce62691ff62bf15fca0f1d2&tk=tt_chain_token&btag=e000f0000",
+          "url_expire": "1788523200",
+          "version": "1:big_caption"
+        }
+      ],
+      "subtitle_url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o09d1eadd683c93ac2701c576c1ecaf518/?a=1988&bti=ODszNWYuMDE6&&bt=1644&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=031eb67d3ce62691ff62bf15fca0f1d2&tk=tt_chain_token&btag=e000f0000",
+      "tagged_user": null,
+      "timestamp": "2026-09-04T12:00:00.000Z",
+      "tt_chain_token": "rKem5XBT/1NpXNpKbwwR6Q==",
+      "url": "https://www.tiktok.com/@hubspot/video/7666781378168194500",
+      "video_duration": 35,
+      "video_url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o03b5d15ececb952865258526f85cd2cf5/?a=1988&bti=ODszNWYuMDE6&&bt=1521&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=e0b8fc59a0dcb7556c1250f41b5e629c&tk=tt_chain_token&btag=e000f0000",
+      "width": 720
+    },
+    "source_id": "7666781378168194500"
+  },
+  {
+    "payload": {
+      "account_id": "hubspot",
+      "carousel_images": null,
+      "cdn_link": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o013cfbea9b0766ac709b612aa93956df9/?a=1988&bti=ODszNWYuMDE6&&bt=1597&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=46fa234106652816ebf8fc299a6294ae&tk=tt_chain_token&btag=e000f0000",
+      "cdn_url": "https://www.tiktok.com/e98a09ee-eb6e-e54c-10ee-2272fefcc910",
+      "collect_count": 1,
+      "comment_count": 1,
+      "comments": [],
+      "commerce_info": null,
+      "create_time": "2026-07-20T12:32:41.000Z",
+      "description": "Join us next Thursday for a live session on workflow automation. We will show how teams use HubSpot to forecast the quarter with confidence, with questions at the end.",
+      "digg_count": 9,
+      "discovery_input": {
+        "country": "",
+        "end_date": "",
+        "post_type": "",
+        "sort_by": "",
+        "start_date": "",
+        "url": "https://www.tiktok.com/@hubspot",
+        "what_to_collect": ""
+      },
+      "hashtags": null,
+      "input": {
+        "discovery_input": null,
+        "url": "https://www.tiktok.com/@hubspot/video/7664587159187235859"
+      },
+      "is_verified": true,
+      "music": {
+        "authorname": "HubSpot",
+        "covermedium": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-avt-0068-tx/7351755011711303722~tplv-tiktokx-cropcenter:720:720.jpeg?dr=9640&refresh_token=b28fccc4&x-expires=1788523200&x-signature=0878b6aafbf76930b5bbe70c%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+        "id": "7664587159826423109",
+        "original": true,
+        "playurl": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0c69d4df68a4a496cd6829d79d06d2d32/?a=1988&bti=ODszNWYuMDE6&&bt=1350&mime_type=audio_mpeg&expire=1788523200&ply_type=2&policy=2&signature=b25f2eb94eb2defe482aa49d14b38d33&tk=tt_chain_token&btag=e000f0000",
+        "title": "original sound - HubSpot"
+      },
+      "num_share_count": 1,
+      "offical_item": false,
+      "original_item": false,
+      "original_sound": "HubSpot: original sound - HubSpot",
+      "play_count": 1236,
+      "post_id": "7664587159187235859",
+      "post_type": "video",
+      "preview_image": "https://p16-common-sign.tiktokcdn.com/tos-useast5-p-85c255-tx/cdd9f28eb91118c22d85f366bd58441b~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=cdd9f28e&x-expires=1788523200&x-signature=b91118c22d85f366bd58441b%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+      "profile_avatar": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-avt-0068-tx/7351755011711303722~tplv-tiktokx-cropcenter:1080:1080.jpeg?dr=9640&refresh_token=b31e4b62&x-expires=1788523200&x-signature=1eba6ab5ef0c69992b3ea14a%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+      "profile_biography": "The agentic customer platform to scale your business.",
+      "profile_followers": 43400,
+      "profile_id": "6921028957732193285",
+      "profile_url": "https://www.tiktok.com/@hubspot",
+      "profile_username": "HubSpot",
+      "ratio": "720p",
+      "region": "US",
+      "secu_id": "MS4wLjABAAAAuY18L_r3HfP3KEtK0txT2RPxDj1uSMSqbHZF33aYcGVAwL3PUA50WeQkR2o53xqr",
+      "share_count": "1",
+      "shortcode": "7664587159187235859",
+      "subtitle_format": "webvtt",
+      "subtitle_info": [
+        {
+          "format": "webvtt",
+          "language_code_name": "eng-US",
+          "language_id": "2",
+          "size": 1599,
+          "url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0e8833900a262aa6ea9a8a0586db10a4e/?a=1988&bti=ODszNWYuMDE6&&bt=1074&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=f87e7498aad1a609f6911128a434c98b&tk=tt_chain_token&btag=e000f0000",
+          "url_expire": "1788523200",
+          "version": "1:big_caption"
+        }
+      ],
+      "subtitle_url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0e8833900a262aa6ea9a8a0586db10a4e/?a=1988&bti=ODszNWYuMDE6&&bt=1074&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=f87e7498aad1a609f6911128a434c98b&tk=tt_chain_token&btag=e000f0000",
+      "tagged_user": null,
+      "timestamp": "2026-09-04T12:00:00.000Z",
+      "tt_chain_token": "54VsSWB15X4iRr0f/xic8Q==",
+      "url": "https://www.tiktok.com/@hubspot/video/7664587159187235859",
+      "video_duration": 73,
+      "video_url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o032a1b5d00c1f9965abfe49c68f6b9610/?a=1988&bti=ODszNWYuMDE6&&bt=1464&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=f697e06b5dbecb4858380667a2c9e143&tk=tt_chain_token&btag=e000f0000",
+      "width": 720
+    },
+    "source_id": "7664587159187235859"
+  },
+  {
+    "payload": {
+      "account_id": "hubspot",
+      "carousel_images": null,
+      "cdn_link": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o085671abfea2e5451a6ef4ddc282ed6a5/?a=1988&bti=ODszNWYuMDE6&&bt=1325&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=31461083544d2f5654d3e292d4566fc3&tk=tt_chain_token&btag=e000f0000",
+      "cdn_url": "https://www.tiktok.com/9997a707-ec1e-0d2d-ea59-dedb8d3bf042",
+      "collect_count": 6,
+      "comment_count": 0,
+      "comments": [],
+      "commerce_info": null,
+      "create_time": "2026-07-11T10:16:12.000Z",
+      "description": "workflow automation is here. Teams on HubSpot can close deals faster and see the result on the pipeline dashboard the same day. #Sales",
+      "digg_count": 48,
+      "discovery_input": {
+        "country": "",
+        "end_date": "",
+        "post_type": "",
+        "sort_by": "",
+        "start_date": "",
+        "url": "https://www.tiktok.com/@hubspot",
+        "what_to_collect": ""
+      },
+      "hashtags": [
+        "Sales"
+      ],
+      "input": {
+        "discovery_input": null,
+        "url": "https://www.tiktok.com/@hubspot/video/7661212221742025342"
+      },
+      "is_verified": true,
+      "music": {
+        "authorname": "HubSpot",
+        "covermedium": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-avt-0068-tx/7351755011711303722~tplv-tiktokx-cropcenter:720:720.jpeg?dr=9640&refresh_token=b28fccc4&x-expires=1788523200&x-signature=0878b6aafbf76930b5bbe70c%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+        "id": "7661212222595713567",
+        "original": true,
+        "playurl": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0c816b0525b8e73f856203f96e1a5eda1/?a=1988&bti=ODszNWYuMDE6&&bt=1425&mime_type=audio_mpeg&expire=1788523200&ply_type=2&policy=2&signature=f935accb99282b1100f469cfe2b9b430&tk=tt_chain_token&btag=e000f0000",
+        "title": "original sound - HubSpot"
+      },
+      "num_share_count": 0,
+      "offical_item": false,
+      "original_item": false,
+      "original_sound": "HubSpot: original sound - HubSpot",
+      "play_count": 1625,
+      "post_id": "7661212221742025342",
+      "post_type": "video",
+      "preview_image": "https://p16-common-sign.tiktokcdn.com/tos-useast5-p-85c255-tx/f1e9bd10f2f6fefe641ed916397c59f0~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=f1e9bd10&x-expires=1788523200&x-signature=f2f6fefe641ed916397c59f0%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+      "profile_avatar": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-avt-0068-tx/7351755011711303722~tplv-tiktokx-cropcenter:1080:1080.jpeg?dr=9640&refresh_token=b31e4b62&x-expires=1788523200&x-signature=1eba6ab5ef0c69992b3ea14a%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+      "profile_biography": "The agentic customer platform to scale your business.",
+      "profile_followers": 43400,
+      "profile_id": "6921028957732193285",
+      "profile_url": "https://www.tiktok.com/@hubspot",
+      "profile_username": "HubSpot",
+      "ratio": "720p",
+      "region": "US",
+      "secu_id": "MS4wLjABAAAAuY18L_r3HfP3KEtK0txT2RPxDj1uSMSqbHZF33aYcGVAwL3PUA50WeQkR2o53xqr",
+      "share_count": null,
+      "shortcode": "7661212221742025342",
+      "subtitle_format": null,
+      "subtitle_info": [],
+      "subtitle_url": null,
+      "tagged_user": null,
+      "timestamp": "2026-09-04T12:00:00.000Z",
+      "tt_chain_token": "yLLzo+Dqdkai9CZvQ/HuUw==",
+      "url": "https://www.tiktok.com/@hubspot/video/7661212221742025342",
+      "video_duration": 12,
+      "video_url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0e1e87e401d9de4111b5a8be8bc1be1c9/?a=1988&bti=ODszNWYuMDE6&&bt=1737&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=31bda3ad0e374b267351f211e23fdb60&tk=tt_chain_token&btag=e000f0000",
+      "width": 720
+    },
+    "source_id": "7661212221742025342"
+  },
+  {
+    "payload": {
+      "account_id": "hubspot",
+      "carousel_images": null,
+      "cdn_link": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o03bdc7b25bdd66f48929602cf7691e9e1/?a=1988&bti=ODszNWYuMDE6&&bt=1121&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=2faf3d00c17da20e5de415001581c998&tk=tt_chain_token&btag=e000f0000",
+      "cdn_url": "https://www.tiktok.com/5c863cbd-2eeb-77e0-c444-3f42fde46de0",
+      "collect_count": 11,
+      "comment_count": 3,
+      "comments": [
+        {
+          "comment": "Which plan has this?",
+          "comment_id": "7656436556335646837",
+          "comment_url": "https://www.tiktok.com/@hubspot/video/7655988160175000835?comment_id=7656436556335646837",
+          "date": "2026-06-28T13:24:11.000Z",
+          "likes": 2,
+          "num_of_replies": 0,
+          "user_handle": "tomrevops",
+          "user_id": "6238345942432659309"
+        },
+        {
+          "comment": "Which plan has this?",
+          "comment_id": "7657070492997474418",
+          "comment_url": "https://www.tiktok.com/@hubspot/video/7655988160175000835?comment_id=7657070492997474418",
+          "date": "2026-06-30T06:24:11.000Z",
+          "likes": 0,
+          "num_of_replies": 0,
+          "user_handle": "growthlab.io",
+          "user_id": "6954670462317101974"
+        }
+      ],
+      "commerce_info": null,
+      "create_time": "2026-06-27T08:24:11.000Z",
+      "description": "workflow automation is here. Teams on HubSpot can keep every conversation in one thread and see the result on the pipeline dashboard the same day. #SalesTech",
+      "digg_count": 60,
+      "discovery_input": {
+        "country": "",
+        "end_date": "",
+        "post_type": "",
+        "sort_by": "",
+        "start_date": "",
+        "url": "https://www.tiktok.com/@hubspot",
+        "what_to_collect": ""
+      },
+      "hashtags": [
+        "SalesTech"
+      ],
+      "input": {
+        "discovery_input": null,
+        "url": "https://www.tiktok.com/@hubspot/video/7655988160175000835"
+      },
+      "is_verified": true,
+      "music": {
+        "authorname": "HubSpot",
+        "covermedium": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-avt-0068-tx/7351755011711303722~tplv-tiktokx-cropcenter:720:720.jpeg?dr=9640&refresh_token=b28fccc4&x-expires=1788523200&x-signature=0878b6aafbf76930b5bbe70c%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+        "id": "7655988160367657977",
+        "original": true,
+        "playurl": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o03448cfbdee96b515f0734cb01c77b6f6/?a=1988&bti=ODszNWYuMDE6&&bt=1042&mime_type=audio_mpeg&expire=1788523200&ply_type=2&policy=2&signature=c5ae2da3f33e83577ab07055aba3b8e3&tk=tt_chain_token&btag=e000f0000",
+        "title": "original sound - HubSpot"
+      },
+      "num_share_count": 0,
+      "offical_item": false,
+      "original_item": false,
+      "original_sound": "HubSpot: original sound - HubSpot",
+      "play_count": 2060,
+      "post_id": "7655988160175000835",
+      "post_type": "video",
+      "preview_image": "https://p16-common-sign.tiktokcdn.com/tos-useast5-p-85c255-tx/6a2d11cbc14bf25f0b7daaa5fc921746~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=6a2d11cb&x-expires=1788523200&x-signature=c14bf25f0b7daaa5fc921746%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+      "profile_avatar": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-avt-0068-tx/7351755011711303722~tplv-tiktokx-cropcenter:1080:1080.jpeg?dr=9640&refresh_token=b31e4b62&x-expires=1788523200&x-signature=1eba6ab5ef0c69992b3ea14a%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+      "profile_biography": "The agentic customer platform to scale your business.",
+      "profile_followers": 43400,
+      "profile_id": "6921028957732193285",
+      "profile_url": "https://www.tiktok.com/@hubspot",
+      "profile_username": "HubSpot",
+      "ratio": "720p",
+      "region": "US",
+      "secu_id": "MS4wLjABAAAAuY18L_r3HfP3KEtK0txT2RPxDj1uSMSqbHZF33aYcGVAwL3PUA50WeQkR2o53xqr",
+      "share_count": null,
+      "shortcode": "7655988160175000835",
+      "subtitle_format": "webvtt",
+      "subtitle_info": [
+        {
+          "format": "webvtt",
+          "language_code_name": "eng-US",
+          "language_id": "2",
+          "size": 2670,
+          "url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0a1296008d226141df2a06fed4932a374/?a=1988&bti=ODszNWYuMDE6&&bt=1600&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=b42cdab7cafae797611a0dccccaa9901&tk=tt_chain_token&btag=e000f0000",
+          "url_expire": "1788523200",
+          "version": "1:big_caption"
+        }
+      ],
+      "subtitle_url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0a1296008d226141df2a06fed4932a374/?a=1988&bti=ODszNWYuMDE6&&bt=1600&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=b42cdab7cafae797611a0dccccaa9901&tk=tt_chain_token&btag=e000f0000",
+      "tagged_user": null,
+      "timestamp": "2026-09-04T12:00:00.000Z",
+      "tt_chain_token": "Fu9KnQiFzdGDA9VLgHnozQ==",
+      "url": "https://www.tiktok.com/@hubspot/video/7655988160175000835",
+      "video_duration": 25,
+      "video_url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o08337e1baf8aacf75ae445432a07e30f4/?a=1988&bti=ODszNWYuMDE6&&bt=1568&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=c3ac84686e7a03bdc39caeb0466f23fa&tk=tt_chain_token&btag=e000f0000",
+      "width": 720
+    },
+    "source_id": "7655988160175000835"
+  },
+  {
+    "payload": {
+      "account_id": "hubspot",
+      "carousel_images": null,
+      "cdn_link": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0ca50b988fd7792a91bf4d672a22c5c13/?a=1988&bti=ODszNWYuMDE6&&bt=1511&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=c449fab48bfe71f4fe848f90b7c129f0&tk=tt_chain_token&btag=e000f0000",
+      "cdn_url": "https://www.tiktok.com/8fc774c5-022f-83b2-4ece-a04ada202a43",
+      "collect_count": 5,
+      "comment_count": 4,
+      "comments": [
+        {
+          "comment": "this is so real",
+          "comment_id": "7653643699064114422",
+          "comment_url": "https://www.tiktok.com/@hubspot/video/7653210763611038871?comment_id=7653643699064114422",
+          "date": "2026-06-21T00:46:28.000Z",
+          "likes": 2,
+          "num_of_replies": 0,
+          "user_handle": "salesnerd",
+          "user_id": "6853364624725339016"
+        },
+        {
+          "comment": "this is so real",
+          "comment_id": "7654215786235095234",
+          "comment_url": "https://www.tiktok.com/@hubspot/video/7653210763611038871?comment_id=7654215786235095234",
+          "date": "2026-06-22T13:46:28.000Z",
+          "likes": 1,
+          "num_of_replies": 0,
+          "user_handle": "growthlab.io",
+          "user_id": "6208132933758430131"
+        }
+      ],
+      "commerce_info": null,
+      "create_time": "2026-06-19T20:46:28.000Z",
+      "description": "revenue forecasting is here. Teams on HubSpot can cut manual data entry in half and see the result on the pipeline dashboard the same day. #AI #CRM",
+      "digg_count": 5,
+      "discovery_input": {
+        "country": "",
+        "end_date": "",
+        "post_type": "",
+        "sort_by": "",
+        "start_date": "",
+        "url": "https://www.tiktok.com/@hubspot",
+        "what_to_collect": ""
+      },
+      "hashtags": [
+        "AI",
+        "CRM"
+      ],
+      "input": {
+        "discovery_input": null,
+        "url": "https://www.tiktok.com/@hubspot/video/7653210763611038871"
+      },
+      "is_verified": true,
+      "music": {
+        "authorname": "HubSpot",
+        "covermedium": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-avt-0068-tx/7351755011711303722~tplv-tiktokx-cropcenter:720:720.jpeg?dr=9640&refresh_token=b28fccc4&x-expires=1788523200&x-signature=0878b6aafbf76930b5bbe70c%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+        "id": "7653210763931940216",
+        "original": true,
+        "playurl": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o05ea01545c038eb7f2bc8e96fe74810e1/?a=1988&bti=ODszNWYuMDE6&&bt=1645&mime_type=audio_mpeg&expire=1788523200&ply_type=2&policy=2&signature=03f31d78dc90bc9a0997ded8531c292c&tk=tt_chain_token&btag=e000f0000",
+        "title": "original sound - HubSpot"
+      },
+      "num_share_count": 0,
+      "offical_item": false,
+      "original_item": false,
+      "original_sound": "HubSpot: original sound - HubSpot",
+      "play_count": 291,
+      "post_id": "7653210763611038871",
+      "post_type": "video",
+      "preview_image": "https://p16-common-sign.tiktokcdn.com/tos-useast5-p-85c255-tx/fa3b95530b3e0c72dadc4a409dcf6119~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=fa3b9553&x-expires=1788523200&x-signature=0b3e0c72dadc4a409dcf6119%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+      "profile_avatar": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-avt-0068-tx/7351755011711303722~tplv-tiktokx-cropcenter:1080:1080.jpeg?dr=9640&refresh_token=b31e4b62&x-expires=1788523200&x-signature=1eba6ab5ef0c69992b3ea14a%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+      "profile_biography": "The agentic customer platform to scale your business.",
+      "profile_followers": 43400,
+      "profile_id": "6921028957732193285",
+      "profile_url": "https://www.tiktok.com/@hubspot",
+      "profile_username": "HubSpot",
+      "ratio": "720p",
+      "region": "US",
+      "secu_id": "MS4wLjABAAAAuY18L_r3HfP3KEtK0txT2RPxDj1uSMSqbHZF33aYcGVAwL3PUA50WeQkR2o53xqr",
+      "share_count": null,
+      "shortcode": "7653210763611038871",
+      "subtitle_format": "webvtt",
+      "subtitle_info": [
+        {
+          "format": "webvtt",
+          "language_code_name": "eng-US",
+          "language_id": "2",
+          "size": 2106,
+          "url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o063cf2a7a199c82b4f896031f3f204963/?a=1988&bti=ODszNWYuMDE6&&bt=1655&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=eb26b36e0809faf3e5660de1d953c770&tk=tt_chain_token&btag=e000f0000",
+          "url_expire": "1788523200",
+          "version": "1:big_caption"
+        }
+      ],
+      "subtitle_url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o063cf2a7a199c82b4f896031f3f204963/?a=1988&bti=ODszNWYuMDE6&&bt=1655&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=eb26b36e0809faf3e5660de1d953c770&tk=tt_chain_token&btag=e000f0000",
+      "tagged_user": null,
+      "timestamp": "2026-09-04T12:00:00.000Z",
+      "tt_chain_token": "b8li2DeIt8nVqsMVumtOag==",
+      "url": "https://www.tiktok.com/@hubspot/video/7653210763611038871",
+      "video_duration": 23,
+      "video_url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0be8b7373a8ec711e094b41094644cf76/?a=1988&bti=ODszNWYuMDE6&&bt=1542&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=03c12a5effea91765b269fafe95cfcea&tk=tt_chain_token&btag=e000f0000",
+      "width": 720
+    },
+    "source_id": "7653210763611038871"
+  },
+  {
+    "payload": {
+      "account_id": "hubspot",
+      "carousel_images": null,
+      "cdn_link": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0658eac920d96b507eb1f314dc67ea900/?a=1988&bti=ODszNWYuMDE6&&bt=1612&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=46b146a09e41c5f2b5d21f658eb3a27f&tk=tt_chain_token&btag=e000f0000",
+      "cdn_url": "https://www.tiktok.com/8dfdc1d5-6bd4-9c20-a981-ae05b4f38617",
+      "collect_count": 6,
+      "comment_count": 2,
+      "comments": [
+        {
+          "comment": "Great tip, sharing with the team",
+          "comment_id": "7646701693925510861",
+          "comment_url": "https://www.tiktok.com/@hubspot/video/7646083219160258740?comment_id=7646701693925510861",
+          "date": "2026-06-02T07:47:57.000Z",
+          "likes": 2,
+          "num_of_replies": 0,
+          "user_handle": "studio.pixelizer",
+          "user_id": "6881405007989316681"
+        }
+      ],
+      "commerce_info": null,
+      "create_time": "2026-05-31T15:47:57.000Z",
+      "description": "We just shipped workflow automation in HubSpot. Reps can now close deals faster without leaving the deal view. Read the release notes on our blog. #Sales",
+      "digg_count": 56,
+      "discovery_input": {
+        "country": "",
+        "end_date": "",
+        "post_type": "",
+        "sort_by": "",
+        "start_date": "",
+        "url": "https://www.tiktok.com/@hubspot",
+        "what_to_collect": ""
+      },
+      "hashtags": [
+        "Sales"
+      ],
+      "input": {
+        "discovery_input": null,
+        "url": "https://www.tiktok.com/@hubspot/video/7646083219160258740"
+      },
+      "is_verified": true,
+      "music": {
+        "authorname": "HubSpot",
+        "covermedium": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-avt-0068-tx/7351755011711303722~tplv-tiktokx-cropcenter:720:720.jpeg?dr=9640&refresh_token=b28fccc4&x-expires=1788523200&x-signature=0878b6aafbf76930b5bbe70c%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+        "id": "7646083219362157287",
+        "original": true,
+        "playurl": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o08f054d6e54eb8f22fe853650f9f52833/?a=1988&bti=ODszNWYuMDE6&&bt=1047&mime_type=audio_mpeg&expire=1788523200&ply_type=2&policy=2&signature=e8bdb7b26762ee4c44bd24a8ef374f16&tk=tt_chain_token&btag=e000f0000",
+        "title": "original sound - HubSpot"
+      },
+      "num_share_count": 4,
+      "offical_item": false,
+      "original_item": false,
+      "original_sound": "HubSpot: original sound - HubSpot",
+      "play_count": 1871,
+      "post_id": "7646083219160258740",
+      "post_type": "video",
+      "preview_image": "https://p16-common-sign.tiktokcdn.com/tos-useast5-p-85c255-tx/7c54583fa88e6a53f477b6acb30cd4d7~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=7c54583f&x-expires=1788523200&x-signature=a88e6a53f477b6acb30cd4d7%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+      "profile_avatar": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-avt-0068-tx/7351755011711303722~tplv-tiktokx-cropcenter:1080:1080.jpeg?dr=9640&refresh_token=b31e4b62&x-expires=1788523200&x-signature=1eba6ab5ef0c69992b3ea14a%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+      "profile_biography": "The agentic customer platform to scale your business.",
+      "profile_followers": 43400,
+      "profile_id": "6921028957732193285",
+      "profile_url": "https://www.tiktok.com/@hubspot",
+      "profile_username": "HubSpot",
+      "ratio": "720p",
+      "region": "US",
+      "secu_id": "MS4wLjABAAAAuY18L_r3HfP3KEtK0txT2RPxDj1uSMSqbHZF33aYcGVAwL3PUA50WeQkR2o53xqr",
+      "share_count": "4",
+      "shortcode": "7646083219160258740",
+      "subtitle_format": null,
+      "subtitle_info": [],
+      "subtitle_url": null,
+      "tagged_user": null,
+      "timestamp": "2026-09-04T12:00:00.000Z",
+      "tt_chain_token": "rYfLtHoOAdC4mra4IIWAVg==",
+      "url": "https://www.tiktok.com/@hubspot/video/7646083219160258740",
+      "video_duration": 49,
+      "video_url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0d8f8f98189327a0cd0af1d6ec40c056a/?a=1988&bti=ODszNWYuMDE6&&bt=1234&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=5945e151f6a10a14ca5f4661b5597bc7&tk=tt_chain_token&btag=e000f0000",
+      "width": 720
+    },
+    "source_id": "7646083219160258740"
+  },
+  {
+    "payload": {
+      "account_id": "hubspot",
+      "carousel_images": [
+        "https://p16-common-sign.tiktokcdn.com/tos-maliva-i-photomode-us/0e0dea0e7d429607f94b1e93a447e305~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=0e0dea0e&x-expires=1788523200&x-signature=7d429607f94b1e93a447e305%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+        "https://p16-common-sign.tiktokcdn.com/tos-maliva-i-photomode-us/e5ee52a088d8d2ff26e09997b20b7b36~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=e5ee52a0&x-expires=1788523200&x-signature=88d8d2ff26e09997b20b7b36%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+        "https://p16-common-sign.tiktokcdn.com/tos-maliva-i-photomode-us/5fbe6c54715200a7ec6e829a4baa18d2~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=5fbe6c54&x-expires=1788523200&x-signature=715200a7ec6e829a4baa18d2%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+        "https://p16-common-sign.tiktokcdn.com/tos-maliva-i-photomode-us/5fce5e0e5c006dc7ac45eccf72e6cbfc~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=5fce5e0e&x-expires=1788523200&x-signature=5c006dc7ac45eccf72e6cbfc%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+        "https://p16-common-sign.tiktokcdn.com/tos-maliva-i-photomode-us/7d51aea49613ad7b2aef154b6724cbc1~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=7d51aea4&x-expires=1788523200&x-signature=9613ad7b2aef154b6724cbc1%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1"
+      ],
+      "cdn_link": null,
+      "cdn_url": "https://www.tiktok.com/e3b47aca-d9d4-30f3-7db5-25780d471d78",
+      "collect_count": 11,
+      "comment_count": 3,
+      "comments": [
+        {
+          "comment": "this is so real",
+          "comment_id": "7644579062159449188",
+          "comment_url": "https://www.tiktok.com/@hubspot/video/7644192516878441835?comment_id=7644579062159449188",
+          "date": "2026-05-27T14:31:03.000Z",
+          "likes": 1,
+          "num_of_replies": 0,
+          "user_handle": "growthlab.io",
+          "user_id": "6464129421027352216"
+        },
+        {
+          "comment": "Saving this for my next pipeline review",
+          "comment_id": "7645213000865010183",
+          "comment_url": "https://www.tiktok.com/@hubspot/video/7644192516878441835?comment_id=7645213000865010183",
+          "date": "2026-05-29T07:31:03.000Z",
+          "likes": 0,
+          "num_of_replies": 0,
+          "user_handle": "salesnerd",
+          "user_id": "6552010274921048477"
+        }
+      ],
+      "commerce_info": null,
+      "create_time": "2026-05-26T13:31:03.000Z",
+      "description": "Customer story of the week: how a 40-person sales team used HubSpot to close deals faster. Full case study in the comments.",
+      "digg_count": 68,
+      "discovery_input": {
+        "country": "",
+        "end_date": "",
+        "post_type": "",
+        "sort_by": "",
+        "start_date": "",
+        "url": "https://www.tiktok.com/@hubspot",
+        "what_to_collect": ""
+      },
+      "hashtags": null,
+      "input": {
+        "discovery_input": null,
+        "url": "https://www.tiktok.com/@hubspot/video/7644192516878441835"
+      },
+      "is_verified": true,
+      "music": {
+        "authorname": "HubSpot",
+        "covermedium": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-avt-0068-tx/7351755011711303722~tplv-tiktokx-cropcenter:720:720.jpeg?dr=9640&refresh_token=b28fccc4&x-expires=1788523200&x-signature=0878b6aafbf76930b5bbe70c%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+        "id": "7644192517304663031",
+        "original": true,
+        "playurl": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0d7c6b1579fd744dd2e1a734461f8608c/?a=1988&bti=ODszNWYuMDE6&&bt=1196&mime_type=audio_mpeg&expire=1788523200&ply_type=2&policy=2&signature=68e7e7a36f2ab73dc34c1c6c6847ae48&tk=tt_chain_token&btag=e000f0000",
+        "title": "original sound - HubSpot"
+      },
+      "num_share_count": 4,
+      "offical_item": false,
+      "original_item": false,
+      "original_sound": "HubSpot: original sound - HubSpot",
+      "play_count": 2555,
+      "post_id": "7644192516878441835",
+      "post_type": "images",
+      "preview_image": "https://p16-common-sign.tiktokcdn.com/tos-maliva-i-photomode-us/0e0dea0e7d429607f94b1e93a447e305~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=0e0dea0e&x-expires=1788523200&x-signature=7d429607f94b1e93a447e305%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+      "profile_avatar": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-avt-0068-tx/7351755011711303722~tplv-tiktokx-cropcenter:1080:1080.jpeg?dr=9640&refresh_token=b31e4b62&x-expires=1788523200&x-signature=1eba6ab5ef0c69992b3ea14a%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+      "profile_biography": "The agentic customer platform to scale your business.",
+      "profile_followers": 43400,
+      "profile_id": "6921028957732193285",
+      "profile_url": "https://www.tiktok.com/@hubspot",
+      "profile_username": "HubSpot",
+      "ratio": null,
+      "region": "US",
+      "secu_id": "MS4wLjABAAAAuY18L_r3HfP3KEtK0txT2RPxDj1uSMSqbHZF33aYcGVAwL3PUA50WeQkR2o53xqr",
+      "share_count": "4",
+      "shortcode": "7644192516878441835",
+      "subtitle_format": null,
+      "subtitle_info": null,
+      "subtitle_url": null,
+      "tagged_user": null,
+      "timestamp": "2026-09-04T12:00:00.000Z",
+      "tt_chain_token": "KJM2fVNRGLYz8ZnYe9R+tQ==",
+      "url": "https://www.tiktok.com/@hubspot/video/7644192516878441835",
+      "video_duration": null,
+      "video_url": null,
+      "width": 0
+    },
+    "source_id": "7644192516878441835"
+  },
+  {
+    "payload": {
+      "account_id": "hubspot",
+      "carousel_images": null,
+      "cdn_link": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0394da68558fc7541892f08a644a80698/?a=1988&bti=ODszNWYuMDE6&&bt=1852&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=b63c4eb5e2c69ce0d12859366c68a8d7&tk=tt_chain_token&btag=e000f0000",
+      "cdn_url": "https://www.tiktok.com/a47d1516-c7b1-2f16-5461-2a17169154cb",
+      "collect_count": 0,
+      "comment_count": 3,
+      "comments": [
+        {
+          "comment": "The orange sneakers though",
+          "comment_id": "7641442516990794670",
+          "comment_url": "https://www.tiktok.com/@hubspot/video/7640839501290203529?comment_id=7641442516990794670",
+          "date": "2026-05-19T03:39:39.000Z",
+          "likes": 0,
+          "num_of_replies": 0,
+          "user_handle": "growthlab.io",
+          "user_id": "6486630094255350297"
+        },
+        {
+          "comment": "Saving this for my next pipeline review",
+          "comment_id": "7641751754711916825",
+          "comment_url": "https://www.tiktok.com/@hubspot/video/7640839501290203529?comment_id=7641751754711916825",
+          "date": "2026-05-19T23:39:39.000Z",
+          "likes": 0,
+          "num_of_replies": 0,
+          "user_handle": "maya.builds",
+          "user_id": "6428205153130069282"
+        }
+      ],
+      "commerce_info": null,
+      "create_time": "2026-05-17T12:39:39.000Z",
+      "description": "Customer story of the week: how a 40-person sales team used HubSpot to follow up with every lead the same day. Full case study in the comments.",
+      "digg_count": 28,
+      "discovery_input": {
+        "country": "",
+        "end_date": "",
+        "post_type": "",
+        "sort_by": "",
+        "start_date": "",
+        "url": "https://www.tiktok.com/@hubspot",
+        "what_to_collect": ""
+      },
+      "hashtags": null,
+      "input": {
+        "discovery_input": null,
+        "url": "https://www.tiktok.com/@hubspot/video/7640839501290203529"
+      },
+      "is_verified": true,
+      "music": {
+        "authorname": "HubSpot",
+        "covermedium": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-avt-0068-tx/7351755011711303722~tplv-tiktokx-cropcenter:720:720.jpeg?dr=9640&refresh_token=b28fccc4&x-expires=1788523200&x-signature=0878b6aafbf76930b5bbe70c%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+        "id": "7640839502060541374",
+        "original": true,
+        "playurl": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o04d28d2e0c59c9f283309567544f80a35/?a=1988&bti=ODszNWYuMDE6&&bt=1545&mime_type=audio_mpeg&expire=1788523200&ply_type=2&policy=2&signature=8ea06509356e06c2363ccfa615b079c0&tk=tt_chain_token&btag=e000f0000",
+        "title": "original sound - HubSpot"
+      },
+      "num_share_count": 4,
+      "offical_item": false,
+      "original_item": false,
+      "original_sound": "HubSpot: original sound - HubSpot",
+      "play_count": 1067,
+      "post_id": "7640839501290203529",
+      "post_type": "video",
+      "preview_image": "https://p16-common-sign.tiktokcdn.com/tos-useast5-p-85c255-tx/088a8d8cfa559ee545285937d85b1ed8~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=088a8d8c&x-expires=1788523200&x-signature=fa559ee545285937d85b1ed8%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+      "profile_avatar": "https://p19-common-sign.tiktokcdn-us.com/tos-useast5-avt-0068-tx/7351755011711303722~tplv-tiktokx-cropcenter:1080:1080.jpeg?dr=9640&refresh_token=b31e4b62&x-expires=1788523200&x-signature=1eba6ab5ef0c69992b3ea14a%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+      "profile_biography": "The agentic customer platform to scale your business.",
+      "profile_followers": 43400,
+      "profile_id": "6921028957732193285",
+      "profile_url": "https://www.tiktok.com/@hubspot",
+      "profile_username": "HubSpot",
+      "ratio": "720p",
+      "region": "US",
+      "secu_id": "MS4wLjABAAAAuY18L_r3HfP3KEtK0txT2RPxDj1uSMSqbHZF33aYcGVAwL3PUA50WeQkR2o53xqr",
+      "share_count": "4",
+      "shortcode": "7640839501290203529",
+      "subtitle_format": "webvtt",
+      "subtitle_info": [
+        {
+          "format": "webvtt",
+          "language_code_name": "eng-US",
+          "language_id": "2",
+          "size": 1302,
+          "url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o02423d370cd5838aba018e7c9080ef126/?a=1988&bti=ODszNWYuMDE6&&bt=1406&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=49df42fcd39652cfa4798b9446abb96d&tk=tt_chain_token&btag=e000f0000",
+          "url_expire": "1788523200",
+          "version": "1:big_caption"
+        }
+      ],
+      "subtitle_url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o02423d370cd5838aba018e7c9080ef126/?a=1988&bti=ODszNWYuMDE6&&bt=1406&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=49df42fcd39652cfa4798b9446abb96d&tk=tt_chain_token&btag=e000f0000",
+      "tagged_user": null,
+      "timestamp": "2026-09-04T12:00:00.000Z",
+      "tt_chain_token": "Rl2EELvdrSTVDPHnXXHbyA==",
+      "url": "https://www.tiktok.com/@hubspot/video/7640839501290203529",
+      "video_duration": 29,
+      "video_url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0bf656984bdc6d0f391ea73d7a158b4f2/?a=1988&bti=ODszNWYuMDE6&&bt=1602&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=7a0bf3efb12a777b1c8120757b4a0ce2&tk=tt_chain_token&btag=e000f0000",
+      "width": 720
+    },
+    "source_id": "7640839501290203529"
+  },
+  {
+    "payload": {
+      "account_id": "freshworksinc",
+      "carousel_images": null,
+      "cdn_link": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0efbc15b7b4b07b2a27fb189e8b562093/?a=1988&bti=ODszNWYuMDE6&&bt=1783&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=c66a7eb29fd502aff934db744793307e&tk=tt_chain_token&btag=e000f0000",
+      "cdn_url": "https://www.tiktok.com/cf5ae715-3c64-cdd3-d462-c29b4170f318",
+      "collect_count": 5,
+      "comment_count": 1,
+      "comments": [],
+      "commerce_info": null,
+      "create_time": "2025-12-02T20:31:27.000Z",
+      "description": "Customer story of the week: how a 40-person sales team used Freshsales to forecast the quarter with confidence. Full case study in the comments. #SalesTech #Sales",
+      "digg_count": 23,
+      "discovery_input": {
+        "country": "",
+        "end_date": "",
+        "post_type": "",
+        "sort_by": "",
+        "start_date": "",
+        "url": "https://www.tiktok.com/@freshworksinc",
+        "what_to_collect": ""
+      },
+      "hashtags": [
+        "SalesTech",
+        "Sales"
+      ],
+      "input": {
+        "discovery_input": null,
+        "url": "https://www.tiktok.com/@freshworksinc/video/7579360945038147679"
+      },
+      "is_verified": false,
+      "music": {
+        "authorname": "freshworks",
+        "covermedium": "https://p19-common-sign.tiktokcdn-us.com/tos-useast8-avt-0068-tx2/e919e3bb41ca3adc30e9cbfaab5b4a88~tplv-tiktokx-cropcenter:720:720.jpeg?dr=9640&refresh_token=032e8416&x-expires=1788523200&x-signature=d6c44d3e2d19140ccc7642d3%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+        "id": "7579360945167482815",
+        "original": true,
+        "playurl": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0566e32e9a0051c708d6c440bc239f760/?a=1988&bti=ODszNWYuMDE6&&bt=1836&mime_type=audio_mpeg&expire=1788523200&ply_type=2&policy=2&signature=fe8c69a49ab6c3fd51126e3cf9096e14&tk=tt_chain_token&btag=e000f0000",
+        "title": "original sound - freshworks"
+      },
+      "num_share_count": 4,
+      "offical_item": false,
+      "original_item": false,
+      "original_sound": "freshworks: original sound - freshworks",
+      "play_count": 1305,
+      "post_id": "7579360945038147679",
+      "post_type": "video",
+      "preview_image": "https://p16-common-sign.tiktokcdn.com/tos-useast5-p-85c255-tx/e8d8473baf195468d9bdc4634acfc330~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=e8d8473b&x-expires=1788523200&x-signature=af195468d9bdc4634acfc330%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+      "profile_avatar": "https://p19-common-sign.tiktokcdn-us.com/tos-useast8-avt-0068-tx2/e919e3bb41ca3adc30e9cbfaab5b4a88~tplv-tiktokx-cropcenter:1080:1080.jpeg?dr=9640&refresh_token=26fac685&x-expires=1788523200&x-signature=0ac8923c353b665bb499a46d%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+      "profile_biography": "The AI-powered unified service operations platform for agile enterprises.",
+      "profile_followers": 22,
+      "profile_id": "7566318035133334541",
+      "profile_url": "https://www.tiktok.com/@freshworksinc",
+      "profile_username": "freshworks",
+      "ratio": "720p",
+      "region": "US",
+      "secu_id": "MS4wLjABAAAAZNKjTr7zGlJfosTbj4W42C90Qp2hKnaAc0Yuc_VP-RBTuBPU6834P2wzFXahlBQd",
+      "share_count": "4",
+      "shortcode": "7579360945038147679",
+      "subtitle_format": null,
+      "subtitle_info": [],
+      "subtitle_url": null,
+      "tagged_user": null,
+      "timestamp": "2026-09-04T12:00:00.000Z",
+      "tt_chain_token": "8HtGSmaUlXX6nQqbnAw7ww==",
+      "url": "https://www.tiktok.com/@freshworksinc/video/7579360945038147679",
+      "video_duration": 35,
+      "video_url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o02c6356cb29609ea6ba4bf514f4337d7b/?a=1988&bti=ODszNWYuMDE6&&bt=1147&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=d1e719e24a725b4bb264ae6d7efcb2e1&tk=tt_chain_token&btag=e000f0000",
+      "width": 720
+    },
+    "source_id": "7579360945038147679"
+  },
+  {
+    "payload": {
+      "account_id": "freshworksinc",
+      "carousel_images": [
+        "https://p16-common-sign.tiktokcdn.com/tos-maliva-i-photomode-us/5815b68ea5ccbf59ea5ae38ac005b211~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=5815b68e&x-expires=1788523200&x-signature=a5ccbf59ea5ae38ac005b211%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+        "https://p16-common-sign.tiktokcdn.com/tos-maliva-i-photomode-us/c24e84f71fb943e361e4dba3a4a97409~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=c24e84f7&x-expires=1788523200&x-signature=1fb943e361e4dba3a4a97409%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+        "https://p16-common-sign.tiktokcdn.com/tos-maliva-i-photomode-us/60a9acb4f05723d751976817e2c1d8da~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=60a9acb4&x-expires=1788523200&x-signature=f05723d751976817e2c1d8da%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+        "https://p16-common-sign.tiktokcdn.com/tos-maliva-i-photomode-us/e3f3a2f411ff85fed8f93ef7cd18e63b~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=e3f3a2f4&x-expires=1788523200&x-signature=11ff85fed8f93ef7cd18e63b%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+        "https://p16-common-sign.tiktokcdn.com/tos-maliva-i-photomode-us/942620beeced950d9f08c54894fbc7e7~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=942620be&x-expires=1788523200&x-signature=eced950d9f08c54894fbc7e7%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1"
+      ],
+      "cdn_link": null,
+      "cdn_url": "https://www.tiktok.com/53d3f0cf-0569-38ef-dd8a-b637a4c86bf7",
+      "collect_count": 4,
+      "comment_count": 2,
+      "comments": [],
+      "commerce_info": null,
+      "create_time": "2025-11-23T17:27:03.000Z",
+      "description": "email sequences is here. Teams on Freshsales can cut manual data entry in half and see the result on the pipeline dashboard the same day.",
+      "digg_count": 17,
+      "discovery_input": {
+        "country": "",
+        "end_date": "",
+        "post_type": "",
+        "sort_by": "",
+        "start_date": "",
+        "url": "https://www.tiktok.com/@freshworksinc",
+        "what_to_collect": ""
+      },
+      "hashtags": null,
+      "input": {
+        "discovery_input": null,
+        "url": "https://www.tiktok.com/@freshworksinc/video/7575973657967869464"
+      },
+      "is_verified": false,
+      "music": {
+        "authorname": "freshworks",
+        "covermedium": "https://p19-common-sign.tiktokcdn-us.com/tos-useast8-avt-0068-tx2/e919e3bb41ca3adc30e9cbfaab5b4a88~tplv-tiktokx-cropcenter:720:720.jpeg?dr=9640&refresh_token=032e8416&x-expires=1788523200&x-signature=d6c44d3e2d19140ccc7642d3%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+        "id": "7575973658655804667",
+        "original": true,
+        "playurl": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0b9d3197087d6a17fa6f1df1e895176e3/?a=1988&bti=ODszNWYuMDE6&&bt=1803&mime_type=audio_mpeg&expire=1788523200&ply_type=2&policy=2&signature=b44b1345cd9934260df2d7c5012cbf7e&tk=tt_chain_token&btag=e000f0000",
+        "title": "original sound - freshworks"
+      },
+      "num_share_count": 0,
+      "offical_item": false,
+      "original_item": false,
+      "original_sound": "freshworks: original sound - freshworks",
+      "play_count": 816,
+      "post_id": "7575973657967869464",
+      "post_type": "images",
+      "preview_image": "https://p16-common-sign.tiktokcdn.com/tos-maliva-i-photomode-us/5815b68ea5ccbf59ea5ae38ac005b211~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=5815b68e&x-expires=1788523200&x-signature=a5ccbf59ea5ae38ac005b211%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+      "profile_avatar": "https://p19-common-sign.tiktokcdn-us.com/tos-useast8-avt-0068-tx2/e919e3bb41ca3adc30e9cbfaab5b4a88~tplv-tiktokx-cropcenter:1080:1080.jpeg?dr=9640&refresh_token=26fac685&x-expires=1788523200&x-signature=0ac8923c353b665bb499a46d%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+      "profile_biography": "The AI-powered unified service operations platform for agile enterprises.",
+      "profile_followers": 22,
+      "profile_id": "7566318035133334541",
+      "profile_url": "https://www.tiktok.com/@freshworksinc",
+      "profile_username": "freshworks",
+      "ratio": null,
+      "region": "US",
+      "secu_id": "MS4wLjABAAAAZNKjTr7zGlJfosTbj4W42C90Qp2hKnaAc0Yuc_VP-RBTuBPU6834P2wzFXahlBQd",
+      "share_count": null,
+      "shortcode": "7575973657967869464",
+      "subtitle_format": null,
+      "subtitle_info": null,
+      "subtitle_url": null,
+      "tagged_user": null,
+      "timestamp": "2026-09-04T12:00:00.000Z",
+      "tt_chain_token": "7NqYHXpycBb03kMg0gYFlQ==",
+      "url": "https://www.tiktok.com/@freshworksinc/video/7575973657967869464",
+      "video_duration": null,
+      "video_url": null,
+      "width": 0
+    },
+    "source_id": "7575973657967869464"
+  },
+  {
+    "payload": {
+      "account_id": "freshworksinc",
+      "carousel_images": null,
+      "cdn_link": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o00fc898707c7409a7bf5360b016aee3d7/?a=1988&bti=ODszNWYuMDE6&&bt=1159&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=ae75aa57265a8abc485a1fb5503f6a12&tk=tt_chain_token&btag=e000f0000",
+      "cdn_url": "https://www.tiktok.com/3f978e91-e768-6856-fda1-8452efb5bc7a",
+      "collect_count": 1,
+      "comment_count": 3,
+      "comments": [
+        {
+          "comment": "Great tip, sharing with the team",
+          "comment_id": "7573454531115814160",
+          "comment_url": "https://www.tiktok.com/@freshworksinc/video/7572897906573912866?comment_id=7573454531115814160",
+          "date": "2025-11-16T22:31:33.000Z",
+          "likes": 0,
+          "num_of_replies": 0,
+          "user_handle": "salesnerd",
+          "user_id": "6730085668383303938"
+        }
+      ],
+      "commerce_info": null,
+      "create_time": "2025-11-15T10:31:33.000Z",
+      "description": "We just shipped email sequences in Freshsales. Reps can now forecast the quarter with confidence without leaving the deal view. Read the release notes on our blog.",
+      "digg_count": 13,
+      "discovery_input": {
+        "country": "",
+        "end_date": "",
+        "post_type": "",
+        "sort_by": "",
+        "start_date": "",
+        "url": "https://www.tiktok.com/@freshworksinc",
+        "what_to_collect": ""
+      },
+      "hashtags": null,
+      "input": {
+        "discovery_input": null,
+        "url": "https://www.tiktok.com/@freshworksinc/video/7572897906573912866"
+      },
+      "is_verified": false,
+      "music": {
+        "authorname": "freshworks",
+        "covermedium": "https://p19-common-sign.tiktokcdn-us.com/tos-useast8-avt-0068-tx2/e919e3bb41ca3adc30e9cbfaab5b4a88~tplv-tiktokx-cropcenter:720:720.jpeg?dr=9640&refresh_token=032e8416&x-expires=1788523200&x-signature=d6c44d3e2d19140ccc7642d3%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+        "id": "7572897907460140639",
+        "original": true,
+        "playurl": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0a09701c28c9f8ee2e73cc9d36fc6bb3d/?a=1988&bti=ODszNWYuMDE6&&bt=1873&mime_type=audio_mpeg&expire=1788523200&ply_type=2&policy=2&signature=109abc0b4f8b0994de847b2ce8eebd47&tk=tt_chain_token&btag=e000f0000",
+        "title": "original sound - freshworks"
+      },
+      "num_share_count": 7,
+      "offical_item": false,
+      "original_item": false,
+      "original_sound": "freshworks: original sound - freshworks",
+      "play_count": 539,
+      "post_id": "7572897906573912866",
+      "post_type": "video",
+      "preview_image": "https://p16-common-sign.tiktokcdn.com/tos-useast5-p-85c255-tx/a239c0836beb59a2c6090d444ea46a4a~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=a239c083&x-expires=1788523200&x-signature=6beb59a2c6090d444ea46a4a%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+      "profile_avatar": "https://p19-common-sign.tiktokcdn-us.com/tos-useast8-avt-0068-tx2/e919e3bb41ca3adc30e9cbfaab5b4a88~tplv-tiktokx-cropcenter:1080:1080.jpeg?dr=9640&refresh_token=26fac685&x-expires=1788523200&x-signature=0ac8923c353b665bb499a46d%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+      "profile_biography": "The AI-powered unified service operations platform for agile enterprises.",
+      "profile_followers": 22,
+      "profile_id": "7566318035133334541",
+      "profile_url": "https://www.tiktok.com/@freshworksinc",
+      "profile_username": "freshworks",
+      "ratio": "720p",
+      "region": "US",
+      "secu_id": "MS4wLjABAAAAZNKjTr7zGlJfosTbj4W42C90Qp2hKnaAc0Yuc_VP-RBTuBPU6834P2wzFXahlBQd",
+      "share_count": "7",
+      "shortcode": "7572897906573912866",
+      "subtitle_format": null,
+      "subtitle_info": [],
+      "subtitle_url": null,
+      "tagged_user": null,
+      "timestamp": "2026-09-04T12:00:00.000Z",
+      "tt_chain_token": "wqI1xJbkO7dDlrDZLOitOg==",
+      "url": "https://www.tiktok.com/@freshworksinc/video/7572897906573912866",
+      "video_duration": 54,
+      "video_url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0e21d4c26c6cd734fa478f8793f0d8ef3/?a=1988&bti=ODszNWYuMDE6&&bt=1775&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=5cf605386007f81ab210d3af320eae83&tk=tt_chain_token&btag=e000f0000",
+      "width": 720
+    },
+    "source_id": "7572897906573912866"
+  },
+  {
+    "payload": {
+      "account_id": "freshworksinc",
+      "carousel_images": null,
+      "cdn_link": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o01782e068589d4d9dcb7c2393963841cf/?a=1988&bti=ODszNWYuMDE6&&bt=1507&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=58530f43679de6d78209f6f82cc8c4ed&tk=tt_chain_token&btag=e000f0000",
+      "cdn_url": "https://www.tiktok.com/5f1136f3-0da2-88b8-7cd3-ecfe126a15c3",
+      "collect_count": 8,
+      "comment_count": 2,
+      "comments": [
+        {
+          "comment": "Which plan has this?",
+          "comment_id": "7567841571266141764",
+          "comment_url": "https://www.tiktok.com/@freshworksinc/video/7567439565249969332?comment_id=7567841571266141764",
+          "date": "2025-11-01T19:30:24.000Z",
+          "likes": 0,
+          "num_of_replies": 0,
+          "user_handle": "tomrevops",
+          "user_id": "6739668763556642065"
+        },
+        {
+          "comment": "Saving this for my next pipeline review",
+          "comment_id": "7568475508963554445",
+          "comment_url": "https://www.tiktok.com/@freshworksinc/video/7567439565249969332?comment_id=7568475508963554445",
+          "date": "2025-11-03T12:30:24.000Z",
+          "likes": 2,
+          "num_of_replies": 0,
+          "user_handle": "tomrevops",
+          "user_id": "6454909226063790043"
+        }
+      ],
+      "commerce_info": null,
+      "create_time": "2025-10-31T17:30:24.000Z",
+      "description": "Customer story of the week: how a 40-person sales team used Freshsales to cut manual data entry in half. Full case study in the comments. #AI",
+      "digg_count": 28,
+      "discovery_input": {
+        "country": "",
+        "end_date": "",
+        "post_type": "",
+        "sort_by": "",
+        "start_date": "",
+        "url": "https://www.tiktok.com/@freshworksinc",
+        "what_to_collect": ""
+      },
+      "hashtags": [
+        "AI"
+      ],
+      "input": {
+        "discovery_input": null,
+        "url": "https://www.tiktok.com/@freshworksinc/video/7567439565249969332"
+      },
+      "is_verified": false,
+      "music": {
+        "authorname": "freshworks",
+        "covermedium": "https://p19-common-sign.tiktokcdn-us.com/tos-useast8-avt-0068-tx2/e919e3bb41ca3adc30e9cbfaab5b4a88~tplv-tiktokx-cropcenter:720:720.jpeg?dr=9640&refresh_token=032e8416&x-expires=1788523200&x-signature=d6c44d3e2d19140ccc7642d3%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+        "id": "7567439565537358583",
+        "original": true,
+        "playurl": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0dbf8ac4417499cad24fda34d9c79e243/?a=1988&bti=ODszNWYuMDE6&&bt=1251&mime_type=audio_mpeg&expire=1788523200&ply_type=2&policy=2&signature=eb59ef501fa96632a74668126a9558d9&tk=tt_chain_token&btag=e000f0000",
+        "title": "original sound - freshworks"
+      },
+      "num_share_count": 4,
+      "offical_item": false,
+      "original_item": false,
+      "original_sound": "freshworks: original sound - freshworks",
+      "play_count": 1810,
+      "post_id": "7567439565249969332",
+      "post_type": "video",
+      "preview_image": "https://p16-common-sign.tiktokcdn.com/tos-useast5-p-85c255-tx/1a46a5be8a7a4d88f90c3139abc09c4b~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=1a46a5be&x-expires=1788523200&x-signature=8a7a4d88f90c3139abc09c4b%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+      "profile_avatar": "https://p19-common-sign.tiktokcdn-us.com/tos-useast8-avt-0068-tx2/e919e3bb41ca3adc30e9cbfaab5b4a88~tplv-tiktokx-cropcenter:1080:1080.jpeg?dr=9640&refresh_token=26fac685&x-expires=1788523200&x-signature=0ac8923c353b665bb499a46d%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+      "profile_biography": "The AI-powered unified service operations platform for agile enterprises.",
+      "profile_followers": 22,
+      "profile_id": "7566318035133334541",
+      "profile_url": "https://www.tiktok.com/@freshworksinc",
+      "profile_username": "freshworks",
+      "ratio": "720p",
+      "region": "US",
+      "secu_id": "MS4wLjABAAAAZNKjTr7zGlJfosTbj4W42C90Qp2hKnaAc0Yuc_VP-RBTuBPU6834P2wzFXahlBQd",
+      "share_count": "4",
+      "shortcode": "7567439565249969332",
+      "subtitle_format": "webvtt",
+      "subtitle_info": [
+        {
+          "format": "webvtt",
+          "language_code_name": "eng-US",
+          "language_id": "2",
+          "size": 3073,
+          "url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o02ff534a190bebefbea59633adbecce13/?a=1988&bti=ODszNWYuMDE6&&bt=1835&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=eeaf7873ee035b085534d2c3ef112fb2&tk=tt_chain_token&btag=e000f0000",
+          "url_expire": "1788523200",
+          "version": "1:big_caption"
+        }
+      ],
+      "subtitle_url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o02ff534a190bebefbea59633adbecce13/?a=1988&bti=ODszNWYuMDE6&&bt=1835&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=eeaf7873ee035b085534d2c3ef112fb2&tk=tt_chain_token&btag=e000f0000",
+      "tagged_user": null,
+      "timestamp": "2026-09-04T12:00:00.000Z",
+      "tt_chain_token": "8YMwW4Cif37eEQbPoXrImA==",
+      "url": "https://www.tiktok.com/@freshworksinc/video/7567439565249969332",
+      "video_duration": 70,
+      "video_url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o006b48ac057d2038bd1365da0f30ec711/?a=1988&bti=ODszNWYuMDE6&&bt=1129&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=ce3682fef3e92711948412cb37537ecd&tk=tt_chain_token&btag=e000f0000",
+      "width": 720
+    },
+    "source_id": "7567439565249969332"
+  },
+  {
+    "payload": {
+      "account_id": "freshworksinc",
+      "carousel_images": null,
+      "cdn_link": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o015e27909109cadcd5556556dad297fcb/?a=1988&bti=ODszNWYuMDE6&&bt=1651&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=239fc18cb00a1f6865a0ea42aa57fcc4&tk=tt_chain_token&btag=e000f0000",
+      "cdn_url": "https://www.tiktok.com/0bbb557b-8ae8-c522-ba10-cb707fc92f42",
+      "collect_count": 9,
+      "comment_count": 2,
+      "comments": [
+        {
+          "comment": "this is so real",
+          "comment_id": "7566211404557575926",
+          "comment_url": "https://www.tiktok.com/@freshworksinc/video/7565577468079097021?comment_id=7566211404557575926",
+          "date": "2025-10-28T10:04:31.000Z",
+          "likes": 2,
+          "num_of_replies": 0,
+          "user_handle": "tomrevops",
+          "user_id": "6906652247724429708"
+        }
+      ],
+      "commerce_info": null,
+      "create_time": "2025-10-26T17:04:31.000Z",
+      "description": "Join us next Thursday for a live session on AI deal summaries. We will show how teams use Freshsales to cut manual data entry in half, with questions at the end. #ProductUpdate",
+      "digg_count": 31,
+      "discovery_input": {
+        "country": "",
+        "end_date": "",
+        "post_type": "",
+        "sort_by": "",
+        "start_date": "",
+        "url": "https://www.tiktok.com/@freshworksinc",
+        "what_to_collect": ""
+      },
+      "hashtags": [
+        "ProductUpdate"
+      ],
+      "input": {
+        "discovery_input": null,
+        "url": "https://www.tiktok.com/@freshworksinc/video/7565577468079097021"
+      },
+      "is_verified": false,
+      "music": {
+        "authorname": "freshworks",
+        "covermedium": "https://p19-common-sign.tiktokcdn-us.com/tos-useast8-avt-0068-tx2/e919e3bb41ca3adc30e9cbfaab5b4a88~tplv-tiktokx-cropcenter:720:720.jpeg?dr=9640&refresh_token=032e8416&x-expires=1788523200&x-signature=d6c44d3e2d19140ccc7642d3%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+        "id": "7565577468149527144",
+        "original": true,
+        "playurl": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0e75e72e63a4ad8748b5bca75749fa5ab/?a=1988&bti=ODszNWYuMDE6&&bt=1523&mime_type=audio_mpeg&expire=1788523200&ply_type=2&policy=2&signature=835d38ea4cd2d6a82bd947ebf4e913fb&tk=tt_chain_token&btag=e000f0000",
+        "title": "original sound - freshworks"
+      },
+      "num_share_count": 0,
+      "offical_item": false,
+      "original_item": false,
+      "original_sound": "freshworks: original sound - freshworks",
+      "play_count": 1138,
+      "post_id": "7565577468079097021",
+      "post_type": "video",
+      "preview_image": "https://p16-common-sign.tiktokcdn.com/tos-useast5-p-85c255-tx/e5754762d95f6583ca526fce5b0a3f06~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=e5754762&x-expires=1788523200&x-signature=d95f6583ca526fce5b0a3f06%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+      "profile_avatar": "https://p19-common-sign.tiktokcdn-us.com/tos-useast8-avt-0068-tx2/e919e3bb41ca3adc30e9cbfaab5b4a88~tplv-tiktokx-cropcenter:1080:1080.jpeg?dr=9640&refresh_token=26fac685&x-expires=1788523200&x-signature=0ac8923c353b665bb499a46d%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+      "profile_biography": "The AI-powered unified service operations platform for agile enterprises.",
+      "profile_followers": 22,
+      "profile_id": "7566318035133334541",
+      "profile_url": "https://www.tiktok.com/@freshworksinc",
+      "profile_username": "freshworks",
+      "ratio": "720p",
+      "region": "US",
+      "secu_id": "MS4wLjABAAAAZNKjTr7zGlJfosTbj4W42C90Qp2hKnaAc0Yuc_VP-RBTuBPU6834P2wzFXahlBQd",
+      "share_count": null,
+      "shortcode": "7565577468079097021",
+      "subtitle_format": "webvtt",
+      "subtitle_info": [
+        {
+          "format": "webvtt",
+          "language_code_name": "eng-US",
+          "language_id": "2",
+          "size": 2297,
+          "url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o010db7279072c7c455f405fc958898ed2/?a=1988&bti=ODszNWYuMDE6&&bt=1486&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=9797d041d397d20ae9dafcfc0f2072f1&tk=tt_chain_token&btag=e000f0000",
+          "url_expire": "1788523200",
+          "version": "1:big_caption"
+        }
+      ],
+      "subtitle_url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o010db7279072c7c455f405fc958898ed2/?a=1988&bti=ODszNWYuMDE6&&bt=1486&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=9797d041d397d20ae9dafcfc0f2072f1&tk=tt_chain_token&btag=e000f0000",
+      "tagged_user": null,
+      "timestamp": "2026-09-04T12:00:00.000Z",
+      "tt_chain_token": "B/szTDt8H0703RqoCpeqkQ==",
+      "url": "https://www.tiktok.com/@freshworksinc/video/7565577468079097021",
+      "video_duration": 7,
+      "video_url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o042b8d3fbad60d79f3fcae2d444cf7473/?a=1988&bti=ODszNWYuMDE6&&bt=1119&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=2380f20944e3d117df8ef2b9e3b385a7&tk=tt_chain_token&btag=e000f0000",
+      "width": 720
+    },
+    "source_id": "7565577468079097021"
+  },
+  {
+    "payload": {
+      "account_id": "freshworksinc",
+      "carousel_images": null,
+      "cdn_link": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o00551e69b4b48e374d36ba61fca0ec02f/?a=1988&bti=ODszNWYuMDE6&&bt=1551&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=fabab35a5eb091f0d1dccaea71c1e593&tk=tt_chain_token&btag=e000f0000",
+      "cdn_url": "https://www.tiktok.com/749a71f4-23f1-7138-c772-b9e68df1acc5",
+      "collect_count": 8,
+      "comment_count": 2,
+      "comments": [
+        {
+          "comment": "this is so real",
+          "comment_id": "7560405283989541571",
+          "comment_url": "https://www.tiktok.com/@freshworksinc/video/7559678573987646728?comment_id=7560405283989541571",
+          "date": "2025-10-12T18:33:48.000Z",
+          "likes": 0,
+          "num_of_replies": 0,
+          "user_handle": "growthlab.io",
+          "user_id": "6463015053464378609"
+        }
+      ],
+      "commerce_info": null,
+      "create_time": "2025-10-10T19:33:48.000Z",
+      "description": "Join us next Thursday for a live session on AI deal summaries. We will show how teams use Freshsales to keep every conversation in one thread, with questions at the end.",
+      "digg_count": 23,
+      "discovery_input": {
+        "country": "",
+        "end_date": "",
+        "post_type": "",
+        "sort_by": "",
+        "start_date": "",
+        "url": "https://www.tiktok.com/@freshworksinc",
+        "what_to_collect": ""
+      },
+      "hashtags": null,
+      "input": {
+        "discovery_input": null,
+        "url": "https://www.tiktok.com/@freshworksinc/video/7559678573987646728"
+      },
+      "is_verified": false,
+      "music": {
+        "authorname": "freshworks",
+        "covermedium": "https://p19-common-sign.tiktokcdn-us.com/tos-useast8-avt-0068-tx2/e919e3bb41ca3adc30e9cbfaab5b4a88~tplv-tiktokx-cropcenter:720:720.jpeg?dr=9640&refresh_token=032e8416&x-expires=1788523200&x-signature=d6c44d3e2d19140ccc7642d3%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+        "id": "7559678574570611798",
+        "original": true,
+        "playurl": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0e69976dfea62aac631b514a0306c934e/?a=1988&bti=ODszNWYuMDE6&&bt=1370&mime_type=audio_mpeg&expire=1788523200&ply_type=2&policy=2&signature=f781c681775bcd9c6fcb20b2e84c6038&tk=tt_chain_token&btag=e000f0000",
+        "title": "original sound - freshworks"
+      },
+      "num_share_count": 0,
+      "offical_item": false,
+      "original_item": false,
+      "original_sound": "freshworks: original sound - freshworks",
+      "play_count": 1328,
+      "post_id": "7559678573987646728",
+      "post_type": "video",
+      "preview_image": "https://p16-common-sign.tiktokcdn.com/tos-useast5-p-85c255-tx/8cd8c2978c70938b31d788c3aee74ab5~tplv-tiktokx-origin.jpeg?dr=14582&refresh_token=8cd8c297&x-expires=1788523200&x-signature=8c70938b31d788c3aee74ab5%3D&t=4d5b0474&ps=13740610&shp=0c75dd76&shcp=9b759fb9&idc=sg1",
+      "profile_avatar": "https://p19-common-sign.tiktokcdn-us.com/tos-useast8-avt-0068-tx2/e919e3bb41ca3adc30e9cbfaab5b4a88~tplv-tiktokx-cropcenter:1080:1080.jpeg?dr=9640&refresh_token=26fac685&x-expires=1788523200&x-signature=0ac8923c353b665bb499a46d%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5",
+      "profile_biography": "The AI-powered unified service operations platform for agile enterprises.",
+      "profile_followers": 22,
+      "profile_id": "7566318035133334541",
+      "profile_url": "https://www.tiktok.com/@freshworksinc",
+      "profile_username": "freshworks",
+      "ratio": "720p",
+      "region": "US",
+      "secu_id": "MS4wLjABAAAAZNKjTr7zGlJfosTbj4W42C90Qp2hKnaAc0Yuc_VP-RBTuBPU6834P2wzFXahlBQd",
+      "share_count": null,
+      "shortcode": "7559678573987646728",
+      "subtitle_format": "webvtt",
+      "subtitle_info": [
+        {
+          "format": "webvtt",
+          "language_code_name": "eng-US",
+          "language_id": "2",
+          "size": 1641,
+          "url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0faa972b65d51e87d427705d32e5deb0e/?a=1988&bti=ODszNWYuMDE6&&bt=1370&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=01fb8d728ac1e67c6f4cc901198050eb&tk=tt_chain_token&btag=e000f0000",
+          "url_expire": "1788523200",
+          "version": "1:big_caption"
+        }
+      ],
+      "subtitle_url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0faa972b65d51e87d427705d32e5deb0e/?a=1988&bti=ODszNWYuMDE6&&bt=1370&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=01fb8d728ac1e67c6f4cc901198050eb&tk=tt_chain_token&btag=e000f0000",
+      "tagged_user": null,
+      "timestamp": "2026-09-04T12:00:00.000Z",
+      "tt_chain_token": "nqcArYRrTJc6BPpZEb6mng==",
+      "url": "https://www.tiktok.com/@freshworksinc/video/7559678573987646728",
+      "video_duration": 58,
+      "video_url": "https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o0b94dc8a0bbc2de8aca29fe10e7b6d93e/?a=1988&bti=ODszNWYuMDE6&&bt=1318&mime_type=video_mp4&expire=1788523200&ply_type=2&policy=2&signature=14d685c6468161180aac25857d7d302e&tk=tt_chain_token&btag=e000f0000",
+      "width": 720
+    },
+    "source_id": "7559678573987646728"
+  }
+]

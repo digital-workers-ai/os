@@ -18,6 +18,7 @@ COMPETITOR_KEYS = BRAND_KEYS | {
     "meta_page_id",
     "x",
     "instagram",
+    "tiktok",
 }
 TIKTOK_PAIR = ("tiktok_advertiser_id", "tiktok_advertiser_name")
 
@@ -29,7 +30,7 @@ _META_PAGE_RE = re.compile(r"^\d+$")  # meta page id: 6039999393, 231460215383
 _HANDLE_RE = re.compile(r"^[A-Za-z0-9_.]{1,30}$")  # profile handle, no @: HubSpot, freshworksinc
 _COUNTRY_RE = re.compile(r"^[A-Z]{2}$")  # two-letter country code: US, GB
 _LANGUAGE_RE = re.compile(r"^[a-z]{2}$")  # two-letter language code: en, es
-_CODED_KEYS = (("linkedin", _LINKEDIN_RE), ("google_advertiser_id", _ADVERTISER_RE), ("tiktok_advertiser_id", _TIKTOK_ADVERTISER_RE), ("meta_page_id", _META_PAGE_RE), ("x", _HANDLE_RE), ("instagram", _HANDLE_RE))  # optional keys, refused when malformed
+_CODED_KEYS = (("linkedin", _LINKEDIN_RE), ("google_advertiser_id", _ADVERTISER_RE), ("tiktok_advertiser_id", _TIKTOK_ADVERTISER_RE), ("meta_page_id", _META_PAGE_RE), ("x", _HANDLE_RE), ("instagram", _HANDLE_RE), ("tiktok", _HANDLE_RE))  # optional keys, refused when malformed
 _SLUG_RE = re.compile(r"[^a-z0-9]+")  # non-alphanumeric runs become dashes: best crm → best-crm
 _HOST_RE = re.compile(r"^(?:[a-z][a-z0-9+.-]*://)?(?:www\.)?([^/:?#]*)")  # host only, www dropped: zoho.com, crm.zoho.com
 
@@ -50,6 +51,7 @@ class Company:
     meta_page_id: str | None
     x: str | None
     instagram: str | None
+    tiktok: str | None
     role: str
 
     @property
@@ -105,6 +107,13 @@ class Definition:
         if not isinstance(handle, str):
             return None
         return {c.instagram.lower(): c for c in self.competitors if c.instagram}.get(
+            handle.lower()
+        )
+
+    def by_tiktok(self, handle) -> Company | None:
+        if not isinstance(handle, str):
+            return None
+        return {c.tiktok.lower(): c for c in self.competitors if c.tiktok}.get(
             handle.lower()
         )
 
@@ -259,6 +268,7 @@ def _company(spec, role) -> Company:
         meta_page_id=spec.get("meta_page_id"),
         x=spec.get("x"),
         instagram=spec.get("instagram"),
+        tiktok=spec.get("tiktok"),
         role=role,
     )
 

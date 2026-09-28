@@ -471,9 +471,9 @@ SALES_CALLS_BY_ID = {c.id: c for c in SALES_CALLS}
 
 SPY_BRAND = {"name": "Pipedrive", "domain": "pipedrive.com", "aliases": []}
 SPY_COMPETITORS = [
-    {"name": "HubSpot", "domain": "hubspot.com", "aliases": ["HubSpot CRM"], "linkedin": "hubspot", "x": "HubSpot", "instagram": "hubspot", "google_advertiser_id": "AR10072600183532683265", "tiktok_advertiser_id": "6948549846680732417", "tiktok_advertiser_name": "HUBSPOT, INC.", "meta_page_id": "6039999393"},
+    {"name": "HubSpot", "domain": "hubspot.com", "aliases": ["HubSpot CRM"], "linkedin": "hubspot", "x": "HubSpot", "instagram": "hubspot", "tiktok": "hubspot", "google_advertiser_id": "AR10072600183532683265", "tiktok_advertiser_id": "6948549846680732417", "tiktok_advertiser_name": "HUBSPOT, INC.", "meta_page_id": "6039999393"},
     {"name": "Zoho CRM", "domain": "zoho.com", "aliases": ["Zoho"], "linkedin": "zoho", "x": "Zoho", "instagram": "zoho", "google_advertiser_id": "AR07034216898162065409", "meta_page_id": "231460215383"},
-    {"name": "Freshsales", "domain": "freshworks.com", "aliases": ["Freshworks", "Freshworks CRM"], "linkedin": "freshworks-inc", "x": "FreshworksInc", "instagram": "freshworksinc", "google_advertiser_id": "AR03035893441289519105", "meta_page_id": "300722220374123"},
+    {"name": "Freshsales", "domain": "freshworks.com", "aliases": ["Freshworks", "Freshworks CRM"], "linkedin": "freshworks-inc", "x": "FreshworksInc", "instagram": "freshworksinc", "tiktok": "freshworksinc", "google_advertiser_id": "AR03035893441289519105", "meta_page_id": "300722220374123"},
 ]
 SPY_QUERIES = [
     "best crm for small business",
@@ -615,6 +615,14 @@ _SPY_LINKEDIN_TARGETING = (("Audience", True), ("Demographic", False), ("Company
 _SPY_TIKTOK = {c["tiktok_advertiser_id"]: c for c in SPY_COMPETITORS if "tiktok_advertiser_id" in c}
 _SPY_TIKTOK_BANDS = (("0-1K", 0, 1000), ("1K-10K", 1000, 10000), ("10K-100K", 10000, 100000), ("100K-1M", 100000, 1000000))
 _SPY_TIKTOK_STAMP = int(datetime(SPY_ANCHOR.year, SPY_ANCHOR.month, SPY_ANCHOR.day, 12, tzinfo=timezone.utc).timestamp())
+_SPY_TIKTOK_HANDLES = {c["tiktok"]: c for c in SPY_COMPETITORS if "tiktok" in c}
+_SPY_TIKTOK_PROFILES = {
+    "hubspot": ("HubSpot", "6921028957732193285", 43400, True, "The agentic customer platform to scale your business.", "tos-useast5-avt-0068-tx/7351755011711303722", "MS4wLjABAAAAuY18L_r3HfP3KEtK0txT2RPxDj1uSMSqbHZF33aYcGVAwL3PUA50WeQkR2o53xqr"),
+    "freshworksinc": ("freshworks", "7566318035133334541", 22, False, "The AI-powered unified service operations platform for agile enterprises.", "tos-useast8-avt-0068-tx2/e919e3bb41ca3adc30e9cbfaab5b4a88", "MS4wLjABAAAAZNKjTr7zGlJfosTbj4W42C90Qp2hKnaAc0Yuc_VP-RBTuBPU6834P2wzFXahlBQd"),
+}
+_SPY_TIKTOK_WINDOWS = {"hubspot": (0, 120, 8, 5), "freshworksinc": (270, 60, 5, 3)}
+_SPY_TIKTOK_COMMENTS = ("this is so real", "Saving this for my next pipeline review", "Which plan has this?", "The orange sneakers though", "Great tip, sharing with the team")
+_SPY_TIKTOK_COMMENTERS = ("studio.pixelizer", "salesnerd", "maya.builds", "growthlab.io", "tomrevops")
 _SPY_META = {c["meta_page_id"]: c for c in SPY_COMPETITORS}
 _SPY_META_PLATFORMS = (("FACEBOOK", "INSTAGRAM"), ("FACEBOOK", "INSTAGRAM", "THREADS"), ("FACEBOOK", "INSTAGRAM", "AUDIENCE_NETWORK", "MESSENGER"), ("FACEBOOK", "INSTAGRAM", "AUDIENCE_NETWORK", "MESSENGER", "THREADS"))
 _SPY_META_CTAS = (("Learn more", "LEARN_MORE"), ("Sign up", "SIGN_UP"), ("Book now", "BOOK_NOW"), ("Get quote", "GET_QUOTE"))
@@ -1156,6 +1164,129 @@ def spy_tiktok_ads(advertiser_id: str) -> list[dict]:
         ads.append(ad)
     ads.sort(key=lambda ad: ad["last_shown_datetime"], reverse=True)
     return [{"position": position, **ad} for position, ad in enumerate(ads, 1)]
+
+
+def _spy_tiktok_avatar(stem: str, size: int) -> str:
+    digest = f"{_spy_digest(stem, str(size)) % 16**32:032x}"
+    return f"https://p19-common-sign.tiktokcdn-us.com/{stem}~tplv-tiktokx-cropcenter:{size}:{size}.jpeg?dr=9640&refresh_token={digest[:8]}&x-expires={_SPY_TIKTOK_STAMP}&x-signature={digest[8:]}%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast5"
+
+
+def _spy_tiktok_stream(seed: str, salt: str, mime: str) -> str:
+    digest = _spy_digest(seed, salt)
+    return f"https://v16-webapp-prime.us.tiktok.com/video/tos/useast5/tos-useast5-v-85c255-tx/o{digest % 16**33:033x}/?a=1988&bti=ODszNWYuMDE6&&bt={1000 + digest % 900}&mime_type={mime}&expire={_SPY_TIKTOK_STAMP}&ply_type=2&policy=2&signature={_spy_digest(seed, salt, 'signature') % 16**32:032x}&tk=tt_chain_token&btag=e000f0000"
+
+
+def spy_tiktok_posts(handle: str) -> list[dict]:
+    slug = handle.lower()
+    company = _SPY_TIKTOK_HANDLES.get(slug)
+    if company is None:
+        return []
+    username, profile_id, followers, verified, biography, avatar, secu_id = _SPY_TIKTOK_PROFILES[slug]
+    first_age, span, least, spread = _SPY_TIKTOK_WINDOWS[slug]
+    anchor = datetime(SPY_ANCHOR.year, SPY_ANCHOR.month, SPY_ANCHOR.day, tzinfo=timezone.utc)
+    count = least + _spy_digest(slug, "tiktok_count") % spread
+    photo = _spy_digest(slug, "tiktok_photo") % count
+    profile_url = f"https://www.tiktok.com/@{slug}"
+    music_title = f"original sound - {username}"
+    posts = []
+    for i in range(count):
+        seed = f"tiktok_post|{slug}|{i}"
+        age_days = first_age + i * span // count + _spy_digest(seed, "day") % max(1, span // count)
+        posted = anchor - timedelta(days=age_days, hours=2 + _spy_digest(seed, "hour") % 14, minutes=_spy_digest(seed, "minute") % 60, seconds=_spy_digest(seed, "second") % 60)
+        post_id = str(int(posted.timestamp()) << 32 | _spy_digest(seed, "id") % 2**32)
+        url = f"{profile_url}/video/{post_id}"
+        tags = [tag[1:] for tag in _spy_order(seed + "|tags", list(_SPY_HASHTAGS))[: _spy_digest(seed, "tags") % 3]]
+        text = _spy_pick(seed, "text", _SPY_POST_TEXTS).format(
+            name=company["name"],
+            feature=_spy_pick(seed, "feature", _SPY_FEATURES),
+            benefit=_spy_pick(seed, "benefit", _SPY_BENEFITS),
+        )
+        if tags:
+            text += " " + " ".join("#" + tag for tag in tags)
+        comments = []
+        for n in range(_spy_digest(seed, "comments") % 3):
+            commented = posted + timedelta(days=n + 1, hours=_spy_digest(seed, "comment_hour", str(n)) % 24)
+            comment_id = str(int(commented.timestamp()) << 32 | _spy_digest(seed, "comment", str(n)) % 2**32)
+            comments.append({
+                "comment": _spy_pick(seed, f"comment_text_{n}", _SPY_TIKTOK_COMMENTS),
+                "comment_id": comment_id,
+                "comment_url": f"{url}?comment_id={comment_id}",
+                "date": commented.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+                "likes": _spy_digest(seed, "comment_likes", str(n)) % 3,
+                "num_of_replies": 0,
+                "user_handle": _spy_pick(seed, f"commenter_{n}", _SPY_TIKTOK_COMMENTERS),
+                "user_id": str(6 * 10**18 + _spy_digest(seed, "commenter_id", str(n)) % 10**18),
+            })
+        subtitle_format = subtitle_url = None
+        if i == photo:
+            carousel = [_spy_tiktok_image(seed, f"photo{n}", "tos-maliva-i-photomode-us") for n in range(2 + _spy_digest(seed, "photos") % 4)]
+            preview = carousel[0]
+            video = cdn_link = duration = ratio = subtitle_info = None
+            width = 0
+            post_type = "images"
+        else:
+            carousel = None
+            preview = _spy_tiktok_image(seed, "preview", "tos-useast5-p-85c255-tx")
+            video = _spy_tiktok_stream(seed, "video", "video_mp4")
+            cdn_link = _spy_tiktok_stream(seed, "cdn", "video_mp4")
+            duration = 5 + _spy_digest(seed, "duration") % 80
+            ratio, width = ("540p", 576) if _spy_digest(seed, "ratio") % 8 == 0 else ("720p", 720)
+            post_type = "video"
+            subtitle_info = []
+            if _spy_digest(seed, "subtitles") % 2 == 0:
+                subtitle_format = "webvtt"
+                subtitle_url = _spy_tiktok_stream(seed, "subtitle", "video_mp4")
+                subtitle_info = [{"format": "webvtt", "language_code_name": "eng-US", "language_id": "2", "size": 400 + _spy_digest(seed, "subtitle_size") % 3000, "url": subtitle_url, "url_expire": str(_SPY_TIKTOK_STAMP), "version": "1:big_caption"}]
+        likes = _spy_digest(seed, "likes") % 70
+        shares = max(0, _spy_digest(seed, "shares") % 14 - 4)
+        posts.append({
+            "account_id": slug,
+            "carousel_images": carousel,
+            "cdn_link": cdn_link,
+            "cdn_url": f"https://www.tiktok.com/{uuid.UUID(int=_spy_digest(seed, 'cdn_url') % 2**128)}",
+            "collect_count": _spy_digest(seed, "collects") % 12,
+            "comment_count": len(comments) + _spy_digest(seed, "comment_count") % 3,
+            "comments": comments,
+            "commerce_info": None,
+            "create_time": posted.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+            "description": text,
+            "digg_count": likes,
+            "discovery_input": {"url": f"https://www.tiktok.com/@{handle}", "start_date": "", "end_date": "", "what_to_collect": "", "post_type": "", "country": "", "sort_by": ""},
+            "hashtags": tags or None,
+            "input": {"url": url, "discovery_input": None},
+            "is_verified": verified,
+            "music": {"authorname": username, "covermedium": _spy_tiktok_avatar(avatar, 720), "id": str(int(post_id) + _spy_digest(seed, "music") % 10**9), "original": True, "playurl": _spy_tiktok_stream(seed, "music", "audio_mpeg"), "title": music_title},
+            "num_share_count": shares,
+            "offical_item": False,
+            "original_item": False,
+            "original_sound": f"{username}: {music_title}",
+            "play_count": 100 + likes * 30 + _spy_digest(seed, "plays") % 900,
+            "post_id": post_id,
+            "post_type": post_type,
+            "preview_image": preview,
+            "profile_avatar": _spy_tiktok_avatar(avatar, 1080),
+            "profile_biography": biography,
+            "profile_followers": followers,
+            "profile_id": profile_id,
+            "profile_url": profile_url,
+            "profile_username": username,
+            "ratio": ratio,
+            "region": "US",
+            "secu_id": secu_id,
+            "share_count": str(shares) if shares else None,
+            "shortcode": post_id,
+            "subtitle_format": subtitle_format,
+            "subtitle_info": subtitle_info,
+            "subtitle_url": subtitle_url,
+            "tagged_user": None,
+            "timestamp": f"{SPY_ANCHOR.isoformat()}T12:00:00.000Z",
+            "tt_chain_token": base64.b64encode(_spy_digest(seed, "chain").to_bytes(16, "big")).decode(),
+            "url": url,
+            "video_duration": duration,
+            "video_url": video,
+            "width": width,
+        })
+    return posts
 
 
 def _spy_fbcdn(seed: str, salt: str, folder: str, sizing: str = "") -> str:

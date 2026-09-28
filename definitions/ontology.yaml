@@ -397,6 +397,7 @@ source_priority:
   - linkedin_posts
   - x_posts
   - instagram_posts
+  - tiktok_posts
   - google_serp
 
 relationships:

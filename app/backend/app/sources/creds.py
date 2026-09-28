@@ -173,6 +173,11 @@ _REAL: dict[str, tuple[str, tuple[str, ...], Callable]] = {
         ("BRIGHTDATA_API_KEY",),
         _bearer,
     ),
+    "tiktok_posts": (
+        "https://api.brightdata.com",
+        ("BRIGHTDATA_API_KEY",),
+        _bearer,
+    ),
     "linkedin_ads": ("https://www.searchapi.io", ("SEARCHAPI_API_KEY",), _bearer),
     "tiktok_ads": ("https://www.searchapi.io", ("SEARCHAPI_API_KEY",), _bearer),
     "meta_ads": ("https://www.searchapi.io", ("SEARCHAPI_API_KEY",), _bearer),
@@ -327,6 +332,12 @@ _MOCK: dict[str, tuple[str, dict, tuple | None, dict]] = {
         {},
     ),
     "instagram_posts": (
+        "/brightdata",
+        {"Authorization": "Bearer mock_brightdata_key"},
+        None,
+        {},
+    ),
+    "tiktok_posts": (
         "/brightdata",
         {"Authorization": "Bearer mock_brightdata_key"},
         None,
