@@ -194,7 +194,7 @@ flowchart TD
 23. **Spy:** A third web app: how the brand comes up in Google and AI answers for the tracked queries, and what competitors run and post.
 24. **Studio:** A fourth web app for whoever markets the business: a canvas of what it has made, a chat that makes more through the content skills, the calendar and the asset library.
 25. **Search:** One search box over everything stored: names, emails, ids, statuses, transcript passages, briefings, and the definitions themselves.
-26. **MCP:** The door for AI assistants. Any assistant on your machine can read the same numbers, definitions, and briefing prompts as the console, and every call is logged.
+26. **MCP:** The door for AI assistants. Any assistant you connect can read the same numbers, definitions, and briefing prompts as the console, and every call is logged.
 
 ## Entity Resolution
 
@@ -322,9 +322,45 @@ open http://localhost:3095
 
 Any AI assistant can use DW-OS as a tool. It gets read-only access to the same reviewed numbers the console shows, so when you ask your assistant about revenue it reports the number your system agreed on rather than guessing over raw tables. It can also read the definition files, so it can check what a number means before quoting it. The studio adds four tools that only read, `assets_list`, `assets_read`, `brand_read` and `looks_read`, and one tool per content skill, `dw_linkedin_post`, `dw_newsletter`, `dw_blog`, `dw_image` and `dw_carousel`, which are not read-only: each one runs the skill and lands a new asset in the library.
 
+The endpoint is `PUBLIC_URL` plus `/mcp`, and the console shows it under Config → MCP, with whether access is open or requires sign-in. On a local stack:
+
 ```
-claude mcp add --transport http os http://localhost:3092/mcp
+claude mcp add --transport http os http://localhost:8092/mcp
 ```
+
+With `AUTH_ENABLED` unset nothing requires a token. The backend port binds to the loopback interface, so `/mcp` is reachable from the machine the stack runs on only, unless you open the port.
+
+### Requiring sign-in
+
+`AUTH_ENABLED` set to `true` requires Google sign-in on `/mcp`. `PUBLIC_URL` is where assistants reach the backend and the OAuth base URL; it must be `https` unless the host is loopback. `AUTH_ALLOWED_EMAILS` is the comma-separated list of Google accounts allowed to sign in. Three keys go in `app/.env` or the environment, never in settings: `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` from a Google Cloud OAuth client, and `AUTH_JWT_SIGNING_KEY`, any long random string, which signs the tokens assistants receive and the browser session cookie, and encrypts the stored OAuth state; changing it signs everyone out. The app refuses to start with the flag on and any of the three missing.
+
+In the Google Cloud console, under APIs & Services → Credentials, create an OAuth client of type Web application. Add `{PUBLIC_URL}` as an authorized JavaScript origin and two authorized redirect URIs: `{PUBLIC_URL}/auth/callback` for assistants and `{PUBLIC_URL}/api/auth/callback` for the browser. The consent screen can stay in testing mode for a handful of accounts.
+
+From Claude Code:
+
+```
+claude mcp add --transport http os https://os.example.com/mcp
+```
+
+then `/mcp` inside Claude Code signs in through the browser: Google, then a consent page naming the client. In claude.ai and Claude Desktop, add the same URL as a custom connector and sign in the same way. The server follows the MCP authorization spec: protected resource metadata, OAuth 2.1 with PKCE, dynamic client registration and client ID metadata documents, and tokens bound to the `/mcp` audience. Only accounts in `AUTH_ALLOWED_EMAILS` get a token; any other account completes the Google and consent pages and is then refused at the token exchange with an `invalid_grant` error naming the account, so the assistant reports the sign-in as failed. Every call is recorded in `mcp_call` with the caller's email.
+
+The same flag puts a sign-in card in front of the console, the dashboard, Spy and the studio. "Sign in with Google" runs the Google flow against the same OAuth client, and an allowed account comes back with a signed httponly cookie named `session`, valid for seven days. The cookie is set for the host, so on a stack whose four web apps share one host, localhost with four ports or one domain, one sign-in covers all four. An account that is not in `AUTH_ALLOWED_EMAILS` is sent back to the card and told it is not allowed. Every `/api` route except `/api/health` and the sign-in routes then requires that cookie or an `Authorization: Bearer` header carrying a token the server issued to an assistant or an API key; without one the answer is 401. With the flag unset nothing changes on `/api`. Who is signed in, the keys, the connected assistants and who has been calling are under Config → Access, described in [Access](#access).
+
+A script, a cron job or a headless client that cannot open a browser uses an API key from Config → Access as its bearer instead, on `/api` and on `/mcp`:
+
+```
+claude mcp add --transport http os https://os.example.com/mcp --header "Authorization: Bearer os_..."
+```
+
+### Access
+
+Config → Access in the console is where sign-in is managed. The signed-in account and a sign-out link sit at the top.
+
+API keys are for scripts, cron and headless clients that cannot open a browser. Create one with a label and copy it once: only a sha256 hash is stored, and from then on the list shows the first eight characters. A key works as a bearer on `/api` and on `/mcp`, and every call made with it is recorded under the email of the person who minted it. Revoke cuts it off.
+
+Connected clients are the assistants that have completed the sign-in flow on `/mcp`. For each the server records the client's registered name and callback, the person, when it was authorized and when it last called. Revoke cuts that client off at its next call; signing in again from the same client restores it.
+
+Callers shows, per person and tool, how many calls were made, how many failed and when the last one was. Calls made while access was open show as "open".
 
 ## The Nightly AI Engineer Agent
 
@@ -355,12 +391,15 @@ That is the part we do. At Digital Workers, we read every proposal the nightly a
 
 ## Configuration
 
-Everything is read from the environment, and `app/.env` is loaded first. Every setting has a default, so an empty file runs. The three API keys are never settings, and the app refuses to start a layer whose key is missing.
+Everything is read from the environment, and `app/.env` is loaded first. Every setting has a default, so an empty file runs. The keys in the second table are never settings, and the app refuses to start a layer whose key is missing.
 
 | Variable                   | Default                                         | What it does                                                           |
 |----------------------------|-------------------------------------------------|------------------------------------------------------------------------|
 | `DATABASE_URL`             | `postgresql+asyncpg://os:os@localhost:5442/os`  | Postgres connection; compose points it at the `postgres` service        |
 | `MOCK_BASE_URL`            | `http://localhost:8192`                         | Where the vendored mock providers answer                                |
+| `AUTH_ENABLED`             | `false`                                         | Google sign-in required on `/mcp`, `/api` and the four web apps        |
+| `PUBLIC_URL`               | `http://localhost:8092`                         | Where assistants reach the backend; the OAuth base URL                 |
+| `AUTH_ALLOWED_EMAILS`      | unset                                           | Google accounts allowed to sign in, comma-separated; required when auth is on |
 | `STAND_INS_ONLY`           | `false`                                         | Every source answers from its stand-in, whatever keys are set          |
 | `SYNC_RUN_RETENTION_DAYS`  | `30`                                            | Sync runs older than this are pruned                                   |
 | `ENGINE_RUN_RETENTION`     | `200`                                           | Rebuild receipts kept                                                  |
@@ -403,11 +442,14 @@ Everything is read from the environment, and `app/.env` is loaded first. Every s
 | `MARKETER_HOUR`            | `6`                                             | UTC hour the daily fill runs                                           |
 | `CLOCK_PINNED_AT`          | unset                                           | Pins the app clock at one instant                                      |
 
-| Key                   | Needed by                                                      |
-|-----------------------|----------------------------------------------------------------|
-| `ANTHROPIC_API_KEY`   | Reading text, briefings, asking questions, the studio's skills |
-| `OPENAI_API_KEY`      | Meaning search, the studio's pictures                          |
-| `ZEROENTROPY_API_KEY` | Reranking                                                      |
+| Key                    | Needed by                                                      |
+|------------------------|----------------------------------------------------------------|
+| `ANTHROPIC_API_KEY`    | Reading text, briefings, asking questions, the studio's skills |
+| `OPENAI_API_KEY`       | Meaning search, the studio's pictures                          |
+| `ZEROENTROPY_API_KEY`  | Reranking                                                      |
+| `GOOGLE_CLIENT_ID`     | Sign-in; from a Google Cloud OAuth client                      |
+| `GOOGLE_CLIENT_SECRET` | Sign-in; from the same OAuth client                            |
+| `AUTH_JWT_SIGNING_KEY` | Sign-in; any long random string                                |
 
 A source reads its real API once every variable it names is set, and the stand-in when none is. A partial set is refused, naming what is missing. `<SOURCE>_BASE_URL` overrides the host.
 
@@ -441,7 +483,7 @@ A source reads its real API once every variable it names is set, and the stand-i
 
 ## Operator Variables
 
-The nightly agent and its builder run only when the repository variable `OPERATOR_ENABLED` is `true` and the two secrets below are set; until then both workflows are skipped. These are GitHub Actions repository variables and secrets read by `.github/workflows/operator.yml` and `operator-build.yml`, not app settings. The agent restores last night's database copy from object storage: set the S3 or the GCS pair, never both; with neither set, the run syncs the mock providers and audits that instead.
+The nightly agent and its builder run only when the repository variable `OPERATOR_ENABLED` is `true` and the two secrets below are set; until then both workflows are skipped. These are GitHub Actions repository variables and secrets read by `.github/workflows/operator.yml` and `operator-build.yml`, not app settings. The agent restores last night's database copy from object storage: set the S3 or the GCS pair, never both; with neither set, the run syncs the mock providers and audits that instead. The stack each workflow starts in the runner has `AUTH_ENABLED` unset, so neither needs a key.
 
 | Variable                                  | Kind     | What it does                                                                 |
 |-------------------------------------------|----------|------------------------------------------------------------------------------|
@@ -456,7 +498,7 @@ The nightly agent and its builder run only when the repository variable `OPERATO
 
 ## Studio Agent Variables
 
-The taste agent runs only when the repository variable `STUDIO_AGENTS_ENABLED` is `true`; until then `.github/workflows/taste.yml` is skipped. Like the operator it is a Claude Code session in GitHub Actions, scheduled at 02:00 UTC, with the repository checked out and last night's database copy restored beside it, and it reaches that copy through the operator's variables: `OPERATOR_SNAPSHOT_S3` with `OPERATOR_AWS_ROLE_ARN`, or `OPERATOR_SNAPSHOT_GCS` with `OPERATOR_GCP_WORKLOAD_IDENTITY_PROVIDER` and `OPERATOR_GCP_SERVICE_ACCOUNT`, never both. With neither set the copy is empty and the night finds nothing. `ANTHROPIC_API_KEY` is its model and `OPERATOR_GITHUB_PAT` opens its pull requests, on branches under `taste/`.
+The taste agent runs only when the repository variable `STUDIO_AGENTS_ENABLED` is `true`; until then `.github/workflows/taste.yml` is skipped. Like the operator it is a Claude Code session in GitHub Actions, scheduled at 02:00 UTC, with the repository checked out and last night's database copy restored beside it, and it reaches that copy through the operator's variables: `OPERATOR_SNAPSHOT_S3` with `OPERATOR_AWS_ROLE_ARN`, or `OPERATOR_SNAPSHOT_GCS` with `OPERATOR_GCP_WORKLOAD_IDENTITY_PROVIDER` and `OPERATOR_GCP_SERVICE_ACCOUNT`, never both. With neither set the copy is empty and the night finds nothing. Its stack in the runner has `AUTH_ENABLED` unset too, so it needs no key. `ANTHROPIC_API_KEY` is its model and `OPERATOR_GITHUB_PAT` opens its pull requests, on branches under `taste/`.
 
 | Variable                | Kind     | What it does                                                                  |
 |-------------------------|----------|-------------------------------------------------------------------------------|

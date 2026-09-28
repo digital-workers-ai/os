@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: os
       POSTGRES_DB: os
     ports:
-      - "5442:5432"
+      - "127.0.0.1:5442:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -22,7 +22,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "8092:8000"
+      - "127.0.0.1:8092:8000"
     env_file:
       - .env
     environment:
@@ -53,7 +53,7 @@ services:
       context: ../mock
       dockerfile: Dockerfile
     ports:
-      - "8192:8100"
+      - "127.0.0.1:8192:8100"
     volumes:
       - ../mock:/app/seeds
     healthcheck:
