@@ -216,6 +216,7 @@ export interface Post {
   likes: number
   comments: number
   url: string
+  preview: string | null
 }
 
 export interface PostsResponse {
@@ -231,12 +232,14 @@ export interface PostsQuery {
   company?: string
   limit?: number
   offset?: number
+  platform?: string
 }
 
-export const getPosts = ({ company, limit, offset }: PostsQuery = {}, bounds?: Bounds) =>
+export const getPosts = ({ company, limit, offset, platform }: PostsQuery = {}, bounds?: Bounds) =>
   get<PostsResponse>(
     `/api/spy/posts${query([
       ['company', company],
+      ['platform', platform],
       ['limit', limit === undefined ? undefined : String(limit)],
       ['offset', offset === undefined ? undefined : String(offset)],
       ...windowParams(bounds),

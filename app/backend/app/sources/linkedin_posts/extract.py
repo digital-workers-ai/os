@@ -32,6 +32,16 @@ def company_name(payload: dict) -> str | None:
     return title if isinstance(title, str) and title.strip() else None
 
 
+def _preview(payload: dict) -> str | None:
+    thumbnail = payload.get("video_thumbnail")
+    if isinstance(thumbnail, str) and thumbnail:
+        return thumbnail
+    images = payload.get("images")
+    if not isinstance(images, list):
+        return None
+    return next((image for image in images if isinstance(image, str) and image), None)
+
+
 def reshape(object_type: str, payload: dict) -> list[dict]:
     if object_type != "posts":
         return [payload]
@@ -39,4 +49,7 @@ def reshape(object_type: str, payload: dict) -> list[dict]:
     name = company_name(payload)
     if name is not None:
         record["_company"] = name
+    preview = _preview(payload)
+    if preview is not None:
+        record["_preview"] = preview
     return [record]

@@ -16,6 +16,8 @@ SOURCE = "linkedin_posts"
 SNAPSHOT = "sd_mu3j5zf4i64vu5aoj"
 DATASET_ID = "gd_lyy3tktm25m4avu764"
 INGESTED = datetime(2026, 9, 14, tzinfo=UTC)
+THUMBNAIL = "https://media.licdn.com/dms/image/v2/thumb.jpg"
+IMAGE = "https://media.licdn.com/dms/image/v2/first.jpg"
 MOCK_FIXTURES = checks.REAL_FIXTURES.parent / "mock" / SOURCE
 REAL_FIXTURES = checks.REAL_FIXTURES / SOURCE
 needs_real_capture = pytest.mark.skipif(
@@ -87,6 +89,7 @@ MAPPED = {
     ("num_likes", "likes"),
     ("num_comments", "comments"),
     ("url", "url"),
+    ("_preview", "preview"),
 }
 
 
@@ -418,6 +421,28 @@ class TestTheHook:
     def test_the_platform_is_linkedin(self):
         assert extract.reshape("posts", post())[0]["_platform"] == "linkedin"
 
+    def test_the_preview_is_the_video_thumbnail_when_set(self):
+        record = extract.reshape(
+            "posts", post(video_thumbnail=THUMBNAIL, images=[IMAGE])
+        )[0]
+        assert record["_preview"] == THUMBNAIL
+
+    def test_the_preview_falls_back_to_the_first_image(self):
+        record = extract.reshape(
+            "posts",
+            post(video_thumbnail=None, images=["", IMAGE, "https://x.test/second.jpg"]),
+        )[0]
+        assert record["_preview"] == IMAGE
+
+    def test_no_preview_when_neither_is_set(self):
+        record = extract.reshape("posts", post(video_thumbnail=None, images=[]))[0]
+        assert "_preview" not in record
+
+    @pytest.mark.parametrize("images", ["x", [None, 5, ""], {}])
+    def test_a_malformed_images_value_never_raises_and_gives_no_preview(self, images):
+        record = extract.reshape("posts", post(video_thumbnail="", images=images))[0]
+        assert "_preview" not in record
+
     def test_the_payload_is_kept_verbatim(self):
         record = extract.reshape("posts", post())[0]
         assert {k: v for k, v in record.items() if not k.startswith("_")} == post()
@@ -478,6 +503,7 @@ class TestTheDefinitions:
             "likes": "number",
             "comments": "number",
             "url": "string",
+            "preview": "string",
         }
 
     def test_the_source_follows_google_sheets_in_priority(self):

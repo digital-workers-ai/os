@@ -29,7 +29,7 @@ export default function App() {
           <Route path="overview" element={<Overview {...ranged} />} />
           <Route path="visibility/:engine?" element={<Visibility {...ranged} />} />
           <Route path="ads/:platform?" element={<Ads {...ranged} />} />
-          <Route path="posts" element={<Posts {...ranged} />} />
+          <Route path="posts/:platform?" element={<Posts {...ranged} />} />
           <Route path="competitors" element={<Competitors />} />
           <Route path="*" element={<Navigate to={`/${FIRST}`} replace />} />
         </Route>

@@ -12,13 +12,15 @@ export const ENGINES: Option[] = [
   { value: 'gemini', label: 'Gemini' },
 ]
 
-export const PLATFORMS: Option[] = [
+export const AD_PLATFORMS: Option[] = [
   { value: 'google', label: 'Google' },
   { value: 'linkedin', label: 'LinkedIn' },
   { value: 'tiktok', label: 'TikTok' },
   { value: 'meta', label: 'Meta' },
 ]
 
+export const POST_PLATFORMS: Option[] = [{ value: 'linkedin', label: 'LinkedIn' }]
+
 export const known = (options: Option[], value?: string) => value === undefined || options.some((option) => option.value === value)
 
-export const platformLabel = (value: string) => PLATFORMS.find((option) => option.value === value)?.label ?? value
+export const platformLabel = (value: string) => [...AD_PLATFORMS, ...POST_PLATFORMS].find((option) => option.value === value)?.label ?? value

@@ -1,14 +1,30 @@
+import { useState } from 'react'
 import type { Post } from '@/api'
 import { Stat } from '@/cards/Stat'
+import { Pill } from '@/components/ui/pill'
+import { platformLabel } from '@/lib/engines'
 import { shortDate } from '@/lib/format'
+
+function Thumb({ src }: { src: string }) {
+  const [broken, setBroken] = useState(false)
+  if (broken) return <span data-testid="post-preview" className="h-10 w-10 shrink-0 rounded bg-wash" />
+  return <img data-testid="post-preview" src={src} alt="" className="h-10 w-10 shrink-0 rounded bg-wash object-cover" onError={() => setBroken(true)} />
+}
 
 export function PostRow({ post }: { post: Post }) {
   return (
-    <li className="flex items-start gap-3 border-b border-line/30 py-2 text-sm last:border-0" data-testid="post-row" data-company={post.company}>
+    <li
+      className="flex items-start gap-3 border-b border-line/30 py-2 text-sm last:border-0"
+      data-testid="post-row"
+      data-company={post.company}
+      data-platform={post.platform}
+    >
       <span className="w-14 shrink-0 whitespace-nowrap tabular-nums text-muted">{shortDate(post.posted_at.slice(0, 10))}</span>
       <span className="w-28 shrink-0 truncate font-medium text-ink" title={post.company}>
         {post.company}
       </span>
+      <Pill className="shrink-0">{platformLabel(post.platform)}</Pill>
+      {post.preview && <Thumb src={post.preview} />}
       <span className="line-clamp-2 min-w-0 flex-1 text-ink" title={post.name}>
         {post.name}
       </span>

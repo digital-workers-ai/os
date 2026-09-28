@@ -24,7 +24,7 @@ const fromAd = (ad: Ad): Item => ({ key: `ad|${ad.canonical_id}`, company: ad.co
 const fromPost = (post: Post): Item => ({
   key: `post|${post.canonical_id}`,
   company: post.company,
-  kind: 'LinkedIn post',
+  kind: `${platformLabel(post.platform)} post`,
   name: post.name,
   date: post.posted_at,
   url: post.url,

@@ -30,6 +30,7 @@ AD_URL = "https://adstransparency.google.com/advertiser/AR123/creative/CR1"
 PREVIEW = "https://tpc.googlesyndication.com/archive/CR1.png"
 MEDIA = "https://tpc.googlesyndication.com/archive/CR1/creative.mp4"
 LANDING = "https://www.hubspot.com/startups/resources/gtm/founder-led-brand-toolkit"
+POST_PREVIEW = "https://media.licdn.com/dms/image/v2/thumb.jpg"
 
 
 @pytest_asyncio.fixture
@@ -100,12 +101,19 @@ def ad(canonical):
 
 @pytest.fixture
 def post(canonical):
-    async def _make(company="HubSpot", posted_at=D2, likes=0, comments=0, **extra):
+    async def _make(
+        company="HubSpot",
+        posted_at=D2,
+        likes=0,
+        comments=0,
+        platform="linkedin",
+        **extra,
+    ):
         return await canonical(
             "competitor_post",
             {
                 "company": company,
-                "platform": "linkedin",
+                "platform": platform,
                 "posted_at": posted_at,
                 "likes": likes,
                 "comments": comments,
@@ -512,6 +520,7 @@ class TestPosts:
             likes=12,
             comments=3,
             url="https://www.linkedin.com/posts/hubspot_1",
+            preview=POST_PREVIEW,
         )
         bare = await canonical("competitor_post", {"posted_at": D1})
         body = (await api.get("/api/spy/posts")).json()
@@ -526,6 +535,7 @@ class TestPosts:
                 "likes": 12,
                 "comments": 3,
                 "url": "https://www.linkedin.com/posts/hubspot_1",
+                "preview": POST_PREVIEW,
             },
             {
                 "canonical_id": str(bare),
@@ -537,6 +547,7 @@ class TestPosts:
                 "likes": None,
                 "comments": None,
                 "url": None,
+                "preview": None,
             },
         ]
         assert isinstance(body["posts"][0]["likes"], int | float)
@@ -584,6 +595,45 @@ class TestPosts:
             "HubSpot",
             "Zoho CRM",
             "zoho crm",
+        ]
+
+    async def test_a_platform_narrows_the_page_and_the_summaries(self, api, post):
+        await post(company="HubSpot", platform="linkedin", likes=100, comments=50)
+        hubspot = await post(
+            company="HubSpot", platform="instagram", likes=10, comments=2
+        )
+        zoho = await post(company="Zoho CRM", platform="instagram", likes=5, comments=1)
+        body = (await api.get("/api/spy/posts?platform=instagram")).json()
+        assert body["total"] == 2
+        assert [row["canonical_id"] for row in body["posts"]] == sorted(
+            (str(hubspot), str(zoho)), reverse=True
+        )
+        assert {row["platform"] for row in body["posts"]} == {"instagram"}
+        assert body["companies"] == [
+            {"name": "HubSpot", "posts": 1, "likes": 10, "comments": 2},
+            {"name": "Zoho CRM", "posts": 1, "likes": 5, "comments": 1},
+        ]
+
+    async def test_a_platform_nobody_uses_is_an_empty_page_with_no_companies(
+        self, api, post
+    ):
+        await post()
+        await post(company="Zoho CRM")
+        body = (await api.get("/api/spy/posts?platform=tiktok")).json()
+        assert body["companies"] == []
+        assert body["total"] == 0
+        assert body["posts"] == []
+
+    async def test_no_platform_returns_every_platform(self, api, post):
+        linkedin = await post(likes=3)
+        instagram = await post(platform="instagram", likes=4)
+        body = (await api.get("/api/spy/posts")).json()
+        assert body["total"] == 2
+        assert [row["canonical_id"] for row in body["posts"]] == sorted(
+            (str(linkedin), str(instagram)), reverse=True
+        )
+        assert body["companies"] == [
+            {"name": "HubSpot", "posts": 2, "likes": 7, "comments": 0}
         ]
 
     async def test_a_window_narrows_on_posted_at_for_page_and_summary(self, api, post):

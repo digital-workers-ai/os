@@ -7,7 +7,7 @@ import { SubNav } from '@/components/SubNav'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Empty } from '@/components/ui/empty'
 import { Loading } from '@/components/ui/loading'
-import { known, PLATFORMS } from '@/lib/engines'
+import { AD_PLATFORMS, known } from '@/lib/engines'
 import { num } from '@/lib/format'
 import { Pending, spanOf, type RangedProps } from '@/views/ranged'
 
@@ -33,7 +33,7 @@ function CompanyAds({ company, ads }: { company: AdCompany; ads: Ad[] }) {
 export function Ads(props: RangedProps) {
   const { platform } = useParams()
   const span = spanOf(props)
-  const valid = known(PLATFORMS, platform)
+  const valid = known(AD_PLATFORMS, platform)
   const query = useQuery({
     queryKey: ['ads', platform ?? 'all', span],
     queryFn: () => getAds(platform, span ?? undefined),
@@ -44,7 +44,7 @@ export function Ads(props: RangedProps) {
   const data = query.data
   return (
     <>
-      <SubNav base="ads" options={PLATFORMS} />
+      <SubNav base="ads" options={AD_PLATFORMS} />
       <section data-testid="ads" data-state={query.isPending ? 'loading' : query.error ? 'error' : 'ready'}>
         {query.error && <ErrorBanner error={asApiError(query.error)} />}
         {!data && !query.error && <Loading />}
