@@ -1585,6 +1585,9 @@ class TestStartupCredentials:
             ),
             "OPENAI_API_KEY": ("EMBEDDINGS_ENABLED", "STUDIO_ENABLED"),
             "ZEROENTROPY_API_KEY": ("RERANK_ENABLED",),
+            "GOOGLE_CLIENT_ID": ("AUTH_ENABLED",),
+            "GOOGLE_CLIENT_SECRET": ("AUTH_ENABLED",),
+            "AUTH_JWT_SIGNING_KEY": ("AUTH_ENABLED",),
         }
         assert config.LLM_FLAGS == (
             "ENRICHMENT_ENABLED",

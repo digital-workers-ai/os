@@ -29,6 +29,10 @@ EXCLUDED = {
     ("POST", "/api/assets/{seq}/resize"),
     ("POST", "/api/assets/{seq}/feedback"),
     ("POST", "/api/skills/{name}/run"),
+    ("POST", "/api/auth/logout"),
+    ("POST", "/api/auth/keys"),
+    ("DELETE", "/api/auth/keys/{seq}"),
+    ("DELETE", "/api/auth/clients/{seq}"),
 }
 
 
