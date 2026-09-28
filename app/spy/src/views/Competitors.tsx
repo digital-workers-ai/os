@@ -46,6 +46,7 @@ function Definition({ data }: { data: SpyDefinition }) {
                 <th className={HEAD}>LinkedIn</th>
                 <th className={HEAD}>X</th>
                 <th className={HEAD}>Instagram</th>
+                <th className={HEAD}>TikTok</th>
                 <th className={HEAD}>Google advertiser</th>
                 <th className={HEAD}>TikTok advertiser</th>
                 <th className={HEAD}>Meta page</th>
@@ -62,6 +63,7 @@ function Definition({ data }: { data: SpyDefinition }) {
                   <td className={CELL}>{competitor.linkedin ? <Mono>{competitor.linkedin}</Mono> : '—'}</td>
                   <td className={CELL}>{competitor.x ? <Mono>{competitor.x}</Mono> : '—'}</td>
                   <td className={CELL}>{competitor.instagram ? <Mono>{competitor.instagram}</Mono> : '—'}</td>
+                  <td className={CELL}>{competitor.tiktok ? <Mono>{competitor.tiktok}</Mono> : '—'}</td>
                   <td className={CELL}>{competitor.google_advertiser_id ? <Mono>{competitor.google_advertiser_id}</Mono> : '—'}</td>
                   <td className={CELL}>
                     {competitor.tiktok_advertiser_id && competitor.tiktok_advertiser_name ? (

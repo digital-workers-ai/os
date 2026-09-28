@@ -407,6 +407,17 @@ competitor_post:
   instagram_posts.posts.num_comments: comments
   instagram_posts.posts._preview: preview
   instagram_posts.posts.url: url
+  tiktok_posts.posts._company: company
+  tiktok_posts.posts._platform: platform
+  tiktok_posts.posts.description: name
+  tiktok_posts.posts.post_type: category
+  tiktok_posts.posts.create_time: posted_at
+  tiktok_posts.posts.digg_count: likes
+  tiktok_posts.posts.comment_count: comments
+  tiktok_posts.posts.num_share_count: shares
+  tiktok_posts.posts.play_count: views
+  tiktok_posts.posts._preview: preview
+  tiktok_posts.posts.url: url
 
 ad:
   google_ads_transparency.creatives._company: company

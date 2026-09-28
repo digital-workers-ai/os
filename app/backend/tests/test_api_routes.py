@@ -2253,6 +2253,7 @@ class TestDefinitions:
             "meta_page_id": "6039999393",
             "x": "HubSpot",
             "instagram": "hubspot",
+            "tiktok": "hubspot",
         }
         zoho = body["competitors"][1]
         assert zoho["tiktok_advertiser_id"] is None
@@ -2266,6 +2267,11 @@ class TestDefinitions:
         assert [c["instagram"] for c in body["competitors"]] == [
             "hubspot",
             "zoho",
+            "freshworksinc",
+        ]
+        assert [c["tiktok"] for c in body["competitors"]] == [
+            "hubspot",
+            None,
             "freshworksinc",
         ]
         assert body["queries"] == list(tracked.queries)

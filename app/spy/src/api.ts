@@ -119,6 +119,7 @@ export interface Competitor extends Brand {
   linkedin: string | null
   x: string | null
   instagram: string | null
+  tiktok: string | null
   google_advertiser_id: string | null
   tiktok_advertiser_id: string | null
   tiktok_advertiser_name: string | null
