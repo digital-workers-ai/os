@@ -22,6 +22,7 @@ export const AD_PLATFORMS: Option[] = [
 export const POST_PLATFORMS: Option[] = [
   { value: 'linkedin', label: 'LinkedIn' },
   { value: 'x', label: 'X' },
+  { value: 'instagram', label: 'Instagram' },
 ]
 
 export const known = (options: Option[], value?: string) => value === undefined || options.some((option) => option.value === value)

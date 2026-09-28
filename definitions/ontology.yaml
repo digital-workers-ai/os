@@ -396,6 +396,7 @@ source_priority:
   - meta_ads
   - linkedin_posts
   - x_posts
+  - instagram_posts
   - google_serp
 
 relationships:

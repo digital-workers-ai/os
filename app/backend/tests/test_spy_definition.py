@@ -15,6 +15,7 @@ HUBSPOT = {
     "tiktok_advertiser_name": "HUBSPOT, INC.",
     "meta_page_id": "6039999393",
     "x": "HubSpot",
+    "instagram": "hubspot",
 }
 ZOHO = {
     "name": "Zoho CRM",
@@ -86,6 +87,7 @@ class TestParse:
             None,
             None,
             None,
+            None,
             "brand",
         )
         assert tracked.competitors == (
@@ -99,6 +101,7 @@ class TestParse:
                 "HUBSPOT, INC.",
                 "6039999393",
                 "HubSpot",
+                "hubspot",
                 "competitor",
             ),
             spy.Company(
@@ -106,6 +109,7 @@ class TestParse:
                 "zoho.com",
                 ("Zoho",),
                 "zoho",
+                None,
                 None,
                 None,
                 None,
@@ -242,6 +246,21 @@ class TestEachRuleIsChecked:
                 f"competitor 'HubSpot' x {TOO_LONG_HANDLE!r} must match",
             ),
             (_brand(x="pipedrive"), "brand has unknown key 'x'"),
+            (
+                _competitor(instagram="@hubspot"),
+                "competitor 'HubSpot' instagram '@hubspot' must match "
+                "^[A-Za-z0-9_.]{1,30}$",
+            ),
+            (
+                _competitor(instagram="hub spot"),
+                "competitor 'HubSpot' instagram 'hub spot'",
+            ),
+            (_competitor(instagram=""), "competitor 'HubSpot' instagram ''"),
+            (
+                _competitor(instagram=TOO_LONG_HANDLE),
+                f"competitor 'HubSpot' instagram {TOO_LONG_HANDLE!r} must match",
+            ),
+            (_brand(instagram="pipedrive"), "brand has unknown key 'instagram'"),
             (_competitor(twitter="hubspot"), "competitor 'HubSpot' has unknown key"),
             (
                 _competitor(aliases=["pipedrive"]),
@@ -308,6 +327,11 @@ class TestEachRuleIsChecked:
             "competitor_x_blank",
             "competitor_x_too_long",
             "brand_x",
+            "competitor_instagram_with_an_at_sign",
+            "competitor_instagram_with_a_space",
+            "competitor_instagram_blank",
+            "competitor_instagram_too_long",
+            "brand_instagram",
             "competitor_unknown_key",
             "alias_repeats_the_brand_case_insensitively",
             "competitor_repeats_another_case_insensitively",
@@ -353,6 +377,12 @@ class TestEachRuleIsChecked:
     def test_an_x_handle_of_letters_digits_dots_and_underscores_passes(self, handle):
         assert spy.check(_competitor(x=handle)) == []
 
+    @pytest.mark.parametrize("handle", ["hubspot", "freshworksinc", "a.b_c"])
+    def test_an_instagram_handle_of_letters_digits_dots_and_underscores_passes(
+        self, handle
+    ):
+        assert spy.check(_competitor(instagram=handle)) == []
+
     def test_a_linkedin_slug_with_digits_and_dashes_passes(self):
         assert spy.check(_competitor(linkedin="freshworks-inc-2")) == []
 
@@ -394,6 +424,11 @@ class TestLoading:
             "HubSpot",
             "Zoho",
             "FreshworksInc",
+        ]
+        assert [c.instagram for c in tracked.competitors] == [
+            "hubspot",
+            "zoho",
+            "freshworksinc",
         ]
         assert len(tracked.queries) == 8
         assert tracked.queries[0] == "best crm for small business"
@@ -480,6 +515,17 @@ class TestLookups:
         assert tracked.by_x("nobody") is None
         assert tracked.by_x("zoho") is None
         assert tracked.by_x(None) is None
+
+    @pytest.mark.parametrize("handle", ["hubspot", "HUBSPOT", "HubSpot"])
+    def test_by_instagram_finds_a_competitor_whatever_the_case(self, tracked, handle):
+        assert tracked.by_instagram(handle) is tracked.competitors[0]
+
+    def test_by_instagram_finds_nothing_for_a_stranger_or_a_competitor_without_a_handle(
+        self, tracked
+    ):
+        assert tracked.by_instagram("nobody") is None
+        assert tracked.by_instagram("zoho") is None
+        assert tracked.by_instagram(None) is None
 
 
 class TestSlug:

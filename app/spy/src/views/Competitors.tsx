@@ -9,7 +9,7 @@ import { num } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 const HEAD = 'whitespace-nowrap pb-2 pr-4 text-left font-medium text-muted'
-const CELL = 'py-2 pr-4 align-middle text-muted'
+const CELL = 'whitespace-nowrap py-2 pr-4 align-middle text-muted'
 
 const isSpy = (source: Source) => source.category === 'Spy'
 
@@ -45,6 +45,7 @@ function Definition({ data }: { data: SpyDefinition }) {
                 <th className={HEAD}>Aliases</th>
                 <th className={HEAD}>LinkedIn</th>
                 <th className={HEAD}>X</th>
+                <th className={HEAD}>Instagram</th>
                 <th className={HEAD}>Google advertiser</th>
                 <th className={HEAD}>TikTok advertiser</th>
                 <th className={HEAD}>Meta page</th>
@@ -53,13 +54,14 @@ function Definition({ data }: { data: SpyDefinition }) {
             <tbody>
               {data.competitors.map((competitor) => (
                 <tr key={competitor.name} className="border-b border-line/30 last:border-0" data-company={competitor.name}>
-                  <td className={cn(CELL, 'whitespace-nowrap font-medium text-ink')}>{competitor.name}</td>
+                  <td className={cn(CELL, 'font-medium text-ink')}>{competitor.name}</td>
                   <td className={CELL}>{competitor.domain}</td>
                   <td className={CELL}>
                     <Aliases aliases={competitor.aliases} />
                   </td>
                   <td className={CELL}>{competitor.linkedin ? <Mono>{competitor.linkedin}</Mono> : '—'}</td>
                   <td className={CELL}>{competitor.x ? <Mono>{competitor.x}</Mono> : '—'}</td>
+                  <td className={CELL}>{competitor.instagram ? <Mono>{competitor.instagram}</Mono> : '—'}</td>
                   <td className={CELL}>{competitor.google_advertiser_id ? <Mono>{competitor.google_advertiser_id}</Mono> : '—'}</td>
                   <td className={CELL}>
                     {competitor.tiktok_advertiser_id && competitor.tiktok_advertiser_name ? (

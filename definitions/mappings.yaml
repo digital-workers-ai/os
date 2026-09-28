@@ -398,6 +398,15 @@ competitor_post:
   x_posts.posts.views: views
   x_posts.posts._preview: preview
   x_posts.posts.url: url
+  instagram_posts.posts._company: company
+  instagram_posts.posts._platform: platform
+  instagram_posts.posts.description: name
+  instagram_posts.posts.content_type: category
+  instagram_posts.posts.date_posted: posted_at
+  instagram_posts.posts.likes: likes
+  instagram_posts.posts.num_comments: comments
+  instagram_posts.posts._preview: preview
+  instagram_posts.posts.url: url
 
 ad:
   google_ads_transparency.creatives._company: company

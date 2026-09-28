@@ -8,6 +8,7 @@ test('definition', async ({ page }) => {
   await expect(page.getByTestId('competitors-table').locator('tbody tr')).toHaveCount(spec.competitors.length)
   await expect(header(page.getByTestId('competitors-table'), 'TikTok advertiser')).toBeVisible()
   await expect(header(page.getByTestId('competitors-table'), 'X')).toBeVisible()
+  await expect(header(page.getByTestId('competitors-table'), 'Instagram')).toBeVisible()
   await expect(header(page.getByTestId('competitors-table'), 'Meta page')).toBeVisible()
   await expect(page.getByTestId('competitors-queries').locator('li')).toHaveCount(spec.queries.length)
   await expect(page.getByTestId('competitors-sources').getByTestId('source-state').first()).toBeVisible({ timeout: 30_000 })
