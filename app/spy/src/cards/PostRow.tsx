@@ -30,6 +30,8 @@ export function PostRow({ post }: { post: Post }) {
       </span>
       <Stat n={post.likes} label="likes" className="w-20 shrink-0 text-right" />
       <Stat n={post.comments} label="comments" className="w-28 shrink-0 text-right" />
+      {post.shares !== null && <Stat n={post.shares} label="shares" className="w-24 shrink-0 text-right" />}
+      {post.views !== null && <Stat n={post.views} label="views" className="w-24 shrink-0 text-right" />}
       <a href={post.url} target="_blank" rel="noreferrer" className="shrink-0 text-muted underline-offset-4 hover:text-ink hover:underline">
         View
       </a>

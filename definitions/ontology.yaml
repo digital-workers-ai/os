@@ -220,6 +220,8 @@ entities:
       comments: number
       url: string
       preview: string
+      shares: number
+      views: number
   ad:
     description: One creative a competitor is running, as the public ads library shows it.
     synonyms: [creative]
@@ -393,6 +395,7 @@ source_priority:
   - tiktok_ads
   - meta_ads
   - linkedin_posts
+  - x_posts
   - google_serp
 
 relationships:

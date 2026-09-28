@@ -16,6 +16,7 @@ COMPETITOR_KEYS = BRAND_KEYS | {
     "tiktok_advertiser_id",
     "tiktok_advertiser_name",
     "meta_page_id",
+    "x",
 }
 TIKTOK_PAIR = ("tiktok_advertiser_id", "tiktok_advertiser_name")
 
@@ -24,9 +25,10 @@ _LINKEDIN_RE = re.compile(r"^[a-z0-9-]+$")  # company page slug: hubspot, freshw
 _ADVERTISER_RE = re.compile(r"^AR\d+$")  # google advertiser id: AR10072600…, AR07034216…
 _TIKTOK_ADVERTISER_RE = re.compile(r"^\d+$")  # tiktok advertiser id: 6948549846…, 7561940026…
 _META_PAGE_RE = re.compile(r"^\d+$")  # meta page id: 6039999393, 231460215383
+_HANDLE_RE = re.compile(r"^[A-Za-z0-9_.]{1,30}$")  # profile handle, no @: HubSpot, freshworksinc
 _COUNTRY_RE = re.compile(r"^[A-Z]{2}$")  # two-letter country code: US, GB
 _LANGUAGE_RE = re.compile(r"^[a-z]{2}$")  # two-letter language code: en, es
-_CODED_KEYS = (("linkedin", _LINKEDIN_RE), ("google_advertiser_id", _ADVERTISER_RE), ("tiktok_advertiser_id", _TIKTOK_ADVERTISER_RE), ("meta_page_id", _META_PAGE_RE))  # optional keys, refused when malformed
+_CODED_KEYS = (("linkedin", _LINKEDIN_RE), ("google_advertiser_id", _ADVERTISER_RE), ("tiktok_advertiser_id", _TIKTOK_ADVERTISER_RE), ("meta_page_id", _META_PAGE_RE), ("x", _HANDLE_RE))  # optional keys, refused when malformed
 _SLUG_RE = re.compile(r"[^a-z0-9]+")  # non-alphanumeric runs become dashes: best crm → best-crm
 _HOST_RE = re.compile(r"^(?:[a-z][a-z0-9+.-]*://)?(?:www\.)?([^/:?#]*)")  # host only, www dropped: zoho.com, crm.zoho.com
 
@@ -45,6 +47,7 @@ class Company:
     tiktok_advertiser_id: str | None
     tiktok_advertiser_name: str | None
     meta_page_id: str | None
+    x: str | None
     role: str
 
     @property
@@ -90,6 +93,11 @@ class Definition:
         return {c.meta_page_id: c for c in self.competitors if c.meta_page_id}.get(
             page_id
         )
+
+    def by_x(self, handle) -> Company | None:
+        if not isinstance(handle, str):
+            return None
+        return {c.x.lower(): c for c in self.competitors if c.x}.get(handle.lower())
 
 
 @dataclass(frozen=True)
@@ -240,6 +248,7 @@ def _company(spec, role) -> Company:
         tiktok_advertiser_id=spec.get("tiktok_advertiser_id"),
         tiktok_advertiser_name=spec.get("tiktok_advertiser_name"),
         meta_page_id=spec.get("meta_page_id"),
+        x=spec.get("x"),
         role=role,
     )
 

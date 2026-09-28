@@ -131,6 +131,7 @@ test('spy', async ({ page }) => {
   await expect(counted(competitors, 'Competitor')).toBeVisible()
   await expect(competitors.locator('tbody tr')).toHaveCount(spy.competitors.length)
   await expect(header(competitors, 'TikTok advertiser')).toBeVisible()
+  await expect(header(competitors, 'X')).toBeVisible()
   await expect(header(competitors, 'Meta page')).toBeVisible()
   const queries = page.getByTestId('definitions-spy-queries')
   await expect(queries).toContainText(`Queries (${spy.queries.length})`)

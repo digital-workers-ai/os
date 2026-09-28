@@ -192,6 +192,7 @@ interface TrackedCompany {
 
 interface Competitor extends TrackedCompany {
   linkedin: string | null
+  x: string | null
   google_advertiser_id: string | null
   tiktok_advertiser_id: string | null
   tiktok_advertiser_name: string | null
@@ -840,7 +841,9 @@ const chips = (values: string[]) =>
   values.length > 0 ? (
     <span className="flex flex-wrap gap-1">
       {values.map((v) => (
-        <Chip key={v}>{v}</Chip>
+        <Chip key={v} className="whitespace-nowrap">
+          {v}
+        </Chip>
       ))}
     </span>
   ) : (
@@ -866,16 +869,17 @@ function SpyTab({ s }: { s: Spy }) {
         </div>
       </Section>
       <Section title="Competitors">
-        <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="definitions-spy-competitors">
-          <TableHeader className={STICKY_HEAD}>
+        <Table data-testid="definitions-spy-competitors">
+          <TableHeader>
             <TableRow>
-              <TableHead className="w-40" hint="A company tracked beside the brand, by its display name">Competitor ({num(s.competitors.length)})</TableHead>
-              <TableHead className="w-40" hint="The website a result or citation is matched on">Domain</TableHead>
+              <TableHead hint="A company tracked beside the brand, by its display name">Competitor ({num(s.competitors.length)})</TableHead>
+              <TableHead hint="The website a result or citation is matched on">Domain</TableHead>
               <TableHead hint="Other names an answer may use for the company">Aliases</TableHead>
-              <TableHead className="w-40" hint="The company page whose posts are tracked">LinkedIn</TableHead>
-              <TableHead className="w-56" hint="The Ads Transparency advertiser whose creatives are tracked">Google advertiser</TableHead>
-              <TableHead className="w-56" hint="The TikTok Ads Library advertiser whose creatives are tracked">TikTok advertiser</TableHead>
-              <TableHead className="w-40" hint="The Meta Ad Library page whose creatives are tracked">Meta page</TableHead>
+              <TableHead hint="The company page whose posts are tracked">LinkedIn</TableHead>
+              <TableHead hint="The X profile whose posts are tracked">X</TableHead>
+              <TableHead hint="The Ads Transparency advertiser whose creatives are tracked">Google advertiser</TableHead>
+              <TableHead hint="The TikTok Ads Library advertiser whose creatives are tracked">TikTok advertiser</TableHead>
+              <TableHead hint="The Meta Ad Library page whose creatives are tracked">Meta page</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -884,13 +888,14 @@ function SpyTab({ s }: { s: Spy }) {
                 <TableCell className={cn(keyCol, 'align-top')}>
                   <Mono>{c.name}</Mono>
                 </TableCell>
-                <TableCell className="align-top">
+                <TableCell className="whitespace-nowrap align-top">
                   <Mono>{c.domain}</Mono>
                 </TableCell>
-                <TableCell className="align-top">{chips(c.aliases)}</TableCell>
-                <TableCell className="align-top">{c.linkedin ? <Mono>{c.linkedin}</Mono> : '—'}</TableCell>
-                <TableCell className="align-top">{c.google_advertiser_id ? <Mono>{c.google_advertiser_id}</Mono> : '—'}</TableCell>
-                <TableCell className="align-top">
+                <TableCell className="whitespace-nowrap align-top">{chips(c.aliases)}</TableCell>
+                <TableCell className="whitespace-nowrap align-top">{c.linkedin ? <Mono>{c.linkedin}</Mono> : '—'}</TableCell>
+                <TableCell className="whitespace-nowrap align-top">{c.x ? <Mono>{c.x}</Mono> : '—'}</TableCell>
+                <TableCell className="whitespace-nowrap align-top">{c.google_advertiser_id ? <Mono>{c.google_advertiser_id}</Mono> : '—'}</TableCell>
+                <TableCell className="whitespace-nowrap align-top">
                   {c.tiktok_advertiser_id && c.tiktok_advertiser_name ? (
                     <span className="flex flex-col">
                       <span>{c.tiktok_advertiser_name}</span>
@@ -900,7 +905,7 @@ function SpyTab({ s }: { s: Spy }) {
                     '—'
                   )}
                 </TableCell>
-                <TableCell className="align-top">{c.meta_page_id ? <Mono>{c.meta_page_id}</Mono> : '—'}</TableCell>
+                <TableCell className="whitespace-nowrap align-top">{c.meta_page_id ? <Mono>{c.meta_page_id}</Mono> : '—'}</TableCell>
               </TableRow>
             ))}
           </TableBody>

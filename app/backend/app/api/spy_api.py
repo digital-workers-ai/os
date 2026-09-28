@@ -34,6 +34,8 @@ POST_ATTRS = (
     "comments",
     "url",
     "preview",
+    "shares",
+    "views",
 )
 
 

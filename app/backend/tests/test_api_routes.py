@@ -2251,11 +2251,17 @@ class TestDefinitions:
             "tiktok_advertiser_id": "6948549846680732417",
             "tiktok_advertiser_name": "HUBSPOT, INC.",
             "meta_page_id": "6039999393",
+            "x": "HubSpot",
         }
         zoho = body["competitors"][1]
         assert zoho["tiktok_advertiser_id"] is None
         assert zoho["tiktok_advertiser_name"] is None
         assert zoho["meta_page_id"] == "231460215383"
+        assert [c["x"] for c in body["competitors"]] == [
+            "HubSpot",
+            "Zoho",
+            "FreshworksInc",
+        ]
         assert body["queries"] == list(tracked.queries)
         assert len(body["queries"]) == 8
         assert body["country"] == "US"

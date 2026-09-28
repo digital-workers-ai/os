@@ -710,7 +710,7 @@ class TestEverySourceWithRealCredentialsStillHasAStandIn:
     def test_each_real_entry_names_a_mock_entry(self):
         assert set(creds._REAL) <= set(creds._MOCK)
 
-    def test_the_twenty_two_configured_sources_are_the_ones_the_environment_names(
+    def test_the_twenty_three_configured_sources_are_the_ones_the_environment_names(
         self,
     ):
         assert set(creds._REAL) == {
@@ -731,6 +731,7 @@ class TestEverySourceWithRealCredentialsStillHasAStandIn:
             "perplexity",
             "gemini",
             "linkedin_posts",
+            "x_posts",
             "linkedin_ads",
             "tiktok_ads",
             "meta_ads",

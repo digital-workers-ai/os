@@ -14,6 +14,7 @@ HUBSPOT = {
     "tiktok_advertiser_id": "6948549846680732417",
     "tiktok_advertiser_name": "HUBSPOT, INC.",
     "meta_page_id": "6039999393",
+    "x": "HubSpot",
 }
 ZOHO = {
     "name": "Zoho CRM",
@@ -21,6 +22,7 @@ ZOHO = {
     "aliases": ["Zoho"],
     "linkedin": "zoho",
 }
+TOO_LONG_HANDLE = "a" * 31
 DOC = {
     "brand": BRAND,
     "competitors": [HUBSPOT, ZOHO],
@@ -75,7 +77,16 @@ class TestConstants:
 class TestParse:
     def test_a_valid_document_parses_into_a_definition(self, tracked):
         assert tracked.brand == spy.Company(
-            "Pipedrive", "pipedrive.com", (), None, None, None, None, None, "brand"
+            "Pipedrive",
+            "pipedrive.com",
+            (),
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            "brand",
         )
         assert tracked.competitors == (
             spy.Company(
@@ -87,6 +98,7 @@ class TestParse:
                 "6948549846680732417",
                 "HUBSPOT, INC.",
                 "6039999393",
+                "HubSpot",
                 "competitor",
             ),
             spy.Company(
@@ -94,6 +106,7 @@ class TestParse:
                 "zoho.com",
                 ("Zoho",),
                 "zoho",
+                None,
                 None,
                 None,
                 None,
@@ -218,6 +231,17 @@ class TestEachRuleIsChecked:
                 "competitor 'HubSpot' meta_page_id 6039999393 must match",
             ),
             (_brand(meta_page_id="1"), "brand has unknown key 'meta_page_id'"),
+            (
+                _competitor(x="@HubSpot"),
+                "competitor 'HubSpot' x '@HubSpot' must match ^[A-Za-z0-9_.]{1,30}$",
+            ),
+            (_competitor(x="Hub Spot"), "competitor 'HubSpot' x 'Hub Spot'"),
+            (_competitor(x=""), "competitor 'HubSpot' x ''"),
+            (
+                _competitor(x=TOO_LONG_HANDLE),
+                f"competitor 'HubSpot' x {TOO_LONG_HANDLE!r} must match",
+            ),
+            (_brand(x="pipedrive"), "brand has unknown key 'x'"),
             (_competitor(twitter="hubspot"), "competitor 'HubSpot' has unknown key"),
             (
                 _competitor(aliases=["pipedrive"]),
@@ -279,6 +303,11 @@ class TestEachRuleIsChecked:
             "competitor_meta_page_not_digits",
             "competitor_meta_page_unquoted",
             "brand_meta_page",
+            "competitor_x_with_an_at_sign",
+            "competitor_x_with_a_space",
+            "competitor_x_blank",
+            "competitor_x_too_long",
+            "brand_x",
             "competitor_unknown_key",
             "alias_repeats_the_brand_case_insensitively",
             "competitor_repeats_another_case_insensitively",
@@ -320,6 +349,10 @@ class TestEachRuleIsChecked:
     def test_a_meta_page_of_digits_passes(self):
         assert spy.check(_competitor(meta_page_id="231460215383")) == []
 
+    @pytest.mark.parametrize("handle", ["HubSpot", "freshworksinc", "a.b_c"])
+    def test_an_x_handle_of_letters_digits_dots_and_underscores_passes(self, handle):
+        assert spy.check(_competitor(x=handle)) == []
+
     def test_a_linkedin_slug_with_digits_and_dashes_passes(self):
         assert spy.check(_competitor(linkedin="freshworks-inc-2")) == []
 
@@ -356,6 +389,11 @@ class TestLoading:
             "6039999393",
             "231460215383",
             "300722220374123",
+        ]
+        assert [c.x for c in tracked.competitors] == [
+            "HubSpot",
+            "Zoho",
+            "FreshworksInc",
         ]
         assert len(tracked.queries) == 8
         assert tracked.queries[0] == "best crm for small business"
@@ -431,6 +469,17 @@ class TestLookups:
     def test_by_meta_page_finds_nothing_for_a_stranger_or_nothing(self, tracked):
         assert tracked.by_meta_page("231460215383") is None
         assert tracked.by_meta_page(None) is None
+
+    @pytest.mark.parametrize("handle", ["hubspot", "HUBSPOT", "HubSpot"])
+    def test_by_x_finds_a_competitor_whatever_the_case(self, tracked, handle):
+        assert tracked.by_x(handle) is tracked.competitors[0]
+
+    def test_by_x_finds_nothing_for_a_stranger_or_a_competitor_without_a_handle(
+        self, tracked
+    ):
+        assert tracked.by_x("nobody") is None
+        assert tracked.by_x("zoho") is None
+        assert tracked.by_x(None) is None
 
 
 class TestSlug:

@@ -9,7 +9,6 @@ from seeds import world
 
 router = APIRouter()
 
-DATASET_ID = "gd_lyy3tktm25m4avu764"
 COLLECTION_MS = 36592
 _ASKED: set[str] = set()
 _STAMP = f"{world.SPY_ANCHOR.isoformat()}T12:00:00.000Z"
@@ -74,11 +73,14 @@ def _slug(url: str) -> str:
     return urlparse(url).path.strip("/").split("/")[-1]
 
 
-def _slugs(snapshot_id: str):
+def _decode(snapshot_id: str):
     try:
-        return base64.urlsafe_b64decode(snapshot_id).decode().split(",")
+        dataset_id, _, slugs = base64.urlsafe_b64decode(snapshot_id).decode().partition("|")
     except (ValueError, UnicodeDecodeError):
         return None
+    if dataset_id not in _DATASETS:
+        return None
+    return dataset_id, slugs.split(",")
 
 
 def _complete(post: dict) -> dict:
@@ -111,21 +113,46 @@ def _complete(post: dict) -> dict:
     return {key: filled[key] for key in _RECORD_KEYS}
 
 
-def _records(slugs: list[str]) -> list[dict]:
+def _dead(url: dict, error: str) -> dict:
+    return {"timestamp": _STAMP, "input": url, "error": error, "error_code": "dead_page"}
+
+
+def _linkedin_records(slugs: list[str]) -> list[dict]:
     records = []
     for slug in slugs:
-        posts = world.spy_posts(slug)
-        if not posts:
-            records.append(
-                {
-                    "timestamp": _STAMP,
-                    "input": {"url": f"https://www.linkedin.com/company/{slug}"},
-                    "error": "4XX page - dead page.",
-                    "error_code": "dead_page",
-                }
-            )
-        records.extend(_complete(post) for post in posts)
+        posts = [_complete(post) for post in world.spy_posts(slug)]
+        records.extend(
+            posts
+            or [
+                _dead(
+                    {"url": f"https://www.linkedin.com/company/{slug}"},
+                    "4XX page - dead page.",
+                )
+            ]
+        )
     return records
+
+
+def _x_records(handles: list[str]) -> list[dict]:
+    records = []
+    for handle in handles:
+        posts = world.spy_x_posts(handle)
+        records.extend(
+            posts
+            or [
+                _dead(
+                    {"url": f"https://x.com/{handle}", "start_date": "", "end_date": ""},
+                    "No public posts were found in the profile.",
+                )
+            ]
+        )
+    return records
+
+
+_DATASETS = {
+    "gd_lyy3tktm25m4avu764": ("company_url", _linkedin_records),
+    "gd_lwxkxvnf1cynvib9co": ("profile_url", _x_records),
+}
 
 
 @router.post("/datasets/v3/trigger")
@@ -135,9 +162,9 @@ async def trigger(
     denied = _denied(request)
     if denied:
         return denied
-    if dataset_id != DATASET_ID:
+    if dataset_id not in _DATASETS:
         return _text("dataset does not exist", 404)
-    if discover_by != "company_url":
+    if discover_by != _DATASETS[dataset_id][0]:
         return _text(
             "Incorrect discovery collector id "
             "Available types: url, profile_url, company_url",
@@ -171,7 +198,8 @@ async def trigger(
                 status_code=400,
             )
     slugs = ",".join(_slug(item["url"]) for item in inputs)
-    return {"snapshot_id": base64.urlsafe_b64encode(slugs.encode()).decode()}
+    token = f"{dataset_id}|{slugs}".encode()
+    return {"snapshot_id": base64.urlsafe_b64encode(token).decode()}
 
 
 @router.get("/datasets/v3/progress/{snapshot_id}")
@@ -179,15 +207,16 @@ async def progress(request: Request, snapshot_id: str):
     denied = _denied(request)
     if denied:
         return denied
-    slugs = _slugs(snapshot_id)
-    if slugs is None:
+    decoded = _decode(snapshot_id)
+    if decoded is None:
         return _text("Snapshot does not exist", 404)
-    body = {"status": "running", "snapshot_id": snapshot_id, "dataset_id": DATASET_ID}
+    dataset_id, slugs = decoded
+    body = {"status": "running", "snapshot_id": snapshot_id, "dataset_id": dataset_id}
     if snapshot_id not in _ASKED:
         _ASKED.add(snapshot_id)
         body["running_time"] = COLLECTION_MS // 3
         return body
-    records = _records(slugs)
+    records = _DATASETS[dataset_id][1](slugs)
     errors = sum(1 for record in records if "error" in record)
     body["status"] = "ready"
     if errors:
@@ -208,9 +237,10 @@ async def snapshot(request: Request, snapshot_id: str):
     denied = _denied(request)
     if denied:
         return denied
-    slugs = _slugs(snapshot_id)
-    if slugs is None:
+    decoded = _decode(snapshot_id)
+    if decoded is None:
         return _text("Snapshot does not exist", 404)
+    dataset_id, slugs = decoded
     if snapshot_id not in _ASKED:
         return JSONResponse(
             {
@@ -219,4 +249,4 @@ async def snapshot(request: Request, snapshot_id: str):
             },
             status_code=202,
         )
-    return _records(slugs)
+    return _DATASETS[dataset_id][1](slugs)
