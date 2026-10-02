@@ -98,7 +98,7 @@ def opened(monkeypatch):
         session.add(run)
         await session.flush()
         await session.refresh(run)
-        return runner.Started(run, asset.seq, 1)
+        return runner.Started(run.seq, asset.seq, 1)
 
     monkeypatch.setattr(runner, "open_run", open_run)
     return asks
@@ -151,7 +151,7 @@ class TestThreads:
         ]
         assert [turn["skill_run"] for turn in body["turns"][:3]] == [None] * 3
         last = body["turns"][3]
-        assert last["skill_run"]["seq"] == outcome.started.skill_run.seq
+        assert last["skill_run"]["seq"] == outcome.started.skill_run
         assert last["asset_seq"] == outcome.started.asset_seq
         assert set(last) == {
             "id",
@@ -183,7 +183,7 @@ class TestTurn:
         assert outcome.turn["skill_run"] is None
         assert outcome.reply["role"] == "studio"
         assert outcome.reply["text"] == "Making a post on MRR."
-        assert outcome.reply["skill_run"]["seq"] == outcome.started.skill_run.seq
+        assert outcome.reply["skill_run"]["seq"] == outcome.started.skill_run
         assert outcome.reply["asset_seq"] == outcome.started.asset_seq
         assert thread.title == "Post about MRR"
         turns = (await session.execute(select(StudioTurn))).scalars().all()

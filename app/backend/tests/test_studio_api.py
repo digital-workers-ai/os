@@ -139,7 +139,7 @@ def fake_runner(monkeypatch):
         session.add(run)
         await session.flush()
         await session.refresh(run)
-        return runner.Started(run, asset.seq, 1)
+        return runner.Started(run.seq, asset.seq, 1)
 
     async def execute_detached(seq, ask):
         seen["executed"].append((seq, ask))
