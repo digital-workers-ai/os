@@ -175,7 +175,7 @@ async def turn(session, seq, text) -> Outcome:
         )
         try:
             started = await runner.open_run(session, ask)
-            run = started.skill_run
+            run = await session.get(SkillRun, started.skill_run)
         except runner.SkillError as exc:
             reply, ask = str(exc), None
     studio = _store(session, seq, STUDIO, reply, run)

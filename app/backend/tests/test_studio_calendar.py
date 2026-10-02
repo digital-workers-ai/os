@@ -92,7 +92,7 @@ def opened(monkeypatch):
         session.add(run)
         await session.flush()
         await session.refresh(run)
-        return runner.Started(run, asset.seq, 1)
+        return runner.Started(run.seq, asset.seq, 1)
 
     monkeypatch.setattr(runner, "open_run", open_run)
     return asks
@@ -240,7 +240,8 @@ class TestRun:
             slot_date=FRIDAY,
             slot_name="linkedin_post",
         )
-        assert started.skill_run.status == "running"
+        run = await session.get(SkillRun, started.skill_run)
+        assert run.status == "running"
         assert started.version == 1
         [row] = await calendar.slots(session, FRIDAY, FRIDAY)
         assert (row["state"], row["asset_seq"]) == ("built", started.asset_seq)
