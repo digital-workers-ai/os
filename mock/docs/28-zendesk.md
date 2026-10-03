@@ -129,8 +129,8 @@ curl -u "admin@acme.io/token:zd_api_token_mock_xxxxxxxxxxxx" \
         "channel": "web",
         "source": {
           "from": {
-            "address": "jane@acme.io",
-            "name": "Jane Smith"
+            "address": "avery@acme.io",
+            "name": "Avery Stone"
           },
           "to": {
             "name": "Acme Support",
@@ -200,8 +200,8 @@ curl -u "admin@acme.io/token:zd_api_token_mock_xxxxxxxxxxxx" \
         "channel": "email",
         "source": {
           "from": {
-            "address": "bob@globex.com",
-            "name": "Bob Johnson"
+            "address": "jordan@globex.com",
+            "name": "Jordan Johnson"
           },
           "to": {
             "name": "Acme Support",
@@ -256,8 +256,8 @@ curl -u "admin@acme.io/token:zd_api_token_mock_xxxxxxxxxxxx" \
     {
       "id": 20001,
       "url": "https://acme.zendesk.com/api/v2/users/20001.json",
-      "name": "Jane Smith",
-      "email": "jane@acme.io",
+      "name": "Avery Stone",
+      "email": "avery@acme.io",
       "created_at": "2025-03-15T10:30:00Z",
       "updated_at": "2026-07-14T18:45:00Z",
       "time_zone": "Pacific Time (US & Canada)",

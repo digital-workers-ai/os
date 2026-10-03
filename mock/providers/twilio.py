@@ -8,11 +8,12 @@ RFC 2822 dates. SID prefixes (AC/SM/CA). Price as negative strings.
 
 from fastapi import APIRouter, Request, Query
 from seeds.helpers import require_basic_auth, page_paginate
-from seeds.world import PEOPLE, COMPANIES_BY_ID
+from seeds.world import PEOPLE, COMPANIES_BY_ID, VENDORS
 
 router = APIRouter()
 
 _ACCOUNT_SID = "ACmock1234567890abcdef1234567890"
+_TW = VENDORS["twilio"]
 
 _MESSAGES = [
     {
@@ -22,7 +23,7 @@ _MESSAGES = [
         "date_sent": "Mon, 14 Jul 2026 10:30:01 +0000",
         "account_sid": _ACCOUNT_SID, "to": "+14155551234", "from": "+18005551000",
         "messaging_service_sid": "MGmock00000000000000000000000001",
-        "body": "Your verification code is 482910. It expires in 10 minutes.",
+        "body": _TW["sms"][0],
         "status": "delivered", "num_segments": "1", "num_media": "0",
         "direction": "outbound-api", "api_version": "2010-04-01",
         "price": "-0.0075", "price_unit": "USD",
@@ -40,7 +41,7 @@ _MESSAGES = [
         "date_sent": "Mon, 14 Jul 2026 11:00:01 +0000",
         "account_sid": _ACCOUNT_SID, "to": "+15125550201", "from": "+18005551000",
         "messaging_service_sid": "MGmock00000000000000000000000001",
-        "body": "Your order #1234 has been shipped. Track it at acme.io/track/1234",
+        "body": _TW["sms"][1],
         "status": "delivered", "num_segments": "1", "num_media": "0",
         "direction": "outbound-api", "api_version": "2010-04-01",
         "price": "-0.0075", "price_unit": "USD",
@@ -58,7 +59,7 @@ _MESSAGES = [
         "date_sent": "Sun, 13 Jul 2026 15:22:01 +0000",
         "account_sid": _ACCOUNT_SID, "to": "+13125550301", "from": "+18005551000",
         "messaging_service_sid": "MGmock00000000000000000000000001",
-        "body": "Reminder: Your subscription renews tomorrow.",
+        "body": _TW["sms"][2],
         "status": "delivered", "num_segments": "1", "num_media": "0",
         "direction": "outbound-api", "api_version": "2010-04-01",
         "price": "-0.0075", "price_unit": "USD",
@@ -79,7 +80,7 @@ _CALLS = [
         "parent_call_sid": None, "annotation": None, "answered_by": "human",
         "account_sid": _ACCOUNT_SID, "to": "+14155551234", "to_formatted": "(415) 555-1234",
         "from": "+18005551000", "from_formatted": "(800) 555-1000",
-        "caller_name": "ACME CORP",
+        "caller_name": _TW["company"].upper(),
         "phone_number_sid": "PNmock00000000000000000000000001",
         "status": "completed", "start_time": "Mon, 14 Jul 2026 14:00:05 +0000",
         "end_time": "Mon, 14 Jul 2026 14:05:30 +0000",
@@ -100,7 +101,7 @@ _CALLS = [
         "parent_call_sid": None, "annotation": None, "answered_by": "human",
         "account_sid": _ACCOUNT_SID, "to": "+15125550201", "to_formatted": "(512) 555-0201",
         "from": "+18005551000", "from_formatted": "(800) 555-1000",
-        "caller_name": "ACME CORP",
+        "caller_name": _TW["company"].upper(),
         "phone_number_sid": "PNmock00000000000000000000000001",
         "status": "completed", "start_time": "Mon, 14 Jul 2026 09:15:03 +0000",
         "end_time": "Mon, 14 Jul 2026 09:18:45 +0000",
@@ -172,7 +173,7 @@ async def get_account(request: Request, account_sid: str):
     require_basic_auth(request)
     return {
         "sid": account_sid,
-        "friendly_name": "Acme Corp Production",
+        "friendly_name": f"{_TW['company']} Production",
         "type": "Full",
         "status": "active",
         "date_created": "Wed, 15 Jan 2025 10:00:00 +0000",

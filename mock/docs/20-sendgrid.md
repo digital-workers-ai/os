@@ -62,9 +62,9 @@ curl -H "Authorization: Bearer sg_mock_apikey_001" \
   "result": [
     {
       "id": "sg_contact_jane_001",
-      "first_name": "Jane",
-      "last_name": "Smith",
-      "email": "jane@acme.io",
+      "first_name": "Avery",
+      "last_name": "Stone",
+      "email": "avery@acme.io",
       "alternate_emails": [],
       "address_line_1": "123 Main St",
       "address_line_2": "",
@@ -92,10 +92,10 @@ curl -H "Authorization: Bearer sg_mock_apikey_001" \
     },
     {
       "id": "sg_contact_bob_001",
-      "first_name": "Bob",
-      "last_name": "Smith",
-      "email": "bob@soylent.co",
-      "alternate_emails": ["robert.smith@soylent.co"],
+      "first_name": "Jordan",
+      "last_name": "Stone",
+      "email": "jordan@soylent.co",
+      "alternate_emails": ["robert.stone@soylent.co"],
       "address_line_1": "",
       "address_line_2": "",
       "city": "San Francisco",

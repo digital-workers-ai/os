@@ -119,8 +119,8 @@ curl "https://serpapi.com/search.json?engine=google&q=best+crm+for+small+busines
     "text_blocks": [
       {
         "type": "paragraph",
-        "snippet": "The best CRM for small business is HubSpot CRM for free tools and inbound marketing, or Pipedrive for visual sales pipelines.",
-        "snippet_highlighted_words": ["HubSpot CRM"]
+        "snippet": "The best CRM for small business is Globex CRM for free tools and inbound marketing, or Acme CRM for visual sales pipelines.",
+        "snippet_highlighted_words": ["Globex CRM"]
       },
       {
         "type": "heading",
@@ -129,9 +129,9 @@ curl "https://serpapi.com/search.json?engine=google&q=best+crm+for+small+busines
       {
         "type": "list",
         "list": [
-          {"snippet": "HubSpot CRM: Best for startups and teams wanting a strong free-forever tier (supports two users) with easy scaling into marketing and service hubs."},
-          {"snippet": "Pipedrive: Best for sales-focused teams that need an intuitive, visual drag-and-drop pipeline to track deals fast."},
-          {"snippet": "Zoho CRM: Best for budget-conscious teams wanting deep customization, an all-in-one ecosystem, and a free tier for up to three users."}
+          {"snippet": "Globex CRM: Best for startups and teams wanting a strong free-forever tier (supports two users) with easy scaling into marketing and service hubs."},
+          {"snippet": "Acme CRM: Best for sales-focused teams that need an intuitive, visual drag-and-drop pipeline to track deals fast."},
+          {"snippet": "Initech CRM: Best for budget-conscious teams wanting deep customization, an all-in-one ecosystem, and a free tier for up to three users."}
         ]
       }
     ],
@@ -144,7 +144,7 @@ curl "https://serpapi.com/search.json?engine=google&q=best+crm+for+small+busines
       {
         "title": "10 Free or Low-Cost CRM Tools for Small Businesses",
         "link": "https://www.uschamber.com/co/start/strategy/low-cost-crm-tools",
-        "snippet": "HubSpot: Best free CRM tools for startups. HubSpot offers a free CRM packed with features for managing customers and sales. It supports two users and 1,000 contact...",
+        "snippet": "Globex: Best free CRM tools for startups. Globex offers a free CRM packed with features for managing customers and sales. It supports two users and 1,000 contact...",
         "source": "US Chamber",
         "thumbnail": "https://encrypted-tbn3.gstatic.com/images?q=tbn:...",
         "source_icon": "https://encrypted-tbn2.gstatic.com/faviconV2?url=https://www.uschamber.com&client=AIM&size=128&type=FAVICON&fallback_opts=TYPE,SIZE,URL",
@@ -179,8 +179,8 @@ curl "https://serpapi.com/search.json?engine=google&q=best+crm+for+small+busines
       "displayed_link": "https://www.pcmag.com › ... › CRM Software",
       "favicon": "https://serpapi.com/images/i/....png",
       "date": "Jul 22, 2026",
-      "snippet": "Our Top Tested Picks · Bigin by Zoho CRM · Freshsales · Salesforce Starter Suite · HoneyBook · Less Annoying CRM · Pipedrive CRM · The Best CRM ...",
-      "snippet_highlighted_words": ["Bigin by Zoho CRM"],
+      "snippet": "Our Top Tested Picks · Initech CRM · Umbrella Sales · Salesforce Starter Suite · HoneyBook · Less Annoying CRM · Acme CRM · The Best CRM ...",
+      "snippet_highlighted_words": ["Initech CRM"],
       "sitelinks": {"inline": [{"title": "Best For Salesforce Users", "link": "https://www.pcmag.com/picks/the-best-small-business-crm-software#:~:text=..."}]},
       "about_this_result": {"source": {"description": "...", "source_info_link": "...", "icon": "..."}, "languages": ["en"], "regions": ["US"]},
       "about_page_link": "...",
@@ -357,7 +357,7 @@ search, from the Ads Transparency Center.
 
 **Example Request** (discovering an advertiser id from a domain):
 ```bash
-curl "https://serpapi.com/search.json?engine=google_ads_transparency_center&text=hubspot.com&num=10&api_key=<key>"
+curl "https://serpapi.com/search.json?engine=google_ads_transparency_center&text=globex.com&num=10&api_key=<key>"
 ```
 
 **Example Response:**
@@ -370,14 +370,14 @@ curl "https://serpapi.com/search.json?engine=google_ads_transparency_center&text
     "markdown_endpoint": "https://serpapi.com/searches/.../6aaa0a10ab28c664cc7add8b.md",
     "created_at": "2026-09-16 03:16:32 UTC",
     "processed_at": "2026-09-16 03:16:32 UTC",
-    "google_ads_transparency_center_url": "https://adstransparency.google.com?region=anywhere&domain=hubspot.com",
+    "google_ads_transparency_center_url": "https://adstransparency.google.com?region=anywhere&domain=globex.com",
     "raw_html_file": "https://serpapi.com/searches/.../6aaa0a10ab28c664cc7add8b.html",
     "prettify_html_file": "https://serpapi.com/searches/.../6aaa0a10ab28c664cc7add8b.prettify",
     "total_time_taken": 4.32
   },
   "search_parameters": {
     "engine": "google_ads_transparency_center",
-    "text": "hubspot.com",
+    "text": "globex.com",
     "num": "10"
   },
   "search_information": {
@@ -385,65 +385,65 @@ curl "https://serpapi.com/search.json?engine=google_ads_transparency_center&text
   },
   "ad_creatives": [
     {
-      "advertiser_id": "AR10072600183532683265",
-      "advertiser": "Hubspot, Inc.",
+      "advertiser_id": "AR00000000000000000101",
+      "advertiser": "Globex, Inc.",
       "ad_creative_id": "CR06609143572560084993",
       "format": "text",
-      "target_domain": "hubspot.com",
+      "target_domain": "globex.com",
       "image": "https://tpc.googlesyndication.com/archive/simgad/11373552786331311574",
       "width": 348,
       "height": 451,
       "total_days_shown": 1540,
       "first_shown": 1656541882,
       "last_shown": 1789525101,
-      "details_link": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR06609143572560084993?region=anywhere&domain=hubspot.com",
-      "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR10072600183532683265&creative_id=CR06609143572560084993&engine=google_ads_transparency_center_ad_details"
+      "details_link": "https://adstransparency.google.com/advertiser/AR00000000000000000101/creative/CR06609143572560084993?region=anywhere&domain=globex.com",
+      "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR00000000000000000101&creative_id=CR06609143572560084993&engine=google_ads_transparency_center_ad_details"
     },
     {
-      "advertiser_id": "AR10072600183532683265",
-      "advertiser": "Hubspot, Inc.",
+      "advertiser_id": "AR00000000000000000101",
+      "advertiser": "Globex, Inc.",
       "ad_creative_id": "CR08500885884000796673",
       "format": "video",
       "link": "https://displayads-formats.googleusercontent.com/ads/preview/content.js?client=ads-integrity-transparency&obfuscatedCustomerId=7615749964&creativeId=762393471498&uiFeatures=12,54&adGroupId=179898961377&versionId=11&assets=...&sig=...&htmlParentId=fletch-render-...&responseCallback=fletchCallback...",
-      "target_domain": "hubspot.com",
+      "target_domain": "globex.com",
       "total_days_shown": 409,
       "first_shown": 1752177946,
       "last_shown": 1789524935,
-      "details_link": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR08500885884000796673?region=anywhere&domain=hubspot.com",
-      "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR10072600183532683265&creative_id=CR08500885884000796673&engine=google_ads_transparency_center_ad_details"
+      "details_link": "https://adstransparency.google.com/advertiser/AR00000000000000000101/creative/CR08500885884000796673?region=anywhere&domain=globex.com",
+      "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR00000000000000000101&creative_id=CR08500885884000796673&engine=google_ads_transparency_center_ad_details"
     },
     {
-      "advertiser_id": "AR10072600183532683265",
-      "advertiser": "Hubspot, Inc.",
+      "advertiser_id": "AR00000000000000000101",
+      "advertiser": "Globex, Inc.",
       "ad_creative_id": "CR07984100738747858945",
       "format": "image",
-      "target_domain": "hubspot.com",
+      "target_domain": "globex.com",
       "image": "https://tpc.googlesyndication.com/archive/simgad/15529968583071394590",
       "total_days_shown": 91,
       "first_shown": 1781709978,
       "last_shown": 1789524559,
-      "details_link": "https://adstransparency.google.com/advertiser/AR10072600183532683265/creative/CR07984100738747858945?region=anywhere&domain=hubspot.com",
-      "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR10072600183532683265&creative_id=CR07984100738747858945&engine=google_ads_transparency_center_ad_details"
+      "details_link": "https://adstransparency.google.com/advertiser/AR00000000000000000101/creative/CR07984100738747858945?region=anywhere&domain=globex.com",
+      "serpapi_details_link": "https://serpapi.com/search.json?advertiser_id=AR00000000000000000101&creative_id=CR07984100738747858945&engine=google_ads_transparency_center_ad_details"
     }
   ],
   "serpapi_pagination": {
     "next_page_token": "CgoAP7zmkb+qiiU7EhDnYmf4AQgKB9NjyjEAAAAAGgn8+Go9+JCLXJQ=",
-    "next": "https://serpapi.com/search.json?engine=google_ads_transparency_center&next_page_token=CgoAP7zmkb%2BqiiU7EhDnYmf4AQgKB9NjyjEAAAAAGgn8%2BGo9%2BJCLXJQ%3D&num=10&text=hubspot.com"
+    "next": "https://serpapi.com/search.json?engine=google_ads_transparency_center&next_page_token=CgoAP7zmkb%2BqiiU7EhDnYmf4AQgKB9NjyjEAAAAAGgn8%2BGo9%2BJCLXJQ%3D&num=10&text=globex.com"
   }
 }
 ```
 
-The same call with `advertiser_id=AR10072600183532683265&num=20` answers the
+The same call with `advertiser_id=AR00000000000000000101&num=20` answers the
 same five top-level keys; the creatives then carry no `target_domain`,
 `details_link` ends at `?region=anywhere`, `search_parameters` is
 `{engine, advertiser_id, num}` and `search_information.total_results` was
-`3000`. Ids seen today, all from the `text` search on the company domain:
+`3000`. Each id comes from the `text` search on the company domain, for example:
 
 | Company | `text` | `advertiser_id` | `advertiser` |
 |---------|--------|-----------------|--------------|
-| HubSpot | `hubspot.com` | `AR10072600183532683265` | `Hubspot, Inc.` |
-| Zoho CRM | `zoho.com` | `AR07034216898162065409` | `Zoho Corporation Pvt. Ltd.` |
-| Freshsales | `freshworks.com` | `AR03035893441289519105` | `Freshworks Inc.` |
+| Globex | `globex.com` | `AR00000000000000000101` | `Globex, Inc.` |
+| Initech CRM | `initech.io` | `AR00000000000000000102` | `Initech LLC` |
+| Umbrella Sales | `umbrella.dev` | `AR00000000000000000103` | `Umbrella Systems Inc.` |
 
 **`ad_creatives[]`** — one object per creative; the keys depend on `format`:
 
@@ -474,7 +474,7 @@ Only the Ads Transparency engine paginates for Spy:
 {
   "serpapi_pagination": {
     "next_page_token": "CgoAP7zmkb+8Cn9nEhBN9OAx8WUa+Lu7p4IAAAAAGgn8+Go9+BzrD98=",
-    "next": "https://serpapi.com/search.json?advertiser_id=AR10072600183532683265&engine=google_ads_transparency_center&next_page_token=CgoAP7zmkb%2B8Cn9nEhBN9OAx8WUa%2BLu7p4IAAAAAGgn8%2BGo9%2BBzrD98%3D&num=20"
+    "next": "https://serpapi.com/search.json?advertiser_id=AR00000000000000000101&engine=google_ads_transparency_center&next_page_token=CgoAP7zmkb%2B8Cn9nEhBN9OAx8WUa%2BLu7p4IAAAAAGgn8%2BGo9%2BBzrD98%3D&num=20"
   }
 }
 ```

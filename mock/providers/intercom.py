@@ -8,7 +8,7 @@ Unix timestamps. Nested type/list structures.
 
 from fastapi import APIRouter, Request, Query
 from seeds.helpers import require_bearer, require_header
-from seeds.world import PEOPLE, COMPANIES, COMPANIES_BY_ID, TICKETS, SUBSCRIPTIONS_BY_COMPANY
+from seeds.world import PEOPLE, COMPANIES, COMPANIES_BY_ID, TICKETS, SUBSCRIPTIONS_BY_COMPANY, VENDORS
 
 router = APIRouter()
 
@@ -272,7 +272,7 @@ async def contact_notes(request: Request, contact_id: str, page: int = Query(1),
             "type": "note", "id": f"note_{contact_id}_001",
             "created_at": 1720195200,
             "body": "<p>VIP customer — escalate any billing issues directly to finance team.</p>",
-            "author": {"type": "admin", "id": "12345", "name": "Support Agent", "email": "support@os.dev"},
+            "author": {"type": "admin", "id": "12345", "name": "Support Agent", "email": VENDORS["intercom"]["support_email"]},
             "contact": {"type": "contact", "id": contact_id},
         },
     ]

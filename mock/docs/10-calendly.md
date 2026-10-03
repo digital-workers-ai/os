@@ -35,10 +35,10 @@ Get the authenticated user's information. Used to resolve the user URI for subse
 {
   "resource": {
     "uri": "https://api.calendly.com/users/abc123def456",
-    "name": "Jane Smith",
-    "slug": "jane-smith",
-    "email": "jane@acme.io",
-    "scheduling_url": "https://calendly.com/jane-smith",
+    "name": "Avery Stone",
+    "slug": "avery-stone",
+    "email": "avery@acme.io",
+    "scheduling_url": "https://calendly.com/avery-stone",
     "timezone": "America/New_York",
     "avatar_url": "https://d3v0px0pttie1i.cloudfront.net/uploads/user/avatar/12345/avatar.png",
     "created_at": "2025-01-15T10:30:00.000000Z",
@@ -105,8 +105,8 @@ GET /calendly/scheduled_events?user=https://api.calendly.com/users/abc123def456&
       "event_memberships": [
         {
           "user": "https://api.calendly.com/users/abc123def456",
-          "user_email": "jane@acme.io",
-          "user_name": "Jane Smith"
+          "user_email": "avery@acme.io",
+          "user_name": "Avery Stone"
         }
       ],
       "calendar_event": {
@@ -136,8 +136,8 @@ GET /calendly/scheduled_events?user=https://api.calendly.com/users/abc123def456&
       "event_memberships": [
         {
           "user": "https://api.calendly.com/users/abc123def456",
-          "user_email": "jane@acme.io",
-          "user_name": "Jane Smith"
+          "user_email": "avery@acme.io",
+          "user_name": "Avery Stone"
         }
       ],
       "calendar_event": {
@@ -171,8 +171,8 @@ GET /calendly/scheduled_events?user=https://api.calendly.com/users/abc123def456&
       "event_memberships": [
         {
           "user": "https://api.calendly.com/users/abc123def456",
-          "user_email": "jane@acme.io",
-          "user_name": "Jane Smith"
+          "user_email": "avery@acme.io",
+          "user_name": "Avery Stone"
         }
       ],
       "calendar_event": {
@@ -213,9 +213,9 @@ GET /calendly/scheduled_events/evt_002/invitees?count=10
   "collection": [
     {
       "uri": "https://api.calendly.com/scheduled_events/evt_002/invitees/inv_001",
-      "email": "bob@globex.com",
-      "name": "Bob Johnson",
-      "first_name": "Bob",
+      "email": "jordan@globex.com",
+      "name": "Jordan Johnson",
+      "first_name": "Jordan",
       "last_name": "Johnson",
       "status": "active",
       "timezone": "America/Chicago",
@@ -250,10 +250,10 @@ GET /calendly/scheduled_events/evt_002/invitees?count=10
     },
     {
       "uri": "https://api.calendly.com/scheduled_events/evt_002/invitees/inv_002",
-      "email": "alice@globex.com",
-      "name": "Alice Martinez",
-      "first_name": "Alice",
-      "last_name": "Martinez",
+      "email": "casey@globex.com",
+      "name": "Casey Morgan",
+      "first_name": "Casey",
+      "last_name": "Morgan",
       "status": "active",
       "timezone": "America/Chicago",
       "created_at": "2026-06-08T12:00:00.000000Z",

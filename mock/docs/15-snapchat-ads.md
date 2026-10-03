@@ -72,8 +72,8 @@ curl -H "Authorization: Bearer snap_mock_token_123" \
         "type": "ENTERPRISE",
         "state": "ACTIVE",
         "roles": ["admin"],
-        "my_display_name": "Jane Smith",
-        "my_invited_email": "jane@acme.io",
+        "my_display_name": "Avery Stone",
+        "my_invited_email": "avery@acme.io",
         "my_member_id": "mem_jane_001"
       }
     },
@@ -89,8 +89,8 @@ curl -H "Authorization: Bearer snap_mock_token_123" \
         "type": "ENTERPRISE",
         "state": "ACTIVE",
         "roles": ["member"],
-        "my_display_name": "Jane Smith",
-        "my_invited_email": "jane@globex.com",
+        "my_display_name": "Avery Stone",
+        "my_invited_email": "avery@globex.com",
         "my_member_id": "mem_jane_002"
       }
     }

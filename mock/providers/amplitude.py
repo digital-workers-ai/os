@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 from fastapi import APIRouter, Request, Query
 from fastapi.responses import Response
 from seeds.helpers import require_basic_auth
-from seeds.world import PEOPLE, COMPANIES_BY_ID, ANALYTICS_EVENTS, SUBSCRIPTIONS_BY_COMPANY
+from seeds.world import PEOPLE, COMPANIES_BY_ID, ANALYTICS_EVENTS, SUBSCRIPTIONS_BY_COMPANY, VENDORS
 import gzip
 import io
 import json
@@ -20,6 +20,8 @@ import uuid
 import zipfile
 
 router = APIRouter()
+
+_DOMAIN = VENDORS["domain"]
 
 EXPORT_TIME_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
 INGEST_PATH = "/2/httpapi"
@@ -132,7 +134,7 @@ async def list_cohorts(request: Request, includeSyncInfo: bool = Query(False)):
                 "is_hidden": False, "is_official": False,
                 "lastComputed": 1720454400000, "lastMod": 1720454400000,
                 "name": "New Signups (30d)",
-                "owners": [{"email": "admin@acme.io", "name": "Admin User"}],
+                "owners": [{"email": f"admin@{_DOMAIN}", "name": "Admin User"}],
                 "published": True, "size": 342, "type": "dynamic", "view_count": 15,
             },
             {
@@ -143,7 +145,7 @@ async def list_cohorts(request: Request, includeSyncInfo: bool = Query(False)):
                 "is_hidden": False, "is_official": False,
                 "lastComputed": 1720454400000, "lastMod": 1720454400000,
                 "name": "Churn Risk",
-                "owners": [{"email": "admin@acme.io", "name": "Admin User"}],
+                "owners": [{"email": f"admin@{_DOMAIN}", "name": "Admin User"}],
                 "published": True, "size": 58, "type": "dynamic", "view_count": 42,
             },
         ],

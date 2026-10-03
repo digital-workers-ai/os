@@ -9,8 +9,9 @@ from fastapi.testclient import TestClient
 
 from app.sources import client
 from app.sources.paginators import PAGINATORS
+from tests import ground_truth
 
-ADVERSARIAL_ROOT = "/adversarial"
+ADVERSARIAL_ROOT = ground_truth.ADVERSARIAL_ROOT
 MOCK_USER_URI = "https://api.calendly.com/users/abc123def456"
 RESOLVED_USER_URI = "https://api.calendly.com/users/RESOLVED-0000"
 CONFIGURED_USER_URI = "https://api.calendly.com/users/CONFIGURED-0000"

@@ -14,25 +14,26 @@ from seeds.helpers import (
     require_bearer,
     window_days,
 )
-from seeds.world import AD_CAMPAIGNS
+from seeds.world import AD_CAMPAIGNS, VENDORS
 
 router = APIRouter()
 
 _PIN_ADS = [ac for ac in AD_CAMPAIGNS if ac.platform == "pinterest"]
+_PIN = VENDORS["pinterest"]
 
 _AD_ACCOUNTS = [
     {
         "id": "549764905678",
-        "name": "Acme Corp",
-        "owner": {"username": "acmecorp"},
+        "name": _PIN["ad_accounts"][0]["name"],
+        "owner": {"username": _PIN["ad_accounts"][0]["username"]},
         "country": "US", "currency": "USD", "status": "ACTIVE",
         "created_time": 1710500000, "updated_time": 1720000000,
         "permissions": ["ADMIN", "ANALYST", "CAMPAIGN_MANAGER"],
     },
     {
         "id": "549764905679",
-        "name": "Globex Marketing",
-        "owner": {"username": "globex"},
+        "name": _PIN["ad_accounts"][1]["name"],
+        "owner": {"username": _PIN["ad_accounts"][1]["username"]},
         "country": "US", "currency": "USD", "status": "ACTIVE",
         "created_time": 1715000000, "updated_time": 1720500000,
         "permissions": ["ADMIN"],
@@ -103,14 +104,14 @@ async def list_ad_groups(
             "id": "2680060704746",
             "ad_account_id": ad_account_id,
             "campaign_id": f"6267355{_PIN_ADS[0].id[-3:]}" if _PIN_ADS else "626735500",
-            "name": "Women 25-44 Interest",
+            "name": _PIN["ad_group"],
             "status": "ACTIVE",
             "budget_in_micro_currency": 2000000,
             "budget_type": "DAILY",
             "bid_in_micro_currency": 150000,
             "bid_strategy_type": "AUTOMATIC_BID",
             "start_time": 1719792000, "end_time": 1727654400,
-            "targeting_spec": {"GENDER": ["female"], "AGE_BUCKET": ["25-34", "35-44"], "INTEREST": ["fashion", "home_decor"], "LOCALE": ["en-US"]},
+            "targeting_spec": {"GENDER": ["female"], "AGE_BUCKET": ["25-34", "35-44"], "INTEREST": _PIN["interests"], "LOCALE": ["en-US"]},
             "placement_group": "ALL",
             "pacing_delivery_type": "STANDARD",
             "optimization_goal_metadata": {"conversion_tag_v3_goal_metadata": None, "frequency_goal_metadata": None},
@@ -137,11 +138,11 @@ async def list_ads(
             "id": "687201361234", "ad_account_id": ad_account_id,
             "ad_group_id": "2680060704746",
             "campaign_id": f"6267355{_PIN_ADS[0].id[-3:]}" if _PIN_ADS else "626735500",
-            "name": "Summer Dress - Lifestyle Shot", "status": "ACTIVE",
+            "name": _PIN["ad"], "status": "ACTIVE",
             "creative_type": "REGULAR", "pin_id": "1055231234567",
             "review_status": "APPROVED", "rejection_labels": [],
             "summary_status": "RUNNING",
-            "click_tracking_url": "https://acme.io/summer?ref=pinterest",
+            "click_tracking_url": _PIN["click_url"],
             "tracking_urls": {"impression": [], "click": []},
             "view_tracking_url": None,
             "created_time": 1719800000, "updated_time": 1720500000, "type": "ad",
@@ -167,13 +168,7 @@ async def account_analytics(
     ]
 
 
-_PIN_TITLES = [
-    "Summer workspace ideas",
-    "Five-minute desk stretches",
-    "Our favourite reading nooks",
-    "Colour palettes for a calmer office",
-    "Weekend project: a standing desk",
-]
+_PIN_TITLES = _PIN["pin_titles"]
 _MEDIA_TYPES = ["image", "video"]
 _ACCOUNT_DAILY = {
     "IMPRESSION": 2600,
@@ -194,9 +189,9 @@ def _pin(day, with_metrics):
     pin = {
         "id": pin_id,
         "created_at": f"{day.isoformat()}T16:00:00",
-        "link": f"https://acme.example.com/blog/{stamp}",
+        "link": f"{_PIN['blog_url']}{stamp}",
         "title": _PIN_TITLES[ordinal % len(_PIN_TITLES)],
-        "description": "From the team at Acme.",
+        "description": _PIN["pin_description"],
         "board_id": "549764905678001",
         "media": {"media_type": _MEDIA_TYPES[ordinal % len(_MEDIA_TYPES)]},
         "is_owner": True,
