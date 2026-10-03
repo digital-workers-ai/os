@@ -1,4 +1,6 @@
 from datetime import UTC, date, datetime, timedelta
+from itertools import chain
+from pathlib import Path
 from typing import NamedTuple
 
 import pytest_asyncio
@@ -15,6 +17,8 @@ from app.models import (
     AssetEvidence,
     AssetFile,
     AssetVersion,
+    BriefingRun,
+    EnrichedFact,
     SkillRun,
     SkillRunToolCall,
     SlotSkip,
@@ -592,3 +596,66 @@ async def test_seed_reads_the_manifest_it_is_given_and_rebases_it_to_now(
         at(9, 4, 9),
     )
     assert media.read(asset.seq, 1, "post.md") == b"Hello"
+
+
+BRANDS = ("pipedrive", "pied piper", "hubspot", "os.dev")
+CALLS = {
+    "pricing": "Harbor Lane <> OS — pricing and rollout",
+    "renewal": "Blue Kettle — renewal check-in",
+    "expansion": "Granite Row — expansion to the growth team",
+    "intro": "Pine Street — intro call",
+    "security": "Copper Field — security review",
+    "billing": "River Bend — billing escalation",
+}
+TRANSCRIPT = (
+    "We have been doing the pricing by hand every quarter and it takes a week. "
+    "The security compliance questions come from our customers, not from us. "
+    "We would want to decide inside the next three months if the numbers hold."
+)
+
+
+def test_the_seed_names_no_brand():
+    source = Path(seed_demo.__file__).read_text().lower()
+    said = " ".join(
+        [
+            *seed_demo.PLAN,
+            *chain.from_iterable(seed_demo.HISTORY.values()),
+            *seed_demo.BRIEFS.values(),
+        ]
+    ).lower()
+    for brand in BRANDS:
+        assert brand not in source
+        assert brand not in said
+
+
+async def test_meetings_and_briefings_take_company_names_from_the_database(
+    session, canonical
+):
+    meetings = {
+        topic: await canonical("meeting", {"name": name, "transcript": TRANSCRIPT})
+        for topic, name in CALLS.items()
+    }
+    read = await seed_demo.seed_meetings(session, "vocabulary-sha")
+    assert read == sum(2 + len(pains) for _i, _t, pains, _v in seed_demo.PLAN.values())
+    labels = await session.execute(
+        select(EnrichedFact.attr, EnrichedFact.value).where(
+            EnrichedFact.canonical_id == meetings["security"]
+        )
+    )
+    assert set(labels.all()) == {
+        ("interest", "moderate"),
+        ("timing", "next_quarter"),
+        ("pain_points", "security_compliance"),
+        ("pain_points", "integration_complexity"),
+    }
+    await seed_demo.seed_briefings(session)
+    briefs = await rows(session, BriefingRun, BriefingRun.created_at)
+    said = " ".join(brief.briefing for brief in briefs)
+    assert all(name.split(" <> ")[0].split(" — ")[0] in said for name in CALLS.values())
+    assert not any(brand in said.lower() for brand in BRANDS)
+    findings = {
+        finding["entity"]
+        for brief in briefs
+        for finding in brief.read_manifest["findings"]
+    }
+    assert findings == {"River Bend", "Pine Street", "Blue Kettle"}
