@@ -58,9 +58,9 @@ curl -H "Authorization: Bearer int_mock_xxxxxxxxxxxx" \
       "workspace_id": "ws_mock_001",
       "external_id": "user_sarah_acme",
       "role": "user",
-      "email": "riley@acme.io",
+      "email": "sarah@acme.io",
       "phone": null,
-      "name": "Riley Johnson",
+      "name": "Sarah Johnson",
       "avatar": null,
       "owner_id": null,
       "social_profiles": {
@@ -301,8 +301,8 @@ Two conversations are shown rather than one page: `conv_t1`, Messenger-originate
         "author": {
           "type": "user",
           "id": "con_p18",
-          "name": "Sasha Stark",
-          "email": "sasha@stark.io"
+          "name": "Tony Stark",
+          "email": "tony@stark.io"
         },
         "attachments": [],
         "url": null
@@ -517,7 +517,7 @@ curl -H "Authorization: Bearer int_mock_xxxxxxxxxxxx" \
         "type": "admin",
         "id": "12345",
         "name": "Support Agent",
-        "email": "support@acme.io"
+        "email": "support@os.dev"
       },
       "contact": {
         "type": "contact",

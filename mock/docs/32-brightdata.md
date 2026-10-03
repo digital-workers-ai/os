@@ -155,7 +155,7 @@ tokens removed):
   "id": "7503504518433878017",
   "user_id": "hubspot",
   "use_url": "https://www.linkedin.com/company/hubspot?trk=public_post_feed-actor-image",
-  "title": "Fantasy football is actually just pipeline management | Globex | 26 comments",
+  "title": "Fantasy football is actually just pipeline management | HubSpot | 26 comments",
   "headline": "Fantasy football is actually just pipeline management",
   "post_text": "Fantasy football is actually just pipeline management",
   "date_posted": "2026-09-09T17:28:05.539Z",
@@ -205,7 +205,7 @@ tokens removed):
   "document_cover_image": null,
   "document_page_count": null,
   "user_profile_pic": "https://media.licdn.com/dms/image/v2/C4D0BAQF8H-SLmMDZlA/company-logo_100_100/company-logo_100_100/0/1646683330132/hubspot_logo?e=2147483647&v=beta",
-  "user_name": "Globex",
+  "user_name": "HubSpot",
   "original_post_text": "Fantasy football is actually just pipeline management",
   "timestamp": "2026-09-16T03:18:23.686Z",
   "input": {
@@ -306,7 +306,7 @@ The ten posts of one company spanned 29 days.
   [...]}` wrapper is not. The item error lists only the missing `url`, and an
   empty body shares the non-JSON message
 - `snapshot_id` is the URL-safe base64 of the comma-joined company slugs
-  (`YWNtZSxnbG9iZXgsaW5pdGVjaA==` for acme, globex, initech),
+  (`aHVic3BvdCx6b2hvLGZyZXNod29ya3MtaW5j` for hubspot, zoho, freshworks-inc),
   so progress and snapshot need no store beyond one set of ids already asked
 - Progress answers `running` the first time an id is asked and `ready` from
   then on (a module-level set, forgotten when the mock restarts).

@@ -120,7 +120,7 @@ All three produced `annotations` on the first try; no `engine: "exa"` or
       "native_finish_reason": "completed",
       "message": {
         "role": "assistant",
-        "content": "## Best CRM for most small businesses: **Globex CRM**\n\nGlobex is usually the best starting point if you want something easy to adopt, with contact management, deal pipelines, email tracking, forms, and basic reporting. Its free CRM is available for up to two users, while paid Customer Platform plans currently start at $7 per seat/month under promotional pricing. ([globex.com](https://www.globex.com/pricing/suite?products=crm-suite-starter-bundle_1&utm_source=openai))\n\n### Best options by situation\n\n| CRM | Best for | ...",
+        "content": "## Best CRM for most small businesses: **HubSpot CRM**\n\nHubSpot is usually the best starting point if you want something easy to adopt, with contact management, deal pipelines, email tracking, forms, and basic reporting. Its free CRM is available for up to two users, while paid Customer Platform plans currently start at $7 per seat/month under promotional pricing. ([hubspot.com](https://www.hubspot.com/pricing/suite?products=crm-suite-starter-bundle_1&utm_source=openai))\n\n### Best options by situation\n\n| CRM | Best for | ...",
         "refusal": null,
         "reasoning": "**Searching for CRM recommendations**\n\nI need to find some CRM recommendations, ...",
         "reasoning_details": [
@@ -130,8 +130,8 @@ All three produced `annotations` on the first try; no `engine: "exa"` or
           {
             "type": "url_citation",
             "url_citation": {
-              "url": "https://www.globex.com/pricing/suite?products=crm-suite-starter-bundle_1&utm_source=openai",
-              "title": "Customer Platform Pricing | Globex",
+              "url": "https://www.hubspot.com/pricing/suite?products=crm-suite-starter-bundle_1&utm_source=openai",
+              "title": "Customer Platform Pricing | HubSpot",
               "start_index": 367,
               "end_index": 475
             }
@@ -139,8 +139,8 @@ All three produced `annotations` on the first try; no `engine: "exa"` or
           {
             "type": "url_citation",
             "url_citation": {
-              "url": "https://www.acme.io/en/pricing?utm_source=openai",
-              "title": "CRM Pricing Plans | Affordable CRM Software Costs | Acme CRM",
+              "url": "https://www.pipedrive.com/en/pricing?utm_source=openai",
+              "title": "CRM Pricing Plans | Affordable CRM Software Costs | Pipedrive",
               "start_index": 1880,
               "end_index": 1953
             }
@@ -181,7 +181,7 @@ All three produced `annotations` on the first try; no `engine: "exa"` or
       "native_finish_reason": "stop",
       "message": {
         "role": "assistant",
-        "content": "The **best CRM for a small business** depends on your workflow, but the most common top pick is **Globex CRM** because it has a genuinely usable free plan and is widely recommended as the best overall starting point for small teams.[3][6][11]\n\nIf you want a quick shortlist, these are the strongest options by use case:\n- **Globex CRM** — best overall / best free starting point for most small businesses.[3][6][10][11]\n- **Acme CRM** — best for **sales-focused** teams that want a simple visual pipeline.[3][9][18]\n- **Initech CRM** — ...",
+        "content": "The **best CRM for a small business** depends on your workflow, but the most common top pick is **HubSpot CRM** because it has a genuinely usable free plan and is widely recommended as the best overall starting point for small teams.[3][6][11]\n\nIf you want a quick shortlist, these are the strongest options by use case:\n- **HubSpot CRM** — best overall / best free starting point for most small businesses.[3][6][10][11]\n- **Pipedrive** — best for **sales-focused** teams that want a simple visual pipeline.[3][9][18]\n- **Zoho CRM** — ...",
         "refusal": null,
         "reasoning": null,
         "annotations": [
@@ -238,7 +238,7 @@ All three produced `annotations` on the first try; no `engine: "exa"` or
       "native_finish_reason": "STOP",
       "message": {
         "role": "assistant",
-        "content": "Choosing the \"best\" CRM for a small business depends heavily on your budget, your team's technical skill, and whether you primarily need to track sales pipelines, automate marketing, or manage client projects. \n\nThe top CRM options for small businesses are categorized below by what they do best:\n\n---\n\n### 1. Globex CRM — Best Overall & Best Free Tier\nIf you are just starting out or want a powerful system that won't immediately cost you a monthly subscription, Globex is widely considered the gold standard.\n...",
+        "content": "Choosing the \"best\" CRM for a small business depends heavily on your budget, your team's technical skill, and whether you primarily need to track sales pipelines, automate marketing, or manage client projects. \n\nThe top CRM options for small businesses are categorized below by what they do best:\n\n---\n\n### 1. HubSpot CRM — Best Overall & Best Free Tier\nIf you are just starting out or want a powerful system that won't immediately cost you a monthly subscription, HubSpot is widely considered the gold standard.\n...",
         "refusal": null,
         "reasoning": null,
         "reasoning_details": [
@@ -412,7 +412,7 @@ curl https://openrouter.ai/api/v1/chat/completions \
 
 The message carries no `annotations` key at all. Lines end in two spaces
 plus a newline (markdown line breaks). The preview came from SerpApi's
-`google_ads_transparency_center` engine with `text=globex.com`, which
+`google_ads_transparency_center` engine with `text=hubspot.com`, which
 matches ads *mentioning* that text, not ads *by* that advertiser; the real
 connector asks by `advertiser_id`.
 

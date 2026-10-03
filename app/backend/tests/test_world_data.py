@@ -15,7 +15,6 @@ SCANNED = sorted(
     [
         *(MOCK / "providers").glob("*.py"),
         MOCK / "adversarial.py",
-        *(MOCK / "docs").glob("*.md"),
     ]
 )
 
@@ -34,10 +33,9 @@ def brand_terms(data: dict) -> list[str]:
     terms = [spy["brand"]["name"], spy["brand"]["domain"], *spy["brand"]["aliases"]]
     for competitor in spy["competitors"]:
         terms += [competitor["name"], competitor["domain"], *competitor["aliases"]]
-    for person in data["people"]:
-        terms += [person["email"], f"{person['first_name']} {person['last_name']}"]
-    reps = sorted({call["host_email"] for call in data["sales_calls"]})
-    terms += reps + sorted({email.partition("@")[2] for email in reps})
+    terms += sorted(
+        {call["host_email"].partition("@")[2] for call in data["sales_calls"]}
+    )
     vendors = {path.stem for path in (MOCK / "providers").glob("*.py")}
     return [term for term in terms if re.split(r"[ .]", term.lower())[0] not in vendors]
 

@@ -202,16 +202,16 @@ curl -u "anystring:mc_mock_apikey_us21" \
   "members": [
     {
       "id": "mc_member_jane_001",
-      "email_address": "avery@acme.io",
+      "email_address": "jane@acme.io",
       "unique_email_id": "ueid_jane_001",
       "contact_id": "mc_contact_jane_001",
-      "full_name": "Avery Stone",
+      "full_name": "Jane Smith",
       "web_id": 789012,
       "email_type": "html",
       "status": "subscribed",
       "merge_fields": {
-        "FNAME": "Avery",
-        "LNAME": "Stone",
+        "FNAME": "Jane",
+        "LNAME": "Smith",
         "COMPANY": "Acme Corp",
         "PHONE": "+1-212-555-0100"
       },
@@ -255,16 +255,16 @@ curl -u "anystring:mc_mock_apikey_us21" \
     },
     {
       "id": "mc_member_bob_001",
-      "email_address": "jordan@soylent.co",
+      "email_address": "bob@soylent.co",
       "unique_email_id": "ueid_bob_001",
       "contact_id": "mc_contact_bob_001",
-      "full_name": "Jordan Stone",
+      "full_name": "Bob Smith",
       "web_id": 789013,
       "email_type": "html",
       "status": "subscribed",
       "merge_fields": {
-        "FNAME": "Jordan",
-        "LNAME": "Stone",
+        "FNAME": "Bob",
+        "LNAME": "Smith",
         "COMPANY": "Soylent Corp",
         "PHONE": ""
       },

@@ -86,8 +86,8 @@ holds one JSON object per line. One line, expanded here to be read:
     "session_id": "sess_001"
   },
   "user_properties": {
-    "email": "avery@acme.io",
-    "name": "Avery Stone",
+    "email": "jane@acme.io",
+    "name": "Jane Smith",
     "company": "Acme Corp",
     "plan": "professional"
   },
@@ -381,7 +381,7 @@ Search for users by user ID or email.
 
 ```bash
 curl -u "amp_api_key_mock:amp_secret_mock" \
-  "https://amplitude.com/api/2/usersearch?user=avery@acme.io"
+  "https://amplitude.com/api/2/usersearch?user=jane@acme.io"
 ```
 
 **Example Response:**
@@ -404,8 +404,8 @@ curl -u "amp_api_key_mock:amp_secret_mock" \
       "start_version": "2.1.0",
       "last_used": "2026-07-14T18:45:00.000000",
       "user_properties": {
-        "email": "avery@acme.io",
-        "name": "Avery Stone",
+        "email": "jane@acme.io",
+        "name": "Jane Smith",
         "company": "Acme Corp",
         "plan": "growth",
         "company_domain": "acme.io",

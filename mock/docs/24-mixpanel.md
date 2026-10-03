@@ -135,10 +135,10 @@ curl -u "sa_username_mock:sa_secret_mock_xxxxxxxxxxxx" \
     {
       "$distinct_id": "user_jane_acme",
       "$properties": {
-        "$email": "avery@acme.io",
-        "$first_name": "Avery",
-        "$last_name": "Stone",
-        "$name": "Avery Stone",
+        "$email": "jane@acme.io",
+        "$first_name": "Jane",
+        "$last_name": "Smith",
+        "$name": "Jane Smith",
         "$created": "2025-03-15T10:30:00",
         "$last_seen": "2026-07-14T18:45:00",
         "$browser": "Chrome",
@@ -155,10 +155,10 @@ curl -u "sa_username_mock:sa_secret_mock_xxxxxxxxxxxx" \
     {
       "$distinct_id": "user_bob_globex",
       "$properties": {
-        "$email": "jordan@globex.com",
-        "$first_name": "Jordan",
+        "$email": "bob@globex.com",
+        "$first_name": "Bob",
         "$last_name": "Johnson",
-        "$name": "Jordan Johnson",
+        "$name": "Bob Johnson",
         "$created": "2025-06-20T14:00:00",
         "$last_seen": "2026-07-13T09:30:00",
         "$browser": "Firefox",

@@ -103,9 +103,9 @@ curl -H "Authorization: Bearer CKn2p5KdLhICAQEYs..." \
     {
       "id": "550000000001",
       "properties": {
-        "firstname": "Avery",
-        "lastname": "Stone",
-        "email": "avery@acme.io",
+        "firstname": "Jane",
+        "lastname": "Smith",
+        "email": "jane@acme.io",
         "createdate": "2025-03-15T10:30:00.000Z",
         "lastmodifieddate": "2026-06-01T14:22:00.000Z",
         "lifecyclestage": "customer",
@@ -120,9 +120,9 @@ curl -H "Authorization: Bearer CKn2p5KdLhICAQEYs..." \
     {
       "id": "550000000021",
       "properties": {
-        "firstname": "Jordan",
-        "lastname": "Stone",
-        "email": "jordan@soylent.co",
+        "firstname": "Bob",
+        "lastname": "Smith",
+        "email": "bob@soylent.co",
         "createdate": "2025-04-20T08:15:00.000Z",
         "lastmodifieddate": "2026-05-10T11:00:00.000Z",
         "lifecyclestage": "lead",
@@ -154,7 +154,7 @@ curl -H "Authorization: Bearer CKn2p5KdLhICAQEYs..." \
       "properties": {
         "firstname": "Miles",
         "lastname": "Dyson",
-        "email": "sam@cyberdyne.ai",
+        "email": "miles@cyberdyne.ai",
         "createdate": "2026-01-10T16:45:00.000Z",
         "lastmodifieddate": "2026-07-01T09:30:00.000Z",
         "lifecyclestage": "customer",

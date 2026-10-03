@@ -232,9 +232,9 @@ curl -H "Authorization: Bearer sgp_mock_xxxxxxxxxxxx" \
       {
         "segmentId": "seg_user_abc123",
         "traits": {
-          "email": "avery@acme.io",
-          "first_name": "Avery",
-          "last_name": "Stone",
+          "email": "jane@acme.io",
+          "first_name": "Jane",
+          "last_name": "Smith",
           "company": "Acme Corp",
           "plan": "growth",
           "created_at": "2025-03-15T10:30:00.000Z",
@@ -249,7 +249,7 @@ curl -H "Authorization: Bearer sgp_mock_xxxxxxxxxxxx" \
             "encoding": "none"
           },
           {
-            "id": "avery@acme.io",
+            "id": "jane@acme.io",
             "type": "email",
             "collection": "users",
             "created_at": "2025-03-15T10:30:00.000Z",
@@ -264,8 +264,8 @@ curl -H "Authorization: Bearer sgp_mock_xxxxxxxxxxxx" \
       {
         "segmentId": "seg_user_def456",
         "traits": {
-          "email": "jordan@globex.com",
-          "first_name": "Jordan",
+          "email": "bob@globex.com",
+          "first_name": "Bob",
           "last_name": "Johnson",
           "company": "Globex Inc",
           "plan": "professional",
@@ -281,7 +281,7 @@ curl -H "Authorization: Bearer sgp_mock_xxxxxxxxxxxx" \
             "encoding": "none"
           },
           {
-            "id": "jordan@globex.com",
+            "id": "bob@globex.com",
             "type": "email",
             "collection": "users",
             "created_at": "2025-06-20T14:00:00.000Z",

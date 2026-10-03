@@ -84,7 +84,7 @@ Returns all profiles (contacts). JSON:API format.
 |-------|------|---------|-------------|
 | `page[cursor]` | string | — | Pagination cursor from `links.next` |
 | `page[size]` | int | 20 | Results per page (max 100) |
-| `filter` | string | — | Filter expression, e.g. `equals(email,"avery@acme.io")` |
+| `filter` | string | — | Filter expression, e.g. `equals(email,"jane@acme.io")` |
 | `fields[profile]` | string | — | Sparse fieldset, e.g. `email,first_name,last_name` |
 | `sort` | string | — | Sort field, e.g. `created`, `-created` (descending) |
 | `include` | string | — | Related resources to include, e.g. `lists,segments` |
@@ -104,12 +104,12 @@ curl -H "Authorization: Klaviyo-API-Key kl_mock_apikey_001" \
       "type": "profile",
       "id": "kl_prof_jane_001",
       "attributes": {
-        "email": "avery@acme.io",
+        "email": "jane@acme.io",
         "phone_number": null,
         "external_id": null,
         "anonymous_id": null,
-        "first_name": "Avery",
-        "last_name": "Stone",
+        "first_name": "Jane",
+        "last_name": "Smith",
         "organization": null,
         "locale": null,
         "title": null,
@@ -172,7 +172,7 @@ curl -H "Authorization: Klaviyo-API-Key kl_mock_apikey_001" \
       "type": "profile",
       "id": "kl_prof_bob_001",
       "attributes": {
-        "email": "robert.stone@soylent.co",
+        "email": "robert.smith@soylent.co",
         "phone_number": "+12125550100",
         "external_id": null,
         "anonymous_id": null,
