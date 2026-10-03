@@ -436,6 +436,13 @@ class TestTheShippedLooks:
     def test_the_four_contract_looks_exist(self):
         assert looks.names() == ["carousel", "list-card", "quote-card", "stat-card"]
 
+    @pytest.mark.parametrize(
+        "name", ["carousel", "list-card", "quote-card", "stat-card"]
+    )
+    def test_no_look_file_names_the_product(self, name):
+        for path in sorted((SHIPPED / name).iterdir()):
+            assert "DW-OS" not in path.read_text(), path.name
+
     @pytest.mark.parametrize("name", IMAGE_LOOKS)
     def test_image_looks_carry_every_ratio(self, name):
         assert looks.load(name)["medium"] == "image"
