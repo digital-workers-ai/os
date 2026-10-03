@@ -12,7 +12,7 @@ OS is an engine plus data. The engine is the code: the connectors, the pipeline,
 | `definitions/brand/` | The seven brand files (`brand-brain.md`, `voice.md`, `pillars.md`, `audiences.md`, `objections.md`, `language.md`, `proof.md`) and `tokens.yaml` with the brand name, colours, fonts and logo |
 | `definitions/brand/assets/` | The logo (`.svg`) and the fonts (`.woff2`) that `tokens.yaml` names |
 | `definitions/briefs/` | One prompt file per briefing reader |
-| `mock/world/data.yaml` | The world every stand-in vendor renders from: companies, people, subscriptions, campaigns, tickets, events, the ER variations, the sales calls, the spy brand with its competitors and text pools, and the rows each vendor shows. `WORLD_DATA` in the mock's environment points it at another file |
+| `mock/world/data.yaml` | The world every stand-in vendor renders from: companies, people, subscriptions, campaigns, tickets, events, the ER variations, the sales calls, the spy brand, competitors and queries, which must match `definitions/spy.yaml`, with their text pools, and the rows each vendor shows. `WORLD_DATA` in the mock's environment points it at another file |
 | `app/backend/fixtures/mock/<source>/` | One directory per source `mappings.yaml` names: a record file per object type (`<object_type>.json`, a list of `{"source_id", "payload"}`) and `expected.json`, what the engine extracts from those records, checked by a person |
 | `app/backend/fixtures/studio/` | The Studio sample library: `manifest.yaml` and, per asset, `<dir>/<version>/` holding the files the manifest lists with their byte sizes |
 | `README.md`, `LICENSE` | The instance's own |
@@ -41,7 +41,7 @@ which writes every source's record files to `app/backend/captures/<source>/`. Pr
 runs `python -m tools.instance_check` in the backend container. It prints one line per check, `ok` or the failure, and exits non-zero if any check failed.
 
 - `definitions`: the files validate through the checks the backend runs at boot and before every rebuild.
-- `world`: the world loads through `seeds.world` (`mock/world/data.yaml`, or the file `WORLD_DATA` names when the check's environment sets it) and holds at least one company, one person, a spy brand and one competitor.
+- `world`: the world loads through `seeds.world` (`mock/world/data.yaml`, or the file `WORLD_DATA` names when the check's environment sets it) and holds at least one company, one person, a spy brand and one competitor, and its spy brand, competitors and queries are the ones `definitions/spy.yaml` names: the connectors ask the stand-ins about the handles and queries `spy.yaml` names, so the two must agree.
 - `fixtures`: every source `mappings.yaml` names has `fixtures/mock/<source>/expected.json` and a record file for each object type it lists.
 - `studio`: `fixtures/studio/manifest.yaml` loads with the seed's own reader and every file it lists exists at the stated byte size.
 - `names`: with `--names FILE`, one term per line, no file under `definitions/`, `mock/world/data.yaml`, `app/backend/fixtures/` or `README.md` carries a term: case-insensitive, whole-word for words, substring for domains and emails. Without the flag the line says the scan was skipped. List the template business's names, domains and addresses, not the tools': `mappings.yaml` names every connector. The README is scanned where the backend sees it, beside `definitions/`; the compose file does not mount it there, so a container run scans the other three.

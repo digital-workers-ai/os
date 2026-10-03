@@ -115,7 +115,37 @@ class TestABrokenTree:
     ):
         rewrite_world(tmp_path, monkeypatch, lambda d: d["spy"].update(competitors=[]))
         report, code = run(capsys)
-        assert report["world"] == "no competitor"
+        assert report["world"] == (
+            "no competitor; "
+            "spy.competitors differs between the world and definitions/spy.yaml"
+        )
+        assert code == 1
+
+    def test_a_spy_brand_the_definitions_do_not_name_fails_the_world_check(
+        self, capsys, tmp_path, monkeypatch
+    ):
+        rewrite_world(
+            tmp_path, monkeypatch, lambda d: d["spy"]["brand"].update(name="Nonesuch")
+        )
+        report, code = run(capsys)
+        assert report["world"] == (
+            "spy.brand differs between the world and definitions/spy.yaml"
+        )
+        assert code == 1
+
+    def test_competitors_and_queries_the_definitions_do_not_name_are_each_reported(
+        self, capsys, tmp_path, monkeypatch
+    ):
+        def mutate(d):
+            d["spy"]["competitors"].pop()
+            d["spy"]["queries"].append("nonesuch crm")
+
+        rewrite_world(tmp_path, monkeypatch, mutate)
+        report, code = run(capsys)
+        assert report["world"] == (
+            "spy.competitors differs between the world and definitions/spy.yaml; "
+            "spy.queries differs between the world and definitions/spy.yaml"
+        )
         assert code == 1
 
     def test_a_world_file_that_will_not_load_is_reported_not_raised(

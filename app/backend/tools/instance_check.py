@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 from app.caches import DEFINITIONS_DIR
-from app.engine import checks, mappings
+from app.engine import checks, mappings, spy
 from tests import ground_truth
 from tools import seed_demo
 from tools.pull_source import MOCK_FIXTURES
@@ -32,7 +32,19 @@ def check_world() -> list[str]:
         ("spy brand", world.SPY_BRAND.get("name")),
         ("competitor", world.SPY_COMPETITORS),
     )
-    return [f"no {label}" for label, found in present if not found]
+    problems = [f"no {label}" for label, found in present if not found]
+    named = spy.load()
+    sections = (
+        ("brand", world.SPY_BRAND),
+        ("competitors", world.SPY_COMPETITORS),
+        ("queries", world.SPY_QUERIES),
+    )
+    problems += [
+        f"spy.{section} differs between the world and definitions/spy.yaml"
+        for section, found in sections
+        if found != named[section]
+    ]
+    return problems
 
 
 def check_fixtures() -> list[str]:
