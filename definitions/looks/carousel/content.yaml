@@ -1,6 +1,6 @@
 cover:
   title: Where a number comes from
-  kicker: Three facts about DW-OS
+  kicker: Three facts about every number
 slides:
   - title: Kept as it arrived
     body: Every data point from every tool is stored exactly as it came in. Nothing there is edited or deleted, and everything else is rebuilt from it.
