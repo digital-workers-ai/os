@@ -307,13 +307,13 @@ GET /v25.0/{post_id}/comments
       "id": "comment_001",
       "message": "This looks amazing! When is it available?",
       "created_time": "2026-07-05T15:12:00+0000",
-      "from": {"name": "Jane Doe", "id": "user_456"}
+      "from": {"name": "Avery Doe", "id": "user_456"}
     },
     {
       "id": "comment_002",
       "message": "Great work team!",
       "created_time": "2026-07-05T16:45:00+0000",
-      "from": {"name": "Bob Smith", "id": "user_789"}
+      "from": {"name": "Jordan Stone", "id": "user_789"}
     }
   ],
   "paging": {
@@ -335,9 +335,9 @@ GET /v25.0/{post_id}/reactions
 ```json
 {
   "data": [
-    {"id": "user_456", "name": "Jane Doe", "type": "LIKE"},
-    {"id": "user_789", "name": "Bob Smith", "type": "LOVE"},
-    {"id": "user_012", "name": "Alice Johnson", "type": "WOW"}
+    {"id": "user_456", "name": "Avery Doe", "type": "LIKE"},
+    {"id": "user_789", "name": "Jordan Stone", "type": "LOVE"},
+    {"id": "user_012", "name": "Casey Johnson", "type": "WOW"}
   ],
   "paging": {
     "cursors": {"before": "MAZDZD", "after": "MjQZD"},

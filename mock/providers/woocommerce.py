@@ -9,9 +9,44 @@ Flat JSON arrays (no envelope). Monetary values as strings.
 from fastapi import APIRouter, Request, Query
 from fastapi.responses import JSONResponse
 from seeds.helpers import require_basic_auth, page_paginate
-from seeds.world import PEOPLE, COMPANIES_BY_ID
+from seeds.world import COMPANIES_BY_ID, PEOPLE_BY_ID, VENDORS
 
 router = APIRouter()
+
+_STORE = VENDORS["store"]
+_PRODUCT_DATA = _STORE["products"]
+
+
+def _buyer(row: dict) -> dict:
+    person = PEOPLE_BY_ID[row["person_id"]]
+    company = COMPANIES_BY_ID[person.company_id]
+    return {"email": person.email, "first_name": person.first_name, "last_name": person.last_name, "company": company.name, "city": company.city, "state": company.state, "phone": row["phone"]}
+
+
+_BUYERS = [_buyer(row) for row in _STORE["customers"]]
+
+
+def _address(buyer: dict, address_1: str, postcode: str, contact: bool) -> dict:
+    address = {"first_name": buyer["first_name"], "last_name": buyer["last_name"], "company": buyer["company"], "address_1": address_1, "city": buyer["city"], "state": buyer["state"], "postcode": postcode, "country": "US"}
+    if contact:
+        address.update({"email": buyer["email"], "phone": buyer["phone"]})
+    return address
+
+
+def _identity(buyer: dict) -> dict:
+    return {"email": buyer["email"], "first_name": buyer["first_name"], "last_name": buyer["last_name"]}
+
+
+def _username(buyer: dict) -> str:
+    return f"{buyer['first_name']}{buyer['last_name']}".lower()
+
+
+def _category(product: dict, category_id: int) -> dict:
+    return {"id": category_id, "name": product["category"], "slug": product["category"].lower()}
+
+
+def _image(product: dict, image_id: int) -> dict:
+    return {"id": image_id, "src": f"https://mystore.com/wp-content/uploads/{product['slug']}.jpg", "name": product["slug"], "alt": product["name"]}
 
 _ORDERS = [
     {
@@ -22,9 +57,9 @@ _ORDERS = [
         "order_key": "wc_order_abc123", "number": "727",
         "payment_method": "stripe", "payment_method_title": "Credit Card (Stripe)",
         "date_paid": "2026-06-15T10:31:00",
-        "billing": {"first_name": "Jane", "last_name": "Smith", "company": "Acme Corp", "address_1": "123 Main St", "city": "San Francisco", "state": "CA", "postcode": "94105", "country": "US", "email": "jane@acme.io", "phone": "+14155551234"},
-        "shipping": {"first_name": "Jane", "last_name": "Smith", "company": "Acme Corp", "address_1": "123 Main St", "city": "San Francisco", "state": "CA", "postcode": "94105", "country": "US"},
-        "line_items": [{"id": 315, "name": "Widget Pro", "product_id": 93, "quantity": 3, "subtotal": "269.97", "total": "269.97", "sku": "WP-001", "price": 89.99}],
+        "billing": _address(_BUYERS[0], "123 Main St", "94105", True),
+        "shipping": _address(_BUYERS[0], "123 Main St", "94105", False),
+        "line_items": [{"id": 315, "name": _PRODUCT_DATA[0]["name"], "product_id": 93, "quantity": 3, "subtotal": "269.97", "total": "269.97", "sku": _PRODUCT_DATA[0]["sku"], "price": 89.99}],
         "currency_symbol": "$",
         "_links": {"self": [{"href": "http://localhost:8100/woocommerce/wc/v3/orders/727"}], "collection": [{"href": "http://localhost:8100/woocommerce/wc/v3/orders"}]},
     },
@@ -36,9 +71,9 @@ _ORDERS = [
         "order_key": "wc_order_def456", "number": "728",
         "payment_method": "stripe", "payment_method_title": "Credit Card (Stripe)",
         "date_paid": "2026-07-01T08:01:00",
-        "billing": {"first_name": "Mike", "last_name": "Chen", "company": "Globex Inc", "address_1": "456 Oak Ave", "city": "Austin", "state": "TX", "postcode": "78701", "country": "US", "email": "mike@globex.com", "phone": "+15125550201"},
-        "shipping": {"first_name": "Mike", "last_name": "Chen", "company": "Globex Inc", "address_1": "456 Oak Ave", "city": "Austin", "state": "TX", "postcode": "78701", "country": "US"},
-        "line_items": [{"id": 316, "name": "Gadget Lite", "product_id": 94, "quantity": 1, "subtotal": "89.99", "total": "74.99", "sku": "GL-001", "price": 89.99}],
+        "billing": _address(_BUYERS[1], "456 Oak Ave", "78701", True),
+        "shipping": _address(_BUYERS[1], "456 Oak Ave", "78701", False),
+        "line_items": [{"id": 316, "name": _PRODUCT_DATA[1]["name"], "product_id": 94, "quantity": 1, "subtotal": "89.99", "total": "74.99", "sku": _PRODUCT_DATA[1]["sku"], "price": 89.99}],
         "currency_symbol": "$",
         "_links": {"self": [{"href": "http://localhost:8100/woocommerce/wc/v3/orders/728"}], "collection": [{"href": "http://localhost:8100/woocommerce/wc/v3/orders"}]},
     },
@@ -46,20 +81,20 @@ _ORDERS = [
 
 _CUSTOMERS = [
     {
-        "id": 12, "email": "jane@acme.io", "first_name": "Jane", "last_name": "Smith",
-        "role": "customer", "username": "janesmith",
+        "id": 12, **_identity(_BUYERS[0]),
+        "role": "customer", "username": _username(_BUYERS[0]),
         "date_created": "2025-03-15T10:30:00",
-        "billing": {"first_name": "Jane", "last_name": "Smith", "company": "Acme Corp", "address_1": "123 Main St", "city": "San Francisco", "state": "CA", "postcode": "94105", "country": "US", "email": "jane@acme.io", "phone": "+14155551234"},
-        "shipping": {"first_name": "Jane", "last_name": "Smith", "company": "Acme Corp", "address_1": "123 Main St", "city": "San Francisco", "state": "CA", "postcode": "94105", "country": "US"},
+        "billing": _address(_BUYERS[0], "123 Main St", "94105", True),
+        "shipping": _address(_BUYERS[0], "123 Main St", "94105", False),
         "is_paying_customer": True, "avatar_url": "https://secure.gravatar.com/avatar/mock1",
         "_links": {"self": [{"href": "http://localhost:8100/woocommerce/wc/v3/customers/12"}], "collection": [{"href": "http://localhost:8100/woocommerce/wc/v3/customers"}]},
     },
     {
-        "id": 13, "email": "mike@globex.com", "first_name": "Mike", "last_name": "Chen",
-        "role": "customer", "username": "mikechen",
+        "id": 13, **_identity(_BUYERS[1]),
+        "role": "customer", "username": _username(_BUYERS[1]),
         "date_created": "2025-02-01T14:00:00",
-        "billing": {"first_name": "Mike", "last_name": "Chen", "company": "Globex Inc", "address_1": "456 Oak Ave", "city": "Austin", "state": "TX", "postcode": "78701", "country": "US", "email": "mike@globex.com", "phone": "+15125550201"},
-        "shipping": {"first_name": "Mike", "last_name": "Chen", "company": "Globex Inc", "address_1": "456 Oak Ave", "city": "Austin", "state": "TX", "postcode": "78701", "country": "US"},
+        "billing": _address(_BUYERS[1], "456 Oak Ave", "78701", True),
+        "shipping": _address(_BUYERS[1], "456 Oak Ave", "78701", False),
         "is_paying_customer": True, "avatar_url": "https://secure.gravatar.com/avatar/mock2",
         "_links": {"self": [{"href": "http://localhost:8100/woocommerce/wc/v3/customers/13"}], "collection": [{"href": "http://localhost:8100/woocommerce/wc/v3/customers"}]},
     },
@@ -67,30 +102,30 @@ _CUSTOMERS = [
 
 _PRODUCTS = [
     {
-        "id": 93, "name": "Widget Pro", "slug": "widget-pro", "type": "simple",
-        "status": "publish", "featured": False, "sku": "WP-001",
+        "id": 93, "name": _PRODUCT_DATA[0]["name"], "slug": _PRODUCT_DATA[0]["slug"], "type": "simple",
+        "status": "publish", "featured": False, "sku": _PRODUCT_DATA[0]["sku"],
         "price": "89.99", "regular_price": "89.99", "sale_price": "",
         "on_sale": False, "purchasable": True, "total_sales": 245,
         "stock_status": "instock", "stock_quantity": 150,
         "manage_stock": True, "weight": "0.88",
         "dimensions": {"length": "10", "width": "5", "height": "3"},
-        "categories": [{"id": 15, "name": "Widgets", "slug": "widgets"}],
+        "categories": [_category(_PRODUCT_DATA[0], 15)],
         "tags": [{"id": 30, "name": "bestseller", "slug": "bestseller"}],
-        "images": [{"id": 201, "src": "https://mystore.com/wp-content/uploads/widget-pro.jpg", "name": "widget-pro", "alt": "Widget Pro"}],
+        "images": [_image(_PRODUCT_DATA[0], 201)],
         "date_created": "2025-01-10T09:00:00",
         "_links": {"self": [{"href": "http://localhost:8100/woocommerce/wc/v3/products/93"}], "collection": [{"href": "http://localhost:8100/woocommerce/wc/v3/products"}]},
     },
     {
-        "id": 94, "name": "Gadget Lite", "slug": "gadget-lite", "type": "simple",
-        "status": "publish", "featured": False, "sku": "GL-001",
+        "id": 94, "name": _PRODUCT_DATA[1]["name"], "slug": _PRODUCT_DATA[1]["slug"], "type": "simple",
+        "status": "publish", "featured": False, "sku": _PRODUCT_DATA[1]["sku"],
         "price": "89.99", "regular_price": "89.99", "sale_price": "",
         "on_sale": False, "purchasable": True, "total_sales": 120,
         "stock_status": "instock", "stock_quantity": 300,
         "manage_stock": True, "weight": "0.35",
         "dimensions": {"length": "8", "width": "4", "height": "2"},
-        "categories": [{"id": 16, "name": "Gadgets", "slug": "gadgets"}],
+        "categories": [_category(_PRODUCT_DATA[1], 16)],
         "tags": [],
-        "images": [{"id": 202, "src": "https://mystore.com/wp-content/uploads/gadget-lite.jpg", "name": "gadget-lite", "alt": "Gadget Lite"}],
+        "images": [_image(_PRODUCT_DATA[1], 202)],
         "date_created": "2025-06-15T10:00:00",
         "_links": {"self": [{"href": "http://localhost:8100/woocommerce/wc/v3/products/94"}], "collection": [{"href": "http://localhost:8100/woocommerce/wc/v3/products"}]},
     },

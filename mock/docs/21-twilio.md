@@ -78,7 +78,7 @@ curl -u "AC_mock_sid_001:mock_auth_token_001" \
     {
       "account_sid": "AC_mock_sid_001",
       "api_version": "2010-04-01",
-      "body": "Hi Jane, your Acme Corp subscription has been renewed. View your invoice at https://acme.io/invoices/inv_001",
+      "body": "Hi Avery, your Acme Corp subscription has been renewed. View your invoice at https://acme.io/invoices/inv_001",
       "date_created": "Wed, 10 Jul 2026 14:00:00 +0000",
       "date_updated": "Wed, 10 Jul 2026 14:00:02 +0000",
       "date_sent": "Wed, 10 Jul 2026 14:00:01 +0000",

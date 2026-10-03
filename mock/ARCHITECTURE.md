@@ -23,7 +23,7 @@ mock:8100/meta/v25.0/act_{id}/campaigns            → graph.facebook.com/v25.0/
 mock:8100/salesforce/services/data/v67.0/query      → {instance}.salesforce.com/services/data/v67.0/query
 ```
 
-All 31 provider modules share a single ground-truth dataset (`world.py`) and a shared library of auth decorators and pagination helpers (`helpers.py`). Each module renders the same underlying entities in its provider-specific response format.
+All 31 provider modules share a single ground-truth dataset (`world/`) and a shared library of auth decorators and pagination helpers (`helpers.py`). Each module renders the same underlying entities in its provider-specific response format.
 
 ---
 
@@ -34,7 +34,7 @@ mock/
 ├── ARCHITECTURE.md              # This document
 ├── Dockerfile                   # python:3.12-slim, serves on :8100 as seeds.server
 ├── server.py                    # FastAPI app, mounts all routers, uvicorn entry
-├── world.py                     # Shared ground truth: companies, people, subscriptions, ...
+├── world/                       # Shared ground truth: data.yaml plus its loader and the spy renderers
 ├── helpers.py                   # Auth decorators, pagination helpers
 ├── requirements.txt             # fastapi, uvicorn
 │
@@ -85,9 +85,9 @@ mock/
 
 ---
 
-## 4. Ground Truth — `world.py`
+## 4. Ground Truth — `world/`
 
-All providers render the same canonical dataset. The entities are defined as Python dataclasses and imported by each provider module.
+All providers render the same canonical dataset. `world/data.yaml` holds every record and text pool, including the inline rows each vendor used to carry under `vendors:`; `world/__init__.py` loads it (or the file named by `WORLD_DATA`) into dataclasses that each provider module imports.
 
 The Spy corpus lives here too: `SPY_BRAND`, `SPY_COMPETITORS` and `SPY_QUERIES`, plus the generators that render an engine's answer, a results page, an AI Overview, an advertiser's creatives, a creative's text and a company's posts, each deterministic from an md5 of its inputs.
 
@@ -236,7 +236,7 @@ In Docker Compose, the mock server runs as the `mock` service — reachable at `
 
 ## 9. Design Decisions
 
-- **Shared world, per-provider rendering.** A single `world.py` defines canonical entities. Each provider module transforms them into its own response format. This guarantees cross-source consistency — the same company appears in HubSpot, Stripe, and Salesforce with the same underlying data, just different field names and response shapes.
+- **Shared world, per-provider rendering.** A single `world/data.yaml` defines canonical entities. Each provider module transforms them into its own response format. This guarantees cross-source consistency — the same company appears in HubSpot, Stripe, and Salesforce with the same underlying data, just different field names and response shapes.
 - **Deliberate ER variations.** Name, email, and company name variations are explicit in `ER_COMPANY_NAMES`, `ER_PERSON_NAMES`, and `ER_PERSON_EMAILS` dicts. The ER pipeline must reconcile these — they're not bugs, they're test fixtures.
 - **Permissive auth, strict mechanism.** The mock doesn't validate credential values — any non-empty token passes. But it enforces the correct auth mechanism (Bearer vs Basic vs header vs query param) and required companion headers (e.g., `developer-token` for Google Ads). This catches connector misconfiguration without requiring real credentials.
 - **One module per provider, not per endpoint.** Each provider file contains all endpoints for that provider. At ~60-370 lines per module, this keeps each provider self-contained without needing sub-packages.

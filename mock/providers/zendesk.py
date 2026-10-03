@@ -9,9 +9,11 @@ Named keys (tickets, users, organizations). Tags as flat string arrays.
 import base64
 from fastapi import APIRouter, Request, Query
 from seeds.helpers import require_bearer, require_basic_auth
-from seeds.world import PEOPLE, COMPANIES, COMPANIES_BY_ID, TICKETS, SUBSCRIPTIONS_BY_COMPANY, PEOPLE_BY_COMPANY
+from seeds.world import PEOPLE, COMPANIES, COMPANIES_BY_ID, TICKETS, SUBSCRIPTIONS_BY_COMPANY, PEOPLE_BY_COMPANY, VENDORS
 
 router = APIRouter()
+
+_DOMAIN = VENDORS["domain"]
 
 
 def _zd_auth(request: Request):
@@ -70,7 +72,7 @@ def _zd_ticket(t, idx):
             "channel": t.channel,
             "source": {
                 "from": {"address": p.email if p else "", "name": f"{p.first_name} {p.last_name}" if p else ""},
-                "to": {"name": "Support", "address": "support@acme.io"},
+                "to": {"name": "Support", "address": f"support@{_DOMAIN}"},
             },
         },
         "created_at": t.created_at, "updated_at": t.updated_at,

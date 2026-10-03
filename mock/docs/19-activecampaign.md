@@ -74,11 +74,11 @@ curl -H "Api-Token: ac_mock_apikey_001" \
   "contacts": [
     {
       "id": "1",
-      "email": "jane@acme.io",
-      "email_local": "jane",
+      "email": "avery@acme.io",
+      "email_local": "avery",
       "email_domain": "acme.io",
-      "firstName": "Jane",
-      "lastName": "Smith",
+      "firstName": "Avery",
+      "lastName": "Stone",
       "phone": "+12125550100",
       "orgid": "1",
       "orgname": "Acme Corp",

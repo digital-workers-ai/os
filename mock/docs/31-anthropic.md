@@ -244,7 +244,7 @@ twenty-two content blocks, encrypted fields cut short):
 | `server_tool_use` | `type`, `id`, `name`, `input` | One per search. `id` is `srvtoolu_` + 26 characters, `name` is `web_search`, `input.query` is the search Claude wrote (it added the year), not the user's text |
 | `web_search_tool_result` | `type`, `tool_use_id`, `content`, `caller` | One per search; `tool_use_id` points at its `server_tool_use`; `caller` is `{"type": "direct"}`. `content` is a list of `web_search_result` (six for one search here), or a single error object |
 | `text` (cited) | `citations`, `type`, `text` | One block per cited claim, a sentence or part of one, with one citation |
-| `text` (uncited) | `type`, `text` | Everything between cited claims: the intro, a lone `" "`, markdown headings such as `"\n\n**Zoho CRM**\n"`, the closing sentence |
+| `text` (uncited) | `type`, `text` | Everything between cited claims: the intro, a lone `" "`, markdown headings such as `"\n\n**Initech CRM**\n"`, the closing sentence |
 
 **`web_search_result`** — one per page read:
 
