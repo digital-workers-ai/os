@@ -272,6 +272,17 @@ class TestCheckNamesWhatIsWrong:
         assert len(problems) == 1, problems
         assert "fonts must be a mapping" in problems[0]
 
+    @pytest.mark.parametrize(
+        "mutate",
+        [lambda d: d.pop("name"), lambda d: d.update({"name": ""})],
+        ids=["absent", "empty"],
+    )
+    def test_tokens_without_a_brand_name(self, folder, mutate):
+        _tokens(folder, mutate)
+        problems = brand.check(folder)
+        assert len(problems) == 1, problems
+        assert problems[0].startswith("brand/tokens.yaml: name ")
+
     def test_every_problem_is_reported_together(self, folder):
         (folder / "proof.md").unlink()
         (folder / "tone.md").write_text("x\n")
