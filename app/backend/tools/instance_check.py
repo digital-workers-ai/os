@@ -5,7 +5,9 @@ import sys
 from pathlib import Path
 
 from app.caches import DEFINITIONS_DIR
+from app.coaching import briefer
 from app.engine import checks, mappings, spy
+from app.enrichment import vocabulary
 from tests import ground_truth
 from tools import seed_demo
 from tools.pull_source import MOCK_FIXTURES
@@ -19,13 +21,21 @@ SCANNED = [
 ]
 
 
-def check_world() -> list[str]:
+def load_world() -> tuple[object, list[str]]:
     try:
         world = ground_truth.world()
     except Exception as e:
-        return [f"seeds.world failed to load: {type(e).__name__}: {e}"]
+        return None, [f"seeds.world failed to load: {type(e).__name__}: {e}"]
     if world is None:
-        return [f"seeds.world is not importable from {ground_truth.ADVERSARIAL_ROOT}"]
+        root = ground_truth.ADVERSARIAL_ROOT
+        return None, [f"seeds.world is not importable from {root}"]
+    return world, []
+
+
+def check_world() -> list[str]:
+    world, problems = load_world()
+    if problems:
+        return problems
     present = (
         ("company", world.COMPANIES),
         ("person", world.PEOPLE),
@@ -82,6 +92,94 @@ def check_studio() -> list[str]:
     return problems
 
 
+def labels(reading: str) -> dict[str, tuple]:
+    return {field.name: field.labels for field in vocabulary.load()[reading].fields}
+
+
+def call_problems(calls: list[dict], world) -> list[str]:
+    asked = labels("sales_call")
+    problems = []
+    for call in calls:
+        key = call["key"]
+        found = sum(key in sales_call.topic for sales_call in world.SALES_CALLS)
+        if found != 1:
+            problems.append(f"call {key!r} is in {found} sales call topics, not one")
+        answers = [("interest", call["interest"]), ("timing", call["timing"])]
+        answers += [("pain_points", label) for label in call["pain_points"]]
+        problems += [
+            f"call {key!r}: {attr} {label!r} is not a sales_call label"
+            for attr, label in answers
+            if label not in asked[attr]
+        ]
+    return problems
+
+
+def ticket_problems(tickets: list[dict], world) -> list[str]:
+    complaints = labels("support_ticket")["complaint"]
+    problems = []
+    for ticket in tickets:
+        prefix, complaint = ticket["subject"], ticket["complaint"]
+        if not any(t.subject.startswith(prefix) for t in world.TICKETS):
+            problems.append(f"ticket {prefix!r} starts no ticket subject in the world")
+        if complaint not in complaints:
+            problems.append(
+                f"ticket {prefix!r}: complaint {complaint!r} "
+                "is not a support_ticket label"
+            )
+    return problems
+
+
+def briefing_problems(seed: dict) -> list[str]:
+    keys = {call["key"] for call in seed["calls"]}
+    problems = []
+    for role, texts in seed["briefings"].items():
+        if role not in briefer.roles():
+            problems.append(f"briefing {role!r} has no reader in definitions/briefs/")
+        named = {
+            name
+            for text in (*texts["history"], texts["latest"])
+            for name in seed_demo.PLACEHOLDER.findall(text)
+        }
+        problems += [
+            f"briefing {role!r} names {{{name}}}, which is no call key"
+            for name in sorted(named - keys)
+        ]
+    problems += [
+        f"finding {finding['rule']!r} names call {finding['call']!r}, "
+        "which is no call key"
+        for finding in seed["read"]["findings"]
+        if finding["call"] not in keys
+    ]
+    return problems
+
+
+def lookalike_problems(lookalikes: list[dict]) -> list[str]:
+    sources = {line.source for line in mappings.load()}
+    return [
+        f"look-alike {pair['pair']!r} comes from {record['source']!r}, "
+        "which mappings.yaml does not name"
+        for pair in lookalikes
+        for record in pair["records"]
+        if record["source"] not in sources
+    ]
+
+
+def check_seed() -> list[str]:
+    world, problems = load_world()
+    if problems:
+        return problems
+    try:
+        seed = seed_demo.read_seed()
+        return [
+            *call_problems(seed["calls"], world),
+            *ticket_problems(seed["tickets"], world),
+            *briefing_problems(seed),
+            *lookalike_problems(seed["lookalikes"]),
+        ]
+    except Exception as e:
+        return [f"{seed_demo.SEED.name} failed to load: {type(e).__name__}: {e}"]
+
+
 def pattern(term: str) -> re.Pattern:
     escaped = re.escape(term)
     if "." in term or "@" in term:
@@ -116,6 +214,7 @@ CHECKS = (
     ("world", check_world),
     ("fixtures", check_fixtures),
     ("studio", check_studio),
+    ("seed", check_seed),
 )
 
 
