@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from urllib.parse import urlsplit
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings
@@ -7,12 +8,19 @@ from pydantic_settings import BaseSettings
 ANTHROPIC_CREDENTIAL_ENV = "ANTHROPIC_API_KEY"
 EMBEDDINGS_CREDENTIAL_ENV = "OPENAI_API_KEY"
 RERANK_CREDENTIAL_ENV = "ZEROENTROPY_API_KEY"
+GOOGLE_CLIENT_ID_ENV = "GOOGLE_CLIENT_ID"
+GOOGLE_CLIENT_SECRET_ENV = "GOOGLE_CLIENT_SECRET"
+AUTH_SIGNING_KEY_ENV = "AUTH_JWT_SIGNING_KEY"
 LLM_FLAGS = ("ENRICHMENT_ENABLED", "COACHING_ENABLED", "CONVERSATION_ENABLED")
 CREDENTIALS = {
     ANTHROPIC_CREDENTIAL_ENV: (*LLM_FLAGS, "STUDIO_ENABLED"),
     EMBEDDINGS_CREDENTIAL_ENV: ("EMBEDDINGS_ENABLED", "STUDIO_ENABLED"),
     RERANK_CREDENTIAL_ENV: ("RERANK_ENABLED",),
+    GOOGLE_CLIENT_ID_ENV: ("AUTH_ENABLED",),
+    GOOGLE_CLIENT_SECRET_ENV: ("AUTH_ENABLED",),
+    AUTH_SIGNING_KEY_ENV: ("AUTH_ENABLED",),
 }
+LOOPBACK_HOSTS = frozenset({"localhost", "127.0.0.1", "::1"})
 
 
 class Settings(BaseSettings):
@@ -58,9 +66,17 @@ class Settings(BaseSettings):
     RENDER_URL: str = "http://localhost:8200"
     MARKETER_DAILY: bool = False
     MARKETER_HOUR: int = 6
+    AUTH_ENABLED: bool = False
+    PUBLIC_URL: str = "http://localhost:8092"
+    AUTH_ALLOWED_EMAILS: str = ""
     CLOCK_PINNED_AT: datetime | None = None
 
     model_config = {"env_file": ".env", "extra": "ignore"}
+
+    @field_validator("PUBLIC_URL")
+    @classmethod
+    def public_url_has_no_trailing_slash(cls, value: str) -> str:
+        return value.rstrip("/")
 
     @field_validator("CLOCK_PINNED_AT")
     @classmethod
@@ -86,6 +102,14 @@ def has_credential(
     return bool(env.get(name))
 
 
+def allowed_emails() -> frozenset[str]:
+    return frozenset(
+        email.strip().lower()
+        for email in settings.AUTH_ALLOWED_EMAILS.split(",")
+        if email.strip()
+    )
+
+
 def validate_startup(env: dict | None = None) -> None:
     for credential, flags in CREDENTIALS.items():
         on = sorted(name for name in flags if getattr(settings, name))
@@ -96,3 +120,21 @@ def validate_startup(env: dict | None = None) -> None:
                 "produce nothing, which is indistinguishable from having nothing "
                 "to produce. Set a credential, or switch it off."
             )
+    if settings.AUTH_ENABLED:
+        validate_auth()
+
+
+def validate_auth() -> None:
+    if not allowed_emails():
+        raise StartupError(
+            "AUTH_ENABLED on and AUTH_ALLOWED_EMAILS names nobody. Every sign-in "
+            "would be refused, which is indistinguishable from the endpoint being "
+            "down. Name the addresses allowed in, or switch it off."
+        )
+    public = urlsplit(settings.PUBLIC_URL)
+    if public.scheme != "https" and public.hostname not in LOOPBACK_HOSTS:
+        raise StartupError(
+            f"AUTH_ENABLED on and PUBLIC_URL is {settings.PUBLIC_URL}. Over plain "
+            "http on a public host the consent cookie would travel in the clear. "
+            "Serve it over https, or keep it on localhost."
+        )
