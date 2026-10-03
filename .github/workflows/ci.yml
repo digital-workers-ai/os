@@ -12,6 +12,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: cp app/.env.example app/.env
       - run: ./test.sh unit
+      - run: ./test.sh instance
   snapshots:
     runs-on: ubuntu-latest
     steps:
