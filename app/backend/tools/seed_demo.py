@@ -52,17 +52,17 @@ PINS = [
     (RawEvent.ingested_at, NOW - timedelta(hours=1), None),
 ]
 PLAN = {
-    "Globex": ("strong", "this_quarter", ["manual_work", "reporting_gaps"], True),
-    "Stark": ("weak", "no_timeline", ["support_quality", "pricing"], False),
-    "Wayne": ("strong", "immediate", ["pricing", "onboarding_time"], True),
-    "Initech": ("moderate", "next_quarter", ["missing_features"], True),
-    "Pied Piper": (
+    "expansion": ("strong", "this_quarter", ["manual_work", "reporting_gaps"], True),
+    "billing": ("weak", "no_timeline", ["support_quality", "pricing"], False),
+    "pricing": ("strong", "immediate", ["pricing", "onboarding_time"], True),
+    "renewal": ("moderate", "next_quarter", ["missing_features"], True),
+    "security": (
         "moderate",
         "next_quarter",
         ["security_compliance", "integration_complexity"],
         True,
     ),
-    "Cyberdyne": ("none", "next_year", ["vendor_lock_in"], False),
+    "intro": ("none", "next_year", ["vendor_lock_in"], False),
 }
 TICKETS = {
     "API rate limit": "access",
@@ -82,7 +82,7 @@ HISTORY = {
         "deals. The pipeline rule found one deal with no next step. Sales calls "
         "are not being read yet, so interest is not measured.",
         "Revenue is at $16,700 MRR and 10 open deals worth $341,000. No goal is "
-        "met. One high-severity finding is open: Initech has had no activity in "
+        "met. One high-severity finding is open: {renewal} has had no activity in "
         "fourteen days.",
         "Revenue is at $16,820 MRR, short of the $20,000 quarter goal, with 11 "
         "open deals in pipeline. No sales calls have been read yet, so buying "
@@ -90,65 +90,48 @@ HISTORY = {
         "Revenue moved to $16,950 MRR with 12 open deals. The first four sales "
         "calls were read: one strong, two moderate, one weak. Two high-severity "
         "findings are open, both deals with no next step.",
-        "Revenue is at $17,020 MRR and 13 open deals worth $388,000. Wayne "
-        "Enterprises reads as strong interest and wants to move immediately. "
-        "Stark Industries has escalated a billing dispute and says it will buy "
-        "nothing more until it is resolved.",
+        "Revenue is at $17,020 MRR and 13 open deals worth $388,000. {pricing} "
+        "reads as strong interest and wants to move immediately. {billing} has "
+        "escalated a billing dispute and says it will buy nothing more until it "
+        "is resolved.",
     ],
     "head_of_sales": [
-        "Nine open deals. Initech has had no activity in two weeks and no next "
+        "Nine open deals. {renewal} has had no activity in two weeks and no next "
         "step is recorded. Calls are not being read yet, so there is no interest "
         "signal.",
-        "Ten open deals worth $341,000. Initech is still idle. Globex booked a "
-        "call for next week about expanding to the growth team.",
+        "Ten open deals worth $341,000. {renewal} is still idle. {expansion} booked "
+        "a call for next week about expanding to the growth team.",
         "Eleven open deals, none with a recorded next step older than a week. "
         "Sales calls have not been read yet, so there is no interest signal to "
         "act on.",
-        "Four calls read. Globex is strong for this quarter and wants reporting "
-        "sales already has. Initech is moderate and pushed to next quarter. Two "
-        "deals have no next step recorded.",
-        "Wayne Enterprises came in strong and immediate, gated on pricing. Pied "
-        "Piper is blocked on a security review. Three deals have no next step, "
-        "all three older than ten days.",
+        "Four calls read. {expansion} is strong for this quarter and wants "
+        "reporting sales already has. {renewal} is moderate and pushed to next "
+        "quarter. Two deals have no next step recorded.",
+        "{pricing} came in strong and immediate, gated on pricing. {security} is "
+        "blocked on a security review. Three deals have no next step, all three "
+        "older than ten days.",
     ],
 }
 BRIEFS = {
     "ceo": (
         "Revenue is holding at 17,147 MRR with 14 open deals worth 412,000 in "
         "pipeline. Two of the six sales calls this week show strong buying "
-        "interest, Globex and Wayne Enterprises, and both name pricing or "
+        "interest, {expansion} and {pricing}, and both name pricing or "
         "reporting as the thing standing between them and a signature.\n\n"
-        "The one to watch is Stark Industries: the billing escalation call reads "
+        "The one to watch is {billing}: the billing escalation call reads "
         "as weak interest with support quality named twice. If that renewal "
         "slips, the quarter target of 20,000 MRR moves out of reach."
     ),
     "head_of_sales": (
-        "Wayne Enterprises wants to move immediately and is gated on pricing and "
-        "onboarding time; that is the deal to close first. Globex is strong for "
-        "this quarter and asked for reporting they cannot get today.\n\n"
-        "Initech and Pied Piper are both moderate and next quarter; Pied Piper "
+        "{pricing} wants to move immediately and is gated on pricing and "
+        "onboarding time; that is the deal to close first. {expansion} is strong "
+        "for this quarter and asked for reporting they cannot get today.\n\n"
+        "{renewal} and {security} are both moderate and next quarter; {security} "
         "is blocked on a security review, so get the compliance pack in front of "
-        "them now. Cyberdyne is a no for this year. Three findings are open "
+        "them now. {intro} is a no for this year. Three findings are open "
         "against your pipeline hygiene rules, all of them deals with no next "
         "step."
     ),
-}
-MANIFEST = {
-    "metrics": {
-        "mrr": 17147.0,
-        "open_deals": 14,
-        "pipeline_value": 412000.0,
-        "sales_calls_strong_interest": 2,
-    },
-    "goals": {
-        "mrr_target": {"target": 20000, "current": 17147.0, "met": False},
-        "deals_with_next_step": {"met": False},
-    },
-    "findings": [
-        {"rule": "deal_without_next_step", "entity": "Stark Industries"},
-        {"rule": "deal_without_next_step", "entity": "Cyberdyne"},
-        {"rule": "stale_deal", "entity": "Initech"},
-    ],
 }
 LOOKALIKES = {
     "carlos": (
@@ -205,6 +188,34 @@ STUDIO_TABLES = (
     Asset,
 )
 SKIPPED_SLOT = "linkedin_post"
+
+
+def topic(meeting_name: str) -> str | None:
+    return next((key for key in PLAN if key in meeting_name), None)
+
+
+def company(meeting_name: str) -> str:
+    return re.split(r" <> | — ", meeting_name)[0]
+
+
+def read_manifest(companies: dict) -> dict:
+    return {
+        "metrics": {
+            "mrr": 17147.0,
+            "open_deals": 14,
+            "pipeline_value": 412000.0,
+            "sales_calls_strong_interest": 2,
+        },
+        "goals": {
+            "mrr_target": {"target": 20000, "current": 17147.0, "met": False},
+            "deals_with_next_step": {"met": False},
+        },
+        "findings": [
+            {"rule": "deal_without_next_step", "entity": companies["billing"]},
+            {"rule": "deal_without_next_step", "entity": companies["intro"]},
+            {"rule": "stale_deal", "entity": companies["renewal"]},
+        ],
+    }
 
 
 def sha(text: str) -> str:
@@ -266,7 +277,9 @@ def run(reading: str, vocab: str, read: int, when: datetime) -> EnrichmentRun:
     )
 
 
-def briefing(role: str, text: str, when: datetime, duration_ms: int) -> BriefingRun:
+def briefing(
+    role: str, text: str, when: datetime, duration_ms: int, manifest: dict
+) -> BriefingRun:
     return BriefingRun(
         role=role,
         ok=True,
@@ -274,7 +287,7 @@ def briefing(role: str, text: str, when: datetime, duration_ms: int) -> Briefing
         prompt_version=PROMPT,
         prompts_sha=briefer.prompts_sha(),
         input_sha=sha(text),
-        read_manifest=MANIFEST,
+        read_manifest=manifest,
         briefing=text,
         error=None,
         duration_ms=duration_ms,
@@ -287,7 +300,7 @@ async def seed_meetings(s, vocab: str) -> int:
     names = dict(await facts_of(s, "meeting", "name"))
     n = 0
     for i, (cid, text) in enumerate(rows):
-        key = next((k for k in PLAN if k in names.get(cid, "")), None)
+        key = topic(names.get(cid, ""))
         if key is None:
             continue
         interest, timing, pains, verified = PLAN[key]
@@ -334,19 +347,29 @@ async def seed_tickets(s, vocab: str) -> int:
     return n
 
 
+async def companies(s) -> dict[str, str]:
+    named = {}
+    for _cid, name in await facts_of(s, "meeting", "name"):
+        key = topic(name)
+        if key is not None:
+            named[key] = company(name)
+    return named
+
+
 async def seed_briefings(s) -> int:
+    named = await companies(s)
+    manifest = read_manifest(named)
     n = 0
     for j, (role, text) in enumerate(BRIEFS.items()):
         for d, earlier in enumerate(HISTORY[role]):
             when = NOW - timedelta(days=5 - d, hours=1, minutes=20 * j)
-            s.add(briefing(role, earlier, when, 2900 + 300 * d))
+            s.add(
+                briefing(role, earlier.format(**named), when, 2900 + 300 * d, manifest)
+            )
             n += 1
         await s.flush()
-        s.add(
-            briefing(
-                role, text, NOW - timedelta(hours=1, minutes=20 * j), 3400 + 900 * j
-            )
-        )
+        latest = NOW - timedelta(hours=1, minutes=20 * j)
+        s.add(briefing(role, text.format(**named), latest, 3400 + 900 * j, manifest))
         n += 1
     return n
 
