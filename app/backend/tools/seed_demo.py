@@ -54,6 +54,8 @@ PINS = [
 STUDIO_FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "studio"
 SEED = Path(__file__).resolve().parents[1] / "fixtures" / "seed.yaml"
 PLACEHOLDER = re.compile(r"\{([^{}]+)\}")
+SPEAKER = re.compile(r"^([^:\n]+):", re.MULTILINE)
+AFFILIATION = re.compile(r"\([^()]+\)$")
 STUDIO_TABLES = (
     StudioTurn,
     StudioThread,
@@ -112,10 +114,16 @@ def sha(text: str) -> str:
     return hashlib.sha256(text.encode()).hexdigest()
 
 
+def our_side(text: str) -> str | None:
+    marks = (AFFILIATION.search(label.strip()) for label in SPEAKER.findall(text))
+    return next((mark[0] for mark in marks if mark), None)
+
+
 def sentence(text: str, keyword: str) -> str:
+    ours = our_side(text)
     parts = [p.strip() for p in re.split(r"(?<=[.!?])\s+", text)]
     parts = [p for p in parts if len(p) > 30]
-    prospect = [p for p in parts if "(OS)" not in p.split(":")[0]]
+    prospect = [p for p in parts if ours is None or ours not in p.split(":")[0]]
     for p in prospect:
         if keyword.replace("_", " ") in p.lower():
             return re.sub(r"^[^:]+:\s*", "", p)

@@ -246,9 +246,11 @@ _SPY_FEATURES = _SPY["features"]
 _SPY_BENEFITS = _SPY["benefits"]
 _SPY_HASHTAGS = _SPY["hashtags"]
 _SPY_FOLLOWERS = _SPY["followers"]
-_SPY_ADVERTISERS = {c["google_advertiser_id"]: c for c in SPY_COMPETITORS}
-_SPY_LINKEDIN = {c["linkedin"]: c for c in SPY_COMPETITORS}
-_SPY_X = {c["x"].lower(): c for c in SPY_COMPETITORS}
+_SPY_ADVERTISERS = {
+    c["google_advertiser_id"]: c for c in SPY_COMPETITORS if "google_advertiser_id" in c
+}
+_SPY_LINKEDIN = {c["linkedin"]: c for c in SPY_COMPETITORS if "linkedin" in c}
+_SPY_X = {c["x"].lower(): c for c in SPY_COMPETITORS if "x" in c}
 _SPY_X_PROFILES = _fields(
     _SPY["x_profiles"],
     "name",
@@ -259,7 +261,7 @@ _SPY_X_PROFILES = _fields(
     "badge",
     "biography",
 )
-_SPY_INSTAGRAM = {c["instagram"]: c for c in SPY_COMPETITORS}
+_SPY_INSTAGRAM = {c["instagram"]: c for c in SPY_COMPETITORS if "instagram" in c}
 _SPY_INSTAGRAM_PROFILES = _fields(
     _SPY["instagram_profiles"],
     "name",
@@ -364,7 +366,7 @@ _SPY_TIKTOK_WINDOWS = _fields(
 )
 _SPY_TIKTOK_COMMENTS = _SPY["tiktok_comments"]
 _SPY_TIKTOK_COMMENTERS = _SPY["tiktok_commenters"]
-_SPY_META = {c["meta_page_id"]: c for c in SPY_COMPETITORS}
+_SPY_META = {c["meta_page_id"]: c for c in SPY_COMPETITORS if "meta_page_id" in c}
 _SPY_META_PLATFORMS = (
     ("FACEBOOK", "INSTAGRAM"),
     ("FACEBOOK", "INSTAGRAM", "THREADS"),
@@ -998,7 +1000,7 @@ def _spy_licdn(seed: str, salt: str, variant: str, page: int = 0) -> str:
 
 def spy_linkedin_ads(advertiser: str) -> list[dict]:
     company = _spy_company_named(advertiser)
-    if company is None:
+    if company is None or "linkedin" not in company:
         return []
     slug = company["linkedin"]
     count = 5 + _spy_digest(slug, "linkedin_count") % 8
@@ -1405,7 +1407,7 @@ def _spy_meta_likes(page_id: str) -> int:
 def spy_meta_pages(query: str) -> list[dict]:
     needle = query.lower()
     pages = []
-    for company in SPY_COMPETITORS:
+    for company in _SPY_META.values():
         if not any(
             needle in name.lower() for name in [company["name"], *company["aliases"]]
         ):

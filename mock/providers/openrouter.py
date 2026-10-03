@@ -138,7 +138,8 @@ def _completion(model, engine, seed, content, annotations, prompt_tokens, search
 
 
 def _creative_id(image):
-    for company in world.SPY_COMPETITORS:
+    advertisers = [c for c in world.SPY_COMPETITORS if "google_advertiser_id" in c]
+    for company in advertisers:
         for ad in world.spy_ads(company["google_advertiser_id"]):
             if ad.get("image") == image:
                 return ad["ad_creative_id"]
