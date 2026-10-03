@@ -198,6 +198,14 @@ def company(meeting_name: str) -> str:
     return re.split(r" <> | — ", meeting_name)[0]
 
 
+def read_library() -> dict:
+    return yaml.safe_load((STUDIO_FIXTURES / "manifest.yaml").read_text())
+
+
+def version_folder(entry: dict, number: int) -> Path:
+    return STUDIO_FIXTURES / entry["dir"] / str(number)
+
+
 def read_manifest(companies: dict) -> dict:
     return {
         "metrics": {
@@ -492,7 +500,7 @@ async def seed_version(
     s, entry: dict, seq: int, version: dict, rebase: Rebase, counts: Counter
 ) -> SkillRun:
     number, when = version["version"], rebase.at(version["created_at"])
-    folder = STUDIO_FIXTURES / entry["dir"] / str(number)
+    folder = version_folder(entry, number)
     s.add(
         AssetVersion(
             asset_seq=seq, version=number, note=version["note"], created_at=when
@@ -539,7 +547,7 @@ async def seed_studio(s) -> dict:
         await s.execute(delete(table))
     await s.flush()
     shutil.rmtree(Path(settings.MEDIA_DIR) / "assets", ignore_errors=True)
-    library = yaml.safe_load((STUDIO_FIXTURES / "manifest.yaml").read_text())
+    library = read_library()
     rebase = Rebase(datetime.fromisoformat(library["made_at"]))
     counts: Counter = Counter()
     opened: dict[int, int] = {}
