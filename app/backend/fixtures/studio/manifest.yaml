@@ -1,0 +1,428 @@
+made_at: '2026-09-04T12:00:00+00:00'
+model: claude-opus-5
+assets:
+- seq: 1
+  dir: 1-100-line-and-branch-coverage
+  name: 100% line and branch coverage
+  kind: image
+  skill: dw-image
+  look: stat-card
+  ratio: '1:1'
+  origin: chat
+  status: ok
+  created_at: '2026-09-04T10:00:00+00:00'
+  versions:
+  - version: 1
+    note: A stat card on the test gate, stat-card at 1:1
+    created_at: '2026-09-04T10:00:00+00:00'
+    files:
+    - path: build.md
+      media_type: text/markdown
+      bytes: 235
+    - path: claims.md
+      media_type: text/markdown
+      bytes: 391
+    - path: content.yaml
+      media_type: text/yaml
+      bytes: 121
+    - path: image.png
+      media_type: image/png
+      bytes: 55672
+    claims:
+    - text: The suite holds 100% line and branch coverage, and nothing is committed on red.
+      source_kind: proof
+      source_ref: The gate
+      verified: true
+    - text: Every number reports which tool it came from, which records it counted, and which of those records were missing the field.
+      source_kind: proof
+      source_ref: Introduction
+      verified: true
+    - text: A rebuild never touches the raw store, the snapshots, what the AI parts wrote, or the review decisions people made.
+      source_kind: proof
+      source_ref: How a Rebuild Works
+      verified: true
+    evidence:
+    - kind: brand
+      ref: proof.md
+      detail: The gate holds 100% line and branch coverage; never red.
+    - kind: brand
+      ref: voice.md
+      detail: Plain, specific, concrete. No hype, no hashtags, no emoji.
+    tool_calls:
+    - tool: image_paint
+      ok: true
+      duration_ms: 1400
+      detail: painted one picture, no words in it
+    - tool: image_render
+      ok: true
+      duration_ms: 1400
+      detail: rendered the card over the picture
+    model: claude-opus-5
+    tokens_in: 8200
+    tokens_out: 1140
+    duration_ms: 38000
+  - version: 2
+    note: shorter label
+    created_at: '2026-09-04T10:30:00+00:00'
+    files:
+    - path: build.md
+      media_type: text/markdown
+      bytes: 235
+    - path: claims.md
+      media_type: text/markdown
+      bytes: 391
+    - path: content.yaml
+      media_type: text/yaml
+      bytes: 121
+    - path: image.png
+      media_type: image/png
+      bytes: 55672
+    claims:
+    - text: The suite holds 100% line and branch coverage, and nothing is committed on red.
+      source_kind: proof
+      source_ref: The gate
+      verified: true
+    - text: Every number reports which tool it came from, which records it counted, and which of those records were missing the field.
+      source_kind: proof
+      source_ref: Introduction
+      verified: true
+    - text: A rebuild never touches the raw store, the snapshots, what the AI parts wrote, or the review decisions people made.
+      source_kind: proof
+      source_ref: How a Rebuild Works
+      verified: true
+    evidence:
+    - kind: brand
+      ref: proof.md
+      detail: The gate holds 100% line and branch coverage; never red.
+    - kind: brand
+      ref: voice.md
+      detail: Plain, specific, concrete. No hype, no hashtags, no emoji.
+    tool_calls:
+    - tool: image_paint
+      ok: true
+      duration_ms: 1400
+      detail: painted one picture, no words in it
+    - tool: image_render
+      ok: true
+      duration_ms: 1400
+      detail: rendered the card over the picture
+    model: claude-opus-5
+    tokens_in: 8200
+    tokens_out: 1140
+    duration_ms: 38000
+- seq: 2
+  dir: 2-every-number-can-tell-you-which-tool-it-came-from
+  name: Every number can tell you which tool it came from
+  kind: image
+  skill: dw-image
+  look: quote-card
+  ratio: '1:1'
+  origin: chat
+  status: held
+  created_at: '2026-09-04T09:00:00+00:00'
+  versions:
+  - version: 1
+    note: A quote card from the line on tracing a number
+    created_at: '2026-09-04T09:00:00+00:00'
+    files:
+    - path: build.md
+      media_type: text/markdown
+      bytes: 235
+    - path: claims.md
+      media_type: text/markdown
+      bytes: 391
+    - path: image.png
+      media_type: image/png
+      bytes: 73835
+    claims:
+    - text: The suite holds 100% line and branch coverage, and nothing is committed on red.
+      source_kind: proof
+      source_ref: The gate
+      verified: true
+    - text: Every number reports which tool it came from, which records it counted, and which of those records were missing the field.
+      source_kind: proof
+      source_ref: Introduction
+      verified: true
+    - text: A rebuild never touches the raw store, the snapshots, what the AI parts wrote, or the review decisions people made.
+      source_kind: proof
+      source_ref: How a Rebuild Works
+      verified: true
+    - text: Teams close their quarter twice as fast with DW-OS.
+      source_kind: none
+      source_ref: null
+      verified: false
+    evidence:
+    - kind: brand
+      ref: proof.md
+      detail: The gate holds 100% line and branch coverage; never red.
+    - kind: brand
+      ref: voice.md
+      detail: Plain, specific, concrete. No hype, no hashtags, no emoji.
+    tool_calls:
+    - tool: image_paint
+      ok: true
+      duration_ms: 1490
+      detail: painted one picture, no words in it
+    - tool: image_render
+      ok: true
+      duration_ms: 1490
+      detail: rendered the card over the picture
+    model: claude-opus-5
+    tokens_in: 8930
+    tokens_out: 1400
+    duration_ms: 42200
+- seq: 3
+  dir: 3-why-a-rebuild-never-touches-the-raw-store
+  name: Why a rebuild never touches the raw store
+  kind: blog
+  skill: dw-blog
+  look: null
+  ratio: null
+  origin: chat
+  status: ok
+  created_at: '2026-09-03T10:00:00+00:00'
+  versions:
+  - version: 1
+    note: Explain the rebuild to the engineer
+    created_at: '2026-09-03T10:00:00+00:00'
+    files:
+    - path: build.md
+      media_type: text/markdown
+      bytes: 235
+    - path: claims.md
+      media_type: text/markdown
+      bytes: 391
+    - path: post.md
+      media_type: text/markdown
+      bytes: 1349
+    claims:
+    - text: The suite holds 100% line and branch coverage, and nothing is committed on red.
+      source_kind: proof
+      source_ref: The gate
+      verified: true
+    - text: Every number reports which tool it came from, which records it counted, and which of those records were missing the field.
+      source_kind: proof
+      source_ref: Introduction
+      verified: true
+    - text: A rebuild never touches the raw store, the snapshots, what the AI parts wrote, or the review decisions people made.
+      source_kind: proof
+      source_ref: How a Rebuild Works
+      verified: true
+    evidence:
+    - kind: brand
+      ref: proof.md
+      detail: The gate holds 100% line and branch coverage; never red.
+    - kind: brand
+      ref: voice.md
+      detail: Plain, specific, concrete. No hype, no hashtags, no emoji.
+    tool_calls:
+    - tool: brand_read
+      ok: true
+      duration_ms: 1580
+      detail: read voice.md, language.md and proof.md
+    - tool: files_write
+      ok: true
+      duration_ms: 1580
+      detail: wrote every file the ask named
+    model: claude-opus-5
+    tokens_in: 9660
+    tokens_out: 1660
+    duration_ms: 46400
+- seq: 4
+  dir: 4-where-a-number-comes-from
+  name: Where a number comes from
+  kind: carousel
+  skill: dw-carousel
+  look: carousel
+  ratio: '4:5'
+  origin: mcp
+  status: ok
+  created_at: '2026-09-03T09:00:00+00:00'
+  versions:
+  - version: 1
+    note: Three facts about DW-OS, carousel at 4:5
+    created_at: '2026-09-03T09:00:00+00:00'
+    files:
+    - path: build.md
+      media_type: text/markdown
+      bytes: 235
+    - path: claims.md
+      media_type: text/markdown
+      bytes: 391
+    - path: slide-01.png
+      media_type: image/png
+      bytes: 35984
+    - path: slide-02.png
+      media_type: image/png
+      bytes: 68401
+    - path: slide-03.png
+      media_type: image/png
+      bytes: 38788
+    claims:
+    - text: The suite holds 100% line and branch coverage, and nothing is committed on red.
+      source_kind: proof
+      source_ref: The gate
+      verified: true
+    - text: Every number reports which tool it came from, which records it counted, and which of those records were missing the field.
+      source_kind: proof
+      source_ref: Introduction
+      verified: true
+    - text: A rebuild never touches the raw store, the snapshots, what the AI parts wrote, or the review decisions people made.
+      source_kind: proof
+      source_ref: How a Rebuild Works
+      verified: true
+    evidence:
+    - kind: brand
+      ref: proof.md
+      detail: The gate holds 100% line and branch coverage; never red.
+    - kind: brand
+      ref: voice.md
+      detail: Plain, specific, concrete. No hype, no hashtags, no emoji.
+    tool_calls:
+    - tool: image_paint
+      ok: true
+      duration_ms: 1670
+      detail: painted one picture, no words in it
+    - tool: image_render
+      ok: true
+      duration_ms: 1670
+      detail: rendered the card over the picture
+    model: claude-opus-5
+    tokens_in: 10390
+    tokens_out: 1920
+    duration_ms: 50600
+- seq: 5
+  dir: 5-a-spreadsheet-has-no-test-gate
+  name: A spreadsheet has no test gate
+  kind: post
+  skill: dw-linkedin-post
+  look: stat-card
+  ratio: '1:1'
+  origin: marketer
+  slot_date: '2026-09-02'
+  slot_name: linkedin_post
+  status: ok
+  created_at: '2026-09-02T10:00:00+00:00'
+  versions:
+  - version: 1
+    note: One thing a spreadsheet cannot do, for the owner
+    created_at: '2026-09-02T10:00:00+00:00'
+    files:
+    - path: build.md
+      media_type: text/markdown
+      bytes: 235
+    - path: claims.md
+      media_type: text/markdown
+      bytes: 391
+    - path: image.png
+      media_type: image/png
+      bytes: 55672
+    - path: post.md
+      media_type: text/markdown
+      bytes: 623
+    claims:
+    - text: The suite holds 100% line and branch coverage, and nothing is committed on red.
+      source_kind: proof
+      source_ref: The gate
+      verified: true
+    - text: Every number reports which tool it came from, which records it counted, and which of those records were missing the field.
+      source_kind: proof
+      source_ref: Introduction
+      verified: true
+    - text: A rebuild never touches the raw store, the snapshots, what the AI parts wrote, or the review decisions people made.
+      source_kind: proof
+      source_ref: How a Rebuild Works
+      verified: true
+    evidence:
+    - kind: brand
+      ref: proof.md
+      detail: The gate holds 100% line and branch coverage; never red.
+    - kind: brand
+      ref: voice.md
+      detail: Plain, specific, concrete. No hype, no hashtags, no emoji.
+    tool_calls:
+    - tool: image_paint
+      ok: true
+      duration_ms: 1760
+      detail: painted one picture, no words in it
+    - tool: image_render
+      ok: true
+      duration_ms: 1760
+      detail: rendered the card over the picture
+    model: claude-opus-5
+    tokens_in: 11120
+    tokens_out: 2180
+    duration_ms: 54800
+- seq: 6
+  dir: 6-the-review-queue-this-week
+  name: The review queue this week
+  kind: newsletter
+  skill: dw-newsletter
+  look: null
+  ratio: null
+  origin: marketer
+  slot_date: '2026-08-31'
+  slot_name: newsletter_weekly
+  status: ok
+  created_at: '2026-09-02T09:00:00+00:00'
+  versions:
+  - version: 1
+    note: This week's letter to the operator
+    created_at: '2026-09-02T09:00:00+00:00'
+    files:
+    - path: build.md
+      media_type: text/markdown
+      bytes: 235
+    - path: claims.md
+      media_type: text/markdown
+      bytes: 391
+    - path: newsletter.html
+      media_type: text/html
+      bytes: 1393
+    - path: newsletter.md
+      media_type: text/markdown
+      bytes: 576
+    claims:
+    - text: The suite holds 100% line and branch coverage, and nothing is committed on red.
+      source_kind: proof
+      source_ref: The gate
+      verified: true
+    - text: Every number reports which tool it came from, which records it counted, and which of those records were missing the field.
+      source_kind: proof
+      source_ref: Introduction
+      verified: true
+    - text: A rebuild never touches the raw store, the snapshots, what the AI parts wrote, or the review decisions people made.
+      source_kind: proof
+      source_ref: How a Rebuild Works
+      verified: true
+    evidence:
+    - kind: brand
+      ref: proof.md
+      detail: The gate holds 100% line and branch coverage; never red.
+    - kind: brand
+      ref: voice.md
+      detail: Plain, specific, concrete. No hype, no hashtags, no emoji.
+    tool_calls:
+    - tool: brand_read
+      ok: true
+      duration_ms: 1850
+      detail: read voice.md, language.md and proof.md
+    - tool: files_write
+      ok: true
+      duration_ms: 1850
+      detail: wrote every file the ask named
+    model: claude-opus-5
+    tokens_in: 11850
+    tokens_out: 2440
+    duration_ms: 59000
+thread:
+  title: a post on the coverage gate
+  created_at: '2026-09-02T09:55:00+00:00'
+  turns:
+  - role: person
+    text: Make a post about the coverage gate for the owner, with the image.
+    created_at: '2026-09-02T09:56:00+00:00'
+  - role: studio
+    text: Writing one post on the test gate, with a stat card at 1:1.
+    created_at: '2026-09-02T09:57:00+00:00'
+    asset: 5

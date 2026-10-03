@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request, Query
 from seeds.helpers import require_bearer, require_basic_auth, offset_paginate
-from seeds.world import PEOPLE, COMPANIES_BY_ID, EMAIL_CAMPAIGNS
+from seeds.world import PEOPLE, COMPANIES_BY_ID, EMAIL_CAMPAIGNS, VENDORS
 
 router = APIRouter()
 
@@ -9,6 +9,11 @@ _API = f"https://{_DC}.api.mailchimp.com/3.0"
 _SCHEMA = f"https://{_DC}.api.mailchimp.com/schema/3.0"
 
 _STATUS = {"sent": "sent", "scheduled": "schedule", "draft": "save"}
+
+_MC = VENDORS["mailchimp"]
+_CONTACT = _MC["contact"]
+_LIST_DATA = _MC["lists"]
+_SLUG = VENDORS["domain"].split(".")[0]
 
 
 def _mc_auth(request: Request):
@@ -36,16 +41,16 @@ def _mc_time(value) -> str:
 
 _LISTS = [
     {
-        "id": "mc_list_001", "web_id": 123456, "name": "Main Newsletter",
-        "contact": {"company": "Acme Corp", "address1": "123 Main St", "address2": "", "city": "San Francisco", "state": "CA", "zip": "94105", "country": "US", "phone": "+1-415-555-0142"},
+        "id": "mc_list_001", "web_id": 123456, "name": _LIST_DATA[0]["name"],
+        "contact": {"company": _CONTACT["company"], "address1": "123 Main St", "address2": "", "city": _CONTACT["city"], "state": _CONTACT["state"], "zip": "94105", "country": "US", "phone": "+1-415-555-0142"},
         "permission_reminder": "You signed up on our website.",
         "use_archive_bar": True,
-        "campaign_defaults": {"from_name": "Acme Team", "from_email": "hello@acme.io", "subject": "", "language": "en"},
-        "notify_on_subscribe": "", "notify_on_unsubscribe": "",
+        "campaign_defaults": {"from_name": _LIST_DATA[0]["from_name"], "from_email": _LIST_DATA[0]["from_email"], "subject": "", "language": "en"},
+        "notify_on_subscribe": "", "notify_on_unsubscribe": _LIST_DATA[0]["notify_on_unsubscribe"],
         "date_created": "2025-01-15T10:00:00+00:00", "list_rating": 4,
         "email_type_option": False,
         "subscribe_url_short": "http://eepurl.com/mock-main",
-        "subscribe_url_long": f"https://acme.{_DC}.list-manage.com/subscribe?u=mock&id=mc_list_001",
+        "subscribe_url_long": f"https://{_SLUG}.{_DC}.list-manage.com/subscribe?u=mock&id=mc_list_001",
         "beamer_address": f"{_DC}-mock-1@inbound.mailchimp.com",
         "visibility": "pub", "double_optin": False, "has_welcome": True,
         "marketing_permissions": False, "modules": [],
@@ -60,16 +65,16 @@ _LISTS = [
         "_links": _mc_links("/lists/mc_list_001", "/lists", "Lists"),
     },
     {
-        "id": "mc_list_002", "web_id": 123457, "name": "Product Updates",
-        "contact": {"company": "Acme Corp", "address1": "123 Main St", "address2": "Suite 400", "city": "San Francisco", "state": "CA", "zip": "94105", "country": "US", "phone": ""},
+        "id": "mc_list_002", "web_id": 123457, "name": _LIST_DATA[1]["name"],
+        "contact": {"company": _CONTACT["company"], "address1": "123 Main St", "address2": "Suite 400", "city": _CONTACT["city"], "state": _CONTACT["state"], "zip": "94105", "country": "US", "phone": ""},
         "permission_reminder": "You opted in for product updates.",
         "use_archive_bar": False,
-        "campaign_defaults": {"from_name": "Acme Product", "from_email": "product@acme.io", "subject": "", "language": "en"},
-        "notify_on_subscribe": "", "notify_on_unsubscribe": "ops@acme.io",
+        "campaign_defaults": {"from_name": _LIST_DATA[1]["from_name"], "from_email": _LIST_DATA[1]["from_email"], "subject": "", "language": "en"},
+        "notify_on_subscribe": "", "notify_on_unsubscribe": _LIST_DATA[1]["notify_on_unsubscribe"],
         "date_created": "2025-06-01T08:00:00+00:00", "list_rating": 3,
         "email_type_option": False,
         "subscribe_url_short": "http://eepurl.com/mock-updates",
-        "subscribe_url_long": f"https://acme.{_DC}.list-manage.com/subscribe?u=mock&id=mc_list_002",
+        "subscribe_url_long": f"https://{_SLUG}.{_DC}.list-manage.com/subscribe?u=mock&id=mc_list_002",
         "beamer_address": f"{_DC}-mock-2@inbound.mailchimp.com",
         "visibility": "prv", "double_optin": True, "has_welcome": False,
         "marketing_permissions": False, "modules": [],
@@ -115,10 +120,10 @@ def _mc_campaign(ec):
         "emails_sent": ec.sends, "send_time": send_time,
         "content_type": "template",
         "needs_block_refresh": False, "resendable": bool(send_time),
-        "recipients": {"list_id": "mc_list_001", "list_is_active": True, "list_name": "Main Newsletter", "segment_text": "", "recipient_count": ec.sends or 4500},
+        "recipients": {"list_id": "mc_list_001", "list_is_active": True, "list_name": _LIST_DATA[0]["name"], "segment_text": "", "recipient_count": ec.sends or 4500},
         "settings": {
             "subject_line": ec.subject, "preview_text": "", "title": ec.name,
-            "from_name": "Acme Team", "reply_to": "hello@acme.io",
+            "from_name": _LIST_DATA[0]["from_name"], "reply_to": _LIST_DATA[0]["from_email"],
             "use_conversation": False, "to_name": "*|FNAME|*", "folder_id": "",
             "authenticate": True, "auto_footer": True, "inline_css": False,
             "auto_tweet": False, "fb_comments": False, "timewarp": False,
@@ -180,7 +185,7 @@ async def campaign_report(request: Request, campaign_id: str):
     ec = next((e for e in EMAIL_CAMPAIGNS if e.id == cid), EMAIL_CAMPAIGNS[0])
     return {
         "id": campaign_id, "campaign_title": ec.name,
-        "type": "regular", "list_id": "mc_list_001", "list_is_active": True, "list_name": "Main Newsletter",
+        "type": "regular", "list_id": "mc_list_001", "list_is_active": True, "list_name": _LIST_DATA[0]["name"],
         "subject_line": ec.subject, "emails_sent": ec.sends,
         "abuse_reports": 0, "unsubscribed": ec.unsubscribes,
         "send_time": _mc_time(ec.sent_at),

@@ -1,8 +1,9 @@
 import importlib
+import os
 import sys
 from pathlib import Path
 
-ADVERSARIAL_ROOT = "/adversarial"
+ADVERSARIAL_ROOT = os.environ.get("ADVERSARIAL_ROOT", "/adversarial")
 
 
 def adversarial():
@@ -14,7 +15,7 @@ def adversarial():
 
 
 def world():
-    if not Path(f"{ADVERSARIAL_ROOT}/seeds/world.py").is_file():
+    if not Path(f"{ADVERSARIAL_ROOT}/seeds/world/__init__.py").is_file():
         return None
     if ADVERSARIAL_ROOT not in sys.path:
         sys.path.insert(0, ADVERSARIAL_ROOT)

@@ -10,13 +10,14 @@ import hashlib
 
 from fastapi import APIRouter, Request, Query
 from seeds.helpers import require_header, offset_paginate
-from seeds.world import PEOPLE, COMPANIES_BY_ID, EMAIL_CAMPAIGNS, SUBSCRIPTIONS_BY_COMPANY
+from seeds.world import PEOPLE, COMPANIES_BY_ID, EMAIL_CAMPAIGNS, SUBSCRIPTIONS_BY_COMPANY, VENDORS
 
 router = APIRouter()
 
 _STATUS_MAP = {"draft": "0", "scheduled": "1", "sending": "2", "sent": "5"}
 
-_ACCOUNT_BASE = "https://acme.api-us1.com"
+_AC = VENDORS["activecampaign"]
+_ACCOUNT_BASE = f"https://{VENDORS['domain'].split('.')[0]}.api-us1.com"
 
 _ORG_IDS = {company_id: str(n + 1) for n, company_id in enumerate(COMPANIES_BY_ID)}
 
@@ -25,6 +26,19 @@ _CONTACT_LINKS = (
     "contactData", "contactDeals", "contactGoals", "contactLists", "contactLogs",
     "contactTags", "deals", "fieldValues", "geoIps", "notes", "organization",
     "plusAppend", "scoreValues", "trackingLogs",
+)
+
+
+_AUTOMATION_SHAPES = (
+    {"status": "1", "entered": "342", "exited": "310", "cdate": "2025-02-01T10:00:00-05:00", "mdate": "2026-07-10T08:00:00-05:00", "links": {"campaigns": "/api/3/automations/1/campaigns", "contactGoals": "/api/3/automations/1/contactGoals"}},
+    {"status": "1", "entered": "120", "exited": "85", "cdate": "2025-04-15T14:00:00-05:00", "mdate": "2026-07-08T09:00:00-05:00", "links": {"campaigns": "/api/3/automations/2/campaigns"}},
+    {"status": "1", "entered": "45", "exited": "12", "cdate": "2025-09-01T08:00:00-05:00", "mdate": "2026-07-12T11:00:00-05:00", "links": {"campaigns": "/api/3/automations/3/campaigns"}},
+)
+
+_DEAL_SHAPES = (
+    {"stage": "3", "status": "0", "cdate": "2026-06-15T10:00:00-05:00", "mdate": "2026-07-14T09:00:00-05:00", "links": {"activities": "/api/3/deals/1/activities", "contact": "/api/3/deals/1/contact", "contactDeals": "/api/3/deals/1/contactDeals"}},
+    {"stage": "2", "status": "0", "cdate": "2026-07-01T11:00:00-05:00", "mdate": "2026-07-12T14:00:00-05:00", "links": {"activities": "/api/3/deals/2/activities"}},
+    {"stage": "4", "status": "1", "cdate": "2026-05-20T08:00:00-05:00", "mdate": "2026-07-01T10:00:00-05:00", "links": {"activities": "/api/3/deals/3/activities"}},
 )
 
 
@@ -122,9 +136,8 @@ async def list_contacts(request: Request, limit: int = Query(20, le=100), offset
 async def list_automations(request: Request, limit: int = Query(20, le=100), offset: int = Query(0)):
     _ac_auth(request)
     automations = [
-        {"id": "1", "name": "Welcome Series", "status": "1", "entered": "342", "exited": "310", "cdate": "2025-02-01T10:00:00-05:00", "mdate": "2026-07-10T08:00:00-05:00", "links": {"campaigns": "/api/3/automations/1/campaigns", "contactGoals": "/api/3/automations/1/contactGoals"}},
-        {"id": "2", "name": "Lead Nurture - Enterprise", "status": "1", "entered": "120", "exited": "85", "cdate": "2025-04-15T14:00:00-05:00", "mdate": "2026-07-08T09:00:00-05:00", "links": {"campaigns": "/api/3/automations/2/campaigns"}},
-        {"id": "3", "name": "Churn Prevention", "status": "1", "entered": "45", "exited": "12", "cdate": "2025-09-01T08:00:00-05:00", "mdate": "2026-07-12T11:00:00-05:00", "links": {"campaigns": "/api/3/automations/3/campaigns"}},
+        {"id": str(n + 1), "name": name, **shape}
+        for n, (name, shape) in enumerate(zip(_AC["automations"], _AUTOMATION_SHAPES, strict=True))
     ]
     page, total = offset_paginate(automations, offset, limit)
     return {"automations": page, "meta": {"total": str(total)}}
@@ -134,9 +147,8 @@ async def list_automations(request: Request, limit: int = Query(20, le=100), off
 async def list_deals(request: Request, limit: int = Query(20, le=100), offset: int = Query(0)):
     _ac_auth(request)
     deals = [
-        {"id": "1", "title": "Acme Corp - Enterprise Upgrade", "value": "480000", "currency": "usd", "contact": "1", "organization": "1", "stage": "3", "status": "0", "cdate": "2026-06-15T10:00:00-05:00", "mdate": "2026-07-14T09:00:00-05:00", "links": {"activities": "/api/3/deals/1/activities", "contact": "/api/3/deals/1/contact", "contactDeals": "/api/3/deals/1/contactDeals"}},
-        {"id": "2", "title": "Wayne Enterprises - Professional", "value": "180000", "currency": "usd", "contact": "11", "organization": "5", "stage": "2", "status": "0", "cdate": "2026-07-01T11:00:00-05:00", "mdate": "2026-07-12T14:00:00-05:00", "links": {"activities": "/api/3/deals/2/activities"}},
-        {"id": "3", "title": "Globex Inc - Renewal", "value": "240000", "currency": "usd", "contact": "4", "organization": "2", "stage": "4", "status": "1", "cdate": "2026-05-20T08:00:00-05:00", "mdate": "2026-07-01T10:00:00-05:00", "links": {"activities": "/api/3/deals/3/activities"}},
+        {"id": str(n + 1), "title": deal["title"], "value": deal["value"], "currency": "usd", "contact": deal["contact"], "organization": deal["organization"], **shape}
+        for n, (deal, shape) in enumerate(zip(_AC["deals"], _DEAL_SHAPES, strict=True))
     ]
     page, total = offset_paginate(deals, offset, limit)
     total_value = sum(int(d["value"]) for d in deals)

@@ -21,7 +21,7 @@ from seeds.helpers import (
     require_query_token,
     window_days,
 )
-from seeds.world import AD_CAMPAIGNS
+from seeds.world import AD_CAMPAIGNS, VENDORS
 
 router = APIRouter()
 
@@ -66,21 +66,10 @@ def _daily_ad_insight(ac, day, until):
     )
 
 
-_POST_MESSAGES = [
-    "Exciting news! We just launched our new feature.",
-    "Join our upcoming webinar on AI in 2026.",
-    "Customer spotlight: How Globex grew 40% with us.",
-    "Three lessons from a year of shipping weekly.",
-    "We are hiring: come build with us.",
-]
+_META = VENDORS["meta"]
+_POST_MESSAGES = _META["posts"]
 _POST_TYPES = ["link", "photo", "video"]
-_MEDIA_CAPTIONS = [
-    "New product launch!",
-    "Behind the scenes",
-    "Quick tip in 60 seconds",
-    "Meet the team",
-    "Weekend reading list",
-]
+_MEDIA_CAPTIONS = _META["captions"]
 _MEDIA_TYPES = ["IMAGE", "VIDEO", "CAROUSEL_ALBUM"]
 
 
@@ -383,9 +372,9 @@ async def page_posts(
 
 def _fixed_posts(page_id):
     return [
-        {"id": f"{page_id}_001", "message": "Exciting news! We just launched our new feature.", "created_time": "2026-07-10T14:00:00+0000", "permalink_url": f"https://www.facebook.com/mybusiness/posts/{page_id}_001", "type": "link", "shares": {"count": 45}, "likes": {"data": [], "summary": {"total_count": 312, "can_like": True, "has_liked": False}}, "comments": {"data": [], "summary": {"total_count": 28, "can_comment": True}}},
-        {"id": f"{page_id}_002", "message": "Join our upcoming webinar on AI in 2026.", "created_time": "2026-07-08T10:00:00+0000", "permalink_url": f"https://www.facebook.com/mybusiness/posts/{page_id}_002", "type": "photo", "shares": {"count": 12}, "likes": {"data": [], "summary": {"total_count": 189, "can_like": True, "has_liked": False}}, "comments": {"data": [], "summary": {"total_count": 15, "can_comment": True}}},
-        {"id": f"{page_id}_003", "message": "Customer spotlight: How Globex grew 40% with us.", "created_time": "2026-07-05T12:00:00+0000", "permalink_url": f"https://www.facebook.com/mybusiness/posts/{page_id}_003", "type": "link", "shares": {"count": 23}, "likes": {"data": [], "summary": {"total_count": 245, "can_like": True, "has_liked": False}}, "comments": {"data": [], "summary": {"total_count": 19, "can_comment": True}}},
+        {"id": f"{page_id}_001", "message": _POST_MESSAGES[0], "created_time": "2026-07-10T14:00:00+0000", "permalink_url": f"https://www.facebook.com/mybusiness/posts/{page_id}_001", "type": "link", "shares": {"count": 45}, "likes": {"data": [], "summary": {"total_count": 312, "can_like": True, "has_liked": False}}, "comments": {"data": [], "summary": {"total_count": 28, "can_comment": True}}},
+        {"id": f"{page_id}_002", "message": _POST_MESSAGES[1], "created_time": "2026-07-08T10:00:00+0000", "permalink_url": f"https://www.facebook.com/mybusiness/posts/{page_id}_002", "type": "photo", "shares": {"count": 12}, "likes": {"data": [], "summary": {"total_count": 189, "can_like": True, "has_liked": False}}, "comments": {"data": [], "summary": {"total_count": 15, "can_comment": True}}},
+        {"id": f"{page_id}_003", "message": _POST_MESSAGES[2], "created_time": "2026-07-05T12:00:00+0000", "permalink_url": f"https://www.facebook.com/mybusiness/posts/{page_id}_003", "type": "link", "shares": {"count": 23}, "likes": {"data": [], "summary": {"total_count": 245, "can_like": True, "has_liked": False}}, "comments": {"data": [], "summary": {"total_count": 19, "can_comment": True}}},
     ]
 
 
@@ -480,7 +469,7 @@ async def me_accounts(request: Request):
     require_query_token(request)
     return {
         "data": [
-            {"id": "page_001", "name": "Acme Corp", "access_token": "mock_page_token_001", "instagram_business_account": {"id": "ig_001"}},
+            {"id": "page_001", "name": _META["page"]["name"], "access_token": "mock_page_token_001", "instagram_business_account": {"id": "ig_001"}},
         ]
     }
 
@@ -503,13 +492,13 @@ async def node_metadata(
     if node_id.startswith("page_"):
         return {
             "id": node_id,
-            "name": "Acme Corp",
+            "name": _META["page"]["name"],
             "followers_count": 12500,
             "fan_count": 12200,
             "rating_count": 48,
             "overall_star_rating": 4.6,
             "talking_about_count": 320,
-            "website": "https://acme.example.com",
+            "website": _META["page"]["website"],
         }
     if node_id.startswith("act_"):
         return {"id": node_id, "timezone_name": "America/Los_Angeles"}
