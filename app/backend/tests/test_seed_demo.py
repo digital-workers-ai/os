@@ -27,6 +27,12 @@ from tools import seed_demo
 NOW = datetime(2026, 9, 4, 12, tzinfo=UTC)
 MANIFEST = seed_demo.STUDIO_FIXTURES / "manifest.yaml"
 MODEL = "claude-opus-5"
+LISTED = {
+    "files": "asset_file",
+    "claims": "asset_claim",
+    "evidence": "asset_evidence",
+    "tool_calls": "skill_run_tool_call",
+}
 
 
 def at(month, day, hour, minute=0) -> datetime:
@@ -374,12 +380,8 @@ def test_manifest_lists_the_sample_library_and_its_files():
             data = (folder / file["path"]).read_bytes()
             assert file["media_type"] == media.media_type(file["path"])
             assert file["bytes"] == len(data)
-    for key in ("files", "claims", "evidence", "tool_calls"):
-        counted = sum(len(version[key]) for _asset, version in versions)
-        assert (
-            counted
-            == COUNTS[f"asset_{key}" if key != "tool_calls" else "skill_run_tool_call"]
-        )
+    for key, table in LISTED.items():
+        assert sum(len(version[key]) for _asset, version in versions) == COUNTS[table]
     assert [turn["role"] for turn in library["thread"]["turns"]] == ["person", "studio"]
 
 

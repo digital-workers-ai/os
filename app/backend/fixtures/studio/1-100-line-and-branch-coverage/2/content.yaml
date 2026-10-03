@@ -1,0 +1,3 @@
+stat: "100%"
+label: line and branch coverage
+support: Nothing is committed on red. The gate runs before a person merges.
