@@ -1,6 +1,5 @@
 import json
 from datetime import UTC, date, datetime, timedelta
-from itertools import chain
 from pathlib import Path
 from typing import NamedTuple
 
@@ -622,17 +621,9 @@ TRANSCRIPT = (
 
 
 def test_the_seed_names_no_brand():
-    source = Path(seed_demo.__file__).read_text().lower()
-    said = " ".join(
-        [
-            *seed_demo.PLAN,
-            *chain.from_iterable(seed_demo.HISTORY.values()),
-            *seed_demo.BRIEFS.values(),
-        ]
-    ).lower()
-    for brand in BRANDS:
-        assert brand not in source
-        assert brand not in said
+    for text in (Path(seed_demo.__file__).read_text(), seed_demo.SEED.read_text()):
+        for brand in BRANDS:
+            assert brand not in text.lower()
 
 
 async def test_meetings_and_briefings_take_company_names_from_the_database(
@@ -643,7 +634,8 @@ async def test_meetings_and_briefings_take_company_names_from_the_database(
         for topic, name in CALLS.items()
     }
     read = await seed_demo.seed_meetings(session, "vocabulary-sha")
-    assert read == sum(2 + len(pains) for _i, _t, pains, _v in seed_demo.PLAN.values())
+    calls = seed_demo.read_seed()["calls"]
+    assert read == sum(2 + len(call["pain_points"]) for call in calls)
     labels = await session.execute(
         select(EnrichedFact.attr, EnrichedFact.value).where(
             EnrichedFact.canonical_id == meetings["security"]
@@ -666,6 +658,120 @@ async def test_meetings_and_briefings_take_company_names_from_the_database(
         for finding in brief.read_manifest["findings"]
     }
     assert findings == {"River Bend", "Pine Street", "Blue Kettle"}
+
+
+def look_alike(pair: str, decided: str | None, number: int) -> dict:
+    return {
+        "pair": pair,
+        "decided": decided,
+        "records": [
+            {
+                "source": "zendesk",
+                "object_type": "users",
+                "source_id": f"3900{number}",
+                "fields": {
+                    "name": f"{pair.title()} Ruiz",
+                    "phone": f"+1415555019{number}",
+                },
+            },
+            {
+                "source": "intercom",
+                "object_type": "contacts",
+                "source_id": f"con_{pair}",
+                "fields": {
+                    "name": f"{pair[0].upper()} Ruiz",
+                    "phone": f"+1 415 555 019{number}",
+                },
+            },
+        ],
+    }
+
+
+SMALL_SEED = {
+    "calls": [
+        {
+            "key": "kickoff",
+            "interest": "weak",
+            "timing": "no_timeline",
+            "pain_points": ["performance"],
+            "verified": True,
+        }
+    ],
+    "tickets": [{"subject": "Locked out", "complaint": "access"}],
+    "briefings": {
+        "ceo": {
+            "history": ["Nothing was read before {kickoff} called."],
+            "latest": "{kickoff} is weak, and {kickoff} names no date.",
+        },
+        "head_of_sales": {"history": [], "latest": "Plain words and no braces."},
+    },
+    "read": {
+        "metrics": {"mrr": 1.0},
+        "goals": {
+            "mrr_target": {"target": 2, "current": 1.0, "met": False},
+            "deals_with_next_step": {"target": None, "current": None, "met": True},
+        },
+        "findings": [{"rule": "stale_deal", "call": "kickoff"}],
+    },
+    "lookalikes": [look_alike("ana", "confirmed", 1), look_alike("ben", None, 2)],
+}
+SMALL_MANIFEST = {
+    "metrics": {"mrr": 1.0},
+    "goals": {
+        "mrr_target": {"target": 2, "current": 1.0, "met": False},
+        "deals_with_next_step": {"met": True},
+    },
+    "findings": [{"rule": "stale_deal", "entity": "Harbor Lane"}],
+}
+
+
+@pytest.fixture
+def small_seed(tmp_path, monkeypatch):
+    path = tmp_path / "seed.yaml"
+    path.write_text(yaml.safe_dump(SMALL_SEED, sort_keys=False))
+    monkeypatch.setattr(seed_demo, "SEED", path)
+
+
+async def test_meetings_tickets_and_briefings_follow_the_seed_file(
+    session, canonical, small_seed
+):
+    kickoff = await canonical(
+        "meeting", {"name": "Harbor Lane — kickoff", "transcript": TRANSCRIPT}
+    )
+    await canonical("meeting", {"name": CALLS["renewal"], "transcript": TRANSCRIPT})
+    locked = await canonical("ticket", {"subject": "Locked out after the update"})
+    await canonical("ticket", {"subject": "Billing discrepancy on June invoice"})
+    assert await seed_demo.seed_meetings(session, "vocabulary-sha") == 3
+    assert await seed_demo.seed_tickets(session, "vocabulary-sha") == 1
+    labels = await session.execute(
+        select(EnrichedFact.canonical_id, EnrichedFact.attr, EnrichedFact.value)
+    )
+    assert set(labels.all()) == {
+        (kickoff, "interest", "weak"),
+        (kickoff, "timing", "no_timeline"),
+        (kickoff, "pain_points", "performance"),
+        (locked, "complaint", "access"),
+    }
+    assert await seed_demo.seed_briefings(session) == 3
+    briefs = await rows(session, BriefingRun, BriefingRun.role, BriefingRun.created_at)
+    assert [(b.role, b.briefing, b.read_manifest) for b in briefs] == [
+        ("ceo", "Nothing was read before Harbor Lane called.", SMALL_MANIFEST),
+        ("ceo", "Harbor Lane is weak, and Harbor Lane names no date.", SMALL_MANIFEST),
+        ("head_of_sales", "Plain words and no braces.", SMALL_MANIFEST),
+    ]
+
+
+async def test_look_alikes_and_their_decisions_follow_the_seed_file(
+    session, small_seed
+):
+    assert await seed_demo.seed_candidates(session) == 2
+    candidates = await rows(session, MergeCandidate, MergeCandidate.left_anchor)
+    assert [
+        (c.left_anchor, c.right_anchor, c.status, c.decided_at) for c in candidates
+    ] == [
+        ("intercom|person|con_ana", "zendesk|person|39001", "confirmed", at(9, 4, 9)),
+        ("intercom|person|con_ben", "zendesk|person|39002", "pending", None),
+    ]
 
 
 async def seed_the_template(session, canonical) -> None:
