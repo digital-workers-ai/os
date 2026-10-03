@@ -1,8 +1,9 @@
 import importlib
+import os
 import sys
 from pathlib import Path
 
-ADVERSARIAL_ROOT = "/adversarial"
+ADVERSARIAL_ROOT = os.environ.get("ADVERSARIAL_ROOT", "/adversarial")
 
 
 def adversarial():
