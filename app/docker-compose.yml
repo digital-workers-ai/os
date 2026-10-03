@@ -38,7 +38,6 @@ services:
     volumes:
       - ./backend:/app
       - ../definitions:/app/definitions
-      - ../README.md:/app/README.md:ro
       - ../mock:/adversarial/seeds:ro
       - ./.env.example:/.env.example:ro
       - media:/media

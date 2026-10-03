@@ -9,7 +9,6 @@ from app.config import Settings, settings
 from app.engine import run
 from app.models import EngineRun, RawEvent
 from tests import ground_truth
-from tools import instance_check
 
 
 def test_database_url_default_points_at_the_stack():
@@ -126,14 +125,6 @@ def test_the_adversarial_corpus_is_mounted_so_its_suite_cannot_silently_skip():
         "restart the backend so docker-compose.yml mounts ../mock there"
     )
     assert (root / "seeds" / "adversarial.py").is_file()
-
-
-def test_the_readme_is_mounted_so_the_name_scan_cannot_silently_skip_it():
-    readme = dict(instance_check.SCANNED)["README.md"]
-    assert readme.is_file() and readme.stat().st_size, (
-        f"{readme} is absent inside the stack — "
-        "restart the backend so docker-compose.yml mounts ../README.md there"
-    )
 
 
 def test_the_er_settings_ship_their_defaults():

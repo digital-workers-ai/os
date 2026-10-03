@@ -44,7 +44,7 @@ runs `python -m tools.instance_check` in the backend container. It prints one li
 - `world`: the world loads through `seeds.world` (`mock/world/data.yaml`, or the file `WORLD_DATA` names when the check's environment sets it) and holds at least one company, one person, a spy brand and one competitor.
 - `fixtures`: every source `mappings.yaml` names has `fixtures/mock/<source>/expected.json` and a record file for each object type it lists.
 - `studio`: `fixtures/studio/manifest.yaml` loads with the seed's own reader and every file it lists exists at the stated byte size.
-- `names`: with `--names FILE`, one term per line, no file under `definitions/`, `mock/world/data.yaml`, `app/backend/fixtures/` or `README.md` carries a term: case-insensitive, whole-word for words, substring for domains and emails. Without the flag the line says the scan was skipped. List the template business's names, domains and addresses, not the tools': `mappings.yaml` names every connector. The README is scanned where the backend sees it, beside `definitions/`, where the compose file mounts it read-only.
+- `names`: with `--names FILE`, one term per line, no file under `definitions/`, `mock/world/data.yaml`, `app/backend/fixtures/` or `README.md` carries a term: case-insensitive, whole-word for words, substring for domains and emails. Without the flag the line says the scan was skipped. List the template business's names, domains and addresses, not the tools': `mappings.yaml` names every connector. The README is scanned where the backend sees it, beside `definitions/`; the compose file does not mount it there, so a container run scans the other three.
 
 ## What the gate does not do
 
