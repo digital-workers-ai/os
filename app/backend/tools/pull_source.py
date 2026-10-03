@@ -52,14 +52,19 @@ async def pull(source: str) -> Pulled:
     return pulled
 
 
+def object_types(source: str, records: dict) -> list[str]:
+    mapped = sorted(
+        {line.object_type for line in mappings.load() if line.source == source}
+    )
+    return list(dict.fromkeys([*records, *mapped]))
+
+
 def assess(source: str, module, records: dict) -> dict:
-    lines = mappings.load()
-    line_index = mappings.by_object(lines)
+    line_index = mappings.by_object(mappings.load())
     transform_map = transforms.load_map()
     onto = ontology.load()
-    mapped = sorted({line.object_type for line in lines if line.source == source})
     assessed: dict = {}
-    for name in dict.fromkeys([*records, *mapped]):
+    for name in object_types(source, records):
         report = SyncReport()
         for line in line_index.get((source, name), []):
             report.declare_path(line.entity, line.key)
@@ -190,9 +195,28 @@ async def report(
     return "\n".join(lines), int(failed)
 
 
+async def report_all(*, capture: Path | None = None) -> tuple[str, int]:
+    lines = []
+    failed = False
+    for source in sorted(registry.discover()):
+        pulled = await pull(source)
+        if pulled.error:
+            failed = True
+            lines.append(f"{source}: error: {pulled.error}")
+            continue
+        names = object_types(source, pulled.records)
+        counts = [f"{name}={len(pulled.records.get(name, []))}" for name in names]
+        lines.append(" ".join([f"{source}:", *counts]))
+        if capture is not None:
+            write_capture(capture, source, pulled.records, names)
+    return "\n".join(lines), int(failed)
+
+
 def parse(argv) -> argparse.Namespace:
     parser = argparse.ArgumentParser(prog="python -m tools.pull_source")
-    parser.add_argument("source", choices=sorted(registry.discover()))
+    which = parser.add_mutually_exclusive_group(required=True)
+    which.add_argument("source", nargs="?", choices=sorted(registry.discover()))
+    which.add_argument("--all", action="store_true")
     parser.add_argument("--compare", action="store_true")
     parser.add_argument("--capture", nargs="?", const=CAPTURES, type=Path)
     return parser.parse_args(argv)
@@ -200,9 +224,12 @@ def parse(argv) -> argparse.Namespace:
 
 def main(argv=None) -> int:
     args = parse(argv)
-    text, code = asyncio.run(
-        report(args.source, compare=args.compare, capture=args.capture)
-    )
+    if args.all:
+        text, code = asyncio.run(report_all(capture=args.capture))
+    else:
+        text, code = asyncio.run(
+            report(args.source, compare=args.compare, capture=args.capture)
+        )
     print(text)
     return code
 
