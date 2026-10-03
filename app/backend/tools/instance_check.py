@@ -4,7 +4,7 @@ import re
 import sys
 from pathlib import Path
 
-from app.caches import BACKEND_DIR, DEFINITIONS_DIR
+from app.caches import DEFINITIONS_DIR
 from app.engine import checks, mappings
 from tests import ground_truth
 from tools import seed_demo
@@ -15,7 +15,7 @@ SCANNED = [
     ("definitions", DEFINITIONS_DIR),
     ("app/backend/fixtures", MOCK_FIXTURES.parent),
     ("mock/world/data.yaml", WORLD_DATA),
-    ("README.md", BACKEND_DIR.parents[1] / "README.md"),
+    ("README.md", DEFINITIONS_DIR.resolve().parent / "README.md"),
 ]
 
 
