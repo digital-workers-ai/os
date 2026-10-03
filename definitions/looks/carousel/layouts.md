@@ -12,14 +12,15 @@ Cover, square and portrait: 1:1, 4:5
 
 ┌────────────────────────────────┐
 │ ┌────────────────────────────┐ │
-│ │  THREE FACTS ABOUT DW-OS   │ │
+│ │  THREE FACTS ABOUT EVERY   │ │
+│ │  NUMBER                    │ │
 │ │                            │ │
 │ │  Where a                   │ │
 │ │  number                    │ │
 │ │  comes from                │ │
 │ │                            │ │
 │ │ ───────────────────────────│ │
-│ │  Digital Workers •  ▬ ● ● ● ● │
+│ │  {logo}             ▬ ● ● ● ● │
 │ └────────────────────────────┘ │
 └────────────────────────────────┘
 
@@ -36,7 +37,7 @@ Slide, square and portrait: 1:1, 4:5
 │ │  which of those records    │ │
 │ │  were missing the field.   │ │
 │ │ ───────────────────────────│ │
-│ │  Digital Workers •   2 / 5 │ │
+│ │  {logo}              2 / 5 │ │
 │ └────────────────────────────┘ │
 └────────────────────────────────┘
 
@@ -45,14 +46,14 @@ Closing, square and portrait: 1:1, 4:5
 ┌────────────────────────────────┐
 │ ┌────────────────────────────┐ │
 │ │                            │ │
-│ │  Open source,              │ │
-│ │  AGPL-3.0                  │ │
+│ │  Every number              │ │
+│ │  carries its source        │ │
 │ │                            │ │
 │ │  ┌──────────────────────┐  │ │
-│ │  │ github.com/digital-  │  │ │
-│ │  │ workers-ai/os        │  │ │
+│ │  │ Ask where yours      │  │ │
+│ │  │ come from            │  │ │
 │ │  └──────────────────────┘  │ │
 │ │ ───────────────────────────│ │
-│ │  Digital Workers •   5 / 5 │ │
+│ │  {logo}              5 / 5 │ │
 │ └────────────────────────────┘ │
 └────────────────────────────────┘

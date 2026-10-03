@@ -19,9 +19,9 @@ Square and portrait: 1:1, 4:5, 9:16
 │ │  those records were        │ │
 │ │  missing the field.        │ │
 │ │                            │ │
-│ │  — DW-OS, README           │ │
+│ │  — The README              │ │
 │ │ ───────────────────────────│ │
-│ │  Digital Workers •   DW-OS │ │
+│ │  {logo}            {brand} │ │
 │ └────────────────────────────┘ │
 └────────────────────────────────┘
 
@@ -33,8 +33,8 @@ Landscape: 16:9
 │ │  Every number can tell you which tool it came      │ │
 │ │  from, which records it counted, and which of      │ │
 │ │  those records were missing the field.             │ │
-│ │  — DW-OS, README                                   │ │
+│ │  — The README                                      │ │
 │ │ ───────────────────────────────────────────────────│ │
-│ │  Digital Workers •                           DW-OS │ │
+│ │  {logo}                                    {brand} │ │
 │ └────────────────────────────────────────────────────┘ │
 └────────────────────────────────────────────────────────┘

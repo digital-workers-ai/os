@@ -10,6 +10,7 @@ from app.engine import brand
 SHIPPED = Path(caches.DEFINITIONS_DIR) / "brand"
 
 CONTRACT_TOKENS = {
+    "name": "DW-OS",
     "logo": "assets/logo.svg",
     "colors": {
         "ink": "#1A1A1A",
