@@ -619,6 +619,25 @@ TRANSCRIPT = (
     "We would want to decide inside the next three months if the numbers hold."
 )
 
+REP_AND_PROSPECT = (
+    "Ines Duarte (Acme Dental): Our group pricing starts at forty seats and covers "
+    "everyone.\n"
+    "Sam Okafor: The pricing for forty people is more than we budgeted this year."
+)
+
+
+def test_the_rep_is_whoever_speaks_under_an_affiliation_whatever_it_names():
+    assert seed_demo.sentence(REP_AND_PROSPECT, "pricing") == (
+        "The pricing for forty people is more than we budgeted this year."
+    )
+
+
+def test_with_no_affiliated_speaker_every_line_is_read():
+    plain = REP_AND_PROSPECT.replace(" (Acme Dental)", "")
+    assert seed_demo.sentence(plain, "pricing") == (
+        "Our group pricing starts at forty seats and covers everyone."
+    )
+
 
 def test_the_seed_names_no_brand():
     for text in (Path(seed_demo.__file__).read_text(), seed_demo.SEED.read_text()):
