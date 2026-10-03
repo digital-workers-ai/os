@@ -13,10 +13,11 @@ from app.engine.report import SyncReport
 from app.sources import registry
 from app.sources.activecampaign import extract
 from app.sources.paginators import Offset
+from tests import ground_truth
 from tools.pull_source import json_type
 
 FIXTURES = checks.REAL_FIXTURES.parent / "mock" / "activecampaign"
-SEEDS_ROOT = "/adversarial"
+SEEDS_ROOT = ground_truth.ADVERSARIAL_ROOT
 ACCOUNT_HOST = "https://acme.api-us1.com"
 
 LIVE_CONTACT = {
