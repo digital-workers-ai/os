@@ -6,9 +6,11 @@ import openai
 import pytest
 
 from app.config import settings
+from app.engine import brand, looks
 from app.llm import paint as llm_paint
 from app.render import image
 from app.render.client import SIZES, Painter, Render, RenderError
+from tests.test_looks import IMAGE_LOOKS
 
 PNG = b"\x89PNG\r\n\x1a\nfake"
 STAT = {
@@ -52,6 +54,10 @@ class FakePaint:
 
 def _painted(png=PNG):
     return [SimpleNamespace(b64_json=base64.b64encode(png).decode())]
+
+
+def _sample_html(look):
+    return image.html(look, image.fit(look, looks.read(look)["sample"]), "1:1", None)
 
 
 class TestRender:
@@ -210,6 +216,18 @@ class TestHtml:
     def test_a_missing_variable_is_an_error_not_an_empty_string(self):
         with pytest.raises(Exception, match="undefined"):
             image.html("carousel", CAROUSEL["cover"], "4:5", None, "cover")
+
+    @pytest.mark.parametrize("look", IMAGE_LOOKS)
+    def test_the_footer_names_the_brand_from_the_tokens(self, monkeypatch, look):
+        tokens = {**brand.tokens(), "name": "Acme Tools"}
+        monkeypatch.setattr(brand, "tokens", lambda: tokens)
+        html = _sample_html(look)
+        assert "<span>Acme Tools</span>" in html
+        assert "DW-OS" not in html
+
+    @pytest.mark.parametrize("look", IMAGE_LOOKS)
+    def test_the_shipped_footer_reads_dw_os(self, look):
+        assert "<span>DW-OS</span>" in _sample_html(look)
 
 
 class TestRenderImage:
