@@ -284,8 +284,6 @@ Because all of it lives in a repository, your business is versioned. Changing wh
 └─────────────────┴───────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-To run OS on another business, supply the files [INSTANCE.md](INSTANCE.md) lists and prove them with `./test.sh instance`.
-
 Briefings follow the same idea. A briefing is a few paragraphs a model writes for one job—the owner or the head of sales—saying what moved, which targets are on track, and which customers need attention. Each morning it is written fresh and each person gets a notification with theirs. What a job's briefing talks about is set by a short prompt file in plain English: what that reader cares about, in what order, at what length. One file per job, and the file is the job. Add one for the CFO and there is a CFO briefing; delete it and there is not. The prompt is versioned like everything else here, so a briefing that reads differently this month can be traced to the day someone changed the wording.
 
 ## The Dashboard
