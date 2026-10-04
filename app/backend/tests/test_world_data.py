@@ -1,16 +1,18 @@
-import json
+import importlib
 import os
 import re
 import subprocess
 import sys
 from pathlib import Path
 
+import httpx
 import pytest
 import yaml
+from fastapi import FastAPI
 
 from app.engine import spy
-from app.sources.google_ads_transparency import connector
 from tests import ground_truth
+from tools import instance_check
 
 MOCK = Path(ground_truth.ADVERSARIAL_ROOT) / "seeds"
 DATA = MOCK / "world" / "data.yaml"
@@ -55,21 +57,17 @@ def test_the_mock_names_no_brand_from_the_world(path, terms):
     assert not found, f"{path.relative_to(MOCK)} names {found}"
 
 
-def in_the_world(env: dict[str, str], code: str, *args: str) -> str:
-    clean = {k: v for k, v in os.environ.items() if k != "WORLD_DATA"}
-    run = subprocess.run(
-        [sys.executable, "-c", code, *args],
-        capture_output=True,
-        text=True,
-        env={**clean, **env, "PYTHONPATH": ground_truth.ADVERSARIAL_ROOT},
-    )
-    assert run.returncode == 0, run.stderr
-    return run.stdout.strip()
-
-
 def world_brand(env: dict[str, str]) -> str:
     code = "import seeds.world as world; print(world.SPY_BRAND['name'])"
-    return in_the_world(env, code)
+    clean = {k: v for k, v in os.environ.items() if k != "WORLD_DATA"}
+    run = subprocess.run(
+        [sys.executable, "-c", code],
+        capture_output=True,
+        text=True,
+        check=True,
+        env={**clean, **env, "PYTHONPATH": ground_truth.ADVERSARIAL_ROOT},
+    )
+    return run.stdout.strip()
 
 
 def test_the_world_loads_the_file_named_by_world_data(tmp_path):
@@ -84,84 +82,100 @@ def test_the_world_loads_the_bundled_data_without_world_data():
     assert world_brand({}) == load_data()["spy"]["brand"]["name"]
 
 
-ASK = """
-import json, sys
-from fastapi.testclient import TestClient
-from seeds.server import app
-client = TestClient(app, headers={"Authorization": "Bearer mock_key"})
-print(json.dumps([client.request(**call).json() for call in json.loads(sys.argv[1])]))
-"""
+HANDLES = ("linkedin", "x", "instagram", "google_advertiser_id", "meta_page_id")
+ASKED = {
+    "linkedin": lambda world, company: [
+        *world.spy_posts(company["linkedin"]),
+        *world.spy_linkedin_ads(company["name"]),
+    ],
+    "x": lambda world, company: world.spy_x_posts(company["x"]),
+    "instagram": lambda world, company: world.spy_instagram_posts(company["instagram"]),
+    "google_advertiser_id": lambda world, company: world.spy_ads(
+        company["google_advertiser_id"]
+    ),
+    "meta_page_id": lambda world, company: [
+        *world.spy_meta_ads(company["meta_page_id"]),
+        *world.spy_meta_pages(company["name"]),
+    ],
+}
 
 
-def ask(env: dict[str, str], *calls: dict) -> list[dict]:
-    return json.loads(in_the_world(env, ASK, json.dumps(calls)))
-
-
-def serpapi(**params) -> dict:
-    return {
-        "method": "GET",
-        "url": "/serpapi/search.json",
-        "params": {"api_key": "mock_key", **params},
+@pytest.fixture
+def fresh_mock():
+    saved = {
+        name: m for name, m in sys.modules.items() if name.split(".")[0] == "seeds"
     }
+    for name in saved:
+        del sys.modules[name]
+    yield
+    for name in [name for name in sys.modules if name.split(".")[0] == "seeds"]:
+        del sys.modules[name]
+    sys.modules.update(saved)
 
 
-def searchapi(**params) -> dict:
-    return {"method": "GET", "url": "/searchapi/api/v1/search", "params": params}
+def without(field: str, tmp_path, monkeypatch) -> tuple[dict, dict]:
+    data = load_data()
+    bare, full = data["spy"]["competitors"][:2]
+    asked = dict(bare)
+    del bare[field]
+    world = tmp_path / "world.yaml"
+    world.write_text(yaml.safe_dump(data))
+    monkeypatch.setenv("WORLD_DATA", str(world))
+    named = yaml.safe_load(spy.DEFAULT_SPY.read_text())
+    del named["competitors"][0][field]
+    definitions = tmp_path / "spy.yaml"
+    definitions.write_text(yaml.safe_dump(named))
+    monkeypatch.setattr(spy, "DEFAULT_SPY", definitions)
+    return asked, full
 
 
-class TestAWorldWhoseCompetitorsCarryNoHandles:
-    @pytest.fixture
-    def names(self) -> list[str]:
-        return [c["name"] for c in load_data()["spy"]["competitors"]]
+@pytest.mark.parametrize("field", HANDLES)
+def test_a_competitor_without_a_handle_loads_and_that_stand_in_has_nothing_for_it(
+    field, tmp_path, monkeypatch, fresh_mock
+):
+    bare, full = without(field, tmp_path, monkeypatch)
+    world = ground_truth.world()
+    assert instance_check.check_world() == []
+    assert ASKED[field](world, bare) == []
+    assert ASKED[field](world, full) != []
 
-    @pytest.fixture
-    def bare(self, tmp_path) -> dict[str, str]:
-        data = load_data()
-        data["spy"]["competitors"] = [
-            {key: competitor[key] for key in spy.BRAND_KEYS}
-            for competitor in data["spy"]["competitors"]
-        ]
-        other = tmp_path / "world.yaml"
-        other.write_text(yaml.safe_dump(data))
-        return {"WORLD_DATA": str(other)}
 
-    def test_the_mock_serves(self, bare):
-        [health] = ask(bare, {"method": "GET", "url": "/health"})
-        assert health["status"] == "ok"
-
-    def test_the_ads_transparency_center_finds_no_advertiser(self, bare, names):
-        calls = [
-            serpapi(engine="google_ads_transparency_center", advertiser_id="AR0"),
-            *(serpapi(engine="google_ads_transparency_center", text=n) for n in names),
-        ]
-        answers = ask(bare, *calls)
-        assert {a["error"] for a in answers} == {
-            "Google hasn't returned any results for this query."
-        }
-
-    def test_the_ad_reader_still_reads_an_image(self, bare):
-        image = "https://tpc.googlesyndication.com/archive/simgad/1"
-        call = {
-            "method": "POST",
-            "url": "/openrouter/api/v1/chat/completions",
-            "json": connector._read_request(image),
-        }
-        [answer] = ask(bare, call)
-        assert answer["choices"][0]["message"]["content"]
-
-    def test_the_linkedin_ad_library_finds_no_ads(self, bare, names):
-        calls = [
-            searchapi(engine="linkedin_ad_library_ad_details", ad_id="1"),
-            *(searchapi(engine="linkedin_ad_library", advertiser=n) for n in names),
-        ]
-        answers = ask(bare, *calls)
-        assert {a["error"] for a in answers} == {
-            "LinkedIn Ad Library didn't return any results."
-        }
-
-    def test_the_meta_page_search_finds_no_page(self, bare, names):
-        calls = [searchapi(engine="meta_ad_library_page_search", q=n) for n in names]
-        answers = ask(bare, *calls)
-        assert {a["error"] for a in answers} == {
-            "Meta Ad Library page search didn't return any results."
-        }
+async def test_without_an_advertiser_id_the_ad_stand_ins_answer_no_results(
+    tmp_path, monkeypatch, fresh_mock
+):
+    bare, full = without("google_advertiser_id", tmp_path, monkeypatch)
+    world = ground_truth.world()
+    serpapi = importlib.import_module("seeds.providers.serpapi")
+    openrouter = importlib.import_module("seeds.providers.openrouter")
+    app = FastAPI()
+    app.include_router(serpapi.router, prefix="/serpapi")
+    app.include_router(openrouter.router, prefix="/openrouter")
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://mock") as client:
+        for asked in (
+            {"text": bare["domain"]},
+            {"advertiser_id": bare["google_advertiser_id"]},
+        ):
+            found = await client.get(
+                "/serpapi/search.json",
+                params={
+                    "api_key": "mock_serpapi_key",
+                    "engine": "google_ads_transparency_center",
+                    **asked,
+                },
+            )
+            assert found.json()["error"] == serpapi.NO_RESULTS
+        ad = next(
+            a for a in world.spy_ads(full["google_advertiser_id"]) if "image" in a
+        )
+        image = {"type": "image_url", "image_url": {"url": ad["image"]}}
+        read = await client.post(
+            "/openrouter/api/v1/chat/completions",
+            headers={"Authorization": "Bearer mock_openrouter_key"},
+            json={
+                "model": "openai/gpt-5.6-luna",
+                "messages": [{"role": "user", "content": [image]}],
+            },
+        )
+    message = read.json()["choices"][0]["message"]
+    assert message["content"] == world.spy_ad_text(ad["ad_creative_id"])
