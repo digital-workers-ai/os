@@ -24,6 +24,8 @@ _RATES = {
 
 _REDIRECT = "https://vertexaisearch.cloud.google.com/grounding-api-redirect/"
 
+_ADVERTISERS = [c for c in world.SPY_COMPETITORS if "google_advertiser_id" in c]
+
 
 def _error(status, message, **extra):
     return JSONResponse(
@@ -138,7 +140,7 @@ def _completion(model, engine, seed, content, annotations, prompt_tokens, search
 
 
 def _creative_id(image):
-    for company in world.SPY_COMPETITORS:
+    for company in _ADVERTISERS:
         for ad in world.spy_ads(company["google_advertiser_id"]):
             if ad.get("image") == image:
                 return ad["ad_creative_id"]
