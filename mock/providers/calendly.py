@@ -8,12 +8,28 @@ Bearer auth. Token pagination via page_token/next_page_token.
 from fastapi import APIRouter, Request, Query
 from fastapi.responses import JSONResponse
 from seeds.helpers import require_bearer, token_paginate
-from seeds.world import PEOPLE, COMPANIES_BY_ID
+from seeds.world import COMPANIES_BY_ID, PEOPLE_BY_ID, VENDORS
 
 router = APIRouter()
 
 _USER_URI = "https://api.calendly.com/users/abc123def456"
 _ORG_URI = "https://api.calendly.com/organizations/org789"
+
+_CAL = VENDORS["calendly"]
+_HOST = _CAL["host"]
+_TYPES = _CAL["event_types"]
+_INVITEES = _CAL["invitees"]
+_MEMBERSHIP = {"user": _USER_URI, "user_email": _HOST["email"], "user_name": _HOST["name"]}
+
+
+def _invitee(invitee_id: str) -> dict:
+    person = PEOPLE_BY_ID[_INVITEES[invitee_id]]
+    return {"email": person.email, "name": f"{person.first_name} {person.last_name}", "first_name": person.first_name, "last_name": person.last_name}
+
+
+def _company_answer(invitee_id: str) -> dict:
+    person = PEOPLE_BY_ID[_INVITEES[invitee_id]]
+    return {"question": "Company name", "answer": COMPANIES_BY_ID[person.company_id].name, "position": 0}
 
 _SCOPE_MESSAGE = "At least one of organization, group or user must be filled"
 _SCOPE_REQUIRED = {
@@ -29,7 +45,7 @@ _SCOPE_REQUIRED = {
 _EVENTS = [
     {
         "uri": "https://api.calendly.com/scheduled_events/evt_001",
-        "name": "30 Minute Demo",
+        "name": _TYPES[0],
         "status": "active",
         "start_time": "2026-06-05T14:00:00.000000Z",
         "end_time": "2026-06-05T14:30:00.000000Z",
@@ -38,12 +54,12 @@ _EVENTS = [
         "invitees_counter": {"total": 1, "active": 1, "limit": 1},
         "created_at": "2026-06-03T09:15:00.000000Z",
         "updated_at": "2026-06-03T09:15:00.000000Z",
-        "event_memberships": [{"user": _USER_URI, "user_email": "jane@acme.io", "user_name": "Jane Smith"}],
+        "event_memberships": [_MEMBERSHIP],
         "calendar_event": {"kind": "google", "external_id": "google_cal_abc123"},
     },
     {
         "uri": "https://api.calendly.com/scheduled_events/evt_002",
-        "name": "Discovery Call",
+        "name": _TYPES[1],
         "status": "active",
         "start_time": "2026-06-10T16:00:00.000000Z",
         "end_time": "2026-06-10T16:45:00.000000Z",
@@ -52,12 +68,12 @@ _EVENTS = [
         "invitees_counter": {"total": 2, "active": 2, "limit": 5},
         "created_at": "2026-06-08T11:30:00.000000Z",
         "updated_at": "2026-06-08T11:30:00.000000Z",
-        "event_memberships": [{"user": _USER_URI, "user_email": "jane@acme.io", "user_name": "Jane Smith"}],
+        "event_memberships": [_MEMBERSHIP],
         "calendar_event": {"kind": "google", "external_id": "google_cal_def456"},
     },
     {
         "uri": "https://api.calendly.com/scheduled_events/evt_003",
-        "name": "30 Minute Demo",
+        "name": _TYPES[0],
         "status": "canceled",
         "start_time": "2026-06-15T10:00:00.000000Z",
         "end_time": "2026-06-15T10:30:00.000000Z",
@@ -67,12 +83,12 @@ _EVENTS = [
         "created_at": "2026-06-12T08:45:00.000000Z",
         "updated_at": "2026-06-14T16:00:00.000000Z",
         "cancellation": {"canceled_by": "Invitee", "reason": "Schedule conflict"},
-        "event_memberships": [{"user": _USER_URI, "user_email": "jane@acme.io", "user_name": "Jane Smith"}],
+        "event_memberships": [_MEMBERSHIP],
         "calendar_event": {"kind": "google", "external_id": "google_cal_ghi789"},
     },
     {
         "uri": "https://api.calendly.com/scheduled_events/evt_004",
-        "name": "Product Walkthrough",
+        "name": _TYPES[2],
         "status": "active",
         "start_time": "2026-06-20T11:00:00.000000Z",
         "end_time": "2026-06-20T11:45:00.000000Z",
@@ -81,12 +97,12 @@ _EVENTS = [
         "invitees_counter": {"total": 1, "active": 1, "limit": 1},
         "created_at": "2026-06-18T14:00:00.000000Z",
         "updated_at": "2026-06-18T14:00:00.000000Z",
-        "event_memberships": [{"user": _USER_URI, "user_email": "jane@acme.io", "user_name": "Jane Smith"}],
+        "event_memberships": [_MEMBERSHIP],
         "calendar_event": {"kind": "google", "external_id": "google_cal_jkl012"},
     },
     {
         "uri": "https://api.calendly.com/scheduled_events/evt_005",
-        "name": "Quarterly Review",
+        "name": _TYPES[3],
         "status": "active",
         "start_time": "2026-07-01T15:00:00.000000Z",
         "end_time": "2026-07-01T16:00:00.000000Z",
@@ -95,7 +111,7 @@ _EVENTS = [
         "invitees_counter": {"total": 3, "active": 3, "limit": 5},
         "created_at": "2026-06-25T09:00:00.000000Z",
         "updated_at": "2026-06-25T09:00:00.000000Z",
-        "event_memberships": [{"user": _USER_URI, "user_email": "jane@acme.io", "user_name": "Jane Smith"}],
+        "event_memberships": [_MEMBERSHIP],
         "calendar_event": {"kind": "google", "external_id": "google_cal_mno345"},
     },
 ]
@@ -104,11 +120,11 @@ _INVITEES = {
     "evt_001": [
         {
             "uri": "https://api.calendly.com/scheduled_events/evt_001/invitees/inv_001",
-            "email": "mike@globex.com", "name": "Mike Chen", "first_name": "Mike", "last_name": "Chen",
+            **_invitee("inv_001"),
             "status": "active", "timezone": "America/Chicago",
             "created_at": "2026-06-03T09:15:00.000000Z", "updated_at": "2026-06-03T09:15:00.000000Z",
             "event": "https://api.calendly.com/scheduled_events/evt_001",
-            "questions_and_answers": [{"question": "Company name", "answer": "Globex Inc", "position": 0}],
+            "questions_and_answers": [_company_answer("inv_001")],
             "tracking": {"utm_campaign": None, "utm_source": None, "utm_medium": None, "utm_term": None, "utm_content": None, "salesforce_uuid": None},
             "text_reminder_number": None, "rescheduled": False, "routing_form_submission": None, "payment": None, "no_show": None,
         },
@@ -116,20 +132,20 @@ _INVITEES = {
     "evt_002": [
         {
             "uri": "https://api.calendly.com/scheduled_events/evt_002/invitees/inv_002",
-            "email": "bob@soylent.co", "name": "Bob Smith", "first_name": "Bob", "last_name": "Smith",
+            **_invitee("inv_002"),
             "status": "active", "timezone": "America/Los_Angeles",
             "created_at": "2026-06-08T11:30:00.000000Z", "updated_at": "2026-06-08T11:30:00.000000Z",
             "event": "https://api.calendly.com/scheduled_events/evt_002",
             "questions_and_answers": [
-                {"question": "Company name", "answer": "Soylent Corp", "position": 0},
-                {"question": "What would you like to discuss?", "answer": "Interested in the Enterprise plan", "position": 1},
+                _company_answer("inv_002"),
+                {"question": _CAL["question"], "answer": _CAL["answer"], "position": 1},
             ],
             "tracking": {"utm_campaign": "summer_promo", "utm_source": "linkedin", "utm_medium": "paid_social", "utm_term": None, "utm_content": None, "salesforce_uuid": None},
             "text_reminder_number": None, "rescheduled": False, "routing_form_submission": None, "payment": None, "no_show": None,
         },
         {
             "uri": "https://api.calendly.com/scheduled_events/evt_002/invitees/inv_003",
-            "email": "alice@soylent.co", "name": "Alice Martinez", "first_name": "Alice", "last_name": "Martinez",
+            **_invitee("inv_003"),
             "status": "active", "timezone": "America/Los_Angeles",
             "created_at": "2026-06-08T12:00:00.000000Z", "updated_at": "2026-06-08T12:00:00.000000Z",
             "event": "https://api.calendly.com/scheduled_events/evt_002",
@@ -141,11 +157,11 @@ _INVITEES = {
     "evt_003": [
         {
             "uri": "https://api.calendly.com/scheduled_events/evt_003/invitees/inv_004",
-            "email": "tom@initech.io", "name": "Tom Williams", "first_name": "Tom", "last_name": "Williams",
+            **_invitee("inv_004"),
             "status": "canceled", "timezone": "America/Chicago",
             "created_at": "2026-06-12T08:45:00.000000Z", "updated_at": "2026-06-14T16:00:00.000000Z",
             "event": "https://api.calendly.com/scheduled_events/evt_003",
-            "questions_and_answers": [{"question": "Company name", "answer": "Initech LLC", "position": 0}],
+            "questions_and_answers": [_company_answer("inv_004")],
             "tracking": {"utm_campaign": None, "utm_source": None, "utm_medium": None, "utm_term": None, "utm_content": None, "salesforce_uuid": None},
             "text_reminder_number": None, "rescheduled": False, "routing_form_submission": None, "payment": None, "no_show": None,
             "cancellation": {"canceled_by": "Invitee", "reason": "Schedule conflict"},
@@ -154,11 +170,11 @@ _INVITEES = {
     "evt_004": [
         {
             "uri": "https://api.calendly.com/scheduled_events/evt_004/invitees/inv_005",
-            "email": "lisa.park@globex.com", "name": "Lisa Park", "first_name": "Lisa", "last_name": "Park",
+            **_invitee("inv_005"),
             "status": "active", "timezone": "America/Chicago",
             "created_at": "2026-06-18T14:00:00.000000Z", "updated_at": "2026-06-18T14:00:00.000000Z",
             "event": "https://api.calendly.com/scheduled_events/evt_004",
-            "questions_and_answers": [{"question": "Company name", "answer": "Globex Inc", "position": 0}],
+            "questions_and_answers": [_company_answer("inv_005")],
             "tracking": {"utm_campaign": None, "utm_source": None, "utm_medium": None, "utm_term": None, "utm_content": None, "salesforce_uuid": None},
             "text_reminder_number": None, "rescheduled": False, "routing_form_submission": None, "payment": None, "no_show": None,
         },
@@ -166,17 +182,17 @@ _INVITEES = {
     "evt_005": [
         {
             "uri": "https://api.calendly.com/scheduled_events/evt_005/invitees/inv_006",
-            "email": "tom@initech.io", "name": "Tom Williams", "first_name": "Tom", "last_name": "Williams",
+            **_invitee("inv_006"),
             "status": "active", "timezone": "America/Chicago",
             "created_at": "2026-06-25T09:00:00.000000Z", "updated_at": "2026-06-25T09:00:00.000000Z",
             "event": "https://api.calendly.com/scheduled_events/evt_005",
-            "questions_and_answers": [{"question": "Company name", "answer": "Initech LLC", "position": 0}],
+            "questions_and_answers": [_company_answer("inv_006")],
             "tracking": {"utm_campaign": None, "utm_source": None, "utm_medium": None, "utm_term": None, "utm_content": None, "salesforce_uuid": None},
             "text_reminder_number": None, "rescheduled": False, "routing_form_submission": None, "payment": None, "no_show": None,
         },
         {
             "uri": "https://api.calendly.com/scheduled_events/evt_005/invitees/inv_007",
-            "email": "amy.brown@initech.io", "name": "Amy Brown", "first_name": "Amy", "last_name": "Brown",
+            **_invitee("inv_007"),
             "status": "active", "timezone": "America/Chicago",
             "created_at": "2026-06-25T09:05:00.000000Z", "updated_at": "2026-06-25T09:05:00.000000Z",
             "event": "https://api.calendly.com/scheduled_events/evt_005",
@@ -186,7 +202,7 @@ _INVITEES = {
         },
         {
             "uri": "https://api.calendly.com/scheduled_events/evt_005/invitees/inv_008",
-            "email": "chris@initech.io", "name": "Chris Taylor", "first_name": "Chris", "last_name": "Taylor",
+            **_invitee("inv_008"),
             "status": "active", "timezone": "America/Chicago",
             "created_at": "2026-06-25T09:10:00.000000Z", "updated_at": "2026-06-25T09:10:00.000000Z",
             "event": "https://api.calendly.com/scheduled_events/evt_005",
@@ -204,10 +220,10 @@ async def users_me(request: Request):
     return {
         "resource": {
             "uri": _USER_URI,
-            "name": "Jane Smith",
-            "slug": "jane-smith",
-            "email": "jane@acme.io",
-            "scheduling_url": "https://calendly.com/jane-smith",
+            "name": _HOST["name"],
+            "slug": _HOST["slug"],
+            "email": _HOST["email"],
+            "scheduling_url": f"https://calendly.com/{_HOST['slug']}",
             "timezone": "America/New_York",
             "avatar_url": None,
             "created_at": "2025-01-15T10:30:00.000000Z",

@@ -8,8 +8,11 @@ Bearer auth. Cursor pagination on sessions/search.
 from fastapi import APIRouter, Request, Query, HTTPException
 from pydantic import BaseModel
 from seeds.helpers import require_bearer, cursor_paginate
+from seeds.world import VENDORS
 
 router = APIRouter()
+
+_SITE = f"https://{VENDORS['domain']}"
 
 _EVENTS = [
     {"id": "evt_click_signup", "name": "click_signup_button", "type": "custom", "created_at": "2026-01-15T10:00:00Z"},
@@ -27,8 +30,8 @@ _SESSIONS = [
         "duration": 185,
         "startedAt": "2026-06-15T14:32:10.000Z",
         "endedAt": "2026-06-15T14:35:15.000Z",
-        "landingPage": "https://acme.io/pricing",
-        "exitPage": "https://acme.io/signup",
+        "landingPage": f"{_SITE}/pricing",
+        "exitPage": f"{_SITE}/signup",
         "referrer": "https://www.google.com/",
         "identification": {
             "browser": {"name": "Chrome", "version": "126.0"},
@@ -36,7 +39,7 @@ _SESSIONS = [
             "country": {"city": "San Francisco", "region": "California", "code": "US"},
             "device": {"type": "desktop"},
         },
-        "pageUrl": ["https://acme.io/pricing", "https://acme.io/features", "https://acme.io/signup"],
+        "pageUrl": [f"{_SITE}/pricing", f"{_SITE}/features", f"{_SITE}/signup"],
         "eventsCount": 12,
         "dashboardURL": "https://app.smartlook.com/recordings/sess_abc123",
     },
@@ -46,8 +49,8 @@ _SESSIONS = [
         "duration": 42,
         "startedAt": "2026-06-15T15:10:00.000Z",
         "endedAt": "2026-06-15T15:10:42.000Z",
-        "landingPage": "https://acme.io/",
-        "exitPage": "https://acme.io/",
+        "landingPage": f"{_SITE}/",
+        "exitPage": f"{_SITE}/",
         "referrer": "",
         "identification": {
             "browser": {"name": "Safari", "version": "18.0"},
@@ -55,7 +58,7 @@ _SESSIONS = [
             "country": {"city": "London", "region": "England", "code": "GB"},
             "device": {"type": "mobile"},
         },
-        "pageUrl": ["https://acme.io/"],
+        "pageUrl": [f"{_SITE}/"],
         "eventsCount": 3,
         "dashboardURL": "https://app.smartlook.com/recordings/sess_def456",
     },
@@ -65,8 +68,8 @@ _SESSIONS = [
         "duration": 320,
         "startedAt": "2026-06-16T09:00:00.000Z",
         "endedAt": "2026-06-16T09:05:20.000Z",
-        "landingPage": "https://acme.io/blog/ai-2026",
-        "exitPage": "https://acme.io/signup",
+        "landingPage": f"{_SITE}/blog/ai-2026",
+        "exitPage": f"{_SITE}/signup",
         "referrer": "https://twitter.com/",
         "identification": {
             "browser": {"name": "Firefox", "version": "128.0"},
@@ -74,7 +77,7 @@ _SESSIONS = [
             "country": {"city": "Austin", "region": "Texas", "code": "US"},
             "device": {"type": "desktop"},
         },
-        "pageUrl": ["https://acme.io/blog/ai-2026", "https://acme.io/pricing", "https://acme.io/signup"],
+        "pageUrl": [f"{_SITE}/blog/ai-2026", f"{_SITE}/pricing", f"{_SITE}/signup"],
         "eventsCount": 8,
         "dashboardURL": "https://app.smartlook.com/recordings/sess_ghi789",
     },
@@ -82,12 +85,12 @@ _SESSIONS = [
 
 _VISITOR_EVENTS = {
     "vis_xyz789": [
-        {"type": "page_visit", "url": "https://acme.io/pricing", "timestamp": 1718458330000, "duration": 45000},
+        {"type": "page_visit", "url": f"{_SITE}/pricing", "timestamp": 1718458330000, "duration": 45000},
         {"type": "custom", "name": "visit_pricing_page", "timestamp": 1718458330500, "data": {}},
         {"type": "click", "selector": "button.cta-primary", "text": "Start Free Trial", "timestamp": 1718458375000},
-        {"type": "page_visit", "url": "https://acme.io/features", "timestamp": 1718458376000, "duration": 60000},
+        {"type": "page_visit", "url": f"{_SITE}/features", "timestamp": 1718458376000, "duration": 60000},
         {"type": "custom", "name": "click_signup_button", "timestamp": 1718458436000, "data": {"plan": "growth"}},
-        {"type": "page_visit", "url": "https://acme.io/signup", "timestamp": 1718458437000, "duration": 80000},
+        {"type": "page_visit", "url": f"{_SITE}/signup", "timestamp": 1718458437000, "duration": 80000},
     ],
 }
 

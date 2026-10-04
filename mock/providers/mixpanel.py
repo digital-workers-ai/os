@@ -9,10 +9,12 @@ Session-based engage pagination.
 from fastapi import APIRouter, Request, Query
 from fastapi.responses import PlainTextResponse
 from seeds.helpers import require_basic_auth, session_paginate
-from seeds.world import PEOPLE, COMPANIES_BY_ID, ANALYTICS_EVENTS
+from seeds.world import PEOPLE, COMPANIES_BY_ID, ANALYTICS_EVENTS, VENDORS
 import json
 
 router = APIRouter()
+
+_DOMAIN = VENDORS["domain"]
 
 
 def _mp_event(ev):
@@ -25,7 +27,7 @@ def _mp_event(ev):
         "$browser": "Chrome", "$city": co.city if co else "San Francisco",
         "$region": co.state if co else "CA", "mp_country_code": "US",
         "$os": "Mac OS X", "mp_lib": "web",
-        "$current_url": f"https://app.acme.io{ev.properties.get('page', '/')}",
+        "$current_url": f"https://app.{_DOMAIN}{ev.properties.get('page', '/')}",
     }
     props.update(ev.properties)
     return {"event": ev.event, "properties": props}

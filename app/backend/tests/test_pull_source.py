@@ -1,4 +1,5 @@
 import json
+from types import SimpleNamespace
 
 import httpx
 import pytest
@@ -6,7 +7,8 @@ import pytest
 from app.caches import BACKEND_DIR
 from app.config import settings
 from app.engine import checks
-from app.sources import client
+from app.sources import client, registry
+from app.sources.creds import Credentials
 from tools import pull_source
 
 MOCK = checks.REAL_FIXTURES.parent / "mock" / "hubspot"
@@ -298,3 +300,71 @@ class TestTheCommandLine:
         assert pull_source.main(["hubspot"]) == 1
         out = capsys.readouterr().out
         assert "  dead paths: company:hubspot.companies.properties.industry" in out
+
+
+class TestAll:
+    @pytest.fixture
+    def two_sources(self, monkeypatch):
+        async def answer(session, store):
+            for source_id in ("t1", "t2"):
+                await store(
+                    session,
+                    object_type="things",
+                    source_id=source_id,
+                    raw_payload={"id": source_id},
+                )
+            await store(
+                session, object_type="others", source_id="o1", raw_payload={"id": "o1"}
+            )
+
+        async def refuse(session, store):
+            raise RuntimeError("the stand-in is down")
+
+        modules = {
+            "beta": SimpleNamespace(SOURCE="beta", pull=answer),
+            "alpha": SimpleNamespace(SOURCE="alpha", pull=refuse),
+        }
+        monkeypatch.setattr(registry, "discover", lambda: modules)
+        monkeypatch.setattr(
+            pull_source,
+            "credentials_for",
+            lambda source: Credentials(base_url=f"http://stand-in/{source}"),
+        )
+        return modules
+
+    def test_one_line_per_source_in_name_order_and_a_failure_fails_the_run(
+        self, two_sources, capsys
+    ):
+        code = pull_source.main(["--all"])
+        assert capsys.readouterr().out.splitlines() == [
+            "alpha: error: RuntimeError: the stand-in is down",
+            "beta: things=2 others=1",
+        ]
+        assert code == 1
+
+    def test_capture_writes_the_sources_that_answered_and_skips_the_one_that_failed(
+        self, two_sources, tmp_path, capsys
+    ):
+        code = pull_source.main(["--all", "--capture", str(tmp_path)])
+        things = json.loads((tmp_path / "beta" / "things.json").read_text())
+        assert [row["source_id"] for row in things] == ["t1", "t2"]
+        assert json.loads((tmp_path / "beta" / "others.json").read_text()) == [
+            {"payload": {"id": "o1"}, "source_id": "o1"}
+        ]
+        assert not (tmp_path / "alpha").exists()
+        assert code == 1
+
+    def test_a_run_where_every_source_answers_exits_clean(self, two_sources, capsys):
+        two_sources["alpha"].pull = two_sources["beta"].pull
+        code = pull_source.main(["--all"])
+        assert capsys.readouterr().out.splitlines() == [
+            "alpha: things=2 others=1",
+            "beta: things=2 others=1",
+        ]
+        assert code == 0
+
+    def test_a_source_and_all_together_are_refused(self, two_sources, capsys):
+        with pytest.raises(SystemExit) as stop:
+            pull_source.main(["beta", "--all"])
+        assert stop.value.code == 2
+        assert "--all" in capsys.readouterr().err

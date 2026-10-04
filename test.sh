@@ -13,11 +13,13 @@ mode="${1:-unit}"
 case "$mode" in
   unit) pytest_args=(tests -m "not e2e and not llm") ;;
   e2e) pytest_args=(tests -m "e2e and not llm") ;;
+  fixtures) ;;
+  instance) ;;
   snap) snap_script=snap ;;
   snap-update) snap_script=snap:update ;;
   *)
     echo "unknown mode: $mode" >&2
-    echo "expected: unit | e2e | snap | snap-update" >&2
+    echo "expected: unit | e2e | fixtures | instance | snap | snap-update" >&2
     exit 2
     ;;
 esac
@@ -85,6 +87,18 @@ fi
 if ! compose ps --status running --services 2>/dev/null | grep -qx backend; then
   echo "==> starting the v0 stack (postgres, mock, backend)"
   compose up -d --build --wait postgres mock backend
+fi
+
+if [ "$mode" = "fixtures" ]; then
+  echo "==> capture every stand-in through its connector"
+  compose exec -T backend python -m tools.pull_source --all --capture
+  exit 0
+fi
+
+if [ "$mode" = "instance" ]; then
+  echo "==> instance check"
+  compose exec -T backend python -m tools.instance_check "$@"
+  exit 0
 fi
 
 if [ "$mode" = "unit" ]; then

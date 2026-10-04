@@ -22,16 +22,17 @@ from seeds.helpers import (
     token_paginate,
     window_days,
 )
-from seeds.world import AD_CAMPAIGNS
+from seeds.world import AD_CAMPAIGNS, VENDORS
 
 router = APIRouter()
 
 _LI_ADS = [ac for ac in AD_CAMPAIGNS if ac.platform == "linkedin"]
+_LI = VENDORS["linkedin"]
 
 _AD_ACCOUNTS = [
     {
         "id": 512345678,
-        "name": "Acme Corp - Marketing",
+        "name": _LI["accounts"][0],
         "status": "ACTIVE",
         "type": "BUSINESS",
         "currency": "USD",
@@ -43,7 +44,7 @@ _AD_ACCOUNTS = [
     },
     {
         "id": 512345679,
-        "name": "Globex Inc - Lead Gen",
+        "name": _LI["accounts"][1],
         "status": "ACTIVE",
         "type": "BUSINESS",
         "currency": "USD",
@@ -55,7 +56,7 @@ _AD_ACCOUNTS = [
     },
     {
         "id": 512345680,
-        "name": "Hooli - Enterprise",
+        "name": _LI["accounts"][2],
         "status": "ACTIVE",
         "type": "BUSINESS",
         "currency": "USD",
@@ -169,13 +170,7 @@ async def ad_analytics(
 
 ORGANIZATION = "urn:li:organization:1"
 
-_COMMENTARY = [
-    "Three lessons from a year of shipping weekly.",
-    "We are hiring: come build with us.",
-    "How our customers cut onboarding time in half.",
-    "A look inside our engineering culture.",
-    "Announcing our summer product update.",
-]
+_COMMENTARY = _LI["commentary"]
 _CONTENT_TYPES = ["ARTICLE", "IMAGE", "VIDEO"]
 
 

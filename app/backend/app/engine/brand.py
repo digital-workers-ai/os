@@ -114,6 +114,10 @@ def _token_problems(folder) -> list[str]:
     except yaml.YAMLError as e:
         return [f"brand/tokens.yaml does not parse — {e}"]
     problems: list[str] = []
+    if not isinstance(doc.get("name"), str) or not doc["name"].strip():
+        problems.append(
+            "brand/tokens.yaml: name must name the brand — the card footers print it"
+        )
     colors = doc.get("colors")
     if isinstance(colors, dict):
         problems += [

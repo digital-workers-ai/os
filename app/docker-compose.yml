@@ -52,6 +52,8 @@ services:
     build:
       context: ../mock
       dockerfile: Dockerfile
+    environment:
+      WORLD_DATA: ${WORLD_DATA:-}
     ports:
       - "8192:8100"
     volumes:

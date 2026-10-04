@@ -2,9 +2,12 @@ import asyncio
 import hashlib
 import re
 import shutil
-from datetime import datetime, timedelta
+from collections import Counter
+from dataclasses import dataclass
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
+import yaml
 from sqlalchemy import delete, func, select, update
 
 from app import clock, media, store
@@ -49,17 +52,17 @@ PINS = [
     (RawEvent.ingested_at, NOW - timedelta(hours=1), None),
 ]
 PLAN = {
-    "Globex": ("strong", "this_quarter", ["manual_work", "reporting_gaps"], True),
-    "Stark": ("weak", "no_timeline", ["support_quality", "pricing"], False),
-    "Wayne": ("strong", "immediate", ["pricing", "onboarding_time"], True),
-    "Initech": ("moderate", "next_quarter", ["missing_features"], True),
-    "Pied Piper": (
+    "expansion": ("strong", "this_quarter", ["manual_work", "reporting_gaps"], True),
+    "billing": ("weak", "no_timeline", ["support_quality", "pricing"], False),
+    "pricing": ("strong", "immediate", ["pricing", "onboarding_time"], True),
+    "renewal": ("moderate", "next_quarter", ["missing_features"], True),
+    "security": (
         "moderate",
         "next_quarter",
         ["security_compliance", "integration_complexity"],
         True,
     ),
-    "Cyberdyne": ("none", "next_year", ["vendor_lock_in"], False),
+    "intro": ("none", "next_year", ["vendor_lock_in"], False),
 }
 TICKETS = {
     "API rate limit": "access",
@@ -79,7 +82,7 @@ HISTORY = {
         "deals. The pipeline rule found one deal with no next step. Sales calls "
         "are not being read yet, so interest is not measured.",
         "Revenue is at $16,700 MRR and 10 open deals worth $341,000. No goal is "
-        "met. One high-severity finding is open: Initech has had no activity in "
+        "met. One high-severity finding is open: {renewal} has had no activity in "
         "fourteen days.",
         "Revenue is at $16,820 MRR, short of the $20,000 quarter goal, with 11 "
         "open deals in pipeline. No sales calls have been read yet, so buying "
@@ -87,65 +90,48 @@ HISTORY = {
         "Revenue moved to $16,950 MRR with 12 open deals. The first four sales "
         "calls were read: one strong, two moderate, one weak. Two high-severity "
         "findings are open, both deals with no next step.",
-        "Revenue is at $17,020 MRR and 13 open deals worth $388,000. Wayne "
-        "Enterprises reads as strong interest and wants to move immediately. "
-        "Stark Industries has escalated a billing dispute and says it will buy "
-        "nothing more until it is resolved.",
+        "Revenue is at $17,020 MRR and 13 open deals worth $388,000. {pricing} "
+        "reads as strong interest and wants to move immediately. {billing} has "
+        "escalated a billing dispute and says it will buy nothing more until it "
+        "is resolved.",
     ],
     "head_of_sales": [
-        "Nine open deals. Initech has had no activity in two weeks and no next "
+        "Nine open deals. {renewal} has had no activity in two weeks and no next "
         "step is recorded. Calls are not being read yet, so there is no interest "
         "signal.",
-        "Ten open deals worth $341,000. Initech is still idle. Globex booked a "
-        "call for next week about expanding to the growth team.",
+        "Ten open deals worth $341,000. {renewal} is still idle. {expansion} booked "
+        "a call for next week about expanding to the growth team.",
         "Eleven open deals, none with a recorded next step older than a week. "
         "Sales calls have not been read yet, so there is no interest signal to "
         "act on.",
-        "Four calls read. Globex is strong for this quarter and wants reporting "
-        "sales already has. Initech is moderate and pushed to next quarter. Two "
-        "deals have no next step recorded.",
-        "Wayne Enterprises came in strong and immediate, gated on pricing. Pied "
-        "Piper is blocked on a security review. Three deals have no next step, "
-        "all three older than ten days.",
+        "Four calls read. {expansion} is strong for this quarter and wants "
+        "reporting sales already has. {renewal} is moderate and pushed to next "
+        "quarter. Two deals have no next step recorded.",
+        "{pricing} came in strong and immediate, gated on pricing. {security} is "
+        "blocked on a security review. Three deals have no next step, all three "
+        "older than ten days.",
     ],
 }
 BRIEFS = {
     "ceo": (
         "Revenue is holding at 17,147 MRR with 14 open deals worth 412,000 in "
         "pipeline. Two of the six sales calls this week show strong buying "
-        "interest, Globex and Wayne Enterprises, and both name pricing or "
+        "interest, {expansion} and {pricing}, and both name pricing or "
         "reporting as the thing standing between them and a signature.\n\n"
-        "The one to watch is Stark Industries: the billing escalation call reads "
+        "The one to watch is {billing}: the billing escalation call reads "
         "as weak interest with support quality named twice. If that renewal "
         "slips, the quarter target of 20,000 MRR moves out of reach."
     ),
     "head_of_sales": (
-        "Wayne Enterprises wants to move immediately and is gated on pricing and "
-        "onboarding time; that is the deal to close first. Globex is strong for "
-        "this quarter and asked for reporting they cannot get today.\n\n"
-        "Initech and Pied Piper are both moderate and next quarter; Pied Piper "
+        "{pricing} wants to move immediately and is gated on pricing and "
+        "onboarding time; that is the deal to close first. {expansion} is strong "
+        "for this quarter and asked for reporting they cannot get today.\n\n"
+        "{renewal} and {security} are both moderate and next quarter; {security} "
         "is blocked on a security review, so get the compliance pack in front of "
-        "them now. Cyberdyne is a no for this year. Three findings are open "
+        "them now. {intro} is a no for this year. Three findings are open "
         "against your pipeline hygiene rules, all of them deals with no next "
         "step."
     ),
-}
-MANIFEST = {
-    "metrics": {
-        "mrr": 17147.0,
-        "open_deals": 14,
-        "pipeline_value": 412000.0,
-        "sales_calls_strong_interest": 2,
-    },
-    "goals": {
-        "mrr_target": {"target": 20000, "current": 17147.0, "met": False},
-        "deals_with_next_step": {"met": False},
-    },
-    "findings": [
-        {"rule": "deal_without_next_step", "entity": "Stark Industries"},
-        {"rule": "deal_without_next_step", "entity": "Cyberdyne"},
-        {"rule": "stale_deal", "entity": "Initech"},
-    ],
 }
 LOOKALIKES = {
     "carlos": (
@@ -187,7 +173,6 @@ LOOKALIKES = {
     ),
 }
 DECIDED = {"maria": "confirmed", "alex": "rejected"}
-STUDIO_MODEL = "claude-opus-5"
 STUDIO_FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "studio"
 STUDIO_TABLES = (
     StudioTurn,
@@ -202,130 +187,43 @@ STUDIO_TABLES = (
     AssetVersion,
     Asset,
 )
-CLAIMS = "claims.md"
-BUILD = "build.md"
-HELD_CLAIM = "Teams close their quarter twice as fast with DW-OS."
-EVIDENCE = (
-    ("proof.md", "The gate holds 100% line and branch coverage; never red."),
-    ("voice.md", "Plain, specific, concrete. No hype, no hashtags, no emoji."),
-)
-IMAGE_TOOLS = ("image_paint", "image_render")
-TEXT_TOOLS = ("brand_read", "files_write")
-TOOL_DETAIL = {
-    "image_paint": "painted one picture, no words in it",
-    "image_render": "rendered the card over the picture",
-    "brand_read": "read voice.md, language.md and proof.md",
-    "files_write": "wrote every file the ask named",
-}
-CARD_FILES = (
-    ("content.yaml", "content.yaml"),
-    ("image.png", "stat-card.png"),
-    (CLAIMS, CLAIMS),
-    (BUILD, BUILD),
-)
-QUOTE_FILES = (("image.png", "quote-card.png"), (CLAIMS, CLAIMS), (BUILD, BUILD))
-POST_FILES = (
-    ("post.md", "post.md"),
-    ("image.png", "stat-card.png"),
-    (CLAIMS, CLAIMS),
-    (BUILD, BUILD),
-)
-LETTER_FILES = (
-    ("newsletter.md", "newsletter.md"),
-    ("newsletter.html", "newsletter.html"),
-    (CLAIMS, CLAIMS),
-    (BUILD, BUILD),
-)
-BLOG_FILES = (("post.md", "blog.md"), (CLAIMS, CLAIMS), (BUILD, BUILD))
-CAROUSEL_FILES = (
-    ("slide-01.png", "carousel-01.png"),
-    ("slide-02.png", "carousel-02.png"),
-    ("slide-03.png", "carousel-03.png"),
-    (CLAIMS, CLAIMS),
-    (BUILD, BUILD),
-)
-STUDIO_ASSETS = (
-    {
-        "name": "100% line and branch coverage",
-        "kind": "image",
-        "skill": "dw-image",
-        "look": "stat-card",
-        "ratio": "1:1",
-        "origin": "chat",
-        "days": 0,
-        "hours": 2,
-        "tools": IMAGE_TOOLS,
-        "versions": (
-            ("A stat card on the test gate, stat-card at 1:1", CARD_FILES),
-            ("shorter label", CARD_FILES),
-        ),
-    },
-    {
-        "name": "Every number can tell you which tool it came from",
-        "kind": "image",
-        "skill": "dw-image",
-        "look": "quote-card",
-        "ratio": "1:1",
-        "origin": "chat",
-        "days": 0,
-        "hours": 3,
-        "tools": IMAGE_TOOLS,
-        "status": "held",
-        "versions": (("A quote card from the line on tracing a number", QUOTE_FILES),),
-    },
-    {
-        "name": "Why a rebuild never touches the raw store",
-        "kind": "blog",
-        "skill": "dw-blog",
-        "origin": "chat",
-        "days": 1,
-        "hours": 2,
-        "tools": TEXT_TOOLS,
-        "versions": (("Explain the rebuild to the engineer", BLOG_FILES),),
-    },
-    {
-        "name": "Where a number comes from",
-        "kind": "carousel",
-        "skill": "dw-carousel",
-        "look": "carousel",
-        "ratio": "4:5",
-        "origin": "mcp",
-        "days": 1,
-        "hours": 3,
-        "tools": IMAGE_TOOLS,
-        "versions": (("Three facts about DW-OS, carousel at 4:5", CAROUSEL_FILES),),
-    },
-    {
-        "name": "A spreadsheet has no test gate",
-        "kind": "post",
-        "skill": "dw-linkedin-post",
-        "look": "stat-card",
-        "ratio": "1:1",
-        "origin": "marketer",
-        "slot": ("linkedin_post", 2),
-        "days": 2,
-        "hours": 2,
-        "tools": IMAGE_TOOLS,
-        "versions": (("One thing a spreadsheet cannot do, for the owner", POST_FILES),),
-    },
-    {
-        "name": "The review queue this week",
-        "kind": "newsletter",
-        "skill": "dw-newsletter",
-        "origin": "marketer",
-        "slot": ("newsletter_weekly", 4),
-        "days": 2,
-        "hours": 3,
-        "tools": TEXT_TOOLS,
-        "versions": (("This week's letter to the operator", LETTER_FILES),),
-    },
-)
 SKIPPED_SLOT = "linkedin_post"
-THREAD_TITLE = "a post on the coverage gate"
-THREAD_TURNS = (
-    ("person", "Make a post about the coverage gate for the owner, with the image."),
-    ("studio", "Writing one post on the test gate, with a stat card at 1:1."),
-)
+
+
+def topic(meeting_name: str) -> str | None:
+    return next((key for key in PLAN if key in meeting_name), None)
+
+
+def company(meeting_name: str) -> str:
+    return re.split(r" <> | — ", meeting_name)[0]
+
+
+def read_library() -> dict:
+    return yaml.safe_load((STUDIO_FIXTURES / "manifest.yaml").read_text())
+
+
+def version_folder(entry: dict, number: int) -> Path:
+    return STUDIO_FIXTURES / entry["dir"] / str(number)
+
+
+def read_manifest(companies: dict) -> dict:
+    return {
+        "metrics": {
+            "mrr": 17147.0,
+            "open_deals": 14,
+            "pipeline_value": 412000.0,
+            "sales_calls_strong_interest": 2,
+        },
+        "goals": {
+            "mrr_target": {"target": 20000, "current": 17147.0, "met": False},
+            "deals_with_next_step": {"met": False},
+        },
+        "findings": [
+            {"rule": "deal_without_next_step", "entity": companies["billing"]},
+            {"rule": "deal_without_next_step", "entity": companies["intro"]},
+            {"rule": "stale_deal", "entity": companies["renewal"]},
+        ],
+    }
 
 
 def sha(text: str) -> str:
@@ -387,7 +285,9 @@ def run(reading: str, vocab: str, read: int, when: datetime) -> EnrichmentRun:
     )
 
 
-def briefing(role: str, text: str, when: datetime, duration_ms: int) -> BriefingRun:
+def briefing(
+    role: str, text: str, when: datetime, duration_ms: int, manifest: dict
+) -> BriefingRun:
     return BriefingRun(
         role=role,
         ok=True,
@@ -395,7 +295,7 @@ def briefing(role: str, text: str, when: datetime, duration_ms: int) -> Briefing
         prompt_version=PROMPT,
         prompts_sha=briefer.prompts_sha(),
         input_sha=sha(text),
-        read_manifest=MANIFEST,
+        read_manifest=manifest,
         briefing=text,
         error=None,
         duration_ms=duration_ms,
@@ -408,7 +308,7 @@ async def seed_meetings(s, vocab: str) -> int:
     names = dict(await facts_of(s, "meeting", "name"))
     n = 0
     for i, (cid, text) in enumerate(rows):
-        key = next((k for k in PLAN if k in names.get(cid, "")), None)
+        key = topic(names.get(cid, ""))
         if key is None:
             continue
         interest, timing, pains, verified = PLAN[key]
@@ -455,19 +355,29 @@ async def seed_tickets(s, vocab: str) -> int:
     return n
 
 
+async def companies(s) -> dict[str, str]:
+    named = {}
+    for _cid, name in await facts_of(s, "meeting", "name"):
+        key = topic(name)
+        if key is not None:
+            named[key] = company(name)
+    return named
+
+
 async def seed_briefings(s) -> int:
+    named = await companies(s)
+    manifest = read_manifest(named)
     n = 0
     for j, (role, text) in enumerate(BRIEFS.items()):
         for d, earlier in enumerate(HISTORY[role]):
             when = NOW - timedelta(days=5 - d, hours=1, minutes=20 * j)
-            s.add(briefing(role, earlier, when, 2900 + 300 * d))
+            s.add(
+                briefing(role, earlier.format(**named), when, 2900 + 300 * d, manifest)
+            )
             n += 1
         await s.flush()
-        s.add(
-            briefing(
-                role, text, NOW - timedelta(hours=1, minutes=20 * j), 3400 + 900 * j
-            )
-        )
+        latest = NOW - timedelta(hours=1, minutes=20 * j)
+        s.add(briefing(role, text.format(**named), latest, 3400 + 900 * j, manifest))
         n += 1
     return n
 
@@ -543,81 +453,90 @@ async def seed_candidates(s) -> int:
     return await s.scalar(select(func.count()).select_from(MergeCandidate))
 
 
-def claim_rows(seq, version, held) -> list:
-    lines = (STUDIO_FIXTURES / CLAIMS).read_text().strip().splitlines()
-    rows = []
-    for line in lines:
-        text, source_kind, source_ref = (part.strip() for part in line.split("|"))
-        rows.append(
-            AssetClaim(
-                asset_seq=seq,
-                version=version,
-                text=text,
-                source_kind=source_kind,
-                source_ref=source_ref,
-                verified=True,
-            )
-        )
-    if held:
-        rows.append(
-            AssetClaim(
-                asset_seq=seq,
-                version=version,
-                text=HELD_CLAIM,
-                source_kind="none",
-                source_ref=None,
-                verified=False,
-            )
-        )
-    return rows
+@dataclass(frozen=True)
+class Rebase:
+    made_at: datetime
+
+    def at(self, stamp: str) -> datetime:
+        return datetime.fromisoformat(stamp) + (NOW - self.made_at)
+
+    def on(self, stamp: str) -> date:
+        return self.at(f"{stamp}T{self.made_at.timetz().isoformat()}").date()
 
 
-def evidence_rows(seq, version) -> list:
-    return [
-        AssetEvidence(
-            asset_seq=seq, version=version, kind="brand", ref=ref, detail=detail
-        )
-        for ref, detail in EVIDENCE
-    ]
-
-
-def run_row(spec, number, seq, version, when) -> SkillRun:
-    return SkillRun(
-        skill=spec["skill"],
-        skill_sha=catalog.load(spec["skill"]).sha,
-        caller=spec["origin"],
-        asset_seq=seq,
-        version=version,
-        stage=None,
-        status=spec.get("status", "ok"),
-        error=None,
-        model=STUDIO_MODEL,
-        tokens_in=8200 + 730 * number,
-        tokens_out=1140 + 260 * number,
-        duration_ms=38000 + 4200 * number,
-        started_at=when - timedelta(minutes=2),
-        finished_at=when,
-    )
-
-
-def asset_row(spec, created) -> Asset:
-    slot_name, slot_days = spec.get("slot", (None, None))
-    slot_date = None if slot_name is None else (NOW - timedelta(days=slot_days)).date()
+def asset_row(entry: dict, rebase: Rebase) -> Asset:
+    slot_date = entry.get("slot_date")
     return Asset(
-        name=spec["name"],
-        kind=spec["kind"],
-        skill=spec["skill"],
-        look=spec.get("look"),
-        ratio=spec.get("ratio"),
-        origin=spec["origin"],
-        slot_date=slot_date,
-        slot_name=slot_name,
-        feedback=None,
-        created_at=created,
+        name=entry["name"],
+        kind=entry["kind"],
+        skill=entry["skill"],
+        look=entry.get("look"),
+        ratio=entry.get("ratio"),
+        origin=entry["origin"],
+        slot_date=None if slot_date is None else rebase.on(slot_date),
+        slot_name=entry.get("slot_name"),
+        created_at=rebase.at(entry["created_at"]),
     )
 
 
-def skipped_day() -> datetime.date:
+def run_row(entry: dict, version: dict, seq: int, finished: datetime) -> SkillRun:
+    return SkillRun(
+        skill=entry["skill"],
+        skill_sha=catalog.load(entry["skill"]).sha,
+        caller=entry["origin"],
+        asset_seq=seq,
+        version=version["version"],
+        status=entry["status"],
+        model=version["model"],
+        tokens_in=version["tokens_in"],
+        tokens_out=version["tokens_out"],
+        duration_ms=version["duration_ms"],
+        started_at=finished - timedelta(milliseconds=version["duration_ms"]),
+        finished_at=finished,
+    )
+
+
+async def seed_version(
+    s, entry: dict, seq: int, version: dict, rebase: Rebase, counts: Counter
+) -> SkillRun:
+    number, when = version["version"], rebase.at(version["created_at"])
+    folder = version_folder(entry, number)
+    s.add(
+        AssetVersion(
+            asset_seq=seq, version=number, note=version["note"], created_at=when
+        )
+    )
+    for file in version["files"]:
+        data = (folder / file["path"]).read_bytes()
+        written = media.write(seq, number, file["path"], data)
+        s.add(AssetFile(asset_seq=seq, version=number, created_at=when, **written))
+    s.add_all(
+        AssetClaim(asset_seq=seq, version=number, **claim)
+        for claim in version["claims"]
+    )
+    s.add_all(
+        AssetEvidence(asset_seq=seq, version=number, **item)
+        for item in version["evidence"]
+    )
+    run = run_row(entry, version, seq, when)
+    s.add(run)
+    await s.flush()
+    s.add_all(
+        SkillRunToolCall(skill_run_seq=run.seq, **call)
+        for call in version["tool_calls"]
+    )
+    counts.update(
+        asset_version=1,
+        asset_file=len(version["files"]),
+        asset_claim=len(version["claims"]),
+        asset_evidence=len(version["evidence"]),
+        skill_run=1,
+        skill_run_tool_call=len(version["tool_calls"]),
+    )
+    return run
+
+
+def skipped_day() -> date:
     spec = calendar.slots()[SKIPPED_SLOT]
     day = NOW.date()
     return calendar.dates(spec, day + timedelta(days=1), day + timedelta(days=14))[0]
@@ -628,53 +547,18 @@ async def seed_studio(s) -> dict:
         await s.execute(delete(table))
     await s.flush()
     shutil.rmtree(Path(settings.MEDIA_DIR) / "assets", ignore_errors=True)
-    counts = dict.fromkeys(("asset_version", "asset_file", "asset_claim"), 0)
-    runs: dict = {}
-    for number, spec in enumerate(STUDIO_ASSETS):
-        created = NOW - timedelta(days=spec["days"], hours=spec["hours"])
-        asset = asset_row(spec, created)
+    library = read_library()
+    rebase = Rebase(datetime.fromisoformat(library["made_at"]))
+    counts: Counter = Counter()
+    opened: dict[int, int] = {}
+    for entry in library["assets"]:
+        asset = asset_row(entry, rebase)
         s.add(asset)
         await s.flush()
-        for index, (note, files) in enumerate(spec["versions"]):
-            version, when = index + 1, created + timedelta(minutes=30 * index)
-            s.add(
-                AssetVersion(
-                    asset_seq=asset.seq, version=version, note=note, created_at=when
-                )
-            )
-            for path, fixture in files:
-                written = media.write(
-                    asset.seq, version, path, (STUDIO_FIXTURES / fixture).read_bytes()
-                )
-                s.add(
-                    AssetFile(
-                        asset_seq=asset.seq,
-                        version=version,
-                        path=written["path"],
-                        media_type=written["media_type"],
-                        bytes=written["bytes"],
-                        created_at=when,
-                    )
-                )
-            claims = claim_rows(asset.seq, version, "status" in spec)
-            s.add_all(claims + evidence_rows(asset.seq, version))
-            run = run_row(spec, number, asset.seq, version, when)
-            s.add(run)
-            await s.flush()
-            for tool in spec["tools"]:
-                s.add(
-                    SkillRunToolCall(
-                        skill_run_seq=run.seq,
-                        tool=tool,
-                        ok=True,
-                        duration_ms=1400 + 90 * number,
-                        detail=TOOL_DETAIL[tool],
-                    )
-                )
-            counts["asset_version"] += 1
-            counts["asset_file"] += len(files)
-            counts["asset_claim"] += len(claims)
-            runs[spec["kind"]] = run.seq
+        counts.update(asset=1)
+        for version in entry["versions"]:
+            run = await seed_version(s, entry, asset.seq, version, rebase, counts)
+            opened.setdefault(entry["seq"], run.seq)
     s.add(
         AgentRun(
             agent="marketer",
@@ -696,31 +580,27 @@ async def seed_studio(s) -> dict:
             created_at=NOW - timedelta(days=1),
         )
     )
-    opened = NOW - timedelta(days=2, hours=2, minutes=5)
-    thread = StudioThread(title=THREAD_TITLE, created_at=opened)
-    s.add(thread)
+    thread = library["thread"]
+    row = StudioThread(
+        title=thread["title"], created_at=rebase.at(thread["created_at"])
+    )
+    s.add(row)
     await s.flush()
-    for minutes, (role, text) in enumerate(THREAD_TURNS, 1):
+    for turn in thread["turns"]:
+        made = turn.get("asset")
         s.add(
             StudioTurn(
-                thread_seq=thread.seq,
-                role=role,
-                text=text,
-                skill_run_seq=runs["post"] if role == "studio" else None,
-                created_at=opened + timedelta(minutes=minutes),
+                thread_seq=row.seq,
+                role=turn["role"],
+                text=turn["text"],
+                skill_run_seq=None if made is None else opened[made],
+                created_at=rebase.at(turn["created_at"]),
             )
         )
-    return {
-        "asset": len(STUDIO_ASSETS),
-        **counts,
-        "asset_evidence": counts["asset_version"] * len(EVIDENCE),
-        "skill_run": counts["asset_version"],
-        "skill_run_tool_call": counts["asset_version"] * 2,
-        "agent_run": 1,
-        "slot_skip": 1,
-        "studio_thread": 1,
-        "studio_turn": len(THREAD_TURNS),
-    }
+    counts.update(
+        agent_run=1, slot_skip=1, studio_thread=1, studio_turn=len(thread["turns"])
+    )
+    return dict(counts)
 
 
 async def main() -> None:

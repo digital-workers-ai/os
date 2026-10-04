@@ -12,7 +12,7 @@ from datetime import date
 from fastapi import APIRouter, Request, HTTPException
 from pydantic import BaseModel
 from seeds.helpers import require_bearer, require_header, campaign_days, daily_share
-from seeds.world import AD_CAMPAIGNS, COMPANIES_BY_ID
+from seeds.world import AD_CAMPAIGNS, COMPANIES_BY_ID, VENDORS
 
 router = APIRouter()
 
@@ -182,7 +182,7 @@ async def search_stream(request: Request, customer_id: str, body: SearchStreamRe
     elif resource == "search_term":
         results = [
             {
-                "searchTermView": {"searchTerm": "acme software reviews", "status": "ADDED"},
+                "searchTermView": {"searchTerm": VENDORS["google_ads"]["search_term"], "status": "ADDED"},
                 "campaign": {"name": _GADS_CAMPAIGNS[0].name if _GADS_CAMPAIGNS else "Brand Search"},
                 "metrics": {"clicks": "85", "impressions": "1200", "costMicros": "340000000"},
                 "segments": {"date": "2026-07-01"},

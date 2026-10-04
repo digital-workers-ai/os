@@ -7,7 +7,7 @@ from fastapi import APIRouter, Request, Query
 from seeds.helpers import require_bearer, cursor_paginate
 from seeds.world import (
     COMPANIES, PEOPLE, SUBSCRIPTIONS, SUBSCRIPTIONS_BY_COMPANY, COMPANIES_BY_ID,
-    ER_COMPANY_NAMES, ER_PERSON_NAMES, ER_PERSON_EMAILS,
+    ER_COMPANY_NAMES, ER_PERSON_NAMES, ER_PERSON_EMAILS, VENDORS,
 )
 
 router = APIRouter()
@@ -26,16 +26,7 @@ ALWAYS_RETURNED = {
     "deals": ("createdate", "hs_lastmodifieddate", "hs_object_id"),
 }
 
-INDUSTRY_VALUES = {
-    "Software": "COMPUTER_SOFTWARE",
-    "Marketing": "MARKETING_AND_ADVERTISING",
-    "Finance": "FINANCIAL_SERVICES",
-    "Healthcare": "HOSPITAL_HEALTH_CARE",
-    "Manufacturing": "MACHINERY",
-    "Technology": "INFORMATION_TECHNOLOGY_AND_SERVICES",
-    "Engineering": "MECHANICAL_OR_INDUSTRIAL_ENGINEERING",
-    "Food & Beverage": "FOOD_AND_BEVERAGES",
-}
+INDUSTRY_VALUES = VENDORS["hubspot"]["industries"]
 
 COMPANIES_KNOWN_ONLY_BY_DOMAIN = {"c9"}
 

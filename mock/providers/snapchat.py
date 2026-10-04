@@ -8,8 +8,15 @@ All monetary values in micro-currency.
 
 from fastapi import APIRouter, Request, Query
 from seeds.helpers import require_bearer
+from seeds.world import VENDORS
 
 router = APIRouter()
+
+_SNAP = VENDORS["snapchat"]
+_COMPANY = _SNAP["company"]
+_MEMBER = _SNAP["member"]
+_SLUG = VENDORS["domain"].split(".")[0]
+_MEMBER_SLUG = _MEMBER["email"].split("@")[0]
 
 
 @router.get("/v1/me/organizations")
@@ -22,10 +29,10 @@ async def list_organizations(request: Request):
             {
                 "sub_request_status": "SUCCESS",
                 "organization": {
-                    "id": "org_acme_001", "name": "Acme Corp Marketing",
+                    "id": f"org_{_SLUG}_001", "name": f"{_COMPANY} Marketing",
                     "country": "US", "currency": "USD", "type": "ENTERPRISE", "state": "ACTIVE",
-                    "roles": ["admin"], "my_display_name": "Jane Smith",
-                    "my_invited_email": "jane@acme.io", "my_member_id": "mem_jane_001",
+                    "roles": ["admin"], "my_display_name": _MEMBER["name"],
+                    "my_invited_email": _MEMBER["email"], "my_member_id": f"mem_{_MEMBER_SLUG}_001",
                     "created_at": "2025-01-10T08:00:00.000Z", "updated_at": "2026-06-15T10:30:00.000Z",
                 },
             },
@@ -48,11 +55,11 @@ async def list_ad_accounts(
             {
                 "sub_request_status": "SUCCESS",
                 "adaccount": {
-                    "id": "adacct_acme_001", "name": "Acme Corp - US",
+                    "id": f"adacct_{_SLUG}_001", "name": f"{_COMPANY} - US",
                     "type": "PARTNER", "status": "ACTIVE",
                     "organization_id": organization_id,
                     "currency": "USD", "timezone": "America/New_York",
-                    "advertiser": "Acme Corp", "billing_type": "IO",
+                    "advertiser": _COMPANY, "billing_type": "IO",
                     "lifetime_spend_cap_micro": 500000000000,
                     "advertiser_organization_id": organization_id,
                     "regulations": {"restricted_delivery_signals": False},
@@ -79,7 +86,7 @@ async def list_campaigns(
             {
                 "sub_request_status": "SUCCESS",
                 "campaign": {
-                    "id": "camp_acme_brand_001", "name": "Acme Brand Awareness Q3",
+                    "id": f"camp_{_SLUG}_brand_001", "name": _SNAP["campaigns"][0],
                     "ad_account_id": ad_account_id, "status": "ACTIVE",
                     "objective": "BRAND_AWARENESS",
                     "start_time": "2026-07-01T00:00:00.000Z", "end_time": "2026-09-30T23:59:59.000Z",
@@ -91,7 +98,7 @@ async def list_campaigns(
             {
                 "sub_request_status": "SUCCESS",
                 "campaign": {
-                    "id": "camp_acme_conv_001", "name": "Acme Product Launch - Conversions",
+                    "id": f"camp_{_SLUG}_conv_001", "name": _SNAP["campaigns"][1],
                     "ad_account_id": ad_account_id, "status": "ACTIVE",
                     "objective": "WEB_CONVERSIONS",
                     "start_time": "2026-03-01T00:00:00.000Z", "end_time": None,
@@ -115,8 +122,8 @@ async def list_ad_squads(request: Request, ad_account_id: str, limit: int = Quer
             {
                 "sub_request_status": "SUCCESS",
                 "adsquad": {
-                    "id": "adsq_acme_001", "name": "Acme 18-35 Interest Targeting",
-                    "campaign_id": "camp_acme_brand_001", "status": "ACTIVE",
+                    "id": f"adsq_{_SLUG}_001", "name": _SNAP["ad_squad"],
+                    "campaign_id": f"camp_{_SLUG}_brand_001", "status": "ACTIVE",
                     "type": "SNAP_ADS",
                     "placement_v2": {"config": "AUTOMATIC"},
                     "billing_event": "IMPRESSION", "auto_bid": True, "bid_strategy": "AUTO_BID",
@@ -127,7 +134,7 @@ async def list_ad_squads(request: Request, ad_account_id: str, limit: int = Quer
                     "targeting": {
                         "geos": [{"country_code": "us"}],
                         "demographics": [{"age_groups": ["18-20", "21-24", "25-34"]}],
-                        "interests": [{"category_id": "SLC_123", "name": "Technology"}],
+                        "interests": [{"category_id": "SLC_123", "name": _SNAP["interest"]}],
                     },
                     "created_at": "2026-01-15T08:30:00.000Z", "updated_at": "2026-07-10T09:00:00.000Z",
                 },
@@ -147,22 +154,22 @@ async def list_ads(request: Request, ad_account_id: str, limit: int = Query(50),
             {
                 "sub_request_status": "SUCCESS",
                 "ad": {
-                    "id": "ad_acme_001", "name": "Acme Hero Video - Summer 2026",
-                    "ad_squad_id": "adsq_acme_001", "creative_id": "cre_acme_001",
+                    "id": f"ad_{_SLUG}_001", "name": _SNAP["ads"][0],
+                    "ad_squad_id": f"adsq_{_SLUG}_001", "creative_id": f"cre_{_SLUG}_001",
                     "status": "ACTIVE", "type": "SNAP_AD",
                     "review_status": "APPROVED", "review_status_reasons": [],
-                    "paying_advertiser_name": "Acme Corp",
+                    "paying_advertiser_name": _COMPANY,
                     "created_at": "2026-01-16T11:00:00.000Z", "updated_at": "2026-07-10T09:15:00.000Z",
                 },
             },
             {
                 "sub_request_status": "SUCCESS",
                 "ad": {
-                    "id": "ad_acme_002", "name": "Acme Product Demo - Carousel",
-                    "ad_squad_id": "adsq_acme_001", "creative_id": "cre_acme_002",
+                    "id": f"ad_{_SLUG}_002", "name": _SNAP["ads"][1],
+                    "ad_squad_id": f"adsq_{_SLUG}_001", "creative_id": f"cre_{_SLUG}_002",
                     "status": "ACTIVE", "type": "SNAP_AD",
                     "review_status": "APPROVED", "review_status_reasons": [],
-                    "paying_advertiser_name": "Acme Corp",
+                    "paying_advertiser_name": _COMPANY,
                     "created_at": "2026-03-02T09:00:00.000Z", "updated_at": "2026-07-08T16:00:00.000Z",
                 },
             },
