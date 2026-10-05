@@ -525,7 +525,7 @@ class TestExecute:
         assert {row.source_kind for row in rows} == {"proof", "none", "guess"}
         assert all(row.verified is False for row in rows)
 
-    async def test_a_source_longer_than_its_column_still_ends_the_run_held(
+    async def test_a_long_claim_source_is_stored_whole_and_the_run_ends_held(
         self, session, enabled, monkeypatch, sessionmaker_for_test
     ):
         started = await runner.open_run(session, ASK)
@@ -540,7 +540,7 @@ class TestExecute:
         [claim] = await _rows(session, AssetClaim, asset_seq=started.asset_seq)
         assert claim.text == "Adravision reviewed 754k claims"
         assert (claim.source_kind, claim.source_ref, claim.verified) == (
-            "brand proof docu",
+            "brand proof document",
             "Results",
             False,
         )
