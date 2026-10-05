@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field, StringConstraints
 
 from app.api.routers import studio as router
 from app.db import get_session
-from app.models import Asset
+from app.models import Asset, SkillRun
 from app.skills import runner
 from app.studio import Missing, calendar, canvas, chat, rows
 
@@ -27,12 +27,13 @@ class TextBody(BaseModel):
 
 async def _started(session, started) -> dict:
     asset = await session.get(Asset, started.asset_seq)
+    run = await session.get(SkillRun, started.skill_run)
     [row] = await rows.asset_rows(session, [asset])
-    return {"skill_run": rows.skill_run_row(started.skill_run), "asset": row}
+    return {"skill_run": rows.skill_run_row(run), "asset": row}
 
 
 def _schedule(background, started, ask) -> None:
-    background.add_task(runner.execute_detached, started.skill_run.seq, ask)
+    background.add_task(runner.execute_detached, started.skill_run, ask)
 
 
 @router.get("/calendar")
