@@ -525,6 +525,43 @@ class TestExecute:
         assert {row.source_kind for row in rows} == {"proof", "none", "guess"}
         assert all(row.verified is False for row in rows)
 
+    async def test_a_long_claim_source_is_stored_whole_and_the_run_ends_held(
+        self, session, enabled, monkeypatch, sessionmaker_for_test
+    ):
+        started = await runner.open_run(session, ASK)
+        claims = "Adravision reviewed 754k claims | brand proof document | Results\n"
+        model = ScriptedModel(_calls(_write("claims.md", claims)), _text("done"))
+        monkeypatch.setattr(runner, "async_session", sessionmaker_for_test)
+        monkeypatch.setattr(llm, "client", lambda: model)
+        await runner.execute_detached(started.skill_run, ASK)
+        run = await _run(session, started.skill_run)
+        assert (run.status, run.error) == ("held", None)
+        assert run.finished_at is not None
+        [claim] = await _rows(session, AssetClaim, asset_seq=started.asset_seq)
+        assert claim.text == "Adravision reviewed 754k claims"
+        assert (claim.source_kind, claim.source_ref, claim.verified) == (
+            "brand proof document",
+            "Results",
+            False,
+        )
+
+    async def test_a_session_left_broken_still_ends_the_run_failed(
+        self, session, enabled
+    ):
+        started = await runner.open_run(session, ASK)
+        turn = _calls(_write("post.md", "words"))
+        turn.model = "m" * 65
+        model = ScriptedModel(turn, _text("done"))
+        result = await runner.execute(
+            session, started.skill_run, ASK, model_client=model
+        )
+        assert result["status"] == "failed"
+        assert result["error"].startswith("PendingRollbackError: ")
+        run = await _run(session, started.skill_run)
+        assert (run.status, run.error) == ("failed", result["error"])
+        assert "value too long" in run.error
+        assert run.finished_at is not None
+
     async def test_a_held_file_holds_the_run_and_its_lines_are_claims(
         self, session, enabled
     ):

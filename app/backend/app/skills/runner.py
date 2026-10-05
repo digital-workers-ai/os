@@ -246,6 +246,12 @@ def parse_claims(text: str) -> list[dict]:
     return claims
 
 
+def _finish(run, status, error, started, now) -> None:
+    run.status, run.error = status, error
+    run.duration_ms = int((time.monotonic() - started) * 1000)
+    run.finished_at = now
+
+
 async def execute(
     session,
     seq: int,
@@ -312,10 +318,15 @@ async def execute(
         status = "held"
     else:
         status = "ok"
-    run.status, run.error = status, outcome["error"]
-    run.duration_ms = int((time.monotonic() - started) * 1000)
-    run.finished_at = now
-    await session.commit()
+    _finish(run, status, outcome["error"], started, now)
+    try:
+        await session.commit()
+    except Exception as exc:
+        await session.rollback()
+        status, outcome["error"] = "failed", f"{type(exc).__name__}: {exc}"
+        run = await session.get(SkillRun, seq)
+        _finish(run, status, outcome["error"], started, now)
+        await session.commit()
     return {
         "skill_run": run.seq,
         "status": status,
