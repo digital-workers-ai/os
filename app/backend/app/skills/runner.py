@@ -26,6 +26,7 @@ RESULT_CHARS = 16_000
 VERIFIED_SOURCES = ("proof", "transcript")
 CLAIMS_FILE, HELD_FILE = "claims.md", "held.md"
 NO_SOURCE, HELD_SOURCE = "none", "held"
+SOURCE_CHARS = AssetClaim.__table__.c.source_kind.type.length
 
 SAFETY = prompts.text("studio_skill", "safety")
 TOOLBELT_NOTE = prompts.text("studio_skill", "toolbelt")
@@ -238,12 +239,18 @@ def parse_claims(text: str) -> list[dict]:
         claims.append(
             {
                 "text": claim,
-                "source": source or NO_SOURCE,
+                "source": (source or NO_SOURCE)[:SOURCE_CHARS],
                 "ref": ref or None,
                 "verified": source in VERIFIED_SOURCES and bool(ref),
             }
         )
     return claims
+
+
+def _finish(run, status, error, started, now) -> None:
+    run.status, run.error = status, error
+    run.duration_ms = int((time.monotonic() - started) * 1000)
+    run.finished_at = now
 
 
 async def execute(
@@ -312,10 +319,15 @@ async def execute(
         status = "held"
     else:
         status = "ok"
-    run.status, run.error = status, outcome["error"]
-    run.duration_ms = int((time.monotonic() - started) * 1000)
-    run.finished_at = now
-    await session.commit()
+    _finish(run, status, outcome["error"], started, now)
+    try:
+        await session.commit()
+    except Exception as exc:
+        await session.rollback()
+        status, outcome["error"] = "failed", f"{type(exc).__name__}: {exc}"
+        run = await session.get(SkillRun, seq)
+        _finish(run, status, outcome["error"], started, now)
+        await session.commit()
     return {
         "skill_run": run.seq,
         "status": status,
