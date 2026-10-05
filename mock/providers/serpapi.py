@@ -28,6 +28,7 @@ ADS_PAGE = 40
 PREVIEW = "https://displayads-formats.googleusercontent.com/ads/preview/content.js"
 TRANSPARENCY = "https://adstransparency.google.com"
 DETAILS_ENGINE = "google_ads_transparency_center_ad_details"
+ADVERTISERS = [c for c in SPY_COMPETITORS if "google_advertiser_id" in c]
 
 
 def _error(status, message):
@@ -133,7 +134,7 @@ def _google_ai_overview(params):
 
 def _company_for_text(text):
     needle = text.lower()
-    for company in SPY_COMPETITORS:
+    for company in ADVERTISERS:
         names = [company["name"], *company["aliases"]]
         if needle == company["domain"] or any(needle in n.lower() for n in names):
             return company
@@ -141,7 +142,7 @@ def _company_for_text(text):
 
 
 def _company_for_id(advertiser_id):
-    for company in SPY_COMPETITORS:
+    for company in ADVERTISERS:
         if company["google_advertiser_id"] == advertiser_id:
             return company
     return None

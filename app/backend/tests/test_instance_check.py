@@ -32,6 +32,12 @@ def rewrite_world(tmp_path, monkeypatch, mutate) -> None:
     monkeypatch.delitem(sys.modules, "seeds.world", raising=False)
 
 
+def rewrite_seed(path, mutate) -> None:
+    data = yaml.safe_load(path.read_text())
+    mutate(data)
+    path.write_text(yaml.safe_dump(data, sort_keys=False, allow_unicode=True))
+
+
 class TestTheTemplateTree:
     def test_every_check_passes_with_one_line_each(self, capsys):
         report, code = run(capsys)
@@ -40,6 +46,7 @@ class TestTheTemplateTree:
             "world": "ok",
             "fixtures": "ok",
             "studio": "ok",
+            "seed": "ok",
             "names": "skipped (no --names file)",
         }
         assert code == 0
@@ -162,6 +169,7 @@ class TestABrokenTree:
         assert report["world"] == (
             f"seeds.world is not importable from {ground_truth.ADVERSARIAL_ROOT}"
         )
+        assert report["seed"] == report["world"]
         assert code == 1
 
     @pytest.fixture
@@ -214,4 +222,91 @@ class TestABrokenTree:
             "3-why-a-rebuild-never-touches-the-raw-store/1/post.md is listed "
             "but missing"
         )
+        assert code == 1
+
+    @pytest.fixture
+    def seed(self, tmp_path, monkeypatch):
+        copy = tmp_path / "seed.yaml"
+        shutil.copy(seed_demo.SEED, copy)
+        monkeypatch.setattr(seed_demo, "SEED", copy)
+        return copy
+
+    def test_a_seed_file_that_will_not_load_is_reported_not_raised(self, capsys, seed):
+        rewrite_seed(seed, lambda d: d.pop("calls"))
+        report, code = run(capsys)
+        assert report["seed"] == "seed.yaml failed to load: KeyError: 'calls'"
+        assert code == 1
+
+    @pytest.mark.parametrize(
+        ("mutate", "problem"),
+        [
+            (
+                lambda d: d["calls"].append({**d["calls"][0], "key": "nonesuch"}),
+                "call 'nonesuch' is in 0 sales call topics, not one",
+            ),
+            (
+                lambda d: d["calls"].append({**d["calls"][0], "key": " — "}),
+                "call ' — ' is in 6 sales call topics, not one",
+            ),
+            (
+                lambda d: d["calls"][0].update(interest="lukewarm"),
+                "call 'expansion': interest 'lukewarm' is not a sales_call label",
+            ),
+            (
+                lambda d: d["calls"][0].update(timing="someday"),
+                "call 'expansion': timing 'someday' is not a sales_call label",
+            ),
+            (
+                lambda d: d["calls"][0]["pain_points"].append("boredom"),
+                "call 'expansion': pain_points 'boredom' is not a sales_call label",
+            ),
+            (
+                lambda d: d["tickets"].append(
+                    {"subject": "Nonesuch", "complaint": "bug"}
+                ),
+                "ticket 'Nonesuch' starts no ticket subject in the world",
+            ),
+            (
+                lambda d: d["tickets"][0].update(complaint="outage"),
+                "ticket 'API rate limit': complaint 'outage' "
+                "is not a support_ticket label",
+            ),
+            (
+                lambda d: d["briefings"].update(cfo={"history": [], "latest": "Hi."}),
+                "briefing 'cfo' has no reader in definitions/briefs/",
+            ),
+            (
+                lambda d: d["briefings"]["ceo"]["history"].append("{nonesuch} {gone}"),
+                "briefing 'ceo' names {gone}, which is no call key; "
+                "briefing 'ceo' names {nonesuch}, which is no call key",
+            ),
+            (
+                lambda d: d["read"]["findings"][0].update(call="nonesuch"),
+                "finding 'deal_without_next_step' names call 'nonesuch', "
+                "which is no call key",
+            ),
+            (
+                lambda d: d["lookalikes"][0]["records"][0].update(source="nonesuch"),
+                "look-alike 'carlos' comes from 'nonesuch', "
+                "which mappings.yaml does not name",
+            ),
+        ],
+        ids=[
+            "key-in-no-topic",
+            "key-in-many-topics",
+            "interest",
+            "timing",
+            "pain-point",
+            "ticket-subject",
+            "complaint",
+            "reader",
+            "placeholder",
+            "finding",
+            "look-alike-source",
+        ],
+    )
+    def test_each_kind_of_seed_break_is_named(self, capsys, seed, mutate, problem):
+        rewrite_seed(seed, mutate)
+        report, code = run(capsys)
+        assert report["seed"] == problem
         assert code == 1

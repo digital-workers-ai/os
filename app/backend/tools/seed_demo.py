@@ -51,129 +51,11 @@ PINS = [
     (FactCurrent.observed_at, NOW - timedelta(hours=1), timedelta(days=1)),
     (RawEvent.ingested_at, NOW - timedelta(hours=1), None),
 ]
-PLAN = {
-    "expansion": ("strong", "this_quarter", ["manual_work", "reporting_gaps"], True),
-    "billing": ("weak", "no_timeline", ["support_quality", "pricing"], False),
-    "pricing": ("strong", "immediate", ["pricing", "onboarding_time"], True),
-    "renewal": ("moderate", "next_quarter", ["missing_features"], True),
-    "security": (
-        "moderate",
-        "next_quarter",
-        ["security_compliance", "integration_complexity"],
-        True,
-    ),
-    "intro": ("none", "next_year", ["vendor_lock_in"], False),
-}
-TICKETS = {
-    "API rate limit": "access",
-    "Billing discrepancy": "billing",
-    "Cannot export": "bug",
-    "Feature request": "feature_request",
-    "Feature suggestion": "feature_request",
-    "Getting started": "how_to",
-    "How to set up SSO": "access",
-    "Integration failing": "bug",
-    "Need invoice": "billing",
-    "Payment method": "billing",
-}
-HISTORY = {
-    "ceo": [
-        "Revenue is at $16,540 MRR against the $20,000 quarter goal, with 9 open "
-        "deals. The pipeline rule found one deal with no next step. Sales calls "
-        "are not being read yet, so interest is not measured.",
-        "Revenue is at $16,700 MRR and 10 open deals worth $341,000. No goal is "
-        "met. One high-severity finding is open: {renewal} has had no activity in "
-        "fourteen days.",
-        "Revenue is at $16,820 MRR, short of the $20,000 quarter goal, with 11 "
-        "open deals in pipeline. No sales calls have been read yet, so buying "
-        "interest could not be measured this week.",
-        "Revenue moved to $16,950 MRR with 12 open deals. The first four sales "
-        "calls were read: one strong, two moderate, one weak. Two high-severity "
-        "findings are open, both deals with no next step.",
-        "Revenue is at $17,020 MRR and 13 open deals worth $388,000. {pricing} "
-        "reads as strong interest and wants to move immediately. {billing} has "
-        "escalated a billing dispute and says it will buy nothing more until it "
-        "is resolved.",
-    ],
-    "head_of_sales": [
-        "Nine open deals. {renewal} has had no activity in two weeks and no next "
-        "step is recorded. Calls are not being read yet, so there is no interest "
-        "signal.",
-        "Ten open deals worth $341,000. {renewal} is still idle. {expansion} booked "
-        "a call for next week about expanding to the growth team.",
-        "Eleven open deals, none with a recorded next step older than a week. "
-        "Sales calls have not been read yet, so there is no interest signal to "
-        "act on.",
-        "Four calls read. {expansion} is strong for this quarter and wants "
-        "reporting sales already has. {renewal} is moderate and pushed to next "
-        "quarter. Two deals have no next step recorded.",
-        "{pricing} came in strong and immediate, gated on pricing. {security} is "
-        "blocked on a security review. Three deals have no next step, all three "
-        "older than ten days.",
-    ],
-}
-BRIEFS = {
-    "ceo": (
-        "Revenue is holding at 17,147 MRR with 14 open deals worth 412,000 in "
-        "pipeline. Two of the six sales calls this week show strong buying "
-        "interest, {expansion} and {pricing}, and both name pricing or "
-        "reporting as the thing standing between them and a signature.\n\n"
-        "The one to watch is {billing}: the billing escalation call reads "
-        "as weak interest with support quality named twice. If that renewal "
-        "slips, the quarter target of 20,000 MRR moves out of reach."
-    ),
-    "head_of_sales": (
-        "{pricing} wants to move immediately and is gated on pricing and "
-        "onboarding time; that is the deal to close first. {expansion} is strong "
-        "for this quarter and asked for reporting they cannot get today.\n\n"
-        "{renewal} and {security} are both moderate and next quarter; {security} "
-        "is blocked on a security review, so get the compliance pack in front of "
-        "them now. {intro} is a no for this year. Three findings are open "
-        "against your pipeline hygiene rules, all of them deals with no next "
-        "step."
-    ),
-}
-LOOKALIKES = {
-    "carlos": (
-        ("zendesk", "users", "29001", {"name": "Carlos Ch", "phone": "+14155550101"}),
-        (
-            "intercom",
-            "contacts",
-            "con_demo_carlos",
-            {"name": "C Chinchilla", "phone": "+1 415 555 0101"},
-        ),
-    ),
-    "maria": (
-        (
-            "zendesk",
-            "users",
-            "29002",
-            {"name": "Maria Lopez", "email": "maria@zenith-labs.io"},
-        ),
-        (
-            "intercom",
-            "contacts",
-            "con_demo_maria",
-            {"name": "M. Lopez", "email": "m.lopez@zenith-labs.io"},
-        ),
-    ),
-    "alex": (
-        (
-            "zendesk",
-            "users",
-            "29003",
-            {"name": "Alex Rivera", "email": "alex@northwind.co"},
-        ),
-        (
-            "intercom",
-            "contacts",
-            "con_demo_alex",
-            {"name": "Alexandra Rivera", "email": "alexandra@northwind.co"},
-        ),
-    ),
-}
-DECIDED = {"maria": "confirmed", "alex": "rejected"}
 STUDIO_FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "studio"
+SEED = Path(__file__).resolve().parents[1] / "fixtures" / "seed.yaml"
+PLACEHOLDER = re.compile(r"\{([^{}]+)\}")
+SPEAKER = re.compile(r"^([^:\n]+):", re.MULTILINE)
+AFFILIATION = re.compile(r"\([^()]+\)$")
 STUDIO_TABLES = (
     StudioTurn,
     StudioThread,
@@ -190,12 +72,20 @@ STUDIO_TABLES = (
 SKIPPED_SLOT = "linkedin_post"
 
 
-def topic(meeting_name: str) -> str | None:
-    return next((key for key in PLAN if key in meeting_name), None)
+def topic(calls: list[dict], meeting_name: str) -> dict | None:
+    return next((call for call in calls if call["key"] in meeting_name), None)
 
 
 def company(meeting_name: str) -> str:
     return re.split(r" <> | — ", meeting_name)[0]
+
+
+def read_seed() -> dict:
+    return yaml.safe_load(SEED.read_text())
+
+
+def filled(text: str, named: dict[str, str]) -> str:
+    return PLACEHOLDER.sub(lambda found: named[found[1]], text)
 
 
 def read_library() -> dict:
@@ -206,22 +96,16 @@ def version_folder(entry: dict, number: int) -> Path:
     return STUDIO_FIXTURES / entry["dir"] / str(number)
 
 
-def read_manifest(companies: dict) -> dict:
+def read_manifest(read: dict, companies: dict) -> dict:
     return {
-        "metrics": {
-            "mrr": 17147.0,
-            "open_deals": 14,
-            "pipeline_value": 412000.0,
-            "sales_calls_strong_interest": 2,
-        },
+        "metrics": read["metrics"],
         "goals": {
-            "mrr_target": {"target": 20000, "current": 17147.0, "met": False},
-            "deals_with_next_step": {"met": False},
+            name: {key: value for key, value in goal.items() if value is not None}
+            for name, goal in read["goals"].items()
         },
         "findings": [
-            {"rule": "deal_without_next_step", "entity": companies["billing"]},
-            {"rule": "deal_without_next_step", "entity": companies["intro"]},
-            {"rule": "stale_deal", "entity": companies["renewal"]},
+            {"rule": finding["rule"], "entity": companies[finding["call"]]}
+            for finding in read["findings"]
         ],
     }
 
@@ -230,10 +114,16 @@ def sha(text: str) -> str:
     return hashlib.sha256(text.encode()).hexdigest()
 
 
+def our_side(text: str) -> str | None:
+    marks = (AFFILIATION.search(label.strip()) for label in SPEAKER.findall(text))
+    return next((mark[0] for mark in marks if mark), None)
+
+
 def sentence(text: str, keyword: str) -> str:
+    ours = our_side(text)
     parts = [p.strip() for p in re.split(r"(?<=[.!?])\s+", text)]
     parts = [p for p in parts if len(p) > 30]
-    prospect = [p for p in parts if "(OS)" not in p.split(":")[0]]
+    prospect = [p for p in parts if ours is None or ours not in p.split(":")[0]]
     for p in prospect:
         if keyword.replace("_", " ") in p.lower():
             return re.sub(r"^[^:]+:\s*", "", p)
@@ -304,20 +194,20 @@ def briefing(
 
 
 async def seed_meetings(s, vocab: str) -> int:
+    calls = read_seed()["calls"]
     rows = await facts_of(s, "meeting", "transcript")
     names = dict(await facts_of(s, "meeting", "name"))
     n = 0
     for i, (cid, text) in enumerate(rows):
-        key = topic(names.get(cid, ""))
-        if key is None:
+        call = topic(calls, names.get(cid, ""))
+        if call is None:
             continue
-        interest, timing, pains, verified = PLAN[key]
         when = NOW - timedelta(hours=2, minutes=7 * i)
-        labels = [("interest", interest), ("timing", timing)]
-        labels += [("pain_points", p) for p in pains]
+        labels = [("interest", call["interest"]), ("timing", call["timing"])]
+        labels += [("pain_points", p) for p in call["pain_points"]]
         for attr, value in labels:
             quote = sentence(text, value if attr == "pain_points" else attr)
-            if not verified and attr == "interest":
+            if not call["verified"] and attr == "interest":
                 quote = "we are basically ready to sign whenever you are"
             s.add(
                 fact(
@@ -330,9 +220,12 @@ async def seed_meetings(s, vocab: str) -> int:
 
 
 async def seed_tickets(s, vocab: str) -> int:
+    tickets = read_seed()["tickets"]
     n = 0
     for k, (cid, subject) in enumerate(await facts_of(s, "ticket", "subject")):
-        label = next((v for key, v in TICKETS.items() if subject.startswith(key)), None)
+        label = next(
+            (t["complaint"] for t in tickets if subject.startswith(t["subject"])), None
+        )
         if label is None:
             continue
         quote = subject if k % 7 else "customer says the whole account is locked"
@@ -355,29 +248,30 @@ async def seed_tickets(s, vocab: str) -> int:
     return n
 
 
-async def companies(s) -> dict[str, str]:
+async def companies(s, calls: list[dict]) -> dict[str, str]:
     named = {}
     for _cid, name in await facts_of(s, "meeting", "name"):
-        key = topic(name)
-        if key is not None:
-            named[key] = company(name)
+        call = topic(calls, name)
+        if call is not None:
+            named[call["key"]] = company(name)
     return named
 
 
 async def seed_briefings(s) -> int:
-    named = await companies(s)
-    manifest = read_manifest(named)
+    seed = read_seed()
+    named = await companies(s, seed["calls"])
+    manifest = read_manifest(seed["read"], named)
     n = 0
-    for j, (role, text) in enumerate(BRIEFS.items()):
-        for d, earlier in enumerate(HISTORY[role]):
+    for j, (role, texts) in enumerate(seed["briefings"].items()):
+        for d, earlier in enumerate(texts["history"]):
             when = NOW - timedelta(days=5 - d, hours=1, minutes=20 * j)
-            s.add(
-                briefing(role, earlier.format(**named), when, 2900 + 300 * d, manifest)
-            )
+            text = filled(earlier, named)
+            s.add(briefing(role, text, when, 2900 + 300 * d, manifest))
             n += 1
         await s.flush()
         latest = NOW - timedelta(hours=1, minutes=20 * j)
-        s.add(briefing(role, text.format(**named), latest, 3400 + 900 * j, manifest))
+        text = filled(texts["latest"], named)
+        s.add(briefing(role, text, latest, 3400 + 900 * j, manifest))
         n += 1
     return n
 
@@ -423,22 +317,24 @@ async def pin_engine_run_durations(s) -> int:
 
 
 async def seed_candidates(s) -> int:
-    for records in LOOKALIKES.values():
-        for source, object_type, source_id, fields in records:
-            payload = {"id": source_id, **fields}
+    lookalikes = read_seed()["lookalikes"]
+    for pair in lookalikes:
+        for record in pair["records"]:
             await store.save_raw(
                 s,
-                source=source,
-                object_type=object_type,
-                source_id=source_id,
-                raw_payload=payload,
+                source=record["source"],
+                object_type=record["object_type"],
+                source_id=record["source_id"],
+                raw_payload={"id": record["source_id"], **record["fields"]},
             )
     await s.commit()
     await rebuild(s)
-    for pair, status in DECIDED.items():
+    for pair in lookalikes:
+        if pair["decided"] is None:
+            continue
         left, right = sorted(
-            f"{source}|person|{source_id}"
-            for source, _object_type, source_id, _fields in LOOKALIKES[pair]
+            f"{record['source']}|person|{record['source_id']}"
+            for record in pair["records"]
         )
         await s.execute(
             update(MergeCandidate)
@@ -446,7 +342,7 @@ async def seed_candidates(s) -> int:
                 MergeCandidate.left_anchor == left,
                 MergeCandidate.right_anchor == right,
             )
-            .values(status=status, decided_at=NOW - timedelta(hours=3))
+            .values(status=pair["decided"], decided_at=NOW - timedelta(hours=3))
         )
     await s.commit()
     await rebuild(s)
