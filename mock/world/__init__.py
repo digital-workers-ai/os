@@ -207,6 +207,7 @@ VENDORS = _DATA["vendors"]
 _SPY = _DATA["spy"]
 SPY_BRAND = _SPY["brand"]
 SPY_COMPETITORS = _SPY["competitors"]
+SERP_RESULTS = 10
 SPY_QUERIES = _SPY["queries"]
 SPY_ANCHOR = _SPY["anchor"]
 SPY_ENGINES = ("google", "ai_overview", "chatgpt", "perplexity", "claude", "gemini")
@@ -476,9 +477,10 @@ def spy_serp(query: str) -> list[dict]:
     seed = f"serp|{query}"
     companies = [c for c in SPY_COMPETITORS if _spy_digest(seed, c["domain"]) % 4]
     if _spy_digest(seed, "brand") % 5 and not _spy_forced("serp-absent", query):
-        companies.append(SPY_BRAND)
-    rows = [_spy_company_result(c) for c in companies]
-    rows += _spy_order(seed + "|neutral", _SPY_NEUTRAL, "link")[: 10 - len(rows)]
+        companies.insert(0, SPY_BRAND)
+    rows = [_spy_company_result(c) for c in companies[:SERP_RESULTS]]
+    neutral = _spy_order(seed + "|neutral", _SPY_NEUTRAL, "link")
+    rows += neutral[: SERP_RESULTS - len(rows)]
     rows = _spy_order(seed + "|rank", rows, "link")
     return [
         {
