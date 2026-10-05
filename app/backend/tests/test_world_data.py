@@ -179,3 +179,44 @@ async def test_without_an_advertiser_id_the_ad_stand_ins_answer_no_results(
         )
     message = read.json()["choices"][0]["message"]
     assert message["content"] == world.spy_ad_text(ad["ad_creative_id"])
+
+
+def many_rivals(count: int, tmp_path, monkeypatch) -> dict:
+    data = load_data()
+    named = yaml.safe_load(spy.DEFAULT_SPY.read_text())
+    rivals = [
+        {"name": f"Rival {n}", "domain": f"rival-{n}.com", "aliases": []}
+        for n in range(count - len(data["spy"]["competitors"]))
+    ]
+    data["spy"]["competitors"] += rivals
+    named["competitors"] += rivals
+    for rival in rivals:
+        data["spy"]["pages"][rival["domain"]] = {
+            "title": f"{rival['name']} pricing",
+            "link": f"https://{rival['domain']}/pricing",
+        }
+        data["spy"]["snippets"][rival["domain"]] = (
+            f"{rival['name']} sells the same product to the same teams."
+        )
+    world = tmp_path / "world.yaml"
+    world.write_text(yaml.safe_dump(data))
+    monkeypatch.setenv("WORLD_DATA", str(world))
+    definitions = tmp_path / "spy.yaml"
+    definitions.write_text(yaml.safe_dump(named))
+    monkeypatch.setattr(spy, "DEFAULT_SPY", definitions)
+    return data
+
+
+def test_fifteen_competitors_load_and_a_results_page_holds_ten(
+    tmp_path, monkeypatch, fresh_mock
+):
+    data = many_rivals(15, tmp_path, monkeypatch)
+    world = ground_truth.world()
+    assert instance_check.check_world() == []
+    pages = [world.spy_serp(query) for query in data["spy"]["queries"]]
+    assert all(len(page) == 10 for page in pages)
+    assert all(len({row["link"] for row in page}) == 10 for page in pages)
+    brand = data["spy"]["pages"][data["spy"]["brand"]["domain"]]["link"]
+    assert any(row["link"] == brand for page in pages for row in page)
+    rivals = {page["link"] for page in data["spy"]["pages"].values()} - {brand}
+    assert any(row["link"] in rivals for page in pages for row in page)
