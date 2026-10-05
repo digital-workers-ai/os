@@ -26,7 +26,6 @@ RESULT_CHARS = 16_000
 VERIFIED_SOURCES = ("proof", "transcript")
 CLAIMS_FILE, HELD_FILE = "claims.md", "held.md"
 NO_SOURCE, HELD_SOURCE = "none", "held"
-SOURCE_CHARS = AssetClaim.__table__.c.source_kind.type.length
 
 SAFETY = prompts.text("studio_skill", "safety")
 TOOLBELT_NOTE = prompts.text("studio_skill", "toolbelt")
@@ -239,7 +238,7 @@ def parse_claims(text: str) -> list[dict]:
         claims.append(
             {
                 "text": claim,
-                "source": (source or NO_SOURCE)[:SOURCE_CHARS],
+                "source": source or NO_SOURCE,
                 "ref": ref or None,
                 "verified": source in VERIFIED_SOURCES and bool(ref),
             }

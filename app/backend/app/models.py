@@ -473,7 +473,7 @@ class AssetClaim(Base):
     asset_seq = Column(BigInteger, ForeignKey("asset.seq", ondelete="CASCADE"), nullable=False)  # owning asset: 1, 42
     version = Column(Integer, nullable=False)  # version it belongs to: 1, 2
     text = Column(Text, nullable=False)  # the claim as written: "MRR is 17,147", "Churn fell in August"
-    source_kind = Column(String(16), nullable=False)  # where it came from: proof, transcript, none
+    source_kind = Column(Text, nullable=False)  # where it came from: proof, none, "brand proof document"
     source_ref = Column(String(512))  # what backs it: mrr, mtg_20260830, null
     verified = Column(Boolean, nullable=False)  # proof or transcript with ref: true, false
 
