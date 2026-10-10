@@ -29,7 +29,8 @@ const SYNC = {
 }
 const REBUILT = { ok: true, duration_ms: 1234, raw_events_read: 382, entities: 388, facts: 1488 }
 const MCP = {
-  path: '/mcp',
+  url: 'http://localhost:8092/mcp',
+  auth: 'open',
   tools: [
     { name: 'get_metrics', description: 'Metric series with current value and trend' },
     { name: 'get_goals', description: 'Goals with progress against target' },
@@ -223,16 +224,16 @@ test('rebuild scrolled', async ({ page }) => {
 test('mcp tab', async ({ page }) => {
   await mockJson(page, '**/api/mcp', MCP)
   await openMcp(page)
-  const endpoint = `${new URL(page.url()).origin}/mcp`
-  await expect(page.getByTestId('mcp-title')).toHaveText(endpoint)
+  await expect(page.getByTestId('mcp-title')).toHaveText(MCP.url)
+  await expect(page.getByTestId('mcp-access')).toContainText('Access: open')
   await expect(page.getByTestId('mcp-copy')).toHaveText('Copy')
   await expect(heads(page.getByTestId('mcp-tools'))).toHaveText(['Tool (7)', 'Description'])
   await expect(heads(page.getByTestId('mcp-resources'))).toHaveText(['Resource (9)', 'URI', 'Description'])
   await expect(heads(page.getByTestId('mcp-prompts'))).toHaveText(['Prompt (2)', 'Description'])
   const blocks = page.getByTestId('mcp-client-body').locator('pre')
   await expect(blocks).toHaveCount(2)
-  await expect(blocks.nth(0)).toHaveText(`claude mcp add --transport http os ${endpoint}`)
-  await expect(blocks.nth(1)).toContainText(`"url": "${endpoint}"`)
+  await expect(blocks.nth(0)).toHaveText(`claude mcp add --transport http os ${MCP.url}`)
+  await expect(blocks.nth(1)).toContainText(`"url": "${MCP.url}"`)
   await snap(page, 'config-mcp')
 })
 

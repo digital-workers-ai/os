@@ -3,6 +3,7 @@ import re
 import pytest
 
 from app.caches import BACKEND_DIR
+from app.config import CREDENTIALS
 from app.sources import creds
 
 ENV_EXAMPLE = BACKEND_DIR.parent / ".env.example"
@@ -95,11 +96,12 @@ class TestEveryValueIsLeftBlank:
 class TestNothingIsDocumentedThatNoSourceReads:
     @pytest.mark.parametrize("number, key, value", documented())
     def test_every_key_is_one_the_credentials_layer_reads(self, number, key, value):
-        allowed = {*credential_names(), *base_url_names(), STAND_INS_ONLY}
+        allowed = {*credential_names(), *base_url_names(), *CREDENTIALS, STAND_INS_ONLY}
         assert key in allowed, (
-            f"app/.env.example:{number} documents {key}, which no source reads: it "
+            f"app/.env.example:{number} documents {key}, which nothing reads: it "
             "is neither a variable in creds._REAL, nor a <SOURCE>_BASE_URL override "
-            "for a source in it, nor STAND_INS_ONLY"
+            "for a source in it, nor a credential the startup guard checks, nor "
+            "STAND_INS_ONLY"
         )
 
 

@@ -6,7 +6,7 @@ from urllib.parse import unquote
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
-from app import mcp
+from app import auth, mcp
 from app.agents import marketer
 from app.api import register_routes
 from app.config import settings, validate_startup
@@ -70,8 +70,44 @@ async def refuse_null_bytes(request, call_next):
     return await call_next(request)
 
 
+OPEN_PATHS = frozenset(
+    {"/api/health", "/api/auth/login", "/api/auth/callback", "/api/auth/logout"}
+)
+
+
+async def _admit(request, call_next, email=None, session=False):
+    request.state.email = email
+    request.state.session = session
+    return await call_next(request)
+
+
+@app.middleware("http")
+async def lock_api(request, call_next):
+    path = request.url.path
+    if not path.startswith("/api/") or path in OPEN_PATHS or not settings.AUTH_ENABLED:
+        return await _admit(request, call_next)
+    cookie = auth.read_token(request.cookies.get(auth.SESSION_COOKIE)) or {}
+    if auth.allowed(cookie.get("email")):
+        return await _admit(request, call_next, cookie["email"], session=True)
+    header = request.headers.get("Authorization", "")
+    if header.startswith("Bearer "):
+        token = await mcp.server.auth.verify_token(header.removeprefix("Bearer "))
+        if token is not None:
+            return await _admit(request, call_next, token.claims.get("email"))
+    return JSONResponse(
+        status_code=401,
+        content={"detail": "sign in required"},
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+
+def mount(app: FastAPI, http_app) -> None:
+    for route in http_app.routes:
+        app.add_route(route.path, http_app)
+
+
 register_routes(app)
-app.add_route(mcp.PATH, mcp.http_app)
+mount(app, mcp.http_app)
 
 
 @app.get("/api/health")

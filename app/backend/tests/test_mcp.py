@@ -7,9 +7,10 @@ import pytest_asyncio
 from fastmcp import Client
 from sqlalchemy import select
 
-from app import main, mcp
+from app import auth, main, mcp
 from app.caches import DEFINITIONS_DIR
 from app.coaching import briefer
+from app.config import AUTH_SIGNING_KEY_ENV, settings
 from app.conversation import agent
 from app.engine import brand, looks
 from app.models import Asset, AssetFile, McpCall
@@ -394,13 +395,30 @@ class TestCallLog:
             ("prompt", "briefing_head_of_sales", True, {}, None),
         ]
 
+    async def test_with_auth_off_no_row_names_a_subject(self, client, session):
+        await client.call_tool("entity_counts", {})
+        await client.read_resource("definitions://goals")
+        rows = (await session.scalars(select(McpCall))).all()
+        assert len(rows) == 2
+        assert all(row.subject is None for row in rows)
+
+    async def test_the_signed_in_address_is_the_subject(
+        self, client, session, monkeypatch
+    ):
+        monkeypatch.setattr(mcp.auth, "subject", lambda: "ana@example.com")
+        await client.call_tool("entity_counts", {})
+        [row] = (await session.scalars(select(McpCall))).all()
+        assert row.subject == "ana@example.com"
+
 
 class TestHttp:
     async def test_the_api_describes_the_server(self):
         assert main.app.title == "OS"
         async with served() as api:
             body = (await api.get("/api/mcp")).json()
-        assert body["path"] == "/mcp"
+        assert body["url"] == "http://localhost:8092/mcp"
+        assert body["auth"] == "open"
+        assert "path" not in body
         assert {tool["name"] for tool in body["tools"]} == TOOLS
         assert {resource["uri"] for resource in body["resources"]} == URIS
         assert {prompt["name"] for prompt in body["prompts"]} == {
@@ -415,6 +433,24 @@ class TestHttp:
             10,
             2,
         )
+
+    async def test_with_auth_on_the_api_names_google_at_the_public_url(
+        self, monkeypatch
+    ):
+        monkeypatch.setattr(settings, "AUTH_ENABLED", True)
+        monkeypatch.setattr(settings, "AUTH_ALLOWED_EMAILS", "ana@example.com")
+        monkeypatch.setattr(settings, "PUBLIC_URL", "https://os.example.com")
+        monkeypatch.setenv(AUTH_SIGNING_KEY_ENV, "test-signing-key")
+        cookies = {
+            auth.SESSION_COOKIE: auth.sign_token({"email": "ana@example.com"}, 60)
+        }
+        transport = httpx.ASGITransport(app=main.app)
+        async with httpx.AsyncClient(
+            transport=transport, base_url="http://backend"
+        ) as api:
+            body = (await api.get("/api/mcp", cookies=cookies)).json()
+        assert body["url"] == "https://os.example.com/mcp"
+        assert body["auth"] == "google"
 
     async def test_the_endpoint_answers_inside_the_app(self):
         async with served() as api:

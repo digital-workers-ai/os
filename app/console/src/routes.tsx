@@ -95,6 +95,7 @@ export const CONFIG_ROUTE: TabbedRoute = {
     { value: TAB.config.sources, label: 'Sources' },
     { value: TAB.config.rebuild, label: 'Rebuild' },
     { value: TAB.config.mcp, label: 'MCP' },
+    { value: TAB.config.access, label: 'Access' },
   ],
 }
 
