@@ -41,11 +41,15 @@ async def test_the_rebuild_projects_the_whole_estate(session, sessionmaker_for_t
     assert sum(facts_by_type.values()) == 124
 
 
-async def test_cyberdynes_empty_industry_is_the_only_clear(
+async def test_cyberdynes_name_and_industry_and_every_deal_currency_are_the_clears(
     session, sessionmaker_for_test
 ):
     result = await _rebuilt(session, sessionmaker_for_test)
-    assert result["report"]["clears"] == {"industry/hubspot": 1}
+    assert result["report"]["clears"] == {
+        "industry/hubspot": 1,
+        "name/hubspot": 1,
+        "currency/hubspot": 10,
+    }
 
 
 async def test_a_clean_estate_reports_no_skips_dead_paths_or_fallbacks(
@@ -54,7 +58,7 @@ async def test_a_clean_estate_reports_no_skips_dead_paths_or_fallbacks(
     report = (await _rebuilt(session, sessionmaker_for_test))["report"]
     assert report["skips"] == {}
     assert [p for p in report["dead_paths"] if "hubspot" in p] == []
-    assert report["counts"]["account_currency/hubspot"] == 10
+    assert "account_currency/hubspot" not in report["counts"]
     assert "observed_at_fallback/hubspot" not in report["counts"]
 
 

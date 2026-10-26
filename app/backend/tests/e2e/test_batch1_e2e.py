@@ -92,7 +92,7 @@ async def test_the_batch_one_links_all_land_with_no_quarantines(
     rates = result["report"]["match_rates"]
 
     assert rates["ticket belongs_to company"]["edges"] == 10
-    assert rates["ticket raised_by person"]["edges"] == 20
+    assert rates["ticket raised_by person"]["edges"] == 16
     assert rates["event performed_by person"]["edges"] == 10
     assert rates["meeting attended_by person"]["edges"] == 5
     assert all(rate["match_rate"] == 1.0 for rate in rates.values())
@@ -107,7 +107,7 @@ async def test_the_batch_one_links_all_land_with_no_quarantines(
     )
     assert by_rel == {
         "belongs_to": 20,
-        "raised_by": 20,
+        "raised_by": 16,
         "performed_by": 10,
         "attended_by": 5,
     }

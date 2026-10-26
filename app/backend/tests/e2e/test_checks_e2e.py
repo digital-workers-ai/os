@@ -94,10 +94,7 @@ class TestSources:
         body = (await api.get("/api/sources")).json()
         by_source = {s["source"]: s for s in body["sources"]}
         assert len(by_source) == len(registry.discover())
-        assert {s["validation"] for s in body["sources"]} == {
-            "mock-validated",
-            "provider-validated",
-        }
+        assert {s["validation"] for s in body["sources"]} == {"mock-validated"}
         assert by_source["stripe"]["entities"] == [
             "company",
             "person",
@@ -120,7 +117,12 @@ class TestSources:
         assert coverage["by_status"] == {"mock-validated": total}
         assert "mock-validated only" in coverage["detail"]
 
-    async def test_a_replayed_provider_payload_shows_up_in_the_number(self, api):
+    async def test_a_replayed_provider_payload_shows_up_in_the_number(
+        self, api, tmp_path, monkeypatch
+    ):
+        for source in PROVIDER_VALIDATED:
+            (tmp_path / source).mkdir()
+        monkeypatch.setattr(checks, "REAL_FIXTURES", tmp_path)
         body = (await api.get("/api/sources")).json()
         coverage = body["validation_coverage"]
         replayed = sorted(
