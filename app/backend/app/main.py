@@ -40,10 +40,16 @@ app = FastAPI(title="OS", lifespan=lifespan)
 
 @app.exception_handler(405)
 async def method_not_allowed(request, exc):
+    routes = list(iter_route_contexts(request.app.routes))
+    template = next(
+        route.path_format
+        for route in routes
+        if route.path_regex.match(request.url.path)
+    )
     allowed = {
         method
-        for route in iter_route_contexts(request.app.routes)
-        if route.path_regex.match(request.url.path)
+        for route in routes
+        if route.path_format == template
         for method in route.methods
     }
     return JSONResponse(
