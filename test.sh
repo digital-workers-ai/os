@@ -17,9 +17,10 @@ case "$mode" in
   instance) ;;
   snap) snap_script=snap ;;
   snap-update) snap_script=snap:update ;;
+  preview) ;;
   *)
     echo "unknown mode: $mode" >&2
-    echo "expected: unit | e2e | fixtures | instance | snap | snap-update" >&2
+    echo "expected: unit | e2e | fixtures | instance | snap | snap-update | preview" >&2
     exit 2
     ;;
 esac
@@ -27,6 +28,14 @@ esac
 if ! docker info >/dev/null 2>&1; then
   echo "docker is not running — start Docker Desktop and try again" >&2
   exit 1
+fi
+
+if [ "$mode" = "preview" ]; then
+  echo "==> preview web server"
+  docker run --rm -v "$PWD/preview/web:/w:ro" -w /w node:22-alpine \
+    node --test --experimental-test-coverage --test-coverage-include=server.mjs \
+    --test-coverage-lines=100 --test-coverage-branches=100 --test-coverage-functions=100
+  exit 0
 fi
 
 wait_for() {

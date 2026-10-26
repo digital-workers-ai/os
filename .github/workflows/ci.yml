@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   unit:
@@ -13,7 +18,16 @@ jobs:
       - run: cp app/.env.example app/.env
       - run: ./test.sh unit
       - run: ./test.sh instance
+      - run: ./test.sh preview
+  e2e:
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft || !contains(github.event.pull_request.labels.*.name, 'ci:skip-e2e')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cp app/.env.example app/.env
+      - run: ./test.sh e2e
   snapshots:
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft || !contains(github.event.pull_request.labels.*.name, 'ci:skip-snap')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
