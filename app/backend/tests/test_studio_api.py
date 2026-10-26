@@ -376,6 +376,15 @@ class TestThreads:
         response = await api.request(method, f"/api/studio/threads/{seq}", json=body)
         assert response.status_code == 422
 
+    async def test_a_get_ignores_a_body_it_cannot_parse(self, api):
+        response = await api.request(
+            "GET",
+            "/api/studio/threads/9",
+            content=b"\xff{",
+            headers={"content-type": "application/json"},
+        )
+        assert response.status_code == 404
+
     @pytest.mark.parametrize("path", ["/api/studio/threads", "/api/studio/threads/1"])
     async def test_the_405_names_both_methods_the_path_serves(self, api, path):
         response = await api.options(path)

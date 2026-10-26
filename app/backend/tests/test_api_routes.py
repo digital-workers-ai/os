@@ -5,6 +5,7 @@ from datetime import UTC, datetime, timedelta
 import httpx
 import pytest
 import pytest_asyncio
+from fastapi import APIRouter, FastAPI
 from sqlalchemy import func, select, update
 
 from app import store
@@ -1913,6 +1914,23 @@ class TestDocumentedResponses:
         ):
             documented = spec["paths"][path]["get"]["responses"]
             assert "404" in documented, f"{path} can 404 and does not say so"
+
+
+class TestMethodNotAllowed:
+    async def test_the_405_names_every_method_any_route_on_the_path_serves(self):
+        pair = APIRouter(prefix="/pair")
+        pair.add_api_route("/{seq}", lambda seq: seq, methods=["GET"])
+        pair.add_api_route("/{seq}", lambda seq: seq, methods=["POST"])
+        probe = FastAPI(exception_handlers=app.exception_handlers)
+        probe.include_router(pair)
+        transport = httpx.ASGITransport(app=probe)
+        async with httpx.AsyncClient(
+            transport=transport, base_url="http://probe"
+        ) as client:
+            response = await client.delete("/pair/1")
+        assert response.status_code == 405
+        assert response.json() == {"detail": "Method Not Allowed"}
+        assert response.headers["allow"] == "GET, POST"
 
 
 NETWORKS = ("facebook", "instagram", "linkedin", "x", "pinterest")
