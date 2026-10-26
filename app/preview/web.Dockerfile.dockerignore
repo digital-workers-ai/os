@@ -3,6 +3,8 @@
 app/backend
 app/e2e
 app/renderer
-**/.env
+**/.env*
+!**/.env.example
+**/.venv
 **/node_modules
 **/dist

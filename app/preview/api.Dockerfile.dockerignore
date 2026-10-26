@@ -1,7 +1,5 @@
 *
 !app/backend
-!app/renderer/package.json
-!app/renderer/server.js
 !app/preview/env.sh
 !app/preview/serve.sh
 !app/preview/seed.sh
@@ -12,7 +10,9 @@
 app/backend/tests
 app/backend/captures
 app/backend/mutants
-**/.env
+**/.env*
+!**/.env.example
+**/.venv
 **/__pycache__
 **/.pytest_cache
 **/.ruff_cache

@@ -4,6 +4,7 @@ set -euo pipefail
 
 source /preview/env.sh
 
+exec > >(cat) 2>&1
 cd /app
 
 supervisord -c /etc/supervisord.conf &
