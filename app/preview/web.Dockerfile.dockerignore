@@ -1,0 +1,8 @@
+*
+!app
+app/backend
+app/e2e
+app/renderer
+**/.env
+**/node_modules
+**/dist

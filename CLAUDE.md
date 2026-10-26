@@ -3,6 +3,7 @@
 ## Commands
 
 - `./test.sh unit` — lint (ruff check + format --check), then pytest with 100% line+branch coverage enforced; runs inside the backend container
+- `./test.sh preview` — run the preview web server's node tests in a container
 - `./format.sh` — apply ruff autofixes and formatting
 - `docker compose -f app/docker-compose.yml up -d --wait postgres backend` — start the stack (project `os`, postgres :5442, backend :8092)
 

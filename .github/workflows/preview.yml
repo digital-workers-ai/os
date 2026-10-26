@@ -1,0 +1,333 @@
+name: preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr:
+        type: string
+        default: ""
+  schedule:
+    - cron: "17 * * * *"
+
+permissions: {}
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  CLOUDSDK_CORE_PROJECT: ${{ vars.PREVIEW_PROJECT }}
+  CLOUDSDK_RUN_REGION: us-central1
+  CLOUDSDK_CORE_DISABLE_PROMPTS: "1"
+  PROVIDER: projects/${{ vars.PREVIEW_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github/providers/os-repo
+  DEPLOY_SA: os-preview-deploy@${{ vars.PREVIEW_PROJECT }}.iam.gserviceaccount.com
+  API_SA: os-preview-api@${{ vars.PREVIEW_PROJECT }}.iam.gserviceaccount.com
+  WEB_SA: os-preview-web@${{ vars.PREVIEW_PROJECT }}.iam.gserviceaccount.com
+  REGISTRY: us-central1-docker.pkg.dev/${{ vars.PREVIEW_PROJECT }}/os-previews
+  BUCKET: ${{ vars.PREVIEW_PROJECT }}
+  INSTANCE: os-previews
+  CONNECTION: ${{ vars.PREVIEW_PROJECT }}:us-central1:os-previews
+
+jobs:
+  deploy:
+    if: vars.PREVIEW_PROJECT != '' && github.event_name == 'workflow_dispatch' && inputs.pr != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    concurrency:
+      group: preview-${{ inputs.pr }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    env:
+      PR: ${{ inputs.pr }}
+    steps:
+      - name: Admit only an open pull request from this repository
+        id: pull
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! [[ "$PR" =~ ^[0-9]+$ ]]; then
+            echo "::error::pr must be a pull request number"
+            exit 1
+          fi
+          pull=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR")
+          head_repo=$(jq -r '.head.repo.full_name // ""' <<< "$pull")
+          sha=$(jq -r .head.sha <<< "$pull")
+          state=$(jq -r .state <<< "$pull")
+          if [ "$head_repo" != "$GITHUB_REPOSITORY" ]; then
+            echo "::error::#$PR comes from ${head_repo:-a deleted repository}; previews run only branches of $GITHUB_REPOSITORY"
+            exit 1
+          fi
+          if [ "$state" != open ]; then
+            echo "::error::#$PR is $state"
+            exit 1
+          fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "tag=pr-$PR-${sha:0:12}" >> "$GITHUB_OUTPUT"
+      - name: Check out the head commit (actions/checkout v4)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ steps.pull.outputs.sha }}
+          persist-credentials: false
+      - name: Confirm the commit and list the apps
+        id: apps
+        env:
+          SHA: ${{ steps.pull.outputs.sha }}
+        run: |
+          if [ "$(git rev-parse HEAD)" != "$SHA" ]; then
+            echo "::error::checked out $(git rev-parse HEAD), expected $SHA"
+            exit 1
+          fi
+          apps=""
+          next=3196
+          for config in app/*/vite.config.ts; do
+            app=$(basename "$(dirname "$config")")
+            if ! [[ "$app" =~ ^[a-z][a-z0-9-]*$ ]]; then
+              echo "::error::app/$app cannot name a Cloud Run service"
+              exit 1
+            fi
+            case "$app" in
+              console) port=3192 ;;
+              dashboard) port=3193 ;;
+              spy) port=3194 ;;
+              studio) port=3195 ;;
+              *) port=$next; next=$((next + 1)) ;;
+            esac
+            apps="$apps $app:$port"
+          done
+          echo "apps=${apps# }" >> "$GITHUB_OUTPUT"
+      - name: Build the images
+        env:
+          TAG: ${{ steps.pull.outputs.tag }}
+          APPS: ${{ steps.apps.outputs.apps }}
+        run: |
+          docker build -f app/preview/api.Dockerfile -t "$REGISTRY/api:$TAG" .
+          for entry in $APPS; do
+            docker build -f app/preview/web.Dockerfile --build-arg APP="${entry%:*}" -t "$REGISTRY/web-${entry%:*}:$TAG" .
+          done
+      - name: Authenticate to Google Cloud (google-github-actions/auth v2)
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed
+        with:
+          workload_identity_provider: ${{ env.PROVIDER }}
+          service_account: ${{ env.DEPLOY_SA }}
+      - name: Set up gcloud (google-github-actions/setup-gcloud v2)
+        uses: google-github-actions/setup-gcloud@e427ad8a34f8676edf47cf7d7925499adf3eb74f
+        with:
+          install_components: cloud-run-proxy
+      - name: Push the images
+        env:
+          TAG: ${{ steps.pull.outputs.tag }}
+          APPS: ${{ steps.apps.outputs.apps }}
+        run: |
+          gcloud auth configure-docker us-central1-docker.pkg.dev
+          docker push "$REGISTRY/api:$TAG"
+          for entry in $APPS; do
+            docker push "$REGISTRY/web-${entry%:*}:$TAG"
+          done
+      - name: Start the database instance
+        run: |
+          state() { gcloud sql instances describe "$INSTANCE" --format 'value(state)'; }
+          if [ "$(state)" != RUNNABLE ]; then
+            gcloud sql instances patch "$INSTANCE" --activation-policy ALWAYS
+          fi
+          for _ in $(seq 60); do
+            if [ "$(state)" = RUNNABLE ]; then
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::$INSTANCE did not start within 10 minutes"
+          exit 1
+      - name: Start the preview's database and media over
+        run: |
+          if gcloud run services describe "os-pr-$PR-api" >/dev/null 2>&1; then
+            gcloud run services delete "os-pr-$PR-api"
+          fi
+          if gcloud sql databases describe "os_pr_$PR" --instance "$INSTANCE" >/dev/null 2>&1; then
+            gcloud sql databases delete "os_pr_$PR" --instance "$INSTANCE"
+          fi
+          gcloud sql databases create "os_pr_$PR" --instance "$INSTANCE"
+          if gcloud storage ls "gs://$BUCKET/pr-$PR/" >/dev/null 2>&1; then
+            gcloud storage rm --recursive "gs://$BUCKET/pr-$PR/"
+          fi
+      - name: Seed and serve the API
+        env:
+          TAG: ${{ steps.pull.outputs.tag }}
+        run: |
+          settings="STAND_INS_ONLY=true,MARKETER_DAILY=false,STUDIO_ENABLED=false,ENRICHMENT_ENABLED=false,COACHING_ENABLED=false,CONVERSATION_ENABLED=false,EMBEDDINGS_ENABLED=false,RERANK_ENABLED=false,CLOCK_PINNED_AT=2026-09-04T12:00:00Z,MEDIA_DIR=/media/pr-$PR,DB_USER=os_preview,DB_NAME=os_pr_$PR,DB_INSTANCE=$CONNECTION"
+          shared=(
+            --image "$REGISTRY/api:$TAG"
+            --service-account "$API_SA"
+            --set-cloudsql-instances "$CONNECTION"
+            --add-volume "name=media,type=cloud-storage,bucket=$BUCKET"
+            --add-volume-mount volume=media,mount-path=/media
+            --cpu 1
+            --memory 2Gi
+            --set-env-vars "$settings"
+            --set-secrets DB_PASSWORD=os-preview-db-password:latest
+          )
+          gcloud run jobs deploy "os-pr-$PR-seed" "${shared[@]}" \
+            --command /preview/seed.sh \
+            --task-timeout 30m \
+            --max-retries 0 \
+            --execute-now --wait
+          gcloud run deploy "os-pr-$PR-api" "${shared[@]}" \
+            --port 8000 \
+            --no-allow-unauthenticated \
+            --min-instances 0 \
+            --max-instances 1 \
+            --timeout 300 \
+            --execution-environment gen2 \
+            --startup-probe tcpSocket.port=8000,periodSeconds=10,timeoutSeconds=5,failureThreshold=60
+          gcloud run services add-iam-policy-binding "os-pr-$PR-api" \
+            --member "serviceAccount:$WEB_SA" \
+            --role roles/run.invoker >/dev/null
+      - name: Serve the apps
+        env:
+          TAG: ${{ steps.pull.outputs.tag }}
+          APPS: ${{ steps.apps.outputs.apps }}
+        run: |
+          api_url=$(gcloud run services describe "os-pr-$PR-api" --format 'value(status.url)')
+          for entry in $APPS; do
+            gcloud run deploy "os-pr-$PR-${entry%:*}" \
+              --image "$REGISTRY/web-${entry%:*}:$TAG" \
+              --port 8080 \
+              --no-allow-unauthenticated \
+              --min-instances 0 \
+              --max-instances 1 \
+              --memory 256Mi \
+              --service-account "$WEB_SA" \
+              --set-env-vars "API_URL=$api_url" \
+              --set-custom-audiences "os-pr-$PR"
+          done
+      - name: Mint the smoke test's identity token (google-github-actions/auth v2)
+        id: token
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed
+        with:
+          workload_identity_provider: ${{ env.PROVIDER }}
+          service_account: ${{ env.DEPLOY_SA }}
+          token_format: id_token
+          id_token_audience: os-pr-${{ inputs.pr }}
+          id_token_include_email: true
+      - name: Open every app through the proxy
+        env:
+          APPS: ${{ steps.apps.outputs.apps }}
+          TOKEN: ${{ steps.token.outputs.id_token }}
+        run: |
+          trap 'kill $(jobs -p) 2>/dev/null || true' EXIT
+          for entry in $APPS; do
+            gcloud run services proxy "os-pr-$PR-${entry%:*}" --port "${entry#*:}" --token "$TOKEN" &
+          done
+          check() {
+            for _ in $(seq 30); do
+              if result=$(curl -s --max-time 120 -o /dev/null -w '%{http_code} %{content_type}' "$1"); then
+                case "$result" in
+                  "200 $2"*) echo "$1 -> $result"; return 0 ;;
+                esac
+              fi
+              sleep 10
+            done
+            echo "::error::$1 answered ${result:-nothing}"
+            return 1
+          }
+          for entry in $APPS; do
+            check "http://localhost:${entry#*:}/" text/html
+            check "http://localhost:${entry#*:}/api/health"
+          done
+      - name: Post the commands on the pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ steps.pull.outputs.sha }}
+          APPS: ${{ steps.apps.outputs.apps }}
+        run: |
+          {
+            echo "Preview for #$PR"
+            echo
+            echo "Commit $SHA on stand-in data, every AI feature off. Run an app's command, then open its URL."
+            for entry in $APPS; do
+              echo
+              echo "**${entry%:*}** at http://localhost:${entry#*:}"
+              echo '```'
+              echo "gcloud run services proxy os-pr-$PR-${entry%:*} --region $CLOUDSDK_RUN_REGION --project $CLOUDSDK_CORE_PROJECT --port ${entry#*:}"
+              echo '```'
+            done
+          } > "$RUNNER_TEMP/comment.md"
+          id=$(gh api --paginate "repos/$GITHUB_REPOSITORY/issues/$PR/comments" \
+            --jq ".[] | select(.user.login == \"github-actions[bot]\" and (.body | split(\"\n\")[0] | rtrimstr(\"\r\")) == \"Preview for #$PR\") | .id" | sed -n 1p)
+          if [ -n "$id" ]; then
+            gh api --method PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$id" -F "body=@$RUNNER_TEMP/comment.md" >/dev/null
+          else
+            gh api --method POST "repos/$GITHUB_REPOSITORY/issues/$PR/comments" -F "body=@$RUNNER_TEMP/comment.md" >/dev/null
+          fi
+
+  sweep:
+    if: vars.PREVIEW_PROJECT != '' && (github.event_name == 'schedule' || inputs.pr == '')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: preview-sweep
+      cancel-in-progress: false
+    permissions:
+      actions: read
+      pull-requests: read
+      id-token: write
+    steps:
+      - name: Authenticate to Google Cloud (google-github-actions/auth v2)
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed
+        with:
+          workload_identity_provider: ${{ env.PROVIDER }}
+          service_account: ${{ env.DEPLOY_SA }}
+      - name: Set up gcloud (google-github-actions/setup-gcloud v2)
+        uses: google-github-actions/setup-gcloud@e427ad8a34f8676edf47cf7d7925499adf3eb74f
+      - name: Delete the previews of closed pull requests
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          services=$(gcloud run services list --format 'value(metadata.name)')
+          jobs=$(gcloud run jobs list --format 'value(metadata.name)')
+          databases=""
+          if [ "$(gcloud sql instances describe "$INSTANCE" --format 'value(state)')" = RUNNABLE ]; then
+            databases=$(gcloud sql databases list --instance "$INSTANCE" --format 'value(name)')
+          fi
+          images=$(gcloud artifacts docker images list "$REGISTRY" --include-tags --format json)
+          prs=$(printf '%s\n' $services $jobs $databases | sed -nE 's/^os-pr-([0-9]+)-.*$/\1/p; s/^os_pr_([0-9]+)$/\1/p' | sort -un)
+          for pr in $prs; do
+            state=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$pr" --jq .state) || continue
+            if [ "$state" != closed ]; then
+              continue
+            fi
+            echo "==> #$pr is closed"
+            for name in $services; do
+              case "$name" in
+                "os-pr-$pr-"*) gcloud run services delete "$name" ;;
+              esac
+            done
+            for name in $jobs; do
+              case "$name" in
+                "os-pr-$pr-"*) gcloud run jobs delete "$name" ;;
+              esac
+            done
+            for name in $databases; do
+              case "$name" in
+                "os_pr_$pr") gcloud sql databases delete "$name" --instance "$INSTANCE" ;;
+              esac
+            done
+            if gcloud storage ls "gs://$BUCKET/pr-$pr/" >/dev/null 2>&1; then
+              gcloud storage rm --recursive "gs://$BUCKET/pr-$pr/"
+            fi
+            for image in $(jq -r --arg prefix "pr-$pr-" '.[] | select(any(.tags[]?; startswith($prefix))) | "\(.package)@\(.version)"' <<< "$images"); do
+              gcloud artifacts docker images delete "$image" --delete-tags
+            done
+          done
+      - name: Stop the database instance once no preview remains
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          remaining=$(gcloud run services list --filter 'metadata.name ~ ^os-pr-[0-9]+-api$' --format 'value(metadata.name)')
+          deploying=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow preview.yml --status in_progress --json databaseId --jq "map(select(.databaseId != $GITHUB_RUN_ID)) | length")
+          state=$(gcloud sql instances describe "$INSTANCE" --format 'value(state)')
+          if [ -z "$remaining" ] && [ "$deploying" = 0 ] && [ "$state" = RUNNABLE ]; then
+            gcloud sql instances patch "$INSTANCE" --activation-policy NEVER
+          fi
