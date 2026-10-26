@@ -129,16 +129,17 @@ jobs:
       - name: Start the database instance
         run: |
           state() { gcloud sql instances describe "$INSTANCE" --format 'value(state)'; }
+          pending() { gcloud sql operations list --instance "$INSTANCE" --filter 'status != DONE' --format 'value(name)'; }
           if [ "$(state)" != RUNNABLE ]; then
-            gcloud sql instances patch "$INSTANCE" --activation-policy ALWAYS
+            gcloud sql instances patch "$INSTANCE" --activation-policy ALWAYS --async
           fi
-          for _ in $(seq 60); do
-            if [ "$(state)" = RUNNABLE ]; then
+          for _ in $(seq 120); do
+            if [ "$(state)" = RUNNABLE ] && [ -z "$(pending)" ]; then
               exit 0
             fi
             sleep 10
           done
-          echo "::error::$INSTANCE did not start within 10 minutes"
+          echo "::error::$INSTANCE did not start within 20 minutes"
           exit 1
       - name: Start the preview's database and media over
         run: |
@@ -325,9 +326,19 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          state() { gcloud sql instances describe "$INSTANCE" --format 'value(state)'; }
+          pending() { gcloud sql operations list --instance "$INSTANCE" --filter 'status != DONE' --format 'value(name)'; }
           remaining=$(gcloud run services list --filter 'metadata.name ~ ^os-pr-[0-9]+-api$' --format 'value(metadata.name)')
           deploying=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow preview.yml --status in_progress --json databaseId --jq "map(select(.databaseId != $GITHUB_RUN_ID)) | length")
-          state=$(gcloud sql instances describe "$INSTANCE" --format 'value(state)')
-          if [ -z "$remaining" ] && [ "$deploying" = 0 ] && [ "$state" = RUNNABLE ]; then
-            gcloud sql instances patch "$INSTANCE" --activation-policy NEVER
+          if [ -n "$remaining" ] || [ "$deploying" != 0 ] || [ "$(state)" != RUNNABLE ]; then
+            exit 0
           fi
+          gcloud sql instances patch "$INSTANCE" --activation-policy NEVER --async
+          for _ in $(seq 120); do
+            if [ "$(state)" = STOPPED ] && [ -z "$(pending)" ]; then
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::$INSTANCE did not stop within 20 minutes"
+          exit 1
