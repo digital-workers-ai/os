@@ -5,7 +5,7 @@ import pytest_asyncio
 from app.db import get_session
 from app.engine import spy
 from app.main import app
-from tests.conftest import NOW
+from tests.conftest import NOW, refusal
 
 DOC = {
     "brand": {"name": "Pipedrive", "domain": "pipedrive.com", "aliases": []},
@@ -131,24 +131,25 @@ def _checks_of(body, query=QUERY):
 class TestWindowRefusals:
     @pytest.mark.parametrize("route", ["visibility", "ads", "posts"])
     @pytest.mark.parametrize(
-        "query,reason",
+        "query,message",
         [
-            ("from=2026-09-01", "together"),
-            ("to=2026-09-30", "together"),
-            ("from=2026-09-30&to=2026-09-01", "after"),
+            ("from=2026-09-01", "from and to travel together"),
+            ("to=2026-09-30", "from and to travel together"),
+            ("from=2026-09-30&to=2026-09-01", "from must not be after to"),
         ],
         ids=["from_without_to", "to_without_from", "from_after_to"],
     )
     async def test_a_lopsided_or_inverted_window_is_refused(
-        self, api, route, query, reason
+        self, api, route, query, message
     ):
         response = await api.get(f"/api/spy/{route}?{query}")
         assert response.status_code == 422, response.text
-        assert reason in response.json()["detail"]
+        assert response.json()["detail"] == refusal(message)
 
     @pytest.mark.parametrize("route", ["visibility", "ads", "posts"])
-    async def test_a_date_that_is_not_a_date_is_refused(self, api, route):
-        response = await api.get(f"/api/spy/{route}?from=yesterday&to=2026-09-30")
+    @pytest.mark.parametrize("day", ["yesterday", "0", "2026-09-01T00:00:00"])
+    async def test_a_date_that_is_not_a_date_is_refused(self, api, route, day):
+        response = await api.get(f"/api/spy/{route}?from={day}&to=2026-09-30")
         assert response.status_code == 422
 
 
@@ -158,7 +159,9 @@ class TestVisibilityRefusals:
     async def test_an_engine_outside_the_six_is_refused(self, api, engine):
         response = await api.get(f"/api/spy/visibility?engine={engine}")
         assert response.status_code == 422, response.text
-        assert "engine" in response.json()["detail"]
+        assert response.json()["detail"] == refusal(
+            f"engine must be one of {', '.join(spy.ENGINES)}"
+        )
 
 
 @pytest.mark.usefixtures("tracked")

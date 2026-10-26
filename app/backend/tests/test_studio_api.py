@@ -231,6 +231,13 @@ class TestCalendar:
     async def test_both_dates_are_required(self, api, defs, query):
         assert (await api.get(f"/api/studio/calendar?{query}")).status_code == 422
 
+    @pytest.mark.parametrize(
+        "query",
+        ["from=0&to=2026-09-07", "from=2026-09-01&to=2026-09-07T00:00:00"],
+    )
+    async def test_a_date_is_only_year_month_day(self, api, defs, query):
+        assert (await api.get(f"/api/studio/calendar?{query}")).status_code == 422
+
 
 class TestFill:
     async def test_runs_the_marketer_by_hand_and_returns_its_run(
@@ -267,8 +274,9 @@ class TestSkip:
         assert response.status_code == 404
         assert "nope" in response.json()["detail"]
 
-    async def test_a_day_that_is_not_a_date_is_a_422(self, api, defs):
-        response = await api.post("/api/studio/slots/friday/linkedin_post/skip")
+    @pytest.mark.parametrize("day", ["friday", "0", "2026-09-04T00:00:00"])
+    async def test_a_day_that_is_not_a_date_is_a_422(self, api, defs, day):
+        response = await api.post(f"/api/studio/slots/{day}/linkedin_post/skip")
         assert response.status_code == 422
 
 
@@ -312,6 +320,12 @@ class TestRunSlot:
         assert response.status_code == 409
         assert response.json()["detail"] == "Studio is off"
 
+    @pytest.mark.parametrize("day", ["0", "2026-09-04T00:00:00"])
+    async def test_a_day_that_is_not_a_date_is_a_422(self, api, defs, fake_runner, day):
+        response = await api.post(f"/api/studio/slots/{day}/linkedin_post/run")
+        assert response.status_code == 422
+        assert fake_runner["asks"] == []
+
 
 class TestCanvas:
     async def test_lists_nodes_in_the_range_and_kind(self, api, session):
@@ -335,6 +349,10 @@ class TestCanvas:
         empty = await api.get("/api/studio/canvas?to=2026-09-03")
         assert empty.json() == {"nodes": []}
 
+    @pytest.mark.parametrize("query", ["to=0", "from=2026-09-04T00:00:00"])
+    async def test_a_date_is_only_year_month_day(self, api, query):
+        assert (await api.get(f"/api/studio/canvas?{query}")).status_code == 422
+
 
 class TestThreads:
     async def test_creates_lists_and_reads_a_thread(self, api, sessionmaker_for_test):
@@ -351,6 +369,12 @@ class TestThreads:
         assert (await api.get("/api/studio/threads/9")).status_code == 404
         response = await api.post("/api/studio/threads/9", json={"text": "hi"})
         assert response.status_code == 404
+
+    @pytest.mark.parametrize("path", ["/api/studio/threads", "/api/studio/threads/1"])
+    async def test_the_405_names_both_methods_the_path_serves(self, api, path):
+        response = await api.options(path)
+        assert response.status_code == 405
+        assert set(response.headers["allow"].split(", ")) == {"GET", "POST"}
 
 
 class TestTurn:

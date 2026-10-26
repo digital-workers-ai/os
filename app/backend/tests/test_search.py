@@ -43,7 +43,7 @@ from app.search_vocab import (
     Mode,
     Weight,
 )
-from tests.conftest import NOW
+from tests.conftest import NOW, refusal
 
 SEEN = datetime(2026, 8, 1, tzinfo=UTC)
 DIMS = 1536
@@ -1394,6 +1394,13 @@ class TestSearchApi:
     async def test_bad_input_is_a_422(self, api, params):
         assert (await api.get("/api/search", params=params)).status_code == 422
 
+    async def test_an_unknown_kind_is_refused_naming_the_kinds(self, api):
+        response = await api.get("/api/search", params={"q": "wayne", "kind": "nope"})
+        assert response.status_code == 422
+        assert response.json()["detail"] == refusal(
+            f"{UNKNOWN_KIND} 'nope'; one of {search.kinds()}"
+        )
+
     async def test_the_largest_legal_offset_is_an_empty_page(self, api):
         response = await api.get(
             "/api/search", params={"q": "wayne", "offset": 2**63 - 1}
@@ -1428,6 +1435,11 @@ class TestSearchApi:
         )
         assert response.status_code == 502
         assert response.json()["detail"] == "embeddings down"
+
+    async def test_the_409_and_the_502_are_documented(self, api):
+        spec = (await api.get("/openapi.json")).json()
+        documented = spec["paths"]["/api/search"]["get"]["responses"]
+        assert {"409", "502"} <= set(documented)
 
     async def test_embed_runs_when_the_layer_is_on(
         self, api, session, pending, embedder, monkeypatch
