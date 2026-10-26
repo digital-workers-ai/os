@@ -8,9 +8,6 @@ on:
         default: ""
   schedule:
     - cron: "17 * * * *"
-  push:
-    branches: [feat/ci-and-previews]
-    paths: [.github/workflows/preview.yml]
 
 permissions: {}
 
