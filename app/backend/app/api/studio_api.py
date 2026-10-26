@@ -1,8 +1,7 @@
 from datetime import timedelta
 from typing import Annotated
 
-from fastapi import BackgroundTasks, Depends, HTTPException, Query, Request
-from fastapi.exceptions import RequestValidationError
+from fastapi import BackgroundTasks, Depends, HTTPException, Query
 from pydantic import BaseModel, Field, StringConstraints
 
 from app.api.params import Day, Seq
@@ -17,7 +16,6 @@ DEFAULT_FILL_DAYS = 14
 MANUAL = "manual"
 NOT_FOUND = {404: {"description": "no such thread or slot"}}
 CANNOT_RUN = {409: {"description": "the run cannot open"}}
-NO_BODY = {"type": "missing", "loc": ("body",), "msg": "Field required", "input": None}
 
 
 class FillBody(BaseModel):
@@ -101,28 +99,31 @@ async def get_canvas(
     return {"nodes": await canvas.nodes(session, frm, to, kind)}
 
 
-@router.api_route("/threads", methods=["GET", "POST"])
-async def threads(request: Request, session=Depends(get_session)):
-    if request.method == "POST":
-        thread = await chat.create_thread(session)
-        await session.commit()
-        return {"thread": chat.thread_row(thread)}
+@router.get("/threads")
+async def list_threads(session=Depends(get_session)):
     return {"threads": await chat.threads(session)}
 
 
-@router.api_route("/threads/{seq}", methods=["GET", "POST"], responses=NOT_FOUND)
-async def thread(
-    seq: Seq,
-    request: Request,
-    background: BackgroundTasks,
-    body: TextBody | None = None,
-    session=Depends(get_session),
+@router.post("/threads")
+async def create_thread(session=Depends(get_session)):
+    thread = await chat.create_thread(session)
+    await session.commit()
+    return {"thread": chat.thread_row(thread)}
+
+
+@router.get("/threads/{seq}", responses=NOT_FOUND)
+async def get_thread(seq: Seq, session=Depends(get_session)):
+    try:
+        return await chat.thread(session, seq)
+    except Missing as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@router.post("/threads/{seq}", responses=NOT_FOUND)
+async def send_turn(
+    seq: Seq, body: TextBody, background: BackgroundTasks, session=Depends(get_session)
 ):
     try:
-        if request.method == "GET":
-            return await chat.thread(session, seq)
-        if body is None:
-            raise RequestValidationError([NO_BODY])
         outcome = await chat.turn(session, seq, body.text)
     except Missing as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
