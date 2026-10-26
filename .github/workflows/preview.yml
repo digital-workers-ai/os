@@ -1,3 +1,28 @@
+# Private, per-pull-request previews of DW-OS on Google Cloud Run.
+#
+# A preview is one pull request's head commit running on stand-in vendor data,
+# with every AI feature off and no model key anywhere: the backend, the mock
+# providers and the renderer in one service (os-pr-<N>-api), each frontend app
+# in its own (os-pr-<N>-<app>), on a fresh database (os_pr_<N>). Nothing is
+# public: every service refuses a request without a Google identity token.
+#
+# Two triggers:
+#   workflow_dispatch with pr=<N> deploys, or rebuilds from scratch, the
+#     preview of #<N>:  gh workflow run preview.yml -f pr=<N>
+#     Dispatched with pr empty, it runs the sweep instead.
+#   schedule, hourly, runs the sweep: it deletes the previews of closed pull
+#     requests and stops the database instance once none is left.
+#
+# A preview is opened from a laptop through gcloud's local proxy, which signs
+# each request as your Google account (that account needs roles/run.invoker):
+#   gcloud run services proxy os-pr-<N>-console --region us-central1 --project <PREVIEW_PROJECT> --port 3192
+# then http://localhost:3192. The deploy posts the exact command for every app
+# on the pull request.
+#
+# The repository is public, so the workflow assumes hostile input: it never
+# runs a fork's code, it builds pull request code before holding any cloud
+# credential, it pins every third-party action to a commit, and it never
+# splices an expression into a shell script.
 name: preview
 
 on:
@@ -9,12 +34,19 @@ on:
   schedule:
     - cron: "17 * * * *"
 
+# The default GITHUB_TOKEN gets no permission at all; each job asks for the
+# few it needs.
 permissions: {}
 
+# Explicit bash runs with -e and -o pipefail: any failing command, including
+# one inside a pipe, fails the step.
 defaults:
   run:
     shell: bash
 
+# Everything is derived from two repository variables. A fork or an instance
+# copy of this template has neither, so both jobs skip. The CLOUDSDK_* values
+# give every gcloud call its project and region and stop it from prompting.
 env:
   CLOUDSDK_CORE_PROJECT: ${{ vars.PREVIEW_PROJECT }}
   CLOUDSDK_RUN_REGION: us-central1
@@ -29,13 +61,20 @@ env:
   CONNECTION: ${{ vars.PREVIEW_PROJECT }}:us-central1:os-previews
 
 jobs:
+  # Deploys the preview of one pull request. Only someone with write access can
+  # dispatch a workflow, and Google Cloud trusts only this file on main (see the
+  # first authentication step), so a pull request cannot change what runs here.
   deploy:
     if: vars.PREVIEW_PROJECT != '' && github.event_name == 'workflow_dispatch' && inputs.pr != ''
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    # One deploy per pull request at a time; a second dispatch waits for the first
+    # instead of racing it.
     concurrency:
       group: preview-${{ inputs.pr }}
       cancel-in-progress: false
+    # Read the code, comment on the pull request, and request the GitHub OIDC
+    # token that Google Cloud exchanges for the deploy service account.
     permissions:
       contents: read
       pull-requests: write
@@ -43,6 +82,14 @@ jobs:
     env:
       PR: ${{ inputs.pr }}
     steps:
+      # A preview runs the pull request's code with cloud credentials behind it, so
+      # only an open pull request whose branch lives in this repository qualifies:
+      # its author already has write access here. A fork's pull request, or one
+      # whose fork was deleted, is refused. The number must be digits before it is
+      # used anywhere.
+      # Values reach every script through env, never as expressions inside run:
+      # an expression is pasted into the script as code before bash sees it, so
+      # a crafted value could run commands; an environment variable stays data.
       - name: Admit only an open pull request from this repository
         id: pull
         env:
@@ -66,11 +113,20 @@ jobs:
           fi
           echo "sha=$sha" >> "$GITHUB_OUTPUT"
           echo "tag=pr-$PR-${sha:0:12}" >> "$GITHUB_OUTPUT"
+      # Check out the exact head commit read above rather than the branch, so a push
+      # landing mid-run cannot swap in code nobody asked to deploy. The token is not
+      # left in .git/config, out of reach of the code about to be built.
+      # Every third-party action is pinned to a full commit SHA, its tag kept in the
+      # step name: a tag can be moved to other code, a commit cannot.
       - name: Check out the head commit (actions/checkout v4)
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: ${{ steps.pull.outputs.sha }}
           persist-credentials: false
+      # Prove the checkout is that commit, then find the apps: every app/*/ with a
+      # vite.config.ts becomes its own service. A name must be a valid service name,
+      # which also keeps it safe to write into a step output. Known apps keep fixed
+      # local proxy ports; a new one takes the next port from 3196.
       - name: Confirm the commit and list the apps
         id: apps
         env:
@@ -98,6 +154,10 @@ jobs:
             apps="$apps $app:$port"
           done
           echo "apps=${apps# }" >> "$GITHUB_OUTPUT"
+      # Build every image before authenticating: the pull request's Dockerfiles and
+      # npm scripts run here, and the runner holds no cloud credential yet for them
+      # to reach. Images are tagged
+      # pr-<N>-<first 12 characters of the commit>, which is how the sweep finds them.
       - name: Build the images
         env:
           TAG: ${{ steps.pull.outputs.tag }}
@@ -107,11 +167,20 @@ jobs:
           for entry in $APPS; do
             docker build -f app/preview/web.Dockerfile --build-arg APP="${entry%:*}" -t "$REGISTRY/web-${entry%:*}:$TAG" .
           done
+      # Workload Identity Federation: GitHub's OIDC token for this run is exchanged
+      # for the deploy service account, with no key stored anywhere. The provider's
+      # condition admits only this repository and its owner (by numeric id, which a
+      # renamed or recreated repository cannot reuse), only workflow_dispatch and
+      # schedule events, and only this workflow file on main. A pull_request run, a
+      # fork, or an edited copy of this file on a branch cannot get credentials, even
+      # when a maintainer dispatches it.
       - name: Authenticate to Google Cloud (google-github-actions/auth v2)
         uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed
         with:
           workload_identity_provider: ${{ env.PROVIDER }}
           service_account: ${{ env.DEPLOY_SA }}
+      # cloud-run-proxy is installed up front: the smoke test starts one proxy per
+      # app at once, and they would otherwise race to install it.
       - name: Set up gcloud (google-github-actions/setup-gcloud v2)
         uses: google-github-actions/setup-gcloud@e427ad8a34f8676edf47cf7d7925499adf3eb74f
         with:
@@ -126,6 +195,13 @@ jobs:
           for entry in $APPS; do
             docker push "$REGISTRY/web-${entry%:*}:$TAG"
           done
+      # The shared Postgres instance is kept stopped while no preview exists. A cold
+      # start can outlast gcloud's own wait, so the start is requested with --async
+      # and polled for up to 20 minutes. The state alone proves nothing: Cloud SQL
+      # reports a stopped instance as RUNNABLE, and gcloud shows STOPPED only from
+      # the activation policy, which flips before the start finishes. So the loop
+      # also waits until no operation on the instance is pending, which covers a
+      # start still running from an earlier attempt too.
       - name: Start the database instance
         run: |
           state() { gcloud sql instances describe "$INSTANCE" --format 'value(state)'; }
@@ -141,6 +217,8 @@ jobs:
           done
           echo "::error::$INSTANCE did not start within 20 minutes"
           exit 1
+      # Every deploy starts the preview's data over. The API service goes first so
+      # its database connections close and the database can be dropped.
       - name: Start the preview's database and media over
         run: |
           if gcloud run services describe "os-pr-$PR-api" >/dev/null 2>&1; then
@@ -153,6 +231,12 @@ jobs:
           if gcloud storage ls "gs://$BUCKET/pr-$PR/" >/dev/null 2>&1; then
             gcloud storage rm --recursive "gs://$BUCKET/pr-$PR/"
           fi
+      # The seed job runs the API image once: sync and rebuild from the stand-ins,
+      # then the demo data, as ./test.sh snap does. The API service then serves that
+      # database. Both share the settings: stand-ins only, every AI feature off, the
+      # clock pinned, media under the bucket's pr-<N>/ prefix, and the database
+      # password read from Secret Manager at run time, never written here. The API
+      # refuses unauthenticated requests; only the apps' service account may call it.
       - name: Seed and serve the API
         env:
           TAG: ${{ steps.pull.outputs.tag }}
@@ -185,6 +269,8 @@ jobs:
           gcloud run services add-iam-policy-binding "os-pr-$PR-api" \
             --member "serviceAccount:$WEB_SA" \
             --role roles/run.invoker >/dev/null
+      # Each app's server forwards /api to the API with its own service account's
+      # identity token. The custom audience os-pr-<N> is for the smoke test below.
       - name: Serve the apps
         env:
           TAG: ${{ steps.pull.outputs.tag }}
@@ -203,6 +289,12 @@ jobs:
               --set-env-vars "API_URL=$api_url" \
               --set-custom-audiences "os-pr-$PR"
           done
+      # A second token, for the smoke test only. gcloud's proxy cannot mint an
+      # identity token from a federated login, so it is handed one. Cloud Run accepts
+      # a token whose audience is the service's URL or one of its custom audiences;
+      # the per-PR audience lets one token open every app of this preview and no
+      # other service. It is minted here, not at the first login, because it expires
+      # within the hour.
       - name: Mint the smoke test's identity token (google-github-actions/auth v2)
         id: token
         uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed
@@ -212,6 +304,9 @@ jobs:
           token_format: id_token
           id_token_audience: os-pr-${{ inputs.pr }}
           id_token_include_email: true
+      # The path a reviewer takes: a local proxy per app, then the app's page and
+      # its /api/health, which goes through the app to the API. Instances start
+      # cold, so each check retries for a few minutes.
       - name: Open every app through the proxy
         env:
           APPS: ${{ steps.apps.outputs.apps }}
@@ -237,6 +332,8 @@ jobs:
             check "http://localhost:${entry#*:}/" text/html
             check "http://localhost:${entry#*:}/api/health"
           done
+      # One comment per pull request, found by its author and first line and edited
+      # in place on every redeploy.
       - name: Post the commands on the pull request
         env:
           GH_TOKEN: ${{ github.token }}
@@ -263,13 +360,19 @@ jobs:
             gh api --method POST "repos/$GITHUB_REPOSITORY/issues/$PR/comments" -F "body=@$RUNNER_TEMP/comment.md" >/dev/null
           fi
 
+  # Removes what closed pull requests left behind, then stops the database
+  # instance if no preview needs it. Every deletion tolerates pieces that are
+  # already gone, so a sweep can be rerun at any time.
   sweep:
+    # The event is checked by name because inputs.pr is also empty on an event
+    # that has no inputs.
     if: vars.PREVIEW_PROJECT != '' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.pr == ''))
     runs-on: ubuntu-latest
     timeout-minutes: 30
     concurrency:
       group: preview-sweep
       cancel-in-progress: false
+    # actions: read lets the last step see whether a deploy is in progress.
     permissions:
       actions: read
       pull-requests: read
@@ -282,6 +385,10 @@ jobs:
           service_account: ${{ env.DEPLOY_SA }}
       - name: Set up gcloud (google-github-actions/setup-gcloud v2)
         uses: google-github-actions/setup-gcloud@e427ad8a34f8676edf47cf7d7925499adf3eb74f
+      # Pull request numbers come from every service, job and (while the instance
+      # runs) database named after one, so a deploy that failed halfway is found
+      # too. A preview is deleted only once GitHub says its pull request is closed,
+      # merged included; a number GitHub cannot resolve is left alone.
       - name: Delete the previews of closed pull requests
         env:
           GH_TOKEN: ${{ github.token }}
@@ -322,6 +429,12 @@ jobs:
               gcloud artifacts docker images delete "$image" --delete-tags
             done
           done
+      # Stop the instance only when no preview API remains and no other run of this
+      # workflow is in progress: a deploy may have just started the instance without
+      # having created its API service yet, and stopping it would break that deploy's
+      # seed. A deploy builds for minutes before it touches the instance, so one that
+      # starts after this check cannot be caught out. Stopping is requested with
+      # --async and polled for the same reasons as starting.
       - name: Stop the database instance once no preview remains
         env:
           GH_TOKEN: ${{ github.token }}
