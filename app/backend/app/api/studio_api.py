@@ -1,9 +1,10 @@
-from datetime import date, timedelta
+from datetime import timedelta
 from typing import Annotated
 
 from fastapi import BackgroundTasks, Depends, HTTPException, Query
 from pydantic import BaseModel, Field, StringConstraints
 
+from app.api.params import Day, Seq
 from app.api.routers import studio as router
 from app.db import get_session
 from app.models import Asset, SkillRun
@@ -38,8 +39,8 @@ def _schedule(background, started, ask) -> None:
 
 @router.get("/calendar")
 async def get_calendar(
-    frm: date = Query(alias="from"),
-    to: date = Query(),
+    frm: Annotated[Day, Query(alias="from")],
+    to: Day,
     session=Depends(get_session),
 ):
     if to - frm > MAX_SPAN:
@@ -63,7 +64,7 @@ async def fill_calendar(body: FillBody, session=Depends(get_session)):
 
 
 @router.post("/slots/{day}/{name}/skip", responses=NOT_FOUND)
-async def skip_slot(day: date, name: str, session=Depends(get_session)):
+async def skip_slot(day: Day, name: str, session=Depends(get_session)):
     try:
         await calendar.skip(session, day, name)
     except calendar.SlotError as exc:
@@ -74,7 +75,7 @@ async def skip_slot(day: date, name: str, session=Depends(get_session)):
 
 @router.post("/slots/{day}/{name}/run", responses={**NOT_FOUND, **CANNOT_RUN})
 async def run_slot(
-    day: date, name: str, background: BackgroundTasks, session=Depends(get_session)
+    day: Day, name: str, background: BackgroundTasks, session=Depends(get_session)
 ):
     try:
         started, ask = await calendar.run(session, day, name)
@@ -90,8 +91,8 @@ async def run_slot(
 
 @router.get("/canvas")
 async def get_canvas(
-    frm: date | None = Query(None, alias="from"),
-    to: date | None = None,
+    frm: Day | None = Query(None, alias="from"),
+    to: Day | None = None,
     kind: str | None = None,
     session=Depends(get_session),
 ):
@@ -111,7 +112,7 @@ async def create_thread(session=Depends(get_session)):
 
 
 @router.get("/threads/{seq}", responses=NOT_FOUND)
-async def get_thread(seq: int, session=Depends(get_session)):
+async def get_thread(seq: Seq, session=Depends(get_session)):
     try:
         return await chat.thread(session, seq)
     except Missing as exc:
@@ -120,7 +121,7 @@ async def get_thread(seq: int, session=Depends(get_session)):
 
 @router.post("/threads/{seq}", responses=NOT_FOUND)
 async def send_turn(
-    seq: int, body: TextBody, background: BackgroundTasks, session=Depends(get_session)
+    seq: Seq, body: TextBody, background: BackgroundTasks, session=Depends(get_session)
 ):
     try:
         outcome = await chat.turn(session, seq, body.text)

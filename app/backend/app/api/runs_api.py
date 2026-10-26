@@ -1,6 +1,7 @@
 from fastapi import Depends, HTTPException, Query
 from sqlalchemy import select
 
+from app.api.params import Seq
 from app.api.routers import runs as router
 from app.caches import MAX_OFFSET
 from app.db import get_session
@@ -40,7 +41,7 @@ async def list_skill_runs(
 
 
 @router.get("/skill-runs/{seq}", responses=NOT_FOUND)
-async def get_skill_run(seq: int, session=Depends(get_session)):
+async def get_skill_run(seq: Seq, session=Depends(get_session)):
     run = await session.get(SkillRun, seq)
     if run is None:
         raise HTTPException(status_code=404, detail=f"no skill run {seq}")

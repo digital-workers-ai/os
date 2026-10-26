@@ -5,6 +5,7 @@ from datetime import UTC, datetime, timedelta
 import httpx
 import pytest
 import pytest_asyncio
+from fastapi import APIRouter, FastAPI
 from sqlalchemy import func, select, update
 
 from app import store
@@ -40,7 +41,7 @@ from app.models import (
     SyncRun,
 )
 from app.sources import hooks, registry
-from tests.conftest import NOW
+from tests.conftest import NOW, refusal
 
 SELF_TRANSACTING = (
     sources_api,
@@ -638,22 +639,37 @@ class TestEntitiesTop:
         assert response.json()["detail"] == "no such entity type"
 
     @pytest.mark.parametrize(
-        "query,reason",
+        "query,message",
         [
-            ("rank=nope", "nope"),
-            ("rank=status", "number"),
-            ("rank=amount&columns=nope", "nope"),
-            ("rank=amount&from=2026-08-01&to=2026-08-31&window_attr=nope", "nope"),
-            ("rank=amount&from=2026-08-01&to=2026-08-31&window_attr=status", "date"),
-            ("rank=amount&filter=nope:x", "nope"),
-            ("rank=amount&filter=nonsense", "attr:value"),
-            ("rank=amount&from=2026-08-01&window_attr=closed_at", "to"),
-            ("rank=amount&to=2026-08-31&window_attr=closed_at", "from"),
+            ("rank=nope", "'nope' is not an attr of deal"),
+            ("rank=status", "rank 'status' is string, not a number"),
+            ("rank=amount&columns=nope", "'nope' is not an attr of deal"),
+            (
+                "rank=amount&from=2026-08-01&to=2026-08-31&window_attr=nope",
+                "'nope' is not an attr of deal",
+            ),
+            (
+                "rank=amount&from=2026-08-01&to=2026-08-31&window_attr=status",
+                "window_attr 'status' is string, not a date",
+            ),
+            ("rank=amount&filter=nope:x", "'nope' is not an attr of deal"),
+            ("rank=amount&filter=nonsense", "filter must be attr:value"),
+            (
+                "rank=amount&from=2026-08-01&window_attr=closed_at",
+                "from and to travel together",
+            ),
+            (
+                "rank=amount&to=2026-08-31&window_attr=closed_at",
+                "from and to travel together",
+            ),
             (
                 "rank=amount&from=2026-08-31&to=2026-08-01&window_attr=closed_at",
-                "after",
+                "from must not be after to",
             ),
-            ("rank=amount&from=2026-08-01&to=2026-08-31", "window_attr"),
+            (
+                "rank=amount&from=2026-08-01&to=2026-08-31",
+                "a window needs window_attr to range over",
+            ),
         ],
         ids=[
             "rank_not_an_attr",
@@ -670,11 +686,18 @@ class TestEntitiesTop:
         ],
     )
     async def test_a_bad_request_is_refused_naming_what_is_wrong(
-        self, api, query, reason
+        self, api, query, message
     ):
         response = await api.get(f"/api/entities/top?entity=deal&{query}")
         assert response.status_code == 422, response.text
-        assert reason in response.json()["detail"]
+        assert response.json()["detail"] == refusal(message)
+
+    @pytest.mark.parametrize("day", ["0", "2026-08-01T00:00:00"])
+    async def test_a_window_bound_is_only_year_month_day(self, api, day):
+        response = await api.get(
+            f"{TOP}&from={day}&to=2026-08-31&window_attr=closed_at"
+        )
+        assert response.status_code == 422
 
     @pytest.mark.parametrize(
         "query",
@@ -1029,18 +1052,22 @@ class TestMetrics:
     async def test_a_range_travels_as_a_pair(self, api, query):
         response = await api.get(f"/api/metrics/won_value?{query}")
         assert response.status_code == 422
+        assert response.json()["detail"] == refusal("from and to travel together")
 
     async def test_a_backwards_range_is_refused(self, api):
         response = await api.get("/api/metrics/won_value?from=2026-08-31&to=2026-08-01")
         assert response.status_code == 422
+        assert response.json()["detail"] == refusal("from must not be after to")
 
-    async def test_a_range_that_is_not_dates_is_refused(self, api):
-        response = await api.get("/api/metrics/won_value?from=soon&to=2026-08-31")
+    @pytest.mark.parametrize("day", ["soon", "0", "2026-08-01T00:00:00"])
+    async def test_a_range_that_is_not_dates_is_refused(self, api, day):
+        response = await api.get(f"/api/metrics/won_value?from={day}&to=2026-08-31")
         assert response.status_code == 422
 
     async def test_compare_needs_a_range(self, api):
         response = await api.get("/api/metrics/won_value?compare=previous")
         assert response.status_code == 422
+        assert response.json()["detail"] == refusal("compare needs from and to")
 
     async def test_a_fixed_window_refuses_a_range(self, api):
         response = await api.get(
@@ -1085,12 +1112,14 @@ class TestMetrics:
     async def test_a_filter_that_is_not_attr_value_is_refused(self, api, item):
         response = await api.get(f"/api/metrics/mrr?filter={item}")
         assert response.status_code == 422
-        assert response.json()["detail"] == "filter must be attr:value"
+        assert response.json()["detail"] == refusal("filter must be attr:value")
 
     async def test_a_filter_on_an_attr_the_entity_lacks_is_refused(self, api):
         response = await api.get("/api/metrics/mrr?filter=nope:x")
         assert response.status_code == 422
-        assert "nope" in response.json()["detail"]
+        assert response.json()["detail"] == refusal(
+            "filter attr 'nope' is not an attr of subscription"
+        )
 
     async def test_a_range_narrows_a_rangeable_metric(self, api, canonical):
         await canonical(
@@ -1301,6 +1330,10 @@ class TestReportRuns:
         response = await api.get("/api/report/runs/three")
         assert response.status_code == 422
         assert response.json()["detail"][0]["loc"] == ["path", "seq"]
+
+    @pytest.mark.parametrize("seq", [2**63, -(2**63) - 1])
+    async def test_a_seq_past_the_bigint_column_is_a_422(self, api, seq):
+        assert (await api.get(f"/api/report/runs/{seq}")).status_code == 422
 
 
 class TestInsights:
@@ -1881,6 +1914,35 @@ class TestDocumentedResponses:
         ):
             documented = spec["paths"][path]["get"]["responses"]
             assert "404" in documented, f"{path} can 404 and does not say so"
+
+
+async def _delete(router, path):
+    probe = FastAPI(exception_handlers=app.exception_handlers)
+    probe.include_router(router)
+    transport = httpx.ASGITransport(app=probe)
+    async with httpx.AsyncClient(
+        transport=transport, base_url="http://probe"
+    ) as client:
+        return await client.delete(path)
+
+
+class TestMethodNotAllowed:
+    async def test_the_405_names_every_method_any_route_on_the_path_serves(self):
+        pair = APIRouter(prefix="/pair")
+        pair.add_api_route("/{seq}", lambda seq: seq, methods=["GET"])
+        pair.add_api_route("/{seq}", lambda seq: seq, methods=["POST"])
+        response = await _delete(pair, "/pair/1")
+        assert response.status_code == 405
+        assert response.json() == {"detail": "Method Not Allowed"}
+        assert response.headers["allow"] == "GET, POST"
+
+    async def test_the_405_names_only_the_template_the_path_first_matches(self):
+        paths = APIRouter(prefix="/x")
+        paths.add_api_route("/literal", lambda: None, methods=["POST"])
+        paths.add_api_route("/{name}", lambda name: name, methods=["GET"])
+        response = await _delete(paths, "/x/literal")
+        assert response.status_code == 405
+        assert response.headers["allow"] == "POST"
 
 
 NETWORKS = ("facebook", "instagram", "linkedin", "x", "pinterest")
@@ -2531,6 +2593,12 @@ class TestResolutionDecisions:
         response = await api.post(f"/api/resolution/candidates/999/{decision}")
         assert response.status_code == 404
         assert response.json()["detail"] == "no such candidate"
+
+    @pytest.mark.parametrize("seq", [2**63, -(2**63) - 1])
+    @pytest.mark.parametrize("decision", ["confirm", "reject", "unmerge"])
+    async def test_a_seq_past_the_bigint_column_is_a_422(self, api, decision, seq):
+        response = await api.post(f"/api/resolution/candidates/{seq}/{decision}")
+        assert response.status_code == 422
 
     async def test_a_decision_during_a_rebuild_is_a_409_and_changes_nothing(
         self, api, queued, sessionmaker_for_test

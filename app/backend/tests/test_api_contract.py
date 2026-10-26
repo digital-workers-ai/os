@@ -59,7 +59,12 @@ def test_every_write_operation_is_excluded():
 
 
 @schema.parametrize()
-@settings(max_examples=20, deadline=None, suppress_health_check=[HealthCheck.too_slow])
+@settings(
+    max_examples=20,
+    deadline=None,
+    derandomize=True,
+    suppress_health_check=[HealthCheck.too_slow],
+)
 def test_no_route_returns_a_server_error_or_breaks_its_own_schema(case):
     if (case.method.upper(), case.path) in EXCLUDED:
         pytest.skip("writes to the database this suite is pointed at")

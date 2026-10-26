@@ -1,10 +1,10 @@
 from collections import Counter
-from datetime import date
 
-from fastapi import Depends, HTTPException, Query
+from fastapi import Depends, Query
 from sqlalchemy import select
 
 from app import clock
+from app.api.params import Day, refused
 from app.api.routers import spy as router
 from app.db import get_session
 from app.engine import metrics, spy
@@ -41,11 +41,11 @@ POST_ATTRS = (
 
 def _window(attr, from_, to) -> dict | None:
     if (from_ is None) != (to is None):
-        raise HTTPException(422, "from and to travel together")
+        raise refused("from and to travel together")
     if from_ is None:
         return None
     if from_ > to:
-        raise HTTPException(422, "from must not be after to")
+        raise refused("from must not be after to")
     return {"attr": attr, "from": from_.isoformat(), "to": to.isoformat()}
 
 
@@ -162,12 +162,12 @@ def _share(companies, checks, mentioned) -> dict:
 @router.get("/visibility")
 async def visibility(
     engine: str | None = None,
-    from_: date | None = Query(None, alias="from"),
-    to: date | None = Query(None),
+    from_: Day | None = Query(None, alias="from"),
+    to: Day | None = Query(None),
     session=Depends(get_session),
 ):
     if engine is not None and engine not in spy.ENGINES:
-        raise HTTPException(422, f"engine must be one of {', '.join(spy.ENGINES)}")
+        raise refused(f"engine must be one of {', '.join(spy.ENGINES)}")
     window = _window("checked_at", from_, to)
     filt = {} if engine is None else {"engine": engine}
     checks = await _rows(session, "visibility_check", CHECK_ATTRS, filt, window)
@@ -199,8 +199,8 @@ async def visibility(
 @router.get("/ads")
 async def ads(
     platform: str | None = None,
-    from_: date | None = Query(None, alias="from"),
-    to: date | None = Query(None),
+    from_: Day | None = Query(None, alias="from"),
+    to: Day | None = Query(None),
     session=Depends(get_session),
 ):
     window = _window("last_seen", from_, to)
@@ -228,8 +228,8 @@ async def ads(
 async def posts(
     platform: str | None = None,
     company: str | None = None,
-    from_: date | None = Query(None, alias="from"),
-    to: date | None = Query(None),
+    from_: Day | None = Query(None, alias="from"),
+    to: Day | None = Query(None),
     limit: int = Query(20, ge=1, le=200),
     offset: int = Query(0, ge=0),
     session=Depends(get_session),

@@ -7,7 +7,7 @@ import pytest_asyncio
 from app import sync
 from app.api import entities_api, metrics_api, sources_api
 from app.db import get_session
-from app.engine import run
+from app.engine import metrics, run
 from app.main import app
 
 pytestmark = pytest.mark.e2e
@@ -100,14 +100,14 @@ async def test_reading_metrics_writes_no_history(api, metrics_body):
 
 async def test_a_snapshot_records_every_definition(api, metrics_body):
     written = (await api.post("/api/metrics/snapshots")).json()["written"]
-    assert written == 14
+    assert written == len(metrics.load_definitions())
 
 
 async def test_history_shows_the_measured_estate_newest_first(api, metrics_body):
     await api.post("/api/metrics/snapshots")
     await api.post("/api/metrics/snapshots")
     rows = (await api.get("/api/metrics/history")).json()["history"]
-    assert len(rows) == 28
+    assert len(rows) == 2 * len(metrics.load_definitions())
     mrr = next(row for row in rows if row["metric"] == "mrr")
     assert mrr["value"] == 17147.0
     recorded = [row["recorded_at"] for row in rows]

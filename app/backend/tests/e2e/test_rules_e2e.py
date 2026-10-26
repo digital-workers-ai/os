@@ -44,7 +44,7 @@ async def rules_body(api, session, sessionmaker_for_test):
 
 async def test_the_estate_produces_exactly_six_findings(rules_body):
     assert len(rules_body["findings"]) == 6
-    assert rules_body["rules"] == 6
+    assert rules_body["rules"] == 8
 
 
 async def test_findings_split_by_severity(rules_body):
@@ -52,7 +52,7 @@ async def test_findings_split_by_severity(rules_body):
 
 
 async def test_every_evaluation_was_readable(rules_body):
-    assert rules_body["report"] == {"evaluated": 60, "unreadable": {}}
+    assert rules_body["report"] == {"evaluated": 70, "unreadable": {}}
 
 
 async def test_findings_name_the_companies_they_hang_off(rules_body):

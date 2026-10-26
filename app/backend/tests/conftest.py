@@ -16,6 +16,10 @@ FIXTURE_SEEN = datetime(2026, 8, 1, tzinfo=UTC)
 NOW = datetime(2026, 9, 4, 12, tzinfo=UTC)
 
 
+def refusal(message: str) -> list[dict]:
+    return [{"loc": ["query"], "msg": message, "type": "value_error"}]
+
+
 def _split_url(url: str) -> tuple[str, str]:
     base, _, name = url.rpartition("/")
     return base, name

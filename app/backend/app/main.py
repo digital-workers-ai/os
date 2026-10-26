@@ -5,6 +5,7 @@ from urllib.parse import unquote
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from fastapi.routing import iter_route_contexts
 
 from app import mcp
 from app.agents import marketer
@@ -35,6 +36,27 @@ async def lifespan(app):
 
 
 app = FastAPI(title="OS", lifespan=lifespan)
+
+
+@app.exception_handler(405)
+async def method_not_allowed(request, exc):
+    routes = list(iter_route_contexts(request.app.routes))
+    template = next(
+        route.path_format
+        for route in routes
+        if route.path_regex.match(request.url.path)
+    )
+    allowed = {
+        method
+        for route in routes
+        if route.path_format == template
+        for method in route.methods
+    }
+    return JSONResponse(
+        {"detail": exc.detail},
+        status_code=405,
+        headers={"Allow": ", ".join(sorted(allowed))},
+    )
 
 
 @app.middleware("http")

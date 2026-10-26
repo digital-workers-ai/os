@@ -189,6 +189,31 @@ class TestFiles:
         assert response.status_code == 409
 
 
+class TestBounds:
+    @pytest.mark.parametrize("version", [2**31, -(2**31) - 1])
+    async def test_a_version_past_the_integer_column_is_a_422(self, api, version):
+        response = await api.get(f"/api/assets/1/versions/{version}/files/post.md")
+        assert response.status_code == 422
+
+    @pytest.mark.parametrize("seq", [2**63, -(2**63) - 1])
+    @pytest.mark.parametrize(
+        "method,route,body",
+        [
+            ("GET", "", None),
+            ("GET", "/versions/1/files/post.md", None),
+            ("POST", "/edit", {"text": "Shorter"}),
+            ("POST", "/resize", {"ratio": "4:5"}),
+            ("POST", "/feedback", {"text": "Shorter"}),
+        ],
+        ids=["detail", "file", "edit", "resize", "feedback"],
+    )
+    async def test_a_seq_past_the_bigint_column_is_a_422(
+        self, api, seq, method, route, body
+    ):
+        response = await api.request(method, f"/api/assets/{seq}{route}", json=body)
+        assert response.status_code == 422
+
+
 class TestEdit:
     async def test_an_edit_opens_a_run_commits_it_and_executes_it_after_the_reply(
         self, api, session, runner_fakes, sessionmaker_for_test

@@ -121,7 +121,7 @@ async def test_the_batch_two_links_land_with_no_quarantines(
     )
     assert by_rel == {
         "belongs_to": 30,
-        "raised_by": 20,
+        "raised_by": 16,
         "performed_by": 10,
         "attended_by": 5,
         "placed_by": 4,

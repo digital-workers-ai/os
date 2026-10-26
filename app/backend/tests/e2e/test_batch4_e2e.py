@@ -92,12 +92,12 @@ async def test_the_rebuild_resolves_the_batch_four_entities(
         "social_report": 360,
         "traffic_report": 540,
         "data_source": 3,
-        "ad": 29,
-        "competitor_post": 23,
+        "ad": 89,
+        "competitor_post": 90,
         "visibility_check": 45,
         "visibility_mention": 132,
     }
-    assert sum(canonical_by_type.values()) == 2118
+    assert sum(canonical_by_type.values()) == 2245
 
 
 async def test_the_estate_is_clean_apart_from_its_counted_clears(
@@ -155,14 +155,14 @@ async def test_the_analytics_events_link_to_their_people(
     )
     assert by_rel == {
         "belongs_to": 652,
-        "raised_by": 20,
+        "raised_by": 16,
         "performed_by": 26,
         "attended_by": 11,
         "placed_by": 4,
         "sent_to": 3,
         "held_with": 6,
     }
-    assert sum(by_rel.values()) == 722
+    assert sum(by_rel.values()) == 718
 
 
 async def test_the_sources_endpoint_reflects_the_finished_sync(

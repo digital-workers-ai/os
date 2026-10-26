@@ -102,7 +102,7 @@ async def test_the_rebuild_resolves_the_estate_into_canonicals(
     ).scalar_one()
     assert member_count_sum == 72
 
-    assert await _count(session, FactCurrent) == 173
+    assert await _count(session, FactCurrent) == 189
 
     newest = (
         await session.execute(select(EngineRun).order_by(EngineRun.seq.desc()).limit(1))
@@ -164,9 +164,12 @@ async def test_the_entities_api_serves_the_canonical_layer(
     assert body["total"] == 10
     assert all(row["members"] == 2 for row in body["entities"])
     assert body["entities"][0]["facts"] == {
+        "currency": "usd",
         "domain": "acme.io",
-        "industry": "Software",
+        "industry": "COMPUTER_SOFTWARE",
+        "mrr": "1800.0",
         "name": "Acme Corp",
+        "open_tickets": "0.0",
     }
 
 

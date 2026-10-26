@@ -142,6 +142,10 @@ class TestSkillRun:
         assert response.status_code == 404
         assert "404" in response.json()["detail"]
 
+    @pytest.mark.parametrize("seq", [2**63, -(2**63) - 1])
+    async def test_a_seq_past_the_bigint_column_is_a_422(self, api, seq):
+        assert (await api.get(f"/api/skill-runs/{seq}")).status_code == 422
+
     async def test_the_detail_adds_the_tool_calls_and_the_files_of_its_version(
         self, api, session
     ):
