@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import BackgroundTasks, Depends, HTTPException, Query, Response
 from pydantic import BaseModel, StringConstraints
 
+from app.api.params import Seq, Version
 from app.api.routers import assets as router
 from app.caches import MAX_OFFSET
 from app.db import get_session
@@ -52,7 +53,7 @@ async def list_assets(
 
 
 @router.get("/assets/{seq}", responses=NOT_FOUND)
-async def get_asset(seq: int, session=Depends(get_session)):
+async def get_asset(seq: Seq, session=Depends(get_session)):
     try:
         return await assets.detail(session, seq)
     except Missing as exc:
@@ -64,7 +65,7 @@ async def get_asset(seq: int, session=Depends(get_session)):
     responses={**NOT_FOUND, **CLIMBS},
 )
 async def get_asset_file(
-    seq: int, version: int, path: str, session=Depends(get_session)
+    seq: Seq, version: Version, path: str, session=Depends(get_session)
 ):
     try:
         data, media_type = await assets.file_bytes(session, seq, version, path)
@@ -77,14 +78,14 @@ async def get_asset_file(
 
 @router.post("/assets/{seq}/edit", responses={**NOT_FOUND, **CANNOT_RUN})
 async def edit_asset(
-    seq: int, body: TextBody, background: BackgroundTasks, session=Depends(get_session)
+    seq: Seq, body: TextBody, background: BackgroundTasks, session=Depends(get_session)
 ):
     return await _opened(session, background, assets.edit(session, seq, body.text))
 
 
 @router.post("/assets/{seq}/resize", responses={**NOT_FOUND, **CANNOT_RUN})
 async def resize_asset(
-    seq: int,
+    seq: Seq,
     body: RatioBody,
     background: BackgroundTasks,
     session=Depends(get_session),
@@ -93,7 +94,7 @@ async def resize_asset(
 
 
 @router.post("/assets/{seq}/feedback", responses=NOT_FOUND)
-async def feedback_asset(seq: int, body: TextBody, session=Depends(get_session)):
+async def feedback_asset(seq: Seq, body: TextBody, session=Depends(get_session)):
     try:
         detail = await assets.feedback(session, seq, body.text)
     except Missing as exc:

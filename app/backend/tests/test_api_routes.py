@@ -1330,6 +1330,10 @@ class TestReportRuns:
         assert response.status_code == 422
         assert response.json()["detail"][0]["loc"] == ["path", "seq"]
 
+    @pytest.mark.parametrize("seq", [2**63, -(2**63) - 1])
+    async def test_a_seq_past_the_bigint_column_is_a_422(self, api, seq):
+        assert (await api.get(f"/api/report/runs/{seq}")).status_code == 422
+
 
 class TestInsights:
     async def test_an_empty_estate_is_zero_findings_with_a_report(self, api):
@@ -2559,6 +2563,12 @@ class TestResolutionDecisions:
         response = await api.post(f"/api/resolution/candidates/999/{decision}")
         assert response.status_code == 404
         assert response.json()["detail"] == "no such candidate"
+
+    @pytest.mark.parametrize("seq", [2**63, -(2**63) - 1])
+    @pytest.mark.parametrize("decision", ["confirm", "reject", "unmerge"])
+    async def test_a_seq_past_the_bigint_column_is_a_422(self, api, decision, seq):
+        response = await api.post(f"/api/resolution/candidates/{seq}/{decision}")
+        assert response.status_code == 422
 
     async def test_a_decision_during_a_rebuild_is_a_409_and_changes_nothing(
         self, api, queued, sessionmaker_for_test

@@ -5,6 +5,7 @@ from sqlalchemy import func, select, tuple_
 
 from app import clock
 from app.api.entities_api import LABEL_ATTRS, _label
+from app.api.params import Seq
 from app.api.routers import resolution as router
 from app.db import async_session, get_session
 from app.engine import run
@@ -51,17 +52,17 @@ async def list_candidates(
 
 
 @router.post("/candidates/{seq}/confirm", responses=NOT_FOUND)
-async def confirm(seq: int):
+async def confirm(seq: Seq):
     return await _decide(seq, "confirm")
 
 
 @router.post("/candidates/{seq}/reject", responses=NOT_FOUND)
-async def reject(seq: int):
+async def reject(seq: Seq):
     return await _decide(seq, "reject")
 
 
 @router.post("/candidates/{seq}/unmerge", responses=NOT_FOUND)
-async def unmerge(seq: int):
+async def unmerge(seq: Seq):
     return await _decide(seq, "unmerge")
 
 

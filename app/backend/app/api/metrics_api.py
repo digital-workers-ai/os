@@ -1,10 +1,10 @@
-from datetime import date
 from typing import Literal
 
 from fastapi import Depends, HTTPException, Query
 from sqlalchemy import select
 
 from app import clock
+from app.api.params import Day, refused
 from app.api.routers import metrics as router
 from app.db import async_session, get_session
 from app.engine import mappings, metrics
@@ -18,7 +18,7 @@ def filter_pairs(items) -> dict:
     for item in items:
         attr, _, value = item.partition(":")
         if not attr or not value:
-            raise HTTPException(422, "filter must be attr:value")
+            raise refused("filter must be attr:value")
         pairs[attr] = value
     return pairs
 
@@ -84,8 +84,8 @@ async def get_series(
 @router.get("/{name}", responses={404: {"description": "no such metric"}})
 async def get_metric(
     name: str,
-    from_: date | None = Query(None, alias="from"),
-    to: date | None = Query(None),
+    from_: Day | None = Query(None, alias="from"),
+    to: Day | None = Query(None),
     compare: Literal["previous"] | None = Query(None),
     filter_: list[str] = Query([], alias="filter"),
     session=Depends(get_session),
@@ -95,14 +95,14 @@ async def get_metric(
         raise HTTPException(404, "no such metric")
     filt = filter_pairs(filter_)
     if (from_ is None) != (to is None):
-        raise HTTPException(422, "from and to travel together")
+        raise refused("from and to travel together")
     bounds = None
     if from_ is not None:
         if from_ > to:
-            raise HTTPException(422, "from must not be after to")
+            raise refused("from must not be after to")
         bounds = (from_.isoformat(), to.isoformat())
     if compare and bounds is None:
-        raise HTTPException(422, "compare needs from and to")
+        raise refused("compare needs from and to")
     spec = defs[name]
     now = clock.now()
     try:
@@ -110,7 +110,7 @@ async def get_metric(
             session, name, spec, now=now, bounds=bounds, compare=compare, filt=filt
         )
     except metrics.MetricSpecError as e:
-        raise HTTPException(422, str(e)) from e
+        raise refused(str(e)) from e
     lineage = metrics.provenance(defs, mappings.load())
     return {
         "as_of": now.isoformat(),

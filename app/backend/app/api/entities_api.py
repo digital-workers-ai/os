@@ -1,11 +1,11 @@
 import uuid
 from collections import Counter
-from datetime import date
 
 from fastapi import Depends, HTTPException, Query
 from sqlalchemy import func, select
 
 from app.api.metrics_api import filter_pairs
+from app.api.params import Day, Seq, refused
 from app.api.routers import entities as router
 from app.caches import MAX_OFFSET
 from app.db import async_session, get_session
@@ -165,8 +165,8 @@ async def top_entities(
     rank: str,
     columns: list[str] = Query([]),
     limit: int = Query(10, ge=1, le=50),
-    from_: date | None = Query(None, alias="from"),
-    to: date | None = Query(None),
+    from_: Day | None = Query(None, alias="from"),
+    to: Day | None = Query(None),
     window_attr: str | None = None,
     filter_: list[str] = Query([], alias="filter"),
     session=Depends(get_session),
@@ -181,21 +181,21 @@ async def top_entities(
         named.append(window_attr)
     for attr in named:
         if attr not in attrs:
-            raise HTTPException(422, f"{attr!r} is not an attr of {entity}")
+            raise refused(f"{attr!r} is not an attr of {entity}")
     if attrs[rank] != "number":
-        raise HTTPException(422, f"rank {rank!r} is {attrs[rank]}, not a number")
+        raise refused(f"rank {rank!r} is {attrs[rank]}, not a number")
     if window_attr and attrs[window_attr] != "date":
-        raise HTTPException(
-            422, f"window_attr {window_attr!r} is {attrs[window_attr]}, not a date"
+        raise refused(
+            f"window_attr {window_attr!r} is {attrs[window_attr]}, not a date"
         )
     if (from_ is None) != (to is None):
-        raise HTTPException(422, "from and to travel together")
+        raise refused("from and to travel together")
     window = None
     if from_ is not None:
         if from_ > to:
-            raise HTTPException(422, "from must not be after to")
+            raise refused("from must not be after to")
         if not window_attr:
-            raise HTTPException(422, "a window needs window_attr to range over")
+            raise refused("a window needs window_attr to range over")
         window = {"attr": window_attr, "from": from_.isoformat(), "to": to.isoformat()}
     ids = await metrics.ids_for(session, entity, filt, window)
     wanted = list(dict.fromkeys([*columns, rank]))
@@ -497,7 +497,7 @@ async def list_runs(
 
 
 @router.get("/report/runs/{seq}", responses={404: {"description": "no such run"}})
-async def get_run(seq: int, session=Depends(get_session)):
+async def get_run(seq: Seq, session=Depends(get_session)):
     row = (
         await session.execute(select(EngineRun).where(EngineRun.seq == seq))
     ).scalar_one_or_none()

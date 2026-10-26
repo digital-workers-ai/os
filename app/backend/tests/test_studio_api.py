@@ -370,6 +370,12 @@ class TestThreads:
         response = await api.post("/api/studio/threads/9", json={"text": "hi"})
         assert response.status_code == 404
 
+    @pytest.mark.parametrize("seq", [2**63, -(2**63) - 1])
+    @pytest.mark.parametrize("method,body", [("GET", None), ("POST", {"text": "hi"})])
+    async def test_a_seq_past_the_bigint_column_is_a_422(self, api, method, body, seq):
+        response = await api.request(method, f"/api/studio/threads/{seq}", json=body)
+        assert response.status_code == 422
+
     @pytest.mark.parametrize("path", ["/api/studio/threads", "/api/studio/threads/1"])
     async def test_the_405_names_both_methods_the_path_serves(self, api, path):
         response = await api.options(path)
@@ -434,3 +440,10 @@ class TestTurn:
         response = await api.post(f"/api/studio/threads/{seq}", json=body)
         assert response.status_code == 422
         assert fake_runner["asks"] == []
+
+    async def test_a_turn_without_a_body_is_a_422_naming_the_body(self, api):
+        response = await api.post("/api/studio/threads/1")
+        assert response.status_code == 422
+        assert response.json()["detail"] == [
+            {"type": "missing", "loc": ["body"], "msg": "Field required", "input": None}
+        ]
