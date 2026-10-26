@@ -1916,21 +1916,33 @@ class TestDocumentedResponses:
             assert "404" in documented, f"{path} can 404 and does not say so"
 
 
+async def _delete(router, path):
+    probe = FastAPI(exception_handlers=app.exception_handlers)
+    probe.include_router(router)
+    transport = httpx.ASGITransport(app=probe)
+    async with httpx.AsyncClient(
+        transport=transport, base_url="http://probe"
+    ) as client:
+        return await client.delete(path)
+
+
 class TestMethodNotAllowed:
     async def test_the_405_names_every_method_any_route_on_the_path_serves(self):
         pair = APIRouter(prefix="/pair")
         pair.add_api_route("/{seq}", lambda seq: seq, methods=["GET"])
         pair.add_api_route("/{seq}", lambda seq: seq, methods=["POST"])
-        probe = FastAPI(exception_handlers=app.exception_handlers)
-        probe.include_router(pair)
-        transport = httpx.ASGITransport(app=probe)
-        async with httpx.AsyncClient(
-            transport=transport, base_url="http://probe"
-        ) as client:
-            response = await client.delete("/pair/1")
+        response = await _delete(pair, "/pair/1")
         assert response.status_code == 405
         assert response.json() == {"detail": "Method Not Allowed"}
         assert response.headers["allow"] == "GET, POST"
+
+    async def test_the_405_names_only_the_template_the_path_first_matches(self):
+        paths = APIRouter(prefix="/x")
+        paths.add_api_route("/literal", lambda: None, methods=["POST"])
+        paths.add_api_route("/{name}", lambda name: name, methods=["GET"])
+        response = await _delete(paths, "/x/literal")
+        assert response.status_code == 405
+        assert response.headers["allow"] == "POST"
 
 
 NETWORKS = ("facebook", "instagram", "linkedin", "x", "pinterest")
