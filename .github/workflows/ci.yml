@@ -38,8 +38,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: cp app/.env.example app/.env
       - run: ./test.sh snap
-      - name: Keep the snapshot results (actions/upload-artifact v4)
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: snapshots
