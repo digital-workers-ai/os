@@ -35,10 +35,14 @@ const types = {
 
 let root
 let dist
+let indexless
 
 before(async () => {
   root = await mkdtemp(join(tmpdir(), 'preview-web-'))
   dist = join(root, 'dist')
+  indexless = join(root, 'indexless')
+  await mkdir(join(indexless, 'assets'), { recursive: true })
+  await writeFile(join(indexless, 'assets', 'app.js'), 'console.log("app")')
   await mkdir(join(dist, 'assets'), { recursive: true })
   await mkdir(join(dist, 'fonts'))
   await mkdir(join(dist, 'docs', 'guide'), { recursive: true })
@@ -90,11 +94,11 @@ async function send(port, path, { method = 'GET', headers = {}, body = [] } = {}
   return { status: response.statusCode, headers: response.headers, body: await collect(response) }
 }
 
-async function serve(t, { respond, idToken } = {}) {
+async function serve(t, { respond, idToken, directory = dist } = {}) {
   const audiences = []
   const { calls, fetch } = upstream(respond)
   const server = createServer({
-    dist,
+    dist: directory,
     apiUrl,
     idToken:
       idToken ??
@@ -190,6 +194,18 @@ test('a directory path falls back to index.html', async (t) => {
   const response = await send('/docs/guide')
   assert.equal(response.status, 200)
   assert.equal(response.body, index)
+})
+
+test('without index.html, / is 404 and the server keeps serving', async (t) => {
+  const { send } = await serve(t, { directory: indexless })
+  assert.equal((await send('/')).status, 404)
+  assert.equal((await send('/assets/app.js')).status, 200)
+})
+
+test('without index.html, the SPA fallback is 404 and the server keeps serving', async (t) => {
+  const { send } = await serve(t, { directory: indexless })
+  assert.equal((await send('/projects/42')).status, 404)
+  assert.equal((await send('/assets/app.js')).status, 200)
 })
 
 test('a missing path with an extension is 404', async (t) => {
