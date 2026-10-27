@@ -15,6 +15,8 @@ export class ApiError extends Error {
 export const asApiError = (e: unknown): ApiError =>
   e instanceof ApiError ? e : new ApiError(0, (e as Error)?.message ?? String(e))
 
+export const AUTH_EXPIRED = 'auth-expired'
+
 async function request<T>(path: string): Promise<T> {
   let res: Response
   try {
@@ -32,6 +34,7 @@ async function request<T>(path: string): Promise<T> {
     }
   }
   if (!res.ok) {
+    if (res.status === 401) window.dispatchEvent(new Event(AUTH_EXPIRED))
     const detail = (body as { detail?: unknown } | null)?.detail ?? res.statusText
     throw new ApiError(res.status, detail)
   }
@@ -39,6 +42,13 @@ async function request<T>(path: string): Promise<T> {
 }
 
 export const get = <T>(path: string) => request<T>(path)
+
+export interface Me {
+  auth: 'open' | 'google'
+  email: string | null
+}
+
+export const me = () => get<Me>('/api/auth/me')
 
 export type Filter = Record<string, string>
 

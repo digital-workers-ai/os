@@ -31,6 +31,7 @@ import { useTab } from '@/lib/useTab'
 import { cn } from '@/lib/utils'
 import { CONFIG_ROUTE } from '@/routes'
 import { LINK, ROW } from '@/search/vocab'
+import { Access } from './Access'
 import { BODY, FULL, PAGE_FILL, useLoad } from './inference/shared'
 
 type Ran = Extract<ReportResponse, { ran: true }>
@@ -326,11 +327,20 @@ function Rebuilds({ rebuilds }: { rebuilds: number }) {
   )
 }
 
+const ACCESS: Record<McpIndex['auth'], string> = {
+  open: 'Access: open. Reachable from this machine only; set AUTH_ENABLED to require Google sign-in.',
+  google: 'Access: Google sign-in required; allowed emails are set in AUTH_ALLOWED_EMAILS.',
+}
+const CLIENT_LEAD: Record<McpIndex['auth'], string> = {
+  open: 'One line for Claude Code, or the JSON for Claude Desktop and Cursor.',
+  google: 'One line for Claude Code, then /mcp inside it to sign in; or add the URL as a custom connector in claude.ai and Claude Desktop.',
+}
+
 function Mcp() {
   const index = useLoad(() => get<McpIndex>('/api/mcp'), [])
   const [copied, setCopied] = useState(false)
   const data = index.data
-  const endpoint = `${window.location.origin}${data?.path ?? ''}`
+  const endpoint = data?.url ?? ''
   const copy = () => {
     if (!navigator.clipboard) return
     navigator.clipboard
@@ -356,6 +366,11 @@ function Mcp() {
       >
         <ErrorBanner error={index.error} />
         {index.loading && <Loading />}
+        {data && (
+          <p className="mb-3 text-sm text-muted" data-testid="mcp-access">
+            {ACCESS[data.auth]}
+          </p>
+        )}
         {data && data.tools.length === 0 && <Empty>no tools</Empty>}
         {data && data.tools.length > 0 && (
           <Table data-testid="mcp-tools">
@@ -429,10 +444,16 @@ function Mcp() {
             )}
           </SectionCard>
           <SectionCard title="Client config" testId="mcp-client">
-            <p className="mb-3 text-sm text-muted">One line for Claude Code, or the JSON for Claude Desktop and Cursor.</p>
+            <p className="mb-3 text-sm text-muted">{CLIENT_LEAD[data.auth]}</p>
             <div className="space-y-3">
               <pre className={PRE}>{`claude mcp add --transport http os ${endpoint}`}</pre>
               <pre className={PRE}>{JSON.stringify({ mcpServers: { os: { type: 'http', url: endpoint } } }, null, 2)}</pre>
+              {data.auth === 'google' && (
+                <>
+                  <p className="text-sm text-muted">Scripts and headless clients use a key from the Access tab in the header instead of signing in.</p>
+                  <pre className={PRE}>{`claude mcp add --transport http os ${endpoint} --header "Authorization: Bearer os_..."`}</pre>
+                </>
+              )}
             </div>
           </SectionCard>
         </>
@@ -528,6 +549,9 @@ export function Config() {
         </TabsTrigger>
         <TabsTrigger value="mcp" data-testid="tab-mcp">
           MCP
+        </TabsTrigger>
+        <TabsTrigger value="access" data-testid="tab-access">
+          Access
         </TabsTrigger>
       </TabsList>
 
@@ -689,6 +713,10 @@ export function Config() {
 
       <TabsContent value="mcp" className={TAB_SCROLL} data-testid="tabpanel-mcp">
         <Mcp />
+      </TabsContent>
+
+      <TabsContent value="access" className={TAB_SCROLL} data-testid="tabpanel-access">
+        <Access />
       </TabsContent>
     </Tabs>
   )

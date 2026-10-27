@@ -7,6 +7,7 @@ from fastmcp.tools import Tool, ToolResult
 from mcp.types import ToolAnnotations
 from sqlalchemy import select
 
+from app import auth
 from app.caches import DEFINITIONS_DIR
 from app.coaching import briefer
 from app.conversation import agent
@@ -66,7 +67,9 @@ class CallLog(Middleware):
 
     async def _record(self, kind, name, arguments, context, call_next):
         started = time.monotonic()
-        row = McpCall(kind=kind, name=name, arguments=arguments, ok=False)
+        row = McpCall(
+            kind=kind, name=name, arguments=arguments, ok=False, subject=auth.subject()
+        )
         try:
             result = await call_next(context)
             row.ok = True
@@ -81,7 +84,7 @@ class CallLog(Middleware):
                 await session.commit()
 
 
-server = FastMCP("os", middleware=[CallLog()])
+server = FastMCP("os", auth=auth.provider(), middleware=[CallLog()])
 
 for spec in agent.TOOLS:
     server.add_tool(

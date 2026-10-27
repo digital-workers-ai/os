@@ -15,6 +15,8 @@ export class ApiError extends Error {
 export const asApiError = (e: unknown): ApiError =>
   e instanceof ApiError ? e : new ApiError(0, (e as Error)?.message ?? String(e))
 
+export const AUTH_EXPIRED = 'auth-expired'
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let res: Response
   try {
@@ -35,6 +37,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     }
   }
   if (!res.ok) {
+    if (res.status === 401) window.dispatchEvent(new Event(AUTH_EXPIRED))
     const detail = (body as { detail?: unknown } | null)?.detail ?? res.statusText
     throw new ApiError(res.status, detail)
   }
@@ -54,6 +57,48 @@ export const put = <T>(path: string, body?: unknown) =>
     method: 'PUT',
     body: body === undefined ? undefined : JSON.stringify(body),
   })
+
+export const del = (path: string) => request<void>(path, { method: 'DELETE' })
+
+export type Auth = 'open' | 'google'
+
+export interface Me {
+  auth: Auth
+  email: string | null
+}
+
+export interface ApiKeyRow {
+  seq: number
+  prefix: string
+  label: string
+  created_by: string
+  created_at: string
+  last_used_at: string | null
+}
+
+export interface ApiKeyCreated {
+  seq: number
+  prefix: string
+  label: string
+  key: string
+}
+
+export interface McpClientRow {
+  seq: number
+  client_name: string
+  redirect_uri: string
+  email: string
+  created_at: string
+  last_seen_at: string | null
+}
+
+export interface McpCallerRow {
+  subject: string | null
+  name: string
+  calls: number
+  failed: number
+  last_at: string
+}
 
 export interface SourceRow {
   source: string
@@ -170,7 +215,8 @@ export interface RunsResponse {
 }
 
 export interface McpIndex {
-  path: string
+  url: string
+  auth: Auth
   tools: { name: string; description: string }[]
   resources: { uri: string; name: string; description: string }[]
   prompts: { name: string; description: string }[]

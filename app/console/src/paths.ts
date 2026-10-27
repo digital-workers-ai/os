@@ -3,6 +3,6 @@ export const TAB = {
   entities: { canonical: 'canonical', raw: 'raw', visualize: 'visualize', review: 'review' },
   ai: { enrichment: 'enrichment', coaching: 'coaching' },
   definitions: { ontology: 'ontology', mappings: 'mappings', transforms: 'transforms', metrics: 'metrics', derived: 'derived', rules: 'rules', goals: 'goals', enrichment: 'enrichment', dashboards: 'dashboards', spy: 'spy' },
-  config: { sources: 'sources', rebuild: 'rebuild', mcp: 'mcp' },
+  config: { sources: 'sources', rebuild: 'rebuild', mcp: 'mcp', access: 'access' },
 } as const
 export const tabPath = (page: keyof typeof TAB, tab: string) => `${PATH[page]}/${tab}`

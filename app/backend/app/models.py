@@ -314,11 +314,57 @@ class McpCall(Base):
     seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic call counter: 1, 2, 3
     kind = Column(String(16), nullable=False)  # what was requested: tool, resource, prompt
     name = Column(String(128), nullable=False)  # tool, uri or prompt: get_metrics, definitions://metrics, briefing_ceo
+    subject = Column(String(256))  # caller, null when auth off: hello@acme.io, bruce@wayne.co, null
     arguments = Column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))  # arguments as given: {"name": "mrr"}, {}
     ok = Column(Boolean, nullable=False)  # call succeeded: true, false
     duration_ms = Column(Integer, nullable=False, server_default=text("0"))  # call wall time: 12, 3400
     error = Column(Text)  # failure detail: "Error calling tool 'get_goals': down", null
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # call timestamp: server now(), 2026-09-04T12:00:00Z
+
+
+class OAuthStore(Base):
+    __tablename__ = "oauth_store"
+
+    collection = Column(Text, primary_key=True)  # fastmcp store namespace: mcp-oauth-proxy-clients, mcp-upstream-tokens
+    key = Column(Text, primary_key=True)  # record id in collection: client_3f9a…, txn_0c7a…
+    value = Column(JSONB, nullable=False)  # Fernet ciphertext envelope, library-written: {"__encrypted_data__": "gAAAAB…", "__encryption_version__": 1}
+    ttl = Column(Float)  # seconds to live, null forever: 600.0, 2592000.0, null
+    created_at = Column(DateTime(timezone=True))  # library write timestamp: 2026-09-28T12:00:00Z, null
+    expires_at = Column(DateTime(timezone=True))  # expiry, null never expires: 2026-09-28T12:10:00Z, null
+
+    __table_args__ = (
+        Index("idx_oauth_store_expires_at", "expires_at", postgresql_where=text("expires_at IS NOT NULL")),
+    )
+
+
+class ApiKey(Base):
+    __tablename__ = "api_key"
+
+    seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic key counter: 1, 2, 3
+    key_hash = Column(String(64), nullable=False, unique=True)  # SHA-256 hex of raw key: "a3f9…", "0c7a…"
+    prefix = Column(String(8), nullable=False)  # raw key's first 8 chars: os_k7Qx9, os_2Bn4M
+    label = Column(String(128), nullable=False)  # what the key is for: nightly-sync, laptop-claude
+    created_by = Column(String(256), nullable=False)  # email that minted it: hello@acme.io, bruce@wayne.co
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: server now(), 2026-09-28T12:00:00Z
+    last_used_at = Column(DateTime(timezone=True))  # last use, null until first: 2026-09-28T12:05:00Z, null
+    revoked_at = Column(DateTime(timezone=True))  # revocation, null while live: 2026-09-30T09:00:00Z, null
+
+
+class McpGrant(Base):
+    __tablename__ = "mcp_grant"
+
+    seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic grant counter: 1, 2, 3
+    client_id = Column(String(256), nullable=False)  # MCP client id fastmcp registered: client_3f9a…, client_0c7a…
+    client_name = Column(String(256))  # client's self-reported name: Claude Code, claude.ai, null
+    redirect_uri = Column(Text)  # client's callback: http://localhost:51234/callback, null
+    email = Column(String(256), nullable=False)  # person who authorized it: hello@acme.io, bruce@wayne.co
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: server now(), 2026-09-28T12:00:00Z
+    last_seen_at = Column(DateTime(timezone=True))  # last verified call: 2026-09-28T12:05:00Z, null
+    revoked_at = Column(DateTime(timezone=True))  # revocation, null while live: 2026-09-30T09:00:00Z, null
+
+    __table_args__ = (
+        UniqueConstraint("client_id", "email", name="uq_mcp_grant_client_email"),
+    )
 
 
 class MergeCandidate(Base):

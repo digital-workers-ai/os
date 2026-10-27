@@ -26,7 +26,7 @@ const PAGES: { path: string; title: string; tabs: Record<string, string> }[] = [
       dashboards: 'Dashboards',
     },
   },
-  { path: '/config', title: 'Config', tabs: { sources: 'Sources', rebuild: 'Rebuild', mcp: 'MCP' } },
+  { path: '/config', title: 'Config', tabs: { sources: 'Sources', rebuild: 'Rebuild', mcp: 'MCP', access: 'Access' } },
 ]
 
 const DEEP: [string, string][] = [

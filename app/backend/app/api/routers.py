@@ -22,6 +22,7 @@ skills = APIRouter(prefix="/api", tags=["skills"])
 runs = APIRouter(prefix="/api", tags=["runs"])
 looks = APIRouter(prefix="/api", tags=["looks"])
 brand = APIRouter(prefix="/api", tags=["brand"])
+auth = APIRouter(prefix="/api/auth", tags=["auth"])
 
 ROUTERS = (
     sources,
@@ -44,6 +45,7 @@ ROUTERS = (
     runs,
     looks,
     brand,
+    auth,
 )
 HANDLER_MODULES = (
     "app.api.raw_api",
@@ -66,6 +68,7 @@ HANDLER_MODULES = (
     "app.api.runs_api",
     "app.api.looks_api",
     "app.api.brand_api",
+    "app.api.auth_api",
 )
 
 

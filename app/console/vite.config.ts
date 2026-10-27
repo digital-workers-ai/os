@@ -16,7 +16,6 @@ export default defineConfig({
     watch: { ignored: ['**/e2e/**'] },
     proxy: {
       '/api': { target: backend, changeOrigin: true, timeout: 600000 },
-      '/mcp': { target: backend, changeOrigin: true, timeout: 600000 },
     },
   },
 })

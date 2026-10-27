@@ -71,6 +71,7 @@ class TestTheStandInIsLeftFullyWorking:
 class TestNoModelLayerIsOnInATest:
     def test_the_credential_map_names_the_flags_this_file_guards(self):
         assert flag_names() == [
+            "AUTH_ENABLED",
             "COACHING_ENABLED",
             "CONVERSATION_ENABLED",
             "EMBEDDINGS_ENABLED",
@@ -121,6 +122,9 @@ class TestNoVendorCredentialIsVisibleToATest:
     def test_the_credential_map_names_the_variables_this_file_guards(self):
         assert vendor_names() == [
             "ANTHROPIC_API_KEY",
+            "AUTH_JWT_SIGNING_KEY",
+            "GOOGLE_CLIENT_ID",
+            "GOOGLE_CLIENT_SECRET",
             "OPENAI_API_KEY",
             "ZEROENTROPY_API_KEY",
         ]
