@@ -22,7 +22,7 @@ export function DraftCard({ turn }: { turn: Turn }) {
   return (
     <Card className="flex flex-col gap-3" data-testid="builder-draft">
       <CardTitle>The draft</CardTitle>
-      <pre className="whitespace-pre-wrap break-words rounded-lg border border-line bg-surface p-3 font-mono text-xs text-ink">{turn.draft}</pre>
+      <pre className="code">{turn.draft}</pre>
       {turn.problems.length > 0 && (
         <Banner tone="err" testId="builder-problems">
           <ul className="flex flex-col gap-1">
@@ -37,8 +37,10 @@ export function DraftCard({ turn }: { turn: Turn }) {
 }
 
 function ReadingList({ reading }: { reading: Reading }) {
+  const list = useRef<HTMLDivElement>(null)
+  useEffect(() => list.current?.scrollIntoView({ block: 'nearest' }), [reading])
   return (
-    <div className="flex flex-col gap-2 text-sm" data-testid="builder-reading">
+    <div ref={list} className="flex scroll-mb-6 flex-col gap-2 text-sm" data-testid="builder-reading">
       <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
         {Object.entries({ ...reading.fields, ...reading.template }).map(([name, value]) => (
           <div key={name} className="contents">

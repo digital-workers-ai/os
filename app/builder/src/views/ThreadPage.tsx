@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ExternalLink } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
@@ -29,6 +30,8 @@ export function ThreadPage() {
   const submit = useMutation({ mutationFn: () => submitThread(id), onSuccess: refresh })
   const state = thread.isPending || apps.pending ? 'loading' : thread.error ? 'error' : 'ready'
   const error = thread.error ?? send.error
+  const filed = useRef<HTMLAnchorElement>(null)
+  useEffect(() => filed.current?.scrollIntoView({ block: 'nearest' }), [thread.data?.issue?.number])
 
   if (!thread.data)
     return (
@@ -40,19 +43,18 @@ export function ThreadPage() {
   const { app, title, issue, turns } = thread.data
   const named = app && apps.titleOf(app)
   const latest = [...turns].reverse().find((turn) => turn.draft !== null)
+  const link = app && (
+    <Link to={`/apps/${app}`} className="underline underline-offset-4" data-testid="thread-app">
+      {title ? `Changing ${named}` : named}
+    </Link>
+  )
 
   return (
-    <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_420px]" data-testid="thread-view" data-state={state}>
+    <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_420px]" data-testid="thread-view" data-state={state}>
       <Card className={`flex min-h-[28rem] flex-col gap-3 ${HEIGHT}`} data-testid="thread">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <h1 className="truncate text-base font-semibold text-ink">{title ?? (named ? `Change ${named}` : 'New app')}</h1>
-          {app ? (
-            <Link to={`/apps/${app}`} className="text-xs text-muted underline underline-offset-4" data-testid="thread-app">
-              Changing {named}
-            </Link>
-          ) : (
-            <span className="text-xs text-muted">New app</span>
-          )}
+          <h1 className="truncate text-base font-semibold text-ink">{title ?? (link ? <>Change {link}</> : 'New app')}</h1>
+          {title && <span className="text-xs text-muted">{link || 'New app'}</span>}
         </div>
         <ErrorBanner error={error && asApiError(error)} />
         <div className="min-h-0 flex-1 overflow-y-auto">
@@ -64,7 +66,13 @@ export function ThreadPage() {
           <Composer
             onSend={(text) => send.mutateAsync(text)}
             pending={send.isPending}
-            placeholder={app ? 'What should change?' : 'For example: we pour concrete and want every pour logged with a photo of the slump test.'}
+            placeholder={
+              turns.length > 0
+                ? 'Answer, or say what should change'
+                : app
+                  ? 'What should change?'
+                  : 'For example: we pour concrete and want every pour logged with a photo of the slump test.'
+            }
           />
         )}
       </Card>
@@ -77,10 +85,11 @@ export function ThreadPage() {
               <CardTitle>Review</CardTitle>
               {issue ? (
                 <a
+                  ref={filed}
                   href={issue.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 self-start text-sm text-ink underline underline-offset-4"
+                  className="inline-flex scroll-mb-6 items-center gap-2 self-start text-sm text-ink underline underline-offset-4"
                   data-testid="builder-issue-link"
                 >
                   Filed as issue #{issue.number}
@@ -88,7 +97,7 @@ export function ThreadPage() {
                 </a>
               ) : (
                 <>
-                  <p className="text-sm text-muted">Files the conversation and the draft as a GitHub issue. Nothing is built until a person approves it.</p>
+                  <p className="text-sm text-muted">Sends the conversation and the draft for review. A person approves it before the app is built.</p>
                   <Button
                     variant="solid"
                     className="self-start"

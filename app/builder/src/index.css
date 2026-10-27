@@ -44,3 +44,21 @@
     @apply font-medium;
   }
 }
+
+@layer components {
+  .code {
+    @apply overflow-x-auto rounded-lg border border-line bg-surface p-3 font-mono text-xs text-ink;
+  }
+
+  .code::-webkit-scrollbar {
+    height: 0.5rem;
+  }
+
+  .code::-webkit-scrollbar-track {
+    @apply mx-3 rounded-full bg-wash;
+  }
+
+  .code::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-muted/40;
+  }
+}

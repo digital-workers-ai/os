@@ -37,7 +37,7 @@ export function AppPage() {
               Change this app
             </Button>
           </div>
-          <div className="grid items-start gap-4 lg:grid-cols-2">
+          <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
             <Card className="flex flex-col gap-5">
               <Facts app={app.data} />
               <div className="flex flex-col gap-2">
@@ -57,7 +57,7 @@ export function AppPage() {
                   <Mono className="text-sm">app.yaml</Mono>
                 </CardTitle>
               </CardHeader>
-              <pre className="overflow-x-auto rounded-lg border border-line bg-surface p-3 font-mono text-xs text-ink" data-testid="app-yaml">
+              <pre className="code" data-testid="app-yaml">
                 {yaml.data.yaml}
               </pre>
             </Card>
