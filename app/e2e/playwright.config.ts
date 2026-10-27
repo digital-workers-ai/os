@@ -2,6 +2,8 @@ import { defineConfig, devices } from '@playwright/test'
 
 const ignored = ['node_modules/**', 'results/**', 'report/**']
 
+const customURL = process.env.CUSTOM_URL ?? 'http://localhost:3097'
+
 export default defineConfig({
   testDir: '.',
   outputDir: 'results',
@@ -38,9 +40,15 @@ export default defineConfig({
       testMatch: 'custom/**/*.spec.ts',
       use: {
         ...devices['Pixel 7'],
-        baseURL: process.env.CUSTOM_URL ?? 'http://localhost:3097',
+        baseURL: customURL,
         permissions: ['camera', 'microphone'],
-        launchOptions: { args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream'] },
+        launchOptions: {
+          args: [
+            '--use-fake-ui-for-media-stream',
+            '--use-fake-device-for-media-stream',
+            `--unsafely-treat-insecure-origin-as-secure=${new URL(customURL).origin}`,
+          ],
+        },
       },
     },
   ],
