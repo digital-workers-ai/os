@@ -1,0 +1,12 @@
+title: Mileage log
+description: A photo of a vehicle's odometer at the start or the end of a business trip.
+input: photo
+roles: [staff, finance]
+lands_as: odometer_reading
+fields:
+  vehicle: { type: text, description: "The plate, or the name the team uses for it" }
+  odometer: { type: number, unit: mi }
+  stage: { type: one_of, labels: [start, end] }
+  purpose: { type: one_of, labels: [client_visit, supplier_run, delivery, other] }
+  miles: { type: number, unit: mi, filled_by: script, description: "On an end reading, this reading minus the vehicle's last start reading" }
+script: script.py

@@ -14,6 +14,9 @@ services:
       EMBEDDINGS_ENABLED: "false"
       RERANK_ENABLED: "false"
       STUDIO_ENABLED: "false"
+      CUSTOM_ENABLED: "false"
+      TRANSCRIBE_ENABLED: "false"
+      BUILDER_ENABLED: "false"
       MARKETER_DAILY: "false"
       CLOCK_PINNED_AT: "2026-09-04T12:00:00Z"
 
@@ -27,6 +30,9 @@ services:
     ports: !reset []
 
   studio:
+    ports: !reset []
+
+  custom:
     ports: !reset []
 
   playwright:

@@ -61,14 +61,15 @@ except urllib.error.HTTPError as e:
 }
 
 if [ -n "${snap_script:-}" ]; then
-  echo "==> fresh snap stack (postgres, mock, backend, render, console, spy, studio)"
+  echo "==> fresh snap stack (postgres, mock, backend, render, console, spy, studio, custom)"
   docker volume create os_console_node_modules >/dev/null
   compose_snap down -v --remove-orphans
   compose_snap up -d --build --wait postgres mock backend render
-  compose_snap up -d --build console spy studio
+  compose_snap up -d --build console spy studio custom
   wait_for console
   wait_for spy
   wait_for studio
+  wait_for custom
   echo "==> sync + rebuild"
   post_api sync
   post_api rebuild

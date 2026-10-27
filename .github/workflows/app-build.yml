@@ -1,0 +1,85 @@
+name: app-build
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  gate:
+    if: |
+      github.event.label.name == 'approved' &&
+      contains(github.event.issue.labels.*.name, 'app')
+    runs-on: ubuntu-latest
+    outputs:
+      allowed: ${{ steps.permission.outputs.allowed }}
+    steps:
+      - name: Admit only the repository owner or an admin
+        id: permission
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ACTOR: ${{ github.event.sender.login || github.actor }}
+        run: |
+          permission=$(gh api "repos/${{ github.repository }}/collaborators/$ACTOR/permission" --jq .permission 2>/dev/null || echo none)
+          echo "actor=$ACTOR permission=$permission"
+          if [ "$permission" = "admin" ]; then
+            echo "allowed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "allowed=false" >> "$GITHUB_OUTPUT"
+          fi
+  build:
+    needs: gate
+    if: needs.gate.outputs.allowed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    concurrency:
+      group: app-build-${{ github.event.issue.number }}
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+      actions: read
+    steps:
+      - name: Acknowledge on the issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue comment ${{ github.event.issue.number }} --repo ${{ github.repository }} \
+            --body "Building the app now; the pull request will be linked here."
+      - name: Check out with full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Copy the example env
+        run: cp app/.env.example app/.env
+      - name: Read the operator's model
+        id: agent
+        run: echo "model=$(yq -r .model agents/operator.yaml)" >> "$GITHUB_OUTPUT"
+      - name: Build the app
+        id: claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.OPERATOR_GITHUB_PAT }}
+          branch_prefix: "app/"
+          show_full_output: true
+          prompt: |
+            Read .claude/skills/dw-app/SKILL.md and follow it for issue ${{ github.event.issue.number }}. Nobody is watching this run.
+            Read the issue first: `gh issue view ${{ github.event.issue.number }} --comments`. Its description, answers and draft are the app a person asked for and approved. Where a question is still open, take an assumption and name it in the pull request.
+            Ship through .claude/skills/dw-ship/SKILL.md on the branch `app/issue-${{ github.event.issue.number }}-<app_name>` from `origin/main`, with `Closes #${{ github.event.issue.number }}` in the pull request body. Stop once the pull request is open: CI and a person's review take it from there.
+            Then `gh issue comment ${{ github.event.issue.number }}` with the pull request link and a two-line summary. Never merge.
+          claude_args: |
+            --model ${{ steps.agent.outputs.model }}
+            --max-turns 150
+            --allowedTools "Read,Grep,Glob,Edit,Write,Agent,Bash(git:*),Bash(gh issue view:*),Bash(gh issue comment:*),Bash(gh pr list:*),Bash(gh pr view:*),Bash(gh pr create:*),Bash(gh pr comment:*),Bash(./test.sh:*),Bash(./format.sh),Bash(docker compose:*),Bash(curl:*),Bash(python:*),Bash(npm:*)"
+      - name: Report the run's cost
+        if: always() && steps.claude.outputs.execution_file != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXEC_FILE: ${{ steps.claude.outputs.execution_file }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          [ -f "$EXEC_FILE" ] || exit 0
+          BODY=$(python3 .github/scripts/report_run.py "App build run")
+          [ -n "$BODY" ] && gh issue comment ${{ github.event.issue.number }} --repo ${{ github.repository }} --body "$BODY" || true

@@ -1,0 +1,19 @@
+title: Proof of delivery
+description: >-
+  A delivery handed to the customer at the door, with a photo of the goods
+  and the customer's signature on the phone.
+input: photo
+roles: [driver, dispatcher]
+lands_as: delivery
+fields:
+  customer: { type: lookup, entity: person, by: name }
+  order_number: { type: text }
+  signed_by: { type: text, description: The name of the person who signed }
+  signature: { type: screen, file: screen.tsx }
+  condition:
+    type: one_of
+    labels:
+      good: Delivered complete and undamaged
+      damaged: Something arrived damaged
+      missing_items: Something on the order was not delivered
+  note: { type: text }

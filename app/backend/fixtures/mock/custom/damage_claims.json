@@ -1,0 +1,31 @@
+[
+  {
+    "payload": {
+      "app": "damage_claims",
+      "currency": "USD",
+      "fields": {
+        "damage": [
+          "broken",
+          "dented"
+        ],
+        "description": "Screen cracked in transit",
+        "estimated_cost": 180.0,
+        "item": "Monitor",
+        "order": "1042",
+        "severity": "severe"
+      },
+      "files": [
+        {
+          "kind": "photo",
+          "media_type": "image/jpeg",
+          "path": "monitor.jpg"
+        }
+      ],
+      "record": "3c9d2e10-5a4b-4c6d-8e7f-000000000005",
+      "recorded_at": "2026-09-05T11:00:00Z",
+      "recorded_by": "admin",
+      "removed": false
+    },
+    "source_id": "3c9d2e10-5a4b-4c6d-8e7f-000000000005"
+  }
+]

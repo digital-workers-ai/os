@@ -1,0 +1,9 @@
+title: Event check-in
+description: Scan an attendee's ticket QR code at the door.
+input: scan
+roles: [staff]
+lands_as: check_in
+fields:
+  event: { type: text }
+  attendee: { type: lookup, entity: person, by: email, from: scan }
+  ticket_type: { type: one_of, labels: [general, vip, speaker, staff] }

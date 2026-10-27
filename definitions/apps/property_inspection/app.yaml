@@ -1,0 +1,23 @@
+title: Property inspection
+description: A walk through a rental unit, room by room, at move-in, at move-out or on a routine visit.
+input: [voice, photo]
+roles: [property_manager, inspector]
+lands_as: inspection
+fields:
+  property: { type: text, description: The unit's address }
+  kind: { type: one_of, labels: [move_in, move_out, routine] }
+template:
+  checklist:
+    sections:
+      living_room: [walls, floor, windows, lights, doors]
+      kitchen: [walls, floor, sink, appliances, cabinets]
+      bathroom: [walls, floor, toilet, shower, sink, ventilation]
+      bedroom: [walls, floor, windows, closet, doors]
+      safety: [smoke_alarms, co_alarms, fire_extinguisher]
+      exterior: [entry, yard]
+    items:
+      lands_as: inspection_item
+      fields:
+        condition: { type: one_of, labels: [good, fair, poor] }
+        defect: { type: text }
+        photo: { type: photo }

@@ -1,0 +1,21 @@
+title: Site safety walk
+description: Hazards called out and photographed on a walk around a job site.
+input: [voice, photo]
+roles: [site_lead, safety_manager]
+lands_as: safety_walk
+fields:
+  site: { type: text }
+  findings:
+    type: list
+    lands_as: safety_finding
+    fields:
+      hazard: { type: one_of, labels: [fall, electrical, trip, fire, chemical, machinery, ppe, housekeeping, other] }
+      severity:
+        type: one_of
+        labels:
+          low: Fix it this week
+          medium: Fix it today
+          high: Stop work until it is fixed
+      location: { type: text }
+      action: { type: text }
+      photo: { type: photo }

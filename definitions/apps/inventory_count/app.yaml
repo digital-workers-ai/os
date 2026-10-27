@@ -1,0 +1,15 @@
+title: Inventory count
+description: Scan each product's barcode and type how many are on hand.
+input: scan
+roles: [store_staff, manager]
+lands_as: stock_count
+fields:
+  location: { type: text }
+  lines:
+    type: list
+    lands_as: stock_count_line
+    fields:
+      product: { type: lookup, entity: product, by: sku, from: scan }
+      counted: { type: number }
+      change: { type: number, filled_by: script, description: Counted minus the last count of that product at that location }
+script: script.py

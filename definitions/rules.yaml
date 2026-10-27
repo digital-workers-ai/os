@@ -58,3 +58,48 @@ brand_absent_from_answer:
   all:
     - {attr: brand_rank, is_null: true}
     - {attr: checked_at, within_days: 7}
+
+cooler_too_warm:
+  label: Cooler Above 41°F
+  entity: temperature_reading
+  severity: high
+  all:
+    - {attr: unit, contains: cooler}
+    - {attr: temperature, gt: 41}
+
+freezer_too_warm:
+  label: Freezer Above 0°F
+  entity: temperature_reading
+  severity: high
+  all:
+    - {attr: unit, equals: freezer}
+    - {attr: temperature, gt: 0}
+
+hot_food_too_cool:
+  label: Hot-Held Food Below 135°F
+  entity: temperature_reading
+  severity: high
+  all:
+    - {attr: unit, equals: hot_holding}
+    - {attr: temperature, lt: 135}
+
+vehicle_check_failed:
+  label: Vehicle Failed A Pre-Trip Check Item
+  entity: vehicle_check_item
+  severity: high
+  all:
+    - {attr: result, equals: fail}
+
+serious_safety_hazard:
+  label: Safety Hazard That Stops Work
+  entity: safety_finding
+  severity: high
+  all:
+    - {attr: severity, equals: high}
+
+machine_out_of_service:
+  label: Machine Out Of Service
+  entity: service_record
+  severity: high
+  all:
+    - {attr: status, equals: out_of_service}

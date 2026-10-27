@@ -1,0 +1,21 @@
+title: Field service report
+description: A technician talking through a service call as it wraps up.
+input: voice
+roles: [technician, dispatcher]
+lands_as: ticket
+fields:
+  customer: { type: lookup, entity: company, by: name }
+  problem: { type: text }
+  hours: { type: number, unit: h }
+  outcome:
+    type: one_of
+    labels:
+      fixed: Working when the technician left
+      follow_up: Needs another visit
+      parts_on_order: Waiting for parts
+  parts:
+    type: list
+    lands_as: service_part
+    fields:
+      part: { type: lookup, entity: product, by: name }
+      quantity: { type: number }

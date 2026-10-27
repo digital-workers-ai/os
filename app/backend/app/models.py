@@ -577,3 +577,46 @@ class StudioTurn(Base):
     text = Column(Text, nullable=False)  # what was said: "Make a post about MRR", "Here it is."
 
     __table_args__ = (Index("ix_studio_turn_thread", "thread_seq"),)
+
+
+class CustomRecord(Base):
+    __tablename__ = "custom_record"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # row identity, random UUID: 6f1c…, 9b2d…
+    app = Column(String(64), nullable=False)  # custom app it belongs to: receipts, perio_charting
+    recorded_by = Column(String(64), nullable=False)  # who started the record: admin, kim
+    transcript = Column(Text)  # everything said, voice only: "walk-in cooler, 37", null
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: app clock, 2026-09-04T12:00:00Z
+    saved_at = Column(DateTime(timezone=True))  # first save, null until saved: 2026-09-04T12:01:00Z, null
+    removed_at = Column(DateTime(timezone=True))  # removal, null while kept: 2026-09-04T12:05:00Z, null
+
+    __table_args__ = (Index("ix_custom_record_app_saved", "app", text("saved_at DESC")),)
+
+
+class CustomRecordFile(Base):
+    __tablename__ = "custom_record_file"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # row identity, random UUID: 6f1c…, 9b2d…
+    record_id = Column(UUID(as_uuid=True), ForeignKey("custom_record.id", ondelete="CASCADE"), nullable=False)  # owning record: 9c17…, 0d4e…
+    path = Column(String(512), nullable=False)  # name under the record: photo-1.jpg, clip-1.webm
+    media_type = Column(String(128), nullable=False)  # what the bytes are: image/jpeg, audio/webm
+    bytes = Column(Integer, nullable=False)  # file size: 5843, 348211
+    kind = Column(String(16), nullable=False)  # what the file is: photo, pdf, audio
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: app clock, 2026-09-04T12:00:00Z
+
+    __table_args__ = (
+        UniqueConstraint("record_id", "path", name="custom_record_file_path"),
+    )
+
+
+class CustomRecordAudit(Base):
+    __tablename__ = "custom_record_audit"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # row identity, random UUID: 6f1c…, 9b2d…
+    seq = Column(BigInteger, Identity(), unique=True, nullable=False)  # monotonic note counter: 1, 2, 3
+    record_id = Column(UUID(as_uuid=True), ForeignKey("custom_record.id", ondelete="CASCADE"), nullable=False)  # record acted on: 9c17…, 0d4e…
+    action = Column(String(16), nullable=False)  # what was done: create, view, remove
+    actor = Column(String(64), nullable=False)  # who did it: admin, kim
+    at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # when it was done: app clock, 2026-09-04T12:00:00Z
+
+    __table_args__ = (Index("ix_custom_record_audit_record", "record_id", "at", "seq"),)

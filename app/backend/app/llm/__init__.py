@@ -2,6 +2,8 @@ import anthropic
 
 from app.config import settings
 
+FALLBACK_BETA = "server-side-fallback-2026-07-01"
+
 
 class LLMError(RuntimeError):
     pass
@@ -56,17 +58,32 @@ async def complete(
 
 
 async def parse(
-    *, model, max_tokens, system, user, output_format, client_override=None
+    *,
+    model,
+    max_tokens,
+    system,
+    user,
+    output_format,
+    fallback=False,
+    client_override=None,
 ):
     api = client_override or client()
+    request = {
+        "model": model,
+        "max_tokens": max_tokens,
+        "system": system,
+        "messages": [{"role": "user", "content": user}],
+        "output_format": output_format,
+    }
     try:
-        response = await api.messages.parse(
-            model=model,
-            max_tokens=max_tokens,
-            system=system,
-            messages=[{"role": "user", "content": user}],
-            output_format=output_format,
-        )
+        if fallback:
+            response = await api.beta.messages.parse(
+                **request,
+                betas=[FALLBACK_BETA],
+                extra_body={"fallbacks": "default"},
+            )
+        else:
+            response = await api.messages.parse(**request)
     except anthropic.APIError as exc:
         raise LLMError(f"{type(exc).__name__}: {exc}") from exc
     except Exception as exc:

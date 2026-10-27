@@ -1,0 +1,28 @@
+[
+  {
+    "payload": {
+      "app": "check_deposits",
+      "currency": "USD",
+      "fields": {
+        "amount": 1250.0,
+        "check_date": "2026-09-02",
+        "check_number": "4471",
+        "customer": "Maple Street Bakery",
+        "memo": "Invoice 2219",
+        "payer": "Maple Street Bakery"
+      },
+      "files": [
+        {
+          "kind": "photo",
+          "media_type": "image/jpeg",
+          "path": "check-4471.jpg"
+        }
+      ],
+      "record": "3c9d2e10-5a4b-4c6d-8e7f-000000000006",
+      "recorded_at": "2026-09-02T14:30:00Z",
+      "recorded_by": "admin",
+      "removed": false
+    },
+    "source_id": "3c9d2e10-5a4b-4c6d-8e7f-000000000006"
+  }
+]

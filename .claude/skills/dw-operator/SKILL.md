@@ -45,7 +45,10 @@ back.
    evidence changed, with the change named in the new issue.
 3. Work through the brief's reading order with `psql` and the API. Where a
    definition line would close a gap, try it: edit, rebuild, read the number,
-   put the file back, rebuild again. Quote before and after.
+   put the file back, rebuild again. Quote before and after. Read the screens
+   the custom apps bring, `app/custom/src/apps/*/screen.tsx`, side by side:
+   two that do the same thing are a proposal for a building block, one field
+   type DW Apps draws for every app, with both apps moved onto it.
 4. Choose. At most three proposals a run, one subject each. Findings are not
    capped, but check each against the trail first: an open finding on the
    same subject is not reopened; `gh issue comment <N>` if the evidence moved.

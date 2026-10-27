@@ -68,3 +68,4 @@ role: normalize_status
 rank: normalize_number
 first_seen: normalize_date
 last_seen: normalize_date
+code: normalize_text

@@ -28,6 +28,7 @@ _META: dict[str, tuple[str, str, str]] = {
     "segment": ("Segment", "Analytics", "Event stream, identity"),
     "smartlook": ("Smartlook", "Analytics", "Session events"),
     "google_sheets": ("Google Sheets", "Other", "Custom tabular data"),
+    "custom": ("DW Apps", "Other", "Records saved in custom apps"),
     "claude": ("Claude", "Spy", "Brand and competitor mentions, cited sources"),
     "chatgpt": ("ChatGPT", "Spy", "Brand and competitor mentions, cited sources"),
     "perplexity": (

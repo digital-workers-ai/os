@@ -1,0 +1,23 @@
+[
+  {
+    "payload": {
+      "app": "inventory_count",
+      "fields": {
+        "lines": [
+          {
+            "change": -3,
+            "counted": 12,
+            "product": "SKU-4011"
+          }
+        ],
+        "location": "Back room"
+      },
+      "files": [],
+      "record": "3c9d2e10-5a4b-4c6d-8e7f-000000000008",
+      "recorded_at": "2026-09-06T07:45:00Z",
+      "recorded_by": "admin",
+      "removed": false
+    },
+    "source_id": "3c9d2e10-5a4b-4c6d-8e7f-000000000008"
+  }
+]

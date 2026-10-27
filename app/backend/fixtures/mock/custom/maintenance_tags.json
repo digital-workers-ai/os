@@ -1,0 +1,19 @@
+[
+  {
+    "payload": {
+      "app": "maintenance_tags",
+      "fields": {
+        "asset": "PRESS-02",
+        "next_service": "2026-10-01",
+        "status": "working",
+        "work_done": "Replaced hydraulic seal"
+      },
+      "files": [],
+      "record": "3c9d2e10-5a4b-4c6d-8e7f-000000000010",
+      "recorded_at": "2026-09-01T13:25:00Z",
+      "recorded_by": "admin",
+      "removed": false
+    },
+    "source_id": "3c9d2e10-5a4b-4c6d-8e7f-000000000010"
+  }
+]

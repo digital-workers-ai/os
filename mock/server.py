@@ -15,6 +15,8 @@ from seeds.providers import brightdata
 from seeds.providers import anthropic
 from seeds.providers import serpapi
 from seeds.providers import searchapi
+from seeds.providers import deepgram
+from seeds.providers import github
 
 app = FastAPI(title="OS Mock Providers")
 
@@ -51,6 +53,8 @@ routers = {
     "/anthropic": anthropic,
     "/serpapi": serpapi,
     "/searchapi": searchapi,
+    "/deepgram": deepgram,
+    "/github": github,
 }
 
 for prefix, mod in routers.items():

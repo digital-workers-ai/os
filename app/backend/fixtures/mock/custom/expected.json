@@ -1,0 +1,327 @@
+{
+  "clears": {},
+  "extracted": {
+    "batch_trace": {
+      "batch_step": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000012": {
+          "lot": "LOT-2026-0915",
+          "note": "Line 2, second shift",
+          "quantity": "240",
+          "step": "packed",
+          "unit": "units"
+        }
+      }
+    },
+    "check_deposits": {
+      "payment": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000006": {
+          "amount": "1250.0",
+          "check_date": "2026-09-02",
+          "check_number": "4471",
+          "currency": "usd",
+          "memo": "Invoice 2219",
+          "name": "Maple Street Bakery",
+          "payer": "Maple Street Bakery"
+        }
+      }
+    },
+    "damage_claims": {
+      "claim": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000005": {
+          "amount": "180.0",
+          "currency": "usd",
+          "damage": "broken, dented",
+          "description": "Screen cracked in transit",
+          "item": "Monitor",
+          "order_number": "1042",
+          "severity": "severe"
+        }
+      }
+    },
+    "equipment_checkout": {
+      "asset": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000007": {
+          "code": "LAP-014"
+        }
+      },
+      "asset_move": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000007": {
+          "action": "check_out",
+          "code": "LAP-014",
+          "due_back": "2026-09-10",
+          "location": "Site B"
+        }
+      }
+    },
+    "event_check_in": {
+      "check_in": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000009": {
+          "admission": "vip",
+          "email": "sam.lee@example.com",
+          "event": "Fall open house"
+        }
+      }
+    },
+    "field_service_report": {
+      "service_part": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000020:parts:0": {
+          "case_ref": "3c9d2e10-5a4b-4c6d-8e7f-000000000020",
+          "name": "Start capacitor",
+          "quantity": "1"
+        }
+      },
+      "ticket": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000020": {
+          "hours": "2.5",
+          "name": "Maple Street Bakery",
+          "outcome": "parts_on_order",
+          "subject": "Walk-in compressor short cycling"
+        }
+      }
+    },
+    "food_safety_log": {
+      "temperature_check": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000016": {
+          "shift": "opening"
+        }
+      },
+      "temperature_reading": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000016:readings:0": {
+          "action": "Door shut, rechecked at 7",
+          "temperature": "37",
+          "temperature_check_ref": "3c9d2e10-5a4b-4c6d-8e7f-000000000016",
+          "unit": "walk_in_cooler"
+        }
+      }
+    },
+    "inventory_count": {
+      "stock_count": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000008": {
+          "location": "Back room"
+        }
+      },
+      "stock_count_line": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000008:lines:0": {
+          "change": "-3",
+          "counted": "12",
+          "sku": "SKU-4011",
+          "stock_count_ref": "3c9d2e10-5a4b-4c6d-8e7f-000000000008"
+        }
+      }
+    },
+    "mailroom": {
+      "package": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000011": {
+          "carrier": "ups",
+          "recipient": "Finance team",
+          "status": "received",
+          "tracking_number": "1Z999AA10123456784"
+        }
+      }
+    },
+    "maintenance_tags": {
+      "asset": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000010": {
+          "code": "PRESS-02"
+        }
+      },
+      "service_record": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000010": {
+          "code": "PRESS-02",
+          "next_service": "2026-10-01",
+          "status": "working",
+          "work_done": "Replaced hydraulic seal"
+        }
+      }
+    },
+    "mileage_log": {
+      "odometer_reading": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000003": {
+          "miles": "52",
+          "odometer": "48262",
+          "purpose": "delivery",
+          "stage": "end",
+          "vehicle": "Truck 7"
+        }
+      }
+    },
+    "perio_charting": {
+      "perio_chart": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000013": {
+          "exam_date": "2026-09-02",
+          "name": "Jordan Rivera"
+        }
+      },
+      "perio_site": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000013:cell:3:DB": {
+          "bleeding": "none",
+          "depth": "3",
+          "perio_chart_ref": "3c9d2e10-5a4b-4c6d-8e7f-000000000013",
+          "site": "DB",
+          "tooth": "3"
+        }
+      },
+      "perio_tooth": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000013:row:3": {
+          "mobility": "0",
+          "perio_chart_ref": "3c9d2e10-5a4b-4c6d-8e7f-000000000013",
+          "status": "present",
+          "tooth": "3"
+        }
+      }
+    },
+    "proof_of_delivery": {
+      "delivery": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000021": {
+          "condition": "good",
+          "name": "Jordan Rivera",
+          "note": "Left with the front desk",
+          "order_number": "1042",
+          "signature": "signature.png",
+          "signed_by": "Jordan Rivera"
+        }
+      }
+    },
+    "property_inspection": {
+      "inspection": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000014": {
+          "kind": "move_in",
+          "property": "12 Elm Street, Unit 4"
+        }
+      },
+      "inspection_item": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000014:item:kitchen:sink": {
+          "condition": "poor",
+          "defect": "Slow drain",
+          "inspection_ref": "3c9d2e10-5a4b-4c6d-8e7f-000000000014",
+          "item": "sink",
+          "photo": "kitchen-sink.jpg",
+          "section": "kitchen"
+        }
+      }
+    },
+    "receipts": {
+      "expense": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000001": {
+          "amount": "48.2",
+          "category": "fuel",
+          "currency": "usd",
+          "date": "2026-09-03",
+          "tax": "3.1",
+          "vendor": "Harbor Fuel"
+        }
+      },
+      "expense_item": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000001:items:0": {
+          "description": "Diesel",
+          "expense_ref": "3c9d2e10-5a4b-4c6d-8e7f-000000000001",
+          "line_amount": "45.1"
+        }
+      }
+    },
+    "sales_visit_debrief": {
+      "meeting": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000018": {
+          "account": "Maple Street Bakery",
+          "contact": "Dana Whitfield",
+          "interest": "moderate",
+          "next_step": "Send a quote for two ovens",
+          "next_step_date": "2026-09-12",
+          "notes": "Met Dana at Maple Street Bakery. They want a quote for two ovens by Friday."
+        }
+      }
+    },
+    "shelf_audit": {
+      "stock_check": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000004": {
+          "currency": "usd",
+          "location": "Store 3, aisle 5"
+        }
+      },
+      "stock_check_item": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000004:items:0": {
+          "facings": "4",
+          "name": "Oat Milk 1L",
+          "price_check": "matches",
+          "shelf_price": "3.49",
+          "stock": "stocked",
+          "stock_check_ref": "3c9d2e10-5a4b-4c6d-8e7f-000000000004"
+        }
+      }
+    },
+    "site_safety_walk": {
+      "safety_finding": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000017:findings:0": {
+          "action": "Guardrail installed",
+          "hazard": "fall",
+          "location": "Level 3 east edge",
+          "photo": "east-edge.jpg",
+          "safety_walk_ref": "3c9d2e10-5a4b-4c6d-8e7f-000000000017",
+          "severity": "high"
+        }
+      },
+      "safety_walk": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000017": {
+          "site": "Riverside build"
+        }
+      }
+    },
+    "supplier_invoices": {
+      "bill": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000002": {
+          "amount": "410.0",
+          "currency": "usd",
+          "due_date": "2026-10-01",
+          "invoice_date": "2026-09-01",
+          "invoice_number": "INV-3307",
+          "po_number": "PO-1189",
+          "supplier": "Lakeside Paper Co",
+          "tax": "30.0"
+        }
+      },
+      "bill_item": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000002:items:0": {
+          "bill_ref": "3c9d2e10-5a4b-4c6d-8e7f-000000000002",
+          "description": "Copy paper, 10 cases",
+          "line_amount": "380.0",
+          "quantity": "10",
+          "unit_price": "38.0"
+        }
+      }
+    },
+    "vehicle_pre_trip": {
+      "vehicle_check": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000015": {
+          "odometer": "48210",
+          "vehicle": "Truck 7"
+        }
+      },
+      "vehicle_check_item": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000015:item:vehicle:tires": {
+          "defect": "Front left tread low",
+          "item": "tires",
+          "photo": "tires.jpg",
+          "result": "fail",
+          "section": "vehicle",
+          "vehicle_check_ref": "3c9d2e10-5a4b-4c6d-8e7f-000000000015"
+        }
+      }
+    },
+    "vet_visit_notes": {
+      "visit_note": {
+        "3c9d2e10-5a4b-4c6d-8e7f-000000000019": {
+          "assessment": "Soft tissue strain",
+          "name": "Jordan Rivera",
+          "objective": "Mild swelling at the left stifle, temperature normal",
+          "patient": "Biscuit",
+          "plan": "Rest for a week, anti-inflammatory, recheck in ten days",
+          "species": "dog",
+          "subjective": "Limping on the left hind leg for two days",
+          "weight": "42.5"
+        }
+      }
+    }
+  },
+  "skips": {},
+  "source": "custom"
+}

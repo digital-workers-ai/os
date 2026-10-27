@@ -1,0 +1,14 @@
+title: Check deposits
+description: >-
+  A photo of a paper check received from a customer. Never read the routing
+  number or the account number.
+input: photo
+roles: [finance]
+lands_as: payment
+fields:
+  payer: { type: text }
+  customer: { type: lookup, entity: company, by: name }
+  amount: { type: money }
+  check_number: { type: text }
+  check_date: { type: date }
+  memo: { type: text }

@@ -1,0 +1,25 @@
+title: Receipts
+description: A photo of a paper receipt for something bought for the business.
+input: photo
+roles: [staff, finance]
+lands_as: expense
+fields:
+  vendor: { type: text }
+  date: { type: date }
+  total: { type: money }
+  tax: { type: money }
+  category:
+    type: one_of
+    labels:
+      fuel: Gas, diesel or charging for a vehicle
+      meals: Food and drink, including with customers
+      supplies: Consumables used up in the work
+      tools: Equipment that lasts beyond the job
+      travel: Parking, tolls, fares and lodging
+      other: Anything none of the above fits
+  items:
+    type: list
+    lands_as: expense_item
+    fields:
+      description: { type: text }
+      amount: { type: money }

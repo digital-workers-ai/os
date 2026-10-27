@@ -1,0 +1,40 @@
+[
+  {
+    "payload": {
+      "app": "vehicle_pre_trip",
+      "fields": {
+        "odometer": 48210,
+        "vehicle": "Truck 7"
+      },
+      "files": [
+        {
+          "kind": "audio",
+          "media_type": "audio/webm",
+          "path": "pre-trip.webm"
+        },
+        {
+          "kind": "photo",
+          "media_type": "image/jpeg",
+          "path": "tires.jpg"
+        }
+      ],
+      "record": "3c9d2e10-5a4b-4c6d-8e7f-000000000015",
+      "recorded_at": "2026-09-04T06:10:00Z",
+      "recorded_by": "admin",
+      "removed": false,
+      "template": {
+        "cells": {},
+        "items": {
+          "vehicle:tires": {
+            "defect": "Front left tread low",
+            "photo": "tires.jpg",
+            "result": "fail"
+          }
+        },
+        "rows": {}
+      },
+      "transcript": "tires fail, front left tread low"
+    },
+    "source_id": "3c9d2e10-5a4b-4c6d-8e7f-000000000015"
+  }
+]

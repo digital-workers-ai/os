@@ -1,0 +1,25 @@
+[
+  {
+    "payload": {
+      "app": "mailroom",
+      "fields": {
+        "carrier": "ups",
+        "recipient": "Finance team",
+        "status": "received",
+        "tracking_number": "1Z999AA10123456784"
+      },
+      "files": [
+        {
+          "kind": "photo",
+          "media_type": "image/jpeg",
+          "path": "label.jpg"
+        }
+      ],
+      "record": "3c9d2e10-5a4b-4c6d-8e7f-000000000011",
+      "recorded_at": "2026-09-08T10:12:00Z",
+      "recorded_by": "admin",
+      "removed": false
+    },
+    "source_id": "3c9d2e10-5a4b-4c6d-8e7f-000000000011"
+  }
+]

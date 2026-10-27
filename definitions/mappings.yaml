@@ -99,6 +99,10 @@ ticket:
   intercom.conversations.priority: priority
   intercom.conversations._author_email: email
   intercom.conversations.created_at: opened_at
+  custom.field_service_report.customer: name
+  custom.field_service_report.problem: subject
+  custom.field_service_report.hours: hours
+  custom.field_service_report.outcome: outcome
 
 message:
   twilio.messages.status: status
@@ -119,6 +123,12 @@ meeting:
   zoom.meetings._external_email: email
   zoom.meetings._external_domain: domain
   zoom.meetings._transcript_text: transcript
+  custom.sales_visit_debrief.account: account
+  custom.sales_visit_debrief.contact: contact
+  custom.sales_visit_debrief.interest: interest
+  custom.sales_visit_debrief.next_step: next_step
+  custom.sales_visit_debrief.next_step_date: next_step_date
+  custom.sales_visit_debrief.transcript: notes
 
 event:
   customerio.activities.type: event_name
@@ -459,3 +469,197 @@ ad:
   meta_ads.ads.ad.start_date: first_seen
   meta_ads.ads.ad.end_date: last_seen
   meta_ads.ads._url: url
+
+expense:
+  custom.receipts.vendor: vendor
+  custom.receipts.date: date
+  custom.receipts.total: amount
+  custom.receipts.tax: tax
+  custom.receipts.category: category
+  custom.receipts.currency: currency
+
+expense_item:
+  custom.receipts._items_parent: expense_ref
+  custom.receipts._items_description: description
+  custom.receipts._items_amount: line_amount
+
+bill:
+  custom.supplier_invoices.supplier: supplier
+  custom.supplier_invoices.invoice_number: invoice_number
+  custom.supplier_invoices.invoice_date: invoice_date
+  custom.supplier_invoices.due_date: due_date
+  custom.supplier_invoices.po_number: po_number
+  custom.supplier_invoices.amount: amount
+  custom.supplier_invoices.tax: tax
+  custom.supplier_invoices.currency: currency
+
+bill_item:
+  custom.supplier_invoices._items_parent: bill_ref
+  custom.supplier_invoices._items_description: description
+  custom.supplier_invoices._items_quantity: quantity
+  custom.supplier_invoices._items_unit_price: unit_price
+  custom.supplier_invoices._items_amount: line_amount
+
+odometer_reading:
+  custom.mileage_log.vehicle: vehicle
+  custom.mileage_log.odometer: odometer
+  custom.mileage_log.stage: stage
+  custom.mileage_log.purpose: purpose
+  custom.mileage_log.miles: miles
+
+stock_check:
+  custom.shelf_audit.location: location
+  custom.shelf_audit.currency: currency
+
+stock_check_item:
+  custom.shelf_audit._items_parent: stock_check_ref
+  custom.shelf_audit._items_product: name
+  custom.shelf_audit._items_facings: facings
+  custom.shelf_audit._items_stock: stock
+  custom.shelf_audit._items_shelf_price: shelf_price
+  custom.shelf_audit._items_price: price_check
+
+claim:
+  custom.damage_claims.item: item
+  custom.damage_claims.order: order_number
+  custom.damage_claims.damage: damage
+  custom.damage_claims.severity: severity
+  custom.damage_claims.estimated_cost: amount
+  custom.damage_claims.description: description
+  custom.damage_claims.currency: currency
+
+payment:
+  custom.check_deposits.payer: payer
+  custom.check_deposits.customer: name
+  custom.check_deposits.amount: amount
+  custom.check_deposits.check_number: check_number
+  custom.check_deposits.check_date: check_date
+  custom.check_deposits.memo: memo
+  custom.check_deposits.currency: currency
+
+asset:
+  custom.equipment_checkout.asset: code
+  custom.maintenance_tags.asset: code
+
+asset_move:
+  custom.equipment_checkout.asset: code
+  custom.equipment_checkout.action: action
+  custom.equipment_checkout.location: location
+  custom.equipment_checkout.due_back: due_back
+
+stock_count:
+  custom.inventory_count.location: location
+
+stock_count_line:
+  custom.inventory_count._lines_parent: stock_count_ref
+  custom.inventory_count._lines_product: sku
+  custom.inventory_count._lines_counted: counted
+  custom.inventory_count._lines_change: change
+
+check_in:
+  custom.event_check_in.event: event
+  custom.event_check_in.attendee: email
+  custom.event_check_in.ticket_type: admission
+
+service_record:
+  custom.maintenance_tags.asset: code
+  custom.maintenance_tags.work_done: work_done
+  custom.maintenance_tags.status: status
+  custom.maintenance_tags.next_service: next_service
+
+package:
+  custom.mailroom.tracking_number: tracking_number
+  custom.mailroom.carrier: carrier
+  custom.mailroom.recipient: recipient
+  custom.mailroom.status: status
+
+batch_step:
+  custom.batch_trace.lot: lot
+  custom.batch_trace.step: step
+  custom.batch_trace.quantity: quantity
+  custom.batch_trace.unit: unit
+  custom.batch_trace.note: note
+
+perio_chart:
+  custom.perio_charting.patient: name
+  custom.perio_charting.exam_date: exam_date
+
+perio_tooth:
+  custom.perio_charting._rows_parent: perio_chart_ref
+  custom.perio_charting._rows_row: tooth
+  custom.perio_charting._rows_status: status
+  custom.perio_charting._rows_mobility: mobility
+
+perio_site:
+  custom.perio_charting._cells_parent: perio_chart_ref
+  custom.perio_charting._cells_row: tooth
+  custom.perio_charting._cells_column: site
+  custom.perio_charting._cells_depth: depth
+  custom.perio_charting._cells_bleeding: bleeding
+
+inspection:
+  custom.property_inspection.property: property
+  custom.property_inspection.kind: kind
+
+inspection_item:
+  custom.property_inspection._items_parent: inspection_ref
+  custom.property_inspection._items_section: section
+  custom.property_inspection._items_item: item
+  custom.property_inspection._items_condition: condition
+  custom.property_inspection._items_defect: defect
+  custom.property_inspection._items_photo: photo
+
+vehicle_check:
+  custom.vehicle_pre_trip.vehicle: vehicle
+  custom.vehicle_pre_trip.odometer: odometer
+
+vehicle_check_item:
+  custom.vehicle_pre_trip._items_parent: vehicle_check_ref
+  custom.vehicle_pre_trip._items_section: section
+  custom.vehicle_pre_trip._items_item: item
+  custom.vehicle_pre_trip._items_result: result
+  custom.vehicle_pre_trip._items_defect: defect
+  custom.vehicle_pre_trip._items_photo: photo
+
+temperature_check:
+  custom.food_safety_log.shift: shift
+
+temperature_reading:
+  custom.food_safety_log._readings_parent: temperature_check_ref
+  custom.food_safety_log._readings_unit: unit
+  custom.food_safety_log._readings_temperature: temperature
+  custom.food_safety_log._readings_action: action
+
+safety_walk:
+  custom.site_safety_walk.site: site
+
+safety_finding:
+  custom.site_safety_walk._findings_parent: safety_walk_ref
+  custom.site_safety_walk._findings_hazard: hazard
+  custom.site_safety_walk._findings_severity: severity
+  custom.site_safety_walk._findings_location: location
+  custom.site_safety_walk._findings_action: action
+  custom.site_safety_walk._findings_photo: photo
+
+visit_note:
+  custom.vet_visit_notes.owner: name
+  custom.vet_visit_notes.patient: patient
+  custom.vet_visit_notes.species: species
+  custom.vet_visit_notes.weight: weight
+  custom.vet_visit_notes.subjective: subjective
+  custom.vet_visit_notes.objective: objective
+  custom.vet_visit_notes.assessment: assessment
+  custom.vet_visit_notes.plan: plan
+
+service_part:
+  custom.field_service_report._parts_parent: case_ref
+  custom.field_service_report._parts_part: name
+  custom.field_service_report._parts_quantity: quantity
+
+delivery:
+  custom.proof_of_delivery.customer: name
+  custom.proof_of_delivery.order_number: order_number
+  custom.proof_of_delivery.signed_by: signed_by
+  custom.proof_of_delivery.signature: signature
+  custom.proof_of_delivery.condition: condition
+  custom.proof_of_delivery.note: note

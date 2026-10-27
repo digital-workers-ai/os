@@ -1,0 +1,40 @@
+[
+  {
+    "payload": {
+      "app": "property_inspection",
+      "fields": {
+        "kind": "move_in",
+        "property": "12 Elm Street, Unit 4"
+      },
+      "files": [
+        {
+          "kind": "audio",
+          "media_type": "audio/webm",
+          "path": "kitchen.webm"
+        },
+        {
+          "kind": "photo",
+          "media_type": "image/jpeg",
+          "path": "kitchen-sink.jpg"
+        }
+      ],
+      "record": "3c9d2e10-5a4b-4c6d-8e7f-000000000014",
+      "recorded_at": "2026-09-07T12:00:00Z",
+      "recorded_by": "admin",
+      "removed": false,
+      "template": {
+        "cells": {},
+        "items": {
+          "kitchen:sink": {
+            "condition": "poor",
+            "defect": "Slow drain",
+            "photo": "kitchen-sink.jpg"
+          }
+        },
+        "rows": {}
+      },
+      "transcript": "kitchen sink poor, slow drain"
+    },
+    "source_id": "3c9d2e10-5a4b-4c6d-8e7f-000000000014"
+  }
+]

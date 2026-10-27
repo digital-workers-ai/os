@@ -75,6 +75,9 @@ entities:
       email: string
       organization_ref: string
       opened_at: date
+      name: string
+      hours: number
+      outcome: string
   message:
     description: An outbound message sent to a person, such as an SMS.
     attrs:
@@ -94,6 +97,12 @@ entities:
       transcript: string
       started_at: date
       ended_at: date
+      account: string
+      contact: string
+      interest: string
+      next_step: string
+      next_step_date: date
+      notes: string
   event:
     description: Something a person did in the product, at a point in time.
     attrs:
@@ -241,6 +250,232 @@ entities:
     attrs:
       name: string
       category: string
+  expense:
+    description: Something bought for the business, read off its paper receipt.
+    attrs:
+      vendor: string
+      date: date
+      amount: number
+      tax: number
+      category: string
+      currency: string
+  expense_item:
+    description: One line on a receipt.
+    attrs:
+      expense_ref: string
+      description: string
+      line_amount: number
+  bill:
+    description: A supplier's invoice the business has to pay.
+    attrs:
+      supplier: string
+      invoice_number: string
+      invoice_date: date
+      due_date: date
+      po_number: string
+      amount: number
+      tax: number
+      currency: string
+  bill_item:
+    description: One line on a supplier's invoice.
+    attrs:
+      bill_ref: string
+      description: string
+      quantity: number
+      unit_price: number
+      line_amount: number
+  odometer_reading:
+    description: A vehicle's odometer at the start or the end of a business trip.
+    attrs:
+      vehicle: string
+      odometer: number
+      stage: string
+      purpose: string
+      miles: number
+  stock_check:
+    description: A store shelf, photographed and read left to right.
+    attrs:
+      location: string
+      currency: string
+  stock_check_item:
+    description: One product on an audited shelf, with its facings and its shelf price.
+    attrs:
+      stock_check_ref: string
+      name: string
+      facings: number
+      stock: string
+      shelf_price: number
+      price_check: string
+  claim:
+    description: Goods damaged on the way in or on the way out, with what the damage costs.
+    attrs:
+      item: string
+      order_number: string
+      damage: string
+      severity: string
+      amount: number
+      currency: string
+      description: string
+  payment:
+    description: A paper check received from a customer.
+    attrs:
+      payer: string
+      name: string
+      amount: number
+      currency: string
+      check_number: string
+      check_date: date
+      memo: string
+  asset:
+    description: A tool, laptop, vehicle or machine, known by the code on its tag.
+    attrs:
+      code: string
+    identity:
+      - code
+  asset_move:
+    description: An asset checked out or checked back in.
+    attrs:
+      code: string
+      action: string
+      location: string
+      due_back: date
+  stock_count:
+    description: A count of what is on hand at one location.
+    attrs:
+      location: string
+  stock_count_line:
+    description: One product counted, with the change since its last count.
+    attrs:
+      stock_count_ref: string
+      sku: string
+      counted: number
+      change: number
+  check_in:
+    description: An attendee admitted at the door of an event.
+    attrs:
+      event: string
+      email: string
+      admission: string
+  service_record:
+    description: A service logged on a machine, with the state it was left in.
+    attrs:
+      code: string
+      work_done: string
+      status: string
+      next_service: date
+  package:
+    description: A package received at the front desk for a person or a team.
+    attrs:
+      tracking_number: string
+      carrier: string
+      recipient: string
+      status: string
+  batch_step:
+    description: One production step a lot went through.
+    attrs:
+      lot: string
+      step: string
+      quantity: number
+      unit: string
+      note: string
+  perio_chart:
+    description: A periodontal exam of one patient.
+    attrs:
+      name: string
+      exam_date: date
+  perio_tooth:
+    description: One tooth on a perio chart.
+    attrs:
+      perio_chart_ref: string
+      tooth: string
+      status: string
+      mobility: string
+  perio_site:
+    description: One probing site of one tooth on a perio chart.
+    attrs:
+      perio_chart_ref: string
+      tooth: string
+      site: string
+      depth: number
+      bleeding: string
+  inspection:
+    description: A walk through a rental unit at move-in, at move-out or on a routine visit.
+    attrs:
+      property: string
+      kind: string
+  inspection_item:
+    description: One item checked in one room of a property inspection.
+    attrs:
+      inspection_ref: string
+      section: string
+      item: string
+      condition: string
+      defect: string
+      photo: string
+  vehicle_check:
+    description: A driver's check of a truck before the day's first trip.
+    attrs:
+      vehicle: string
+      odometer: number
+  vehicle_check_item:
+    description: One item of a pre-trip check, passed or failed.
+    attrs:
+      vehicle_check_ref: string
+      section: string
+      item: string
+      result: string
+      defect: string
+      photo: string
+  temperature_check:
+    description: A walk around the kitchen with the temperatures called out.
+    attrs:
+      shift: string
+  temperature_reading:
+    description: One temperature taken on a food safety walk.
+    attrs:
+      temperature_check_ref: string
+      unit: string
+      temperature: number
+      action: string
+  safety_walk:
+    description: A walk around a job site looking for hazards.
+    attrs:
+      site: string
+  safety_finding:
+    description: One hazard found on a site safety walk.
+    attrs:
+      safety_walk_ref: string
+      hazard: string
+      severity: string
+      location: string
+      action: string
+      photo: string
+  visit_note:
+    description: A vet's note for one visit, in SOAP order.
+    attrs:
+      name: string
+      patient: string
+      species: string
+      weight: number
+      subjective: string
+      objective: string
+      assessment: string
+      plan: string
+  delivery:
+    description: A delivery handed to the customer at the door, with their signature.
+    attrs:
+      name: string
+      order_number: string
+      signed_by: string
+      signature: string
+      condition: string
+      note: string
+  service_part:
+    description: A part used on a field service call.
+    attrs:
+      case_ref: string
+      name: string
+      quantity: number
 
 attributes:
   external_ref:
@@ -362,6 +597,8 @@ attributes:
     description: The video or animated creative file, where the platform provides one.
   landing_url:
     description: Where a click on the creative lands.
+  case_ref:
+    description: The field service ticket a part was used on.
 
 source_priority:
   - salesforce
@@ -451,3 +688,113 @@ relationships:
     to: campaign
     cardinality: many_to_one
     via: campaign_ref
+  - rel: belongs_to
+    from: expense_item
+    to: expense
+    cardinality: many_to_one
+    via: expense_ref
+  - rel: belongs_to
+    from: bill_item
+    to: bill
+    cardinality: many_to_one
+    via: bill_ref
+  - rel: belongs_to
+    from: stock_check_item
+    to: stock_check
+    cardinality: many_to_one
+    via: stock_check_ref
+  - rel: belongs_to
+    from: stock_count_line
+    to: stock_count
+    cardinality: many_to_one
+    via: stock_count_ref
+  - rel: belongs_to
+    from: perio_tooth
+    to: perio_chart
+    cardinality: many_to_one
+    via: perio_chart_ref
+  - rel: belongs_to
+    from: perio_site
+    to: perio_chart
+    cardinality: many_to_one
+    via: perio_chart_ref
+  - rel: belongs_to
+    from: inspection_item
+    to: inspection
+    cardinality: many_to_one
+    via: inspection_ref
+  - rel: belongs_to
+    from: vehicle_check_item
+    to: vehicle_check
+    cardinality: many_to_one
+    via: vehicle_check_ref
+  - rel: belongs_to
+    from: temperature_reading
+    to: temperature_check
+    cardinality: many_to_one
+    via: temperature_check_ref
+  - rel: belongs_to
+    from: safety_finding
+    to: safety_walk
+    cardinality: many_to_one
+    via: safety_walk_ref
+  - rel: belongs_to
+    from: service_part
+    to: ticket
+    cardinality: many_to_one
+    via: case_ref
+  - rel: checks
+    from: stock_check_item
+    to: product
+    cardinality: many_to_one
+    match: name
+  - rel: paid_by
+    from: payment
+    to: company
+    cardinality: many_to_one
+    match: name
+  - rel: moves
+    from: asset_move
+    to: asset
+    cardinality: many_to_one
+    match: code
+  - rel: counts
+    from: stock_count_line
+    to: product
+    cardinality: many_to_one
+    match: sku
+  - rel: admits
+    from: check_in
+    to: person
+    cardinality: many_to_one
+    match: email
+  - rel: services
+    from: service_record
+    to: asset
+    cardinality: many_to_one
+    match: code
+  - rel: charts
+    from: perio_chart
+    to: person
+    cardinality: many_to_one
+    match: name
+  - rel: brought_by
+    from: visit_note
+    to: person
+    cardinality: many_to_one
+    match: name
+  - rel: requested_by
+    from: ticket
+    to: company
+    cardinality: many_to_one
+    match: name
+  - rel: uses
+    from: service_part
+    to: product
+    cardinality: many_to_one
+    match: name
+  - rel: delivered_to
+    from: delivery
+    to: person
+    cardinality: many_to_one
+    match: name

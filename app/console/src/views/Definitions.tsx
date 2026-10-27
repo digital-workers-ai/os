@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { CUSTOM_URL } from '@/lib/custom'
 import { num } from '@/lib/format'
 import { useScrollTo } from '@/lib/useScrollTo'
 import { useTab } from '@/lib/useTab'
@@ -208,6 +209,16 @@ interface Spy {
   country: string
   language: string
   engines: string[]
+}
+
+interface CustomApp {
+  name: string
+  title: string
+  input: string[]
+  roles: string[]
+  lands_as: string
+  script: boolean
+  screen: boolean
 }
 
 const keyCol = 'font-medium text-ink'
@@ -938,6 +949,62 @@ function SpyTab({ s }: { s: Spy }) {
   )
 }
 
+const extraCode = (app: CustomApp) => [...(app.script ? ['script.py'] : []), ...(app.screen ? ['screen.tsx'] : [])]
+
+function AppsTab({ apps }: { apps: CustomApp[] }) {
+  return (
+    <SectionCard className={FILL} bodyClassName={BODY} testId="definitions-apps">
+      <p className="mb-4 text-sm text-muted" data-testid="definitions-apps-note">
+        Edit these in <Mono>definitions/apps/</Mono>; open{' '}
+        <a href={CUSTOM_URL} className="underline" target="_blank" rel="noreferrer" data-testid="definitions-apps-open">
+          DW Apps
+        </a>{' '}
+        to use them.
+      </p>
+      <Table className="table-fixed" wrapperClassName="overflow-x-visible" data-testid="definitions-apps-table">
+        <TableHeader className={STICKY_HEAD}>
+          <TableRow>
+            <TableHead className="w-64" hint="The app's folder name and its title">App ({num(apps.length)})</TableHead>
+            <TableHead className="w-32" hint="How a record starts: photo, PDF, scan or voice">Input</TableHead>
+            <TableHead className="w-40" hint="The kind of record each saved entry becomes">Saves as</TableHead>
+            <TableHead hint="Who may open the app and its records">Roles</TableHead>
+            <TableHead className="w-32" hint="The app's own code, for what the YAML can't say">Extra code</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {apps.map((app) => {
+            const code = extraCode(app)
+            return (
+              <TableRow key={app.name} data-testid="definitions-app-row" data-name={app.name}>
+                <TableCell className="align-top">
+                  <Mono className={cn('block', keyCol)}>{app.name}</Mono>
+                  <span className="block text-muted">{app.title}</span>
+                </TableCell>
+                <TableCell className="align-top">{chips(app.input)}</TableCell>
+                <TableCell className="align-top">
+                  <Pill>{app.lands_as}</Pill>
+                </TableCell>
+                <TableCell className="align-top">{chips(app.roles)}</TableCell>
+                <TableCell className="align-top">
+                  {code.length > 0 ? (
+                    <span className="flex flex-col items-start gap-1">
+                      {code.map((file) => (
+                        <Mono key={file}>{file}</Mono>
+                      ))}
+                    </span>
+                  ) : (
+                    '—'
+                  )}
+                </TableCell>
+              </TableRow>
+            )
+          })}
+        </TableBody>
+      </Table>
+    </SectionCard>
+  )
+}
+
 export function Definitions() {
   const ontology = useLoad(() => get<Ontology>('/api/definitions/ontology'), [])
   const mappings = useLoad(() => get<Mappings>('/api/definitions/mappings'), [])
@@ -949,6 +1016,7 @@ export function Definitions() {
   const vocabulary = useLoad(() => get<Vocabulary>('/api/enrichment/vocabulary'), [])
   const dashboards = useLoad(() => get<Dashboards>('/api/definitions/dashboards'), [])
   const spy = useLoad(() => get<Spy>('/api/definitions/spy'), [])
+  const apps = useLoad(() => get<CustomApp[]>('/api/custom/apps'), [])
   const [tab, setTab] = useTab(DEFINITIONS_ROUTE)
 
   return (
@@ -984,6 +1052,9 @@ export function Definitions() {
         <TabsTrigger value="spy" data-testid="tab-spy">
           Spy
         </TabsTrigger>
+        <TabsTrigger value="apps" data-testid="tab-apps">
+          Apps
+        </TabsTrigger>
       </TabsList>
       <TabsContent value="ontology" className={TAB_FILL} data-testid="tabpanel-ontology">
         <Loaded got={ontology}>{(o) => <OntologyTab o={o} />}</Loaded>
@@ -1014,6 +1085,9 @@ export function Definitions() {
       </TabsContent>
       <TabsContent value="spy" className={TAB_FILL} data-testid="tabpanel-spy">
         <Loaded got={spy}>{(s) => <SpyTab s={s} />}</Loaded>
+      </TabsContent>
+      <TabsContent value="apps" className={TAB_FILL} data-testid="tabpanel-apps">
+        <Loaded got={apps}>{(a) => <AppsTab apps={a} />}</Loaded>
       </TabsContent>
     </Tabs>
   )

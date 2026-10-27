@@ -1,0 +1,17 @@
+title: Damage claims
+description: Photos of goods damaged on the way in or on the way out.
+input: photo
+roles: [staff, manager]
+lands_as: claim
+fields:
+  item: { type: text }
+  order: { type: lookup, entity: order, description: "The order it came in or went out on, if known" }
+  damage: { type: many_of, labels: [broken, dented, scratched, water, missing_parts, other] }
+  severity:
+    type: one_of
+    labels:
+      minor: Still usable or sellable
+      moderate: Usable after a repair
+      severe: Can't be used or sold
+  estimated_cost: { type: money }
+  description: { type: text }

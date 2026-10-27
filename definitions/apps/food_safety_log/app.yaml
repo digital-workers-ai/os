@@ -1,0 +1,16 @@
+title: Food safety log
+description: >-
+  Temperatures called out on a walk around the kitchen: "walk-in, 37", "hot
+  line, 140". Fahrenheit unless the speaker says Celsius.
+input: voice
+roles: [kitchen_staff, kitchen_manager]
+lands_as: temperature_check
+fields:
+  shift: { type: one_of, labels: [opening, midday, closing] }
+  readings:
+    type: list
+    lands_as: temperature_reading
+    fields:
+      unit: { type: one_of, labels: [walk_in_cooler, reach_in_cooler, freezer, hot_holding] }
+      temperature: { type: number, unit: °F }
+      action: { type: text, description: What was done about a reading out of range }

@@ -1,0 +1,19 @@
+[
+  {
+    "payload": {
+      "app": "equipment_checkout",
+      "fields": {
+        "action": "check_out",
+        "asset": "LAP-014",
+        "due_back": "2026-09-10",
+        "location": "Site B"
+      },
+      "files": [],
+      "record": "3c9d2e10-5a4b-4c6d-8e7f-000000000007",
+      "recorded_at": "2026-09-03T08:15:00Z",
+      "recorded_by": "admin",
+      "removed": false
+    },
+    "source_id": "3c9d2e10-5a4b-4c6d-8e7f-000000000007"
+  }
+]
