@@ -69,6 +69,8 @@ const SUGGESTED = [
 
 const READING = { fields: { site: 'Elm Street', vendor: null, slump: 4, mix: 'standard' }, missing: ['vendor'] }
 
+const SAID = 'A four inch slump on the standard mix this morning'
+
 const turns = (page: Page) => page.getByTestId('turn')
 
 async function started(page: Page) {
@@ -210,6 +212,26 @@ test('Try it reads a sample, and Send for review files the thread for good', asy
   await expect(page.getByTestId('thread')).toContainText('Sent for review')
   await ready(page)
   await snap(page, 'builder-filed')
+})
+
+test('Try it a second time keeps the page and its reading', async ({ page }) => {
+  await mockBuilder(page, { turns: [person(DESCRIPTION), REPLIES[1]], reading: READING })
+  await visit(page, `/threads/${THREAD_ID}`)
+  await ready(page)
+  const card = page.getByTestId('builder-draft')
+  await expect(card).toContainText('title: Concrete pours')
+
+  await page.getByLabel('Sample text').fill(SAID)
+  await page.getByTestId('builder-try').click()
+  const reading = page.getByTestId('builder-reading')
+  await expect(reading).toContainText('Elm Street')
+
+  const again = sent(page, `threads/${THREAD_ID}/try`)
+  await page.getByTestId('builder-try').click()
+  expect((await again).postDataJSON()).toEqual({ files: [], text: SAID })
+  await expect(reading).toContainText('Elm Street')
+  await expect(card).toContainText('title: Concrete pours')
+  await expect(reading).toHaveCount(1)
 })
 
 test('New app says so when the builder is off', async ({ page }) => {

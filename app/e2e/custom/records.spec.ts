@@ -124,3 +124,16 @@ test('remove asks in the app, then the record leaves the list', async ({ page })
   await expect(rows(page).filter({ hasText: 'LOT-5582' })).toHaveCount(0)
   expect(dialogs).toEqual([])
 })
+
+test('a URL naming no app says so and leads back to all apps', async ({ page }) => {
+  for (const path of ['/apps/no_such_app', '/apps/no_such_app/new']) {
+    await visit(page, path)
+    const missing = page.getByTestId('no-such-app')
+    await expect(missing).toBeVisible()
+    await expect(missing).toContainText('No app named')
+    await expect(missing).toContainText('no_such_app')
+    await expect(missing.getByRole('link', { name: 'All apps' })).toHaveAttribute('href', '/')
+    await expect(page.getByTestId('error-banner')).toHaveCount(0)
+    await expect(page.locator('body')).not.toContainText('known:')
+  }
+})
