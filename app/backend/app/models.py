@@ -639,9 +639,9 @@ class BuilderTurn(Base):
     seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic turn counter: 1, 2, 3
     thread_id = Column(UUID(as_uuid=True), ForeignKey("builder_thread.id", ondelete="CASCADE"), nullable=False)  # owning thread: 9c17…, 0d4e…
     role = Column(String(16), nullable=False)  # who spoke: person, builder
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: app clock, 2026-09-04T12:00:00Z
     text = Column(Text, nullable=False)  # what was said: "We snap receipts", "Here is the draft."
     draft = Column(Text)  # app.yaml proposed, else null: "title: Receipts …", null
-    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: app clock, 2026-09-04T12:00:00Z
 
     __table_args__ = (Index("ix_builder_turn_thread_seq", "thread_id", "seq"),)
 
