@@ -24,7 +24,7 @@ Run without anyone watching (from `.github/workflows/app-build.yml`), there is n
    - the scripts in `app/backend/app/custom/apps/*/script.py` and the screens in `app/custom/src/apps/*/screen.tsx`;
    - the seeded records in `app/backend/fixtures/custom/records.yaml`.
 
-   For an issue, read it whole with `gh issue view <N> --comments`. The body holds `## Description`, `## Answers` and `## Draft` (a yaml block, already checked by `engine/apps.py`), and the comments may revise any of them.
+   For an issue, read it whole with `gh issue view <N> --comments`. The body holds `## Conversation`, every message of the chat in order under `### Person` or `### Builder`, and `## Draft`, the final app.yaml in a yaml block already checked by `engine/apps.py`; the comments may revise either. An issue titled `Change app: <title>` opens with `## App`, the name of the app it changes: change that app and what it lands in, rather than adding a new one.
 
 2. Ask every open question in one round, never one at a time: who opens the app and its records (its `roles`), what the person photographs, uploads, scans or says (its `input`), which fields it needs and the labels of each choice, which existing records a lookup finds and by which attribute, what it should land as, and what should raise a flag. Leave out what the description or the issue already settles. With nobody there to answer, choose the plainest reading, keep going, and note each choice as an assumption.
 

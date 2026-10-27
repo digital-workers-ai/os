@@ -42,6 +42,7 @@ Every night, an AI agent reviews what changed and opens a GitHub issue for each 
 - [Spy](#spy)
 - [The Studio](#the-studio)
 - [DW Apps](#dw-apps)
+- [App Builder](#app-builder)
 - [MCP Support](#mcp-support)
 - [The Nightly AI Engineer Agent](#the-nightly-ai-engineer-agent)
 - [An Engineer in Your Loop](#an-engineer-in-your-loop)
@@ -77,7 +78,7 @@ curl -X POST localhost:8092/api/rebuild
 open http://localhost:3092
 ```
 
-The two `curl` commands pull from every stand-in tool and then build every record out of what arrived; the last command opens the console on your home page; the dashboard is at http://localhost:3093, Spy at http://localhost:3094, the studio at http://localhost:3095 and DW Apps at http://localhost:3097.
+The two `curl` commands pull from every stand-in tool and then build every record out of what arrived; the last command opens the console on your home page; the dashboard is at http://localhost:3093, Spy at http://localhost:3094, the studio at http://localhost:3095, DW Apps at http://localhost:3097 and App Builder at http://localhost:3098.
 
 ## Connectors
 
@@ -195,9 +196,10 @@ flowchart TD
 22. **Dashboard:** A second web app for readers: the pages `dashboards.yaml` declares, one card per metric, over any date range.
 23. **Spy:** A third web app: how the brand comes up in Google and AI answers for the tracked queries, and what competitors run and post.
 24. **Studio:** A fourth web app for whoever markets the business: a canvas of what it has made, a chat that makes more through the content skills, the calendar and the asset library.
-25. **DW Apps:** A fifth web app, on port 3097, that installs on a phone: the custom apps `definitions/apps/` declares, each started from a photo, a PDF, a scanned code or a voice clip, and each saved record kept in the raw store like anything a tool sends. The console's Definitions page lists the same apps in a read-only tab that links to it.
-26. **Search:** One search box over everything stored: names, emails, ids, statuses, transcript passages, briefings, and the definitions themselves.
-27. **MCP:** The door for AI assistants. Any assistant on your machine can read the same numbers, definitions, and briefing prompts as the console, and every call is logged.
+25. **DW Apps:** A fifth web app, on port 3097, that installs on a phone: the custom apps `definitions/apps/` declares, each started from a photo, a PDF, a scanned code or a voice clip, and each saved record kept in the raw store like anything a tool sends. It only lists the apps and uses them. The console's Definitions page lists the same apps in a read-only tab that links to it.
+26. **App Builder:** A sixth web app, on port 3098, for the desk: every app with its fields and its `app.yaml`, and saved conversations that create a new app or change one, try the draft on a sample and send it for review as a GitHub issue.
+27. **Search:** One search box over everything stored: names, emails, ids, statuses, transcript passages, briefings, and the definitions themselves.
+28. **MCP:** The door for AI assistants. Any assistant on your machine can read the same numbers, definitions, and briefing prompts as the console, and every call is logged.
 
 ## Entity Resolution
 
@@ -325,7 +327,7 @@ open http://localhost:3095
 
 ## DW Apps
 
-DW Apps is a fifth web app, at http://localhost:3097, for the people whose work happens away from a desk. A business describes something it needs to record (a receipt, an asset tag, a perio chart read aloud, a vehicle check done by voice) and gets a custom app for it, defined by one file: `definitions/apps/<app_name>/app.yaml`. The file gives the app a title and a description, the inputs it takes, the roles that may open it, the kind of record each entry saves as, and its fields, with an optional template and script. It is checked at startup and before every rebuild like every other definition: an unknown field type, labels that do not parse, a record kind the ontology lacks or a field with no mapping line stops the system with a message naming the file and the field. DW Apps draws every app from its file, and installs on a phone as one icon named DW Apps.
+DW Apps is a fifth web app, at http://localhost:3097, for the people whose work happens away from a desk. A business describes something it needs to record (a receipt, an asset tag, a perio chart read aloud, a vehicle check done by voice) and gets a custom app for it, defined by one file: `definitions/apps/<app_name>/app.yaml`. The file gives the app a title and a description, the inputs it takes, the roles that may open it, the kind of record each entry saves as, and its fields, with an optional template and script. It is checked at startup and before every rebuild like every other definition: an unknown field type, labels that do not parse, a record kind the ontology lacks or a field with no mapping line stops the system with a message naming the file and the field. DW Apps draws every app from its file, and installs on a phone as one icon named DW Apps. On the phone, a person only lists the apps and uses them: apps are created and changed in [App Builder](#app-builder).
 
 Four inputs start a record, and an app may take more than one:
 
@@ -350,12 +352,24 @@ A saved record is a raw event of the `custom` source, one object type per app, k
 
 Every view, edit, save and removal writes a row to an audit log, saying who and when, and a record's page shows that history. Each app's `roles` decide who may open it and its records, and `admin` always may. There is no sign-in yet, so until there is, everyone is `admin`.
 
-A new app starts as a conversation. The New app chat in DW Apps asks every question that changes the definition in one round, writes a draft `app.yaml` and checks it, and lets the person try the draft on a sample. Submitting files a GitHub issue labeled `app` in `GITHUB_REPOSITORY`, with the description, the answers and the draft. Nothing is built until a repository admin adds `approved`; then `.github/workflows/app-build.yml` runs the `dw-app` skill in Claude Code, which writes the app, its ontology, mappings, rules and sample records, adds a script or a screen with their tests only when the vocabulary falls short, tries the app on the samples, and opens a pull request for a person to merge. The workflow reads the two repository secrets the operator workflows use: `ANTHROPIC_API_KEY` for its model and `OPERATOR_GITHUB_PAT` to open the pull request.
-
-Reading is off until a person sets `CUSTOM_ENABLED`, which needs `ANTHROPIC_API_KEY`; transcribing until `TRANSCRIBE_ENABLED`, which needs `DEEPGRAM_API_KEY`; and the New app chat until `BUILDER_ENABLED`, which needs `ANTHROPIC_API_KEY` and `GITHUB_TOKEN`. The app refuses to start with a switch on and its key missing. The console lists every app under Definitions → Apps, read-only, with its inputs, the record it saves as, its roles and any extra code.
+Reading is off until a person sets `CUSTOM_ENABLED`, which needs `ANTHROPIC_API_KEY`, and transcribing until `TRANSCRIBE_ENABLED`, which needs `DEEPGRAM_API_KEY`. The app refuses to start with a switch on and its key missing. The console lists every app under Definitions → Apps, read-only, with its inputs, the record it saves as, its roles and any extra code.
 
 ```bash
 open http://localhost:3097
+```
+
+## App Builder
+
+App Builder is a sixth web app, at http://localhost:3098, where the apps DW Apps runs are made: a desktop app beside the dashboard, Spy and the studio. Its Apps page lists every app with its inputs, the record it saves as, its roles and any extra code, and each app's page shows its fields with their types, labels and lookups, its list and template parts, and its `app.yaml` as it stands.
+
+A new app, or a change to one, is a conversation. New app starts one; Change this app on an app's page starts one about that app, with its `app.yaml` in front of the builder. Describe what the team needs to record, or the business itself: the builder asks every question that changes the definition in one round, suggests the apps already here that fit and new ones worth drafting, and writes a draft `app.yaml` that it checks, showing what is wrong with it. Each reply can change the draft again, and "Try it" reads a sample photo, a PDF or a few typed words with the latest draft, showing what it would fill. Every turn is saved, so a conversation picks up where it was left, and Conversations lists them all.
+
+Send for review files the conversation as a GitHub issue labeled `app` in `GITHUB_REPOSITORY`, with every turn and the latest draft, and closes it. Nothing is built until a repository admin adds `approved`; then `.github/workflows/app-build.yml` runs the `dw-app` skill in Claude Code, which writes the app, its ontology, mappings, rules and sample records, adds a script or a screen with their tests only when the vocabulary falls short, tries the app on the samples, and opens a pull request for a person to merge. The workflow reads the two repository secrets the operator workflows use: `ANTHROPIC_API_KEY` for its model and `OPERATOR_GITHUB_PAT` to open the pull request.
+
+The builder is off until a person sets `BUILDER_ENABLED`, which needs `ANTHROPIC_API_KEY` and `GITHUB_TOKEN`; the app refuses to start with it on and either key missing. With it off, App Builder still lists every app and shows its definition.
+
+```bash
+open http://localhost:3098
 ```
 
 ## MCP Support
@@ -442,21 +456,21 @@ Everything is read from the environment, and `app/.env` is loaded first. Every s
 | `MARKETER_DAILY`           | `false`                                         | Fill the calendar's empty slots every morning                          |
 | `MARKETER_HOUR`            | `6`                                             | UTC hour the daily fill runs                                           |
 | `CUSTOM_ENABLED`           | `false`                                         | DW Apps reads a record into its fields; needs `ANTHROPIC_API_KEY`      |
-| `CUSTOM_MODEL`             | `claude-opus-5-5`                               | Model that reads a record and runs the New app chat                    |
+| `CUSTOM_MODEL`             | `claude-opus-5-5`                               | Model that reads a record and answers in App Builder                   |
 | `CUSTOM_MAX_TOKENS`        | `16000`                                         | Output cap per reading                                                 |
 | `TRANSCRIBE_ENABLED`       | `false`                                         | Deepgram transcribes DW Apps voice clips; needs `DEEPGRAM_API_KEY`     |
 | `TRANSCRIBE_MODEL`         | `nova-3`                                        | Deepgram model that transcribes                                        |
-| `BUILDER_ENABLED`          | `false`                                         | The New app chat; needs `ANTHROPIC_API_KEY` and `GITHUB_TOKEN`         |
-| `GITHUB_REPOSITORY`        | empty                                           | `owner/repo` where the New app chat files its issues                   |
+| `BUILDER_ENABLED`          | `false`                                         | The App Builder chat; needs `ANTHROPIC_API_KEY` and `GITHUB_TOKEN`     |
+| `GITHUB_REPOSITORY`        | empty                                           | `owner/repo` where App Builder files its issues                        |
 | `CLOCK_PINNED_AT`          | unset                                           | Pins the app clock at one instant                                      |
 
 | Key                   | Needed by                                                                                     |
 |-----------------------|-----------------------------------------------------------------------------------------------|
-| `ANTHROPIC_API_KEY`   | Reading text, briefings, asking questions, the studio's skills, DW Apps reading, New app chat |
+| `ANTHROPIC_API_KEY`   | Reading text, briefings, asking questions, the studio's skills, DW Apps reading, App Builder  |
 | `OPENAI_API_KEY`      | Meaning search, the studio's pictures                                                         |
 | `ZEROENTROPY_API_KEY` | Reranking                                                                                     |
 | `DEEPGRAM_API_KEY`    | Transcribing DW Apps voice clips                                                              |
-| `GITHUB_TOKEN`        | Filing the New app chat's issues                                                              |
+| `GITHUB_TOKEN`        | Filing App Builder's issues                                                                   |
 
 A source reads its real API once every variable it names is set, and the stand-in when none is. A partial set is refused, naming what is missing. `<SOURCE>_BASE_URL` overrides the host.
 

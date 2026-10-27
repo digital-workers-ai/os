@@ -375,7 +375,7 @@ async def _read(app, sent: list[Sent], transcript: str | None) -> dict:
     return {"fields": {}, "missing": []}
 
 
-async def create(session, app, *, files, scan, audio, actor) -> dict:
+def checked(app, files, audio=None) -> list[Sent]:
     sent = [_checked(app, *file) for file in files]
     if audio is not None:
         _clip(audio)
@@ -383,6 +383,11 @@ async def create(session, app, *, files, scan, audio, actor) -> dict:
     _pdf_limit([file.data for file in sent if file.kind == "pdf"])
     clip_bytes = 0 if audio is None else len(audio[1])
     _within_request(sum(len(file.data) for file in sent) + clip_bytes)
+    return sent
+
+
+async def create(session, app, *, files, scan, audio, actor) -> dict:
+    sent = checked(app, files, audio)
     transcript = await _transcribed(app, audio)
     reading = await _read(app, sent, transcript)
     scanned = {

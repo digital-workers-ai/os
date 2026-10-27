@@ -66,7 +66,7 @@ jobs:
           show_full_output: true
           prompt: |
             Read .claude/skills/dw-app/SKILL.md and follow it for issue ${{ github.event.issue.number }}. Nobody is watching this run.
-            Read the issue first: `gh issue view ${{ github.event.issue.number }} --comments`. Its description, answers and draft are the app a person asked for and approved. Where a question is still open, take an assumption and name it in the pull request.
+            Read the issue first: `gh issue view ${{ github.event.issue.number }} --comments`. Its conversation and final draft are the app a person asked for and approved; a `Change app:` issue names the app it changes under `## App`. Where a question is still open, take an assumption and name it in the pull request.
             Ship through .claude/skills/dw-ship/SKILL.md on the branch `app/issue-${{ github.event.issue.number }}-<app_name>` from `origin/main`, with `Closes #${{ github.event.issue.number }}` in the pull request body. Stop once the pull request is open: CI and a person's review take it from there.
             Then `gh issue comment ${{ github.event.issue.number }}` with the pull request link and a two-line summary. Never merge.
           claude_args: |

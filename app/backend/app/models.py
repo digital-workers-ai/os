@@ -620,3 +620,49 @@ class CustomRecordAudit(Base):
     at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # when it was done: app clock, 2026-09-04T12:00:00Z
 
     __table_args__ = (Index("ix_custom_record_audit_record", "record_id", "at", "seq"),)
+
+
+class BuilderThread(Base):
+    __tablename__ = "builder_thread"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # row identity, random UUID: 6f1c…, 9b2d…
+    seq = Column(BigInteger, Identity(), unique=True, nullable=False)  # monotonic thread counter: 1, 2, 3
+    app = Column(String(64))  # app it changes, else null: receipts, perio_charting, null
+    issue_number = Column(Integer)  # filed issue, null until filed: 7, 41, null
+    issue_url = Column(String(512))  # filed issue page, else null: https://github.com/acme/widgets/issues/7, null
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # thread creation timestamp: app clock, 2026-09-04T12:00:00Z
+
+
+class BuilderTurn(Base):
+    __tablename__ = "builder_turn"
+
+    seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic turn counter: 1, 2, 3
+    thread_id = Column(UUID(as_uuid=True), ForeignKey("builder_thread.id", ondelete="CASCADE"), nullable=False)  # owning thread: 9c17…, 0d4e…
+    role = Column(String(16), nullable=False)  # who spoke: person, builder
+    text = Column(Text, nullable=False)  # what was said: "We snap receipts", "Here is the draft."
+    draft = Column(Text)  # app.yaml proposed, else null: "title: Receipts …", null
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: app clock, 2026-09-04T12:00:00Z
+
+    __table_args__ = (Index("ix_builder_turn_thread_seq", "thread_id", "seq"),)
+
+
+class BuilderQuestion(Base):
+    __tablename__ = "builder_question"
+
+    seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic question counter: 1, 2, 3
+    turn_seq = Column(BigInteger, ForeignKey("builder_turn.seq", ondelete="CASCADE"), nullable=False)  # turn that asked: 2, 4
+    text = Column(Text, nullable=False)  # what was asked: "Who sends receipts in?", "Which categories?"
+
+    __table_args__ = (Index("ix_builder_question_turn", "turn_seq", "seq"),)
+
+
+class BuilderSuggestion(Base):
+    __tablename__ = "builder_suggestion"
+
+    seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic suggestion counter: 1, 2, 3
+    turn_seq = Column(BigInteger, ForeignKey("builder_turn.seq", ondelete="CASCADE"), nullable=False)  # turn that suggested: 2, 4
+    app = Column(String(64))  # existing app, else null: receipts, perio_charting, null
+    title = Column(Text, nullable=False)  # what it is called: Receipts, Patient intake
+    reason = Column(Text, nullable=False)  # why it fits: "Drivers photograph every fuel stop."
+
+    __table_args__ = (Index("ix_builder_suggestion_turn", "turn_seq", "seq"),)

@@ -10,6 +10,11 @@ import pytest
 from app import config, llm
 
 PNG = b"\x89PNG\r\n\x1a\nfake"
+CONVERSATION = [
+    {"role": "user", "content": "We snap receipts for fuel and meals."},
+    {"role": "assistant", "content": '{"reply": "Who sends them in?"}'},
+    {"role": "user", "content": "Staff and finance."},
+]
 
 
 def api_error(message="boom"):
@@ -242,6 +247,29 @@ class TestParse:
             {"role": "user", "content": blocks}
         ]
 
+    async def test_a_messages_list_is_sent_as_the_conversation_unchanged(self):
+        client = FakeClient(Response(parsed_output={}))
+        await llm.parse(
+            model="m",
+            max_tokens=1,
+            system="s",
+            messages=CONVERSATION,
+            output_format=dict,
+            client_override=client,
+        )
+        assert client.messages.calls[0]["messages"] == CONVERSATION
+
+    async def test_a_messages_list_comes_back_with_the_parsed_object_and_model(self):
+        client = FakeClient(Response(parsed_output={"a": 1}, model="claude-actual"))
+        assert await llm.parse(
+            model="m",
+            max_tokens=1,
+            system="s",
+            messages=CONVERSATION,
+            output_format=dict,
+            client_override=client,
+        ) == ({"a": 1}, "claude-actual")
+
     async def test_without_the_fallback_the_beta_endpoint_is_never_called(self):
         client = FakeClient(Response(parsed_output={}))
         await llm.parse(
@@ -313,6 +341,30 @@ class TestParseWithTheRefusalFallback:
         assert client.beta.messages.calls[0]["messages"] == [
             {"role": "user", "content": blocks}
         ]
+
+    async def test_a_messages_list_reaches_the_beta_endpoint_unchanged(self):
+        client = FakeClient(Response(parsed_output={}))
+        await llm.parse(
+            model="m",
+            max_tokens=1,
+            system="s",
+            messages=CONVERSATION,
+            output_format="SCHEMA",
+            fallback=True,
+            client_override=client,
+        )
+        assert client.beta.messages.calls == [
+            {
+                "model": "m",
+                "max_tokens": 1,
+                "system": "s",
+                "messages": CONVERSATION,
+                "output_format": "SCHEMA",
+                "betas": [llm.FALLBACK_BETA],
+                "extra_body": {"fallbacks": "default"},
+            }
+        ]
+        assert client.messages.calls == []
 
     async def test_the_parsed_object_and_the_answering_model_come_back(self):
         client = FakeClient(

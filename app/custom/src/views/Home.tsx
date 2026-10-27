@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Camera, FileText, Mic, Plus, ScanLine, type LucideIcon } from 'lucide-react'
+import { Camera, FileText, Mic, ScanLine, type LucideIcon } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { asApiError, getApps, type AppSummary, type Input } from '@/api'
 import { ErrorBanner } from '@/components/ui/banner'
@@ -35,21 +35,12 @@ export function Home() {
 
   return (
     <div className="flex flex-col gap-5" data-testid="home-view" data-state={state}>
-      <div className="flex items-center gap-3">
-        <h1 className="text-xl text-ink">Apps</h1>
-        <Link
-          to="/new-app"
-          className="ml-auto inline-flex h-9 items-center gap-2 rounded-md border border-input bg-background px-4 text-sm font-medium shadow-sm hover:bg-accent"
-        >
-          <Plus className="size-4" aria-hidden />
-          New app
-        </Link>
-      </div>
+      <h1 className="text-xl text-ink">Apps</h1>
       <ErrorBanner error={apps.error && asApiError(apps.error)} />
       {!apps.data ? (
         !apps.error && <Loading />
       ) : apps.data.length === 0 ? (
-        <Empty testId="apps-empty">No apps yet. Describe the one you need with New app.</Empty>
+        <Empty testId="apps-empty">No apps yet. Apps are made in App Builder.</Empty>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
           {apps.data.map((app) => (

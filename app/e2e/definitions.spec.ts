@@ -159,7 +159,10 @@ test('apps', async ({ page }) => {
       else await expect(row).not.toContainText(file)
     }
   }
-  await expect(page.getByTestId('definitions-apps-note')).toHaveText('Edit these in definitions/apps/; open DW Apps to use them.')
+  await expect(page.getByTestId('definitions-apps-note')).toHaveText('Change these in App Builder; open DW Apps to use them.')
+  const builder = page.getByTestId('definitions-apps-builder')
+  await expect(builder).toHaveText('App Builder')
+  await expect(builder).toHaveAttribute('href', 'http://localhost:3098')
   const open = page.getByTestId('definitions-apps-open')
   await expect(open).toHaveText('DW Apps')
   await expect(open).toHaveAttribute('href', 'http://localhost:3097')

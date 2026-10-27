@@ -34,9 +34,10 @@ EXCLUDED = {
     ("POST", "/api/custom/records/{id}/hear"),
     ("POST", "/api/custom/records/{id}/files"),
     ("DELETE", "/api/custom/records/{id}"),
-    ("POST", "/api/builder/turns"),
-    ("POST", "/api/builder/try"),
-    ("POST", "/api/builder/submit"),
+    ("POST", "/api/builder/threads"),
+    ("POST", "/api/builder/threads/{id}/turns"),
+    ("POST", "/api/builder/threads/{id}/try"),
+    ("POST", "/api/builder/threads/{id}/submit"),
 }
 
 

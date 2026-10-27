@@ -184,23 +184,6 @@ export interface Heard {
   readback: string
 }
 
-export interface Message {
-  role: 'person' | 'builder'
-  text: string
-}
-
-export interface Turn {
-  reply: string
-  questions: string[]
-  draft: string | null
-  problems: string[]
-}
-
-export interface Reading {
-  fields: Values
-  missing: string[]
-}
-
 export const getApps = () => get<AppSummary[]>('/api/custom/apps')
 
 export const getApp = (app: string) => get<AppDefinition>(`/api/custom/apps/${segment(app)}`)
@@ -225,11 +208,3 @@ export const getRecord = (id: string) => get<Detail>(`/api/custom/records/${segm
 export const removeRecord = (id: string) => remove<{ removed: boolean }>(`/api/custom/records/${segment(id)}`)
 
 export const fileUrl = (id: string, path: string) => `/api/custom/records/${segment(id)}/files/${path.split('/').map(segment).join('/')}`
-
-export const builderTurn = (messages: Message[]) => post<Turn>('/api/builder/turns', { messages })
-
-export const builderTry = (draft: string, files: Sent[], text: string | null) =>
-  post<Reading>('/api/builder/try', { draft, files, text })
-
-export const builderSubmit = (description: string, answers: string[], draft: string) =>
-  post<{ number: number; url: string }>('/api/builder/submit', { description, answers, draft })

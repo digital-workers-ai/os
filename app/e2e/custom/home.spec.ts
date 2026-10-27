@@ -10,7 +10,7 @@ interface AppRow {
 
 const cards = (page: Page) => page.locator('[data-testid^="app-card-"]')
 
-test('home lists the 21 apps under an Apps header, with a New app link', async ({ page }) => {
+test('home lists the 21 apps under an Apps header, with no New app link', async ({ page }) => {
   const response = await page.request.get('/api/custom/apps')
   await expect(response).toBeOK()
   const apps = (await response.json()) as AppRow[]
@@ -22,7 +22,8 @@ test('home lists the 21 apps under an Apps header, with a New app link', async (
   await expect(page.getByRole('banner')).not.toContainText('DW Apps')
   await expect(cards(page)).toHaveCount(21)
   for (const [name, { title }] of Object.entries(APPS)) await expect(page.getByTestId(`app-card-${name}`)).toContainText(title)
-  await expect(page.getByRole('link', { name: 'New app' })).toHaveAttribute('href', '/new-app')
+  await expect(page.getByRole('link', { name: 'New app' })).toHaveCount(0)
+  await expect(page.getByTestId('page-main')).not.toContainText('New app')
   await ready(page)
   await snap(page, 'custom-home')
 })
@@ -36,14 +37,22 @@ test('a card opens a new record', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Receipts')
 })
 
-test('no apps shows the empty state and still offers New app', async ({ page }) => {
+test('no apps shows the empty state, with no New app link', async ({ page }) => {
   await mockJson(page, '**/api/custom/apps', [])
   await visit(page, '/')
   await ready(page)
   await expect(cards(page)).toHaveCount(0)
   await expect(page.getByTestId('page-main')).toContainText('No apps yet')
-  await expect(page.getByRole('link', { name: 'New app' })).toHaveAttribute('href', '/new-app')
+  await expect(page.getByRole('link', { name: 'New app' })).toHaveCount(0)
+  await expect(page.getByTestId('page-main')).not.toContainText('New app')
   await snap(page, 'custom-home-empty')
+})
+
+test('the New app chat is gone from the phone', async ({ page }) => {
+  await visit(page, '/new-app')
+  await ready(page)
+  await expect(page).toHaveURL(/\/$/)
+  await expect(cards(page)).toHaveCount(21)
 })
 
 test('the phone name is DW Apps', async ({ page }) => {

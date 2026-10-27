@@ -62,8 +62,9 @@ async def parse(
     model,
     max_tokens,
     system,
-    user,
     output_format,
+    user=None,
+    messages=None,
     fallback=False,
     client_override=None,
 ):
@@ -72,7 +73,7 @@ async def parse(
         "model": model,
         "max_tokens": max_tokens,
         "system": system,
-        "messages": [{"role": "user", "content": user}],
+        "messages": messages or [{"role": "user", "content": user}],
         "output_format": output_format,
     }
     try:

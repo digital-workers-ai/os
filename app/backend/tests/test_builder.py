@@ -15,7 +15,13 @@ REPLY = "A few questions before the draft."
 QUESTIONS = ["Who sends receipts in?", "Which categories do you use?"]
 MESSAGES = [
     {"role": "person", "text": "We snap receipts for fuel and meals."},
-    {"role": "builder", "text": "Who sends them in?"},
+    {
+        "role": "builder",
+        "text": "Who sends them in?",
+        "questions": [],
+        "suggestions": [],
+        "draft": None,
+    },
     {"role": "person", "text": "Staff and finance."},
 ]
 RECEIPTS = """\
@@ -46,6 +52,52 @@ fields:
       amount: { type: money }
 """
 INVALID = RECEIPTS.replace("vendor: { type: text }", "vendor: { type: paragraph }")
+REVISED = RECEIPTS.replace(
+    "vendor: { type: text }",
+    "vendor: { type: text, description: The store or station when it is named }",
+)
+EXISTING = {
+    "app": "receipts",
+    "title": "Receipts",
+    "reason": "Your drivers photograph every fuel stop.",
+}
+NEW_IDEA = {
+    "app": None,
+    "title": "Patient intake",
+    "reason": "New patients give their history before the first visit.",
+}
+UNKNOWN = {
+    "app": "dental_xrays",
+    "title": "Dental x-rays",
+    "reason": "Every x-ray is filed with its patient.",
+}
+LONG = [
+    {"role": "person", "text": "We snap receipts for fuel and meals."},
+    {
+        "role": "builder",
+        "text": REPLY,
+        "questions": QUESTIONS,
+        "suggestions": [NEW_IDEA],
+        "draft": None,
+    },
+    {"role": "person", "text": "Who sends receipts in?\nStaff and finance."},
+    {
+        "role": "builder",
+        "text": "Here is the draft.",
+        "questions": [],
+        "suggestions": [],
+        "draft": RECEIPTS,
+    },
+    {"role": "person", "text": "Make the vendor optional."},
+    {
+        "role": "builder",
+        "text": "The vendor may be left empty now.",
+        "questions": [],
+        "suggestions": [],
+        "draft": REVISED,
+    },
+    {"role": "person", "text": "Add a field for the trip."},
+]
 NOT_YAML = "title: [Receipts\n"
 NOT_A_MAPPING = "- receipts\n- invoices\n"
 OFF = "the builder is off: set BUILDER_ENABLED"
@@ -65,11 +117,14 @@ def on(monkeypatch):
 def answered(monkeypatch):
     calls = []
 
-    def answer(draft=None, reply=REPLY, questions=QUESTIONS):
+    def answer(draft=None, reply=REPLY, questions=QUESTIONS, suggestions=()):
         async def parse(**kwargs):
             calls.append(kwargs)
             parsed = kwargs["output_format"](
-                reply=reply, questions=list(questions), draft=draft
+                reply=reply,
+                questions=list(questions),
+                suggestions=list(suggestions),
+                draft=draft,
             )
             return parsed, "claude-opus-5-5"
 
@@ -128,6 +183,16 @@ async def _system(answered):
     return calls[0]["system"]
 
 
+async def _sent(answered, messages=LONG):
+    calls = answered()
+    await chat.turn(messages)
+    return calls[0]["messages"]
+
+
+def _app_yaml(name):
+    return (apps.APPS_DIR / name / "app.yaml").read_text()
+
+
 class TestTurnAsksTheModel:
     async def test_one_parse_call_answers_a_turn(self, on, answered):
         calls = answered()
@@ -159,22 +224,28 @@ class TestTurnAsksTheModel:
         await chat.turn(MESSAGES, client_override=stand_in)
         assert calls[0]["client_override"] is stand_in
 
-    async def test_the_model_fills_only_a_reply_questions_and_a_draft(
+    async def test_the_model_fills_only_a_reply_questions_suggestions_and_a_draft(
         self, on, answered
     ):
         calls = answered()
         await chat.turn(MESSAGES)
         fields = set(calls[0]["output_format"].model_fields)
-        assert fields == {"reply", "questions", "draft"}
+        assert fields == {"reply", "questions", "suggestions", "draft"}
 
-    async def test_the_conversation_goes_in_order_with_each_speaker(self, on, answered):
+    async def test_a_suggestion_is_an_app_a_title_and_a_reason(self, on, answered):
         calls = answered()
         await chat.turn(MESSAGES)
-        user = calls[0]["user"]
-        lines = [f"{message['role']}: {message['text']}" for message in MESSAGES]
-        assert all(line in user for line in lines)
-        positions = [user.index(line) for line in lines]
-        assert positions == sorted(positions)
+        suggestion = calls[0]["output_format"].model_fields["suggestions"].annotation
+        [shape] = suggestion.__args__
+        assert set(shape.model_fields) == {"app", "title", "reason"}
+
+    async def test_the_conversation_goes_in_order_with_each_speaker(self, on, answered):
+        sent = await _sent(answered, MESSAGES)
+        assert [message["role"] for message in sent] == ["user", "assistant", "user"]
+        assert [sent[0]["content"], sent[2]["content"]] == [
+            MESSAGES[0]["text"],
+            MESSAGES[2]["text"],
+        ]
 
 
 class TestTheSystemPrompt:
@@ -208,6 +279,7 @@ class TestTheAnswer:
         assert await chat.turn(MESSAGES) == {
             "reply": REPLY,
             "questions": QUESTIONS,
+            "suggestions": [],
             "draft": None,
             "problems": [],
         }
@@ -222,6 +294,7 @@ class TestTheAnswer:
         assert await chat.turn(MESSAGES) == {
             "reply": REPLY,
             "questions": [],
+            "suggestions": [],
             "draft": RECEIPTS,
             "problems": [],
         }
@@ -231,6 +304,7 @@ class TestTheAnswer:
         assert await chat.turn(MESSAGES) == {
             "reply": REPLY,
             "questions": [],
+            "suggestions": [],
             "draft": INVALID,
             "problems": [_refusal(INVALID)],
         }
@@ -246,6 +320,113 @@ class TestTheAnswer:
         answered(draft=NOT_A_MAPPING)
         result = await chat.turn(MESSAGES)
         assert result["problems"] == ["the draft is not a mapping"]
+
+
+class TestTheConversation:
+    async def test_it_goes_as_messages_not_as_one_user_string(self, on, answered):
+        calls = answered()
+        await chat.turn(LONG)
+        assert "user" not in calls[0]
+        assert len(calls[0]["messages"]) == len(LONG)
+
+    async def test_every_turn_alternates_person_as_user_and_builder_as_assistant(
+        self, on, answered
+    ):
+        sent = await _sent(answered)
+        assert [message["role"] for message in sent] == [
+            "user",
+            "assistant",
+            "user",
+            "assistant",
+            "user",
+            "assistant",
+            "user",
+        ]
+
+    async def test_each_person_message_goes_as_its_text_in_order(self, on, answered):
+        sent = await _sent(answered)
+        assert [message["content"] for message in sent[::2]] == [
+            message["text"] for message in LONG[::2]
+        ]
+
+    async def test_each_builder_message_goes_as_its_whole_answer(self, on, answered):
+        sent = await _sent(answered)
+        assert [json.loads(message["content"]) for message in sent[1::2]] == [
+            {
+                "reply": message["text"],
+                "questions": message["questions"],
+                "suggestions": message["suggestions"],
+                "draft": message["draft"],
+                "problems": [],
+            }
+            for message in LONG[1::2]
+        ]
+
+    async def test_a_builder_drafts_problems_go_back_with_it(self, on, answered):
+        broken = {**LONG[3], "draft": INVALID}
+        sent = await _sent(answered, [*LONG[:3], broken, LONG[4]])
+        assert json.loads(sent[3]["content"])["problems"] == [_refusal(INVALID)]
+
+    async def test_the_builders_drafts_go_back_to_the_model_latest_last(
+        self, on, answered
+    ):
+        sent = await _sent(answered)
+        drafts = [json.loads(message["content"])["draft"] for message in sent[1::2]]
+        assert drafts == [None, RECEIPTS, REVISED]
+
+    async def test_the_last_message_is_the_persons_latest_words(self, on, answered):
+        sent = await _sent(answered)
+        assert sent[-1] == {"role": "user", "content": "Add a field for the trip."}
+
+
+class TestSuggestions:
+    async def test_suggestions_come_back_in_order(self, on, answered):
+        assert EXISTING["app"] in apps.names()
+        answered(suggestions=[NEW_IDEA, EXISTING], questions=[])
+        result = await chat.turn(MESSAGES)
+        assert result["suggestions"] == [NEW_IDEA, EXISTING]
+
+    async def test_a_suggestion_naming_an_app_not_here_is_dropped(self, on, answered):
+        assert UNKNOWN["app"] not in apps.names()
+        answered(suggestions=[UNKNOWN, EXISTING, NEW_IDEA], questions=[])
+        result = await chat.turn(MESSAGES)
+        assert result["suggestions"] == [EXISTING, NEW_IDEA]
+
+    async def test_no_suggestions_come_back_as_an_empty_list(self, on, answered):
+        answered(draft=RECEIPTS, questions=[])
+        assert (await chat.turn(MESSAGES))["suggestions"] == []
+
+
+class TestChangingAnApp:
+    async def test_the_model_sees_the_app_to_change_as_it_is_now(self, on, answered):
+        calls = answered()
+        await chat.turn(MESSAGES, changing="receipts")
+        heading = "## The app to change: receipts"
+        assert f"{heading}\n\n{_app_yaml('receipts')}" in calls[0]["system"]
+
+    async def test_the_rest_of_the_system_prompt_stays_as_it_is(self, on, answered):
+        calls = answered()
+        await chat.turn(MESSAGES)
+        await chat.turn(MESSAGES, changing="receipts")
+        plain, changed = calls[0]["system"], calls[1]["system"]
+        assert changed.startswith(plain)
+
+    async def test_a_new_app_shows_no_app_to_change(self, on, answered):
+        assert "## The app to change" not in await _system(answered)
+
+    def test_the_app_yaml_is_the_apps_file_as_written(self):
+        assert chat.app_yaml("receipts") == _app_yaml("receipts")
+
+    def test_an_app_not_here_is_missing_naming_it(self):
+        with pytest.raises(chat.Missing, match="no app named 'dental_xrays'"):
+            chat.app_yaml("dental_xrays")
+
+    def test_a_name_reaching_outside_the_apps_is_missing(self):
+        with pytest.raises(chat.Missing):
+            chat.app_yaml("../prompts.yaml")
+
+    def test_missing_is_a_lookup_error(self):
+        assert issubclass(chat.Missing, LookupError)
 
 
 class TestTurnRefusals:

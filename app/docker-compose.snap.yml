@@ -35,6 +35,9 @@ services:
   custom:
     ports: !reset []
 
+  builder:
+    ports: !reset []
+
   playwright:
     environment:
       CLOCK_PINNED_AT: "2026-09-04T12:00:00Z"

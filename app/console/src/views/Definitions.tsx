@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { STICKY_HEAD, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { CUSTOM_URL } from '@/lib/custom'
+import { BUILDER_URL, CUSTOM_URL } from '@/lib/custom'
 import { num } from '@/lib/format'
 import { useScrollTo } from '@/lib/useScrollTo'
 import { useTab } from '@/lib/useTab'
@@ -955,7 +955,11 @@ function AppsTab({ apps }: { apps: CustomApp[] }) {
   return (
     <SectionCard className={FILL} bodyClassName={BODY} testId="definitions-apps">
       <p className="mb-4 text-sm text-muted" data-testid="definitions-apps-note">
-        Edit these in <Mono>definitions/apps/</Mono>; open{' '}
+        Change these in{' '}
+        <a href={BUILDER_URL} className="underline" target="_blank" rel="noreferrer" data-testid="definitions-apps-builder">
+          App Builder
+        </a>
+        ; open{' '}
         <a href={CUSTOM_URL} className="underline" target="_blank" rel="noreferrer" data-testid="definitions-apps-open">
           DW Apps
         </a>{' '}
