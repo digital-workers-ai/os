@@ -9,6 +9,8 @@ from app.sources import hooks, registry
 from app.sources.custom import connector, extract
 
 RECORD = "5b1f3c2a-7d4e-4f60-9a8b-1c2d3e4f5a6b"
+LEAK_FOUND = "d4936bbf-ea19-43aa-8a0e-e28566f13a3b"
+SEAL_FITTED = "f32d8b7f-66e5-4447-830d-3f3ef8843388"
 FLAGGED = {
     "title": "Flagged receipts",
     "input": "photo",
@@ -302,6 +304,20 @@ class TestALookupLandsAsText:
         assert row["_readings_temperature"] == 37
 
 
+class TestAScannedCodeIsItsOwnRecord:
+    def test_a_scanned_code_lands_as_a_record_named_by_the_code(self):
+        assert extract.reshape("equipment_checkout", checkout("LAP-014"))[1:] == [
+            {"_source_id": "LAP-014", "_asset": "LAP-014"}
+        ]
+
+    def test_an_empty_scan_adds_no_record(self):
+        assert len(extract.reshape("equipment_checkout", checkout(None))) == 1
+
+    def test_a_scanned_text_field_adds_no_record(self):
+        lot = saved("batch_trace", {"lot": "LOT-2207", "step": "received"})
+        assert len(extract.reshape("batch_trace", lot)) == 1
+
+
 class TestEachListRowIsAChild:
     def test_each_row_is_named_by_record_list_and_index(self):
         assert children("receipts", receipt()) == [
@@ -558,3 +574,57 @@ class TestARebuildTurnsAReceiptIntoAnExpense:
         await rebuilt_with(session, REMOVED)
         after = await custom_types(session)
         assert (before, after) == ({"expense", "expense_item"}, set())
+
+
+def tagged(record, work_done):
+    return {
+        **saved(
+            "maintenance_tags",
+            {"asset": "PRESS-02", "work_done": work_done, "status": "working"},
+        ),
+        "record": record,
+    }
+
+
+async def rebuilt_with_tags(session):
+    for record, work_done in (
+        (LEAK_FOUND, "Found a slow leak"),
+        (SEAL_FITTED, "Replaced hydraulic seal"),
+    ):
+        await store.save_raw(
+            session,
+            source="custom",
+            object_type="maintenance_tags",
+            source_id=record,
+            raw_payload=tagged(record, work_done),
+        )
+    await session.commit()
+    return await run.rebuild(session)
+
+
+async def services(session):
+    rows = await session.execute(
+        select(CanonicalLink.from_canonical, CanonicalLink.to_canonical).where(
+            CanonicalLink.rel == "services"
+        )
+    )
+    return set(rows.all())
+
+
+class TestTwoServicesOfOneMachine:
+    async def test_both_tags_land_on_one_asset_named_by_its_code(self, session):
+        await rebuilt_with_tags(session)
+        assert await custom_ids(session, "asset") == ["PRESS-02"]
+
+    async def test_each_service_record_links_to_that_asset(self, session):
+        await rebuilt_with_tags(session)
+        press = await canonical_of(session, "asset", "PRESS-02")
+        records = [
+            await canonical_of(session, "service_record", record)
+            for record in (LEAK_FOUND, SEAL_FITTED)
+        ]
+        assert await services(session) == {(record, press) for record in records}
+
+    async def test_the_shared_code_is_neither_oversized_nor_quarantined(self, session):
+        report = (await rebuilt_with_tags(session))["report"]
+        assert (report["oversized"], report["quarantines"]) == ([], [])

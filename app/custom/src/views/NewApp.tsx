@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { ExternalLink, Paperclip } from 'lucide-react'
 import { asApiError, builderSubmit, builderTry, builderTurn, type Message, type Sent, type Turn } from '@/api'
@@ -30,6 +30,9 @@ export function NewApp() {
   const [spoken, setSpoken] = useState('')
   const [sampleError, setSampleError] = useState<string | null>(null)
   const picker = useRef<HTMLInputElement>(null)
+  const box = useRef<HTMLTextAreaElement>(null)
+  const conversation = useRef<HTMLDivElement>(null)
+  const reply = useRef<HTMLLIElement>(null)
   const asked = turn?.questions ?? []
   const draft = turn?.draft ?? null
   const problems = turn?.problems ?? []
@@ -52,6 +55,15 @@ export function NewApp() {
     },
   })
 
+  useLayoutEffect(() => {
+    const input = box.current
+    if (!input) return
+    input.style.height = 'auto'
+    input.style.height = `${input.scrollHeight + input.offsetHeight - input.clientHeight}px`
+  }, [text])
+  useEffect(() => conversation.current?.scrollTo({ top: conversation.current.scrollHeight }), [tried.data, submitted.data])
+  useEffect(() => conversation.current?.scrollTo({ top: reply.current?.offsetTop ?? 0 }), [turn])
+
   const pairs = asked
     .map((question, index) => [question, (answers[index] ?? '').trim()] as const)
     .filter(([, answer]) => answer)
@@ -68,59 +80,166 @@ export function NewApp() {
   }
 
   return (
-    <div className="flex flex-col gap-5" data-testid="new-app-view" data-state="ready">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-xl text-ink">New app</h1>
-        <p className="text-sm text-muted">
-          Describe what your team needs to record. The builder asks what it needs to know in one round, drafts the app, lets you
-          try it on a sample, and files it for review.
-        </p>
+    <div
+      className="flex h-[calc(100dvh-6rem-1px)] flex-col gap-3 md:h-[calc(100dvh-7.5rem-1px)]"
+      data-testid="new-app-view"
+      data-state="ready"
+    >
+      <div
+        ref={conversation}
+        className="relative -mx-4 flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-4 pb-1 md:-mx-6 md:px-6"
+      >
+        <div className="flex flex-col gap-1">
+          <h1 className="text-xl text-ink">New app</h1>
+          <p className="text-sm text-muted">
+            Describe what your team needs to record. The builder asks what it needs to know in one round, drafts the app, lets you
+            try it on a sample, and files it for review.
+          </p>
+        </div>
+
+        {messages.length > 0 && (
+          <ol className="flex flex-col gap-2">
+            {messages.map((message, index) => (
+              <li
+                key={index}
+                ref={index === messages.length - 1 ? reply : undefined}
+                className={cn(
+                  'max-w-[85%] whitespace-pre-line rounded-xl px-3 py-2 text-sm',
+                  message.role === 'person' ? 'self-end bg-ink text-paper' : 'self-start border border-line bg-paper text-ink',
+                )}
+              >
+                {message.text}
+              </li>
+            ))}
+          </ol>
+        )}
+
+        {asked.length > 0 && (
+          <Card className="flex flex-col gap-4" data-testid="builder-questions">
+            {asked.map((question, index) => (
+              <div key={index} className="flex flex-col gap-1.5">
+                <label htmlFor={`builder-question-${index}`} className="text-sm font-medium text-ink">
+                  {question}
+                </label>
+                <Input
+                  id={`builder-question-${index}`}
+                  value={answers[index] ?? ''}
+                  onChange={(event) => setAnswers(answers.map((answer, at) => (at === index ? event.target.value : answer)))}
+                />
+              </div>
+            ))}
+          </Card>
+        )}
+
+        {draft && (
+          <div className="flex flex-col gap-5">
+            <Card className="flex flex-col gap-3" data-testid="builder-preview">
+              <h2 className="text-base font-medium text-ink">The draft</h2>
+              <pre className="whitespace-pre-wrap break-words rounded-lg border border-line bg-paper p-3 font-mono text-xs text-ink">
+                {draft}
+              </pre>
+              {problems.length > 0 && (
+                <Banner tone="err" testId="builder-problems">
+                  <ul className="flex flex-col gap-1">
+                    {problems.map((problem) => (
+                      <li key={problem}>{problem}</li>
+                    ))}
+                  </ul>
+                </Banner>
+              )}
+            </Card>
+
+            <Card className="flex flex-col gap-3">
+              <h2 className="text-base font-medium text-ink">Try it</h2>
+              <input
+                ref={picker}
+                type="file"
+                accept={`image/*,${PDF}`}
+                className="sr-only"
+                tabIndex={-1}
+                onChange={(event) => {
+                  void picked(event.target.files?.[0])
+                  event.target.value = ''
+                }}
+              />
+              <div className="flex flex-wrap items-center gap-2">
+                <Button size="sm" onClick={() => picker.current?.click()}>
+                  <Paperclip aria-hidden />
+                  {sample ? 'Another sample' : 'A sample photo or PDF'}
+                </Button>
+                {sample && <span className="text-sm text-muted">{sample.label}</span>}
+              </div>
+              <textarea
+                rows={2}
+                value={spoken}
+                onChange={(event) => setSpoken(event.target.value)}
+                placeholder="Or what someone would say"
+                aria-label="Sample transcript"
+                className={BOX}
+              />
+              {sampleError && <Banner tone="err">{sampleError}</Banner>}
+              <Button
+                className="self-start"
+                disabled={(!sample && !spoken.trim()) || tried.isPending}
+                onClick={() => tried.mutate(draft)}
+                data-testid="builder-try"
+              >
+                {tried.isPending ? 'Reading…' : 'Try it'}
+              </Button>
+              <ErrorBanner error={tried.error && asApiError(tried.error)} />
+              {tried.data && (
+                <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm" data-testid="builder-reading">
+                  {Object.entries(tried.data.fields).map(([name, value]) => (
+                    <div key={name} className="contents">
+                      <dt className="text-muted">{humanize(name)}</dt>
+                      <dd className="text-ink">{shown(value)}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+            </Card>
+
+            <div className="flex flex-col gap-2">
+              {submitted.data ? (
+                <a
+                  href={submitted.data.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 self-start text-sm text-ink underline underline-offset-4"
+                  data-testid="builder-issue-link"
+                >
+                  Filed as issue #{submitted.data.number}
+                  <ExternalLink className="size-4" aria-hidden />
+                </a>
+              ) : (
+                <Button
+                  variant="solid"
+                  className="self-start"
+                  disabled={problems.length > 0 || submitted.isPending}
+                  onClick={() => submitted.mutate(draft)}
+                  data-testid="builder-submit"
+                >
+                  Send for review
+                </Button>
+              )}
+              <ErrorBanner error={submitted.error && asApiError(submitted.error)} />
+            </div>
+          </div>
+        )}
       </div>
 
-      {messages.length > 0 && (
-        <ol className="flex flex-col gap-2">
-          {messages.map((message, index) => (
-            <li
-              key={index}
-              className={cn(
-                'max-w-[85%] whitespace-pre-line rounded-xl px-3 py-2 text-sm',
-                message.role === 'person' ? 'self-end bg-ink text-paper' : 'self-start border border-line bg-paper text-ink',
-              )}
-            >
-              {message.text}
-            </li>
-          ))}
-        </ol>
-      )}
-
-      {asked.length > 0 && (
-        <Card className="flex flex-col gap-4" data-testid="builder-questions">
-          {asked.map((question, index) => (
-            <div key={index} className="flex flex-col gap-1.5">
-              <label htmlFor={`builder-question-${index}`} className="text-sm font-medium text-ink">
-                {question}
-              </label>
-              <Input
-                id={`builder-question-${index}`}
-                value={answers[index] ?? ''}
-                onChange={(event) => setAnswers(answers.map((answer, at) => (at === index ? event.target.value : answer)))}
-              />
-            </div>
-          ))}
-        </Card>
-      )}
-
-      <div className="flex flex-col gap-2">
+      <div className="-mx-4 flex flex-col gap-2 border-t border-line px-4 pt-3 md:-mx-6 md:px-6">
         <label htmlFor="builder-input" className="text-sm font-medium text-ink">
           {messages.length === 0 ? 'The app you need' : 'Anything else'}
         </label>
         <textarea
+          ref={box}
           id="builder-input"
-          rows={messages.length === 0 ? 4 : 2}
+          rows={3}
           value={text}
           onChange={(event) => setText(event.target.value)}
           placeholder="For example: we pour concrete and want every pour logged with a photo of the slump test."
-          className={BOX}
+          className={cn(BOX, 'max-h-40 resize-none')}
           data-testid="builder-input"
         />
         <Button
@@ -134,102 +253,6 @@ export function NewApp() {
         </Button>
         <ErrorBanner error={send.error && asApiError(send.error)} />
       </div>
-
-      {draft && (
-        <div className="flex flex-col gap-5">
-          <Card className="flex flex-col gap-3" data-testid="builder-preview">
-            <h2 className="text-base font-medium text-ink">The draft</h2>
-            <pre className="overflow-x-auto whitespace-pre rounded-lg border border-line bg-paper p-3 font-mono text-xs text-ink">
-              {draft}
-            </pre>
-            {problems.length > 0 && (
-              <Banner tone="err" testId="builder-problems">
-                <ul className="flex flex-col gap-1">
-                  {problems.map((problem) => (
-                    <li key={problem}>{problem}</li>
-                  ))}
-                </ul>
-              </Banner>
-            )}
-          </Card>
-
-          <Card className="flex flex-col gap-3">
-            <h2 className="text-base font-medium text-ink">Try it</h2>
-            <input
-              ref={picker}
-              type="file"
-              accept={`image/*,${PDF}`}
-              className="sr-only"
-              tabIndex={-1}
-              onChange={(event) => {
-                void picked(event.target.files?.[0])
-                event.target.value = ''
-              }}
-            />
-            <div className="flex flex-wrap items-center gap-2">
-              <Button size="sm" onClick={() => picker.current?.click()}>
-                <Paperclip aria-hidden />
-                {sample ? 'Another sample' : 'A sample photo or PDF'}
-              </Button>
-              {sample && <span className="text-sm text-muted">{sample.label}</span>}
-            </div>
-            <textarea
-              rows={2}
-              value={spoken}
-              onChange={(event) => setSpoken(event.target.value)}
-              placeholder="Or what someone would say"
-              aria-label="Sample transcript"
-              className={BOX}
-            />
-            {sampleError && <Banner tone="err">{sampleError}</Banner>}
-            <Button
-              className="self-start"
-              disabled={(!sample && !spoken.trim()) || tried.isPending}
-              onClick={() => tried.mutate(draft)}
-              data-testid="builder-try"
-            >
-              {tried.isPending ? 'Reading…' : 'Try it'}
-            </Button>
-            <ErrorBanner error={tried.error && asApiError(tried.error)} />
-            {tried.data && (
-              <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm" data-testid="builder-reading">
-                {Object.entries(tried.data.fields).map(([name, value]) => (
-                  <div key={name} className="contents">
-                    <dt className="text-muted">{humanize(name)}</dt>
-                    <dd className="text-ink">{shown(value)}</dd>
-                  </div>
-                ))}
-              </dl>
-            )}
-          </Card>
-
-          <div className="flex flex-col gap-2">
-            {submitted.data ? (
-              <a
-                href={submitted.data.url}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 self-start text-sm text-ink underline underline-offset-4"
-                data-testid="builder-issue-link"
-              >
-                Filed as issue #{submitted.data.number}
-                <ExternalLink className="size-4" aria-hidden />
-              </a>
-            ) : (
-              <Button
-                variant="solid"
-                className="self-start"
-                disabled={problems.length > 0 || submitted.isPending}
-                onClick={() => submitted.mutate(draft)}
-                data-testid="builder-submit"
-              >
-                Send for review
-              </Button>
-            )}
-            <ErrorBanner error={submitted.error && asApiError(submitted.error)} />
-          </div>
-        </div>
-      )}
     </div>
   )
 }

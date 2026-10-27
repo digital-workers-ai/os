@@ -28,6 +28,28 @@ import { blankValues, humanize, merge, setPath, toPayload } from '@/lib/values'
 
 const NOT_COUNTED = 'Saved. Counts in the numbers after the next Rebuild'
 
+function Became({ entity }: { entity: NonNullable<Detail['entity']> }) {
+  const kind = entity.type.replace(/_/g, ' ')
+  const named = `${/^[aeiou]/.test(kind) ? 'an' : 'a'} ${kind}`
+  const link = (text: string) => (
+    <a
+      href={consoleUrl(`/entities/canonical?entity=${encodeURIComponent(entity.id)}`)}
+      target="_blank"
+      rel="noreferrer"
+      className="text-ink underline underline-offset-4"
+    >
+      {text}
+    </a>
+  )
+  return entity.label ? (
+    <>
+      In the numbers as {named}: {link(entity.label)}
+    </>
+  ) : (
+    <>In the numbers as {link(named)}</>
+  )
+}
+
 function Standing({ detail }: { detail: Detail }) {
   if (detail.removed)
     return <Banner testId="record-removed">Removed. The next Rebuild drops what it became; the history stays.</Banner>
@@ -41,21 +63,7 @@ function Standing({ detail }: { detail: Detail }) {
     )
   return (
     <p className="text-sm text-muted" data-testid="record-counted">
-      {detail.entity ? (
-        <>
-          In the numbers as{' '}
-          <a
-            href={consoleUrl(`/entities/canonical?entity=${encodeURIComponent(detail.entity.id)}`)}
-            target="_blank"
-            rel="noreferrer"
-            className="text-ink underline underline-offset-4"
-          >
-            {detail.entity.type.replace(/_/g, ' ')} {detail.entity.id}
-          </a>
-        </>
-      ) : (
-        'Counted in the numbers by the last Rebuild.'
-      )}
+      {detail.entity ? <Became entity={detail.entity} /> : 'Counted in the numbers by the last Rebuild.'}
     </p>
   )
 }

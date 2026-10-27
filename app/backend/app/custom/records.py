@@ -9,6 +9,7 @@ from sqlalchemy import String, cast, exists, func, select
 from sqlalchemy.orm import aliased
 
 from app import clock, media, store
+from app.api.entities_api import LABEL_ATTRS, _label
 from app.config import settings
 from app.custom import audit, reader, scripts, transcribe
 from app.engine import apps
@@ -417,13 +418,32 @@ async def _rebuilt_since(session, saved_at) -> bool:
     )
 
 
-async def _entity(session, app, record) -> dict | None:
+async def _entity(session, app, record, fields: dict) -> dict | None:
     found = await session.scalar(
         select(EntityCanonical.canonical_id).where(
             EntityCanonical.anchor_key == f"{SOURCE}|{app.lands_as}|{record.id}"
         )
     )
-    return None if found is None else {"type": app.lands_as, "id": str(found)}
+    if found is None:
+        return None
+    facts = await session.execute(
+        select(FactCurrent.attr, FactCurrent.value).where(
+            FactCurrent.canonical_id == found, FactCurrent.attr.in_(LABEL_ATTRS)
+        )
+    )
+    named = next(
+        (
+            fields[field.name]
+            for field in app.fields
+            if field.type == "text" and fields.get(field.name)
+        ),
+        None,
+    )
+    return {
+        "type": app.lands_as,
+        "id": str(found),
+        "label": _label(named, dict(facts.all())),
+    }
 
 
 async def _latest(session, record) -> dict:
@@ -453,7 +473,7 @@ async def _detail(session, app, record) -> dict:
         "files": await _files(session, record.id),
         "history": await audit.history(session, record.id),
         "counted": counted,
-        "entity": await _entity(session, app, record),
+        "entity": await _entity(session, app, record, saved.get("fields", {})),
         "removed": record.removed_at is not None,
     }
 

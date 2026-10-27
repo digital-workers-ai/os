@@ -26,6 +26,14 @@ def _landed(fields, values: dict, prefix: str = "") -> dict:
     }
 
 
+def _scanned(fields, parent: dict) -> list[dict]:
+    return [
+        {"_source_id": parent[field.name], f"_{field.name}": parent[field.name]}
+        for field in fields
+        if field.type == "lookup" and field.from_scan and parent.get(field.name)
+    ]
+
+
 def _list_rows(record: str, field, rows: list) -> list[dict]:
     prefix = f"_{field.name}_"
     return [
@@ -79,4 +87,4 @@ def reshape(object_type: str, payload: dict) -> list[dict]:
         children += _template_children(
             record, app.template, payload.get("template", {})
         )
-    return [parent, *children]
+    return [parent, *_scanned(app.fields, parent), *children]

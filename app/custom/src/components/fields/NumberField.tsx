@@ -5,17 +5,22 @@ import { text, type ControlProps } from './context'
 const DECIMAL = /^-?\d*\.?\d*$/
 
 export function NumberField({ field, value, onChange, id, label, testId, disabled }: ControlProps) {
-  const unit = field.unit ?? (field.type === 'money' ? 'USD' : null)
+  const money = field.type === 'money'
+  const unit = field.unit ?? (money ? 'USD' : null)
   return (
     <div className="relative flex items-center">
       <Input
         id={id}
         aria-label={label}
         inputMode="decimal"
-        value={text(value)}
+        value={money && typeof value === 'number' ? value.toFixed(2) : text(value)}
         onChange={(event) => {
           const next = event.target.value.replace(',', '.')
           if (DECIMAL.test(next)) onChange(next)
+        }}
+        onBlur={() => {
+          const typed = parseFloat(text(value))
+          if (money && typeof value === 'string' && Number.isFinite(typed)) onChange(typed)
         }}
         disabled={disabled}
         className={cn(unit && 'pr-12')}

@@ -150,8 +150,8 @@ records:
     files:
       - { path: check-4471.jpg, kind: photo }
     fields:
-      payer: Blue Kettle Cafe
-      customer: Blue Kettle
+      payer: Globex Inc
+      customer: Globex Inc
       amount: 1250.00
       check_number: "4471"
       check_date: "2026-09-01"
@@ -164,8 +164,8 @@ records:
     files:
       - { path: check-10233.jpg, kind: photo }
     fields:
-      payer: Acme Dental
-      customer: Acme Dental
+      payer: Umbrella Systems
+      customer: Umbrella Systems
       amount: 480.00
       check_number: "10233"
       check_date: "2026-08-29"
@@ -198,8 +198,8 @@ records:
     fields:
       location: Back room
       lines:
-        - { product: SKU-0042, counted: 12, change: null }
-        - { product: SKU-0107, counted: 30, change: null }
+        - { product: WP-001, counted: 12, change: null }
+        - { product: GL-001, counted: 30, change: null }
 
   - id: 9ff55786-89ab-46df-93ac-f182bdf580a3
     app: inventory_count
@@ -208,8 +208,8 @@ records:
     fields:
       location: Back room
       lines:
-        - { product: SKU-0042, counted: 9, change: -3 }
-        - { product: SKU-0107, counted: 30, change: 0 }
+        - { product: WP-001, counted: 9, change: -3 }
+        - { product: GL-001, counted: 30, change: 0 }
 
   - id: 20d828fb-23eb-4c3f-b555-4bd0f0217d77
     app: event_check_in
@@ -217,7 +217,7 @@ records:
     saved_at: "2026-08-28T17:58:30Z"
     fields:
       event: Fall open house
-      attendee: dana.whitfield@example.com
+      attendee: sarah@acme.io
       ticket_type: general
 
   - id: e56279b7-26df-4443-b048-350124ee8a90
@@ -226,7 +226,7 @@ records:
     saved_at: "2026-08-28T18:03:20Z"
     fields:
       event: Fall open house
-      attendee: sam.lee@example.com
+      attendee: john.doe@acme.io
       ticket_type: vip
 
   - id: f32d8b7f-66e5-4447-830d-3f3ef8843388
@@ -303,7 +303,7 @@ records:
     files:
       - { path: perio_tooth_3.webm, kind: audio }
     fields:
-      patient: Jordan Rivera
+      patient: Sarah Johnson
       exam_date: "2026-09-02"
     template:
       rows:
@@ -321,7 +321,7 @@ records:
       one, missing
       two, three three two, mobility one
     fields:
-      patient: Avery Chen
+      patient: John Doe
       exam_date: "2026-08-26"
     template:
       rows:
@@ -341,6 +341,8 @@ records:
       kitchen sink good
       bathroom ventilation poor, fan does not run
       smoke alarms good
+    files:
+      - { path: bathroom-fan.jpg, kind: photo }
     fields:
       property: 14 Alder Street, Unit 2
       kind: move_out
@@ -348,7 +350,7 @@ records:
       items:
         "living_room:walls": { condition: fair, defect: Nail holes above the sofa }
         "kitchen:sink": { condition: good }
-        "bathroom:ventilation": { condition: poor, defect: Fan does not run }
+        "bathroom:ventilation": { condition: poor, defect: Fan does not run, photo: bathroom-fan.jpg }
         "safety:smoke_alarms": { condition: good }
 
   - id: 031e75e7-dfb9-4d49-b30c-54f548eb9609
@@ -373,6 +375,8 @@ records:
     recorded_at: "2026-09-03T07:40:00Z"
     saved_at: "2026-09-03T07:50:00Z"
     transcript: everything passes except the tires, front left tread low
+    files:
+      - { path: front-left-tire.jpg, kind: photo }
     fields:
       vehicle: Truck 7
       odometer: 48172
@@ -382,7 +386,7 @@ records:
         "vehicle:parking_brake": { result: pass }
         "vehicle:steering": { result: pass }
         "vehicle:lights_and_reflectors": { result: pass }
-        "vehicle:tires": { result: fail, defect: Front left tread low }
+        "vehicle:tires": { result: fail, defect: Front left tread low, photo: front-left-tire.jpg }
         "vehicle:horn": { result: pass }
         "vehicle:wipers": { result: pass }
         "vehicle:mirrors": { result: pass }
@@ -447,10 +451,12 @@ records:
     transcript: |-
       fall hazard, high, third floor east edge, guardrail missing, area closed
       housekeeping, low, stair two landing, offcuts cleared
+    files:
+      - { path: third-floor-east-edge.jpg, kind: photo }
     fields:
       site: Harbor Street build
       findings:
-        - { hazard: fall, severity: high, location: Third floor east edge, action: Guardrail missing; area closed until it is replaced }
+        - { hazard: fall, severity: high, location: Third floor east edge, action: Guardrail missing; area closed until it is replaced, photo: third-floor-east-edge.jpg }
         - { hazard: housekeeping, severity: low, location: Stair 2 landing, action: Cleared the offcuts }
 
   - id: 2786e6b4-c63b-46f8-8cef-0b35eae131f1
@@ -497,12 +503,12 @@ records:
     recorded_at: "2026-09-01T17:20:00Z"
     saved_at: "2026-09-01T17:27:00Z"
     transcript: >-
-      Owner Morgan Patel, patient Biscuit, dog, 42 pounds. Owner reports
+      Owner Mike Chen, patient Biscuit, dog, 42 pounds. Owner reports
       limping on the right front leg for two days. Mild swelling at the right
       carpus, no fever. Likely a soft tissue sprain. Rest for a week,
       anti-inflammatory for five days, recheck if not better.
     fields:
-      owner: Morgan Patel
+      owner: Mike Chen
       patient: Biscuit
       species: dog
       weight: 42
@@ -516,11 +522,11 @@ records:
     recorded_at: "2026-08-27T10:40:00Z"
     saved_at: "2026-08-27T10:46:00Z"
     transcript: >-
-      Owner Jordan Rivera, patient Pepper, cat, nine and a half pounds. Annual
+      Owner Jane Smith, patient Pepper, cat, nine and a half pounds. Annual
       wellness visit, eating well. Exam normal, teeth good. Healthy adult cat.
       Rabies booster given, next visit in a year.
     fields:
-      owner: Jordan Rivera
+      owner: Jane Smith
       patient: Pepper
       species: cat
       weight: 9.5
@@ -534,10 +540,10 @@ records:
     recorded_at: "2026-09-02T16:20:00Z"
     saved_at: "2026-09-02T16:25:00Z"
     transcript: >-
-      Blue Kettle, the walk-in compressor was short cycling. Replaced the
+      Globex Inc, the walk-in compressor was short cycling. Replaced the
       start relay, two hours. Working when I left.
     fields:
-      customer: Blue Kettle
+      customer: Globex Inc
       problem: Walk-in compressor short cycling
       hours: 2
       outcome: fixed
@@ -549,10 +555,10 @@ records:
     recorded_at: "2026-08-30T11:00:00Z"
     saved_at: "2026-08-30T11:04:00Z"
     transcript: >-
-      Acme Dental, the air compressor is leaking oil. One and a half hours,
+      Umbrella Systems, the air compressor is leaking oil. One and a half hours,
       the gasket kit is on order.
     fields:
-      customer: Acme Dental
+      customer: Umbrella Systems
       problem: Air compressor leaking oil
       hours: 1.5
       outcome: parts_on_order
@@ -567,7 +573,7 @@ records:
       - { path: doorstep-1042.jpg, kind: photo }
       - { path: signature.png, kind: signature }
     fields:
-      customer: Jordan Rivera
+      customer: Jane Smith
       order_number: "1042"
       signed_by: Jordan Rivera
       signature: signature.png
@@ -581,7 +587,7 @@ records:
     files:
       - { path: doorstep-1043.jpg, kind: photo }
     fields:
-      customer: Morgan Patel
+      customer: Mike Chen
       order_number: "1043"
       signed_by: null
       signature: null

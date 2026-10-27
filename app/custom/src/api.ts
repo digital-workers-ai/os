@@ -149,7 +149,7 @@ export interface Detail {
   files: RecordFile[]
   history: HistoryEntry[]
   counted: boolean
-  entity: { type: string; id: string } | null
+  entity: { type: string; id: string; label: string | null } | null
   removed: boolean
 }
 

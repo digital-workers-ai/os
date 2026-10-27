@@ -40,7 +40,7 @@
     },
     "equipment_checkout": {
       "asset": {
-        "3c9d2e10-5a4b-4c6d-8e7f-000000000007": {
+        "LAP-014": {
           "code": "LAP-014"
         }
       },
@@ -121,7 +121,7 @@
     },
     "maintenance_tags": {
       "asset": {
-        "3c9d2e10-5a4b-4c6d-8e7f-000000000010": {
+        "PRESS-02": {
           "code": "PRESS-02"
         }
       },

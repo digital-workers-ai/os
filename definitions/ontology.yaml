@@ -743,11 +743,6 @@ relationships:
     to: ticket
     cardinality: many_to_one
     via: case_ref
-  - rel: checks
-    from: stock_check_item
-    to: product
-    cardinality: many_to_one
-    match: name
   - rel: paid_by
     from: payment
     to: company
@@ -786,11 +781,6 @@ relationships:
   - rel: requested_by
     from: ticket
     to: company
-    cardinality: many_to_one
-    match: name
-  - rel: uses
-    from: service_part
-    to: product
     cardinality: many_to_one
     match: name
   - rel: delivered_to

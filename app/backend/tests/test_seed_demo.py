@@ -10,9 +10,10 @@ import pytest_asyncio
 import yaml
 from sqlalchemy import select
 
-from app import llm, media, models
+from app import llm, media, models, store
 from app.config import settings
 from app.engine import calendar as declared
+from app.engine.run import rebuild
 from app.models import (
     AgentRun,
     Asset,
@@ -35,9 +36,11 @@ from app.models import (
 from app.skills import catalog
 from tests import ground_truth
 from tools import seed_demo
+from tools.pull_source import MOCK_FIXTURES
 
 NOW = datetime(2026, 9, 4, 12, tzinfo=UTC)
 MANIFEST = seed_demo.STUDIO_FIXTURES / "manifest.yaml"
+ESTATE = ("hubspot", "woocommerce")
 MODEL = "claude-opus-5"
 SEEDED = Path(__file__).with_name("seed_demo_rows.json")
 LISTED = {
@@ -1269,11 +1272,11 @@ async def test_the_seeded_food_safety_log_opens_with_the_walk_in_and_the_freezer
     assert ("opening", [("walk_in_cooler", 37), ("freezer", -2)]) in found
 
 
-async def test_the_seeded_perio_chart_is_jordan_riveras_tooth_3(session, seeded_custom):
+async def test_the_seeded_perio_chart_is_sarah_johnsons_tooth_3(session, seeded_custom):
     chart = next(
         p
         for p in await custom_payloads(session, "perio_charting")
-        if p["fields"].get("patient") == "Jordan Rivera"
+        if p["fields"].get("patient") == "Sarah Johnson"
     )
     cells = chart["template"]["cells"]
     assert (
@@ -1306,7 +1309,7 @@ async def test_the_seeded_delivery_is_order_1042_signed_by_jordan_rivera(
         if p["fields"].get("order_number") == "1042"
     )
     assert pick(delivery["fields"], "customer", "signed_by", "condition") == {
-        "customer": "Jordan Rivera",
+        "customer": "Jane Smith",
         "signed_by": "Jordan Rivera",
         "condition": "good",
     }
@@ -1321,6 +1324,30 @@ async def test_the_seeded_delivery_carries_a_signature_file(session, seeded_cust
     assert [f["media_type"] for f in delivery["files"] if f["kind"] == "signature"] == [
         "image/png"
     ]
+
+
+async def saved_estate(session):
+    for source in ESTATE:
+        for path in sorted((MOCK_FIXTURES / source).glob("*.json")):
+            if path.name == "expected.json":
+                continue
+            for row in json.loads(path.read_text()):
+                await store.save_raw(
+                    session,
+                    source=source,
+                    object_type=path.stem,
+                    source_id=str(row["source_id"]),
+                    raw_payload=row["payload"],
+                )
+
+
+async def test_the_seeded_custom_records_rebuild_clean_beside_the_estate(
+    session, seeded_custom
+):
+    await saved_estate(session)
+    report = (await rebuild(session))["report"]
+    found = [report[key] for key in ("oversized", "quarantines", "dead_paths")]
+    assert (found, report["dangling_refs"]) == ([[], [], []], {})
 
 
 async def test_seed_custom_counts_the_records_file_it_is_given(session, small_records):

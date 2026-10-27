@@ -17,6 +17,7 @@ from app.models import (
     EngineRun,
     Entity,
     EntityCanonical,
+    FactCurrent,
     RawEvent,
 )
 from tests.conftest import NOW
@@ -360,6 +361,20 @@ async def became(session, entity_type, source_id, minted):
     session.add(CanonicalMember(canonical_id=canonical_id, entity_id=entity_id))
     await session.flush()
     return canonical_id
+
+
+async def labelled(session, canonical_id, **facts):
+    for attr, value in facts.items():
+        session.add(
+            FactCurrent(
+                canonical_id=canonical_id,
+                entity_type="expense",
+                attr=attr,
+                value=value,
+                observed_at=NOW,
+            )
+        )
+    await session.flush()
 
 
 async def bare_record(session):
@@ -1162,7 +1177,27 @@ class TestView:
         assert (await view(session, created))["entity"] == {
             "type": "expense",
             "id": str(parent),
+            "label": "Harbor Fuel",
         }
+
+    async def test_the_entity_label_is_its_display_label(self, session):
+        created = await saved(session)
+        parent = await became(session, "expense", created["id"], 1)
+        await labelled(session, parent, title="Fuel stop", name="Harbor Fuel Ltd")
+        assert (await view(session, created))["entity"]["label"] == "Harbor Fuel Ltd"
+
+    async def test_without_a_display_label_the_label_is_the_first_text_field(
+        self, session
+    ):
+        created = await saved(session)
+        parent = await became(session, "expense", created["id"], 1)
+        await labelled(session, parent, vendor="Harbor")
+        assert (await view(session, created))["entity"]["label"] == "Harbor Fuel"
+
+    async def test_the_label_is_none_when_nothing_names_the_entity(self, session):
+        created = await saved(session, fields={**HARBOR_FUEL, "vendor": None})
+        await became(session, "expense", created["id"], 1)
+        assert (await view(session, created))["entity"]["label"] is None
 
     async def test_a_removed_record_says_so(self, session):
         created = await saved(session)

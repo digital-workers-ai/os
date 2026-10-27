@@ -138,7 +138,13 @@ export function toPayload(app: AppDefinition, values: Values): Values {
   }
 }
 
-const shown = (value: unknown) => (Array.isArray(value) ? value.join(', ') : String(value))
+function shown(field: Field, value: unknown): string {
+  if (field.type === 'one_of') return humanize(String(value))
+  if (field.type === 'many_of' && Array.isArray(value)) return value.map((label) => humanize(String(label))).join(', ')
+  if (field.type === 'money') return toNumber(value)?.toFixed(2) ?? String(value)
+  if (field.type === 'date') return `${humanize(field.name)} ${value}`
+  return Array.isArray(value) ? value.join(', ') : String(value)
+}
 
 export function summary(app: AppDefinition, values: Values): string[] {
   return app.fields.flatMap((field) => {
@@ -149,6 +155,6 @@ export function summary(app: AppDefinition, values: Values): string[] {
     }
     if (field.type === 'photo' || field.type === 'screen' || !present(value) || value === '') return []
     if (Array.isArray(value) && value.length === 0) return []
-    return [shown(value)]
+    return [shown(field, value)]
   })
 }

@@ -538,8 +538,8 @@ payment:
   custom.check_deposits.currency: currency
 
 asset:
-  custom.equipment_checkout.asset: code
-  custom.maintenance_tags.asset: code
+  custom.equipment_checkout._asset: code
+  custom.maintenance_tags._asset: code
 
 asset_move:
   custom.equipment_checkout.asset: code
