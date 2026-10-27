@@ -1593,15 +1593,20 @@ class TestStartupCredentials:
                 "ENRICHMENT_ENABLED",
                 "COACHING_ENABLED",
                 "CONVERSATION_ENABLED",
+                "CUSTOM_ENABLED",
                 "STUDIO_ENABLED",
+                "BUILDER_ENABLED",
             ),
             "OPENAI_API_KEY": ("EMBEDDINGS_ENABLED", "STUDIO_ENABLED"),
             "ZEROENTROPY_API_KEY": ("RERANK_ENABLED",),
+            "DEEPGRAM_API_KEY": ("TRANSCRIBE_ENABLED",),
+            "GITHUB_TOKEN": ("BUILDER_ENABLED",),
         }
         assert config.LLM_FLAGS == (
             "ENRICHMENT_ENABLED",
             "COACHING_ENABLED",
             "CONVERSATION_ENABLED",
+            "CUSTOM_ENABLED",
         )
         assert config.ANTHROPIC_CREDENTIAL_ENV == "ANTHROPIC_API_KEY"
 
