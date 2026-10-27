@@ -38,7 +38,9 @@ export function DraftCard({ turn }: { turn: Turn }) {
 
 function ReadingList({ reading }: { reading: Reading }) {
   const list = useRef<HTMLDivElement>(null)
-  useEffect(() => list.current?.scrollIntoView({ block: 'nearest' }), [reading])
+  useEffect(() => {
+    list.current?.scrollIntoView({ block: 'nearest' })
+  }, [reading])
   return (
     <div ref={list} className="flex scroll-mb-6 flex-col gap-2 text-sm" data-testid="builder-reading">
       <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
@@ -61,7 +63,9 @@ export function TryCard({ thread, draft }: { thread: string; draft: string }) {
   const tried = useMutation({
     mutationFn: async () => tryDraft(thread, file ? [{ name: sampleName(file), media_type: file.type, data: await base64(file) }] : [], text.trim() || null),
   })
-  useEffect(() => tried.reset(), [draft])
+  useEffect(() => {
+    tried.reset()
+  }, [draft])
 
   return (
     <Card className="flex flex-col gap-3">

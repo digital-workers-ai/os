@@ -31,7 +31,9 @@ export function ThreadPage() {
   const state = thread.isPending || apps.pending ? 'loading' : thread.error ? 'error' : 'ready'
   const error = thread.error ?? send.error
   const filed = useRef<HTMLAnchorElement>(null)
-  useEffect(() => filed.current?.scrollIntoView({ block: 'nearest' }), [thread.data?.issue?.number])
+  useEffect(() => {
+    filed.current?.scrollIntoView({ block: 'nearest' })
+  }, [thread.data?.issue?.number])
 
   if (!thread.data)
     return (

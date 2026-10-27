@@ -3,13 +3,13 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Undo2 } from 'lucide-react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
+  ApiError,
   asApiError,
   attachFile,
   createRecord,
   getApp,
   hear,
   saveRecord,
-  type ApiError,
   type AppDefinition,
   type Clip,
   type Created,
@@ -24,6 +24,7 @@ import { Pdf } from '@/components/input/Pdf'
 import { Photo } from '@/components/input/Photo'
 import { Scanner } from '@/components/input/Scanner'
 import { Voice } from '@/components/input/Voice'
+import { NoSuchApp } from '@/components/NoSuchApp'
 import { RecordForm } from '@/components/RecordForm'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Button } from '@/components/ui/button'
@@ -254,10 +255,11 @@ export function NewRecord() {
   const { app: name = '' } = useParams()
   const app = useQuery({ queryKey: ['app', name], queryFn: () => getApp(name) })
   const state = app.isPending ? 'loading' : app.error ? 'error' : 'ready'
+  const missing = app.error instanceof ApiError && app.error.status === 404
 
   return (
     <div className="flex flex-col gap-5" data-testid="new-record-view" data-state={state}>
-      <ErrorBanner error={app.error && asApiError(app.error)} />
+      {missing ? <NoSuchApp name={name} /> : <ErrorBanner error={app.error && asApiError(app.error)} />}
       {!app.data ? !app.error && <Loading /> : <Editor key={name} app={app.data} />}
     </div>
   )

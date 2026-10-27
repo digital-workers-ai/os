@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
-import { asApiError, getApp, getRecords } from '@/api'
+import { ApiError, asApiError, getApp, getRecords } from '@/api'
+import { NoSuchApp } from '@/components/NoSuchApp'
 import { ErrorBanner } from '@/components/ui/banner'
 import { Empty } from '@/components/ui/empty'
 import { Loading } from '@/components/ui/loading'
@@ -13,12 +14,13 @@ export function Records() {
   const app = useQuery({ queryKey: ['app', name], queryFn: () => getApp(name) })
   const records = useQuery({ queryKey: ['records', name], queryFn: () => getRecords(name), staleTime: 0 })
   const pending = app.isPending || records.isPending
-  const failed = app.error ?? records.error
+  const failed = app.error ?? (app.data ? records.error : null)
+  const missing = app.error instanceof ApiError && app.error.status === 404
   const state = pending && !failed ? 'loading' : failed ? 'error' : 'ready'
 
   return (
     <div className="flex flex-col gap-5" data-testid="records-view" data-state={state}>
-      <ErrorBanner error={failed && asApiError(failed)} />
+      {missing ? <NoSuchApp name={name} /> : <ErrorBanner error={failed && asApiError(failed)} />}
       {!app.data || !records.data ? (
         !failed && <Loading />
       ) : (
