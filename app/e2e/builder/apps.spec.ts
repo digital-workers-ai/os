@@ -101,7 +101,7 @@ test('Change this app starts a thread for that app', async ({ page }) => {
   expect((await started).postDataJSON()).toEqual({ app: 'receipts' })
   await opened(page)
   await expect(page.getByTestId('thread-app')).toHaveAttribute('href', '/apps/receipts')
-  await expect(page.getByTestId('thread-app')).toHaveText('Changing Receipts')
+  await expect(page.getByTestId('thread-app')).toHaveText('Receipts')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Change Receipts')
   await expect(page.getByTestId('turns-empty')).toContainText('Say what should change in Receipts.')
   await expect(page.getByTestId('turns-empty')).toBeVisible()
