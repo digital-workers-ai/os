@@ -6,6 +6,15 @@ test('manifest linked', async ({ page }) => {
   await expect(page.locator('link[rel=apple-touch-icon]')).toHaveCount(1)
 })
 
+test('the phone name is DW Dashboard; name and tab title stay', async ({ page }) => {
+  const manifest = await (await page.request.get('/manifest.json')).json()
+  expect(manifest.short_name).toBe('DW Dashboard')
+  expect(manifest.name).toBe('Digital Workers Dashboard')
+  await visit(page, '/')
+  await expect(page.locator('meta[name="apple-mobile-web-app-title"]')).toHaveAttribute('content', 'DW Dashboard')
+  await expect(page).toHaveTitle('Digital Workers Dashboard')
+})
+
 test('manifest served', async ({ page }) => {
   const res = await page.request.get('/manifest.json')
   expect(res.status()).toBe(200)

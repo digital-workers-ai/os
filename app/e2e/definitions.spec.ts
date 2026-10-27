@@ -1,7 +1,10 @@
 import type { Locator, Page } from '@playwright/test'
 import { expect, header, mockJson, openFilter, pickOption, snap, test, visit } from './fixtures'
+import { APPS } from './custom/seeded'
 
 const counted = (scope: Locator, label: string) => header(scope, new RegExp(`^${label} \\(\\d[\\d,]*\\)$`))
+
+const appRow = (page: Page, name: string) => page.locator(`[data-testid="definitions-app-row"][data-name="${name}"]`)
 
 const table = (page: Page, card: string) => page.getByTestId(`${card}-table`)
 
@@ -139,6 +142,30 @@ test('spy', async ({ page }) => {
   await expect(queries).toContainText(`Queries (${spy.queries.length})`)
   await expect(queries.locator('li')).toHaveCount(spy.queries.length)
   await snap(page, 'definitions-spy')
+})
+
+test('apps', async ({ page }) => {
+  await openTab(page, 'apps')
+  const apps = table(page, 'definitions-apps')
+  await expect(page.getByTestId('definitions-apps')).toBeVisible()
+  await expect(header(apps, 'App (21)')).toBeVisible()
+  for (const label of ['Input', 'Saves as', 'Roles', 'Extra code']) await expect(header(apps, label)).toBeVisible()
+  await expect(page.getByTestId('definitions-app-row')).toHaveCount(21)
+  for (const [name, app] of Object.entries(APPS)) {
+    const row = appRow(page, name)
+    for (const text of [name, app.title, ...app.input, app.lands_as, ...app.roles]) await expect(row).toContainText(text)
+    for (const file of ['script.py', 'screen.tsx']) {
+      if (file === app.code) await expect(row).toContainText(file)
+      else await expect(row).not.toContainText(file)
+    }
+  }
+  await expect(page.getByTestId('definitions-apps-note')).toHaveText('Edit these in definitions/apps/; open DW Apps to use them.')
+  const open = page.getByTestId('definitions-apps-open')
+  await expect(open).toHaveText('DW Apps')
+  await expect(open).toHaveAttribute('href', 'http://localhost:3097')
+  await expect(page.getByTestId('tabpanel-apps').getByRole('textbox')).toHaveCount(0)
+  for (const name of ['Save', 'Remove']) await expect(page.getByTestId('tabpanel-apps').getByRole('button', { name, exact: true })).toHaveCount(0)
+  await snap(page, 'definitions-apps')
 })
 
 test('error', async ({ page }) => {

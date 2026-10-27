@@ -1,4 +1,5 @@
 import hashlib
+import re
 
 import pytest
 import yaml
@@ -15,6 +16,7 @@ WORKFLOW = (
     "dw-operator",
     "dw-operator-build",
     "dw-add-tests",
+    "dw-app",
 )
 SHIPPED = {
     "post": "dw-linkedin-post",
@@ -39,6 +41,21 @@ def _without(key):
 
 def _lessons(section):
     return BODY.replace(LESSONS, "## Lessons\n" + section)
+
+
+def _app_skill():
+    text = (catalog.SKILLS_DIR / "dw-app" / "SKILL.md").read_text()
+    return catalog._split("dw-app", text)
+
+
+def _vocabulary_cells():
+    lines = _app_skill()[1].splitlines()
+    section = lines[lines.index("## Vocabulary") + 1 :]
+    ends = [n for n, line in enumerate(section) if line.startswith("## ")]
+    rows = [
+        line for line in section[: ends[0] if ends else None] if line.startswith("|")
+    ]
+    return [row.split("|")[1].strip() for row in rows[2:]]
 
 
 @pytest.fixture
@@ -216,3 +233,33 @@ class TestTheShippedSkills:
         for name in WORKFLOW:
             assert (catalog.SKILLS_DIR / name / "SKILL.md").is_file()
             assert name not in listed
+
+
+class TestTheAppSkill:
+    def test_its_front_matter_names_it_dw_app(self):
+        assert _app_skill()[0]["name"] == "dw-app"
+
+    def test_a_person_can_invoke_it(self):
+        assert _app_skill()[0]["user-invocable"] is True
+
+    def test_it_makes_no_content_so_studio_never_lists_it(self):
+        assert "makes" not in _app_skill()[0]
+
+    def test_it_describes_itself(self):
+        assert _app_skill()[0]["description"]
+
+    def test_it_hints_at_its_argument(self):
+        assert _app_skill()[0]["argument-hint"]
+
+    def test_every_vocabulary_row_starts_with_one_backticked_name(self):
+        cells = _vocabulary_cells()
+        assert cells
+        assert [cell for cell in cells if not re.fullmatch(r"`[a-z_]+`", cell)] == []
+
+    def test_the_vocabulary_names_exactly_what_the_apps_check_accepts(self):
+        from app.engine import apps
+
+        named = {
+            cell.strip("`") for cell in _vocabulary_cells() if cell.startswith("`")
+        }
+        assert named == set(apps.KEYS) | set(apps.INPUTS) | set(apps.FIELD_TYPES)

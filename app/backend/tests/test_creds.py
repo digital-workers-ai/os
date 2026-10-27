@@ -673,6 +673,88 @@ class TestTwitterReadsABearerTokenAndPathsByUser:
         )
 
 
+DEEPGRAM_KEY = "deepgram-key-test-0000"
+GITHUB_TOKEN = "github-token-test-0000"
+
+
+@pytest.fixture
+def clean_deepgram(monkeypatch):
+    for name in ("DEEPGRAM_API_KEY", "DEEPGRAM_BASE_URL"):
+        monkeypatch.delenv(name, raising=False)
+
+
+@pytest.fixture
+def clean_github(monkeypatch):
+    for name in ("GITHUB_TOKEN", "GITHUB_BASE_URL"):
+        monkeypatch.delenv(name, raising=False)
+
+
+class TestDeepgramSignsWithATokenKey:
+    def test_no_variable_set_means_the_mock(self, clean_deepgram):
+        found = creds.credentials_for("deepgram")
+        assert found.base_url == f"{settings.MOCK_BASE_URL}/deepgram"
+        assert found.headers == {"Authorization": "Token mock_deepgram_key"}
+
+    def test_stand_ins_only_keeps_the_mock_with_the_key_set(
+        self, clean_deepgram, monkeypatch
+    ):
+        monkeypatch.setattr(settings, "STAND_INS_ONLY", True)
+        monkeypatch.setenv("DEEPGRAM_API_KEY", DEEPGRAM_KEY)
+        found = creds.credentials_for("deepgram")
+        assert (found.base_url, found.headers, found.real) == (
+            f"{settings.MOCK_BASE_URL}/deepgram",
+            {"Authorization": "Token mock_deepgram_key"},
+            False,
+        )
+
+    def test_the_key_becomes_a_token_header_on_the_real_api(
+        self, clean_deepgram, monkeypatch
+    ):
+        monkeypatch.setenv("DEEPGRAM_API_KEY", DEEPGRAM_KEY)
+        found = creds.credentials_for("deepgram")
+        assert found.base_url == "https://api.deepgram.com"
+        assert found.headers == {"Authorization": f"Token {DEEPGRAM_KEY}"}
+        assert found.auth is None
+        assert found.params == {}
+        assert found.real is True
+
+
+class TestGithubSignsWithABearerToken:
+    def test_no_variable_set_means_the_mock(self, clean_github):
+        found = creds.credentials_for("github")
+        assert found.base_url == f"{settings.MOCK_BASE_URL}/github"
+        assert found.headers == {
+            "Authorization": "Bearer mock_github_token",
+            "Accept": "application/vnd.github+json",
+        }
+
+    def test_stand_ins_only_keeps_the_mock_with_the_token_set(
+        self, clean_github, monkeypatch
+    ):
+        monkeypatch.setattr(settings, "STAND_INS_ONLY", True)
+        monkeypatch.setenv("GITHUB_TOKEN", GITHUB_TOKEN)
+        found = creds.credentials_for("github")
+        assert (found.base_url, found.headers, found.real) == (
+            f"{settings.MOCK_BASE_URL}/github",
+            {
+                "Authorization": "Bearer mock_github_token",
+                "Accept": "application/vnd.github+json",
+            },
+            False,
+        )
+
+    def test_the_token_becomes_a_bearer_header_on_the_real_api(
+        self, clean_github, monkeypatch
+    ):
+        monkeypatch.setenv("GITHUB_TOKEN", GITHUB_TOKEN)
+        found = creds.credentials_for("github")
+        assert found.base_url == "https://api.github.com"
+        assert found.headers == {"Authorization": f"Bearer {GITHUB_TOKEN}"}
+        assert found.auth is None
+        assert found.params == {}
+        assert found.real is True
+
+
 class TestTheStandInSuppliesEveryIdAPathNames:
     @pytest.mark.parametrize(
         "source,values",
@@ -710,7 +792,7 @@ class TestEverySourceWithRealCredentialsStillHasAStandIn:
     def test_each_real_entry_names_a_mock_entry(self):
         assert set(creds._REAL) <= set(creds._MOCK)
 
-    def test_the_twenty_five_configured_sources_are_the_ones_the_environment_names(
+    def test_the_twenty_seven_configured_sources_are_the_ones_the_environment_names(
         self,
     ):
         assert set(creds._REAL) == {
@@ -739,6 +821,8 @@ class TestEverySourceWithRealCredentialsStillHasAStandIn:
             "meta_ads",
             "google_serp",
             "claude",
+            "deepgram",
+            "github",
         }
 
 

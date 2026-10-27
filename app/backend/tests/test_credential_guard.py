@@ -4,6 +4,7 @@ import pytest
 
 from app.config import (
     CREDENTIALS,
+    LLM_FLAGS,
     Settings,
     StartupError,
     settings,
@@ -71,12 +72,15 @@ class TestTheStandInIsLeftFullyWorking:
 class TestNoModelLayerIsOnInATest:
     def test_the_credential_map_names_the_flags_this_file_guards(self):
         assert flag_names() == [
+            "BUILDER_ENABLED",
             "COACHING_ENABLED",
             "CONVERSATION_ENABLED",
+            "CUSTOM_ENABLED",
             "EMBEDDINGS_ENABLED",
             "ENRICHMENT_ENABLED",
             "RERANK_ENABLED",
             "STUDIO_ENABLED",
+            "TRANSCRIBE_ENABLED",
         ]
 
     @pytest.mark.parametrize("flag", flag_names())
@@ -117,10 +121,103 @@ class TestStudioNeedsBothVendorKeys:
         assert validate_startup(env={}) is None
 
 
+class TestTheCustomAppsFlagsNameTheirKeys:
+    def test_custom_reading_joins_the_llm_flags(self):
+        assert set(LLM_FLAGS) == {
+            "ENRICHMENT_ENABLED",
+            "COACHING_ENABLED",
+            "CONVERSATION_ENABLED",
+            "CUSTOM_ENABLED",
+        }
+
+    def test_the_anthropic_key_guards_the_llm_flags_studio_and_the_builder(self):
+        assert set(CREDENTIALS["ANTHROPIC_API_KEY"]) == {
+            *LLM_FLAGS,
+            "STUDIO_ENABLED",
+            "BUILDER_ENABLED",
+        }
+
+    def test_transcribing_needs_the_deepgram_key(self):
+        assert CREDENTIALS["DEEPGRAM_API_KEY"] == ("TRANSCRIBE_ENABLED",)
+
+    def test_the_builder_needs_the_github_token(self):
+        assert CREDENTIALS["GITHUB_TOKEN"] == ("BUILDER_ENABLED",)
+
+
+class TestTheCustomAppsSettingsShipTheirDefaults:
+    @pytest.mark.parametrize(
+        ("name", "annotation", "default"),
+        [
+            ("CUSTOM_ENABLED", bool, False),
+            ("CUSTOM_MODEL", str, "claude-opus-5-5"),
+            ("CUSTOM_MAX_TOKENS", int, 16000),
+            ("TRANSCRIBE_ENABLED", bool, False),
+            ("TRANSCRIBE_MODEL", str, "nova-3"),
+            ("BUILDER_ENABLED", bool, False),
+            ("GITHUB_REPOSITORY", str, ""),
+        ],
+    )
+    def test_each_setting_ships_with_its_type_and_default(
+        self, name, annotation, default
+    ):
+        field = Settings.model_fields[name]
+        assert (field.annotation, field.default) == (annotation, default)
+
+
+class TestCustomReadingNeedsTheAnthropicKey:
+    @pytest.fixture(autouse=True)
+    def custom_on(self, monkeypatch):
+        monkeypatch.setattr(settings, "CUSTOM_ENABLED", True)
+
+    def test_custom_on_without_the_anthropic_key_refuses_the_boot(self):
+        with pytest.raises(StartupError, match="CUSTOM_ENABLED") as info:
+            validate_startup(env={})
+        assert "ANTHROPIC_API_KEY" in str(info.value)
+
+    def test_custom_on_with_the_anthropic_key_boots(self):
+        assert validate_startup(env={"ANTHROPIC_API_KEY": "k"}) is None
+
+
+class TestTranscribingNeedsTheDeepgramKey:
+    @pytest.fixture(autouse=True)
+    def transcribe_on(self, monkeypatch):
+        monkeypatch.setattr(settings, "TRANSCRIBE_ENABLED", True)
+
+    def test_transcribing_on_without_the_deepgram_key_refuses_the_boot(self):
+        with pytest.raises(StartupError, match="TRANSCRIBE_ENABLED") as info:
+            validate_startup(env={"ANTHROPIC_API_KEY": "k"})
+        assert "DEEPGRAM_API_KEY" in str(info.value)
+
+    def test_transcribing_on_with_the_deepgram_key_boots(self):
+        assert validate_startup(env={"DEEPGRAM_API_KEY": "dg"}) is None
+
+
+class TestTheBuilderNeedsTheAnthropicKeyAndTheGithubToken:
+    @pytest.fixture(autouse=True)
+    def builder_on(self, monkeypatch):
+        monkeypatch.setattr(settings, "BUILDER_ENABLED", True)
+
+    def test_builder_on_without_the_anthropic_key_refuses_the_boot(self):
+        with pytest.raises(StartupError, match="BUILDER_ENABLED") as info:
+            validate_startup(env={"GITHUB_TOKEN": "gh"})
+        assert "ANTHROPIC_API_KEY" in str(info.value)
+
+    def test_builder_on_without_the_github_token_refuses_the_boot(self):
+        with pytest.raises(StartupError, match="BUILDER_ENABLED") as info:
+            validate_startup(env={"ANTHROPIC_API_KEY": "k"})
+        assert "GITHUB_TOKEN" in str(info.value)
+
+    def test_builder_on_with_both_keys_boots(self):
+        both = {"ANTHROPIC_API_KEY": "k", "GITHUB_TOKEN": "gh"}
+        assert validate_startup(env=both) is None
+
+
 class TestNoVendorCredentialIsVisibleToATest:
     def test_the_credential_map_names_the_variables_this_file_guards(self):
         assert vendor_names() == [
             "ANTHROPIC_API_KEY",
+            "DEEPGRAM_API_KEY",
+            "GITHUB_TOKEN",
             "OPENAI_API_KEY",
             "ZEROENTROPY_API_KEY",
         ]

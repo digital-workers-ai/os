@@ -23,6 +23,7 @@ ALL_FILES = (
     "spy.yaml",
 )
 OPTIONAL_FILES = ("derived.yaml",)
+OPTIONAL_DIRS = ("apps",)
 
 
 @pytest.fixture
@@ -32,6 +33,9 @@ def files(tmp_path):
     optional = [name for name in OPTIONAL_FILES if (DEFINITIONS / name).exists()]
     for name in optional:
         shutil.copy(DEFINITIONS / name, tmp_path / name)
+    folders = [name for name in OPTIONAL_DIRS if (DEFINITIONS / name).is_dir()]
+    for name in folders:
+        shutil.copytree(DEFINITIONS / name, tmp_path / name)
 
     class Bundle:
         root = tmp_path
@@ -55,6 +59,8 @@ def files(tmp_path):
             }
             if "derived.yaml" in optional:
                 kwargs["derived_path"] = tmp_path / "derived.yaml"
+            if "apps" in folders:
+                kwargs["apps_dir"] = tmp_path / "apps"
             kwargs.update(overrides)
             return checks.run(**kwargs)
 
@@ -74,6 +80,34 @@ class TestShippedFiles:
 
     def test_the_copy_used_by_the_negative_tests_also_passes(self, files):
         assert files.problems() == []
+
+    def test_the_copy_carries_every_shipped_app(self, files):
+        shipped = sorted(path.name for path in (DEFINITIONS / "apps").iterdir())
+        assert shipped
+        assert sorted(path.name for path in (files.root / "apps").iterdir()) == shipped
+
+    def test_the_copy_hands_its_apps_to_the_build(self, files, monkeypatch):
+        from app.engine import apps
+
+        seen = []
+        monkeypatch.setattr(apps, "check", lambda path=None: seen.append(path) or [])
+        files.problems()
+        assert seen == [files.root / "apps"]
+
+    def test_the_build_checks_the_shipped_apps_by_default(self, monkeypatch):
+        from app.engine import apps
+
+        seen = []
+        monkeypatch.setattr(apps, "check", lambda path=None: seen.append(path) or [])
+        checks.run()
+        assert seen == [None]
+
+    def test_an_app_problem_fails_the_build(self, monkeypatch):
+        from app.engine import apps
+
+        flagged = "apps/receipts/app.yaml: unknown key 'colour'"
+        monkeypatch.setattr(apps, "check", lambda path=None: [flagged])
+        assert checks.run() == [flagged]
 
 
 class TestEachCheckFires:
@@ -696,3 +730,12 @@ class TestStudioDefinitionsAreChecked:
         problems = files.problems(looks_dir=files.root / "looks")
         assert len(problems) == 1, problems
         assert "looks/stat-card/look.yaml" in problems[0]
+
+    def test_the_shipped_apps_are_clean(self, files):
+        assert files.problems(apps_dir=DEFINITIONS / "apps") == []
+
+    def test_an_app_folder_without_a_manifest_is_named(self, files):
+        (files.root / "drafts" / "bare").mkdir(parents=True)
+        problems = files.problems(apps_dir=files.root / "drafts")
+        assert len(problems) == 1, problems
+        assert "apps/bare/app.yaml" in problems[0]

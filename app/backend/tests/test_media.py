@@ -1,7 +1,13 @@
+import uuid
+
 import pytest
 
 from app import media
 from app.config import settings
+
+RECORD = uuid.UUID("5b1f3c2a-7d4e-4f60-9a8b-1c2d3e4f5a6b")
+OTHER_RECORD = uuid.UUID("0c7a9e10-1d2b-4c3d-8e4f-5a6b7c8d9e0f")
+JPEG = b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01"
 
 
 @pytest.fixture(autouse=True)
@@ -70,7 +76,21 @@ class TestMediaType:
     def test_a_known_suffix_names_its_type(self, path, expected):
         assert media.media_type(path) == expected
 
-    @pytest.mark.parametrize("path", ["image.webp", "Makefile", "a.tar.gz"])
+    @pytest.mark.parametrize(
+        ("path", "expected"),
+        [
+            ("photo.jpeg", "image/jpeg"),
+            ("image.webp", "image/webp"),
+            ("invoice.pdf", "application/pdf"),
+            ("clip-1.webm", "audio/webm"),
+            ("clip-1.m4a", "audio/mp4"),
+            ("clip-1.wav", "audio/wav"),
+        ],
+    )
+    def test_a_record_file_suffix_names_its_type(self, path, expected):
+        assert media.media_type(path) == expected
+
+    @pytest.mark.parametrize("path", ["photo.heic", "Makefile", "a.tar.gz"])
     def test_anything_else_is_a_byte_stream(self, path):
         assert media.media_type(path) == "application/octet-stream"
 
@@ -197,3 +217,142 @@ class TestListing:
         assert media.listing(1, 1) == []
         media.write(1, 1, "post.md", "y")
         assert (other / "assets" / "1" / "1" / "post.md").read_text() == "y"
+
+
+class TestWriteRecord:
+    def test_a_record_file_is_stored_under_custom_and_the_record_id(self, media_root):
+        media.write_record(RECORD, "photo-1.jpg", JPEG)
+        stored = media_root / "custom" / str(RECORD) / "photo-1.jpg"
+        assert stored.read_bytes() == JPEG
+
+    def test_writing_says_the_path_the_type_and_the_size(self):
+        assert media.write_record(RECORD, "photo-1.jpg", JPEG) == {
+            "path": "photo-1.jpg",
+            "media_type": "image/jpeg",
+            "bytes": 16,
+        }
+
+    def test_writing_a_record_path_again_replaces_it(self):
+        media.write_record(RECORD, "signature.png", b"first")
+        media.write_record(RECORD, "signature.png", b"second")
+        assert media.read_record(RECORD, "signature.png") == b"second"
+
+    def test_each_record_keeps_its_own_files(self):
+        media.write_record(RECORD, "photo-1.jpg", b"first")
+        media.write_record(OTHER_RECORD, "photo-1.jpg", b"second")
+        assert (
+            media.read_record(RECORD, "photo-1.jpg"),
+            media.read_record(OTHER_RECORD, "photo-1.jpg"),
+        ) == (b"first", b"second")
+
+    def test_a_climbing_path_is_refused_before_anything_touches_the_disk(
+        self, media_root
+    ):
+        with pytest.raises(media.MediaError, match="climbs"):
+            media.write_record(RECORD, "../photo-1.jpg", JPEG)
+        assert not (media_root / "custom").exists()
+
+    def test_a_segment_outside_the_alphabet_is_refused(self, media_root):
+        with pytest.raises(media.MediaError, match="segment"):
+            media.write_record(RECORD, "photo 1.jpg", JPEG)
+        assert not (media_root / "custom").exists()
+
+    def test_a_path_over_120_characters_is_refused(self):
+        with pytest.raises(media.MediaError, match="121 characters"):
+            media.write_record(RECORD, "a" * 121, JPEG)
+
+    def test_a_record_file_over_the_cap_is_refused(self, monkeypatch, media_root):
+        monkeypatch.setattr(media, "MAX_FILE_BYTES", 8)
+        media.write_record(RECORD, "ok.jpg", b"x" * 8)
+        with pytest.raises(media.MediaError, match="9 bytes"):
+            media.write_record(RECORD, "big.jpg", b"x" * 9)
+        assert not (media_root / "custom" / str(RECORD) / "big.jpg").exists()
+
+    def test_a_record_is_not_held_to_the_assets_file_count(self, monkeypatch):
+        monkeypatch.setattr(media, "MAX_FILES_PER_VERSION", 1)
+        media.write_record(RECORD, "clip-1.webm", b"a")
+        media.write_record(RECORD, "clip-2.webm", b"b")
+        assert media.read_record(RECORD, "clip-2.webm") == b"b"
+
+
+class TestReadRecord:
+    def test_a_stored_record_file_comes_back_as_bytes(self):
+        media.write_record(RECORD, "photo-1.jpg", JPEG)
+        assert media.read_record(RECORD, "photo-1.jpg") == JPEG
+
+    def test_the_record_id_may_be_given_as_text(self):
+        media.write_record(RECORD, "photo-1.jpg", JPEG)
+        assert media.read_record(str(RECORD), "photo-1.jpg") == JPEG
+
+    def test_a_missing_record_file_is_refused(self):
+        with pytest.raises(media.MediaError, match="no file 'photo-1.jpg'"):
+            media.read_record(RECORD, "photo-1.jpg")
+
+    def test_a_climbing_record_path_is_refused(self, media_root):
+        (media_root / "secret").write_text("x")
+        with pytest.raises(media.MediaError, match="climbs"):
+            media.read_record(RECORD, "../../secret")
+
+
+class TestSniff:
+    @pytest.mark.parametrize(
+        ("data", "expected"),
+        [
+            (JPEG, "image/jpeg"),
+            (b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR", "image/png"),
+            (b"RIFF\x24\x00\x00\x00WEBPVP8 ", "image/webp"),
+            (b"%PDF-1.7\n%\xe2\xe3\xcf\xd3", "application/pdf"),
+            (b"\x1a\x45\xdf\xa3\x9f\x42\x86\x81\x01", "audio/webm"),
+            (b"\x00\x00\x00\x20ftypM4A \x00\x00\x00\x00", "audio/mp4"),
+            (b"RIFF\x24\x00\x00\x00WAVEfmt ", "audio/wav"),
+        ],
+    )
+    def test_a_known_signature_names_its_type(self, data, expected):
+        assert media.sniff(data) == expected
+
+    @pytest.mark.parametrize(
+        ("data", "expected"),
+        [
+            (b"\xff\xd8\xff", "image/jpeg"),
+            (b"\x89PNG\r\n\x1a\n", "image/png"),
+            (b"RIFF\x00\x00\x00\x00WEBP", "image/webp"),
+            (b"%PDF-", "application/pdf"),
+            (b"\x1a\x45\xdf\xa3", "audio/webm"),
+            (b"\x00\x00\x00\x00ftyp", "audio/mp4"),
+            (b"RIFF\x00\x00\x00\x00WAVE", "audio/wav"),
+        ],
+    )
+    def test_the_signature_alone_is_enough(self, data, expected):
+        assert media.sniff(data) == expected
+
+    @pytest.mark.parametrize(
+        "data",
+        [
+            b"",
+            b"\xff\xd8",
+            b"\x89PNG\r\n\x1a",
+            b"RIFF\x00\x00\x00\x00WEB",
+            b"RIFF\x00\x00\x00\x00WAV",
+            b"%PDF",
+            b"\x1a\x45\xdf",
+            b"\x00\x00\x00\x00fty",
+        ],
+    )
+    def test_a_signature_cut_short_names_nothing(self, data):
+        assert media.sniff(data) is None
+
+    @pytest.mark.parametrize(
+        "data",
+        [
+            b"GIF89a\x01\x00\x01\x00\x80\x00\x00",
+            b"hello, world",
+            b"\x00" * 16,
+            b"PK\x03\x04\x14\x00\x00\x00",
+            b"RIFF\x24\x00\x00\x00AVI LIST",
+            b"\x00\x00\x00\x00\x00\x00\x00\x00WEBP",
+            b"ftypM4A \x00\x00\x00\x00",
+            b"%pdf-1.7\n",
+        ],
+    )
+    def test_unknown_bytes_name_nothing(self, data):
+        assert media.sniff(data) is None
