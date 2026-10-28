@@ -1,0 +1,37 @@
+[
+  {
+    "payload": {
+      "app": "supplier_invoices",
+      "currency": "USD",
+      "fields": {
+        "amount": 410.0,
+        "due_date": "2026-10-01",
+        "invoice_date": "2026-09-01",
+        "invoice_number": "INV-3307",
+        "items": [
+          {
+            "amount": 380.0,
+            "description": "Copy paper, 10 cases",
+            "quantity": 10,
+            "unit_price": 38.0
+          }
+        ],
+        "po_number": "PO-1189",
+        "supplier": "Lakeside Paper Co",
+        "tax": 30.0
+      },
+      "files": [
+        {
+          "kind": "pdf",
+          "media_type": "application/pdf",
+          "path": "invoice-3307.pdf"
+        }
+      ],
+      "record": "3c9d2e10-5a4b-4c6d-8e7f-000000000002",
+      "recorded_at": "2026-09-01T15:10:00Z",
+      "recorded_by": "admin",
+      "removed": false
+    },
+    "source_id": "3c9d2e10-5a4b-4c6d-8e7f-000000000002"
+  }
+]

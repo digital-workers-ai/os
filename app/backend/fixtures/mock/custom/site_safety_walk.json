@@ -1,0 +1,37 @@
+[
+  {
+    "payload": {
+      "app": "site_safety_walk",
+      "fields": {
+        "findings": [
+          {
+            "action": "Guardrail installed",
+            "hazard": "fall",
+            "location": "Level 3 east edge",
+            "photo": "east-edge.jpg",
+            "severity": "high"
+          }
+        ],
+        "site": "Riverside build"
+      },
+      "files": [
+        {
+          "kind": "audio",
+          "media_type": "audio/webm",
+          "path": "walk.webm"
+        },
+        {
+          "kind": "photo",
+          "media_type": "image/jpeg",
+          "path": "east-edge.jpg"
+        }
+      ],
+      "record": "3c9d2e10-5a4b-4c6d-8e7f-000000000017",
+      "recorded_at": "2026-09-08T08:00:00Z",
+      "recorded_by": "admin",
+      "removed": false,
+      "transcript": "fall hazard, level 3 east edge, high, guardrail installed"
+    },
+    "source_id": "3c9d2e10-5a4b-4c6d-8e7f-000000000017"
+  }
+]

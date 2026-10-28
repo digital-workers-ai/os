@@ -1,0 +1,14 @@
+title: Vet visit notes
+description: A vet dictating the note for a visit after the exam, in SOAP order.
+input: voice
+roles: [vet, vet_tech]
+lands_as: visit_note
+fields:
+  owner: { type: lookup, entity: person, by: name }
+  patient: { type: text, description: The animal's name }
+  species: { type: one_of, labels: [dog, cat, rabbit, bird, other] }
+  weight: { type: number, unit: lb }
+  subjective: { type: text, description: What the owner reports }
+  objective: { type: text, description: "Exam findings, vitals and test results" }
+  assessment: { type: text, description: "The diagnosis, or the differentials" }
+  plan: { type: text, description: "Treatment, medication and follow-up" }

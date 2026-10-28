@@ -1,0 +1,11 @@
+title: Sales visit debrief
+description: A rep talking through an in-person sales visit right after it ends.
+input: voice
+roles: [sales, head_of_sales]
+lands_as: meeting
+fields:
+  account: { type: lookup, entity: company, by: name }
+  contact: { type: lookup, entity: person, by: name }
+  interest: { type: one_of, labels_from: sales_call.interest }
+  next_step: { type: text }
+  next_step_date: { type: date }

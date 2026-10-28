@@ -1,0 +1,20 @@
+[
+  {
+    "payload": {
+      "app": "batch_trace",
+      "fields": {
+        "lot": "LOT-2026-0915",
+        "note": "Line 2, second shift",
+        "quantity": 240,
+        "step": "packed",
+        "unit": "units"
+      },
+      "files": [],
+      "record": "3c9d2e10-5a4b-4c6d-8e7f-000000000012",
+      "recorded_at": "2026-09-09T16:40:00Z",
+      "recorded_by": "admin",
+      "removed": false
+    },
+    "source_id": "3c9d2e10-5a4b-4c6d-8e7f-000000000012"
+  }
+]

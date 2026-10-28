@@ -41,6 +41,10 @@ brief: |
   - Who is briefed. The roles in `briefs/` against who is asking and what the
     estate holds: a role the data serves and nobody briefs, a brief that asks
     for numbers the estate cannot measure, a brief whose reader has changed.
+  - What the apps bring. Every screen a custom app draws itself, in
+    `app/custom/src/apps/*/screen.tsx`. When two apps' screens do the same
+    thing, propose a building block: one field type DW Apps draws for every
+    app, in place of both screens.
 
   You may propose any change to the repository: a definition line, a brief, a
   prompt, engine code, the console. Prefer the smallest change that closes the

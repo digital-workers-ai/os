@@ -44,7 +44,7 @@ async def rules_body(api, session, sessionmaker_for_test):
 
 async def test_the_estate_produces_exactly_six_findings(rules_body):
     assert len(rules_body["findings"]) == 6
-    assert rules_body["rules"] == 8
+    assert rules_body["rules"] == 14
 
 
 async def test_findings_split_by_severity(rules_body):

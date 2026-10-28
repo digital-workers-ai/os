@@ -1,0 +1,18 @@
+[
+  {
+    "payload": {
+      "app": "event_check_in",
+      "fields": {
+        "attendee": "sam.lee@example.com",
+        "event": "Fall open house",
+        "ticket_type": "vip"
+      },
+      "files": [],
+      "record": "3c9d2e10-5a4b-4c6d-8e7f-000000000009",
+      "recorded_at": "2026-09-10T18:02:00Z",
+      "recorded_by": "admin",
+      "removed": false
+    },
+    "source_id": "3c9d2e10-5a4b-4c6d-8e7f-000000000009"
+  }
+]

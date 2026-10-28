@@ -1,0 +1,17 @@
+title: Shelf audit
+description: A photo of a store shelf, read left to right.
+input: photo
+roles: [store_staff, manager]
+lands_as: stock_check
+fields:
+  location: { type: text, description: The store and the aisle }
+  items:
+    type: list
+    lands_as: stock_check_item
+    fields:
+      product: { type: lookup, entity: product, by: name }
+      facings: { type: number, description: How many units face the front }
+      stock: { type: one_of, labels: [stocked, empty] }
+      shelf_price: { type: money }
+      price: { type: one_of, labels: [matches, wrong], filled_by: script, description: The shelf price compared with the product's price }
+script: script.py

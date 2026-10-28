@@ -48,7 +48,7 @@ async def test_the_sync_stores_the_whole_thirty_four_source_estate(
     assert all(r["truncated"] is False for r in result["results"]), result
     assert {r["source"] for r in result["results"] if r["rows_written"] > 0} == set(
         SOURCES
-    ), result
+    ) - {"custom"}, result
 
     total = (
         await session.execute(select(func.count()).select_from(RawEvent))

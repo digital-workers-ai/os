@@ -1,0 +1,15 @@
+title: Maintenance tags
+description: Scan the QR tag on a machine to see its service history and log a service.
+input: scan
+roles: [technician, manager]
+lands_as: service_record
+fields:
+  asset: { type: lookup, entity: asset, by: code, from: scan, history: true }
+  work_done: { type: text }
+  status:
+    type: one_of
+    labels:
+      working: Back in normal use
+      needs_repair: Usable, with a fault to fix
+      out_of_service: Must not be used
+  next_service: { type: date }

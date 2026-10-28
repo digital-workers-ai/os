@@ -1,6 +1,6 @@
 {
   "name": "Digital Workers Dashboard",
-  "short_name": "Dashboard",
+  "short_name": "DW Dashboard",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F8F7F4",

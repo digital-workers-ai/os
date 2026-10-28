@@ -1,0 +1,595 @@
+records:
+  - id: d86e5492-f901-4b84-ab71-3ccff7f47aa2
+    app: receipts
+    recorded_at: "2026-09-03T17:40:00Z"
+    saved_at: "2026-09-03T17:42:00Z"
+    files:
+      - { path: harbor-fuel.jpg, kind: photo }
+    fields:
+      vendor: Harbor Fuel
+      date: "2026-09-03"
+      total: 48.20
+      tax: 2.89
+      category: fuel
+      items:
+        - { description: Diesel, amount: 48.20 }
+
+  - id: ba025dbd-5516-46dd-8586-b888e3a687a5
+    app: receipts
+    recorded_at: "2026-09-02T15:05:00Z"
+    saved_at: "2026-09-02T15:07:00Z"
+    files:
+      - { path: northside-office-supply.jpg, kind: photo }
+    fields:
+      vendor: Northside Office Supply
+      date: "2026-09-02"
+      total: 12.00
+      tax: 0.89
+      category: supplies
+      items:
+        - { description: "Printer paper, 1 ream", amount: 7.49 }
+        - { description: "Blue pens, 12 pack", amount: 3.62 }
+
+  - id: d72cdd91-4801-4e7a-bba4-10b0efb3d9fb
+    app: supplier_invoices
+    recorded_at: "2026-08-28T16:10:00Z"
+    saved_at: "2026-08-28T16:14:00Z"
+    files:
+      - { path: cascade-paper-invoice.pdf, kind: pdf }
+    fields:
+      supplier: Cascade Paper Co.
+      invoice_number: INV-20417
+      invoice_date: "2026-08-28"
+      due_date: "2026-09-27"
+      po_number: PO-3318
+      amount: 286.20
+      tax: 21.20
+      items:
+        - { description: "Copy paper, case of 10 reams", quantity: 4, unit_price: 48.00, amount: 192.00 }
+        - { description: "Shipping labels, box of 500", quantity: 2, unit_price: 36.50, amount: 73.00 }
+
+  - id: 722a6779-46f4-4a90-85b9-68d3e52f9c1a
+    app: supplier_invoices
+    recorded_at: "2026-08-31T09:20:00Z"
+    saved_at: "2026-08-31T09:23:00Z"
+    files:
+      - { path: ridgeway-invoice.jpg, kind: photo }
+    fields:
+      supplier: Ridgeway Janitorial Supply
+      invoice_number: "7781"
+      invoice_date: "2026-08-30"
+      due_date: "2026-09-14"
+      po_number: null
+      amount: 94.18
+      tax: 6.98
+      items:
+        - { description: Hand soap refill, quantity: 4, unit_price: 12.50, amount: 50.00 }
+        - { description: "Trash bags, case", quantity: 2, unit_price: 18.60, amount: 37.20 }
+
+  - id: ed1e61e0-87d5-48cb-903a-745c408fe82d
+    app: mileage_log
+    recorded_at: "2026-09-03T07:55:00Z"
+    saved_at: "2026-09-03T07:56:00Z"
+    files:
+      - { path: odometer-truck-7-start.jpg, kind: photo }
+    fields:
+      vehicle: Truck 7
+      odometer: 48172
+      stage: start
+      purpose: delivery
+      miles: null
+
+  - id: 1a165a1d-f962-4de1-b53e-c57264e8b172
+    app: mileage_log
+    recorded_at: "2026-09-03T12:20:00Z"
+    saved_at: "2026-09-03T12:21:00Z"
+    files:
+      - { path: odometer-truck-7-end.jpg, kind: photo }
+    fields:
+      vehicle: Truck 7
+      odometer: 48210
+      stage: end
+      purpose: delivery
+      miles: 38
+
+  - id: 7bf81f12-d6a2-41c6-a82f-3e773e1e0ce6
+    app: shelf_audit
+    recorded_at: "2026-09-01T08:30:00Z"
+    saved_at: "2026-09-01T08:34:00Z"
+    files:
+      - { path: shelf-store-4-aisle-3.jpg, kind: photo }
+    fields:
+      location: Store 4, aisle 3
+      items:
+        - { product: Oat milk, facings: 4, stock: stocked, shelf_price: 4.49, price: null }
+        - { product: Rye bread, facings: 0, stock: empty, shelf_price: 3.99, price: null }
+
+  - id: 8339d4b7-b904-4e25-b84b-774a70fb48f7
+    app: shelf_audit
+    recorded_at: "2026-09-01T08:41:00Z"
+    saved_at: "2026-09-01T08:43:00Z"
+    files:
+      - { path: shelf-store-4-aisle-9.jpg, kind: photo }
+    fields:
+      location: Store 4, aisle 9
+      items:
+        - { product: Paper towels, facings: 6, stock: stocked, shelf_price: 7.99, price: null }
+
+  - id: 107348aa-cfa2-459e-9038-abd7c3d6ac03
+    app: damage_claims
+    recorded_at: "2026-08-29T13:15:00Z"
+    saved_at: "2026-08-29T13:19:00Z"
+    files:
+      - { path: damage-monitor.jpg, kind: photo }
+    fields:
+      item: 27-inch monitor
+      order: "1042"
+      damage: [broken, dented]
+      severity: severe
+      estimated_cost: 180.00
+      description: Screen cracked in the box; outer carton dented
+
+  - id: 9257f7dc-4b91-452c-be66-6e9e23e44c49
+    app: damage_claims
+    recorded_at: "2026-09-02T10:05:00Z"
+    saved_at: "2026-09-02T10:08:00Z"
+    files:
+      - { path: damage-mugs.jpg, kind: photo }
+    fields:
+      item: Pallet of mugs
+      order: null
+      damage: [broken, water]
+      severity: moderate
+      estimated_cost: 64.00
+      description: Six mugs broken; carton soaked through on one side
+
+  - id: 7cd93861-7148-46c8-b36d-9a485c078c76
+    app: check_deposits
+    recorded_at: "2026-09-02T11:30:00Z"
+    saved_at: "2026-09-02T11:32:00Z"
+    files:
+      - { path: check-4471.jpg, kind: photo }
+    fields:
+      payer: Globex Inc
+      customer: Globex Inc
+      amount: 1250.00
+      check_number: "4471"
+      check_date: "2026-09-01"
+      memo: Invoice 2026-118
+
+  - id: 2cf5d03d-5948-43b4-a2ec-998c6f20821a
+    app: check_deposits
+    recorded_at: "2026-08-31T15:45:00Z"
+    saved_at: "2026-08-31T15:46:00Z"
+    files:
+      - { path: check-10233.jpg, kind: photo }
+    fields:
+      payer: Umbrella Systems
+      customer: Umbrella Systems
+      amount: 480.00
+      check_number: "10233"
+      check_date: "2026-08-29"
+      memo: August service
+
+  - id: e1bcdbe1-5171-4cb1-9168-62a2bb5bb212
+    app: equipment_checkout
+    recorded_at: "2026-09-03T08:05:00Z"
+    saved_at: "2026-09-03T08:06:00Z"
+    fields:
+      asset: LAP-014
+      action: check_out
+      location: Client site, Northside
+      due_back: "2026-09-10"
+
+  - id: 6e88b1ef-2926-4569-adc0-577756828aeb
+    app: equipment_checkout
+    recorded_at: "2026-09-02T16:40:00Z"
+    saved_at: "2026-09-02T16:41:00Z"
+    fields:
+      asset: DRILL-07
+      action: check_in
+      location: Tool room
+      due_back: null
+
+  - id: 7308a18d-ed9e-4e48-b247-bfb0a8bddfe7
+    app: inventory_count
+    recorded_at: "2026-08-27T18:00:00Z"
+    saved_at: "2026-08-27T18:12:00Z"
+    fields:
+      location: Back room
+      lines:
+        - { product: WP-001, counted: 12, change: null }
+        - { product: GL-001, counted: 30, change: null }
+
+  - id: 9ff55786-89ab-46df-93ac-f182bdf580a3
+    app: inventory_count
+    recorded_at: "2026-09-03T18:00:00Z"
+    saved_at: "2026-09-03T18:09:00Z"
+    fields:
+      location: Back room
+      lines:
+        - { product: WP-001, counted: 9, change: -3 }
+        - { product: GL-001, counted: 30, change: 0 }
+
+  - id: 20d828fb-23eb-4c3f-b555-4bd0f0217d77
+    app: event_check_in
+    recorded_at: "2026-08-28T17:58:00Z"
+    saved_at: "2026-08-28T17:58:30Z"
+    fields:
+      event: Fall open house
+      attendee: sarah@acme.io
+      ticket_type: general
+
+  - id: e56279b7-26df-4443-b048-350124ee8a90
+    app: event_check_in
+    recorded_at: "2026-08-28T18:03:00Z"
+    saved_at: "2026-08-28T18:03:20Z"
+    fields:
+      event: Fall open house
+      attendee: john.doe@acme.io
+      ticket_type: vip
+
+  - id: f32d8b7f-66e5-4447-830d-3f3ef8843388
+    app: maintenance_tags
+    recorded_at: "2026-09-02T14:00:00Z"
+    saved_at: "2026-09-02T14:03:00Z"
+    fields:
+      asset: PRESS-02
+      work_done: Replaced hydraulic seal
+      status: working
+      next_service: "2026-10-01"
+
+  - id: d4936bbf-ea19-43aa-8a0e-e28566f13a3b
+    app: maintenance_tags
+    recorded_at: "2026-08-26T09:10:00Z"
+    saved_at: "2026-08-26T09:12:00Z"
+    fields:
+      asset: PRESS-02
+      work_done: Found a slow leak at the main hydraulic seal; ordered a new seal
+      status: needs_repair
+      next_service: "2026-09-02"
+
+  - id: 642a8f23-13b3-4d11-a529-64af6313b803
+    app: mailroom
+    recorded_at: "2026-09-03T10:12:00Z"
+    saved_at: "2026-09-03T10:13:00Z"
+    files:
+      - { path: label-1z999aa1.jpg, kind: photo }
+    fields:
+      tracking_number: 1Z999AA10123456784
+      carrier: ups
+      recipient: Jordan Rivera
+      status: received
+
+  - id: c0ac2e46-8b62-4836-adf4-bab0fb929bd7
+    app: mailroom
+    recorded_at: "2026-09-01T11:40:00Z"
+    saved_at: "2026-09-01T11:41:00Z"
+    files:
+      - { path: label-9400111.jpg, kind: photo }
+    fields:
+      tracking_number: "9400111899223197428490"
+      carrier: usps
+      recipient: Finance team
+      status: picked_up
+
+  - id: 783438ad-34d2-4552-80fb-0dd7e4d84ed1
+    app: batch_trace
+    recorded_at: "2026-09-01T06:30:00Z"
+    saved_at: "2026-09-01T06:31:00Z"
+    fields:
+      lot: LOT-2207
+      step: received
+      quantity: 500
+      unit: kg
+      note: Rolled oats from the mill, bags intact
+
+  - id: 611859bb-984a-4542-bc4d-c0411f16c22b
+    app: batch_trace
+    recorded_at: "2026-09-02T15:20:00Z"
+    saved_at: "2026-09-02T15:21:00Z"
+    fields:
+      lot: LOT-2207
+      step: packed
+      quantity: 40
+      unit: cases
+      note: Pallet 1 of 2
+
+  - id: 0be39c11-8be0-4dea-be08-00526b024f42
+    app: perio_charting
+    recorded_at: "2026-09-02T09:30:00Z"
+    saved_at: "2026-09-02T09:48:00Z"
+    transcript: three, three two four, bleeding on the two
+    files:
+      - { path: perio_tooth_3.webm, kind: audio }
+    fields:
+      patient: Sarah Johnson
+      exam_date: "2026-09-02"
+    template:
+      rows:
+        "3": { status: present, mobility: "0" }
+      cells:
+        "3:DB": { depth: 3, bleeding: none }
+        "3:B": { depth: 2, bleeding: bleeding }
+        "3:MB": { depth: 4, bleeding: none }
+
+  - id: 75da4774-7616-480e-8d0d-9b9725373e9a
+    app: perio_charting
+    recorded_at: "2026-08-26T14:00:00Z"
+    saved_at: "2026-08-26T14:21:00Z"
+    transcript: |-
+      one, missing
+      two, three three two, mobility one
+    fields:
+      patient: John Doe
+      exam_date: "2026-08-26"
+    template:
+      rows:
+        "1": { status: missing }
+        "2": { status: present, mobility: "1" }
+      cells:
+        "2:DB": { depth: 3, bleeding: none }
+        "2:B": { depth: 3, bleeding: none }
+        "2:MB": { depth: 2, bleeding: none }
+
+  - id: 9e6f2843-ada8-4c3b-8b18-737ab93c6b95
+    app: property_inspection
+    recorded_at: "2026-08-31T10:00:00Z"
+    saved_at: "2026-08-31T10:35:00Z"
+    transcript: |-
+      living room walls fair, nail holes above the sofa
+      kitchen sink good
+      bathroom ventilation poor, fan does not run
+      smoke alarms good
+    files:
+      - { path: bathroom-fan.jpg, kind: photo }
+    fields:
+      property: 14 Alder Street, Unit 2
+      kind: move_out
+    template:
+      items:
+        "living_room:walls": { condition: fair, defect: Nail holes above the sofa }
+        "kitchen:sink": { condition: good }
+        "bathroom:ventilation": { condition: poor, defect: Fan does not run, photo: bathroom-fan.jpg }
+        "safety:smoke_alarms": { condition: good }
+
+  - id: 031e75e7-dfb9-4d49-b30c-54f548eb9609
+    app: property_inspection
+    recorded_at: "2026-09-01T13:00:00Z"
+    saved_at: "2026-09-01T13:20:00Z"
+    transcript: |-
+      kitchen appliances good
+      carbon monoxide alarms good
+      exterior entry fair, loose handrail
+    fields:
+      property: 88 Birch Lane
+      kind: routine
+    template:
+      items:
+        "kitchen:appliances": { condition: good }
+        "safety:co_alarms": { condition: good }
+        "exterior:entry": { condition: fair, defect: Loose handrail }
+
+  - id: 91b681d9-bf10-4a85-8bbf-20afda0bb1dd
+    app: vehicle_pre_trip
+    recorded_at: "2026-09-03T07:40:00Z"
+    saved_at: "2026-09-03T07:50:00Z"
+    transcript: everything passes except the tires, front left tread low
+    files:
+      - { path: front-left-tire.jpg, kind: photo }
+    fields:
+      vehicle: Truck 7
+      odometer: 48172
+    template:
+      items:
+        "vehicle:service_brakes": { result: pass }
+        "vehicle:parking_brake": { result: pass }
+        "vehicle:steering": { result: pass }
+        "vehicle:lights_and_reflectors": { result: pass }
+        "vehicle:tires": { result: fail, defect: Front left tread low, photo: front-left-tire.jpg }
+        "vehicle:horn": { result: pass }
+        "vehicle:wipers": { result: pass }
+        "vehicle:mirrors": { result: pass }
+        "vehicle:coupling_devices": { result: pass }
+        "vehicle:wheels_and_rims": { result: pass }
+        "vehicle:emergency_equipment": { result: pass }
+
+  - id: 04202951-d633-459a-aa4e-7e2a83a91372
+    app: vehicle_pre_trip
+    recorded_at: "2026-09-02T06:50:00Z"
+    saved_at: "2026-09-02T06:58:00Z"
+    transcript: all items pass
+    fields:
+      vehicle: Truck 3
+      odometer: 61204
+    template:
+      items:
+        "vehicle:service_brakes": { result: pass }
+        "vehicle:parking_brake": { result: pass }
+        "vehicle:steering": { result: pass }
+        "vehicle:lights_and_reflectors": { result: pass }
+        "vehicle:tires": { result: pass }
+        "vehicle:horn": { result: pass }
+        "vehicle:wipers": { result: pass }
+        "vehicle:mirrors": { result: pass }
+        "vehicle:coupling_devices": { result: pass }
+        "vehicle:wheels_and_rims": { result: pass }
+        "vehicle:emergency_equipment": { result: pass }
+
+  - id: 8cf4b7e9-d6ef-4349-a47c-769d4d2059cd
+    app: food_safety_log
+    recorded_at: "2026-09-03T06:00:00Z"
+    saved_at: "2026-09-03T06:04:00Z"
+    transcript: |-
+      walk-in cooler, 37
+      freezer, minus 2
+    files:
+      - { path: food_safety_walk_in.webm, kind: audio }
+    fields:
+      shift: opening
+      readings:
+        - { unit: walk_in_cooler, temperature: 37, action: null }
+        - { unit: freezer, temperature: -2, action: null }
+
+  - id: 098895fb-7d76-49c8-b96f-e5d8f32bc0c2
+    app: food_safety_log
+    recorded_at: "2026-09-02T12:00:00Z"
+    saved_at: "2026-09-02T12:05:00Z"
+    transcript: |-
+      hot line, 141
+      reach-in, 43, moved the stock to the walk-in and called for service
+    fields:
+      shift: midday
+      readings:
+        - { unit: hot_holding, temperature: 141, action: null }
+        - { unit: reach_in_cooler, temperature: 43, action: Moved the stock to the walk-in and called for service }
+
+  - id: 0eeffbcb-7319-461c-84bd-53a8bab87a61
+    app: site_safety_walk
+    recorded_at: "2026-09-02T07:30:00Z"
+    saved_at: "2026-09-02T07:52:00Z"
+    transcript: |-
+      fall hazard, high, third floor east edge, guardrail missing, area closed
+      housekeeping, low, stair two landing, offcuts cleared
+    files:
+      - { path: third-floor-east-edge.jpg, kind: photo }
+    fields:
+      site: Harbor Street build
+      findings:
+        - { hazard: fall, severity: high, location: Third floor east edge, action: Guardrail missing; area closed until it is replaced, photo: third-floor-east-edge.jpg }
+        - { hazard: housekeeping, severity: low, location: Stair 2 landing, action: Cleared the offcuts }
+
+  - id: 2786e6b4-c63b-46f8-8cef-0b35eae131f1
+    app: site_safety_walk
+    recorded_at: "2026-08-28T08:00:00Z"
+    saved_at: "2026-08-28T08:15:00Z"
+    transcript: electrical, medium, basement, taped extension cord, replaced it
+    fields:
+      site: Maple Court renovation
+      findings:
+        - { hazard: electrical, severity: medium, location: Basement, action: Replaced a taped-up extension cord }
+
+  - id: 4090c62d-f90e-425e-86c4-222b9daf681a
+    app: sales_visit_debrief
+    recorded_at: "2026-09-03T15:30:00Z"
+    saved_at: "2026-09-03T15:36:00Z"
+    transcript: >-
+      Met Dana Whitfield at Blue Kettle. They are comparing us with one other
+      vendor and want a quote for three locations by Friday. Next step is to
+      send the quote on the fifth.
+    fields:
+      account: Blue Kettle
+      contact: Dana Whitfield
+      interest: moderate
+      next_step: Send the quote for three locations
+      next_step_date: "2026-09-05"
+
+  - id: 415e227a-e6ac-420f-b11d-074aa4f687e2
+    app: sales_visit_debrief
+    recorded_at: "2026-08-29T16:10:00Z"
+    saved_at: "2026-08-29T16:14:00Z"
+    transcript: >-
+      Dropped in at Acme Dental and saw Sam Lee. Friendly, but nothing is
+      planned this year. Check back in the new year.
+    fields:
+      account: Acme Dental
+      contact: Sam Lee
+      interest: weak
+      next_step: Check back in January
+      next_step_date: "2027-01-11"
+
+  - id: 3d30663b-077d-4212-86ad-363fc77a3e75
+    app: vet_visit_notes
+    recorded_at: "2026-09-01T17:20:00Z"
+    saved_at: "2026-09-01T17:27:00Z"
+    transcript: >-
+      Owner Mike Chen, patient Biscuit, dog, 42 pounds. Owner reports
+      limping on the right front leg for two days. Mild swelling at the right
+      carpus, no fever. Likely a soft tissue sprain. Rest for a week,
+      anti-inflammatory for five days, recheck if not better.
+    fields:
+      owner: Mike Chen
+      patient: Biscuit
+      species: dog
+      weight: 42
+      subjective: Limping on the right front leg for two days
+      objective: Mild swelling at the right carpus; temperature normal
+      assessment: Soft tissue sprain of the right carpus
+      plan: Rest for a week, anti-inflammatory for five days, recheck if not better
+
+  - id: aa8dd718-fd01-42a3-bb5d-7a7393f4af56
+    app: vet_visit_notes
+    recorded_at: "2026-08-27T10:40:00Z"
+    saved_at: "2026-08-27T10:46:00Z"
+    transcript: >-
+      Owner Jane Smith, patient Pepper, cat, nine and a half pounds. Annual
+      wellness visit, eating well. Exam normal, teeth good. Healthy adult cat.
+      Rabies booster given, next visit in a year.
+    fields:
+      owner: Jane Smith
+      patient: Pepper
+      species: cat
+      weight: 9.5
+      subjective: Annual wellness visit; eating and drinking well
+      objective: Exam normal; teeth and gums good
+      assessment: Healthy adult cat
+      plan: Rabies booster given; next wellness visit in a year
+
+  - id: 8012a27c-adf7-4cc0-aa8b-2ef57d84beb7
+    app: field_service_report
+    recorded_at: "2026-09-02T16:20:00Z"
+    saved_at: "2026-09-02T16:25:00Z"
+    transcript: >-
+      Globex Inc, the walk-in compressor was short cycling. Replaced the
+      start relay, two hours. Working when I left.
+    fields:
+      customer: Globex Inc
+      problem: Walk-in compressor short cycling
+      hours: 2
+      outcome: fixed
+      parts:
+        - { part: Start relay, quantity: 1 }
+
+  - id: 50bcfb28-3484-4c0f-883c-2e38daab5bd7
+    app: field_service_report
+    recorded_at: "2026-08-30T11:00:00Z"
+    saved_at: "2026-08-30T11:04:00Z"
+    transcript: >-
+      Umbrella Systems, the air compressor is leaking oil. One and a half hours,
+      the gasket kit is on order.
+    fields:
+      customer: Umbrella Systems
+      problem: Air compressor leaking oil
+      hours: 1.5
+      outcome: parts_on_order
+      parts:
+        - { part: Compressor gasket kit, quantity: 1 }
+
+  - id: fc35b4da-3056-4ebf-a41c-ebea0f27d051
+    app: proof_of_delivery
+    recorded_at: "2026-09-03T14:10:00Z"
+    saved_at: "2026-09-03T14:12:00Z"
+    files:
+      - { path: doorstep-1042.jpg, kind: photo }
+      - { path: signature.png, kind: signature }
+    fields:
+      customer: Jane Smith
+      order_number: "1042"
+      signed_by: Jordan Rivera
+      signature: signature.png
+      condition: good
+      note: Handed over at the front door
+
+  - id: 5dc0dd8d-f17a-4315-9549-d1b8643c0595
+    app: proof_of_delivery
+    recorded_at: "2026-09-03T15:25:00Z"
+    saved_at: "2026-09-03T15:27:00Z"
+    files:
+      - { path: doorstep-1043.jpg, kind: photo }
+    fields:
+      customer: Mike Chen
+      order_number: "1043"
+      signed_by: null
+      signature: null
+      condition: damaged
+      note: Nobody home; left inside the porch. One box has a crushed corner.

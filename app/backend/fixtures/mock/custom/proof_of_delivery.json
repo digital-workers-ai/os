@@ -1,0 +1,32 @@
+[
+  {
+    "payload": {
+      "app": "proof_of_delivery",
+      "fields": {
+        "condition": "good",
+        "customer": "Jordan Rivera",
+        "note": "Left with the front desk",
+        "order_number": "1042",
+        "signature": "signature.png",
+        "signed_by": "Jordan Rivera"
+      },
+      "files": [
+        {
+          "kind": "photo",
+          "media_type": "image/jpeg",
+          "path": "doorstep.jpg"
+        },
+        {
+          "kind": "signature",
+          "media_type": "image/png",
+          "path": "signature.png"
+        }
+      ],
+      "record": "3c9d2e10-5a4b-4c6d-8e7f-000000000021",
+      "recorded_at": "2026-09-04T14:45:00Z",
+      "recorded_by": "admin",
+      "removed": false
+    },
+    "source_id": "3c9d2e10-5a4b-4c6d-8e7f-000000000021"
+  }
+]

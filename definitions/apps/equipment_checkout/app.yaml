@@ -1,0 +1,10 @@
+title: Equipment check-out
+description: Scan the QR code on a tool, laptop or vehicle to check it out or back in.
+input: scan
+roles: [staff]
+lands_as: asset_move
+fields:
+  asset: { type: lookup, entity: asset, by: code, from: scan }
+  action: { type: one_of, labels: [check_out, check_in] }
+  location: { type: text, description: "Where it is going, or where it was returned" }
+  due_back: { type: date }

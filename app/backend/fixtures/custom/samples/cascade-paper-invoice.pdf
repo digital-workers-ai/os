@@ -1,0 +1,54 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier-Bold >>
+endobj
+6 0 obj
+<< /Length 1016 >>
+stream
+BT
+50 780 Td
+/F2 16 Tf (Cascade Paper Co.) Tj 0 -24 Td
+/F1 10 Tf (400 Mill Street, Riverside) Tj 0 -18 Td
+/F2 13 Tf (INVOICE INV-20417) Tj 0 -21 Td
+/F1 10 Tf (Invoice date 2026-08-28     Due date 2026-09-27) Tj 0 -18 Td
+/F1 10 Tf (PO number PO-3318) Tj 0 -18 Td
+/F1 10 Tf (Bill to: Digital Workers Demo Co.) Tj 0 -18 Td
+/F1 10 Tf () Tj 0 -18 Td
+/F2 10 Tf (Description                            Qty   Unit price     Amount) Tj 0 -18 Td
+/F1 10 Tf (Copy paper, case of 10 reams             4        48.00     192.00) Tj 0 -18 Td
+/F1 10 Tf (Shipping labels, box of 500              2        36.50      73.00) Tj 0 -18 Td
+/F1 10 Tf () Tj 0 -18 Td
+/F1 10 Tf (Subtotal                                                    265.00) Tj 0 -18 Td
+/F1 10 Tf (Tax                                                          21.20) Tj 0 -18 Td
+/F2 11 Tf (Amount due \(USD\)                                            286.20) Tj 0 -19 Td
+/F1 10 Tf () Tj 0 -18 Td
+/F1 9 Tf (Sample document for a demo. Not a real invoice.) Tj 0 -17 Td
+ET
+endstream
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000251 00000 n 
+0000000319 00000 n 
+0000000392 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+1460
+%%EOF

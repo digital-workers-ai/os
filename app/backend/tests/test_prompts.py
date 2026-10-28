@@ -1,3 +1,4 @@
+import importlib
 import re
 from pathlib import Path
 
@@ -26,6 +27,8 @@ SECTIONS = {
     "coaching": {"version", "fence", "safety"},
     "conversation": {"version", "fence", "system"},
     "ad_reader": {"version", "ask"},
+    "custom_reader": {"read", "hear"},
+    "app_builder": {"turn"},
 }
 
 FENCES = {
@@ -93,12 +96,19 @@ class TestTheShippedFile:
     def test_the_default_load_is_memoized(self):
         assert prompts.load() is prompts.load()
 
-    def test_it_holds_exactly_the_six_sections(self):
+    def test_it_holds_exactly_the_eight_sections(self):
         assert set(prompts.load()) == set(SECTIONS)
 
     @pytest.mark.parametrize("section", sorted(SECTIONS))
     def test_each_section_holds_exactly_its_keys(self, section):
         assert set(prompts.load()[section]) == SECTIONS[section]
+
+    @pytest.mark.parametrize(
+        "section,key",
+        [("custom_reader", "read"), ("custom_reader", "hear"), ("app_builder", "turn")],
+    )
+    def test_the_custom_apps_prompts_read_as_text(self, section, key):
+        assert prompts.text(section, key).strip()
 
     @pytest.mark.parametrize("section", sorted(FENCES))
     def test_a_fenced_section_renders_its_tag_pair(self, section):
@@ -189,6 +199,11 @@ class TestTheModulesReadTheirPromptsFromTheFile:
 class TestNoPromptIsLeftInCode:
     @pytest.mark.parametrize("module", MODULES, ids=lambda module: module.__name__)
     def test_the_module_holds_no_triple_quoted_string(self, module):
+        assert '"""' not in Path(module.__file__).read_text()
+
+    @pytest.mark.parametrize("name", ["app.custom.reader", "app.builder.chat"])
+    def test_the_custom_apps_modules_hold_no_triple_quoted_string(self, name):
+        module = importlib.import_module(name)
         assert '"""' not in Path(module.__file__).read_text()
 
 

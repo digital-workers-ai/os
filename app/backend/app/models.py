@@ -577,3 +577,92 @@ class StudioTurn(Base):
     text = Column(Text, nullable=False)  # what was said: "Make a post about MRR", "Here it is."
 
     __table_args__ = (Index("ix_studio_turn_thread", "thread_seq"),)
+
+
+class CustomRecord(Base):
+    __tablename__ = "custom_record"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # row identity, random UUID: 6f1c…, 9b2d…
+    app = Column(String(64), nullable=False)  # custom app it belongs to: receipts, perio_charting
+    recorded_by = Column(String(64), nullable=False)  # who started the record: admin, kim
+    transcript = Column(Text)  # everything said, voice only: "walk-in cooler, 37", null
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: app clock, 2026-09-04T12:00:00Z
+    saved_at = Column(DateTime(timezone=True))  # first save, null until saved: 2026-09-04T12:01:00Z, null
+    removed_at = Column(DateTime(timezone=True))  # removal, null while kept: 2026-09-04T12:05:00Z, null
+
+    __table_args__ = (Index("ix_custom_record_app_saved", "app", text("saved_at DESC")),)
+
+
+class CustomRecordFile(Base):
+    __tablename__ = "custom_record_file"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # row identity, random UUID: 6f1c…, 9b2d…
+    record_id = Column(UUID(as_uuid=True), ForeignKey("custom_record.id", ondelete="CASCADE"), nullable=False)  # owning record: 9c17…, 0d4e…
+    path = Column(String(512), nullable=False)  # name under the record: photo-1.jpg, clip-1.webm
+    media_type = Column(String(128), nullable=False)  # what the bytes are: image/jpeg, audio/webm
+    bytes = Column(Integer, nullable=False)  # file size: 5843, 348211
+    kind = Column(String(16), nullable=False)  # what the file is: photo, pdf, audio
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: app clock, 2026-09-04T12:00:00Z
+
+    __table_args__ = (
+        UniqueConstraint("record_id", "path", name="custom_record_file_path"),
+    )
+
+
+class CustomRecordAudit(Base):
+    __tablename__ = "custom_record_audit"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # row identity, random UUID: 6f1c…, 9b2d…
+    seq = Column(BigInteger, Identity(), unique=True, nullable=False)  # monotonic note counter: 1, 2, 3
+    record_id = Column(UUID(as_uuid=True), ForeignKey("custom_record.id", ondelete="CASCADE"), nullable=False)  # record acted on: 9c17…, 0d4e…
+    action = Column(String(16), nullable=False)  # what was done: create, view, remove
+    actor = Column(String(64), nullable=False)  # who did it: admin, kim
+    at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # when it was done: app clock, 2026-09-04T12:00:00Z
+
+    __table_args__ = (Index("ix_custom_record_audit_record", "record_id", "at", "seq"),)
+
+
+class BuilderThread(Base):
+    __tablename__ = "builder_thread"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # row identity, random UUID: 6f1c…, 9b2d…
+    seq = Column(BigInteger, Identity(), unique=True, nullable=False)  # monotonic thread counter: 1, 2, 3
+    app = Column(String(64))  # app it changes, else null: receipts, perio_charting, null
+    issue_number = Column(Integer)  # filed issue, null until filed: 7, 41, null
+    issue_url = Column(String(512))  # filed issue page, else null: https://github.com/acme/widgets/issues/7, null
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # thread creation timestamp: app clock, 2026-09-04T12:00:00Z
+
+
+class BuilderTurn(Base):
+    __tablename__ = "builder_turn"
+
+    seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic turn counter: 1, 2, 3
+    thread_id = Column(UUID(as_uuid=True), ForeignKey("builder_thread.id", ondelete="CASCADE"), nullable=False)  # owning thread: 9c17…, 0d4e…
+    role = Column(String(16), nullable=False)  # who spoke: person, builder
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))  # row write timestamp: app clock, 2026-09-04T12:00:00Z
+    text = Column(Text, nullable=False)  # what was said: "We snap receipts", "Here is the draft."
+    draft = Column(Text)  # app.yaml proposed, else null: "title: Receipts …", null
+
+    __table_args__ = (Index("ix_builder_turn_thread_seq", "thread_id", "seq"),)
+
+
+class BuilderQuestion(Base):
+    __tablename__ = "builder_question"
+
+    seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic question counter: 1, 2, 3
+    turn_seq = Column(BigInteger, ForeignKey("builder_turn.seq", ondelete="CASCADE"), nullable=False)  # turn that asked: 2, 4
+    text = Column(Text, nullable=False)  # what was asked: "Who sends receipts in?", "Which categories?"
+
+    __table_args__ = (Index("ix_builder_question_turn", "turn_seq", "seq"),)
+
+
+class BuilderSuggestion(Base):
+    __tablename__ = "builder_suggestion"
+
+    seq = Column(BigInteger, Identity(), primary_key=True)  # monotonic suggestion counter: 1, 2, 3
+    turn_seq = Column(BigInteger, ForeignKey("builder_turn.seq", ondelete="CASCADE"), nullable=False)  # turn that suggested: 2, 4
+    app = Column(String(64))  # existing app, else null: receipts, perio_charting, null
+    title = Column(Text, nullable=False)  # what it is called: Receipts, Patient intake
+    reason = Column(Text, nullable=False)  # why it fits: "Drivers photograph every fuel stop."
+
+    __table_args__ = (Index("ix_builder_suggestion_turn", "turn_seq", "seq"),)

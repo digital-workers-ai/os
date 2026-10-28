@@ -29,6 +29,15 @@ EXCLUDED = {
     ("POST", "/api/assets/{seq}/resize"),
     ("POST", "/api/assets/{seq}/feedback"),
     ("POST", "/api/skills/{name}/run"),
+    ("POST", "/api/custom/apps/{app}/records"),
+    ("PUT", "/api/custom/records/{id}"),
+    ("POST", "/api/custom/records/{id}/hear"),
+    ("POST", "/api/custom/records/{id}/files"),
+    ("DELETE", "/api/custom/records/{id}"),
+    ("POST", "/api/builder/threads"),
+    ("POST", "/api/builder/threads/{id}/turns"),
+    ("POST", "/api/builder/threads/{id}/try"),
+    ("POST", "/api/builder/threads/{id}/submit"),
 }
 
 

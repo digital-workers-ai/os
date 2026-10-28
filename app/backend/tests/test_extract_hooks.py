@@ -387,6 +387,7 @@ class TestDiscovery:
             "perplexity",
             "claude",
             "gemini",
+            "custom",
         }
 
     def test_a_package_without_an_extract_module_contributes_no_hook(self, monkeypatch):

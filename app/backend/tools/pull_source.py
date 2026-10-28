@@ -198,7 +198,11 @@ async def report(
 async def report_all(*, capture: Path | None = None) -> tuple[str, int]:
     lines = []
     failed = False
-    for source in sorted(registry.discover()):
+    connectors = registry.discover()
+    for source in sorted(connectors):
+        if getattr(connectors[source], "NOTHING_TO_PULL", False):
+            lines.append(f"{source}: skipped: nothing to pull")
+            continue
         pulled = await pull(source)
         if pulled.error:
             failed = True

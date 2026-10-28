@@ -2,6 +2,7 @@ import asyncio
 import hashlib
 import re
 import shutil
+import uuid
 from collections import Counter
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
@@ -13,8 +14,9 @@ from sqlalchemy import delete, func, select, update
 from app import clock, media, store
 from app.coaching import briefer
 from app.config import settings
+from app.custom import access, records
 from app.db import async_session
-from app.engine import calendar, metrics, search
+from app.engine import apps, calendar, metrics, search
 from app.engine.run import rebuild
 from app.enrichment import vocabulary
 from app.models import (
@@ -25,6 +27,9 @@ from app.models import (
     AssetFile,
     AssetVersion,
     BriefingRun,
+    CustomRecord,
+    CustomRecordAudit,
+    CustomRecordFile,
     EngineRun,
     EnrichedFact,
     EnrichmentRun,
@@ -53,6 +58,7 @@ PINS = [
 ]
 STUDIO_FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "studio"
 SEED = Path(__file__).resolve().parents[1] / "fixtures" / "seed.yaml"
+CUSTOM_FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "custom"
 PLACEHOLDER = re.compile(r"\{([^{}]+)\}")
 SPEAKER = re.compile(r"^([^:\n]+):", re.MULTILINE)
 AFFILIATION = re.compile(r"\([^()]+\)$")
@@ -70,6 +76,7 @@ STUDIO_TABLES = (
     Asset,
 )
 SKIPPED_SLOT = "linkedin_post"
+CUSTOM_TABLES = (CustomRecordAudit, CustomRecordFile, CustomRecord)
 
 
 def topic(calls: list[dict], meeting_name: str) -> dict | None:
@@ -499,9 +506,75 @@ async def seed_studio(s) -> dict:
     return dict(counts)
 
 
+def custom_record(entry: dict) -> CustomRecord:
+    return CustomRecord(
+        id=uuid.UUID(entry["id"]),
+        app=entry["app"],
+        recorded_by=access.ADMIN,
+        transcript=entry.get("transcript"),
+        created_at=datetime.fromisoformat(entry["recorded_at"]),
+        saved_at=datetime.fromisoformat(entry["saved_at"]),
+    )
+
+
+async def seed_custom(s) -> dict:
+    for table in CUSTOM_TABLES:
+        await s.execute(delete(table))
+    await s.flush()
+    shutil.rmtree(Path(settings.MEDIA_DIR) / "custom", ignore_errors=True)
+    entries = yaml.safe_load((CUSTOM_FIXTURES / "records.yaml").read_text())
+    counts: Counter = Counter()
+    for entry in entries["records"]:
+        app = apps.load(entry["app"])
+        fields = {**entry["fields"], records.TEMPLATE: entry.get("template")}
+        records.check(app, fields)
+        record = custom_record(entry)
+        s.add(record)
+        await s.flush()
+        files = sorted(entry.get("files", []), key=lambda file: file["path"])
+        for file in files:
+            data = (CUSTOM_FIXTURES / "samples" / file["path"]).read_bytes()
+            written = media.write_record(record.id, file["path"], data)
+            s.add(
+                CustomRecordFile(
+                    record_id=record.id,
+                    kind=file["kind"],
+                    created_at=record.created_at,
+                    **written,
+                )
+            )
+        s.add_all(
+            CustomRecordAudit(
+                record_id=record.id, action=action, actor=access.ADMIN, at=at
+            )
+            for action, at in (("create", record.created_at), ("save", record.saved_at))
+        )
+        await s.flush()
+        listed = [
+            {
+                "path": file["path"],
+                "media_type": media.media_type(file["path"]),
+                "kind": file["kind"],
+            }
+            for file in files
+        ]
+        await store.save_raw(
+            s,
+            source=records.SOURCE,
+            object_type=app.name,
+            source_id=str(record.id),
+            raw_payload=records.payload(app, record, fields, listed),
+        )
+        counts.update(
+            custom_record=1, custom_record_file=len(files), custom_record_audit=2
+        )
+    return dict(counts)
+
+
 async def main() -> None:
     readings = vocabulary.load()
     async with async_session() as s:
+        custom = await seed_custom(s)
         candidates = await seed_candidates(s)
         for table in (EnrichedFact, EnrichmentRun, BriefingRun, MetricSnapshot):
             await s.execute(delete(table))
@@ -528,6 +601,7 @@ async def main() -> None:
         **pinned,
         "engine_run_duration_ms": engine_run_durations,
         **studio,
+        **custom,
     }
     print(" ".join(f"{k}={v}" for k, v in counts.items()), f"anchor={NOW.isoformat()}")
 

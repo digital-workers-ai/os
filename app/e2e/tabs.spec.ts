@@ -24,6 +24,7 @@ const PAGES: { path: string; title: string; tabs: Record<string, string> }[] = [
       goals: 'Goals',
       enrichment: 'Enrichment',
       dashboards: 'Dashboards',
+      apps: 'Apps',
     },
   },
   { path: '/config', title: 'Config', tabs: { sources: 'Sources', rebuild: 'Rebuild', mcp: 'MCP' } },

@@ -488,11 +488,8 @@ class TestTheShippedRulesAreSound:
         }
         unused = set(rules.OPERATORS) - used
         assert unused == {
-            "contains",
             "not_contains",
             "exists",
-            "gt",
-            "lt",
             "lte",
             "starts_with",
         }, f"shipped-rule operator coverage changed: {sorted(unused)}"

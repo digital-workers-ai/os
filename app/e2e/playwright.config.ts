@@ -29,9 +29,20 @@ export default defineConfig({
     toHaveScreenshot: { animations: 'disabled', caret: 'hide', maxDiffPixels: 0 },
   },
   projects: [
-    { name: 'chromium', testIgnore: [...ignored, 'dashboard/**', 'spy/**', 'studio/**'] },
+    { name: 'chromium', testIgnore: [...ignored, 'dashboard/**', 'spy/**', 'studio/**', 'custom/**', 'builder/**'] },
     { name: 'dashboard', testMatch: 'dashboard/**/*.spec.ts', use: { baseURL: process.env.DASHBOARD_URL ?? 'http://localhost:3093' } },
     { name: 'spy', testMatch: 'spy/**/*.spec.ts', use: { baseURL: process.env.SPY_URL ?? 'http://localhost:3094' } },
     { name: 'studio', testMatch: 'studio/**/*.spec.ts', use: { baseURL: process.env.STUDIO_URL ?? 'http://localhost:3095' } },
+    { name: 'builder', testMatch: 'builder/**/*.spec.ts', use: { baseURL: process.env.BUILDER_URL ?? 'http://localhost:3098' } },
+    {
+      name: 'custom',
+      testMatch: 'custom/**/*.spec.ts',
+      use: {
+        ...devices['Pixel 7'],
+        baseURL: process.env.CUSTOM_URL ?? 'http://localhost:3097',
+        permissions: ['camera', 'microphone'],
+        launchOptions: { args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream'] },
+      },
+    },
   ],
 })

@@ -6,12 +6,13 @@
 - Raw data kept as it arrived; everything rebuilt from it
 - Joins the same customer across tools, with a review queue
 - Every number traces to its tool, records and missing fields
-- Business logic in eleven plain definition files your company owns
+- Business logic in thirteen plain definition files your company owns
 - Rules flag what needs attention; goals judge your targets
 - Briefings per role, written by a model from finished numbers
 - Ask questions in plain English over the same reviewed numbers
 - Search everything by words, or by meaning when enabled
 - Tracks your brand in Google and AI answers, and competitors' ads and posts
+- Custom phone apps, one YAML file each: snap a photo, add a PDF, scan a code or talk
 - Any AI assistant can read it all through MCP
 - A nightly AI engineer proposes fixes; a person approves
 
@@ -40,6 +41,8 @@ Every night, an AI agent reviews what changed and opens a GitHub issue for each 
 - [The Dashboard](#the-dashboard)
 - [Spy](#spy)
 - [The Studio](#the-studio)
+- [DW Apps](#dw-apps)
+- [App Builder](#app-builder)
 - [MCP Support](#mcp-support)
 - [The Nightly AI Engineer Agent](#the-nightly-ai-engineer-agent)
 - [An Engineer in Your Loop](#an-engineer-in-your-loop)
@@ -75,7 +78,7 @@ curl -X POST localhost:8092/api/rebuild
 open http://localhost:3092
 ```
 
-The two `curl` commands pull from every stand-in tool and then build every record out of what arrived; the last command opens the console on your home page; the dashboard is at http://localhost:3093, Spy at http://localhost:3094 and the studio at http://localhost:3095.
+The two `curl` commands pull from every stand-in tool and then build every record out of what arrived; the last command opens the console on your home page; the dashboard is at http://localhost:3093, Spy at http://localhost:3094, the studio at http://localhost:3095, DW Apps at http://localhost:3097 and App Builder at http://localhost:3098.
 
 ## Connectors
 
@@ -193,8 +196,10 @@ flowchart TD
 22. **Dashboard:** A second web app for readers: the pages `dashboards.yaml` declares, one card per metric, over any date range.
 23. **Spy:** A third web app: how the brand comes up in Google and AI answers for the tracked queries, and what competitors run and post.
 24. **Studio:** A fourth web app for whoever markets the business: a canvas of what it has made, a chat that makes more through the content skills, the calendar and the asset library.
-25. **Search:** One search box over everything stored: names, emails, ids, statuses, transcript passages, briefings, and the definitions themselves.
-26. **MCP:** The door for AI assistants. Any assistant on your machine can read the same numbers, definitions, and briefing prompts as the console, and every call is logged.
+25. **DW Apps:** A fifth web app, on port 3097, that installs on a phone: the custom apps `definitions/apps/` declares, each started from a photo, a PDF, a scanned code or a voice clip, and each saved record kept in the raw store like anything a tool sends. It only lists the apps and uses them. The console's Definitions page lists the same apps in a read-only tab that links to it.
+26. **App Builder:** A sixth web app, on port 3098, for the desk: every app with its fields and its `app.yaml`, and saved conversations that create a new app or change one, try the draft on a sample and send it for review as a GitHub issue.
+27. **Search:** One search box over everything stored: names, emails, ids, statuses, transcript passages, briefings, and the definitions themselves.
+28. **MCP:** The door for AI assistants. Any assistant on your machine can read the same numbers, definitions, and briefing prompts as the console, and every call is logged.
 
 ## Entity Resolution
 
@@ -239,7 +244,7 @@ two records, same kind          (today: people; companies declare no ladder)
 
 ## Your Business as Code You Own
 
-Everything here is code your company owns: thirteen definition files that describe the business, the brand and looks folders beside them that describe how it sounds and looks, and the software underneath that connects to your tools, joins the records, calculates the numbers, writes the briefings and makes the marketing.
+Everything here is code your company owns: thirteen definition files that describe the business, the brand and looks folders beside them that describe how it sounds and looks, the apps folder that describes the phone apps its people record their work in, and the software underneath that connects to your tools, joins the records, calculates the numbers, writes the briefings and makes the marketing.
 
 The definitions are where most changes happen. They hold what counts as a customer, which fields matter, how revenue is calculated, what counts as a problem, what the targets are, what questions an AI model is allowed to ask about your text, and what the studio makes and when. Every time the system starts, and every time it rebuilds, it checks the files against each other. If one file mentions a field another does not have, or a number over data nothing produces, or a target with a setting that makes no sense, the system refuses to start and says which file and which line. It will not run on definitions it knows are broken.
 
@@ -281,6 +286,8 @@ Because all of it lives in a repository, your business is versioned. Changing wh
 │ brand/          │ How the company sounds and what it can prove, plus the colors, fonts and logo         │
 ├─────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
 │ looks/          │ The layouts an image or a carousel can take, and the slots each one fills             │
+├─────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
+│ apps/           │ The phone apps: each one's input, fields, roles and the record it saves as            │
 └─────────────────┴───────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -316,6 +323,53 @@ Nothing publishes. An asset exports as its files, and where it goes from there i
 
 ```bash
 open http://localhost:3095
+```
+
+## DW Apps
+
+DW Apps is a fifth web app, at http://localhost:3097, for the people whose work happens away from a desk. A business describes something it needs to record (a receipt, an asset tag, a perio chart read aloud, a vehicle check done by voice) and gets a custom app for it, defined by one file: `definitions/apps/<app_name>/app.yaml`. The file gives the app a title and a description, the inputs it takes, the roles that may open it, the kind of record each entry saves as, and its fields, with an optional template and script. It is checked at startup and before every rebuild like every other definition: an unknown field type, labels that do not parse, a record kind the ontology lacks or a field with no mapping line stops the system with a message naming the file and the field. DW Apps draws every app from its file, and installs on a phone as one icon named DW Apps. On the phone, a person only lists the apps and uses them: apps are created and changed in [App Builder](#app-builder).
+
+Four inputs start a record, and an app may take more than one:
+
+| Input   | On the phone                                                       | What fills the fields                                                                                    |
+|---------|--------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
+| `photo` | The camera or a picked image, shrunk on the phone and sent as JPEG | A model reads the picture into the fields                                                                |
+| `pdf`   | A PDF picked on the phone                                          | A model reads the document into the fields                                                               |
+| `scan`  | A QR code or barcode read on a tap, or the code typed in           | The code fills the fields marked `from: scan` and finds the record it names                              |
+| `voice` | Hold to talk, one utterance at a time                              | Deepgram transcribes it on the server, then a model turns the words into fields, rows or checklist items |
+
+The person checks what was read, fixes what is wrong and saves. Fields are text, a number with its unit, money, a date, one or several labels from a fixed list, a lookup of an existing record (by a scanned code or a spoken name, with its past records when the field asks), a photo, or a list of repeated items such as line items. A template lays out a grid, like a perio chart's teeth by sites, or a checklist of sections and items, and every list row, grid cell and checklist item lands as a record of its own. With the AI switches off, photo, PDF and voice apps open with empty fields to type into, and scan apps work fully.
+
+The 21 apps that ship:
+
+- **Photo:** receipts, supplier invoices (a photo or a PDF), mileage log, shelf audit, damage claims, check deposits and proof of delivery
+- **Scan:** equipment check-out, inventory count, event check-in, maintenance tags, mailroom and batch trace
+- **Voice:** perio charting, property inspection, vehicle pre-trip check, food safety log, site safety walk, sales visit debrief, vet visit notes and field service report
+
+An app brings its own code only when the vocabulary cannot say what it needs. `script: script.py` runs `app/backend/app/custom/apps/<app_name>/script.py` on every save: its `fill(record, ctx)` fills the fields marked `filled_by: script`, may read the app's earlier records and any entity's current values, and runs inside the backend with a timeout, under the same coverage gate as the rest of the code. Three ship: the mileage log works out the miles since the vehicle's start reading, the shelf audit checks each price on the shelf against the product's, and the inventory count compares each line with the last count at that location. A field of `type: screen` loads `app/custom/src/apps/<app_name>/screen.tsx`, a piece of the screen the app draws itself; proof of delivery ships one, a box the customer signs with a finger, saved as one of the record's files.
+
+A saved record is a raw event of the `custom` source, one object type per app, kept exactly as saved like everything a tool sends. The next rebuild maps it through its `custom.<app_name>.<field>` lines in `mappings.yaml` into the entity its `lands_as` names (a receipt becomes an `expense` with linked `expense_item`s), so metrics, rules, Ask and search read it like any other record. Rebuilds stay manual: a saved record shows in DW Apps at once and reads "Saved. Counts in the numbers after the next Rebuild" until a rebuild has run, then links to the entity it became. An edit appends a new version; removing a record appends a version marked removed, and the next rebuild drops what it became. Nothing is deleted from the raw store. The photos, PDFs, clips and signatures are kept with the record under `MEDIA_DIR/custom/<record>/`, and unsaved work stays on the phone.
+
+Every view, edit, save and removal writes a row to an audit log, saying who and when, and a record's page shows that history. Each app's `roles` decide who may open it and its records, and `admin` always may. There is no sign-in yet, so until there is, everyone is `admin`.
+
+Reading is off until a person sets `CUSTOM_ENABLED`, which needs `ANTHROPIC_API_KEY`, and transcribing until `TRANSCRIBE_ENABLED`, which needs `DEEPGRAM_API_KEY`. The app refuses to start with a switch on and its key missing. The console lists every app under Definitions → Apps, read-only, with its inputs, the record it saves as, its roles and any extra code.
+
+```bash
+open http://localhost:3097
+```
+
+## App Builder
+
+App Builder is a sixth web app, at http://localhost:3098, where the apps DW Apps runs are made: a desktop app beside the dashboard, Spy and the studio. Its Apps page lists every app with its inputs, the record it saves as, its roles and any extra code, and each app's page shows its fields with their types, labels and lookups, its list and template parts, and its `app.yaml` as it stands.
+
+A new app, or a change to one, is a conversation. New app starts one; Change this app on an app's page starts one about that app, with its `app.yaml` in front of the builder. Describe what the team needs to record, or the business itself: the builder asks every question that changes the definition in one round, suggests the apps already here that fit and new ones worth drafting, and writes a draft `app.yaml` that it checks, showing what is wrong with it. Each reply can change the draft again, and "Try it" reads a sample photo, a PDF or a few typed words with the latest draft, showing what it would fill. Every turn is saved, so a conversation picks up where it was left, and Conversations lists them all.
+
+Send for review files the conversation as a GitHub issue labeled `app` in `GITHUB_REPOSITORY`, with every turn and the latest draft, and closes it. Nothing is built until a repository admin adds `approved`; then `.github/workflows/app-build.yml` runs the `dw-app` skill in Claude Code, which writes the app, its ontology, mappings, rules and sample records, adds a script or a screen with their tests only when the vocabulary falls short, tries the app on the samples, and opens a pull request for a person to merge. The workflow reads the two repository secrets the operator workflows use: `ANTHROPIC_API_KEY` for its model and `OPERATOR_GITHUB_PAT` to open the pull request.
+
+The builder is off until a person sets `BUILDER_ENABLED`, which needs `ANTHROPIC_API_KEY` and `GITHUB_TOKEN`; the app refuses to start with it on and either key missing. With it off, App Builder still lists every app and shows its definition.
+
+```bash
+open http://localhost:3098
 ```
 
 ## MCP Support
@@ -355,7 +409,7 @@ That is the part we do. At Digital Workers, we read every proposal the nightly a
 
 ## Configuration
 
-Everything is read from the environment, and `app/.env` is loaded first. Every setting has a default, so an empty file runs. The three API keys are never settings, and the app refuses to start a layer whose key is missing.
+Everything is read from the environment, and `app/.env` is loaded first. Every setting has a default, so an empty file runs. The five keys are never settings, and the app refuses to start a layer whose key is missing.
 
 | Variable                   | Default                                         | What it does                                                           |
 |----------------------------|-------------------------------------------------|------------------------------------------------------------------------|
@@ -401,13 +455,22 @@ Everything is read from the environment, and `app/.env` is loaded first. Every s
 | `RENDER_URL`               | `http://localhost:8200`                         | Where the renderer answers; compose points it at the `render` service  |
 | `MARKETER_DAILY`           | `false`                                         | Fill the calendar's empty slots every morning                          |
 | `MARKETER_HOUR`            | `6`                                             | UTC hour the daily fill runs                                           |
+| `CUSTOM_ENABLED`           | `false`                                         | DW Apps reads a record into its fields; needs `ANTHROPIC_API_KEY`      |
+| `CUSTOM_MODEL`             | `claude-opus-5-5`                               | Model that reads a record and answers in App Builder                   |
+| `CUSTOM_MAX_TOKENS`        | `16000`                                         | Output cap per reading                                                 |
+| `TRANSCRIBE_ENABLED`       | `false`                                         | Deepgram transcribes DW Apps voice clips; needs `DEEPGRAM_API_KEY`     |
+| `TRANSCRIBE_MODEL`         | `nova-3`                                        | Deepgram model that transcribes                                        |
+| `BUILDER_ENABLED`          | `false`                                         | The App Builder chat; needs `ANTHROPIC_API_KEY` and `GITHUB_TOKEN`     |
+| `GITHUB_REPOSITORY`        | empty                                           | `owner/repo` where App Builder files its issues                        |
 | `CLOCK_PINNED_AT`          | unset                                           | Pins the app clock at one instant                                      |
 
-| Key                   | Needed by                                                      |
-|-----------------------|----------------------------------------------------------------|
-| `ANTHROPIC_API_KEY`   | Reading text, briefings, asking questions, the studio's skills |
-| `OPENAI_API_KEY`      | Meaning search, the studio's pictures                          |
-| `ZEROENTROPY_API_KEY` | Reranking                                                      |
+| Key                   | Needed by                                                                                     |
+|-----------------------|-----------------------------------------------------------------------------------------------|
+| `ANTHROPIC_API_KEY`   | Reading text, briefings, asking questions, the studio's skills, DW Apps reading, App Builder  |
+| `OPENAI_API_KEY`      | Meaning search, the studio's pictures                                                         |
+| `ZEROENTROPY_API_KEY` | Reranking                                                                                     |
+| `DEEPGRAM_API_KEY`    | Transcribing DW Apps voice clips                                                              |
+| `GITHUB_TOKEN`        | Filing App Builder's issues                                                                   |
 
 A source reads its real API once every variable it names is set, and the stand-in when none is. A partial set is refused, naming what is missing. `<SOURCE>_BASE_URL` overrides the host.
 

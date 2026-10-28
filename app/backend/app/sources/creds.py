@@ -106,6 +106,10 @@ def _anthropic(key: str) -> tuple[dict, tuple | None, dict, dict]:
     return {"x-api-key": key, "anthropic-version": "2023-06-01"}, None, {}, {}
 
 
+def _deepgram(key: str) -> tuple[dict, tuple | None, dict, dict]:
+    return {"Authorization": f"Token {key}"}, None, {}, {}
+
+
 _REAL: dict[str, tuple[str, tuple[str, ...], Callable]] = {
     "hubspot": ("https://api.hubapi.com", ("HUBSPOT_ACCESS_TOKEN",), _bearer),
     "stripe": ("https://api.stripe.com", ("STRIPE_API_KEY",), _bearer),
@@ -188,6 +192,8 @@ _REAL: dict[str, tuple[str, tuple[str, ...], Callable]] = {
         ("SHOPIFY_STORE_DOMAIN", "SHOPIFY_ACCESS_TOKEN"),
         _shopify,
     ),
+    "deepgram": ("https://api.deepgram.com", ("DEEPGRAM_API_KEY",), _deepgram),
+    "github": ("https://api.github.com", ("GITHUB_TOKEN",), _bearer),
 }
 
 _MOCK: dict[str, tuple[str, dict, tuple | None, dict]] = {
@@ -385,6 +391,16 @@ _MOCK: dict[str, tuple[str, dict, tuple | None, dict]] = {
         {},
     ),
     "segment": ("/segment", {"Authorization": "Bearer mock_segment_token"}, None, {}),
+    "deepgram": ("/deepgram", {"Authorization": "Token mock_deepgram_key"}, None, {}),
+    "github": (
+        "/github",
+        {
+            "Authorization": "Bearer mock_github_token",
+            "Accept": "application/vnd.github+json",
+        },
+        None,
+        {},
+    ),
 }
 
 

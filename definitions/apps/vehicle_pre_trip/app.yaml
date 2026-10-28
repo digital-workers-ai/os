@@ -1,0 +1,29 @@
+title: Vehicle pre-trip check
+description: A driver's check of a truck before the day's first trip.
+input: voice
+roles: [driver, fleet_manager]
+lands_as: vehicle_check
+fields:
+  vehicle: { type: text }
+  odometer: { type: number, unit: mi }
+template:
+  checklist:
+    sections:
+      vehicle:
+        - service_brakes
+        - parking_brake
+        - steering
+        - lights_and_reflectors
+        - tires
+        - horn
+        - wipers
+        - mirrors
+        - coupling_devices
+        - wheels_and_rims
+        - emergency_equipment
+    items:
+      lands_as: vehicle_check_item
+      fields:
+        result: { type: one_of, labels: [pass, fail] }
+        defect: { type: text }
+        photo: { type: photo }

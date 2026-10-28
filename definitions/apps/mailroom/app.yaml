@@ -1,0 +1,10 @@
+title: Mailroom
+description: Scan a package's tracking barcode and photograph its label.
+input: [scan, photo]
+roles: [front_desk]
+lands_as: package
+fields:
+  tracking_number: { type: text, from: scan }
+  carrier: { type: one_of, labels: [ups, fedex, usps, dhl, amazon, other] }
+  recipient: { type: text, description: The person or team named on the label }
+  status: { type: one_of, labels: [received, picked_up] }

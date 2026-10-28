@@ -10,6 +10,11 @@ import pytest
 from app import config, llm
 
 PNG = b"\x89PNG\r\n\x1a\nfake"
+CONVERSATION = [
+    {"role": "user", "content": "We snap receipts for fuel and meals."},
+    {"role": "assistant", "content": '{"reply": "Who sends them in?"}'},
+    {"role": "user", "content": "Staff and finance."},
+]
 
 
 def api_error(message="boom"):
@@ -53,6 +58,7 @@ class FakeMessages:
 class FakeClient:
     def __init__(self, result=None, raises=None):
         self.messages = FakeMessages(result, raises)
+        self.beta = SimpleNamespace(messages=FakeMessages(result, raises))
 
 
 class TestClientLifecycle:
@@ -209,6 +215,224 @@ class TestParse:
                 system="s",
                 user="u",
                 output_format=dict,
+                client_override=client,
+            )
+        assert "max_tokens" in str(caught.value)
+
+    async def test_a_list_of_content_blocks_is_sent_as_the_user_content_unchanged(
+        self,
+    ):
+        client = FakeClient(Response(parsed_output={}))
+        blocks = [
+            {
+                "type": "image",
+                "source": {
+                    "type": "base64",
+                    "media_type": "image/png",
+                    "data": "iVBORw0KGgo=",
+                },
+            },
+            {"type": "text", "text": "Read this receipt."},
+        ]
+        await llm.parse(
+            model="m",
+            max_tokens=1,
+            system="s",
+            user=blocks,
+            output_format=dict,
+            fallback=False,
+            client_override=client,
+        )
+        assert client.messages.calls[0]["messages"] == [
+            {"role": "user", "content": blocks}
+        ]
+
+    async def test_a_messages_list_is_sent_as_the_conversation_unchanged(self):
+        client = FakeClient(Response(parsed_output={}))
+        await llm.parse(
+            model="m",
+            max_tokens=1,
+            system="s",
+            messages=CONVERSATION,
+            output_format=dict,
+            client_override=client,
+        )
+        assert client.messages.calls[0]["messages"] == CONVERSATION
+
+    async def test_a_messages_list_comes_back_with_the_parsed_object_and_model(self):
+        client = FakeClient(Response(parsed_output={"a": 1}, model="claude-actual"))
+        assert await llm.parse(
+            model="m",
+            max_tokens=1,
+            system="s",
+            messages=CONVERSATION,
+            output_format=dict,
+            client_override=client,
+        ) == ({"a": 1}, "claude-actual")
+
+    async def test_without_the_fallback_the_beta_endpoint_is_never_called(self):
+        client = FakeClient(Response(parsed_output={}))
+        await llm.parse(
+            model="m",
+            max_tokens=1,
+            system="s",
+            user="u",
+            output_format=dict,
+            fallback=False,
+            client_override=client,
+        )
+        assert client.beta.messages.calls == []
+        assert "betas" not in client.messages.calls[0]
+        assert "extra_body" not in client.messages.calls[0]
+
+
+class TestParseWithTheRefusalFallback:
+    def test_the_fallback_beta_is_pinned(self):
+        assert llm.FALLBACK_BETA == "server-side-fallback-2026-07-01"
+
+    async def test_the_beta_endpoint_gets_the_fallback_beta_and_body(self):
+        client = FakeClient(Response(parsed_output={}))
+        await llm.parse(
+            model="m",
+            max_tokens=1,
+            system="s",
+            user="u",
+            output_format="SCHEMA",
+            fallback=True,
+            client_override=client,
+        )
+        assert client.beta.messages.calls == [
+            {
+                "model": "m",
+                "max_tokens": 1,
+                "system": "s",
+                "messages": [{"role": "user", "content": "u"}],
+                "output_format": "SCHEMA",
+                "betas": [llm.FALLBACK_BETA],
+                "extra_body": {"fallbacks": "default"},
+            }
+        ]
+
+    async def test_the_plain_endpoint_is_not_called(self):
+        client = FakeClient(Response(parsed_output={}))
+        await llm.parse(
+            model="m",
+            max_tokens=1,
+            system="s",
+            user="u",
+            output_format=dict,
+            fallback=True,
+            client_override=client,
+        )
+        assert client.messages.calls == []
+
+    async def test_content_blocks_reach_the_beta_endpoint_unchanged(self):
+        client = FakeClient(Response(parsed_output={}))
+        blocks = [{"type": "text", "text": "walk-in cooler, 37"}]
+        await llm.parse(
+            model="m",
+            max_tokens=1,
+            system="s",
+            user=blocks,
+            output_format=dict,
+            fallback=True,
+            client_override=client,
+        )
+        assert client.beta.messages.calls[0]["messages"] == [
+            {"role": "user", "content": blocks}
+        ]
+
+    async def test_a_messages_list_reaches_the_beta_endpoint_unchanged(self):
+        client = FakeClient(Response(parsed_output={}))
+        await llm.parse(
+            model="m",
+            max_tokens=1,
+            system="s",
+            messages=CONVERSATION,
+            output_format="SCHEMA",
+            fallback=True,
+            client_override=client,
+        )
+        assert client.beta.messages.calls == [
+            {
+                "model": "m",
+                "max_tokens": 1,
+                "system": "s",
+                "messages": CONVERSATION,
+                "output_format": "SCHEMA",
+                "betas": [llm.FALLBACK_BETA],
+                "extra_body": {"fallbacks": "default"},
+            }
+        ]
+        assert client.messages.calls == []
+
+    async def test_the_parsed_object_and_the_answering_model_come_back(self):
+        client = FakeClient(
+            Response(parsed_output={"vendor": "Harbor Fuel"}, model="claude-fallback")
+        )
+        parsed, model = await llm.parse(
+            model="asked-for",
+            max_tokens=10,
+            system="s",
+            user="u",
+            output_format=dict,
+            fallback=True,
+            client_override=client,
+        )
+        assert parsed == {"vendor": "Harbor Fuel"}
+        assert model == "claude-fallback"
+
+    async def test_a_wire_error_becomes_an_llm_error_naming_its_cause(self):
+        client = FakeClient(raises=api_error("upstream is down"))
+        with pytest.raises(llm.LLMError) as caught:
+            await llm.parse(
+                model="m",
+                max_tokens=1,
+                system="s",
+                user="u",
+                output_format=dict,
+                fallback=True,
+                client_override=client,
+            )
+        assert "APIError" in str(caught.value)
+        assert "upstream is down" in str(caught.value)
+
+    async def test_a_validation_error_is_an_llm_error_too(self):
+        client = FakeClient(raises=ValueError("1 validation error for Answer"))
+        with pytest.raises(llm.LLMError, match="1 validation error for Answer"):
+            await llm.parse(
+                model="m",
+                max_tokens=1,
+                system="s",
+                user="u",
+                output_format=dict,
+                fallback=True,
+                client_override=client,
+            )
+
+    async def test_a_refusal_is_named(self):
+        client = FakeClient(Response(stop_reason="refusal", parsed_output={"a": 1}))
+        with pytest.raises(llm.LLMError, match="declined to answer"):
+            await llm.parse(
+                model="m",
+                max_tokens=1,
+                system="s",
+                user="u",
+                output_format=dict,
+                fallback=True,
+                client_override=client,
+            )
+
+    async def test_nothing_parsed_reports_the_stop_reason(self):
+        client = FakeClient(Response(stop_reason="max_tokens", parsed_output=None))
+        with pytest.raises(llm.LLMError) as caught:
+            await llm.parse(
+                model="m",
+                max_tokens=1,
+                system="s",
+                user="u",
+                output_format=dict,
+                fallback=True,
                 client_override=client,
             )
         assert "max_tokens" in str(caught.value)

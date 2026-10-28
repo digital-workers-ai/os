@@ -1,0 +1,30 @@
+[
+  {
+    "payload": {
+      "app": "food_safety_log",
+      "fields": {
+        "readings": [
+          {
+            "action": "Door shut, rechecked at 7",
+            "temperature": 37,
+            "unit": "walk_in_cooler"
+          }
+        ],
+        "shift": "opening"
+      },
+      "files": [
+        {
+          "kind": "audio",
+          "media_type": "audio/webm",
+          "path": "food_safety_walk_in.webm"
+        }
+      ],
+      "record": "3c9d2e10-5a4b-4c6d-8e7f-000000000016",
+      "recorded_at": "2026-09-04T06:30:00Z",
+      "recorded_by": "admin",
+      "removed": false,
+      "transcript": "walk-in cooler, 37"
+    },
+    "source_id": "3c9d2e10-5a4b-4c6d-8e7f-000000000016"
+  }
+]

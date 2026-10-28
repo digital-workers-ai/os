@@ -1,0 +1,26 @@
+[
+  {
+    "payload": {
+      "app": "mileage_log",
+      "fields": {
+        "miles": 52,
+        "odometer": 48262,
+        "purpose": "delivery",
+        "stage": "end",
+        "vehicle": "Truck 7"
+      },
+      "files": [
+        {
+          "kind": "photo",
+          "media_type": "image/jpeg",
+          "path": "odometer-end.jpg"
+        }
+      ],
+      "record": "3c9d2e10-5a4b-4c6d-8e7f-000000000003",
+      "recorded_at": "2026-09-04T18:05:00Z",
+      "recorded_by": "admin",
+      "removed": false
+    },
+    "source_id": "3c9d2e10-5a4b-4c6d-8e7f-000000000003"
+  }
+]

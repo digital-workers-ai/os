@@ -1,0 +1,11 @@
+title: Batch trace
+description: Scan a lot's barcode at each production step.
+input: scan
+roles: [production]
+lands_as: batch_step
+fields:
+  lot: { type: text, from: scan }
+  step: { type: one_of, labels: [received, prepared, produced, packed, shipped] }
+  quantity: { type: number }
+  unit: { type: one_of, labels: [units, kg, lb, cases] }
+  note: { type: text }

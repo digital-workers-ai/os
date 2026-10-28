@@ -2,6 +2,7 @@ import yaml
 
 from app.caches import BACKEND_DIR
 from app.engine import (
+    apps,
     brand,
     calendar,
     candidates,
@@ -108,6 +109,7 @@ def run(
     brand_dir=None,
     calendar_path=None,
     looks_dir=None,
+    apps_dir=None,
 ) -> list[str]:
     problems: list[str] = []
 
@@ -407,6 +409,7 @@ def run(
     problems += brand.check(brand_dir)
     problems += calendar.check(calendar_path)
     problems += looks.check(looks_dir)
+    problems += apps.check(apps_dir)
 
     return problems
 

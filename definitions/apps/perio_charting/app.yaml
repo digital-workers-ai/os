@@ -1,0 +1,28 @@
+title: Perio charting
+description: >-
+  A periodontal exam called out by the clinician: pocket depths in millimetres
+  at six sites per tooth, bleeding on probing, and mobility per tooth. Teeth
+  use the universal numbering, 1 to 32.
+input: voice
+roles: [dentist, hygienist]
+lands_as: perio_chart
+fields:
+  patient: { type: lookup, entity: person, by: name }
+  exam_date: { type: date }
+template:
+  grid:
+    rows:
+      name: tooth
+      values: 1-32
+      lands_as: perio_tooth
+      fields:
+        status: { type: one_of, labels: [present, missing, implant] }
+        mobility: { type: one_of, labels: ["0", "1", "2", "3"] }
+    columns:
+      name: site
+      values: [DB, B, MB, DL, L, ML]
+    cells:
+      lands_as: perio_site
+      fields:
+        depth: { type: number, unit: mm }
+        bleeding: { type: one_of, labels: [bleeding, none] }

@@ -1,0 +1,21 @@
+title: Supplier invoices
+description: A supplier's invoice, photographed or as a PDF.
+input: [photo, pdf]
+roles: [finance]
+lands_as: bill
+fields:
+  supplier: { type: text }
+  invoice_number: { type: text }
+  invoice_date: { type: date }
+  due_date: { type: date }
+  po_number: { type: text, description: "The purchase order number, if one is printed" }
+  amount: { type: money }
+  tax: { type: money }
+  items:
+    type: list
+    lands_as: bill_item
+    fields:
+      description: { type: text }
+      quantity: { type: number }
+      unit_price: { type: money }
+      amount: { type: money }

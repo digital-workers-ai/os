@@ -1,0 +1,33 @@
+[
+  {
+    "payload": {
+      "app": "receipts",
+      "currency": "USD",
+      "fields": {
+        "category": "fuel",
+        "date": "2026-09-03",
+        "items": [
+          {
+            "amount": 45.1,
+            "description": "Diesel"
+          }
+        ],
+        "tax": 3.1,
+        "total": 48.2,
+        "vendor": "Harbor Fuel"
+      },
+      "files": [
+        {
+          "kind": "photo",
+          "media_type": "image/jpeg",
+          "path": "harbor-fuel.jpg"
+        }
+      ],
+      "record": "3c9d2e10-5a4b-4c6d-8e7f-000000000001",
+      "recorded_at": "2026-09-03T17:40:00Z",
+      "recorded_by": "admin",
+      "removed": false
+    },
+    "source_id": "3c9d2e10-5a4b-4c6d-8e7f-000000000001"
+  }
+]

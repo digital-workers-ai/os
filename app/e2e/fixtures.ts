@@ -6,9 +6,24 @@ if (!pinned || Number.isNaN(Date.parse(pinned))) {
 }
 export const NOW = new Date(pinned)
 
+function microphone() {
+  if (typeof navigator.mediaDevices?.getUserMedia === 'function') return
+  const getUserMedia = async (constraints?: MediaStreamConstraints) => {
+    if (!constraints?.audio || constraints.video) throw new DOMException('Requested device not found', 'NotFoundError')
+    const context = new AudioContext()
+    const tone = context.createOscillator()
+    const destination = context.createMediaStreamDestination()
+    tone.connect(destination)
+    tone.start()
+    return destination.stream
+  }
+  Object.defineProperty(navigator, 'mediaDevices', { value: { getUserMedia }, configurable: true })
+}
+
 export const test = base.extend({
-  page: async ({ page }, use) => {
+  page: async ({ page }, use, testInfo) => {
     await page.clock.setFixedTime(NOW)
+    if (testInfo.project.name === 'custom') await page.addInitScript(microphone)
     await use(page)
   },
 })
